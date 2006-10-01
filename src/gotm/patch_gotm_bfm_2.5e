@@ -1,10 +1,10 @@
-Index: gotm-cvs/compilers/compiler.IFORT
+Index: compilers/compiler.IFORT
 ===================================================================
 RCS file: /public/cvs/gotm/compilers/compiler.IFORT,v
 retrieving revision 1.2
 diff -u -p -r1.2 compiler.IFORT
---- gotm-cvs/compilers/compiler.IFORT	23 Mar 2006 12:13:33 -0000	1.2
-+++ gotm-cvs/compilers/compiler.IFORT	10 Sep 2006 09:56:13 -0000
+--- compilers/compiler.IFORT	23 Mar 2006 12:13:33 -0000	1.2
++++ compilers/compiler.IFORT	10 Sep 2006 09:56:13 -0000
 @@ -6,8 +6,8 @@ can_do_F90=true
  F90_to_f90=
  MODULES=
@@ -16,13 +16,13 @@ diff -u -p -r1.2 compiler.IFORT
  PROF_FLAGS  = -qp -p
  PROD_FLAGS  = -O3
  DEFINES += -DREAL_4B=real\(4\)
-Index: gotm-cvs/src/Rules.make
+Index: src/Rules.make
 ===================================================================
 RCS file: /public/cvs/gotm/src/Rules.make,v
 retrieving revision 1.16
 diff -u -p -r1.16 Rules.make
---- gotm-cvs/src/Rules.make	23 Mar 2006 12:13:33 -0000	1.16
-+++ gotm-cvs/src/Rules.make	10 Sep 2006 09:56:14 -0000
+--- src/Rules.make	23 Mar 2006 12:13:33 -0000	1.16
++++ src/Rules.make	10 Sep 2006 09:56:14 -0000
 @@ -19,9 +19,11 @@ NetCDF=true
  SEDIMENT=false
  #SEDIMENT=true
@@ -73,13 +73,13 @@ diff -u -p -r1.16 Rules.make
  else
  %.f90: %.F90
  #	$(CPP) $(CPPFLAGS) $< -o $@
-Index: gotm-cvs/src/airsea/airsea.F90
+Index: src/airsea/airsea.F90
 ===================================================================
 RCS file: /public/cvs/gotm/src/airsea/airsea.F90,v
 retrieving revision 1.12
 diff -u -p -r1.12 airsea.F90
---- gotm-cvs/src/airsea/airsea.F90	15 Nov 2005 11:42:33 -0000	1.12
-+++ gotm-cvs/src/airsea/airsea.F90	10 Sep 2006 09:56:19 -0000
+--- src/airsea/airsea.F90	15 Nov 2005 11:42:33 -0000	1.12
++++ src/airsea/airsea.F90	10 Sep 2006 09:56:19 -0000
 @@ -49,6 +49,7 @@
  !  (m/s)
     REALTYPE, public                    :: p_e
@@ -102,13 +102,13 @@ diff -u -p -r1.12 airsea.F90
     REALTYPE                  :: airp
     REALTYPE                  :: airt,twet,tdew
     REALTYPE                  :: cloud
-Index: gotm-cvs/src/extras/bio/Makefile
+Index: src/extras/bio/Makefile
 ===================================================================
 RCS file: /public/cvs/gotm/src/extras/bio/Makefile,v
 retrieving revision 1.11
 diff -u -p -r1.11 Makefile
---- gotm-cvs/src/extras/bio/Makefile	27 Dec 2005 06:51:49 -0000	1.11
-+++ gotm-cvs/src/extras/bio/Makefile	10 Sep 2006 09:56:19 -0000
+--- src/extras/bio/Makefile	27 Dec 2005 06:51:49 -0000	1.11
++++ src/extras/bio/Makefile	10 Sep 2006 09:56:19 -0000
 @@ -5,7 +5,16 @@
  
  include ../../Rules.make
@@ -135,13 +135,13 @@ diff -u -p -r1.11 Makefile
  
  doc:    $(DOCSRC)
  	$(PROTEX) $(DOCSRC) > ../../../doc/bio.tex 
-Index: gotm-cvs/src/gotm/gotm.F90
+Index: src/gotm/gotm.F90
 ===================================================================
 RCS file: /public/cvs/gotm/src/gotm/gotm.F90,v
 retrieving revision 1.26
 diff -u -p -r1.26 gotm.F90
---- gotm-cvs/src/gotm/gotm.F90	27 Dec 2005 11:23:04 -0000	1.26
-+++ gotm-cvs/src/gotm/gotm.F90	10 Sep 2006 09:56:20 -0000
+--- src/gotm/gotm.F90	27 Dec 2005 11:23:04 -0000	1.26
++++ src/gotm/gotm.F90	10 Sep 2006 09:56:20 -0000
 @@ -42,6 +42,9 @@
     use airsea,      only: set_sst,integrated_fluxes
     use airsea,      only: calc_fluxes
