@@ -99,7 +99,7 @@
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth,Depth_ben
+                  NO_STATES,Depth,Depth_ben, D3STATE, D2STATE
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
