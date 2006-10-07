@@ -165,7 +165,7 @@ set constituents ""
 set ifstate [ regexp state|group $type ]
 set incldesc [ regexp -indices : $line r ]
 if { $ifstate && !$incldesc } {
-   puts stdout "error 1: all state var. must have description"
+   puts stdout "error 1: all state var. must have a description"
    puts stdout "         In line no info found between ':'-characters"
    puts stdout "         info-line= $line"
    return 1
@@ -213,7 +213,7 @@ if { [ set with_brackets [ regsub -all {\[|\]} $def " " tmp ] ] == 2 } {
    set nr_of_defs [ string length $constituents ]
    if { $mode< 2 && $nr_of_defs >1 \
        && [ string length $constituents ] != [ llength $units ] } {
-	puts stdout "error 2: list of units unequal to the lenght of units"
+	puts stdout "error 2: list of units differs from the length of units"
         return 2
    }
 } elseif { !$with_brackets } {
@@ -266,7 +266,7 @@ if  { $nr_of_defs ==0 && $mode < 2 } {
    set tmp $VARS(thisgroup,constituents)
    if { [ regsub -all -- - $constituents "" remove ] } {
      if { ![ regsub $remove$ $tmp "" tmp ] } {
-        puts stdout "error 4: constiuents $constituents not at the end of groep def."
+        puts stdout "error 4: constituent $constituents not at the end of group def."
         return 4
      }
      lappend VARS($dim,$type,excluded) $name$remove
@@ -309,7 +309,7 @@ global VARS
 #BOC
    regsub -all {group |\[[\-a-z]+\]} $def "" tmp
    if { [ lsearch $VARS(reserved_words) $tmp ] >=0 } {
-      puts stdout "error 10: found an reserved word on the wrong place"
+      puts stdout "error 10: found a reserved word on the wrong place"
       puts stdout "($tmp). Probably an 'end'-statement is missing!"
       return 10
    } elseif { [ regexp {[^A-Za-z0-9_()]} $tmp ] } {
