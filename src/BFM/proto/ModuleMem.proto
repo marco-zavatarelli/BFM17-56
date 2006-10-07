@@ -9,22 +9,25 @@
 !   ModuleMem
 !
 ! DESCRIPTION
-!   Definition of Global Variables
+!   Definition of Global Shared Memory
 !  
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+!   This module contains all the structural definitions of the BFM
+!   and sets up the memory layout.
+!   It is automatically generated from the prototype file 
+!   BFM/proto/ModuleMem.proto by including the information from 
+!   BFM/General/GlobalDefsBFM.model
+!   Do not directly edit this code because changes will be lost at
+!   any new compilation.
 !
 ! AUTHORS
-!   mfstep/ERSEM team
+!   Piet Ruardij and Marcello Vichi
 !
 ! CHANGE_LOG
 !   ---
 !
 ! COPYING
 !   
-!   Copyright (C) 2004 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -39,21 +42,23 @@
 !
 !
 !
-!! Do not change lines which start with two !-characters !!!!!
-!! These lines are used by scripts which make files for the preprocessor
+!! IMPORTANT NOTE:
+!! Do not change the lines starting with two comment characters "!" 
+!! These lines are used by the parser to generate the final module file
 
 !
 
 #include"cppdefs.h"
+#include "DEBUG.h"
 
-#INCLUDE "DEBUG.h"
-
-      MODULE mem
+      module mem
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! Modules can optionally use (import) other modules
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-!       USE gotm_error_msg, ONLY: gotm_error
-        USE global_mem, ONLY:RLEN, ZERO
+        use global_mem, only:RLEN, ZERO
+#ifdef DEBUG && BFM_GOTM
+        use gotm_error_msg, only: gotm_error
+#endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! Implicit typing is never allowed
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -248,7 +253,9 @@
                   destination='',i4)') D23, origin,destination
                 write(LOGUNIT,'(''flux='',(G16.8))') flux
                 STDERR  "Error in flux_vector function: negative flux !"
-!               call gotm_error("flux_vector","negative flux")
+#ifdef DEBUG && BFM_GOTM
+                call gotm_error("flux_vector","negative flux")
+#endif
               ENDIF ! minval<0
               SELECT CASE ( iiSub )
                 case (iiPel)
@@ -286,6 +293,7 @@
             RETURN
           END subroutine flux_vector
 
+#ifdef DEBUG
           subroutine testnan_vector(array,origin,destination)
           use global_mem, ONLY: LOGUNIT
 
@@ -318,6 +326,8 @@
             stop 1003
           endif
         END subroutine testnan
+#endif
+
         subroutine flux(grid_nr,iiSub,origin,destination,flow)
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -353,7 +363,9 @@
               write(LOGUNIT,*) "origin,destination:", origin,destination
               write(LOGUNIT,*) flow
               STDERR "Error in (scalar)flux function:negative flux !"
-!             call gotm_error("flux","negative flux")
+#ifdef DEBUG && BFM_GOTM
+              call gotm_error("flux","negative flux")
+#endif
             ENDIF ! flow<0
             SELECT CASE ( iiSub )
               CASE (iiPel)
@@ -367,19 +379,19 @@
             SELECT CASE ( iiSub )
               CASE (iiPel)
                 if (flow > 0.0 ) then
-                  D3SOURCE(destination,origin,grid_nr)= D3SOURCE(destination,origin,grid_nr) &
-                    +flow/SEC_PER_DAY
+                  D3SOURCE(destination,origin,grid_nr)= & 
+                    D3SOURCE(destination,origin,grid_nr) + flow/SEC_PER_DAY
                 ELSE
-                  D3SINK(origin,destination,grid_nr)= D3SINK(origin,destination,grid_nr) &
-                    -flow/SEC_PER_DAY
+                  D3SINK(origin,destination,grid_nr)= &
+                     D3SINK(origin,destination,grid_nr) - flow/SEC_PER_DAY
                 ENDIF
               CASE (iiBen)
                 if (flow > 0.0 ) then
-                  D2SOURCE(destination,origin,grid_nr)= D2SOURCE(destination,origin,grid_nr) &
-                    +flow/SEC_PER_DAY
+                  D2SOURCE(destination,origin,grid_nr)= &
+                    D2SOURCE(destination,origin,grid_nr) + flow/SEC_PER_DAY
                 ELSE
-                  D2SINK(origin,destination,grid_nr)= D2SINK(origin,destination,grid_nr) &
-                    -flow/SEC_PER_DAY
+                  D2SINK(origin,destination,grid_nr)= &
+                    D2SINK(origin,destination,grid_nr) - flow/SEC_PER_DAY
                 ENDIF
             END SELECT
           ENDIF
@@ -402,7 +414,8 @@
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=3))
           ! Array in sum is by sum seen as 2D-array: DIM=1 and NOT 2
-          Source_D3_vector=(sum(D3SOURCE(iistate,:,:),DIM=1)- sum(D3SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
+          Source_D3_vector=(sum(D3SOURCE(iistate,:,:),DIM=1)- &
+             sum(D3SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
         end function Source_D3_vector
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -417,7 +430,8 @@
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D2_vector(size(D2SOURCE,DIM=3))
           ! Array in sum is by sum seen as 2D-array: DIM=1 and NOT 2
-          Source_D2_vector=(sum(D2SOURCE(iistate,:,:),DIM=1)- sum(D2SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
+          Source_D2_vector=(sum(D2SOURCE(iistate,:,:),DIM=1)- &
+            sum(D2SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
         end function Source_D2_vector
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! function to get actual rate of change
@@ -576,5 +590,5 @@
     ! end of contain section
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  END MODULE
+  end module
 

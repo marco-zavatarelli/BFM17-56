@@ -406,8 +406,10 @@
         retPIs => D2DIAGNOS(ppretPIs(iiP1): ppretPIs(iiP4),:)
         retPIs=ZERO
 
+
         allocate(Depth(1:NO_BOXES), stat=status);  Depth = ZERO
         allocate(ABIO_eps(1:NO_BOXES), stat=status);  ABIO_eps = ZERO
+
 
 
         allocate(KPO4(1:NO_BOXES_XY), stat=status);  KPO4 = ZERO

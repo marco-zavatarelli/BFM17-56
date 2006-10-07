@@ -12,8 +12,8 @@ end
 3d-variable
   Depth	
   ETW	: temperature : C
-  ESW	: Salt : --
-  EIR	: Irradiance : Watt/m2
+  ESW	: Salinity : --
+  EIR	: Irradiance : W/m2
   ESS	: Suspended sediment : g/m3
 end	
 
