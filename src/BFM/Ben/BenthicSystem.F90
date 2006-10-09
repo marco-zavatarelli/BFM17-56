@@ -8,13 +8,13 @@
 ! !ROUTINE: BenthicSystem
 !
 ! DESCRIPTION
-!   !	This is the top level of the benthic submodel.
-!	All the biological processes affecting the benthic dynamics are called
-!	in a specified sequence according to the calculation flags.
+!   !   This is the top level of the benthic submodel.
+!       All the biological processes affecting the benthic dynamics are called
+!       in a specified sequence according to the calculation flags.
 !
 !
 
-!   This file is generated directly from OpenSesame model code, using a code 
+!   This file is generated directly from OpenSesame model code, using a code
 !   generator which transposes from the sesame meta language into F90.
 !   F90 code generator written by P. Ruardij.
 !   structure of the code based on ideas of M. Vichi.
@@ -26,9 +26,6 @@
   ! The following Benthic-states are used (NOT in fluxes): Y1c, Y1n, Y1p, Y2c, &
   ! Y2n, Y2p, Y4c, Y4n, Y4p, Y5c, Y5n, Y5p, H1c, H1n, H1p, H2c, H2n, H2p
   ! The following groupmember vars  are used: iiY1, iiY2, iiY4, iiY5, iiH1, iiH2
-  ! The following 0-d global box parametes are used: &
-  ! CalcY1Flag, CalcY2Flag, CalcY4Flag, CalcY5Flag, CalcY3Flag, CalcH1Flag, &
-  ! CalcH2Flag
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -38,9 +35,8 @@
   use global_mem, ONLY:RLEN
   use mem, ONLY: ppY1c, ppY1n, ppY1p, ppY2c, ppY2n, ppY2p, ppY4c, ppY4n, &
     ppY4p, ppY5c, ppY5n, ppY5p, ppH1c, ppH1n, ppH1p, ppH2c, ppH2n, ppH2p, iiY1, &
-    iiY2, iiY4, iiY5, iiH1, iiH2, iiBen, iiPel, flux
-  use mem_Param, ONLY: CalcY1Flag, CalcY2Flag, CalcY4Flag, CalcY5Flag, &
-    CalcY3Flag, CalcH1Flag, CalcH2Flag
+    iiY2, iiY3, iiY4, iiY5, iiH1, iiH2, iiBen, iiPel, flux
+  use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following group processes are used: BenOrganismDynamics, BenBacDynamics
@@ -49,19 +45,19 @@
 
 
 
-!  
+!
 !
 ! !AUTHORS
 !   ERSEM group
-!	
+!       
 !
 !
 ! !REVISION_HISTORY
 !   !
 !
 ! COPYING
-!   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!
+!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -93,41 +89,33 @@
 
   call BioturbationDynamics
 
-  if ( CalcY1Flag) then
+  if ( CalcBenOrganisms(iiY1)) then
     call BenOrganismDynamics( iiY1, ppY1c, ppY1n, ppY1p)
   end if
 
-  if ( CalcY2Flag) then
+  if ( CalcBenOrganisms(iiY2)) then
     call BenOrganismDynamics( iiY2, ppY2c, ppY2n, ppY2p)
   end if
 
-
-  if ( CalcY4Flag) then
+  if ( CalcBenOrganisms(iiY4)) then
     call BenOrganismDynamics( iiY4, ppY4c, ppY4n, ppY4p)
   end if
 
-  if ( CalcY5Flag) then
+  if ( CalcBenOrganisms(iiY5)) then
     call BenOrganismDynamics( iiY5, ppY5c, ppY5n, ppY5p)
   end if
 
-
-  if ( CalcY3Flag) then
+  if ( CalcBenOrganisms(iiY3)) then
     call FilterFeederDynamics
   end if
 
-
-  if ( CalcH1Flag) then
+  if ( CalcBenBacteria(iiH1)) then
     call BenBacDynamics( iiH1, ppH1c, ppH1n, ppH1p)
   end if
 
-  if ( CalcH2Flag) then
+  if ( CalcBenBacteria(iiH2)) then
     call BenBacDynamics( iiH2, ppH2c, ppH2n, ppH2p)
   end if
-
-
-
-
-
 
   end
 !BOP

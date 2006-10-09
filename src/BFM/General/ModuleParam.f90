@@ -81,27 +81,22 @@
   ! 0d-parameter used in pelagic submodel
   integer   :: &
       CalcBenthicFlag=3  ! Switch for benthic system
-  ! 0d-parameter used in pelagic submodel
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  !  Allocate the logical flags for switch on the LFG
+  !  Initialize to TRUE (overwritten by the namelist values)
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  logical   :: CalcPhytoPlankton(iiPhytoPlankton) = .TRUE.
+  logical   :: CalcMicroZooPlankton(iiMicroZooPlankton) = .TRUE.
+  logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
+  logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
+  logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
+  logical   :: CalcBacteria = .TRUE.
+
   logical   :: &
-      CalcP1Flag=.TRUE.  ,  &  ! Switches to turn on/off the calculation of pelagic groups
-      CalcP2Flag=.TRUE.  ,  &  !
-      CalcP3Flag=.TRUE.  ,  &  !
-      CalcP4Flag=.TRUE.  ,  &  !
-      CalcB1Flag=.TRUE.  ,  &  !
-      CalcZ3Flag=.TRUE.  ,  &  !
-      CalcZ4Flag=.TRUE.  ,  &  !
-      CalcZ5Flag=.TRUE.  ,  &  !
-      CalcZ6Flag=.TRUE.  ,  &  !
-      CalcPelchemFlag=.TRUE.  ,  &  !
-      CalcY1Flag=.TRUE.  ,  &  ! Switches to turn on/off the calculation of benthic organisms
-      CalcY2Flag=.TRUE.  ,  &  !
-      CalcY3Flag=.TRUE.  ,  &  !
-      CalcY4Flag=.TRUE.  ,  &  !
-      CalcY5Flag=.TRUE.  ,  &  !
-      CalcH1Flag=.TRUE.  ,  &  !
-      CalcH2Flag=.TRUE.  ,  &  !
+      CalcPelChemistry=.TRUE.  ,  &  !
       AssignPelBenFluxesInBFMFlag=.TRUE.  ,  &  ! Switches to make choice to define boundary
-      AssignAirPelFluxesInBFMFlag=.TRUE.  ! fluxes in physical of biological model
+      AssignAirPelFluxesInBFMFlag=.TRUE.        ! fluxes in physical of biological model
   !      %dim2D%
 
   ! 1d-parameter used in benthic submodel
@@ -147,13 +142,12 @@
   subroutine InitParam()
   use mem
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri, &
-    p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag, CalcP1Flag, &
-    CalcP2Flag, CalcP3Flag, CalcP4Flag, CalcB1Flag, CalcZ3Flag, CalcZ4Flag, &
-    CalcZ5Flag, CalcZ6Flag, CalcPelchemFlag, CalcY1Flag, CalcY2Flag, CalcY3Flag, &
-    CalcY4Flag, CalcY5Flag, CalcH1Flag, CalcH2Flag, &
-    AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, seqnr_cloud, &
-    XLatitude, p_PAR, ChlLightFlag, LightForcingFlag, p_qchlc, p_eps0, p_epsESS, &
+  namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,      &
+    p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,                 &
+    CalcPhytoPlankton,CalcMicroZooPlankton,                                 &
+    CalcPelChemistry,CalcMesoZooPlankton,CalcBenOrganisms,CalcBenBacteria,  &
+    CalcBacteria, AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, &
+    p_PAR, ChlLightFlag, LightForcingFlag, p_qchlc, p_eps0, p_epsESS,       &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s, &
     p_epsChla, p_epsR6
    integer :: i

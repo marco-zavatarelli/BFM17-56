@@ -34,11 +34,10 @@
    use mem_BenBac, ONLY: p_qnc,p_qpc
    use constants, ONLY: HOURS_PER_DAY
    use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc, &
-                        CalcP1Flag,CalcP2Flag,CalcP3Flag,CalcP4Flag, &
-                        CalcP4Flag,CalcB1Flag,CalcZ3Flag,CalcZ4Flag, &
-                        CalcZ5Flag,CalcZ6Flag, &
-                        CalcY1Flag,CalcY2Flag,CalcY3Flag,CalcY4Flag, &
-                        CalcY5Flag,CalcH1Flag,CalcH2Flag, p_small
+                        CalcPhytoPlankton,CalcMicroZooPlankton,          &
+                        CalcMesoZooPlankton,CalcBenOrganisms,            &
+                        CalcBenBacteria,CalcBacteria,CalcPelChemistry,   &
+                        p_small
    use string_functions, ONLY: getseq_number,empty
    IMPLICIT NONE
 !
@@ -52,7 +51,7 @@
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
-   integer              :: icontrol,i,j
+   integer              :: icontrol,i,j,iiLastElement
    integer,parameter    :: NSAVE=100  ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    character(len=64),dimension(NSAVE):: ave_save
@@ -388,15 +387,10 @@
       case (2) ! Benthic only
          LEVEL2 "Benthic-only setup (bio_setup=2), Switching off the pelagic system"
          CalcPelagicFlag = .FALSE.
-         CalcP1Flag=.FALSE.
-         CalcP2Flag=.FALSE.
-         CalcP3Flag=.FALSE.
-         CalcP4Flag=.FALSE.
-         CalcB1Flag=.FALSE.
-         CalcZ3Flag=.FALSE.
-         CalcZ4Flag=.FALSE.
-         CalcZ5Flag=.FALSE.
-         CalcZ6Flag=.FALSE.
+         CalcPhytoPlankton=.FALSE.
+         CalcBacteria=.FALSE.
+         CalcMesoZooPlankton=.FALSE.
+         CalcMicroZooPlankton=.FALSE.
       case (3) ! Pelagic-Benthic coupling
          LEVEL2 "Pelagic-Benthic coupled setup (bio_setup=3)"
          if (CalcBenthicFlag == 0) &
@@ -416,65 +410,54 @@
         LEVEL3 "Benthic model is: benthos + Ruardij & Van Raaphorst"
    end select
 
-  ! Zeroing of the switched off state variables
-  !MAV: TO BE IMPROVED and GENERALIZED
-  ! possible suggestion: introduce a CalcPhyto array of length iiPhytoPlankton
-  ! (and the same for all the other groups) and then loop over it
-  ! do j = 1,iiPhytoPlankton
-  !    if (.NOT.CalcPhyto(j)) then
-  !       do i = iiC,iiS
-  !          D3STATE(ppPhytoPlankton(j,i),:) = 0.0
-  !          D3STATETYPE(ppPhytoPlankton(iiP1,i)) = NOTRANSPORT
-  !       end do
-  !    end if
-  ! end do
-
-   if (.NOT.CalcP1Flag) then
-      do i = iiC,iiS
-         D3STATE(ppPhytoPlankton(iiP1,i),:) = p_small
-         D3STATETYPE(ppPhytoPlankton(iiP1,i)) = NOTRANSPORT
-      end do
-   end if
-   do i = iiC,iiL
-      if (.NOT.CalcP2Flag) then
-         D3STATE(ppPhytoPlankton(iiP2,i),:) = p_small
-         D3STATETYPE(ppPhytoPlankton(iiP2,i)) = NOTRANSPORT
-      end if
-      if (.NOT.CalcP3Flag) then
-         D3STATE(ppPhytoPlankton(iiP4,i),:) = p_small
-         D3STATETYPE(ppPhytoPlankton(iiP4,i)) = NOTRANSPORT
-      end if
-      if (.NOT.CalcP4Flag) then
-         D3STATE(ppPhytoPlankton(iiP4,i),:) = p_small
-         D3STATETYPE(ppPhytoPlankton(iiP4,i)) = NOTRANSPORT
+   !---------------------------------------------
+   ! Zeroing of the switched off state variables
+   !---------------------------------------------
+   do j = 1,iiPhytoPlankton
+      iiLastElement = iiL
+      if (.NOT.CalcPhytoPlankton(j)) then
+         if (j==iiP1) iiLastElement=iiS
+         do i = iiC,iiLastElement
+            D3STATE(ppPhytoPlankton(j,i),:) = p_small
+            D3STATETYPE(ppPhytoPlankton(j,i)) = NOTRANSPORT
+         end do
       end if
    end do
-   do i = iiC,iiP
-      if (.NOT.CalcZ3Flag) then
-         D3STATE(ppMesoZooPlankton(iiZ3,i),:) = p_small
-         D3STATETYPE(ppMesoZooPlankton(iiZ3,i)) = NOTRANSPORT
+   do j = 1,iiMesoZooPlankton
+      iiLastElement = iiP
+      if (.NOT.CalcMesoZooPlankton(j)) then
+         do i = iiC,iiLastElement
+            D3STATE(ppMesoZooPlankton(j,i),:) = p_small
+            D3STATETYPE(ppMesoZooPlankton(j,i)) = NOTRANSPORT
+         end do
       end if
-      if (.NOT.CalcZ4Flag) then
-         D3STATE(ppMesoZooPlankton(iiZ4,i),:) = p_small
-         D3STATETYPE(ppMesoZooPlankton(iiZ4,i)) = NOTRANSPORT
-      end if
-      if (.NOT.CalcZ5Flag) then
-         D3STATE(ppMicroZooPlankton(iiZ5,i),:) = p_small
-         D3STATETYPE(ppMicroZooPlankton(iiZ5,i)) = NOTRANSPORT
-      end if
-      if (.NOT.CalcZ6Flag) then
-         D3STATE(ppMicroZooPlankton(iiZ6,i),:) = p_small
-         D3STATETYPE(ppMicroZooPlankton(iiZ6,i)) = NOTRANSPORT
-      end if
-      if (.NOT.CalcY1Flag) D2STATE(ppBenOrganisms(iiY1,i),:) = p_small
-      if (.NOT.CalcY2Flag) D2STATE(ppBenOrganisms(iiY2,i),:) = p_small
-      if (.NOT.CalcY3Flag) D2STATE(ppBenOrganisms(iiY3,i),:) = p_small
-      if (.NOT.CalcY4Flag) D2STATE(ppBenOrganisms(iiY4,i),:) = p_small
-      if (.NOT.CalcY5Flag) D2STATE(ppBenOrganisms(iiY5,i),:) = p_small
-      if (.NOT.CalcH1Flag) D2STATE(ppBenBacteria(iiH1,i),:) = p_small
-      if (.NOT.CalcH2Flag) D2STATE(ppBenBacteria(iiH2,i),:) = p_small
    end do
-   if (.NOT.CalcB1Flag) then
+   do j = 1,iiMicroZooPlankton
+      iiLastElement = iiP
+      if (.NOT.CalcMicroZooPlankton(j)) then
+         do i = iiC,iiLastElement
+            D3STATE(ppMicroZooPlankton(j,i),:) = p_small
+            D3STATETYPE(ppMicroZooPlankton(j,i)) = NOTRANSPORT
+         end do
+      end if
+   end do
+   do j = 1,iiBenOrganisms
+      iiLastElement = iiP
+      if (.NOT.CalcBenOrganisms(j)) then
+         do i = iiC,iiLastElement
+            D2STATE(ppBenOrganisms(j,i),:) = p_small
+         end do
+      end if
+   end do
+   do j = 1,iiBenBacteria
+      iiLastElement = iiP
+      if (.NOT.CalcBenBacteria(j)) then
+         do i = iiC,iiLastElement
+            D2STATE(ppBenBacteria(j,i),:) = p_small
+         end do
+      end if
+   end do
+   if (.NOT.CalcBacteria) then
       B1c = p_small; B1n = p_small; B1p = p_small;
       D3STATETYPE(ppB1c) = NOTRANSPORT
       D3STATETYPE(ppB1n) = NOTRANSPORT

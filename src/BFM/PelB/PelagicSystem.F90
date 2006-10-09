@@ -8,12 +8,10 @@
 ! !ROUTINE: PelagicSystem
 !
 ! DESCRIPTION
-!   This is the Pelagic Submodel. It does not compute anything
-!    itself but calls subprocesses to do the actual work.
+!   This is the Pelagic Submodel. 
+!   All the pelagic biogeochemical modules are called in sequence
+!   according to the logical switches
 !        
-!
-!
-
 !   This file is generated directly from OpenSesame model code, using a code 
 !   generator which transposes from the sesame meta language into F90.
 !   F90 code generator written by P. Ruardij.
@@ -35,7 +33,7 @@
   ! The following groupmember vars are used: iiP1, iiP2, iiP3, iiP4, iiZ3, iiZ4, &
   ! iiZ5, iiZ6
   ! The following 0-d global box parametes are used: &
-  ! ChlLightFlag, CalcP1Flag, CalcP2Flag, CalcP3Flag, CalcP4Flag
+  ! ChlLightFlag
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -54,9 +52,8 @@
     ppZ4c, ppZ4n, ppZ4p, ppZ5c, ppZ5n, ppZ5p, ppZ6c, ppZ6n, ppZ6p, Depth, totpeln, &
     totpels, totpelp, iiP1, iiP2, iiP3, iiP4, iiZ3, iiZ4, iiZ5, iiZ6, iiBen, &
     iiPel, flux
-  use mem_Param, ONLY: ChlLightFlag, CalcP1Flag, CalcP2Flag, CalcP3Flag, &
-    CalcP4Flag,CalcZ3Flag,CalcZ4Flag,CalcZ5Flag,CalcZ6Flag,CalcB1Flag,CalcPelchemFlag
-
+  use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
+    CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following global functions are used:CalcChlorophylla, &
@@ -129,22 +126,22 @@
   call OxygenReaerationDynamics
 
   if ( ChlLightFlag== 1) then
-    if ( CalcP1Flag) then
+    if ( CalcPhytoPlankton(iiP1)) then
       call PhotoAvailableRadiationDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, &
         ppP1l)
     end if
 
-    if ( CalcP2Flag) then
+    if ( CalcPhytoPlankton(iiP2)) then
       call PhotoAvailableRadiationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, &
         ppP2l)
     end if
 
-    if ( CalcP3Flag) then
+    if ( CalcPhytoPlankton(iiP3)) then
       call PhotoAvailableRadiationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, &
         ppP3l)
     end if
 
-    if ( CalcP4Flag) then
+    if ( CalcPhytoPlankton(iiP4)) then
       call PhotoAvailableRadiationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, &
         ppP4l)
     end if
@@ -154,58 +151,58 @@
 
 
 
-  if ( CalcP1Flag) then
+  if ( CalcPhytoPlankton(iiP1)) then
     call PhytoDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, ppP1l)
   end if
 
-  if ( CalcP2Flag) then
+  if ( CalcPhytoPlankton(iiP2)) then
     call PhytoDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l)
   end if
 
-  if ( CalcP3Flag) then
+  if ( CalcPhytoPlankton(iiP3)) then
     call PhytoDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, ppP3l)
   end if
 
-  if ( CalcP4Flag) then
+  if ( CalcPhytoPlankton(iiP4)) then
     call PhytoDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l)
   end if
 
 
   if ( ChlLightFlag== 1) then
-    if ( CalcP1Flag) then
+    if ( CalcPhytoPlankton(iiP1)) then
       call LightAdaptationDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, ppP1l)
     end if
 
-    if ( CalcP2Flag) then
+    if ( CalcPhytoPlankton(iiP2)) then
       call LightAdaptationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l)
     end if
 
-    if ( CalcP3Flag) then
+    if ( CalcPhytoPlankton(iiP3)) then
       call LightAdaptationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, ppP3l)
     end if
 
-    if ( CalcP4Flag) then
+    if ( CalcPhytoPlankton(iiP4)) then
       call LightAdaptationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l)
     end if
 
   end if
   
-  if ( CalcZ3Flag) then
+  if ( CalcMesoZooPlankton(iiZ3)) then
     call MesoZooDynamics( iiZ3, ppZ3c, ppZ3n, ppZ3p)
   end if
-  if ( CalcZ4Flag) then
+  if ( CalcMesoZooPlankton(iiZ3)) then
     call MesoZooDynamics( iiZ4, ppZ4c, ppZ4n, ppZ4p)
   end if
-  if ( CalcZ5Flag) then
+  if ( CalcMicroZooPlankton(iiZ5)) then
     call MicroZooDynamics( iiZ5, ppZ5c, ppZ5n, ppZ5p)
   end if
-  if ( CalcZ6Flag) then
+  if ( CalcMicroZooPlankton(iiZ6)) then
     call MicroZooDynamics( iiZ6, ppZ6c, ppZ6n, ppZ6p)
   end if
-  if ( CalcB1Flag) then
+  if ( CalcBacteria) then
     call PelBacDynamics
   end if
-  if ( CalcPelchemFlag) then
+  if ( CalcPelChemistry) then
     call PelChemDynamics
   end if
 
