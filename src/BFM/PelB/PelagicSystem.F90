@@ -131,17 +131,17 @@
     end if
 
     if ( CalcPhytoPlankton(iiP2)) then
-      call PhotoAvailableRadiationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, &
+      call PhotoAvailableRadiationDynamics( iiP2, ppP2c, ppP2n, ppP2p, &
         ppP2l)
     end if
 
     if ( CalcPhytoPlankton(iiP3)) then
-      call PhotoAvailableRadiationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, &
+      call PhotoAvailableRadiationDynamics( iiP3, ppP3c, ppP3n, ppP3p,  &
         ppP3l)
     end if
 
     if ( CalcPhytoPlankton(iiP4)) then
-      call PhotoAvailableRadiationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, &
+      call PhotoAvailableRadiationDynamics( iiP4, ppP4c, ppP4n, ppP4p, &
         ppP4l)
     end if
 
@@ -155,15 +155,15 @@
   end if
 
   if ( CalcPhytoPlankton(iiP2)) then
-    call PhytoDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l)
+    call PhytoDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2l)
   end if
 
   if ( CalcPhytoPlankton(iiP3)) then
-    call PhytoDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, ppP3l)
+    call PhytoDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3l)
   end if
 
   if ( CalcPhytoPlankton(iiP4)) then
-    call PhytoDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l)
+    call PhytoDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4l)
   end if
 
 
@@ -173,15 +173,15 @@
     end if
 
     if ( CalcPhytoPlankton(iiP2)) then
-      call LightAdaptationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l)
+      call LightAdaptationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2l)
     end if
 
     if ( CalcPhytoPlankton(iiP3)) then
-      call LightAdaptationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, ppP3l)
+      call LightAdaptationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3l)
     end if
 
     if ( CalcPhytoPlankton(iiP4)) then
-      call LightAdaptationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l)
+      call LightAdaptationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4l)
     end if
 
   end if

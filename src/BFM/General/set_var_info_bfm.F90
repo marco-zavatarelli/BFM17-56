@@ -242,7 +242,7 @@ subroutine set_var_info_bfm
         var_long(61)="Quotum n/c in R6"
         var_units(61)="mmol P/mg C"
         var_names(62)="qsR6c"
-        var_long(62)="Quotum n/c in R6"
+        var_long(62)="Quotum si/c in R6"
         var_units(62)="mmol Si/mg C"
         var_names(63)="qpB1c"
         var_long(63)="Quotum p/c in B1"

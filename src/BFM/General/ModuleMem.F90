@@ -328,7 +328,7 @@
 !    flN3O4n                                  denitrification flux (sink)     mmol N/m3/d
 !      qpR6c                                             Quotum p/c in R6     mmol N/mg C
 !      qnR6c                                             Quotum n/c in R6     mmol P/mg C
-!      qsR6c                                             Quotum n/c in R6    mmol Si/mg C
+!      qsR6c                                            Quotum si/c in R6    mmol Si/mg C
 !      qpB1c                                             Quotum p/c in B1     mmol N/mg C
 !      qnB1c                                             Quotum n/c in B1     mmol P/mg C
 !     sediR6                                  Detritus sedimentation rate             m/d
