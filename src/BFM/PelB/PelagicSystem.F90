@@ -47,11 +47,10 @@
   use mem, ONLY: ppP1p, ppP2p, ppP3p, ppP4p, ppB1p, ppZ3p, ppZ4p, ppZ5p, &
     ppZ6p, ppR1p, ppR6p, ppN1p, ppP1n, ppP2n, ppP3n, ppP4n, ppB1n, ppZ3n, ppZ4n, &
     ppZ5n, ppZ6n, ppR1n, ppR6n, ppN3n, ppN4n, ppO4n, ppP1s, ppR6s, ppN5s, ppP1c, &
-    ppP1n, ppP1p, ppP1s, ppP1l, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l, ppP3c, ppP3n, &
-    ppP3p, ppP3s, ppP3l, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l, ppZ3c, ppZ3n, ppZ3p, &
-    ppZ4c, ppZ4n, ppZ4p, ppZ5c, ppZ5n, ppZ5p, ppZ6c, ppZ6n, ppZ6p, Depth, totpeln, &
-    totpels, totpelp, iiP1, iiP2, iiP3, iiP4, iiZ3, iiZ4, iiZ5, iiZ6, iiBen, &
-    iiPel, flux
+    ppP1l, ppP2c, ppP2l, ppP3c, ppP3l, ppP4c,  ppP4l, ppZ3c,ppZ4c, ppZ5c, ppZ6c,  &
+    Depth, totpeln, totpels, totpelp, iiP1, iiP2, iiP3, iiP4,&
+    iiZ3, iiZ4, iiZ5, iiZ6, iiBen, iiPel, flux 
+   
   use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
 
