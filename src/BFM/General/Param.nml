@@ -51,23 +51,13 @@
 !        :  	 alpha is used in expo.func and values > 1/0.001 leadt
 !  CalcPelagicFlag:  	 Switch for pelagic system
 !  CalcBenthicFlag:  	 Switch for benthic system
-!  CalcP1Flag:  	 Switches to turn on/off the calculation of pelagic groups
-!  CalcP2Flag:
-!  CalcP3Flag:
-!  CalcP4Flag:
-!  CalcB1Flag:
-!  CalcZ3Flag:
-!  CalcZ4Flag:
-!  CalcZ5Flag:
-!  CalcZ6Flag:
-!  CalcPelchemFlag:
-!  CalcY1Flag:  	 Switches to turn on/off the calculation of benthic organisms
-!  CalcY2Flag:
-!  CalcY3Flag:
-!  CalcY4Flag:
-!  CalcY5Flag:
-!  CalcH1Flag:
-!  CalcH2Flag:
+!  CalcPhytoPlankton:  	 Switches to turn on/off the calculation of pelagic groups
+!  CalcBacteria:
+!  CalcMesoZooPlankton:
+!  CalcMicroZooPlankton:
+!  CalcPelChemistry:
+!  CalcBenOrganisms:  	 Switches to turn on/off the calculation of benthic organisms
+!  CalcBenBacteria:
 !  AssignPelBenFluxesInBFMFlag:  	 Switches to make choice to define boundary
 !  AssignAirPelFluxesInBFMFlag:  	 fluxes in physical of biological model
 !        :  	     dim2D%
@@ -96,28 +86,26 @@ p_qon_dentri = 1.25,
 p_qon_nitri = 2.0,
 p_clDxm = 0.001,
 CalcPelagicFlag = .TRUE.,
-CalcBenthicFlag = 3,
-CalcP1Flag = .TRUE.,
-CalcP2Flag = .TRUE.,
-CalcP3Flag = .TRUE.,
-CalcP4Flag = .TRUE.,
-CalcB1Flag = .TRUE.,
-CalcZ3Flag = .TRUE.,
-CalcZ4Flag = .TRUE.,
-CalcZ5Flag = .TRUE.,
-CalcZ6Flag = .TRUE.,
-CalcPelchemFlag = .TRUE.,
-CalcY1Flag = .TRUE.,
-CalcY2Flag = .TRUE.,
-CalcY3Flag = .TRUE.,
-CalcY4Flag = .TRUE.,
-CalcY5Flag = .TRUE.,
-CalcH1Flag = .TRUE.,
-CalcH2Flag = .TRUE.,
+CalcBenthicFlag = 0,
+CalcPhytoPlankton(1) = .TRUE.,
+CalcPhytoPlankton(2) = .TRUE.,
+CalcPhytoPlankton(3) = .TRUE.,
+CalcPhytoPlankton(4) = .TRUE.,
+CalcBacteria = .TRUE.,
+CalcMesoZooPlankton(1) = .TRUE.,
+CalcMesoZooPlankton(2) = .TRUE.,
+CalcMicroZooPlankton(1) = .TRUE.,
+CalcMicroZooPlankton(2) = .TRUE.,
+CalcPelChemistry = .TRUE.,
+CalcBenOrganisms(1) = .TRUE.,
+CalcBenOrganisms(2) = .TRUE.,
+CalcBenOrganisms(3) = .TRUE.,
+CalcBenOrganisms(4) = .TRUE.,
+CalcBenOrganisms(5) = .TRUE.,
+CalcBenBacteria(1) = .TRUE.,
+CalcBenBacteria(2) = .TRUE.,
 AssignPelBenFluxesInBFMFlag = .TRUE.,
 AssignAirPelFluxesInBFMFlag = .TRUE.,
-seqnr_cloud = 2,
-XLatitude = 54.0,
 p_PAR = 0.50,
 ChlLightFlag = 2,
 LightForcingFlag = 1,
