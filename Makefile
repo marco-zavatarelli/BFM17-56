@@ -2,25 +2,21 @@
 ## Makefile for making a new distribution release
 ##-----------------------------------------------------------------------
 
+BFM_RELEASE="2.5e"
+SYSTEM_RELEASE="2.2"
 
-RELEASE=bfm-2.5e-system-2.1
-
-all: distclean sources runenv
+all: distclean 
 
 distclean:
 	make -C src/ $@
 	@$(RM)  ./bin/* 
 
-sources:
-	@sed -e "s/_BFMRELEASE_/$(RELEASE)/" ../bfm_env_proto.sh > ./bfm_env.sh
-	@sed -e "s/_BFMRELEASE_/$(RELEASE)/" ../bfm_env_proto.csh > ./bfm_env.csh
-	@chmod +x ./bfm_env.csh ./bfm_env.sh
-	@mv ../bfm-dev ../$(RELEASE)
-	@tar -zcvf ../$(RELEASE).tgz --exclude='*~' ../$(RELEASE)
-	@mv ../$(RELEASE) ../bfm-dev
+current_release: distclean
+	@scripts/release.sh $(BFM_RELEASE) $(SYSTEM_RELEASE) current
 
-runenv:
-	@tar -zcvf ../run-$(RELEASE).tgz --exclude='*.nc' ../bfm-run
+release: distclean
+	@scripts/release.sh $(BFM_RELEASE) $(SYSTEM_RELEASE) 
+
 ##-----------------------------------------------------------------------
 ##
 ##-----------------------------------------------------------------------
