@@ -1,6 +1,6 @@
-#$Id: Makefile,v 1.11 2005-12-27 06:51:49 hb Exp $
 #
 # Makefile to build the Bio Module - libbio.a
+# Modified for BFM compilation
 #
 
 include ../../Rules.make
@@ -10,8 +10,7 @@ LIB     = $(LIBDIR)/libbio$(buildtype).a
 ifeq ($(BFM),true)
 
 # BFM compilation
-# BFMDIR is defined in Rules.make
-# assuming that BFM is located at the same level of GOTM
+# needs environmental variable BFMDIR
 include $(BFMDIR)/src/gotm/BFM.make
 
 else
