@@ -74,11 +74,8 @@
   ! LightAdaptation PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: p_isw(iiPhytoPlankton)  ! Switch between parameterizations
-  real(RLEN)  :: p_chEPLi(iiPhytoPlankton)  ! Maximum Iopt (W/m2)
-  !     p_clEPLi    =      4.0,    6.0,    5.0,    8.0	# Minimum Iopt (W/m2)
-  real(RLEN)  :: p_clEPLi(iiPhytoPlankton)  ! Minimum Iopt (W/m2)
-  ! p_ruEPLi = 0.25, 0.25, 0.5, 0.125 # Maximum daily shift in &
-  ! Iopt (1/d)
+  real(RLEN)  :: p_chEPLi(iiPhytoPlankton)  ! Maximum Iopt (uE/m2/s)
+  real(RLEN)  :: p_clEPLi(iiPhytoPlankton)  ! Minimum Iopt (uE/m2/s)
   real(RLEN)  :: p_ruEPLi(iiPhytoPlankton)  ! Maximum daily shift in Iopt (1/d)
   real(RLEN)  :: p_addepth(iiPhytoPlankton)  ! Adaptation depth. Meaningless with high
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

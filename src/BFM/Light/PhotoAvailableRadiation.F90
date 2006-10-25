@@ -13,7 +13,7 @@
 !	this in eiPI for each compartment (I). The change in EPLi
 !	(optimal irradiance Iopt) due to daily variations is calculated in 
 !	LightAdaptation.p.
-!	The daily irradiance in W/m2 in each compartment is calculated
+!	The daily irradiance in each compartment is calculated
 !	in the Light/Light.f and Light/VerticalDistribution.f and passed 
 !       in EIR. The extinction-coefficient xEPS (/m) is calculated in 
 !	in CalcVerticalExtinction.f

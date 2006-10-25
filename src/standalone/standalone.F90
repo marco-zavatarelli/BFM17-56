@@ -280,6 +280,7 @@
 !
 ! !USES
    use api_bfm
+   use constants,  only: E2W
    use global_mem, only: RLEN
    use mem,        only: ETW,ESW,EIR,ESS,SUNQ,ThereIsLight, &
                          rutQ6c,rutQ6n,rutQ6p,rutQ6s,R6c,R6n,R6p,R6s,O2o
@@ -324,7 +325,8 @@
    ESS = 0.
    ETW = temperature(dyear,dfrac)
    ESW = salinity(dyear,dfrac)
-   EIR = wlight*p_PAR
+   ! convert from irradiance to PAR in uE/m2/s
+   EIR = wlight*p_PAR/E2W
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW
    LEVEL2 'ESW=',ESW

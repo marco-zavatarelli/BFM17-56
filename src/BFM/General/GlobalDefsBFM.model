@@ -13,7 +13,7 @@ end
   Depth	
   ETW	: temperature : C
   ESW	: Salinity : --
-  EIR	: Irradiance : W/m2
+  EIR	: Photosynthetically Available Radiation : uE/m2/s
   ESS	: Suspended sediment : g/m3
 end	
 
@@ -149,7 +149,7 @@ end
 3d-variable
      eiPI(PhytoPlankton)  : Regulating factor for light in PhytoPlankton : -
      xEPS                 : Total extinction coefficient : 1/m
-     EPLi(PhytoPlankton)  : Optimal light in PhytoPlankton : W/m2
+     EPLi(PhytoPlankton)  : Optimal light in PhytoPlankton : uE/m2/s
      ABIO_eps             # the abiotic extinction coefficient calculated in sediment models (GOTM/GETM)
 end
  

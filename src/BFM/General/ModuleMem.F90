@@ -317,7 +317,7 @@
 ! ---------- ------------------------------------------------------------ ---------------
 !        ETW                                                  temperature               C
 !        ESW                                                     Salinity              --
-!        EIR                                                   Irradiance            W/m2
+!        EIR                                                   Irradiance         uE/m2/s
 !        ESS                                           Suspended sediment            g/m3
 !      cxoO2                      Temperature-dependent oxygen saturation      mmol O2/m3
 !       XO2o                                      Net O2 conc. = O2 - H2S      mmol O2/m3
@@ -370,10 +370,10 @@
 ! eiPI(iiP2)             Regulating factor for light in P2(PhytoPlankton)               -
 ! eiPI(iiP3)             Regulating factor for light in P3(PhytoPlankton)               -
 ! eiPI(iiP4)             Regulating factor for light in P4(PhytoPlankton)               -
-! EPLi(iiP1)                           Optimal light in P1(PhytoPlankton)            W/m2
-! EPLi(iiP2)                           Optimal light in P2(PhytoPlankton)            W/m2
-! EPLi(iiP3)                           Optimal light in P3(PhytoPlankton)            W/m2
-! EPLi(iiP4)                           Optimal light in P4(PhytoPlankton)            W/m2
+! EPLi(iiP1)                           Optimal light in P1(PhytoPlankton)           uE/m2/s
+! EPLi(iiP2)                           Optimal light in P2(PhytoPlankton)           uE/m2/s
+! EPLi(iiP3)                           Optimal light in P3(PhytoPlankton)           uE/m2/s
+! EPLi(iiP4)                           Optimal light in P4(PhytoPlankton)           uE/m2/s
 
         integer,parameter,public :: ppETW=1, ppESW=2, ppEIR=3, ppESS=4,&
           ppcxoO2=5, ppXO2o=6, ppeO2mO2=7, ppChla=8, ppflP1R6s=9, ppflPTN6r=10,&
