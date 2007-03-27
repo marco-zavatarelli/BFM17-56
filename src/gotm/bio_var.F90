@@ -1,4 +1,4 @@
-!$Id: bio_var.F90,v 1.7 2005-12-02 20:57:27 hb Exp $
+!$Id: bio_var.F90,v 1.10 2006-11-17 07:13:17 kbk Exp $
 #include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
@@ -19,10 +19,15 @@
 ! !PUBLIC DATA MEMBERS:
    integer                               :: bio_model
    integer                               :: numc,numcc
-   REALTYPE                              :: I_0
    REALTYPE, dimension(:), allocatable   :: zlev
    REALTYPE, dimension(:), allocatable   :: par
-   REALTYPE, dimension(:,:), allocatable,target :: cc,ws    !BFM
+#ifdef BFM_GOTM
+   REALTYPE, dimension(:,:), allocatable,target :: cc,ws
+   logical, dimension(:),allocatable     :: llws
+   integer                                      :: calc_init_bennut_states
+#else
+   REALTYPE, dimension(:,:), allocatable :: cc,ws
+#endif
    integer                               :: surface_flux_method=-1
    integer                               :: n_surface_fluxes=-1
    REALTYPE, dimension(:), allocatable   :: sfl_read
@@ -39,6 +44,26 @@
    character(len=64), dimension(:), allocatable :: var_long
 
    REALTYPE, parameter                   :: secs_pr_day=86400.
+
+!  external variables - i.e. provided by the calling program but
+!  made available via this module to the different biological models
+!  the variables are copied via set_env_spm() in bio.F90
+   REALTYPE, dimension(:), allocatable      :: h
+   REALTYPE, dimension(:), allocatable      :: t
+   REALTYPE, dimension(:), allocatable      :: s
+   REALTYPE, dimension(:), allocatable      :: rho
+   REALTYPE, dimension(:), allocatable      :: nuh
+   REALTYPE, dimension(:), allocatable      :: w
+   REALTYPE, dimension(:), allocatable      :: rad
+   REALTYPE                                 :: wind
+   REALTYPE                                 :: I_0
+   integer                                  :: w_adv_ctr=0
+
+!  external variables updated by the biological models
+!  the variables are copied back to the calling program using
+!  get_bio_updates()
+   REALTYPE, dimension(:), allocatable      :: bioshade_
+   REALTYPE, dimension(:), allocatable      :: abioshade_
 
    integer                               :: bio_setup =1        !BFM
    integer,public                        :: pelvar_save_all=0   !BFM
@@ -98,6 +123,15 @@
 !  BFM additions:      Piet Ruardij & Marcello Vichi
 !
 !  $Log: bio_var.F90,v $
+!  Revision 1.10  2006-11-17 07:13:17  kbk
+!  rho amd wind-speed available via bio_var
+!
+!  Revision 1.9  2006-11-12 19:42:44  hb
+!  vertical advection due to physical vertical velocities enabled for the bio module
+!
+!  Revision 1.8  2006-10-26 13:12:46  kbk
+!  updated bio models to new ode_solver
+!
 !  Revision 1.7  2005-12-02 20:57:27  hb
 !  Documentation updated and some bugs fixed
 !

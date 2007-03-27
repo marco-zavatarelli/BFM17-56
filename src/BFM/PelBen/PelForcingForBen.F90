@@ -40,7 +40,7 @@
 
   use global_mem, ONLY:RLEN
   use mem, ONLY: R6c, R6n, R6p, R6s, N1p, N3n, N4n, N5s, N6r, O2o, &
-    PhytoPlankton, D2STATE
+    ppPhytoPlankton, PhytoPlankton, D2STATE
   use mem, ONLY: ppR6c, ppR6n, ppR6p, ppR6s, ppN1p, ppN3n, &
     ppN4n, ppN5s, ppN6r, ppO2o, ppPhytoPlankton, BoxNumberZ, NO_BOXES_Z, &
     BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, ETW, &
@@ -93,6 +93,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
+  integer  :: j
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! user defined external functions
@@ -124,7 +125,8 @@
         PIn(BoxNumberXY)  =   PIn(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
         lcl_PhytoPlankton => PhytoPlankton(i,iiP)
         PIp(BoxNumberXY)  =   PIp(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
-        if ( i== iiP1) then
+        j=ppPhytoPlankton(i,iiS)
+        if ( j > 0 ) then
           lcl_PhytoPlankton => PhytoPlankton(i,iiS)
           PIs(BoxNumberXY)  =   PIs(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
         end if

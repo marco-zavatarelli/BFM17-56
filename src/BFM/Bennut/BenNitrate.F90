@@ -29,14 +29,14 @@
   ! The following Benthic-states are used (NOT in fluxes): D2m, D6m, D1m, K6r
   ! The following global vars are modified: dummy
   ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : KNO3, jK3N3n
-  ! The following Benthic 1-d global boxvars got a value: M3n
+  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, &
+  ! NO_BOXES_Y, BoxNumber, BoxNumberXY, InitializeModel, LocalDelta
+  ! The following Benthic 1-d global boxvars are modified : KNO3, jbotN3n
+  ! The following Benthic 1-d global boxvars got a value: M3n,jK3G4n
   ! The following Benthic 1-d global boxvars are used: rrATo, irrenh, ETW_Ben, &
   ! KNH4, N3n_Ben
   ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global box parametes are used: p_d_tot, p_q10diff, &
+  ! The following 0-d global parameters are used: p_d_tot, p_q10diff, &
   ! p_qro, p_qon_dentri
   ! The following global constants are used: RLEN
   ! The following constants are used: GET, &
@@ -44,7 +44,7 @@
   ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DOUBLE_DEFINE, &
   ! ZERO_EXPONENTIAL_TERM, DEFINE, QUADRATIC_TERM, LINEAR_TERM, CONSTANT_TERM, &
   ! EXPONENTIAL_TERM, SET_CONTINUITY, FLAG, MASS, SET_BOUNDARY, &
-  ! EQUATION, INPUT_TERM, PARAMETER, START_ADD_TERM, INPUT_SUBTRACT_TERM, &
+  ! EQUATION, INPUT_TERM, PARAMETER, START_ADD_TERM, &
   ! SET_LAYER_INTEGRAL_UNTIL, LAYER2, ADD, DERIVATIVE, RFLUX, INTEGRAL
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -55,17 +55,18 @@
   use mem,  ONLY: K3n, G4n, D2m, D6m, D1m, K6r, D2STATE
   use mem, ONLY: ppK3n, ppG4n, ppD2m, ppD6m, ppD1m, ppK6r, &
     dummy, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-    BoxNumber, BoxNumberXY, LocalDelta, KNO3, jK3N3n, M3n, rrATo, irrenh, ETW_Ben, &
-    KNH4, N3n_Ben, iiBen, iiPel, flux
+    BoxNumber, BoxNumberXY, InitializeModel, LocalDelta, KNO3, jbotN3n, M3n, jK3G4n,&
+    jK4K3n, rrATo, irrenh, ETW_Ben, KNH4, N3n_Ben, iiBen, iiPel, flux
   use constants, ONLY: GET, LABDA_1, LABDA_2, &
     COEFFICIENT, LAYERS, LAYER1, DIFFUSION, FOR_ALL_LAYERS, POROSITY, &
     ADSORPTION, DOUBLE_DEFINE, ZERO_EXPONENTIAL_TERM, DEFINE, QUADRATIC_TERM, &
     LINEAR_TERM, CONSTANT_TERM, EXPONENTIAL_TERM, SET_CONTINUITY, FLAG, MASS, &
     SET_BOUNDARY, EQUATION, INPUT_TERM, PARAMETER, START_ADD_TERM, &
-    INPUT_SUBTRACT_TERM, SET_LAYER_INTEGRAL_UNTIL, LAYER2, ADD, DERIVATIVE, RFLUX, &
+    SET_LAYER_INTEGRAL_UNTIL, LAYER2, ADD, DERIVATIVE, RFLUX, INPUT_ADD_TERM,&
     INTEGRAL
   use mem_Param,  ONLY: p_poro, p_d_tot, p_q10diff, p_qro, p_qon_dentri
   use mem_BenNitrate
+  use mem_BenthicNutrient3, ONLY:p_max_state_change
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -76,36 +77,27 @@
   use bennut_interface, ONLY: GetInfoFromSet, InitializeSet, DefineSet, &
     CompleteSet, CalculateSet, CalculateTau, CalculateFromSet
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following global functions are used:eTq
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use global_interface,   ONLY: eTq
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following sesame functions are used:IntegralExp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp
 
-
-
 !  
 !
 ! !AUTHORS
 !   Original version by  P. Ruardij
 !
-!
-!
 ! !REVISION_HISTORY
-!   September 1999 by M. Vichi
-!               Commented version 
-!
+!   September 1999 by M. Vichi  Commented version 
 !
 !
 ! COPYING
-!   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -142,7 +134,6 @@
   real(RLEN)  :: Tau
   real(RLEN)  :: zATo
   real(RLEN)  :: alpha
-  real(RLEN)  :: jK3G4n
   real(RLEN)  :: r
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -199,7 +190,7 @@
       ! denitrifaction rate
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      r = max( 0.0D+00, sK3G4* p_qro* p_qon_dentri* &
+      r = max( 1.00D-80, sK3G4* p_qro* p_qon_dentri* &
         K3n(BoxNumberXY)- rrATo(BoxNumberXY)* p_qro)
       sK3G4  =   sK3G4* K6r(BoxNumberXY)/( r+ K6r(BoxNumberXY))
 
@@ -215,22 +206,17 @@
       ! 2. parameter of the nitrification term
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      labda = GetInfoFromSet( KNH4(BoxNumberXY), GET, LABDA_1, 11, dummy, &
-        dummy)
-      sK4K3 = GetInfoFromSet( KNH4(BoxNumberXY), GET, LABDA_2, 12, dummy, &
-        dummy)
+      labda = GetInfoFromSet( KNH4(BoxNumberXY), GET, LABDA_1, 11)
+      sK4K3 = GetInfoFromSet( KNH4(BoxNumberXY), GET, LABDA_2, 12)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Get coefficients of all terms of equation valid for the
       ! first layer of ammonium (integration constants)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      a11 = GetInfoFromSet( KNH4(BoxNumberXY), GET, COEFFICIENT, 11, &
-        dummy, dummy)
-      a12 = GetInfoFromSet( KNH4(BoxNumberXY), GET, COEFFICIENT, 12, &
-        dummy, dummy)
-      a15 = GetInfoFromSet( KNH4(BoxNumberXY), GET, COEFFICIENT, 15, &
-        dummy, dummy)
+      a11 = GetInfoFromSet( KNH4(BoxNumberXY), GET, COEFFICIENT, 11)
+      a12 = GetInfoFromSet( KNH4(BoxNumberXY), GET, COEFFICIENT, 12)
+      a15 = GetInfoFromSet( KNH4(BoxNumberXY), GET, COEFFICIENT, 15)
       n12  =   sK4K3* a12
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -291,11 +277,10 @@
       ! Insert other boundary conditions and continuity between layers:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      call CompleteSet( KNO3(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, &
-        dummy, dummy)
+      call CompleteSet( KNO3(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy)
 
       call CompleteSet( KNO3(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-        EQUATION, 0.0D+00, N3n_Ben(BoxNumberXY))
+        EQUATION, 0.0D+00, value=N3n_Ben(BoxNumberXY))
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -306,21 +291,13 @@
 
         case( .TRUE. )
           call CompleteSet( KNO3(BoxNumberXY), INPUT_TERM, 11, PARAMETER, &
-            dummy, 0.0D+00)
-
-
-
+            dummy, value=0.0D+00)
 
         case( .FALSE. )
-          call CompleteSet( KNO3(BoxNumberXY), START_ADD_TERM, 11, PARAMETER, &
-            dummy, a11)
-
-          call CompleteSet( KNO3(BoxNumberXY), INPUT_SUBTRACT_TERM, 12, &
-            PARAMETER, dummy, a12)
-
-
-
-
+          call CompleteSet( KNO3(BoxNumberXY), START_ADD_TERM, 11, &
+            PARAMETER, dummy, mfac=1.0D+00/a11)
+          call CompleteSet( KNO3(BoxNumberXY), INPUT_ADD_TERM, 12, &
+            PARAMETER, dummy, mfac=-1.0D+00/a12)
       end select
 
 
@@ -328,29 +305,27 @@
       ! a11 / (labda * labda * diff) = a15 / (2 * diff)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      select case ( abs(a15)< 1.0D-30)
+        call CompleteSet( KNO3(BoxNumberXY), INPUT_TERM, 12, PARAMETER, dummy, &
+           value=n12)
 
-        case( .TRUE. )
-          call CompleteSet( KNO3(BoxNumberXY), INPUT_TERM, 13, PARAMETER, &
-            dummy, 0.0D+00)
-
-
-
-
-        case( .FALSE. )
-          call CompleteSet( KNO3(BoxNumberXY), START_ADD_TERM, 12, PARAMETER, &
-            dummy, a12)
-
-          call CompleteSet( KNO3(BoxNumberXY), INPUT_SUBTRACT_TERM, 13, &
-            PARAMETER, dummy, a15)
-
-
-
-      end select
-
-
-      call CompleteSet( KNO3(BoxNumberXY), INPUT_TERM, 12, PARAMETER, dummy, &
-        n12)
+!     if ( InitializeModel== 0) then
+        if ( abs(a15)< 1.0D-30) then
+            call CompleteSet( KNO3(BoxNumberXY), INPUT_TERM, 13, PARAMETER, &
+              dummy, value=0.0D+00)
+        else
+            call CompleteSet( KNO3(BoxNumberXY), START_ADD_TERM, 12, &
+              PARAMETER, dummy, mfac=1.0D+00/a12)
+            call CompleteSet( KNO3(BoxNumberXY), INPUT_ADD_TERM, 13, &
+              PARAMETER, dummy, mfac=-1.0D+00/a15)
+        endif
+!     else
+!        jK4K3n = sK4K3* CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, &
+!           RFLUX, 0.0D+00, D1m(BoxNumberXY))
+!        call CompleteSet(KNO3(boxNumberXY),SET_LAYER_INTEGRAL_UNTIL,LAYER2,LAYER2, &
+!                                           D2m(BoxNumberXY),mfac=sK3G4)
+!        call CompleteSet( KNO3(BoxNumberXY), ADD, LAYER1, DERIVATIVE, 0.0D+00,mfac=diff)
+!        call CompleteSet(KNO3(BoxNumberXY),0,0,0,0.0D+00,value=jK4K3n)
+!     endif
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -362,60 +337,75 @@
       cK3n = CalculateSet( KNO3(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, &
         LAYER1, LAYER2, D2m(BoxNumberXY), 0.0D+00)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate the adaptation time to the steady-state profile
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      if ( InitializeModel== 0) then
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate the adaptation time to the steady-state profile
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      Tau  =   CalculateTau(  0.0D+00,  diff,  p_p,  D2m(BoxNumberXY))
+        Tau  =   CalculateTau(  0.0D+00,  diff,  p_p,  D2m(BoxNumberXY))
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Estimate the average value of K3n over the actual time step
-      ! (transient value).
-      ! This value depends on the adaptation time, the actual time step,
-      ! the ''old'' value and the ''equilibrium value''
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Estimate the average value of K3n over the actual time step
+        ! (transient value).
+        ! This value depends on the adaptation time, the actual time step,
+        ! the ''old'' value and the ''equilibrium value''
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      cK3n = cK3n+( K3n(BoxNumberXY)- cK3n)* IntegralExp( - LocalDelta/ &
-        Tau, 1.0D+00)
+        cK3n = cK3n+( K3n(BoxNumberXY)- cK3n)* IntegralExp( - LocalDelta/ &
+          Tau, 1.0D+00)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Derive the equations for the transient profiles, assuming the same
-      ! solution as for the steady-state case and using cK3n as new constraint.
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Derive the equations for the transient profiles, assuming the same
+        ! solution as for the steady-state case and using cK3n as new &
+        ! constraint.
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      dummy  =   CalculateSet(  KNO3(BoxNumberXY),  ADD,  0,  0,  dummy,  cK3n)
+        dummy = CalculateSet( KNO3(BoxNumberXY), ADD, 0, 0, dummy, &
+          cK3n)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Start calculation of fluxes:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Start calculation of fluxes:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Flux at the water/sediment interface
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      jK3N3n(BoxNumberXY) = CalculateFromSet( KNO3(BoxNumberXY), DERIVATIVE, &
-        RFLUX, 0.0D+00, dummy)
-      call flux(BoxNumberXY, iiBen, ppK3n, ppK3n, -( jK3N3n(BoxNumberXY)) )
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Flux at the lower boundary
+        ! All transport between layers are done in BenNitrogenShifting:
+        !
+        ! jK13K3n = CalculateFromSet(KNO3, DERIVATIVE, RFLUX, D2.m, dummy);
+        !
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Nitrification is already calculated by BenAmmonium:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !jK4K3n = sK4K3* CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, &
+        !    RFLUX, 0.0D+00, D1m(BoxNumberXY))
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Flux at the lower boundary
-      ! All transport between layers are done in BenNitrogenShifting:
-      !
-      ! jK13K3n = CalculateFromSet(KNO3, DERIVATIVE, RFLUX, D2.m, dummy);
-      !
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Nitrification is already calculated by BenAmmonium:
-      ! K4.n -> K3.n= CalculateFromSet(KM4n, INTEGRAL, RFLUX, 0.0, D1.m)*sK4K3;
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Denitrification:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Denitrification:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        jK3G4n(BoxNumberXY) = CalculateFromSet( KNO3(BoxNumberXY), INTEGRAL, &
+          RFLUX, D1m(BoxNumberXY), D2m(BoxNumberXY))* sK3G4
+        if (  jK3G4n(BoxNumberXY) > 0.0D+00 ) then
+           call flux(BoxNumberXY, iiBen, ppK3n, ppG4n, jK3G4n(BoxNumberXY) )
+        else
+           call PrintSet(KNO3(BoxNumberXY),"Negative (or Nan) flux for nitrate")
+           write(LOGUNIT,'(''D1m='',F10.3)') D1m(BoxNumberXY)
+           write(LOGUNIT,'(''D2m='',F10.3)') D2m(BoxNumberXY)
+           write(LOGUNIT,'(''nitrate/m2 (K3n)='',F10.3)') K3n(BoxNumberXY)
+        endif
 
-      jK3G4n = CalculateFromSet( KNO3(BoxNumberXY), INTEGRAL, &
-        RFLUX, D1m(BoxNumberXY), D2m(BoxNumberXY))* sK3G4
-      call flux(BoxNumberXY, iiBen, ppK3n, ppG4n, jK3G4n )
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Flux at the water/sediment interface
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+        jbotN3n(BoxNumberXY) = CalculateFromSet( KNO3(BoxNumberXY), DERIVATIVE, &
+          RFLUX, 0.0D+00, dummy)
+        jbotN3n(BoxNumberXY)=min(jbotN3n(BoxNumberXY), K3n(BoxNumberXY)  &
+                  * p_max_state_change+ jK4K3n(BoxNumberXY)-jK3G4n(BoxNumberXY))
+
+        call flux(BoxNumberXY, iiBen, ppK3n, ppK3n, -( jbotN3n(BoxNumberXY)) )
+      end if
 
     end DO
 

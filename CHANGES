@@ -1,3 +1,71 @@
+SYSTEM v3.0
+This is the first release that relax the separation betweeen the system and the
+BFM model code. There will be one sigle number for the whole code structure.
+This release has several changes:
+BFM:
+-----
+- General: 
+  Improved Makefile: automatically-generated files are now removed from 
+  standard directories, and created after the first compilation. 
+  Added 2 new arrays for treating the boundary conditions 
+  with the atmosphere and the sediments
+  PELSURFACE(NO_BOX_STATES,NO_BOXES_XY),PELBOTTOM (NO_BOX_STATES,NO_BOXES_XY)
+  This change allows to store all boundary fluxes and to have a boundary
+  condition for each state variable.
+  Added a new general parameter for the computation of Light value in a cell
+  LightLocation (1=top, 2=middle, 3=average)
+- Phytoplankton: restored the original ERSEM formulation for nutrient-limited 
+  growth (nutrient-stress carbon release). 
+  It is now possible to have 2 different parameterizations:
+  1) ERSEM II: also described in Vichi et al. (2007a) 
+  2) Net growth parameterization (Phyto.nml parameter p_netgrowth=.TRUE.)
+     based on Ruardij et al. (2006) and Vichi et al. (2004)
+- Bacteria: added the possibility to have 2 degradation rates for DOM,
+  p_sulR1, p_suhR1.
+  Default values are equal for both DOM quality (for compatibility)
+- Zooplankton: possibility to have fixed nutrient quota in micro e meso.
+  When using fixed nutrient quota, these state variables are not transported
+  with a considerable saving of computational time in 3D applications.
+- Benthic Model: improved initialization of benthic model.
+  The flag calc_init_bennut_states=1 in bfm.nml (Standalone) or bio_bfm.nml
+  (GOTM) set the initial values of the benthic system in equilibrium
+  with the initial pelagic concentration.
+  There is now a different burial rate for DOM, R6 and Pi at the sediment-
+  water interface (Settling.nml).
+  The layer shifting dynamics is now modified with an improved flux-limiter.
+Configurations:
+----------------
+IMPORTANT: fixed a bug in array-valued parameters. This involves predator-
+  prey availability factors that where read in a wrong way.
+  Please update all your namelist files. 
+- Standalone: corrected a bug with irradiance units. The conversion in uE was
+  not done.
+- GOTM: the coupling with GOTM is supported in a hybrid way. BFM is not
+  an internal component of GOTM-BIO but uses exactly the same routines and 
+  solver schemes.
+  The GOTM source directory needs to be patched with a file provided in 
+  the BFM-gotm directory. The compilation is done in GOTM by activating 
+  the -DBFM macro.
+  It is also possible to use a temporary option for external boundary 
+  fluxes. This function will be improved in the near future.
+- NEMO: first coupling implementation with NEMO. Tested only in 1D configuration
+
+-------
+note to developers: this release takes into account all the changes logged 
+  in the branches/mav/bfm-nemo branch. All the changes have been merged and
+  the branch is closed now.
+
+SYSTEM v2.1
+- activating the BFM_GOTM key now allows the use of the other bio models in gotm
+  (modified bio_save.F90)
+SYSTEM v2.0
+- added the GOTM interface
+- changed the name of the BFM rootdir env variable from ROOTDIR to BFMDIR
+STANDALONE v1.3
+- Added bottom deposition and oxygenation fluxes (standalone.F90: envforcing_bfm)
+  STANDALONE now runs with bio_setup=2 (benthic-only setup)
+- new namelist in standalone.nml collecting all the parameters of the analytical
+  forcings
 STANDALONE v1.2
 - Added the initialisation for chl in phytoplankton via namelist. 
   Needed for running with ChlLighFlag=1 (bio_bfm.F90)
@@ -6,14 +74,3 @@ STANDALONE v1.2
 - Variables and systems are switched off according to bio_setup (bio_bfm.F90)
 - Removed the control on variable storage dependent on the bio_setup choice. 
   This allows to save pelagic variables even if the benthic-only system is run (netcdf_bfm.F90)
-STANDALONE v1.3
-- Added bottom deposition and oxygenation fluxes (standalone.F90: envforcing_bfm)
-  STANDALONE now runs with bio_setup=2 (benthic-only setup)
-- new namelist in standalone.nml collecting all the parameters of the analytical
-  forcings
-SYSTEM v2.0
-- added the GOTM interface
-- changed the name of the BFM rootdir env variable from ROOTDIR to BFMDIR
-SYSTEM v2.1
-- activating the BFM_GOTM key now allows the use of the other bio models in gotm
-  (modified bio_save.F90)

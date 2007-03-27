@@ -76,6 +76,8 @@
   integer  :: p_isw(iiPhytoPlankton)  ! Switch between parameterizations
   real(RLEN)  :: p_chEPLi(iiPhytoPlankton)  ! Maximum Iopt (uE/m2/s)
   real(RLEN)  :: p_clEPLi(iiPhytoPlankton)  ! Minimum Iopt (uE/m2/s)
+  ! p_ruEPLi = 0.25, 0.25, 0.5, 0.125 # Maximum daily shift in &
+  ! Iopt (1/d)
   real(RLEN)  :: p_ruEPLi(iiPhytoPlankton)  ! Maximum daily shift in Iopt (1/d)
   real(RLEN)  :: p_addepth(iiPhytoPlankton)  ! Adaptation depth. Meaningless with high
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -34,7 +34,7 @@
   ! The following groupmember vars are used: iiBenOrganisms, iiBenBacteria, &
   ! iiY1, iiY2, iiY4, iiY5
   ! The following constituent constants  are used: iiC, iiN, iiP
-  ! The following 0-d global box parametes are used: p_d_tot
+  ! The following 0-d global parameters are used: p_d_tot
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

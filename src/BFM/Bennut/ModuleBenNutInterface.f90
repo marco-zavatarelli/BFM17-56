@@ -191,15 +191,16 @@
 
       INTERFACE
 
-      SUBROUTINE CompleteSet(NUTR,mode,option,input,x1,y1)
+      SUBROUTINE CompleteSet(NUTR,mode,option,input,x1,value,mfac)
       USE global_mem, ONLY:RLEN
       implicit none
-      integer,intent(IN) ::NUTR
-      integer,intent(IN) ::mode
-      integer,intent(IN) ::input
-      integer,intent(IN) ::option
-      REAL(RLEN),intent(IN) ::x1
-      REAL(RLEN),intent(IN) ::y1
+      integer,intent(IN)             ::NUTR
+      integer,intent(IN)             ::mode
+      integer,intent(IN)             ::input
+      integer,intent(IN)             ::option
+      REAL(RLEN),intent(IN)          ::x1
+      REAL(RLEN),intent(IN),optional ::value
+      REAL(RLEN),intent(IN),optional ::mfac
       end SUBROUTINE CompleteSet
       end INTERFACE
 
@@ -460,15 +461,15 @@
 
       INTERFACE
 
-      REAL(RLEN) FUNCTION GetInfoFromSet(NUTR,option,input,term,x1,y1)
+      REAL(RLEN) FUNCTION GetInfoFromSet(NUTR,option,input,term,at_x,to_x)
       USE global_mem, ONLY:RLEN
       implicit none
-      integer,intent(IN) ::nutr
-      integer,intent(IN) ::term
-      integer,intent(IN) ::option
-      integer,intent(IN) ::input
-      REAL(RLEN),intent(IN) ::x1
-      REAL(RLEN),intent(IN) ::y1
+      integer,intent(IN)              ::nutr
+      integer,intent(IN)              ::term
+      integer,intent(IN)              ::option
+      integer,intent(IN)              ::input
+      REAL(RLEN),intent(IN),optional  ::at_x
+      REAL(RLEN),intent(IN),optional  ::to_x
       end FUNCTION GetInfoFromSet
       end INTERFACE
 

@@ -37,9 +37,9 @@
   ! For the following Benthic-states fluxes are defined: G2o, K6r, K1p, K11p, &
   ! K4n, K14n, Q6s
   ! The following Benthic-states are used (NOT in fluxes): D1m, D2m
-  ! The following Benthic 1-d global boxvars are modified : jK3N3n, jK4N4n
-  ! The following Benthic 1-d global boxvars got a value: jG2K7o, jK1N1p, jK5N5s
-  ! The following 0-d global box parametes are used: p_qro, p_d_tot
+  ! The following Benthic 1-d global boxvars are modified : jbotN3n, jbotN4n
+  ! The following Benthic 1-d global boxvars got a value: jG2K7o, jbotN1p, jbotN5s
+  ! The following 0-d global parameters are used: p_qro, p_d_tot
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -53,7 +53,7 @@
   use mem,  ONLY: G2o, K6r, K1p, K11p, K4n, K14n, Q6s, D1m, D2m
 #ENDIF
   use mem, ONLY: ppG2o, ppK6r, ppK1p, ppK11p, ppK4n, ppK14n, ppQ6s, &
-    ppD1m, ppD2m, jK3N3n, jK4N4n, jG2K7o, jK1N1p, jK5N5s, NO_BOXES_XY, iiBen, &
+    ppD1m, ppD2m, jbotN3n, jbotN4n, jG2K7o, jbotN1p, jbotN5s, NO_BOXES_XY, iiBen, &
     iiPel, flux_vector
   use mem_Param,  ONLY: p_qro, p_d_tot
   use mem_BenthicReturn2
@@ -113,9 +113,9 @@
   ! Phosphorus remineralization in the sediments
   !----------------------------------------------------------------------
   rate  =   p_reminN1* K1p(:)/ D1m(:)
-  ! jK1N1p is used in BenPelCoup to define the pelagic flux
+  ! jbotN1p is used in BenPelCoup to define the pelagic flux
   call flux_vector( iiBen, ppK1p,ppK1p,-( rate) )
-  jK1N1p(:)  =   rate
+  jbotN1p(:)  =   rate
   rate  =   p_K11K1p* K11p(:)/( D2m(:)- D1m(:))
   call flux_vector( iiBen, ppK11p,ppK1p, rate )
   ! K21.p is not used in this model version
@@ -125,11 +125,11 @@
   !----------------------------------------------------------------------
   rate  =   p_reminN4* K4n(:)
   ! K3.n is not used in this model version
-  jK3N3n(:)  =   rate* p_pQIN3
-  jK4N4n(:)  =   rate*( 1.0D+00- p_pQIN3)
-  ! jK3N3n is used in BenPelCoup to define the pelagic flux
-  ! jK4N4n is used in BenPelCoup to define the pelagic flux
-  call flux_vector( iiBen, ppK4n,ppK4n,-( jK3N3n(:)+ jK4N4n(:)) )
+  jbotN3n(:)  =   rate* p_pQIN3
+  jbotN4n(:)  =   rate*( 1.0D+00- p_pQIN3)
+  ! jbotN3n is used in BenPelCoup to define the pelagic flux
+  ! jbotN4n is used in BenPelCoup to define the pelagic flux
+  call flux_vector( iiBen, ppK4n,ppK4n,-( jbotN3n(:)+ jbotN4n(:)) )
   rate  =   p_K14K4n* K14n(:)/( D2m(:)- D1m(:))
   call flux_vector( iiBen, ppK14n,ppK4n, rate )
 
@@ -140,7 +140,7 @@
   call flux_vector( iiBen, ppQ6s,ppQ6s,-( rate) )
   ! K5.s is not used in this model version
 
-  jK5N5s(:)  =   rate
+  jbotN5s(:)  =   rate
 
 
 

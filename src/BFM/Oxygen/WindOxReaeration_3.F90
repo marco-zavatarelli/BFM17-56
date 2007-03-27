@@ -34,8 +34,8 @@
   ! BoxNumberY, NO_BOXES_Y, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumber, &
   ! BoxNumberXY, Wind
   ! The following Pelagic 1-d global boxvars  are used: ETW, cxoO2, Depth
-  ! The following Benthic 1-d global boxvars are modified : jOAO2o
-  ! The following 0-d global box parametes are used: AssignAirPelFluxesInBFMFlag
+  ! The following Benthic 1-d global boxvars are modified : jsurO2o
+  ! The following 0-d global parameters are used: AssignAirPelFluxesInBFMFlag
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -45,8 +45,8 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: O2o, D3STATE
   use mem, ONLY: ppO2o, BoxNumberZ, BoxNumberY, NO_BOXES_Y, NO_BOXES_Z, &
-    BoxNumberX, NO_BOXES_X, BoxNumber, BoxNumberXY, Wind, ETW, cxoO2, Depth, &
-    jOAO2o, iiBen, iiPel, flux
+    BoxNumberX, NO_BOXES_X, BoxNumber, BoxNumberXY, EWIND, ETW, cxoO2, Depth, &
+    jsurO2o, iiBen, iiPel, flux
   use mem_Param,  ONLY: AssignAirPelFluxesInBFMFlag
   use mem_WindOxReaeration_3
 
@@ -121,12 +121,12 @@
       ! Calculate wind dependency:
       !`
 
-      reacon  =   k* (Wind)**(2.0D+00)/ sqrt(  p_schmidt)
+      reacon  =   k* (EWIND(BoxNumberXY))**(2.0D+00)/ sqrt(  p_schmidt)
 
-      jOAO2o(BoxNumberXY)  =   reacon*( cxoO2(BoxNumber)- O2o(BoxNumber))
+      jsurO2o(BoxNumberXY)  =   reacon*( cxoO2(BoxNumber)- O2o(BoxNumber))
 
       if ( AssignAirPelFluxesInBFMFlag) then
-        call flux(BoxNumber, iiPel, ppO2o, ppO2o, jOAO2o(BoxNumberXY)/ &
+        call flux(BoxNumber, iiPel, ppO2o, ppO2o, jsurO2o(BoxNumberXY)/ &
           Depth(BoxNumber) )
       end if
 

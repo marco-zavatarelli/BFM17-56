@@ -63,7 +63,7 @@ global VARS
   }
   foreach jtem {state variable intvar flux } {
     foreach item {1d 3d 2d } {
-     if {  [ regexp "state|flux" $item ] &&  $item=="1d" } continue
+     if { [ regexp "state|flux" $item ] &&  $item=="1d" } continue
      set start 0
      set mode 0
      while { [ regexp -start $start -indices -line "^ *$item-$jtem+.*$" $content r ] } {
@@ -71,7 +71,7 @@ global VARS
         set start [ expr [ lindex $r 1 ] +1 ]
         if { [ regexp  {[A-Za-z0-9]+} [ lindex [ eval string range [ list $content ] $r ] 1 ] tmp ] } {
            set VARS(option) $tmp  
-        } {  catch { unset VARS(option) } }
+        } { catch { unset VARS(option) } }
         set t 1
         while { $t } {
           # find end of actual line
@@ -187,6 +187,7 @@ if { $ifstate && !$incldesc } {
       if { [ set i [ eval_selec -check $sum ] ] >0 } { return $i }
       set selec [ eval_selec -eval $sum ]
       set selec [ expand_selec_fluxes $dim $selec ]
+      if { [ llength $selec ] ==1 } { return $selec }
    }
    if { [ set i [ check_def_on_reserved_words_wrong_char $def ] ] > 0 } { return $i }
    set tmp [ string range $line [ expr [ lindex $r 1 ] +1 ] end ]
@@ -255,8 +256,8 @@ if  { $nr_of_defs ==0 && $mode < 2 } {
    if { [ info exists VARS(maxcon) ] } {
       set j 0
       if { [ regexp ^$constituents $VARS(maxcon) ] \
-          || [ set j [ regexp ^$VARS(maxcon) $constituents ] ]  } {
-          if { $j } {  set VARS(maxcon) $constituents }
+            || [ set j [ regexp ^$VARS(maxcon) $constituents ] ] } {
+         if { $j } { set VARS(maxcon) $constituents }
       }
    } else {
      set VARS(maxcon) $constituents
@@ -269,7 +270,10 @@ if  { $nr_of_defs ==0 && $mode < 2 } {
         puts stdout "error 4: constituent $constituents not at the end of group def."
         return 4
      }
-     lappend VARS($dim,$type,excluded) $name$remove
+     regsub -all . $remove "& " j
+     foreach item $j {
+       lappend VARS($dim,$type,excluded) $name$item
+     }
    }
    regsub -all {.} $tmp "& " tmp
    set i 0
@@ -346,8 +350,8 @@ foralloptions item jtem $args {
    switch -- $item {
       -read    { set mfile $jtem }
       -from    { set fromdir $jtem }
-      -to      { set todir $jtem }
-      -actions { set todo $jtem }
+      -to      { lappend ltodir $jtem }
+      -actions { lappend ltodo $jtem }
    }
 }
 
@@ -355,56 +359,71 @@ if  { ![ file exists $mfile ] } {
    puts stdout "error 12:file $mfile does not exist!"
    return
 }
-if {  [ set i [ readm $mfile ] ] >0 }  { return $i }
+if { [ set i [ readm $mfile ] ] >0 }  { return $i }
 
-foreach mode $todo {
-  set ext F90
-  switch -- $mode {
-     statemem  { set infile ModuleMem.proto }
-     allocmem  { set infile AllocateMem.proto; set ext F90 }
-     netcdfmem { set infile set_var_info_bfm.proto }
-     headermem { set infile INCLUDE.proto ; set ext h }
-  }
-
-  # delete existing file with F90 or f90 extension
-  if { ![catch {glob [ file join $todir [file rootname $infile].\[fF\]90 ] }  tmp ] } \
-                           { file delete $tmp }
-  regsub proto$ $infile $ext outfile
-  if { [ info exists todir ] } {
-    if { ![file exists $todir] } {
-        puts stdout "error 11: directory $todir does not exist"
-        return 11
-    }
-    set outfile [ file join $todir $outfile ]
-  }
-  PrintSetup -openfile $outfile
-
-  Section -reset
-  Section -incr
-  Section -incr
-  Section -incr
-
-
-  if { [ info exists fromdir ] } \
-     { set infile [ file join $fromdir $infile ] }
-  set proto [ ReadFileContent $infile ]
-
-  set start 0
-  while { [ regexp -indices -start $start -- {\%[a-zA-Z0-9\-\!]+} $proto r ] } {
-   PrintLine  -block "[ string range $proto $start [ expr [ lindex $r 0 ] -1 ] ]"
-   set tmp [ eval string range [ list $proto ] $r ]
-   if { [ regexp {^\%\!} $tmp ] } { 
-     # remove comment lines ( lines starting with %!) in the proto files
-     # these line include information for the programmers
-     regexp -line -indices -start [ lindex $r 1 ] -- {.*$} $proto r
-   } else {
-     make_output $tmp
-   }
-   set start [ expr [ lindex $r 1 ] +1 ]
-  }
-  PrintLine -block [ string range $proto $start end ]
-  PrintSetup -closefile
+if { [ llength $ltodir ] != [ llength $ltodo ] } {
+  puts stdout "error 13: the number of calls to options -to  and -actions are not equal"   
+  return
 }
+ 
+
+foreach todir $ltodir  todo $ltodo { 
+  foreach mode $todo {
+    set ext F90
+    switch -- $mode {
+       statemem  { set infile ModuleMem.proto }
+       allocmem  { set infile AllocateMem.proto; set ext F90 }
+       netcdfmem { set infile set_var_info_bfm.proto }
+       headermem { set infile INCLUDE.proto ; set ext h }
+    }
+      
+    # delete existing file with F90 or f90 extension
+    if { ![catch {glob [ file join $todir [file rootname $infile].\[fF\]90 ] }  tmp ] } \
+                           { file delete $tmp }
+    regsub proto$ $infile $ext outfile
+    if { [ info exists todir ] } {
+      if { ![file exists $todir] } {
+          puts stdout "error 11: directory $todir does not exist"
+          return 11
+      }
+      set outfile [ file join $todir $outfile ]
+    }
+    PrintSetup -openfile $outfile
+  
+    Section -reset
+    Section -incr
+    Section -incr
+    Section -incr
+
+
+    if { [ info exists fromdir ] } \
+       { set infile [ file join $fromdir $infile ] }
+    set proto [ ReadFileContent $infile ]
+
+    set error 0
+    set start 0
+    while { [ regexp -indices -start $start -- {\%[a-zA-Z0-9\-\!]+} $proto r ] } {
+      PrintLine  -block "[ string range $proto $start [ expr [ lindex $r 0 ] -1 ] ]"
+      set tmp [ eval string range [ list $proto ] $r ]
+      if { [ regexp {^\%\!} $tmp ] } { 
+        # remove comment lines ( lines starting with %!) in the proto files
+        # these line include information for the programmers
+        regexp -line -indices -start [ lindex $r 1 ] -- {.*$} $proto r
+      } else {
+        set error [ make_output $tmp ]
+        if { $error > 0 } break
+      }
+      set start [ expr [ lindex $r 1 ] +1 ]
+    }
+    if { $error > 0 } {
+      PrintSetup -errorclose $outfile
+    } else {
+      PrintLine -block [ string range $proto $start end ]
+      PrintSetup -closefile
+    }
+  }
+}
+return 0
 
 }
 
@@ -480,6 +499,16 @@ switch -- $mode {
              regsub -all {\(|\)} $name " " tmp; set grpname [ lindex $tmp 1 ] 
              incr l [ llength [ searchforgroup $dim $grpname  ] ]
           }
+          if { [ info exists VARS(ex_$type,$dim,index) ] }  {
+             set i 0
+             foreach item $VARS(ex_$type,$dim,index) { 
+                lset VARS(ex_$type,$dim,index) $i $l 
+                set l [ expr $item +$l ]
+                incr i
+             }
+          } else {
+            set VARS(ex_$type,$dim,spec) none
+          }
           PrintLine -print  $l
         } else {
           PrintLine -print [ llength $VARS($dim,$type,name) ]
@@ -506,6 +535,22 @@ switch -- $mode {
         }
       }
    }
+   3d-state-surface-array -
+   3d-state-bottom-array {
+      if { [ info exists VARS(ex_diagnos,2d,spec) ] } {
+         if { $VARS(ex_diagnos,2d,spec) == "none" } {
+            puts stdout "error: wrong sequence this variable has to be defined"
+            puts stdout "before in ModuleMem %2d-diagnos-nr is called" 
+            return 206
+         } 
+      }
+      regexp surface|bottom $mode SPEC
+      set SPEC [ string toupper $SPEC ]
+      PrintLine -print "real(RLEN),public,pointer,dimension(:,:)  :: PEL${SPEC}"
+      lappend VARS(ex_diagnos,2d,spec) $SPEC
+      lappend VARS(ex_diagnos,2d,index) [ llength $VARS($dim,$type,name) ]
+   }
+  
    3d-diaggrp-pp -
    2d-diaggrp-pp {
      regsub -all {^| } $VARS($dim,$type,name) "&pp" tmp
@@ -539,6 +584,14 @@ switch -- $mode {
    3d-state-pointer -
    2d-state-pointer {
      set tmp $VARS($dim,$type,name)
+     PrintLine -print "real(RLEN),public,dimension(:),pointer   :: [join $tmp {, } ]"
+   }
+   3d-state-surface-pointer -
+   3d-state-bottom-pointer {
+     regexp sur|bot $mode SPEC
+     set tmp $VARS($dim,$type,name)
+     set i 0 ; set n  [ llength $VARS($dim,$type,name) ]
+     while { $i <$n } { lset tmp  $i "j${SPEC}[lindex $tmp $i]" ;incr i }
      PrintLine -print "real(RLEN),public,dimension(:),pointer   :: [join $tmp {, } ]"
    }
    3d-diaggrp-assign-pp -
@@ -576,6 +629,28 @@ switch -- $mode {
          PrintLine -print  "$name => D$i${TYPE}(pp$name,:); $name=ZERO"
       }
    }
+   3d-state-surface-alloc-pointer -
+   3d-state-bottom-alloc-pointer {
+     regexp sur|bot $mode spec
+     regexp surface|bottom $mode SPEC
+     set SPEC [ string toupper $SPEC ]
+     set tmp $VARS($dim,$type,name)
+     if { ![ info exists VARS(ex_diagnos,2d,index) ] } {
+        puts stdout "error: for allocating surface/bottom arrays you need to define at them in ModuleMem.F90"
+        return 203
+     }
+     set i [ lsearch $VARS(ex_diagnos,2d,spec) $SPEC ]
+     if { $i <0 } {
+       puts stdout "error: $SPEC was not defined in ModuleMem.F90"
+     }
+     set n  [ lindex $VARS(ex_diagnos,2d,index)  $i ]
+     set m [ llength  $VARS($dim,$type,name) ]
+     PrintLine -print  "PEL${SPEC} => D2DIAGNOS($n\+1:$n\+$m,:); PEL$SPEC=ZERO"
+     foreach name $VARS($dim,$type,name) {
+         PrintLine -print  "j${spec}$name => D2DIAGNOS($n+pp$name,:); j${spec}$name=ZERO"
+     }
+   }
+
    3d-diaggrp-header -
    2d-diaggrp-header {
       regsub d $dim "" i
@@ -599,6 +674,30 @@ switch -- $mode {
          PrintLine -print ""
       }
    }
+   3d-state-surface-header -
+   3d-state-bottom-header {
+     regexp sur|bot $mode spec
+     regexp surface|bottom $mode SPEC
+     set SPEC [ string toupper $SPEC ]
+     set tmp $VARS($dim,$type,name)
+     if { ![ info exists VARS(ex_diagnos,2d,index) ] } {
+        puts stdout "error: for allocating surface/bottom arrays you need to define at them in ModuleMem.F90"
+        return 203
+     }
+     set i [ lsearch $VARS(ex_diagnos,2d,spec) $SPEC ]
+     if { $i <0 } {
+       puts stdout "error: $SPEC was not defined in ModuleMem.F90"
+     }
+     set n  [ lindex $VARS(ex_diagnos,2d,index)  $i ]
+     set m [ llength  $VARS($dim,$type,name) ]
+     PrintLine -block  "#define PEL${SPEC}(A,B) D2DIAGNOS($n+A,B)"
+     PrintLine -print ""
+     foreach name $VARS($dim,$type,name) {
+         PrintLine -block  "#define j${spec}${name}(B) D2DIAGNOS($n+pp$name,B)"
+         PrintLine -print ""
+     }
+   }
+
    3d-group-header -
    2d-group-header {
      regsub d $dim "" i
@@ -670,7 +769,48 @@ switch -- $mode {
            PrintLine -print "${unitv}($i)=\"$unit\""
         }
         lappend VARS(string,index) $i
+        set VARS(string,mode_last) $mode
      }
+   }
+   3d-state-surface-string -
+   3d-state-bottom-string {
+      if { ![info exist VARS(string,mode_last) ] } {
+        puts stdout "error: \%$mode on wrong place in AllocateMem.proto file"
+        return 204
+      } elseif { $VARS(string,mode_last) != "2d-diagnos-string" } {
+        puts stdout "error: \%$mode must appear directly after the %2d-diagnos-string in the AllocateMem.proto"
+        return 205
+      }
+      regexp sur|bot $mode spec
+      regexp surface|bottom $mode SPEC
+      set SPEC [ string toupper $SPEC ]
+      set var var_names 
+      set extvar var_long 
+      set unitv var_units 
+      set i [ lindex $VARS(string,index) end ]
+      foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) \
+                                    unit $VARS($dim,$type,unit) {
+        incr i
+        PrintLine -print "${var}($i)=\"j$spec$name\""
+        PrintLine -print "${extvar}($i)=\"flux of $extname at $SPEC\""
+        if { ![ regexp {/[A-Za-z]+[0-9]+} $unit lenunit ] } {
+          puts stdout "no length unit in unit ($unit) for $name"
+          puts stdout "adaptation of unit from mass to flux impossible"
+          puts stdout "replace \"???\" by proper units in General\/set_var_info_bfm.f90"
+          set unit "???/day"
+        } else {
+          regexp {[0-9]+} $lenunit lenpower
+          incr lenpower -1
+          regsub {[0-9]+} $lenunit $lenpower lenunit
+          regsub {/[A-Za-z]+[0-9]+} $unit $lenunit unit
+          append unit /day
+        }
+
+        PrintLine -print "${unitv}($i)=\"$unit\""
+      }
+      if { $i > 0 } {
+        lset VARS(string,index) end $i
+      }
    }
    dd-string-index {
        set j 0
@@ -727,10 +867,10 @@ switch -- $mode {
          if { $m > 0 } {
             set base [ lindex $tmp 0 ]
             set indexname [ lindex $tmp 1 ]
-            if { [ set l [ lsearch $VARS(2d,group) $indexname ]] <0  } {
+            if { [ set l [ lsearch $VARS(2d,group) $indexname ]] <0 } {
                 set l [ lsearch $VARS(3d,group) $indexname ]
             }
-            if { $l >=0  } { set l ii } { set l "" }
+            if { $l >=0 } { set l ii } { set l "" }
          }
          switch -- $m {
             3 { PrintLine -print "allocate(${base}(1:$l$indexname,\
@@ -803,7 +943,7 @@ switch -- $mode {
       regsub -all {.} $VARS(maxcon) "& " tmp
       set tmp [ string toupper $tmp ]
       set i 0 ; set n  [ llength $tmp ]
-      while { $i <$n  } { lset tmp  $i "ii[lindex $tmp $i]=[ incr i ]" }
+      while { $i <$n } { lset tmp  $i "ii[lindex $tmp $i]=[ incr i ]" }
       PrintLine -print "integer,parameter,public       :: [join $tmp {, } ]"
    }
    3d-group-parameter -
@@ -866,6 +1006,7 @@ switch -- $mode {
      }
    }
 }
+return 0
 
 }
 #EOC
@@ -896,56 +1037,60 @@ global VARS
 #-------------------------------------------------------------------------
 #BOC
 
-foreach groupname $VARS($dim,group) members $VARS($dim,member) {
+foreach groupname $VARS($dim,group) members $VARS($dim,member) constituents $VARS($dim,constituents) {
   set representative [lindex $members 0 ]
   set components [ lfind -glob -all $VARS($dim,state,name) \
 					$representative\[$VARS(maxcon)\] ]
-# set components [ lfind -glob -all $VARS($dim,state,name) \
-#				$representative\[cnpsli\] ]
   regsub $representative [ lindex $components 0 ] "" firstc
   if { $components == "" } continue
   PrintLine -print ""
   PrintLine -print "function $pre${groupname}(n,constituent)"
   Section -incr body
   PrintLine -print ""
-  PrintLine -crepeat "-="
-  PrintLine -print " ! Implicit typing is never allowed"
-  PrintLine -crepeat "-="
-  PrintLine -print "IMPLICIT NONE"
-  PrintLine -print ""
-  if { $pre == "pp" } {
-    PrintLine -print "integer  ::$pre$groupname"
-   } else {
-    PrintLine -print "real(RLEN),dimension(:),pointer  ::$pre$groupname"
-   }
+  PrintLine -print "implicit none"
   PrintLine -print "integer, intent(IN)  ::n"
   PrintLine -print "integer, intent(IN)  ::constituent"
-  PrintLine -print ""
-  PrintLine -print "integer i"
-  PrintLine -print ""
-  PrintLine -print "SELECT CASE (n)"
-  foreach ltem $members {
-    regsub $representative $ltem "" cc
-#   set s [ string index  $VARS(maxcon) [ string first $VARS(maxcon) $cc ] ]
-#   set s "ii[ string toupper $cc ]"
-    Section -incr case
-    PrintLine -print "CASE (ii$ltem)"
-    Section -incr  body
-    PrintLine -print "i = pp${ltem}$firstc"
-    Section -decr body
-    Section -decr case	
-  }
-  PrintLine -print "END SELECT"
-  PrintLine -print "i=i+ (constituent -ii[string toupper $firstc ] )"
-  PrintLine -print ""
   if { $pre == "pp" } {
-    PrintLine -print "$pre$groupname = i"
+    PrintLine -print "integer  ::$pre$groupname"
+    PrintLine -print ""
+    regsub -all {^| } $members &pp tmp
+    regsub -all { |$} $tmp $firstc& tmp
+    PrintLine -print "integer,dimension([llength $members])  :: referto=\[[join $tmp , ]\]"
+    unset tmp
+    foreach member $members {
+       set components [ lfind -glob -all $VARS($dim,state,name) \
+ 				$member\[$VARS(maxcon)\] ]
+       regexp {[a-z]+$} $components j					
+       lappend tmp [ expr [ string first $j $VARS(maxcon) ] +1 ]
+    }
+    PrintLine -print "integer,dimension([llength $members])  :: const_max=\[[join $tmp , ]\]"
+    regsub -all . $VARS(maxcon) "0 " tmp
+    set i 0
+    regsub -all . $constituents "& " split_constituents
+    foreach constituent $split_constituents {
+      lset tmp [ string first $constituent $VARS(maxcon) ] $i
+      incr i
+    }
+    PrintLine -print "integer,dimension([llength $tmp])  :: constituent_add=\[[join $tmp , ]\]"
+    PrintLine -print ""
+    PrintLine -print "if ( constituent <=const_max(n) ) then" 
+    Section -incr body
+    PrintLine -print "$pre$groupname=referto(n)+ constituent_add(constituent)"
+    Section -decr body
+    PrintLine -print "else"
+    Section -incr body
+    PrintLine -print "$pre$groupname=0"
+    Section -decr body
+    PrintLine -print "endif"
   } else {
+    PrintLine -print "real(RLEN),dimension(:),pointer  ::$pre$groupname"
+    PrintLine -print ""
     regsub d $dim "" dim2
-    PrintLine -print "$pre$groupname => D${dim2}STATE(i,:)"
+    PrintLine -print "$pre$groupname => D${dim2}STATE(pp${groupname}(n,constituent),:)"
   }
+  PrintLine -print ""
   Section -decr body
-  PrintLine -print "END function"
+  PrintLine -print "end function $pre$groupname"
 }
 
 }
@@ -1053,6 +1198,12 @@ global VARS
            set VARS(file) stdout
            return
         }
+        -errorclose {
+           close $VARS(file)
+           set VARS(file) stdout
+           file delete $file
+           return
+        }
         -stdout {
            set VARS(nonewline) 0
            Section -reset
@@ -1114,7 +1265,7 @@ global VARS
   		}
   }
 
-  if {  ![ regexp -- {-block|-nobreak} $mode ] } {
+  if { ![ regexp -- {-block|-nobreak} $mode ] } {
     set cont &
     set l [ expr 80 - 2*$lbl ]
     set comm ""
@@ -1131,9 +1282,8 @@ global VARS
        					[ set j [ llength $mm ] ] > 2 } {
          set mm [ join [ lrange $mm 0 [ set m [ expr int( $l.0 /$i * $j -1) ] ] ] $chr ]
       }
-      if {$chr=="\;" } { eval $k [ list $blank$mm ] } {  eval $k [ list $blank$mm$cont ] }
+      if {$chr=="\;" } { eval $k [ list $blank$mm ] } { eval $k [ list $blank$mm$cont ] }
       if { ![ regexp -- {-print|-num} $mode ] } { puts $VARS(file) "" }
-#     if { $mode != "-print" } { puts $VARS(file) "" }
       set ll $comm[ join [ lrange $ll [incr m ] end ] ]	
       if { $mode != "-cprint" && $chr == " " } {
         set blank [ string repeat "  " [ expr $lbl +1 ] ]
@@ -1268,7 +1418,7 @@ switch -- $mode {
             return 101
           } elseif { [ regexp {\(|\)} $tmp ] } {
             puts stdout "Error: brackets on unexpected places in flux statement '$string'"
-          } elseif { [ expr $i - [ regexp -all {[-+]} $tmp ] ] != 1  } {
+          } elseif { [ expr $i - [ regexp -all {[-+]} $tmp ] ] != 1 } {
              puts stdout " error in sum: between flux statements no - or + sign"
              puts stdout "in flux statement  $string"
              return 102
@@ -1291,7 +1441,7 @@ switch -- $mode {
        set t +
        set i 0
        set status 1
-       while { $status > 0   } {
+       while { $status > 0 } {
          if { $status==1 } {
             set j [ regexp -indices -start $i $l $string r ]
             set status 0
@@ -1361,7 +1511,7 @@ while { $j } {
         incr i
         set rest [ lreplace $jtem $i $i ]
         set l [ lsearch -all -inline -regexp $VARS($dim,state,name) $state ]
-        if { [ llength $l ]==0  } {
+        if { [ llength $l ]==0 } {
           puts stdout "State var $state does not exist"
           return 105
         }
@@ -1384,8 +1534,8 @@ set states [ lindex $string 0 ]
 if { [ regexp {[+]} $states ] } { set states [ split $states + ] }
 foreach jtem $states {
   set l [ lsearch -all -inline -regexp $VARS($dim,state,name) $jtem ]
-  if { [ llength $l ] == 0  } {
-    puts stdout "State var $state does not exist"
+  if { [ llength $l ] == 0 } {
+    puts stdout "Error: State var $state does not exist"
     return 105
   }
   # add line for each state var and replace * with state varname
@@ -1418,11 +1568,10 @@ foreach item $coll {
 }
 
 
-
 #-------------------------------------------------------------------------
 #    Copyright Piet Ruardij, NIOZ,NL (rua@nioz.nl) and BFM-team   2006
 #-------------------------------------------------------------------------
 
 
- eval make_f90 $argv
+exit [ eval make_f90 $argv ]
 

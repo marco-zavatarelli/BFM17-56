@@ -13,7 +13,6 @@
 !       and computation of oxygen penetration depth
 !
 !
-
 !   This file is generated directly from OpenSesame model code, using a code 
 !   generator which transposes from the sesame meta language into F90.
 !   F90 code generator written by P. Ruardij.
@@ -25,12 +24,12 @@
 ! !USES:
 
   ! For the following Benthic-states fluxes are defined: D1m, G2o, D2m
-  ! The following global scalar vars are used: LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : shiftD1m, jG2O2o
+  ! The following global scalar vars are used: InitializeModel, LocalDelta
+  ! The following Benthic 1-d global boxvars are modified : shiftD1m, jbotO2o
   ! The following Benthic 1-d global boxvars are used: ETW_Ben, irrenh, &
   ! rrBTo, jG2K3o, jG2K7o, O2o_Ben
   ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global box parametes are used: p_small, p_d_tot, &
+  ! The following 0-d global parameters are used: p_small, p_d_tot, &
   ! CalcBenthicFlag
   ! The following global constants are used: RLEN
   ! The following constants are used: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO
@@ -39,20 +38,18 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,LOGUNIT
 #IFDEF NOPOINTERS
   use mem,  ONLY: D2STATE
 #ELSE
   use mem,  ONLY: D1m, G2o, D2m
 #ENDIF
-  use mem, ONLY: ppD1m, ppG2o, ppD2m, LocalDelta, shiftD1m, jG2O2o, &
-    ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
+  use mem, ONLY: ppD1m, ppG2o, ppD2m, InitializeModel, LocalDelta, shiftD1m, &
+    jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
     iiPel, flux_vector
   use constants,  ONLY: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO
   use mem_Param,  ONLY: p_poro, p_small, p_d_tot, CalcBenthicFlag
   use mem_BenOxygen
-
-
 
 !  
 !
@@ -60,13 +57,9 @@
 !   P. Ruardij
 !
 !
-!
-! !REVISION_HISTORY
-!   !
-!
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij & M.Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -96,7 +89,6 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: D1mNew
   real(RLEN),dimension(NO_BOXES_XY)  :: G2oNew
   real(RLEN),dimension(NO_BOXES_XY)  :: unc_shiftD1m
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -122,26 +114,29 @@
   ! Calculate rate of change of thickness of the aerobic layer:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  unc_shiftD1m  =   max(  p_mD1m,  D1mNew)- D1m(:)
+  shiftD1m(:)  =  ( max(  p_mD1m,  D1mNew)- D1m(:))/ ONE_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Damping the change of D1m in case of large changes,
-  ! in case of too thick D1m, and in case of too large negative changes
+  ! Damping the change of D1m in case of large changes
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  shiftD1m(:) = unc_shiftD1m* (D1m(:)/( D1m(:)+ &
-    abs(unc_shiftD1m)))**(p_xdampingD1m)*( p_chD1m/( p_chD1m+ D1m(:)))/ &
-    ONE_PER_DAY
-  r  =   max(  0.0D+00,  p_d_tot- p_chD1m- D1m(:))
-  shiftD1m(:)  =   shiftD1m(:)* r/( r+ p_chD1m)
+  if ( InitializeModel== 0) then
+    shiftD1m(:) = shiftD1m(:)* (D1m(:)/( D1m(:)+ &
+      abs(shiftD1m(:))))**(p_xdampingD1m)*( p_chD1m/( p_chD1m+ D1m(:)))
+  end if
 
-  call flux_vector( iiBen, ppD1m,ppD1m, shiftD1m(:) )
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Damping the change of D1m in case of too thick D1m
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  r= min( shiftD1m(:),max(0.0,p_d_tot-p_chD1m-D1m(:)))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! recalculate the new D1mNew at the actual time step:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  D1mNew  =   D1m(:)+ shiftD1m(:)* LocalDelta
+  D1mNew  =   D1m(:)+ r* LocalDelta
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! calculate the consumption which belongs to the corrected D1mNew
@@ -160,16 +155,27 @@
   ! flux to pelagic: correct flux for rate of change of G2o
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  jG2O2o(:) = -( rrBTo(:)+ jG2K3o(:)+ jG2K7o(:))-( G2oNew- G2o(:))/ &
+  jbotO2o(:) = -( rrBTo(:)+ jG2K3o(:)+ jG2K7o(:))-( G2oNew- G2o(:))/ &
     ONE_PER_DAY
-  call flux_vector( iiBen, ppG2o,ppG2o,-( jG2O2o(:)) )
 
-  if ( CalcBenthicFlag== BENTHIC_BIO) then
-    ! Compute shifting of the denitrification layer here in case of running only
-    ! the benthic submodel and NOT the benthic nutrient model.
-    r  =   p_d_tot- D2m(:)
-    call flux_vector( iiBen, ppD2m,ppD2m, shiftD1m(:)* r/( r+ 0.01D+00) )
-  end if
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  !  Assign fluxes
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if ( InitializeModel== 0) then
+    shiftD1m(:)=r
+!   if ( D1m(1).gt.0.285) then
+!     write(LOGUNIT,'(''D1m='',F10.3,'' Change='',F10.4)') D1m(1),r(1)
+!   endif
+    call flux_vector( iiBen, ppD1m,ppD1m, r )
+    call flux_vector( iiBen, ppG2o,ppG2o,-( jbotO2o(:)) )
+
+    if ( CalcBenthicFlag== BENTHIC_BIO) then
+      ! Compute shifting of the denitrification layer here in case of running only
+      ! the benthic submodel and NOT the benthic nutrient model.
+      r  =   p_d_tot- D2m(:)
+      call flux_vector( iiBen, ppD2m,ppD2m, shiftD1m(:)* r/( r+ 0.01D+00) )
+    end if
+  endif
 
 
 

@@ -1,4 +1,4 @@
-#ifdef BFM_NOPOINTERS 1
+#ifdef BFM_NOPOINTERS
 
 
 #define NOPOINTERS 1
@@ -8,6 +8,8 @@
 %2d-group-header
 %3d-diagnos-header
 %2d-diagnos-header
+%3d-state-surface-header
+%3d-state-bottom-header
 %3d-diaggrp-header
 %2d-diaggrp-header
 

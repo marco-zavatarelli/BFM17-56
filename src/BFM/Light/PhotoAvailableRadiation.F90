@@ -47,7 +47,7 @@
   ! The following Pelagic 2-d global boxvars are modified : EPLi
   ! The following Pelagic 2-d global boxvars got a value: eiPI
   ! The following constituent constants  are used: iiL
-  ! The following 0-d global box parametes are used: LightForcingFlag
+  ! The following 0-d global parameters are used: LightForcingFlag
   ! The following global constants are used: RLEN,NOTRANSPORT
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

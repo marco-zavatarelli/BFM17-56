@@ -60,9 +60,7 @@
    
         REAL(RLEN) ::xh
 
-        if (NUTR /= nutr_seq) then
-           stop 'error: wrong use of routine'
-        endif
+        if (NUTR /= nutr_seq) stop 'error: wrong use of routine'
 
         !calculate coefficients.......
         if (ns%nn == 0.or.nn_boundaries == 0) then
@@ -74,8 +72,8 @@
                                                  ns%nn,nn_boundaries
         endif
 
-        if ( mode == ADD .or. mode == SUBTRACT ) then
-          call CompleteSet(NUTR,ADD,0,0,0.0D+00,yinput)
+        if ( mode == ADD ) then
+          call CompleteSet(NUTR,ADD,0,0,0.0D+00,value=yinput)
           ns%factor(1:nn_boundaries)=Y2(1:nn_boundaries)
           if (ns%imethod == 0) then
             call ludcmp(nn_boundaries,C,iindx,xh)
@@ -109,7 +107,7 @@
             Y2(nn_boundaries:nn_boundaries)=0.0D+00
             nn_boundaries=ns%nn-1
             call re_Store(-nn_boundaries,C,C,ns%nn,ns%nn)
-            call CompleteSet(NUTR,mode,option,input,xinput,yinput)
+            call CompleteSet(NUTR,mode,option,input,xinput,value=yinput)
             xh=CalculateFromCondition(ns%nn,C,ns%factor,ns%nn)
             xh=max(yinput,xh)
             CalculateSet=xh

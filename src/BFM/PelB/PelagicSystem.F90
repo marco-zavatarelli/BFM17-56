@@ -21,18 +21,12 @@
   subroutine PelagicSystemDynamics
 !
 ! !USES:
-  ! The following Pelagic-states are used (NOT in fluxes): P1p, P2p, P3p, P4p, &
-  ! B1p, Z3p, Z4p, Z5p, Z6p, R1p, R6p, N1p, P1n, P2n, P3n, P4n, B1n, Z3n, Z4n, &
-  ! Z5n, Z6n, R1n, R6n, N3n, N4n, O4n, P1s, R6s, N5s
-  ! The following Pelagic-states are used (NOT in fluxes): P1c, P1n, P1p, P1s, &
-  ! P1l, P2c, P2n, P2p, P2s, P2l, P3c, P3n, P3p, P3s, P3l, P4c, P4n, P4p, P4s, &
-  ! P4l, Z3c, Z3n, Z3p, Z4c, Z4n, Z4p, Z5c, Z5n, Z5p, Z6c, Z6n, Z6p
   ! The following Pelagic 1-d global boxvars  are used: Depth
   ! The following Benthic 1-d global boxvars are modified : totpeln, totpels
   ! The following Benthic 1-d global boxvars  are used: totpelp
   ! The following groupmember vars are used: iiP1, iiP2, iiP3, iiP4, iiZ3, iiZ4, &
   ! iiZ5, iiZ6
-  ! The following 0-d global box parametes are used: &
+  ! The following 0-d global parameters are used: &
   ! ChlLightFlag
   ! The following global constants are used: RLEN
 
@@ -41,16 +35,12 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem, ONLY: P1p, P2p, P3p, P4p, B1p, Z3p, Z4p, Z5p, Z6p, R1p, R6p, N1p, &
-    P1n, P2n, P3n, P4n, B1n, Z3n, Z4n, Z5n, Z6n, R1n, R6n, N3n, N4n, O4n, P1s, &
-    R6s, N5s, D2STATE
   use mem, ONLY: ppP1p, ppP2p, ppP3p, ppP4p, ppB1p, ppZ3p, ppZ4p, ppZ5p, &
     ppZ6p, ppR1p, ppR6p, ppN1p, ppP1n, ppP2n, ppP3n, ppP4n, ppB1n, ppZ3n, ppZ4n, &
     ppZ5n, ppZ6n, ppR1n, ppR6n, ppN3n, ppN4n, ppO4n, ppP1s, ppR6s, ppN5s, ppP1c, &
     ppP1l, ppP2c, ppP2l, ppP3c, ppP3l, ppP4c,  ppP4l, ppZ3c,ppZ4c, ppZ5c, ppZ6c, &
-    ppP2s, ppP3s, ppP4s,  &
-    Depth, totpeln, totpels, totpelp, iiP1, iiP2, iiP3, iiP4,&
-    iiZ3, iiZ4, iiZ5, iiZ6, iiBen, iiPel, flux 
+    ppP2s, ppP3s, ppP4s
+    use mem, ONLY: iiP1, iiP2, iiP3, iiP4,iiZ3, iiZ4, iiZ5, iiZ6, iiBen, iiPel, flux 
    
   use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
@@ -69,21 +59,16 @@
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-
-
 !  
 !
 ! !AUTHORS
 !   ERSEM team
 !
-!
-!
 ! !REVISION_HISTORY
-!   !
-!
+
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -104,11 +89,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Local Variables
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
 
   call  CalcChlorophylla( )
 
@@ -122,8 +102,9 @@
 
   call  CalcOxygenSaturation( )
 
-
+#ifndef BFM_NEMO
   call OxygenReaerationDynamics
+#endif
 
   if ( ChlLightFlag== 1) then
     if ( CalcPhytoPlankton(iiP1)) then
@@ -190,7 +171,7 @@
   if ( CalcMesoZooPlankton(iiZ3)) then
     call MesoZooDynamics( iiZ3, ppZ3c, ppZ3n, ppZ3p)
   end if
-  if ( CalcMesoZooPlankton(iiZ3)) then
+  if ( CalcMesoZooPlankton(iiZ4)) then
     call MesoZooDynamics( iiZ4, ppZ4c, ppZ4n, ppZ4p)
   end if
   if ( CalcMicroZooPlankton(iiZ5)) then
@@ -205,13 +186,6 @@
   if ( CalcPelChemistry) then
     call PelChemDynamics
   end if
-
-    totpelp(1) = sum((P1p+ P2p+ P3p+ P4p+ B1p+ Z3p+ Z4p+ Z5p+ Z6p+ R1p+ R6p+ &
-      N1p)* Depth)
-    totpeln(1) =sum( (P1n+ P2n+ P3n+ P4n+ B1n+ Z3n+ Z4n+ Z5n+ Z6n+ R1n+ R6n+ &
-      N3n+ N4n+ O4n)* Depth)
-    totpels(1)  = sum( (P1s+ R6s+ N5s)* Depth)
-
 
 
   end

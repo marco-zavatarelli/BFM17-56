@@ -61,7 +61,7 @@
          call do_bio_bfm(first)
 #endif
       case default
-         stop "bio: no valid biomodel specified in bio.inp !"
+         stop "bio: no valid biomodel specified in bio.nml !"
    end select
    return
 

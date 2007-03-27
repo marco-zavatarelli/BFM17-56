@@ -28,7 +28,7 @@
   ! The following Pelagic 1-d global boxvars are modified : Chla
   ! The following groupmember vars  are used: iiPhytoPlankton
   ! The following constituent constants  are used: iiC, iiL
-  ! The following 0-d global box parametes are used: ChlLightFlag
+  ! The following 0-d global parameters are used: ChlLightFlag
   ! The following 1-d global parameter vars are used: p_qchlc
   ! The following global constants are used: RLEN
 

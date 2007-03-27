@@ -81,7 +81,7 @@
 %2d-state-alloc-pointer
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Start the allocation of other pelagic states
+  ! Start the allocation of other pelagic variables which can be outputted
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
@@ -91,9 +91,23 @@
 %3d-diagnos-alloc-pointer
 %3d-diaggrp-alloc-pointer
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of other benthic vairables which can vbe outputted 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 %2d-diaggrp-assign-pp
 %2d-diagnos-alloc-pointer
 %2d-diaggrp-alloc-pointer
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%3d-state-surface-alloc-pointer 
+%3d-state-bottom-alloc-pointer 
+
+
+
 
 %3d-variable-alloc
 

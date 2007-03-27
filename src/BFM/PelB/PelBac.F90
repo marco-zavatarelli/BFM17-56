@@ -29,7 +29,7 @@
   ! The following Pelagic 1-d global boxvars are modified : flPTN6r
   ! The following Pelagic 1-d global boxvars are used: ETW, qnB1c, qpB1c, &
   ! eO2mO2, qpR6c, qnR6c
-  ! The following 0-d global box parametes are used: p_pe_R1c, p_pe_R1n, &
+  ! The following 0-d global parameters are used: p_pe_R1c, p_pe_R1n, &
   ! p_pe_R1p, p_qro
   ! The following global constants are used: RLEN
   ! The following constants are used: MW_C, ONE_PER_DAY
@@ -140,7 +140,6 @@
   real(RLEN),dimension(NO_BOXES)  :: qnR1c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect on pelagic bacteria:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -170,8 +169,8 @@
   ! Calculate quota in R1c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  qpR1c  =   R1p(:)/ R1c(:)
-  qnR1c  =   R1n(:)/ R1c(:)
+  qpR1c  =   R1p(:)/ (1.0D-80 + R1c(:))
+  qnR1c  =   R1n(:)/ (1.0D-80 + R1c(:))
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -192,7 +191,7 @@
       ! No correction of food avilabilities:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      cuR1  =   1.0D+00
+      cuR1  =   min(  1.0D+00, qpR1c/ p_qpc,  qnR1c/ p_qnc)
       cuR6  =   1.0D+00
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -223,11 +222,8 @@
       ! correction of food avilabilities dependent on internal quota
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      cuR1  =   min(  qpR1c/ p_qpc,  qnR1c/ p_qnc)
-      cuR1  =   min(  1.0D+00,  cuR1)
-
-      cuR6  =   min(  qpR6c(:)/ p_qpc,  qnR6c(:)/ p_qnc)
-      cuR6  =   min(  1.0D+00,  cuR6)
+      cuR1  =   min(  1.0D+00, qpR1c(:)/ p_qpc,  qnR1c(:)/ p_qnc)
+      cuR6  =   min(  1.0D+00, qpR6c(:)/ p_qpc,  qnR6c(:)/ p_qnc)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! oxygen environment:
@@ -238,9 +234,6 @@
 
       eO2  =   MM_vector(  (O2o(:))**(3.0D+00),  (p_chdo)**(3.0D+00))
 
-
-
-
   end select
 
 
@@ -248,10 +241,10 @@
   ! Calculate amount for R1, R6, and R2 and total amount of substrate avilable
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  ruR1c  =   p_suR1* cuR1* R1c(:)
+  ruR1c  =   (p_suhR1* cuR1(:) + p_sulR1*(1.0D+00-cuR1(:))) * R1c(:)
   ruR6c  =   p_suR6* cuR6* R6c(:)
   ruR2c  =   p_suR2* R2c(:)
-  rut  =   ruR6c+ ruR2c+ ruR1c
+  rut  =   1.0D-80 + ruR6c+ ruR2c+ ruR1c
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Actual uptake by bacteria
@@ -381,13 +374,13 @@
       ! insw: No excretion if net. growth <0
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      ren  =   run*(( ruR6n+ ruR1n)/ run- p_qnc)* insw_vector(  run)
+      ren  =   run*(( ruR6n+ ruR1n)/(1.0D-80 + run)- p_qnc) * insw_vector(run)
       ! excess of nutrients : ren > 0
-      r  =   insw_vector(  ren)
+      r  =   insw_vector(ren)
       call flux_vector( iiPel, ppB1n,ppN4n, r* ren )
 
       ! shortage of nutrients : ren < 0 --> Nutrient uptake
-      runn  =   min( - ren,  rumn)*( 1.0D+00- r)
+      runn  =   min( - ren,  rumn)*insw_vector(-ren) 
       call flux_vector(iiPel, ppN4n,ppB1n, runn* rumn4/( 1.0D-80+ rumn))
       call flux_vector(iiPel, ppN3n,ppB1n, runn* rumn3/( 1.0D-80+ rumn))
 
@@ -396,15 +389,14 @@
       ! insw: No excretion if net. growth <0
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      rep  =   run*(( ruR6p+ ruR1p)/ run- p_qpc)* insw_vector(  run)
+      rep  =   run*(( ruR6p+ ruR1p)/(1.0D-80+  run)- p_qpc) * insw_vector(run)
       ! excess of nutrients : rep > 0
       r  =   insw_vector(  rep)
       call flux_vector( iiPel, ppB1p,ppN1p, rep* r )
 
       ! shortage of nutrients : rep < 0 --> Nutrient uptake
-      runp  =   min( - rep,  rump)*( 1.0D+00- r)
+      runp  =   min( - rep,  rump)* insw_vector(-rep)
       call flux_vector( iiPel, ppN1p,ppB1p, runp )
-
 
 
   end select

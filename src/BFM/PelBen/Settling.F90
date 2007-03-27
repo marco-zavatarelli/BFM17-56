@@ -36,12 +36,12 @@
   ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
   ! BoxNumber, BoxNumberXY
   ! The following Pelagic 1-d global boxvars  are used: Depth
-  ! The following Benthic 1-d global boxvars are modified : rutQ6c, &
-  ! rutQ6n, rutQ6p, rutQ6s, rutQ1c, rutQ1n, rutQ1p
+  ! The following Benthic 1-d global boxvars are modified : jbotR6c, &
+  ! jbotR6n, jbotR6p, jbotR6s, jbotR1c, jbotR1n, jbotR1p
   ! The following Pelagic 2-d global boxvars  are used: sediPI
   ! The following groupmember vars  are used: iiPhytoPlankton, iiP1
   ! The following constituent constants  are used: iiC, iiN, iiP, iiS
-  ! The following 0-d global box parametes are used: CalcBenthicFlag, &
+  ! The following 0-d global parameters are used: &
   ! p_pe_R1c, p_pe_R1n, p_pe_R1p
   ! The following global constants are used: RLEN
 
@@ -50,16 +50,16 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem,  ONLY: R1c, R6c, R1n, R6n, R1p, R6p, R6s, PhytoPlankton, D3STATE
+  use mem,  ONLY: R1c, R2c, R6c, R1n, R6n, R1p, R6p, R6s, PhytoPlankton, D3STATE
   use mem, ONLY: ppR1c, ppR6c, ppR1n, ppR6n, ppR1p, ppR6p, &
     ppR6s, ppPhytoPlankton, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
-    BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, Depth, rutQ6c, rutQ6n, rutQ6p, &
-    rutQ6s, rutQ1c, rutQ1n, rutQ1p, sediPI, iiPhytoPlankton, iiP1, iiC, iiN, iiP, &
-    iiS, iiBen, iiPel, flux
-  use mem_Param,  ONLY: CalcBenthicFlag, p_pe_R1c, p_pe_R1n, p_pe_R1p
+    BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
+    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, iiPhytoPlankton, &
+    iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
+  use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
   use mem_Settling
-
-
+  use mem_PelBac, ONLY: p_suhR1,p_sulR1,p_suR2,p_suR6, &
+                        p_qnBc=>p_qnc,p_qpBc=>p_qpc
 
 !
 !
@@ -102,22 +102,23 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
+  integer  :: j
   integer  :: seq
   real(RLEN)  :: sedi
   real(RLEN)  :: psed
   real(RLEN)  :: ruQIc
   real(RLEN)  :: ruQIn
   real(RLEN)  :: ruQIp
-  real(RLEN)  :: ruQIs
   real(RLEN)  :: ruQ1c
   real(RLEN)  :: ruQ1n
   real(RLEN)  :: ruQ1p
-  real(RLEN)  :: ruQ1s
   real(RLEN)  :: ruQ6c
   real(RLEN)  :: ruQ6n
   real(RLEN)  :: ruQ6p
+  real(RLEN)  :: ruQIl
   real(RLEN)  :: ruQ6s
-  real(RLEN)  :: ruQ6m
+  real(RLEN)  :: s
+  real(RLEN)  :: p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! user defined external functions
@@ -141,85 +142,109 @@
       ! to avoid problems with the definitions of Pel. fluxes .
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      rutQ6c(BoxNumberXY)  =   0.0D+00
-      rutQ6n(BoxNumberXY)  =   0.0D+00
-      rutQ6p(BoxNumberXY)  =   0.0D+00
-      rutQ6s(BoxNumberXY)  =   0.0D+00
+      jbotR6c(BoxNumberXY)  =   0.0D+00
+      jbotR6n(BoxNumberXY)  =   0.0D+00
+      jbotR6p(BoxNumberXY)  =   0.0D+00
+      jbotR6s(BoxNumberXY)  =   0.0D+00
 
-      rutQ1c(BoxNumberXY)  =   0.0D+00
-      rutQ1n(BoxNumberXY)  =   0.0D+00
-      rutQ1p(BoxNumberXY)  =   0.0D+00
-
-
-      if ( CalcBenthicFlag> 0) then
-        do i = 1 , ( iiPhytoPlankton)
-
-          sedi  =   sediPI(i,BoxNumber)
-          if ( sedi> 0.0D+00) then
+      jbotR1c(BoxNumberXY)  =   0.0D+00
+      jbotR1n(BoxNumberXY)  =   0.0D+00
+      jbotR1p(BoxNumberXY)  =   0.0D+00
 
 
-            lcl_PhytoPlankton => PhytoPlankton(i,iiC)
-            ruQIc  =   sedi* lcl_PhytoPlankton(BoxNumber)
-            ruQ1c  =   p_pe_R1c* ruQIc
-            ruQ6c  =   ruQIc- ruQ1c
-            call flux(BoxNumber, iiPel, ppPhytoPlankton(i,iiC), &
-              ppPhytoPlankton(i,iiC), -( ruQIc/ Depth(BoxNumber)) )
-            call flux(BoxNumber, iiPel, ppR1c, ppR1c, ruQ1c/ Depth(BoxNumber) )
-            call flux(BoxNumber, iiPel, ppR6c, ppR6c, ruQ6c/ Depth(BoxNumber) )
-            rutQ1c(BoxNumberXY)  =   rutQ1c(BoxNumberXY)+ ruQ1c
-            rutQ6c(BoxNumberXY)  =   rutQ6c(BoxNumberXY)+ ruQ6c
+    
+       do i = 1 , ( iiPhytoPlankton)
 
-            lcl_PhytoPlankton => PhytoPlankton(i,iiN)
-            ruQIn  =   sedi* lcl_PhytoPlankton(BoxNumber)
-            ruQ1n  =   p_pe_R1n* ruQIn
-            ruQ6n  =   ruQIn- ruQ1n
-            call flux(BoxNumber, iiPel, ppPhytoPlankton(i,iiN), &
-              ppPhytoPlankton(i,iiN), -( ruQIn/ Depth(BoxNumber)) )
-            call flux(BoxNumber, iiPel, ppR1n, ppR1n, ruQ1n/ Depth(BoxNumber) )
-            call flux(BoxNumber, iiPel, ppR6n, ppR6n, ruQ6n/ Depth(BoxNumber) )
-            rutQ1n(BoxNumberXY)  =   rutQ1n(BoxNumberXY)+ ruQ1n
-            rutQ6n(BoxNumberXY)  =   rutQ6n(BoxNumberXY)+ ruQ6n
+        sedi  =   sediPI(i,BoxNumber)
+        if ( sedi> 0.0D+00.and.   p_burvel_PI > 0.0  ) then
+          j=ppPhytoPlankton(i,iiC)
+          lcl_PhytoPlankton => PhytoPlankton(i,iiC)
+          ruQIc  =   sedi* lcl_PhytoPlankton(BoxNumber)
+          ruQ1c  =   p_pe_R1c* ruQIc
+          ruQ6c  =   ruQIc- ruQ1c
+          PELBOTTOM(j,BoxNumberXY)=  - ruQIc
+          call flux(BoxNumber, iiPel, ppR1c, ppR1c, ruQ1c/ Depth(BoxNumber) )
+          call flux(BoxNumber, iiPel, ppR6c, ppR6c, ruQ6c/ Depth(BoxNumber) )
+          jbotR1c(BoxNumberXY)  =   jbotR1c(BoxNumberXY)- ruQ1c
+          jbotR6c(BoxNumberXY)  =   jbotR6c(BoxNumberXY)- ruQ6c
 
-            lcl_PhytoPlankton => PhytoPlankton(i,iiP)
-            ruQIp  =   sedi* lcl_PhytoPlankton(BoxNumber)
-            ruQ1p  =   p_pe_R1p* ruQIp
-            ruQ6p  =   ruQIp- ruQ1p
-            call flux(BoxNumber, iiPel, ppPhytoPlankton(i,iiP), &
-              ppPhytoPlankton(i,iiP), -( ruQIp/ Depth(BoxNumber)) )
-            call flux(BoxNumber, iiPel, ppR1p, ppR1p, ruQ1p/ Depth(BoxNumber) )
-            call flux(BoxNumber, iiPel, ppR6p, ppR6p, ruQ6p/ Depth(BoxNumber) )
-            rutQ1p(BoxNumberXY)  =   rutQ1p(BoxNumberXY)+ ruQ1p
-            rutQ6p(BoxNumberXY)  =   rutQ6p(BoxNumberXY)+ ruQ6p
+          j=ppPhytoPlankton(i,iiN)
+          lcl_PhytoPlankton => PhytoPlankton(i,iiN)
+          ruQIn  =   sedi* lcl_PhytoPlankton(BoxNumber)
+          ruQ1n  =   p_pe_R1n* ruQIn
+          ruQ6n  =   ruQIn- ruQ1n
+          PELBOTTOM(j,BoxNumberXY)=  - ruQIn
+          call flux(BoxNumber, iiPel, ppR1n, ppR1n, ruQ1n/ Depth(BoxNumber) )
+          call flux(BoxNumber, iiPel, ppR6n, ppR6n, ruQ6n/ Depth(BoxNumber) )
+          jbotR1n(BoxNumberXY)  =   jbotR1n(BoxNumberXY)- ruQ1n
+          jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
 
-            if ( i== iiP1) then
-              lcl_PhytoPlankton => PhytoPlankton(i,iiS)
-              ruQ6s  =   sedi* lcl_PhytoPlankton(BoxNumber)
-              call flux(BoxNumber, iiPel, ppPhytoPlankton(i,iiS), &
-                ppPhytoPlankton(i,iiS), -( ruQ6s/ Depth(BoxNumber)) )
-              call flux(BoxNumber, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(BoxNumber) &
-                )
-              rutQ6s(BoxNumberXY)  =   rutQ6s(BoxNumberXY)+ ruQ6s
-            end if
+          j=ppPhytoPlankton(i,iiP)
+          lcl_PhytoPlankton => PhytoPlankton(i,iiP)
+          ruQIp  =   sedi* lcl_PhytoPlankton(BoxNumber)
+          ruQ1p  =   p_pe_R1p* ruQIp
+          ruQ6p  =   ruQIp- ruQ1p
+          PELBOTTOM(j,BoxNumberXY)= - ruQIp
+          call flux(BoxNumber, iiPel, ppR1p, ppR1p, ruQ1p/ Depth(BoxNumber) )
+          call flux(BoxNumber, iiPel, ppR6p, ppR6p, ruQ6p/ Depth(BoxNumber) )
+          jbotR1p(BoxNumberXY) =jbotR1p(BoxNumberXY)- ruQ1p
+          jbotR6p(BoxNumberXY) =jbotR6p(BoxNumberXY)- ruQ6p
 
+          j=ppPhytoPlankton(i,iiL)
+          lcl_PhytoPlankton => PhytoPlankton(i,iiL)
+          ruQIl  =   sedi* lcl_PhytoPlankton(BoxNumber)
+          PELBOTTOM(j,BoxNumberXY)=  - ruQIl
+          j=ppPhytoPlankton(i,iiS)
+          if ( j> 0) then
+            lcl_PhytoPlankton => PhytoPlankton(i,iiS)
+            ruQ6s  =   sedi* lcl_PhytoPlankton(BoxNumber)
+            PELBOTTOM(j,BoxNumberXY)  = - ruQ6s
+            call flux(BoxNumber, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(BoxNumber))
+            jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
           end if
 
+        else
+          PELBOTTOM(ppPhytoPlankton(i,iiC),BoxNumberXY) = 0.0D+00
+          PELBOTTOM(ppPhytoPlankton(i,iiN),BoxNumberXY) = 0.0D+00
+          PELBOTTOM(ppPhytoPlankton(i,iiP),BoxNumberXY) = 0.0D+00
+          PELBOTTOM(ppPhytoPlankton(i,iiL),BoxNumberXY) = 0.0D+00
+          j=ppPhytoPlankton(i,iiS)
+          if ( j>0) PELBOTTOM(j,BoxNumberXY) = 0.0D+00
+        end if
+      end do
 
-        end do
 
+      ! R2 into Q1:nd Q6
+      if ( sediR2(BoxNumber) > 0.0 .and. p_burvel_R2 > 0.0) then
+        ! Calculate how the intermediate degradable R2 has to be redistrubuted 
+        ! between R1 and R6 in such a way that the degradability is the same
 
-        ! R6 into Q6:
+        ! Calculate first actual degradability of LOC ( dependent of quotum NC,PC)
+        p = min(1.0D+00, R1n(BoxNumber)/(R1c(BoxNumber)* p_qnBc), &
+                                 R1p(BoxNumber)/(R1c(BoxNumber)*p_qpBc))
+        ! Calculate actual degradability of R1
+        s= p_suhR1*p-p_sulR1* ( 1.0D+00-p)
+        ! Calculate distribution factor for R2 between R1 and R6
+        p=(p_suR2-p_suR6)/(s-p_suR6)
 
-        ruQ6c  =   p_burvel* R6c(BoxNumber)
-        ruQ6n  =   p_burvel* R6n(BoxNumber)
-        ruQ6p  =   p_burvel* R6p(BoxNumber)
-        ruQ6s  =   p_burvel* R6s(BoxNumber)
+        jbotR1c(BoxNumberXY)=jbotR1c(BoxNumberXY)- &
+                                         p*p_burvel_R2 * R2c(BoxNumberXY)
+        jbotR6c(BoxNumberXY)=jbotR6c(BoxNumberXY)-&
+                                 (1.0D+00-p)*p_burvel_R2 * R2c(BoxNumberXY)
+        
+      endif
+      ! R6 into Q6:
 
-        rutQ6c(BoxNumberXY)  =   rutQ6c(BoxNumberXY)+ ruQ6c
-        rutQ6n(BoxNumberXY)  =   rutQ6n(BoxNumberXY)+ ruQ6n
-        rutQ6p(BoxNumberXY)  =   rutQ6p(BoxNumberXY)+ ruQ6p
-        rutQ6s(BoxNumberXY)  =   rutQ6s(BoxNumberXY)+ ruQ6s
+      ruQ6c  =   p_burvel_R6* R6c(BoxNumber)
+      ruQ6n  =   p_burvel_R6* R6n(BoxNumber)
+      ruQ6p  =   p_burvel_R6* R6p(BoxNumber)
+      ruQ6s  =   p_burvel_R6* R6s(BoxNumber)
 
-      end if
+      jbotR6c(BoxNumberXY)  =   jbotR6c(BoxNumberXY)- ruQ6c
+      jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
+      jbotR6p(BoxNumberXY)  =   jbotR6p(BoxNumberXY)- ruQ6p
+      jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
+
 
 
     end DO

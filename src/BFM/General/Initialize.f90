@@ -18,12 +18,15 @@
   SUBROUTINE Initialize
 !
 ! USES:
+  use mem, only: InitializeModel,ppMicroZooplankton,ppMesoZooPlankton, &
+                 MicroZooplankton,MesoZooPlankton,iiMicroZooplankton,  &
+                 iiMesoZooPlankton,NO_BOXES,iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
   use mem_Param
   use mem_WindOxReaeration_3
   use mem_PelGlobal
   use mem_PelChem
   use mem_PelBac
-  use mem_MesoZoo
+  use mem_MesoZoo,p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo
   use mem_Phyto
   use mem_PhotoAvailableRadiation
@@ -34,6 +37,7 @@
   use mem_Bioturbation
   use mem_BenthicReturn1
   use mem_BenthicReturn2
+  use mem_BenthicNutrient3
   use mem_BenAmmonium
   use mem_BenNitrate
   use mem_BenOxygen
@@ -75,6 +79,7 @@
 
 
 
+      InitializeModel=0
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Allocate Memory for All global variables
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -99,6 +104,7 @@
       call InitBioturbation
       call InitBenthicReturn1
       call InitBenthicReturn2
+      call InitBenthicNutrient3
       call InitBenAmmonium
       call InitBenNitrate
       call InitBenOxygen
@@ -114,6 +120,24 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call InitTransportStateTypes
       call InitBoxParams
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Initialize nutrient quota in Microzooplankton and Mesozooplankton
+      ! with the parameter values in the namelists.
+      ! These are constant values when running with fixed quota in zoo
+      ! In case of variable quota these values are recomputed every time-step
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+       do i = 1 , ( iiMicroZooPlankton)
+         if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qp_mz(i) 
+         if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qn_mz(i)
+       end do
+
+       do i = 1 , ( iiMesoZooPlankton)
+         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMc(i)
+         if ( ppMesoZooPlankton(i,iiN) == 0 ) qnZc(i,:)  =   p_qnMc(i)
+       end do
+
+
     END SUBROUTINE
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

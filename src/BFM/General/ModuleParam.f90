@@ -103,9 +103,11 @@
   real(RLEN),public,dimension(:),allocatable   :: &
       p_p_ae  ,  &
       p_poro
+  ! 0d-parameter used in benthic submodel
+  real(RLEN)   :: p_poro0=0.4  ! Constant porosity for 0D and 1D runs
   ! 0d-parameter used in pelagic submodel
   integer   :: &
-      seqnr_cloud=2
+      check_fixed_quota=0
   ! 0d-parameter used in pelagic submodel
   real(RLEN)   :: &
       XLatitude=54.0  ,  &  ! Latitude
@@ -113,7 +115,8 @@
   ! 0d-parameter used in pelagic submodel
   integer   :: &
       ChlLightFlag=2  ,  &  ! Switch between light prop.(=1) or Chla.(=2) as a state
-      LightForcingFlag=1  ! Switch between instantaneous light and day light average
+      LightForcingFlag=1,&  ! Switch between instantaneous light and day light average
+      LightLocationFlag=3   ! Switch between different depth-parameterizations
   ! 1d-parameter used in pelagic submodel
   real(RLEN)   :: &
       p_qchlc(iiPhytoPlankton)  ! Fixed/Maximum quotum Chla:C dependent on ChlLightFlag [mg Chla (mg C)-1]
@@ -147,9 +150,10 @@
     CalcPhytoPlankton,CalcMicroZooPlankton,                                 &
     CalcPelChemistry,CalcMesoZooPlankton,CalcBenOrganisms,CalcBenBacteria,  &
     CalcBacteria, AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, &
-    p_PAR, ChlLightFlag, LightForcingFlag, p_qchlc, p_eps0, p_epsESS,       &
+    p_PAR, ChlLightFlag, LightForcingFlag, LightLocationFlag,               &
+    p_qchlc, p_poro0, p_eps0, p_epsESS,                                              &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s, &
-    p_epsChla, p_epsR6
+    p_epsChla, p_epsR6,check_fixed_quota
    integer :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute

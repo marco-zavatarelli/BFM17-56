@@ -47,10 +47,10 @@
   ! The following global scalar vars are used: &
   ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
   ! BoxNumber, BoxNumberXY
-  ! The following Benthic 1-d global boxvars are modified : jK4N4n, jK1N1p, &
-  ! jK5N5s
+  ! The following Benthic 1-d global boxvars are modified : jbotN4n, jbotN1p, &
+  ! jbotN5s
   ! The following Benthic 1-d global boxvars are used: N4n_Ben, &
-  ! Depth_Ben, rutQ6n, N1p_Ben, rutQ6p, N5s_Ben, rutQ6s
+  ! Depth_Ben, jbotR6n, N1p_Ben, jbotR6p, N5s_Ben, jbotR6s
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -61,27 +61,23 @@
   use mem,  ONLY: Q6n, D9m, D7m, Q6p, D8m, Q6s, D2STATE
   use mem, ONLY: ppQ6n, ppD9m, ppD7m, ppQ6p, ppD8m, ppQ6s, &
     BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-    BoxNumber, BoxNumberXY, jK4N4n, jK1N1p, jK5N5s, N4n_Ben, Depth_Ben, rutQ6n, &
-    N1p_Ben, rutQ6p, N5s_Ben, rutQ6s, iiBen, iiPel, flux
+    BoxNumber, BoxNumberXY, jbotN4n, jbotN1p, jbotN5s, N4n_Ben, Depth_Ben, jbotR6n, &
+    N1p_Ben, jbotR6p, N5s_Ben, jbotR6s, iiBen, iiPel, flux
   use mem_ControlBenPartNutrientBuffers
 
 
-
-!  
 !
 ! !AUTHORS
 !   Piet Ruardij
-!
 !
 !
 ! !REVISION_HISTORY
 !   Created at Fri Jan 27 08:47:37 CET 2006
 !
 !
-!
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij & M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -125,13 +121,13 @@
       if ( p_control_n) then
         rate = min( p_rn, p_s* N4n_Ben(BoxNumberXY)* &
           Depth_Ben(BoxNumberXY))
-        if ( rutQ6n(BoxNumberXY)< p_rn .AND. Q6n(BoxNumberXY)/ rate< &
+        if ( -jbotR6n(BoxNumberXY)< p_rn .AND. Q6n(BoxNumberXY)/ rate< &
           p_refill_time) then
-          rate  =   max(  0.0D+00,  rate- rutQ6n(BoxNumberXY))
+          rate  =   max(  0.0D+00,  rate+ jbotR6n(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6n, ppQ6n, -(- rate) )
           call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
             D7m(BoxNumberXY))* rate/( 1.D-80+ Q6n(BoxNumberXY)) )
-          jK4N4n(BoxNumberXY)  =   jK4N4n(BoxNumberXY)- rate
+          jbotN4n(BoxNumberXY)  =   jbotN4n(BoxNumberXY)- rate
         end if
 
       end if
@@ -141,13 +137,13 @@
       if ( p_control_p) then
         r  =   p_rn/ 16.0D+00  ! Correct according Redfield.
         rate  =   min(  r,  p_s* N1p_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY))
-        if ( rutQ6p(BoxNumberXY)< r .AND. Q6p(BoxNumberXY)/ rate< p_refill_time) &
+        if ( -jbotR6p(BoxNumberXY)< r .AND. Q6p(BoxNumberXY)/ rate< p_refill_time) &
           then
-          rate  =   max(  0.0D+00,  rate- rutQ6p(BoxNumberXY))
+          rate  =   max(  0.0D+00,  rate+ jbotR6p(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6p, ppQ6p, -(- rate) )
           call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
             D8m(BoxNumberXY))* rate/( 1.D-80+ Q6p(BoxNumberXY)) )
-          jK1N1p(BoxNumberXY)  =   jK1N1p(BoxNumberXY)- rate
+          jbotN1p(BoxNumberXY)  =   jbotN1p(BoxNumberXY)- rate
         end if
 
       end if
@@ -157,13 +153,13 @@
       if ( p_control_s) then
         r  =   p_rn* 22.0D+00/ 16.0D+00  ! Correct according Readfield.
         rate  =   min(  r,  p_s* N5s_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY))
-        if ( rutQ6s(BoxNumberXY)< r .AND. Q6s(BoxNumberXY)/ rate< p_refill_time) &
+        if ( -jbotR6s(BoxNumberXY)< r .AND. Q6s(BoxNumberXY)/ rate< p_refill_time) &
           then
-          rate  =   max(  0.0D+00,  rate- rutQ6s(BoxNumberXY))
+          rate  =   max(  0.0D+00,  rate+ jbotR6s(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6s, ppQ6s, -(- rate) )
           call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
             D9m(BoxNumberXY))* rate/( 1.D-80+ Q6s(BoxNumberXY)) )
-          jK5N5s(BoxNumberXY)  =   jK5N5s(BoxNumberXY)- rate
+          jbotN5s(BoxNumberXY)  =   jbotN5s(BoxNumberXY)- rate
         end if
 
       end if

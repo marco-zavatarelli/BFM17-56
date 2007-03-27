@@ -16,11 +16,9 @@
 ! !INTERFACE
 ! parameter values for mem_Settling filled by InitSettling
 !
-
-!  
 !
 ! !AUTHORS
-!   mfstep/ERSEM team
+!   P. Ruardij & M. Vichi
 !
 ! !REVISION_HISTORY
 !   ---
@@ -41,15 +39,15 @@
 !EOP
 !-------------------------------------------------------------------------!
 !BOC
-!
-!
-!        :  	 All parameter names and values were copied from the .p-file:
-!  p_burvel:  	 Burial Velocity (m/d)
+! p_burvel_R6  ! Burial Velocity for POM (m/d)
+! p_burvel_R2  ! Burial Velocity for DOM (m/d)
+! p_burvel_PI  ! Burial Velocity for phytoplankton (m/d)
 
 &Settling_parameters
-p_qnRc = 0.0126,
-p_xqn = 1.5,
-p_burvel = 0.01
+ p_burvel_R6 = 0.0,
+ p_burvel_R2 = 0.0,
+ p_burvel_PI = 0.0
+
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist

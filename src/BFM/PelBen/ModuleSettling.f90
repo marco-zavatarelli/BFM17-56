@@ -62,9 +62,9 @@
   ! Settling PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  All parameter names and values were copied from the .p-file:
-  real(RLEN)  :: p_qnRc
-  real(RLEN)  :: p_xqn
-  real(RLEN)  :: p_burvel  ! Burial Velocity (m/d)
+  real(RLEN)  :: p_burvel_R6=0.0  ! Burial Velocity (m/d)
+  real(RLEN)  :: p_burvel_R2=0.0  ! Burial Velocity (m/d)
+  real(RLEN)  :: p_burvel_PI=0.0  ! Burial Velocity (m/d)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -75,7 +75,7 @@
   subroutine InitSettling()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /Settling_parameters/ p_qnRc, p_xqn, p_burvel
+  namelist /Settling_parameters/ p_burvel_R6,p_burvel_R2,p_burvel_PI
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

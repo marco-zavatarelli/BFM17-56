@@ -49,12 +49,12 @@
 
 
         IMPLICIT  NONE
-        integer,intent(IN) ::nutr ! Specification
-        integer,intent(IN) ::termnr ! Specification
-        integer,intent(IN) ::option ! Specification
-        integer,intent(IN) ::input ! Specification
-        REAL(RLEN),intent(IN) ::at_x ! Specification
-        REAL(RLEN),intent(IN) ::to_x ! Specification
+        integer,intent(IN)             ::nutr ! Specification
+        integer,intent(IN)             ::termnr ! Specification
+        integer,intent(IN)             ::option ! Specification
+        integer,intent(IN)             ::input ! Specification
+        REAL(RLEN),intent(IN),optional ::at_x ! Specification
+        REAL(RLEN),intent(IN),optional ::to_x ! Specification
 
         integer      ::seqnr,j,layer
         real(RLEN)   ::bC,r,s
@@ -72,10 +72,17 @@
               else
                 GetInfoFromSet=sets(NUTR)%factor(seqnr)
               endif
+            case (COEFF2PARA)
+               j=sets(NUTR)%coeffs(seqnr)%il/10
+               GetInfoFromSet =transfer(COEFF2PARA, &
+                    sets(NUTR)%coeffs(seqnr),1.0D+00,sets(NUTR)%diff(j))
             case default
               stop 'GetInfoFromSet mode=????'
           end select
         elseif (option < GET) then
+          if ( .not.present(at_x)) then
+             stop 'GetInfoFromSet optional at_x NOT defined'
+          endif
           layer=termnr/10
           bC=sets(NUTR)%b(layer)
           s=sets(NUTR)%factor(seqnr)
@@ -87,6 +94,9 @@
             !bborder
             if (option == INTEGRAL.or. &
               option == EXPONENTIAL_INTEGRAL) then
+              if ( .not.present(to_x)) then
+               stop 'GetInfoFromSet optional to_x NOT defined'
+              endif
               r= funcalc(option,j,sets(NUTR)%coeffs(seqnr),bC,to_x)-r
               if (input == RFLUX.or.input == MASS) then
                 r=r*sets(NUTR)%poro(layer)

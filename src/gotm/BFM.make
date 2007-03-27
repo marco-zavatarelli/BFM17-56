@@ -1,48 +1,49 @@
-#$Id: $
 #
-# Makefile to build the BFM model
+# Makefile to build the BFM model inside GOTM
 #
-#include $(GOTMDIR)/src/Rules.make
 LIB     = $(LIBDIR)/libbio$(buildtype).a
 
-# BFMDIR path is set in extras/bio 
-# assuming that BFM is located at the same level of GOTM
-#BFMSRC 	   = ../../../../bfm/src/BFM
-#BFMGOTMSRC = ../../../../bfm/src/gotm
-#BFMSHARE    = ../../../../bfm/src/share
+# BFMDIR path is an environment variable
+ifndef BFMDIR
+  $(error The environment variable BFMDIR is not defined!)
+endif
 BFMSRC 	   = $(BFMDIR)/src/BFM
 BFMGOTMSRC = $(BFMDIR)/src/gotm
-BFMSHARE    = $(BFMDIR)/src/share
+BFMSHARE   = $(BFMDIR)/src/share
 
-
-#DOCSRC	=  bio.F90 
-#bio_var.F90 bio_template.F90 bio_npzd.F90 bio_iow.F90 \
-#          bio_sed.F90 bio_fasham.F90 \
-#          process_model.F90 ode_solvers.F90 bio_save.F90
+# this part is still experimental
+# BFM subdirectories path (must be one single line)
+#BFMSUBDIRS = ${BFMSRC}/Ben:${BFMSRC}/Bennut:${BFMSRC}/Forcing:${BFMSRC}/General:${BFMSRC}/include:${BFMSRC}/Light:${BFMSRC}/Oxygen:${BFMSRC}/PelB:${BFMSRC}/PelBen:${BFMGOTMSRC}:${BFMSHARE} 
+# Automatic depend list (needs makedepf90)
+#include ${BFMGOTMSRC}/.depend 
 
 OBJ   = \
-${LIB}(${BFMGOTMSRC}/bio_var.o)		\
-${LIB}(bio_fluxes.o)		\
-${LIB}(bio_template.o)		\
-${LIB}(bio_npzd.o)		\
-${LIB}(bio_iow.o)		\
-${LIB}(bio_mab.o)		\
-${LIB}(bio_fasham.o)		\
-${LIB}(bio_sed.o)		\
+${LIB}(${BFMGOTMSRC}/bio_var.o)			\
+${LIB}(bio_fluxes.o)				\
+${LIB}(bio_template.o)				\
+${LIB}(bio_npzd.o)				\
+${LIB}(bio_iow.o)				\
+${LIB}(bio_mab.o)				\
+${LIB}(bio_fasham.o)				\
+${LIB}(bio_sed.o)				\
+${LIB}(mussels.o)             			\
 ${LIB}(${BFMSHARE}/string_functions.o)		\
 ${LIB}(${BFMSHARE}/init_cnps.o)			\
-${LIB}(${BFMGOTMSRC}/gotm_error_msg.o)		\
+${LIB}(${BFMSHARE}/ResetFluxes.o)		\
 ${LIB}(${BFMGOTMSRC}/bio_bfm.o)			\
+${LIB}(${BFMGOTMSRC}/trace_bdy.o)		\
 ${LIB}(${BFMSHARE}/init_var_bfm.o)	        \
-${LIB}(${BFMGOTMSRC}/process_model.o)		\
-${LIB}(${BFMGOTMSRC}/bio_solver.o)		\
+${LIB}(${BFMSHARE}/init_benthic_bfm.o)	        \
+${LIB}($(BFMSHARE)/make_flux_output.o)		\
+${LIB}(${BFMGOTMSRC}/bfm_solver.o)		\
 ${LIB}(${BFMGOTMSRC}/bio_save.o)		\
+${LIB}(${BFMGOTMSRC}/bio_save_bfm.o)		\
 ${LIB}(${BFMGOTMSRC}/prepare_bio_output.o)	\
-${LIB}(${BFMGOTMSRC}/adv_center_bfm.o)		\
-${LIB}(mussels.o)				\
 ${LIB}(${BFMGOTMSRC}/bio.o)
 
+# gotm_error_msg needs to be here until dependencies are fixed
 BFM_MOD = \
+	${LIB}(${BFMGOTMSRC}/gotm_error_msg.o)				\
 	${LIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
 	${LIB}(${BFMSRC}/General/ModuleConstants.o)			\
 	${LIB}(${BFMSRC}/General/ModuleGlobFun.o)			\
@@ -64,6 +65,7 @@ BFM_MOD = \
 	${LIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
 	${LIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
 	${LIB}(${BFMSRC}/Ben/ModuleBioturbation.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenthicNutrient3.o)		\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenAmmonium.o)			\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenAnoxic.o)			\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenDenitriDepth.o)		\
@@ -81,16 +83,17 @@ BFM_MOD = \
 
 
 BFM_OBJ = \
-	${LIB}(${BFMGOTMSRC}/GetDelta.o)					\
+	${LIB}(${BFMGOTMSRC}/GetDelta.o)				\
 	${LIB}(${BFMGOTMSRC}/D3toD1.o)					\
 	${LIB}(${BFMGOTMSRC}/D2toD1.o)					\
-	${LIB}(${BFMSRC}/General/set_var_info_bfm.o)			\
 	${LIB}(${BFMSRC}/General/AllocateMem.o)				\
+	${LIB}(${BFMSRC}/General/set_var_info_bfm.o)			\
 	${LIB}(${BFMSRC}/General/Ecology.o)				\
 	${LIB}(${BFMSRC}/General/InitBoxParams.o)			\
 	${LIB}(${BFMSRC}/General/Initialize.o)				\
 	${LIB}(${BFMSRC}/General/InitTransportStateTypes.o)		\
 	${LIB}(${BFMSRC}/General/eTq.o)					\
+	${LIB}(${BFMSRC}/General/CheckMassConservation.o)		\
 	${LIB}(${BFMSRC}/Light/LightAdaptation.o)			\
 	${LIB}(${BFMSRC}/Light/PhotoAvailableRadiation.o)		\
 	${LIB}(${BFMSRC}/Oxygen/WindOxReaeration_3.o)			\
@@ -118,7 +121,6 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/Ben/Bioturbation.o)				\
 	${LIB}(${BFMSRC}/Ben/FilterFeeder.o)				\
 	${LIB}(${BFMSRC}/Ben/ResetTotMassVar.o)				\
-	${LIB}(${BFMSRC}/Ben/BenCheckMassConservation.o)		\
 	${LIB}(${BFMSRC}/Bennut/BenAmmonium.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenAnoxic.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenDenitriDepth.o) 			\
@@ -132,6 +134,8 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/Bennut/BenthicNutrient3.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenthicReturn1.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenthicReturn2.o) 			\
+	${LIB}(${BFMSRC}/Bennut/InitBenthicNutrient.o) 			\
+	${LIB}(${BFMSRC}/Bennut/InitBenthicNutrient3.o) 		\
 	${LIB}(${BFMSRC}/Bennut/CalculateFromSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/CalculateSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/CalculateShift.o) 			\
@@ -168,11 +172,21 @@ all: ${BFM_MOD} ${OBJ} ${BFM_OBJ}
 
 $(BFM_MOD) : $(BFMSRC)/General/ModuleMem.F90
 
-${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model
+${BFMSRC}/General/ModuleMem.F90: $(BFMSRC)/General/GlobalDefsBFM.model $(BFMSRC)/General/FluxFunctions.F90
 	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
-		-from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem 
-	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
-		-from ${BFMSRC}/proto -to ${BFMSRC}/include -actions headermem  
+		-from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem \
+		-to ${BFMSRC}/include -actions headermem  
+${BFMSRC}/General/AllocateMem.F90: $(BFMSRC)/General/ModuleMem.F90
+${BFMSRC}/General/set_var_info_bfm.F90: $(BFMSRC)/General/ModuleMem.F90
+
+#${BFMGOTMSRC}/.depend:
+#	makedepf90 -I ${BFMSUBDIRS} *.?90 > $@
+
+realclean: clean
+	$(RM) *.o *~
+	$(RM) ${BFMSRC}/*/*.o ${BFMGOTMSRC}/*.o ${BFMSHARE}/*.o
+
+distclean: realclean
 
 
 #-----------------------------------------------------------------------

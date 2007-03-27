@@ -16,7 +16,7 @@
 ! !USES:
    use api_bfm
    use mem, only: D3STATE,D2STATE,D3DIAGNOS,D2DIAGNOS
-   use mem, only: Depth,NO_BOXES,NO_BOXES_XY,make_flux_output
+   use mem, only: NO_BOXES,NO_BOXES_XY
    implicit none
 !
 ! !INPUT PARAMETERS:
@@ -50,6 +50,8 @@
             D2ave=0.0
          end if
          ave_count=0.0
+      case(RESET)
+	ave_count=0.0
       case(MEAN)    ! prepare for printing
          D3ave=D3ave/ave_count
          D2ave=D2ave/ave_count
@@ -90,7 +92,7 @@
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
-                  call make_flux_output(1,j,NO_BOXES,Depth,c1dim)
+                  call make_flux_output(1,j,1,NO_BOXES,c1dim)
                   if ( ave_count < 1.5 ) then
                      D3ave(k,:)=c1dim
                   else
@@ -98,7 +100,8 @@
                   end if
                end if
             end do
-         else if (stBenStateE /= 0) then
+         endif
+         if (stBenStateE /= 0) then
             !---------------------------------------------
             ! Compute benthic means
             !---------------------------------------------
@@ -132,7 +135,7 @@
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
-                  call make_flux_output(2,j,NO_BOXES,Depth,c1dim)
+                  call make_flux_output(2,j,1,NO_BOXES,c1dim)
                   if ( ave_count < 1.5 ) then
                      D2ave(k,:)=c1dim(:)
                   else

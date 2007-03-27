@@ -32,7 +32,7 @@
   ! N6r, R6s, N5s, P1s
   ! The following Pelagic 1-d global boxvars are modified : flN3O4n
   ! The following Pelagic 1-d global boxvars  are used: ETW, flPTN6r, flP1R6s
-  ! The following 0-d global box parametes are used: p_qon_nitri, p_qro, &
+  ! The following 0-d global parameters are used: p_qon_nitri, p_qro, &
   ! p_qon_dentri
   ! The following global constants are used: RLEN
 
@@ -46,7 +46,7 @@
 #ELSE
   use mem,  ONLY: N4n, N3n, O2o, O4n, N6r, R6s, N5s, P1s
 #ENDIF
-  use mem, ONLY: ppN4n, ppN3n, ppO2o, ppO4n, ppN6r, ppR6s, ppN5s, &
+  use mem, ONLY: ppN4n, ppN3n, ppO2o, ppO4n, ppN6r, ppR6s, ppN5s, flN4N3n,&
     ppP1s, flN3O4n, ETW, flPTN6r, flP1R6s, NO_BOXES, iiBen, iiPel, flux_vector
   use mem_Param,  ONLY: p_qon_nitri, p_qro, p_qon_dentri
   use mem_PelChem
@@ -95,7 +95,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES)  :: fN4N3n
   real(RLEN),dimension(NO_BOXES)  :: fN6O2r
   real(RLEN),dimension(NO_BOXES)  :: eo
   real(RLEN),dimension(NO_BOXES)  :: er
@@ -116,10 +115,10 @@
   ! Nitrification in the water
   !
 
-  fN4N3n  =   p_sN4N3* N4n(:)* eTq_vector(  ETW(:),  p_q10N4N3)* eo
-  call flux_vector( iiPel, ppN4n,ppN3n, fN4N3n )
+  flN4N3n(:)  =   p_sN4N3* N4n(:)* eTq_vector(  ETW(:),  p_q10N4N3)* eo
+  call flux_vector( iiPel, ppN4n,ppN3n, flN4N3n(:) )
 
-  call flux_vector( iiPel, ppO2o,ppO2o,-( fN4N3n* p_qon_nitri) )
+  call flux_vector( iiPel, ppO2o,ppO2o,-( flN4N3n(:)* p_qon_nitri) )
 
   !
   ! Denitrification in the water

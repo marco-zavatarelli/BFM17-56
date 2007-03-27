@@ -49,6 +49,7 @@
 !
 !-----------------------------------------------------------------------
 !BOC
+   LEVEL1 'parallel_flag=',parallel_flag
    if ( parallel_flag) then
      if ( .NOT.first ) then
          hold_msg=msg
@@ -56,8 +57,8 @@
          first=.TRUE.
      endif
    else
-     FATAL "Called from: ",trim(sub)
-     FATAL "Message:     ",trim(msg)
+     FATAL "gotm_error: Called from: ",trim(sub)
+     FATAL "gotm_error: Message:     ",trim(msg)
      stop "gotm_error()"
    endif
 
@@ -82,10 +83,37 @@
 !
 !-----------------------------------------------------------------------
 !BOC
+   LEVEL1 'set_parallel_flag_for_gotm val=',val
+   if ( val) then
+     LEVEL1 'Error messages will be handled by GETM '
+   endif
    parallel_flag=val
 
   return
   end subroutine set_parallel_flag_for_gotm
+!-----------------------------------------------------------------------
+!BOP
+!
+! !ROUTINE: get_parallel_flag_from_getm  
+!
+! !INTERFACE:
+   subroutine get_parallel_flag_from_getm(val)
+!
+! !DESCRIPTION:
+!
+! !USES:
+   IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+   logical,intent(OUT)                :: val
+!
+!
+!-----------------------------------------------------------------------
+!BOC
+   val=parallel_flag
+
+  return
+  end subroutine get_parallel_flag_from_getm
 !-----------------------------------------------------------------------
 !BOP
 !

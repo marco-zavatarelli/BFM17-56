@@ -33,7 +33,7 @@
   ! The following groupmember vars are used: iiPhytoPlankton, &
   ! iiMicroZooPlankton, iiP1
   ! The following constituent constants  are used: iiC, iiN, iiP, iiL
-  ! The following 0-d global box parametes are used: p_pe_R1c, p_pe_R1n, &
+  ! The following 0-d global parameters are used: p_pe_R1c, p_pe_R1n, &
   ! p_pe_R1p, p_small
   ! The following global constants are used: RLEN
 
@@ -52,10 +52,9 @@
     ppR1n, ppR6n, ppR1p, ppR6p, ppN4n, ppN1p, ppPhytoPlankton, ppMicroZooPlankton, &
     flP1R6s, ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, &
     qlPc, qsPc, iiPhytoPlankton, iiMicroZooPlankton, iiP1, iiC, iiN, iiP, iiL, &
-    NO_BOXES, iiBen, iiPel, flux_vector
-  use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small
+    NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+  use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
   use mem_MicroZoo
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following vector functions are used:eTq_vector, MM_vector
@@ -113,8 +112,6 @@
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN),dimension(NO_BOXES) :: zooc
-  real(RLEN),dimension(NO_BOXES) :: zoon
-  real(RLEN),dimension(NO_BOXES) :: zoop
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -157,13 +154,18 @@
   real(RLEN),dimension(NO_BOXES)  :: ren
   real(RLEN),dimension(NO_BOXES)  :: pu_ra
   real(RLEN),dimension(NO_BOXES)  :: r
+  real(RLEN),dimension(NO_BOXES)  :: tfluxc
+  real(RLEN),dimension(NO_BOXES)  :: tfluxn
+  real(RLEN),dimension(NO_BOXES)  :: tfluxp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   zooc = D3STATE(ppzooc,:)
-  zoon = D3STATE(ppzoon,:)
-  zoop = D3STATE(ppzoop,:)
+
+  tfluxc=0.0;
+  tfluxn=0.0;
+  tfluxp=0.0;
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -224,18 +226,23 @@
   ! Fluxes into microzooplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ruB1c  =   put_u* rumB1c
-  call flux_vector( iiPel, ppB1c,ppzooc, ruB1c )
-  call flux_vector( iiPel, ppB1n,ppzoon, ruB1c* qnB1c(:) )
-  call flux_vector( iiPel, ppB1p,ppzoop, ruB1c* qpB1c(:) )
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppB1c,ppzooc, ruB1c ,tfluxC)
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppB1n,ppzoon, &
+                                                       ruB1c* qnB1c(:),tfluxN)
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppB1p,ppzoop, &
+                                                       ruB1c* qpB1c(:),tfluxP)
   rugn  =   ruB1c* qnB1c(:)
   rugp  =   ruB1c* qpB1c(:)
 
   do i = 1 , ( iiPhytoPlankton)
 
     ruPIc  =   put_u* rumPIc(:, i)
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiC),ppzooc, ruPIc )
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiN),ppzoon, ruPIc* qnPc(i,:) )
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiP),ppzoop, ruPIc* qpPc(i,:) )
+    call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppPhytoPlankton(i,iiC),&
+                                                      ppzooc, ruPIc ,tfluxC)
+    call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppPhytoPlankton(i,iiN),&
+                                           ppzoon, ruPIc* qnPc(i,:) ,tfluxN)
+    call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppPhytoPlankton(i,iiP),&
+                                           ppzoop, ruPIc* qpPc(i,:) ,tfluxP)
     ! Chl is transferred to the sink
     call flux_vector( iiPel, ppPhytoPlankton(i,iiL),ppPhytoPlankton(i,iiL),-( &
       ruPIc* qlPc(i,:)) )
@@ -255,11 +262,12 @@
     ruZIc  =   put_u* rumZIc(:, i)
     ! intra-group predation is not computed
     if ( i/= zoo) then
-      call flux_vector( iiPel, ppMicroZooPlankton(i,iiC),ppzooc, ruZIc )
-      call flux_vector( iiPel, ppMicroZooPlankton(i,iiN),ppzoon, ruZIc* &
-        qn_mz(i,:) )
-      call flux_vector( iiPel, ppMicroZooPlankton(i,iiP),ppzoop, ruZIc* &
-        qp_mz(i,:) )
+      call fixed_quota_flux_vector( check_fixed_quota,iiPel,ppzooc,ppMicroZooPlankton(i,iiC),&
+                                                          ppzooc, ruZIc,tfluxC )
+      call fixed_quota_flux_vector( check_fixed_quota,iiPel,ppzoon,ppMicroZooPlankton(i,iiN),&
+                                              ppzoon, ruZIc* qn_mz(i,:) ,tfluxN)
+      call fixed_quota_flux_vector( check_fixed_quota,iiPel,ppzoop,ppMicroZooPlankton(i,iiP),&
+                                              ppzoop, ruZIc* qp_mz(i,:) ,tfluxP)
     end if
 
     rugn  =   rugn+ ruZIc* qn_mz(i,:)
@@ -279,7 +287,8 @@
   rrac  =   rugc* pu_ra
   rrtc  =   rrsc+ rrac
 
-  call flux_vector( iiPel, ppzooc,ppzooc,-( rrtc) )
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppzooc,ppzooc, &
+                                                 -( rrtc),tfluxC )
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrtc/ 12.0D+00) )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -296,8 +305,8 @@
   rr1c  =   rric* p_pe_R1c
   rr6c  =   rric*( 1.0D+00- p_pe_R1c)
 
-  call flux_vector( iiPel, ppzooc,ppR1c, rr1c )
-  call flux_vector( iiPel, ppzooc,ppR6c, rr6c )
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppzooc,ppR1c, rr1c,tfluxC)
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppzooc,ppR6c, rr6c,tfluxC)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !     Nutrient dynamics in microzooplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -309,8 +318,8 @@
   rr1n  =   rrin* p_pe_R1n
   rr6n  =   rrin- rr1n
 
-  call flux_vector( iiPel, ppzoon,ppR1n, rr1n )
-  call flux_vector( iiPel, ppzoon,ppR6n, rr6n )
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppR1n, rr1n ,tfluxN)
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppR6n, rr6n ,tfluxN)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Phosphorus dynamics
@@ -320,8 +329,8 @@
   rr1p  =   rrip* p_pe_R1p
   rr6p  =   rrip- rr1p
 
-  call flux_vector( iiPel, ppzoop,ppR1p, rr1p )
-  call flux_vector( iiPel, ppzoop,ppR6p, rr6p )
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppzoop,ppR1p, rr1p ,tfluxP)
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppzoop,ppR6p, rr6p ,tfluxP)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Dissolved nutrient dynamics
@@ -333,9 +342,14 @@
 
   ren  =   max(  0.0D+00,  runn/( p_small+ runc)- p_qn_mz(zoo))* runc
   rep  =   max(  0.0D+00,  runp/( p_small+ runc)- p_qp_mz(zoo))* runc
-  call flux_vector( iiPel, ppzoon,ppN4n, ren )
-  call flux_vector( iiPel, ppzoop,ppN1p, rep )
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppN4n, ren ,tfluxN)
+  call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppzoop,ppN1p, rep ,tfluxP)
 
+
+  r=tfluxC*p_qn_mz(zoo)
+  call fixed_quota_flux_vector( check_fixed_quota,-iiN,0,0,0,r,tfluxN)
+  r=tfluxC*p_qp_mz(zoo)
+  call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,r,tfluxP)
 
 
 

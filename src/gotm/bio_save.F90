@@ -1,11 +1,11 @@
-!$Id: bio_save.F90,v 1.5 2005-12-02 20:57:27 hb Exp $
+!$Id: bio_save.F90,v 1.6 2006-10-26 13:12:46 kbk Exp $
 #include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
 ! !ROUTINE: Storing the results
 !
 ! !INTERFACE:
-   subroutine bio_save(nlev,h,totn)
+   subroutine bio_save(nlev,totn)
 !
 ! !DESCRIPTION:
 ! Here, the output of biogeochemical parameters either as ascii or as
@@ -14,9 +14,6 @@
 ! !USES:
    use bio_var
    use output, only: out_fmt,ts
-#ifdef BFM_GOTM
-   use mem, only:make_flux_output
-#endif
 #ifdef NETCDF_FMT
    use ncdfout, only: ncid
    use ncdfout, only: lon_dim,lat_dim,z_dim,time_dim,dims
@@ -29,7 +26,6 @@
 !
 ! !INPUT PARAMETERS:
    integer, intent(in)                 :: nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
    REALTYPE, intent(in)                :: totn
 !
 ! !REVISION HISTORY:
@@ -67,111 +63,19 @@
 #ifdef NETCDF_FMT
 #ifdef BFM_GOTM
          if (bio_model==6) then
-            if(first) then
-               first = .false.
-               iret = define_mode(ncid,.true.)
-               if (bio_setup/=2) then 
-               dims(1) = lon_dim
-               dims(2) = lat_dim
-               dims(3) = z_dim
-               dims(4) = time_dim
-               do n=stPelStateS,stPelFluxE
-                  if ( var_ids(n) /= 0 )  then 
-                     iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
-                                            4,dims,var_ids(n))
-                     iret = set_attributes(ncid,var_ids(n),       &
-                                           units=var_units(n),    &
-                                           long_name=var_long(n))
-                  end if
-               end do
-            end if
-            if (bio_setup>1) then ! define benthic variables
-               dims(1) = lon_dim
-               dims(2) = lat_dim
-               dims(3) = time_dim
-               do n=stBenStateS,stBenFluxE
-                  if ( var_ids(n) /= 0 )  then 
-                     iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
-                                       3,dims,var_ids(n))
-                     iret = set_attributes(ncid,var_ids(n),       &
-                                      units=var_units(n),    &
-                                      long_name=var_long(n))
-                  endif
-               end do
-            end if   
-            iret = define_mode(ncid,.false.)
-         end if
-
-         do n=stPelStateS,stPelStateE
-            if ( var_ids(n) > 0 .and. (.not.var_ave(n) )) &
-              iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc(n,:))
-         end do
-         i=0
-         do n=stPelDiagS,stPelDiagE
-            i=i+1
-            if ( var_ids(n) > 0.and. (.not.var_ave(n) ) ) & 
-               iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=diag(i,:))
-         end do
-
-         i=0
-         do n=stPelFluxS,stPelFluxE
-            i=i+1
-            if ( var_ids(n) > 0  .and. (.not.var_ave(n))) then
-               call make_flux_output(1,i,nlev, h, c1dim)
-               iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=c1dim)
-            end if
-         end do
-         j=0
-         do n=stPelStateS,stPelFluxE
-            if ( var_ids(n) > 0 .and.var_ave(n) ) then
-              j=j+1
-              iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc_ave(j,:))
-            endif
-         end do
-
-! storage of benthic variables
-! stored as scalar: to be modified if benvar are arrays
-         if (bio_setup>1) then
-           i=0
-           do n=stBenStateS,stBenStateE
-              i=i+1
-              if ( var_ids(n) > 0  .and. (.not.var_ave(n))) &
-               iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=ccb(i,1))
-           end do
-           i=0
-           do n=stBenDiagS,stBenDiagE
-             i=i+1
-             if ( var_ids(n) > 0  .and. (.not.var_ave(n))) &
-               iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=diagb(i,1))
-           end do
-           i=0
-           do n=stBenFluxS,stBenFluxE
-             i=i+1
-             if ( var_ids(n) > 0  .and. (.not.var_ave(n))) then
-               call make_flux_output(2,i,nlev, h, c1dim)
-               iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=c1dim(1))
-             endif
-           end do 
-           j=0
-           do n=stBenStateS,stBenFluxE
-              if ( var_ids(n) > 0 .and. var_ave(n)) then
-                 j=j+1
-                 iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=ccb_ave(j,1))
-              endif
-           end do
-         end if                
-       else ! other bio_model
+            call bio_save_bfm(nlev)
+         else ! other bio_model
 #endif
 ! Standard GOTM save
          if(first) then
             first = .false.
-
-            iret = define_mode(ncid,.true.)
-
             dims(1) = lon_dim
             dims(2) = lat_dim
             dims(3) = z_dim
             dims(4) = time_dim
+
+            iret = define_mode(ncid,.true.)
+
             do n=1,numc
                iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
                                       4,dims,var_ids(n))
@@ -179,19 +83,20 @@
                                      units=var_units(n),    &
                                      long_name=var_long(n))
             end do
-            nn = ubound(cc(1,:),1)
+
             dims(1) = time_dim
             iret = new_nc_variable(ncid,'totn',NF_REAL,1,dims,totn_id)
             iret = set_attributes(ncid,totn_id,units='mmol/m**2',    &
                    long_name='total N')
+
             iret = define_mode(ncid,.false.)
-         end if !first
+         end if
 
          do n=1,numc
-            iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nn,array=cc(n,:))
+            iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc(n,:))
          end do
-!KBK         iret = store_data(ncid,phy_id,XYZT_SHAPE,nn,array=cc(2,:)+P0)
-!KBK         iret = store_data(ncid,zoo_id,XYZT_SHAPE,nn,array=cc(3,:)+Z0)
+!KBK         iret = store_data(ncid,phy_id,XYZT_SHAPE,nlev,array=cc(2,:)+P0)
+!KBK         iret = store_data(ncid,zoo_id,XYZT_SHAPE,nlev,array=cc(3,:)+Z0)
 
          iret = store_data(ncid,totn_id,T_SHAPE,1,scalar=totn)
 #ifdef BFM_GOTM

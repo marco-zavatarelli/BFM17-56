@@ -1,0 +1,393 @@
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: Global helper functions
+!
+! !INTERFACE:
+!  Included in ModuleMem.F90
+!
+! !DESCRIPTION:
+!  This file contains the helper routines for the assignment
+!  and retrieval of rates from the main source/sink term arrays
+!  (D3SOURCE and D3SINK).
+!  It also includes all the routines for NaN checking (only IFORT)
+!
+! !REVISION HISTORY:
+!  Author(s): Piet Ruardij & Marcello Vichi
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+! flux functions
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          subroutine flux_vector(iiSub,origin,destination,flux)
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            use constants, only: RLEN, ZERO,  SEC_PER_DAY
+            use global_mem, only: LOGUNIT
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            ! Implicit typing is never allowed
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            implicit none
+            integer,intent(IN) :: iiSub
+            integer,intent(IN) :: origin
+            integer,intent(IN) :: destination
+            real(RLEN),intent(IN) :: flux(:)
+            integer :: i
+            character(len=8) :: D23
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            !BEGIN compute
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            TESTNANVECTOR(flux,iiSub,origin,destination)
+            CHECKFLUX(-1,iiSub,origin,destination)
+
+            if ( origin /= destination )  then
+              if ( minval(flux) < ZERO) then
+                do i=1,size(flux)
+                  if (flux(i)< 0.0D+00) write(LOGUNIT,'(''at level:'',I4)') i
+                enddo
+                D23="Pelagic"
+                if ( iiSub == iiBen) D23="Benthic"
+                write(LOGUNIT,'(''In '',A,'':origin='',i4,'' destination='',i4)') &
+                  D23, origin,destination
+                write(LOGUNIT,'(''In '',A,'':origin='',i4,'' &
+                  destination='',i4)') D23, origin,destination
+                write(LOGUNIT,'(''flux='',(G16.8))') flux
+                STDERR  "Error in flux_vector function: negative flux !"
+                do i=1,size(flux)
+                  if (flux(i)< 0.0D+00) then
+                    if ( iiSub== iiBen) then
+                      write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
+                      write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
+                    else
+                      write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
+                      write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
+                    endif
+                  endif
+                enddo
+                call BFM_ERROR("flux_vector","negative flux")
+              endif ! minval<0
+              select case ( iiSub )
+                case (iiPel)
+                  D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
+                  D3SOURCE(destination,origin,:)=  flux/SEC_PER_DAY
+                case (iiBen)
+                  D2SINK(origin,destination,:) =  flux/SEC_PER_DAY
+                  D2SOURCE(destination,origin,:)   = flux/SEC_PER_DAY
+              end select
+            else
+              select case ( iiSub )
+                case (iiPel)
+                  where (flux > 0.0D+00 )
+                    D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) &
+                      + flux/SEC_PER_DAY
+                  elsewhere
+                    D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
+                      flux/SEC_PER_DAY
+                  end where
+                case (iiBen)
+                  where (flux > 0.0D+00 )
+                    D2SOURCE(destination,origin,:) =D2SOURCE(destination,origin,:) &
+                      + flux/SEC_PER_DAY
+                  elsewhere
+                    D2SINK(origin,destination,:) =D2SINK(origin,destination,:) - &
+                      flux/SEC_PER_DAY
+                  end where
+              end select
+            endif !origin <> destination
+
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            !END compute
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            return
+          end subroutine flux_vector
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          subroutine flux(grid_nr,iiSub,origin,destination,flow,error)
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use constants, only: RLEN, ZERO, SEC_PER_DAY
+          use global_mem, only: LOGUNIT
+          implicit none
+          integer,intent(IN)                 :: grid_nr
+          integer,intent(IN)                 :: iiSub
+          integer,intent(IN)                 :: origin
+          integer,intent(IN)                 :: destination
+          real(RLEN),intent(IN)              :: flow
+          integer,intent(INOUT),optional     :: error
+          character(len=8)                   :: D23
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          !BEGIN compute
+          TESTNAN(flow,grid_nr,iiSub,origin,destination)
+          CHECKFLUX(grid_nr,iiSub,origin,destination)
+
+          if ( origin /= destination ) then
+            if ( flow < ZERO) then
+              D23="Pelagic"
+              if ( iiSub == iiBen) D23="Benthic"
+              write(LOGUNIT,'(''In '',A,'':origin='',i4,'' destination='',i4)') &
+                D23, origin,destination
+              write(LOGUNIT,*) "Error in (scalar) vector  function: negative flux!"
+              write(LOGUNIT,*) "origin,destination:", origin,destination
+              write(LOGUNIT,*) flow
+              if ( iiSub == iiBen)  then
+                 write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
+                 write(LOGUNIT,*) "state value destination:",D2STATE(destination,grid_nr)
+              else 
+                 write(LOGUNIT,*) "state value origin:",D3STATE(origin,grid_nr)
+                 write(LOGUNIT,*) "state value destination:",D3STATE(destination,grid_nr)
+              endif
+              STDERR "Error in (scalar)flux function:negative flux !"
+              call BFM_ERROR("flux","negative flux")
+              if ( present(error)) error=1
+            endif ! flow<0
+            select case ( iiSub )
+              case (iiPel)
+                D3SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
+                D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+              case (iiBen)
+                D2SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
+                D2SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+            end select
+          else
+            select case ( iiSub )
+              case (iiPel)
+                if (flow > 0.0 ) then
+                  D3SOURCE(destination,origin,grid_nr)=  &
+                           D3SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                else
+                  D3SINK(origin,destination,grid_nr)=    &
+                         D3SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                endif
+              case (iiBen)
+                if (flow > 0.0 ) then
+                  D2SOURCE(destination,origin,grid_nr)=  &
+                           D2SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                else
+                  D2SINK(origin,destination,grid_nr)=    &
+                         D2SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                endif
+            end select
+          endif
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          !END compute
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          return
+          end subroutine flux
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        function Source_D3_vector(iistate)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! vector function to get actual rate of change in the pelagic
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use constants, only: RLEN, ZERO, SEC_PER_DAY
+          implicit none
+          integer, intent(IN) ::iistate
+          real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=3))
+          ! Array in sum is by sum seen as 2D-array: DIM=1 and NOT 2
+          Source_D3_vector=(sum(D3SOURCE(iistate,:,:),DIM=1)- sum(D3SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
+        end function Source_D3_vector
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        function Source_D2_vector(iistate)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! vector function to get actual rate of change in the benthic
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use constants, only: RLEN, ZERO, SEC_PER_DAY
+          implicit none
+          integer, intent(IN) ::iistate
+          real(RLEN) ::Source_D2_vector(size(D2SOURCE,DIM=3))
+          ! Array in sum is by sum seen as 2D-array: DIM=1 and NOT 2
+          Source_D2_vector=(sum(D2SOURCE(iistate,:,:),DIM=1)- &
+                           sum(D2SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
+        end function Source_D2_vector
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        function source(iiSub,iibox,iistate)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! function to get actual rate of change
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use constants, only: RLEN, ZERO, SEC_PER_DAY
+          implicit none
+          real(RLEN)  ::Source
+          integer, intent(IN)  ::iiSub
+          integer, intent(IN)  ::iibox
+          integer, intent(IN)  ::iistate
+          if ( iiSub == iiPel )  then
+            Source = (sum(D3SOURCE(iistate,:,iibox))- &
+              sum(D3SINK(iistate,:,iibox)))*SEC_PER_DAY
+          elseif ( iiSub == iiBen )  then
+            Source = (sum(D2SOURCE(iistate,:,iibox))- &
+              sum(D2SINK(iistate,:,iibox)))*SEC_PER_DAY
+          endif
+        end function source
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        subroutine unicflux(grid_nr,iiSub,origin,destination)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use constants, only: RLEN
+          use global_mem, only: LOGUNIT
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          ! Implicit typing is never allowed
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          implicit none
+          integer,intent(IN)    :: grid_nr
+          integer,intent(IN)    :: origin
+          integer,intent(IN)    :: iiSub
+          integer,intent(IN)    :: destination
+          real(RLEN) :: tot
+          character(len=20):: type
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          !BEGIN compute
+          select case ( iiSub )
+            case (iiPel)
+              type="D3"
+              if ( grid_nr <=0  ) then
+                tot=sum(D3SINK(origin,destination,:))
+              else
+                tot=D3SINK(origin,destination,grid_nr)
+              endif
+            case (iiBen)
+              type="D2"
+              if ( grid_nr <=0  ) then
+                tot=sum(D2SINK(origin,destination,:))
+              else
+                tot=D2SINK(origin,destination,grid_nr)
+              endif
+            case (iiReset)
+              D3SINK(:,:,:)=0.0D+00
+              D2SINK(:,:,:)=0.0D+00
+              return
+          end select
+          if ( tot > 0.0D+00  ) then
+            write(LOGUNIT,'(''Double definition '',A2,''-flux'')')type
+            write(LOGUNIT,'(''origin:'',I3,'' destination:'',I3)') origin, destination
+            if ( origin /= destination ) then
+              STDERR 'double definition of fluxes'
+              stop 1006
+            endif
+          endif
+        !END compute
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        return
+      end subroutine unicflux
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      subroutine fixed_quota_flux_vector(mode,iiSub,which,origin, &
+                                          destination,flux,collect)
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      use global_mem, only: LOGUNIT
+      use constants, only: RLEN, LOGUNIT
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Implicit typing is never allowed
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      implicit none
+      integer,intent(IN) :: mode
+      integer,intent(IN) :: iiSub
+      integer,intent(IN) :: which
+      integer,intent(IN) :: origin
+      integer,intent(IN) :: destination
+      real(RLEN),intent(IN),dimension(:) :: flux
+      real(RLEN),intent(INOUT),dimension(:) :: collect
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      !BEGIN compute
+      if ( origin> 0 .and.destination >0) then
+         call flux_vector(iiSub,origin, destination,flux)
+      else if ( origin > 0 ) then
+         call flux_vector(iiSub,origin, origin,-flux)
+      elseif ( destination > 0 ) then
+         call flux_vector(iiSub,destination, destination,flux)
+      elseif (iiSub < 0 ) then
+         if ( mode==0)  return
+         if ( sum(abs(flux)/(1.0D-80+abs(collect))-1.0D+00)> 1.0D-6) then
+              if ( iiSub==-iiN) then
+                write(LOGUNIT,'(''Warning: N:C quotumn not fixed'')')
+              elseif (iiSub==-iiP) then
+                write(LOGUNIT,'(''Warning: P:C quotumn not fixed'')')
+              endif
+              return
+         endif
+      endif      
+      if ( mode==1 ) then
+        if ( (which == origin) .and.(origin.ne.destination)) then
+           collect=collect-flux
+        else
+           collect=collect+flux
+        endif
+      endif
+      !END compute
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      end subroutine fixed_quota_flux_vector
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+! NaN-check routines
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          subroutine testnan_vector(array,iiSub,origin,destination)
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use global_mem, only: LOGUNIT
+          implicit none
+            real(RLEN),intent(IN)    :: array(:)
+            integer,intent(IN) :: iiSub
+            integer,intent(IN) :: origin
+            integer,intent(IN) :: destination
+            integer:: i=0
+            do i=1,size(array)
+              if (isnan(array(i))== .true. ) then
+                write(LOGUNIT,'(''at level:'',I4)') i
+                write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') &
+                  origin,destination
+                if ( iiSub== iiBen) then
+                    write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
+                    write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
+                else
+                    write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
+                    write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
+                endif
+                STDERR 'Nan value in flux'
+                stop 1002
+              endif
+            enddo
+          end subroutine testnan_vector
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          subroutine testnan(scalar,grid_nr,iiSub,origin,destination)
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use global_mem, only: LOGUNIT
+          implicit none
+            real(RLEN),intent(IN)    :: scalar
+            integer,intent(IN) :: grid_nr
+            integer,intent(IN) :: iiSub
+            integer,intent(IN) :: origin
+            integer,intent(IN) :: destination
+            if (isnan(scalar)== .true. ) then
+               write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') origin,destination
+               if ( iiSub == iiBen)  then
+                    write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
+                    write(LOGUNIT,*) "state value destination:",D2STATE(destination,grid_nr)
+                 else 
+                    write(LOGUNIT,*) "state value origin:",D3STATE(origin,grid_nr)
+                    write(LOGUNIT,*) "state value destination:",D3STATE(destination,grid_nr)
+               endif
+               write(LOGUNIT,*) 'Nan value in scalar flux'
+               stop 1003
+            endif
+          end subroutine testnan
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+!EOC

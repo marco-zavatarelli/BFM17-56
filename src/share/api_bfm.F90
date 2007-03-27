@@ -5,7 +5,7 @@
 ! !MODULE: bfm
 !
 ! !INTERFACE:
-   MODULE api_bfm
+   module api_bfm
 !
 ! !DESCRIPTION: 
 ! API for the BFM. 
@@ -17,24 +17,19 @@
 
 !
 ! !USE:
-   use mem, only: NO_D3_BOX_STATES, NO_BOXES,            &
-                  NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,    &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,         &
-                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES, Depth, NO_D3_BOX_FLUX,      &
-                  NO_D2_BOX_FLUX
-
+   use global_mem, only:RLEN,ZERO
    implicit none
 
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public init_bfm
+   public init_bfm, find
 !
 ! !PUBLIC DATA MEMBERS:
    logical                            :: bio_calc,bioshade_feedback
    integer                            :: bio_setup  =1
    integer                            :: surface_flux_method=-1
    integer                            :: n_surface_fluxes=-1
+   integer                            :: calc_init_bennut_states
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
    integer                            :: out_delta,out_secs
@@ -79,6 +74,46 @@
    !---------------------------------------------
    REALTYPE, dimension(:), allocatable   :: c1dim
 
+   !---------------------------------------------
+   ! Additional 1D arrays
+   !---------------------------------------------
+   ! indices of bottom and surface points
+   integer,allocatable,dimension(:),public  :: BOTindices,SRFindices
+
+#ifdef BFM_NEMO
+   !---------------------------------------------
+   ! Additional 3D arrays
+   !---------------------------------------------
+   real(RLEN),allocatable,dimension(:,:,:),public  :: ZEROS
+   ! 3D boolean Land-sea mask
+   logical,allocatable,dimension(:,:,:),public     :: SEAmask
+   ! 3D boolean sea-bottom mask
+   logical,allocatable,dimension(:,:,:),public     :: BOTmask
+   ! 3D boolean mask of the surface points
+   logical,allocatable,dimension(:,:,:),public     :: SRFmask
+
+   !---------------------------------------------
+   ! Additional integration arrays
+   ! for leapfrog scheme
+   !---------------------------------------------
+   real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB
+
+   !---------------------------------------------
+   ! Additional allocatable temporary arrays
+   !---------------------------------------------
+   logical,allocatable,dimension(:),public        :: btmp1D
+   logical,allocatable,dimension(:,:),public      :: btmp2D
+   logical,allocatable,dimension(:,:,:),public    :: btmp3D
+   integer,allocatable,dimension(:),public        :: itmp1D
+   integer,allocatable,dimension(:,:),public      :: itmp2D
+   integer,allocatable,dimension(:,:,:),public    :: itmp3D
+   real(RLEN),allocatable,dimension(:),public     :: rtmp1D
+   real(RLEN),allocatable,dimension(:,:),public   :: rtmp2D
+   real(RLEN),allocatable,dimension(:,:,:),public :: rtmp3Da
+   real(RLEN),allocatable,dimension(:,:,:),public :: rtmp3Db
+#endif
+
 !
 ! !REVISION HISTORY:
 !  Author(s): Marcello Vichi and Piet Ruardij
@@ -92,10 +127,7 @@
 !EOP
 !-----------------------------------------------------------------------
 
-CONTAINS
-
-!-----------------------------------------------------------------------
-
+contains
 
 !-----------------------------------------------------------------------
 !BOP
@@ -108,6 +140,12 @@ CONTAINS
 ! !DESCRIPTION:
 !
 ! !USES:
+   use mem, only: NO_D3_BOX_STATES, NO_BOXES,            &
+                  NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,    &
+                  NO_D2_BOX_STATES, NO_BOXES_XY,         &
+                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
+                  NO_STATES, Depth, NO_D3_BOX_FLUX,      &
+                  NO_D2_BOX_FLUX
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -223,8 +261,60 @@ CONTAINS
 
 
 !-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: 
+!
+! !INTERFACE:
+   function find(vector,nt)
+!
+! !DESCRIPTION:
+!  Finds the location of true elements in logical arrays
+!
+! !USES:
+   implicit none
+!
+! !INPUT PARAMETERS:
+   logical,intent(IN) :: vector(:)
+   integer,intent(IN) :: nt   ! number of true elements in vector
+                              ! nt = count(vector)
+                              ! enter as an argument for check
+!
+! !INPUT/OUTPUT PARAMETERS:
+!
+! !OUTPUT PARAMETERS:
+   integer            :: find(nt)
+!
+! !REVISION HISTORY:
+!  Author(s): Marcello Vichi
+!
+! !LOCAL VARIABLES:
+   integer            :: l,m,n
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
 
-   END MODULE api_bfm
+    if (nt /= count(vector)) stop '#### Error in find: check the input array ####'
+    m = size(vector,1)
+    n = 1
+    do l = 1,m
+      if ( vector(l) ) then
+        find(n) = l
+        n = n + 1
+      end if
+    end do
+
+   return
+   end function find
+
+!EOC
+
 
 !-----------------------------------------------------------------------
+
+   end module api_bfm
+
+!-----------------------------------------------------------------------
+!Copyright (C) 2006 - Marcello Vichi
 

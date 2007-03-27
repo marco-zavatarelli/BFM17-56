@@ -36,7 +36,7 @@
   ! The following Benthic 2-d global boxvars got a value: ruHI
   ! The following groupmember vars  are used: iiH1, iiH2
   ! The following constituent constants  are used: iiC, iiN, iiP
-  ! The following 0-d global box parametes are used: p_d_tot, p_small, &
+  ! The following 0-d global parameters are used: p_d_tot, p_small, &
   ! p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro
   ! The following global constants are used: RLEN
 

@@ -106,7 +106,7 @@ write(LOGUNIT,*) "*********** RUN TIME ERROR BEGIN ***********"
                 trim(what)," in ",trim(infile)
     end select
     write(LOGUNIT,*) "***********  RUN TIME ERROR END  ***********"
-    stop "SIMULATION ABORTED (see MEM logfile)"
+    stop "BFM error (see logfile)"
   end subroutine
   end module
 !BOP

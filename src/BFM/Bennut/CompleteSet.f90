@@ -39,19 +39,20 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      SUBROUTINE CompleteSet(NUTR,mode,option,input,xinput,yinput)
+      SUBROUTINE CompleteSet(NUTR,mode,option,input,xinput,value,mfac)
         USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn
         USE bennut_variables
         USE constants
         USE bennut_constants
         USE bennut_interface,ONLY:kfind, AddEquation, transfer
         IMPLICIT  NONE
-        integer,intent(IN) ::NUTR ! Specification ...dummy
-        integer,intent(IN) ::mode ! Specification
-        integer,intent(IN) ::input ! Specification
-        integer,intent(IN) ::option ! Specification
-        REAL(RLEN),intent(IN) ::xinput ! Specification
-        REAL(RLEN),intent(IN) ::yinput ! Specification
+        integer,intent(IN)            ::NUTR ! Specification ...dummy
+        integer,intent(IN)            ::mode ! Specification
+        integer,intent(IN)            ::input ! Specification
+        integer,intent(IN)            ::option ! Specification
+        REAL(RLEN),intent(IN)         ::xinput ! Specification
+        REAL(RLEN),intent(IN),optional::value ! Specification
+        REAL(RLEN),intent(IN),optional::mfac ! Specification
 
         integer ::i
         integer ::j
@@ -59,12 +60,19 @@
         integer ::l
         integer ::m
         integer ::n
+        REAL(RLEN) ::yinput
+        REAL(RLEN) ::multi
         REAL(RLEN) ::r
         REAL(RLEN) ::s
         REAL(RLEN) ::t
         REAL(RLEN) ::u
         logical ::control
 
+        
+        yinput=0.0D+00
+        if (present(value)) yinput=value;
+        multi=1.0D+00
+        if (present(mfac)) multi=mfac;
         if (NUTR /= nutr_seq) stop 'error: wrong use of routine'
 
         select case (ns%status)
@@ -82,46 +90,25 @@
         end select 
 
         select case (mode)
-!         case (SET)
-!           select case (option)
-!              case (FLAG)
-!                if (input == STANDARD) ModeMass=.false.
-!                if (input == MASS) ModeMass=.true.
-!              case (METHOD)
-!                 ns%imethod=input
-!              case(COEFFICIENT)
-!                nn_boundaries=nn_boundaries+1
-!                j=kfind(input,ns%coeffs,ns%nn)
-!                call calcadd(nn_boundaries,j,C,ns%nn,1.0D+00)
-!                call filly(nn_boundaries,xinput,Y2)
-!           end select 
-          case ( ADD,SUBTRACT,SET_BOUNDARY)
+          case ( ADD,SET_BOUNDARY)
             if (mode == SET_BOUNDARY) nn_boundaries=nn_boundaries+1
-            s=1.0D+00 
-            if (mode  == SUBTRACT) s=-1.0D+00
+            s=multi
             if ( option > 0 ) &
               call AddEquation(nn_boundaries,option,input,ns,s,xinput)
-            call filly(nn_boundaries, s* yinput ,Y2)
-          case (INPUT_TERM,START_ADD_TERM,INPUT_ADD_TERM,&
-                                              INPUT_SUBTRACT_TERM)  
+             call filly(nn_boundaries, s* yinput ,Y2)
+          case (INPUT_TERM,START_ADD_TERM,INPUT_ADD_TERM)
             !special continuity equations.........
             if (mode == INPUT_TERM.or. &
               mode == START_ADD_TERM) nn_boundaries=nn_boundaries+1
-            s=1.0D+00
-            if (mode == INPUT_SUBTRACT_TERM ) s=-1.0D+00
-            if (mode == INPUT_TERM) then
-              r=1.D+00
-              t=yinput
-            else
-              if (yinput == 0.0D+00) &
-                             stop 'CompleteSet:input_term yinnput=0.0'
-              r=1.D+00/yinput
-              t=1.D+00
-            endif
+            s=multi;
+            r=1.D+00
+            t=yinput
             j=kfind(option,ns%coeffs,ns%nn)
             if (j > 100000) stop 'CompleteSet=40??'
             i=ns%coeffs(j)%il/10
             if (input == PARAMETER) then
+              ! use COEFF->PARA because rX=Y is calculated
+              ! instead of X=Y/r
               r=transfer(COEFF2PARA,ns%coeffs(j),r,ns%diff(i))
             elseif(input /= STANDARD) then
               stop 'CompleteSet:error mode=input_term'
@@ -153,7 +140,7 @@
             endif
           case (SET_LAYER_INTEGRAL,SET_LAYER_INTEGRAL_UNTIL )
             t=1.0D+00
-            s=1.0D+00
+            s=multi
             nn_boundaries=nn_boundaries+1
             do m=option,input
               if (ModeMass) t=ns%poro(m)*(ns%ads(m)+1.D+00)

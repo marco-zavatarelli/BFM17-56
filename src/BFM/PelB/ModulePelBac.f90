@@ -71,8 +71,9 @@
   real(RLEN)  :: p_chdo  ! Michaelis const for O2 dependence (mmol/m3)
   real(RLEN)  :: p_sd  ! Independent specific mortality (1/d)
   real(RLEN)  :: p_sd2  ! Density dependent mortality (value: 0.009) (1/d)
-  real(RLEN)  :: p_suR1  ! Specific potential DOM availability (1/d)
-  real(RLEN)  :: p_suR2  ! Specific potential DOM availability (1/d)
+  real(RLEN)  :: p_suhR1  ! Specific potential of rich DOM availability (1/d)
+  real(RLEN)  :: p_sulR1  ! Specific potential sugar availability (1/d)
+  real(RLEN)  :: p_suR2  ! Specific potential TEP availability (1/d)
   real(RLEN)  :: p_suR6  ! Availability of POM (1/d)
   real(RLEN)  :: p_sum  ! Specific potential uptake (1/d)
   real(RLEN)  :: p_pu_ra  ! Activity respiration (-)
@@ -96,8 +97,8 @@
   subroutine InitPelBac()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suR1, &
-    p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R7, p_srs, p_qpc, p_qlpc, &
+  namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
+    p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R7, p_srs, p_qpc, p_qlpc, &
     p_qnc, p_qlnc, p_qun, p_qup, p_lN4
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

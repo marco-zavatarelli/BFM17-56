@@ -8,12 +8,8 @@
 ! !ROUTINE: BenthicNutrient3
 !
 ! DESCRIPTION
-!   Upper layer of the full benthic nutrient model, which describes 
-!       the diagenetic processes in the sediment
-! 
+!  Description of the diagenetic processes in the sediment
 !
-!
-
 !   This file is generated directly from OpenSesame model code, using a code 
 !   generator which transposes from the sesame meta language into F90.
 !   F90 code generator written by P. Ruardij.
@@ -32,8 +28,6 @@
 
   use global_mem, ONLY:RLEN
   use mem,  ONLY: LocalDelta, iiBen, iiPel, flux
-
-
 
 !  
 !

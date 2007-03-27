@@ -38,7 +38,7 @@
   ! The following groupmember vars are used: iiPhytoPlankton, &
   ! iiMicroZooPlankton, iiMesoZooPlankton, iiP1
   ! The following constituent constants  are used: iiC, iiN, iiP, iiL
-  ! The following 0-d global box parametes are used: p_small
+  ! The following 0-d global parameters are used: p_small
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -56,8 +56,8 @@
     ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
     qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiP1, iiC, iiN, iiP, iiL, NO_BOXES, &
-    iiBen, iiPel, flux_vector
-  use mem_Param,  ONLY: p_small
+    iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+  use mem_Param,  ONLY: p_small,check_fixed_quota
   use mem_MesoZoo
 
 
@@ -111,12 +111,11 @@
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN),dimension(NO_BOXES) :: zooc
-  real(RLEN),dimension(NO_BOXES) :: zoon
-  real(RLEN),dimension(NO_BOXES) :: zoop
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
+  integer  :: j
   integer,dimension(NO_BOXES)  :: nut_lim
   real(RLEN),dimension(NO_BOXES)  :: put_u
   real(RLEN),dimension(NO_BOXES)  :: temp_p
@@ -164,14 +163,18 @@
   real(RLEN),dimension(NO_BOXES)  :: rrc
   real(RLEN),dimension(NO_BOXES)  :: ren
   real(RLEN),dimension(NO_BOXES)  :: rep
+  real(RLEN),dimension(NO_BOXES)  :: tfluxc
+  real(RLEN),dimension(NO_BOXES)  :: tfluxn
+  real(RLEN),dimension(NO_BOXES)  :: tfluxp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   zooc = D3STATE(ppzooc,:)
-  zoon = D3STATE(ppzoon,:)
-  zoop = D3STATE(ppzoop,:)
 
+  tfluxc=0.0D+00
+  tfluxn=0.0D+00
+  tfluxp=0.0D+00
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !Physiological temperature response
@@ -210,7 +213,7 @@
   ! Calculate total food uptake
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rugc  =   et* p_sum(zoo)* MM_vector(  p_vum(zoo)* rumc,  p_sum(zoo))* zooc
-  put_u  =   rugc/ rumc
+  put_u  =   rugc/ ( 1.0D-80 + rumc)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Total Gross Uptakes
@@ -221,20 +224,20 @@
   do i = 1 , ( iiPhytoPlankton)
 
     ruPIc  =   put_u* rumPIc(:, i)
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiC),ppzooc, ruPIc )
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiN),ppzoon, ruPIc* qnPc(i,:) )
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiP),ppzoop, ruPIc* qpPc(i,:) )
+    call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
+                          ppPhytoPlankton(i,iiC),ppzooc, ruPIc ,tfluxc)
+    call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &
+                ppPhytoPlankton(i,iiN),ppzoon, ruPIc* qnPc(i,:),tfluxn )
+    call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
+              ppPhytoPlankton(i,iiP),ppzoop, ruPIc* qpPc(i,:),tfluxp )
     rut_c  =   rut_c+ ruPIc
     rut_n  =   rut_n+ ruPIc* qnPc(i,:)
     rut_p  =   rut_p+ ruPIc* qpPc(i,:)
     ! Chl is transferred to the sink
-    call flux_vector( iiPel, ppPhytoPlankton(i,iiL),ppPhytoPlankton(i,iiL),-( &
-      ruPIc* qlPc(i,:)) )
-    if ( i== iiP1) then
-      ! P1s is directly transferred to R6s
-      ! PhytoPlankton[i].s -> R6.s = ruPIc * qsPc[i];
-      flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
-    end if
+    call flux_vector( iiPel, ppPhytoPlankton(i,iiL), &
+               ppPhytoPlankton(i,iiL),-( ruPIc* qlPc(i,:)) )
+    ! PIs is directly transferred to R6s
+    if ( i==iiP1 ) flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
 
   end do
 
@@ -242,11 +245,12 @@
   do i = 1 , ( iiMicroZooPlankton)
 
     ruMIZc  =   put_u* rumMIZc(:, i)
-    call flux_vector( iiPel, ppMicroZooPlankton(i,iiC),ppzooc, ruMIZc )
-    call flux_vector( iiPel, ppMicroZooPlankton(i,iiN),ppzoon, ruMIZc* &
-      qn_mz(i,:) )
-    call flux_vector( iiPel, ppMicroZooPlankton(i,iiP),ppzoop, ruMIZc* &
-      qp_mz(i,:) )
+    call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
+             ppMicroZooPlankton(i,iiC),ppzooc, ruMIZc,tfluxc )
+    call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &
+           ppMicroZooPlankton(i,iiN),ppzoon, ruMIZc*qn_mz(i,:) ,tfluxn)
+    call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
+           ppMicroZooPlankton(i,iiP),ppzoop, ruMIZc* qp_mz(i,:) ,tfluxp)
     rut_c  =   rut_c+ ruMIZc
     rut_n  =   rut_n+ ruMIZc* qn_mz(i,:)
     rut_p  =   rut_p+ ruMIZc* qp_mz(i,:)
@@ -258,11 +262,12 @@
     ruMEZc  =   put_u* rumMEZc(:, i)
     ! intra-group predation is not computed
     if ( i/= zoo) then
-      call flux_vector( iiPel, ppMesoZooPlankton(i,iiC),ppzooc, ruMEZc )
-      call flux_vector( iiPel, ppMesoZooPlankton(i,iiN),ppzoon, ruMEZc* &
-        qnZc(i,:) )
-      call flux_vector( iiPel, ppMesoZooPlankton(i,iiP),ppzoop, ruMEZc* &
-        qpZc(i,:) )
+      call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
+                       ppMesoZooPlankton(i,iiC),ppzooc, ruMEZc, tfluxc )
+      call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &
+            ppMesoZooPlankton(i,iiN),ppzoon, ruMEZc* qnZc(i,:) , tfluxn)
+      call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
+            ppMesoZooPlankton(i,iiP),ppzoop, ruMEZc* qpZc(i,:) , tfluxp)
     end if
 
     rut_c  =   rut_c+ ruMEZc
@@ -308,16 +313,10 @@
         nut_lim  =   2
       end where
 
-
-
-
     ELSEWHERE
       where ( pu_e_n< qnZc(zoo,:))
         nut_lim  =   3
       end where
-
-
-
 
   END WHERE
 
@@ -330,8 +329,8 @@
   rra_p  =   0.0D+00
 
   rrs_c  =   p_srs(zoo)* et* zooc
-  rrs_n  =   p_srs(zoo)* et* zoon
-  rrs_p  =   p_srs(zoo)* et* zoop
+  rrs_n  =   p_srs(zoo)* et* zooc * qnZc(zoo,:)
+  rrs_p  =   p_srs(zoo)* et* zooc * qpZc(zoo,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Defecation
@@ -344,16 +343,16 @@
   ! Natural mortality
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rd_c  =   p_sd(zoo)* et* zooc
-  rd_n  =   p_sd(zoo)* et* zoon
-  rd_p  =   p_sd(zoo)* et* zoop
+  rd_n  =   p_sd(zoo)* et* zooc* qnZc(zoo,:)
+  rd_p  =   p_sd(zoo)* et* zooc* qpZc(zoo,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Density dependent mortality
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   sdo  =   p_sdo(zoo)* (zooc)**(p_sds(zoo))
   rdo_c  =   sdo* zooc
-  rdo_n  =   sdo* zoon
-  rdo_p  =   sdo* zoop
+  rdo_n  =   sdo* zooc* qnZc(zoo,:)
+  rdo_p  =   sdo* zooc* qpZc(zoo,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Eliminate excess of non-limiting nutrients
@@ -414,14 +413,24 @@
   ! flow statements
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0D+00) )
-  call flux_vector( iiPel, ppzooc,ppzooc,-( rrc) )
-  call flux_vector( iiPel, ppzoop,ppN1p, rep )
-  call flux_vector( iiPel, ppzoon,ppN4n, ren )
+  call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
+                             ppzooc,ppzooc,-( rrc),tfluxc )
+  call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
+                             ppzoop,ppN1p, rep ,tfluxp)
+  call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &
+                             ppzoon,ppN4n, ren ,tfluxn)
 
-  call flux_vector( iiPel, ppzooc,ppR6c, rq6c )
-  call flux_vector( iiPel, ppzoop,ppR6p, rq6p )
-  call flux_vector( iiPel, ppzoon,ppR6n, rq6n )
+  call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
+                             ppzooc,ppR6c, rq6c ,tfluxc )
+  call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
+                             ppzoop,ppR6p, rq6p ,tfluxp)
+  call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &
+                             ppzoon,ppR6n, rq6n ,tfluxn)
 
+  ren=tfluxC*p_qnc(zoo)
+  call fixed_quota_flux_vector( check_fixed_quota,-iiN,0,0,0,ren,tfluxN)
+  rep=tfluxC*p_qpc(zoo)
+  call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,rep,tfluxP)
 
 
 

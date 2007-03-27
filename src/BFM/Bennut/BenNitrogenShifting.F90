@@ -31,7 +31,7 @@
   ! The following Benthic 1-d global boxvars are used: shiftD1m, KNH4, reATn, &
   ! shiftD2m, KNO3
   ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global box parametes are used: p_clDxm, p_d_tot
+  ! The following 0-d global parameters are used: p_clDxm, p_d_tot
   ! The following global constants are used: RLEN
   ! The following constants are used: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
 
@@ -39,15 +39,15 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,LOGUNIT
   use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m, D2STATE
   use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppD7m, &
     ppD2m, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
     BoxNumber, BoxNumberXY, LocalDelta, dummy, shiftD1m, KNH4, reATn, shiftD2m, &
-    KNO3, iiBen, iiPel, flux
+    KNO3, jK34K24n, jK13K3n, iiBen, iiPel, flux
   use constants,  ONLY: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
   use mem_Param,  ONLY: p_poro, p_clDxm, p_d_tot
-
+  use mem_BenthicNutrient3, ONLY:p_max_shift_change
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:CalculateFromSet
@@ -59,9 +59,6 @@
   ! The following sesame functions are used:insw, IntegralExp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: insw, IntegralExp
-
-
-
 !  
 !
 ! !AUTHORS
@@ -73,8 +70,6 @@
 !   April 15, 1994 by EGM Embsen and P Ruardij:
 !               Created a new version of the this process
 !               so that it can be used with OpenSESAME.
-!
-!
 !
 ! COPYING
 !   
@@ -108,9 +103,8 @@
   real(RLEN)  :: zuD2
   real(RLEN)  :: jK14K4n
   real(RLEN)  :: jK24K14n
-  real(RLEN)  :: jK34K24n
-  real(RLEN)  :: jK13K3n
   real(RLEN)  :: alpha
+  real(RLEN)  :: r
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! user defined external functions
@@ -124,7 +118,6 @@
       BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
       BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
 
-
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium Fluxes at the oxic/denitrification boundary
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -137,6 +130,9 @@
 
       jK14K4n = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
         D1m(BoxNumberXY), 0.0D+00)+ shiftmass
+
+      r= 1.0D-80+insw(jK14K4n)* K14n(BoxNumberXY)+insw(-jK14K4n)* K4n(boxNumberXY)
+      jK14K4n=jK14K4n*p_max_shift_change/(abs(jK14K4n/r)+p_max_shift_change);
 
       call flux(BoxNumberXY, iiBen, ppK14n, ppK4n, jK14K4n* insw( jK14K4n) )
       call flux(BoxNumberXY, iiBen, ppK4n, ppK14n, - jK14K4n* insw( - jK14K4n) )
@@ -166,16 +162,21 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium Fluxes at the denitrification/anoxic boundary
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
+       
       Dnew  =   D2m(BoxNumberXY)+ LocalDelta* shiftD2m(BoxNumberXY)
 
       ! Calculate mass shifted in upwards direction:
       shiftmass = CalculateFromSet( KNH4(BoxNumberXY), SHIFT, LAYER2, &
-        D2m(BoxNumberXY), Dnew)/ LocalDelta
+        D2m(BoxNumberXY), Dnew)/ LocalDelta  &
+      + CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, &
+        RFLUX, D2m(BoxNumberXY), 0.0D+00)
 
-      jK24K14n = jK24K14n+ CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, &
-        RFLUX, D2m(BoxNumberXY), 0.0D+00)+ shiftmass
-
+      r= 1.0D-80+insw(shiftmass)* K24n(BoxNumberXY)+insw(-shiftmass)* K14n(boxNumberXY)
+      shiftmass=shiftmass*p_max_shift_change/(abs(shiftmass/r)+p_max_shift_change);
+      
+      jK24K14n=jK24K14n + shiftmass
+       
+    
       call flux(BoxNumberXY, iiBen, ppK24n, ppK14n, jK24K14n* insw( jK24K14n) )
       call flux(BoxNumberXY, iiBen, ppK14n, ppK24n, - jK24K14n* insw( - &
         jK24K14n) )
@@ -185,17 +186,21 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       ! Ammonium:
-      jK34K24n = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
+      jK34K24n(BoxNumberXY)  = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
         p_d_tot, 0.0D+00)
-      call flux(BoxNumberXY, iiBen, ppK24n, ppK24n, -(- jK34K24n) )
+      call flux(BoxNumberXY, iiBen, ppK24n, ppK24n, -(- jK34K24n(BoxNumberXY) ) )
+
+      if ( isnan(jK34K24n(BoxNumberXY))) then
+        write(LOGUNIT,*) 'Nan in jK34K24n'
+      endif
 
       ! Nitrate:
       shiftmass = CalculateFromSet( KNO3(BoxNumberXY), SHIFT, LAYER2, &
         D2m(BoxNumberXY), Dnew)/ LocalDelta
-      jK13K3n = CalculateFromSet( KNO3(BoxNumberXY), DERIVATIVE, RFLUX, &
+      jK13K3n(BoxNumberXY)  = CalculateFromSet( KNO3(BoxNumberXY), DERIVATIVE, RFLUX, &
         D2m(BoxNumberXY), dummy)+ shiftmass
 
-      call flux(BoxNumberXY, iiBen, ppK3n, ppK3n, -(- jK13K3n) )
+      call flux(BoxNumberXY, iiBen, ppK3n, ppK3n, -(- jK13K3n(BoxNumberXY) ) )
 
 
     end DO

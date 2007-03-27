@@ -45,7 +45,9 @@
 !
 !  p_isw:  	 Switch between parameterizations
 !  p_chEPLi:  	 Maximum Iopt (uE/m2/s)
-!  p_clEPLi:  	 Minimum Iopt (uE/m2/s)
+!  p_clEPLi:     Minimum Iopt (uE/m2/s)
+!  p_clEPLi:  	 Minimum Iopt (W/m2)
+!        :  	    p_ruEPLi    =      0.25,    0.25,   0.5,    0.125	# Maximum daily shift in Iopt (1/d)
 !  p_ruEPLi:  	 Maximum daily shift in Iopt (1/d)
 !  p_addepth:  	 Adaptation depth. Meaningless with high
 

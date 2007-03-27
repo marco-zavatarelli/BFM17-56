@@ -1,0 +1,143 @@
+!-----------------------------------------------------------------------
+!BOP
+!
+! !ROUTINE: trc_set_bfm.F90
+!
+! !INTERFACE:
+   subroutine trc_set_bfm(kt,m)
+!
+! !DESCRIPTION:
+!  Computes additional boundary conditions and transfer 
+!  sinking velocity
+!
+! !USES:
+   ! NEMO
+   use oce_trc          ! ocean dynamics and active tracers variables
+   use trc              ! ocean passive tracers variables
+   ! BFM
+   use global_mem, only:RLEN
+   use mem_param,  only: AssignAirPelFluxesInBFMFlag,        &
+                         AssignPelBenFluxesInBFMFlag
+   use mem_PelGlobal, only: p_rR6m
+   use mem
+   use constants,    only: SEC_PER_DAY
+   use mem_settling, only: p_burvel
+   use api_bfm
+
+   implicit none
+!
+! !INPUT PARAMETERS:
+   integer, intent(IN)     ::  kt  ! ocean time-step index
+   integer, intent(IN)     ::  m   ! BFM variable index
+!
+! !INPUT/OUTPUT PARAMETERS:
+!
+! !OUTPUT PARAMETERS:
+!
+! !REVISION HISTORY:
+!  Author(s): Marcello Vichi (CMCC-INGV)
+!  Sinking velocity formulation: O. Aumont (PISCES model)
+!
+! !LOCAL VARIABLES:
+   ! 3D sinking velocity field
+   integer               :: ji, jj, jk
+   real(RLEN),parameter  :: depth_factor = 2000.0_RLEN
+   real(RLEN)            :: zfact,timestep,wsmax
+   real(RLEN)            ::  wbio(jpi,jpj,jpk)   
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+
+   !---------------------------------------------
+   ! Biological timestep (in days)
+   !---------------------------------------------
+   timestep  = rdt*FLOAT(ndttrc)/SEC_PER_DAY
+
+   !---------------------------------------------
+   ! Transfer sinking velocities 
+   ! (negative, z-axis is positive upwards)
+   !---------------------------------------------
+   select case (m)
+      case (ppP1c,ppP1n,ppP1p,ppP1s,ppP1l)
+         wbio = -unpack(sediPI(iiP1,:),SEAmask,ZEROS)
+         !CALL trc_sink_muscl_bfm(wbio)       ! vertical sinking
+         CALL trc_sink_bfm(wbio)       ! vertical sinking
+      case (ppR6c,ppR6n,ppR6p,ppR6s)
+         wbio = -p_rR6m
+         !CALL trc_sink_muscl_bfm(wbio)       ! vertical sinking
+         CALL trc_sink_bfm(wbio)       ! vertical sinking
+      case default
+         wbio = 0.0_RLEN
+   end select
+
+#ifdef PIPPO
+   !---------------------------------------------
+   ! Sinking speeds increase with depth below 
+   ! the turbocline depth (aggregation)
+   ! Velocity is limited according to the depth 
+   ! of the layer
+   !---------------------------------------------
+   do jk=1,jpk-1
+      do jj=1,jpj
+         do ji=1,jpi
+            wsmax=0.8*fse3t(ji,jj,jk)/timestep
+            zfact = max(0.0_RLEN,exp((fsdepw(ji,jj,jk)-hmld(ji,jj)) &
+                                     /depth_factor)-1.0_RLEN);
+            wbio(ji,jj,jk) = min(wsmax,(1.0_RLEN+zfact)*wbio(ji,jj,jk))
+
+          end do
+      end do
+   end do
+#endif
+
+#ifdef FLUXES
+   !---------------------------------------------
+   ! Surface fluxes
+   !---------------------------------------------
+   topm3psec=_ONE_/Depth(NO_BOXES_Z)/ SEC_PER_DAY
+   if ( .NOT. AssignAirPelFluxesInBFMFlag ) then
+           sfl(ppN3n) =   0.09  *topm3psec
+           sfl(ppN4n) =   0.10  *topm3psec
+           sfl(ppN1p) =   0.0  !0.0
+           sfl(ppO2o) =   jOAO2o(1) *topm3psec
+   endif
+
+   !---------------------------------------------
+   ! Bottom fluxes
+   !---------------------------------------------
+   topm3psec=1.0/Depth(1)/ SEC_PER_DAY
+   if (bio_setup == 3 .and. ( .NOT.AssignPelBenFluxesInBFMFlag)) then
+
+      bfl(ppR6c) = ( -rutQ6c(1))*topm3psec
+      bfl(ppR6n) = ( -rutQ6n(1))*topm3psec
+      bfl(ppR6p) = ( -rutQ6p(1))*topm3psec
+      bfl(ppR6s) = ( -rutQ6s(1))*topm3psec
+
+      bfl(ppR1c) =  -rutQ1c(1)*topm3psec
+      bfl(ppR1n) =  -rutQ1n(1)*topm3psec
+      bfl(ppR1p) =  -rutQ1p(1)*topm3psec
+
+      bfl(ppO2o) = jG2O2o(1)*topm3psec
+      bfl(ppN1p) = jK1N1p(1)*topm3psec
+      bfl(ppN3n) = jK3N3n(1)*topm3psec
+      bfl(ppN4n) = jK4N4n(1)*topm3psec
+      bfl(ppN5s) = jK5N5s(1)*topm3psec
+      bfl(ppN6r) = jK6N6r(1)*topm3psec
+
+      do i=1,iiPhytoPlankton
+        bfl(ppPhytoPlankton(i,iiC)) = -retPIc(i,1)*topm3psec
+        bfl(ppPhytoPlankton(i,iiN)) = -retPIn(i,1)*topm3psec
+        bfl(ppPhytoPlankton(i,iiP)) = -retPIp(i,1)*topm3psec
+        bfl(ppPhytoPlankton(i,iiL)) = -retPIl(i,1)*topm3psec
+        k=ppPhytoPlankton(i,iiS)
+        if ( k > 0 ) bfl(k) = -retPIs(i,1)*topm3psec
+      enddo
+#endif
+
+
+   return
+   end subroutine trc_set_bfm
+
+!EOC
+

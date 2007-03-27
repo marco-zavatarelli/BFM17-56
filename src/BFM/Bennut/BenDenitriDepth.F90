@@ -21,13 +21,13 @@
 ! !USES:
 
   ! For the following Benthic-states fluxes are defined: D2m
-  ! The following Benthic-states are used (NOT in fluxes): D1m
-  ! The following global scalar vars are used: BoxNumberZ, &
-  ! NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, BoxNumber, &
-  ! BoxNumberXY, dummy
-  ! The following Benthic 1-d global boxvars are modified : shiftD2m
+  ! The following Benthic-states are used (NOT in fluxes): K3n,K4n,D1m
+  ! The following global scalar vars are used: &
+  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
+  ! BoxNumber, BoxNumberXY, dummy, InitializeModel
+  ! The following Benthic 1-d global boxvars are modified : shiftD1m,shiftD2m
   ! The following Benthic 1-d global boxvars  are used: KNO3, KNH4
-  ! The following 0-d global box parametes are used: p_d_tot, p_clD1D2m
+  ! The following 0-d global parameters are used: p_d_tot, p_clD1D2m
   ! The following global constants are used: RLEN
   ! The following constants are used: EQUATION, STANDARD, GET, LABDA_1, &
   ! ONE_PER_DAY
@@ -38,9 +38,10 @@
 
   use global_mem, ONLY:RLEN
   use mem,  ONLY: D2m, D1m, D2STATE
-  use mem, ONLY: ppD2m, ppD1m, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
-    BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, dummy, shiftD2m, KNO3, KNH4, &
-    iiBen, iiPel, flux
+  use mem, ONLY: K3n,K4n,ppD2m, ppD1m, BoxNumberZ, NO_BOXES_Z, BoxNumberX, &
+    NO_BOXES_X, BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, dummy, &
+    InitializeModel, shiftD1m, shiftD2m, KNO3, KNH4, iiBen, iiPel, flux
+  use mem,ONLY: jbotN3n,jbotN4n,N3n_Ben,N4n_Ben,K14n,K24n,D6m,D7m
   use constants,  ONLY: EQUATION, STANDARD, GET, LABDA_1, ONE_PER_DAY
   use mem_Param,  ONLY: p_d_tot, p_clD1D2m
   use mem_BenDenitriDepth
@@ -50,9 +51,6 @@
   ! The following bennut functions are used:CalculateFromSet, GetInfoFromSet
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use bennut_interface,   ONLY: CalculateFromSet, GetInfoFromSet
-
-
-
 !  
 !
 ! !AUTHORS
@@ -116,15 +114,27 @@
       M3n_D1m = CalculateFromSet( KNO3(BoxNumberXY), EQUATION, &
         STANDARD, D1m(BoxNumberXY), dummy)
 
-      select case ( M3n_D1m< 0.0D+00)
+      select case ( M3n_D1m<= 0.0D+00)
 
         case( .TRUE. )
 
-          control  =   PrintSet(  KNH4(BoxNumberXY))
-          control  =   PrintSet(  KNO3(BoxNumberXY))
+          ! Do nothing give a warning
+          ! Let if D1m increase let D2m increase too to avoid zero thickness of 
+          ! denitrifiaction layer
+          if ( InitializeModel ==0 ) then
+            write(LOGUNIT,'(''D1m='',F12.3,'' D2m='',F12.3)') D1m(BoxNumberXY), D2m(BoxNumberXY)
+            write(LOGUNIT,'(''D6m='',F12.3,'' D7m='',F12.3)') D6m(BoxNumberXY), D7m(BoxNumberXY)
+            write(LOGUNIT,'(''K3n='',F12.3,'' K4n='',F12.3)') K3n(BoxNumberXY), K4n(BoxNumberXY)
+            write(LOGUNIT,'(''K14n='',F12.3,'' K24n='',F12.3)') K14n(BoxNumberXY), K24n(BoxNumberXY)
+            write(LOGUNIT,'(''fluxN3='',F12.3,'' fluxK4n='',F12.3)') jbotN3n(BoxNumberXY), jbotN4n(BoxNumberXY)
+            write(LOGUNIT,'(''N3n='',F12.3,'' N4n='',F12.3)') N3n_Ben(BoxNumberXY), N4n_Ben(BoxNumberXY)
+            control  =   PrintSet(  KNH4(BoxNumberXY),"concentration nitrate on D1m < 0")
+            control  =   PrintSet(  KNO3(BoxNumberXY),"concentration nitrate on D1m < 0")
+         endif
 
-
-
+          D2mnew =D2m(BoxnumberXY)+shiftD1m(boxNumberXY)
+          shiftD2m(BoxNumberXY) = max( min( p_d_tot- &
+            p_clD1D2m, D2mNew), D1m(BoxNumberXY)+ p_clD1D2m)- D2m(BoxNumberXY)
 
         case( .FALSE. )
 
@@ -132,7 +142,7 @@
           ! Calculate fraction with which new depth of D2.m is calculated:
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          pmM3n  =   max(  p_pmM3n* M3n_D1m,  p_clM3n_D2)/ M3n_D1m
+          pmM3n  =   max(  p_pmM3n* M3n_D1m,  p_clM3n_D2)/ (1.0D-80 +M3n_D1m)
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
           ! According solution nitrate concentrate decreases
@@ -141,28 +151,31 @@
           ! uncorrected new denitrification depth
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          D2mNew = min( p_cmD2m, ( log( pmM3n)/ &
-            GetInfoFromSet( KNO3(BoxNumberXY), GET, LABDA_1, 21, dummy, &
-            dummy)+ D1m(BoxNumberXY)))
+          D2mNew = min( p_d_tot-p_clD1D2m, ( log( pmM3n)/ &
+            GetInfoFromSet( KNO3(BoxNumberXY), GET, LABDA_1, 21) &
+                                                     + D1m(BoxNumberXY)))
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
           ! 1. Calculate uncorrected shift of D2.m
           ! 2. limit shift incase of D2mnew moves in the direction of D1m
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          ushiftD2m = max( min( p_d_tot- p_clD1D2m, &
-            D2mNew), D1m(BoxNumberXY)+ p_clD1D2m)- D2m(BoxNumberXY)
+          shiftD2m(BoxNumberXY) = max( min( p_d_tot- &
+            p_clD1D2m, D2mNew), D1m(BoxNumberXY)+ p_clD1D2m)- D2m(BoxNumberXY)
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
           ! Correct by damping the change of D2m in case large changes:
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          shiftD2m(BoxNumberXY) = ushiftD2m/ ONE_PER_DAY* &
-            (D2m(BoxNumberXY)/( D2m(BoxNumberXY)+ abs(ushiftD2m)))**(p_xdamping)
+          if ( InitializeModel== 0) then
+            shiftD2m(BoxNumberXY) = shiftD2m(BoxNumberXY)/ &
+              ONE_PER_DAY* (D2m(BoxNumberXY)/( &
+              D2m(BoxNumberXY)+ abs(shiftD2m(BoxNumberXY))))**(p_xdamping)
 
-          call flux(BoxNumberXY, iiBen, ppD2m, ppD2m, shiftD2m(BoxNumberXY) )
 
+             call flux(BoxNumberXY, iiBen, ppD2m, ppD2m, shiftD2m(BoxNumberXY) )
 
+          end if
 
 
       end select

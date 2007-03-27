@@ -32,7 +32,7 @@
   ! The following groupmember vars are used: iiMicroZooPlankton, &
   ! iiMesoZooPlankton, iiPhytoPlankton, iiP1
   ! The following constituent constants  are used: iiP, iiC, iiN, iiL
-  ! The following 0-d global box parametes are used: p_small
+  ! The following 0-d global parameters are used: p_small
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -48,7 +48,7 @@
 #ENDIF
   use mem, ONLY: ppR6p, ppR6c, ppR6n, ppR6s, ppP1s, ppP1c, &
     ppB1p, ppB1c, ppB1n, ppMicroZooPlankton, ppMesoZooPlankton, ppPhytoPlankton, &
-    flP1R6s, flPTN6r, qpR6c, qnR6c, qsR6c, qpB1c, qnB1c, sediR6, qp_mz, &
+    flP1R6s, flPTN6r, qpR6c, qnR6c, qsR6c, qpB1c, qnB1c, sediR2, sediR6, qp_mz, &
     qn_mz, qpZc, qnZc, qpPc, qnPc, qlPc, qsPc, sediPI, iiMicroZooPlankton, &
     iiMesoZooPlankton, iiPhytoPlankton, iiP1, iiP, iiC, iiN, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector
@@ -111,21 +111,25 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in microzooplankton and HNAN
+  ! in case of fixed quota qp_mz and qn_mz are one time calculated in the Initialize.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiMicroZooPlankton)
-
-    qp_mz(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
-    qn_mz(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
+    if ( ppMicroZooPlankton(i,iiP) > 0 ) &
+      qp_mz(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
+    if ( ppMicroZooPlankton(i,iiN) > 0 ) &
+      qn_mz(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
   end do
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in omnivorous and herbivorous mesozooplankton
+  ! in case of fixed quota qp_mz and qn_mz are one time calculated in the Initialize.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiMesoZooPlankton)
-
-    qpZc(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
-    qnZc(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
+    if ( ppMesoZooPlankton(i,iiP) > 0 ) &
+      qpZc(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
+    if ( ppMesoZooPlankton(i,iiN) > 0 ) &
+      qnZc(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
   end do
 
 
@@ -151,6 +155,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute sedimentation velocities
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  sediR2     = 0.0;
   sediR6(:)  =   p_rR6m
   do i = 1 , ( iiPhytoPlankton)
 

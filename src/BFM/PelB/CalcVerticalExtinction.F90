@@ -30,7 +30,7 @@
   ! The following Pelagic 1-d global boxvars  are used: ABIO_eps, ESS
   ! The following groupmember vars  are used: iiPhytoPlankton
   ! The following constituent constants  are used: iiC, iiL
-  ! The following 0-d global box parametes are used: p_eps0, &
+  ! The following 0-d global parameters are used: p_eps0, &
   ! p_epsR6, p_epsESS, ChlLightFlag, p_epsChla
   ! The following 1-d global parameter vars are used: p_qchlc
   ! The following global constants are used: RLEN

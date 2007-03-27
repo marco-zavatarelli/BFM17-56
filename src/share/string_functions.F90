@@ -71,22 +71,25 @@
 ! !IROUTINE:  getseq_number
 !
 ! !INTERFACE:
-
-     integer function getseq_number(string,name,n,exact)
+     integer function getseq_number(string,name,n,exact,start)
 ! !DESCRIPTION:
 !
 ! !INPUT PARAMETERS:
+     implicit none
      character(len=*),dimension(n) :: name
      character(len=*)              :: string
      integer                       :: n
      logical                       :: exact
+     integer,optional              :: start
 !
 !EOP
 !
 ! !LOCAL VARIABLES:
-     integer                 :: i,j
+     integer                 :: i,j,k
 !-------------------------------------------------------------------------
 !BOC
+     k=1
+     if ( present(start) ) k=start
      do i=1,n
        j=index_trim(name(i),string)
        if (j == 1) then

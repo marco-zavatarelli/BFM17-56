@@ -30,10 +30,12 @@
 #define SURFT_SHAPE     7
 #define BOTT_SHAPE      8
 #define G_SHAPE         9
+#define XYZ_SHAPE      10
 
 ! constants for average computations
 #define INIT         0
 #define MEAN         1
+#define RESET        2
 #define ACCUMULATE   10
 
 ! To avoid dividing by zero

@@ -29,12 +29,12 @@
   ! Q6n, Q6p, G2o, K4n, K1p, D6m, D7m, D8m
   ! The following Benthic-states are used (NOT in fluxes): D1m
   ! The following Benthic 1-d global boxvars are modified : rrBTo, reBTn, &
-  ! reBTp, rutQ6c, rutQ6n, rutQ6p, rutQ6s
+  ! reBTp, jbotR6c, jbotR6n, jbotR6p, jbotR6s
   ! The following Benthic 1-d global boxvars got a value: jPIY3c, jRIY3c, &
   ! jRIY3n, jRIY3p, jRIY3s
   ! The following Benthic 1-d global boxvars are used: ETW_Ben, PIc, RIc, PIn, &
   ! PIp, PIs, RIn, RIp, RIs
-  ! The following 0-d global box parametes are used: p_d_tot
+  ! The following 0-d global parameters are used: p_d_tot
   ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -49,8 +49,8 @@
     D1m
 #ENDIF
   use mem, ONLY: ppY3c, ppY3n, ppY3p, ppQ6c, ppQ6n, ppQ6p, ppG2o, ppK4n, &
-    ppK1p, ppD6m, ppD7m, ppD8m, ppD1m, rrBTo, reBTn, reBTp, rutQ6c, rutQ6n, &
-    rutQ6p, rutQ6s, jPIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, PIc, RIc, &
+    ppK1p, ppD6m, ppD7m, ppD8m, ppD1m, rrBTo, reBTn, reBTp, jbotR6c, jbotR6n, &
+    jbotR6p, jbotR6s, jPIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, PIc, RIc, &
     PIn, PIp, PIs, RIn, RIp, RIs, NO_BOXES_XY, iiBen, iiPel, flux_vector
   use mem_Param,  ONLY: p_d_tot
   use mem_FilterFeeder
@@ -432,15 +432,16 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! excretion of food orginating of Pelagic food will be sedimented and
   ! hence is considered as added to the total Pelagic->Ben flux.
+  ! jbot< 0 : flux out of the system
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rutQ6c(:)  =   rutQ6c(:)+ retR6c
-  rutQ6n(:)  =   rutQ6n(:)+ retR6n
-  rutQ6p(:)  =   rutQ6p(:)+ retR6p
+  jbotR6c(:)  =   jbotR6c(:)- retR6c
+  jbotR6n(:)  =   jbotR6n(:)- retR6n
+  jbotR6p(:)  =   jbotR6p(:)- retR6p
 
   ! The silicate is directly transferred to Q6.s
   ! the ruPis which is put back in R6 is however sedimentating:
-  rutQ6s(:)  =   rutQ6s(:)+ ruPIs+ ruR6s
+  jbotR6s(:)  =   jbotR6s(:)- ruPIs- ruR6s
 
 
 

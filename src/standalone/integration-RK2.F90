@@ -155,7 +155,7 @@
    timesec=delt*ntime
 #ifdef DEBUG
    LEVEL1 'ntime: ',ntime
-   LEVEL1 'Integration time: ',time
+!  LEVEL1 'Integration time: ',time
 #endif
 
    END SUBROUTINE integrationRK2

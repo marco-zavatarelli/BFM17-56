@@ -65,6 +65,7 @@
 !  p_PAR:  	 Photosynthetically available radiation
 !  ChlLightFlag:  	 Switch between light prop.(=1) or Chla.(=2) as a state
 !  LightForcingFlag:  	 Switch between instantaneous light and day light average
+!  LightLocationFlag:    Switch between different depth-parameterizations
 !  p_qchlc(PhytoPlankton):  	 Fixed/Maximum quotum Chla:C dependent on ChlLightFlag [mg Chla (mg C)-1]
 !        :  	p_qchlc%   0.05, 0.03,  0.07,  0.02
 !  p_eps0:  	 Background extinction (abiotic)
@@ -77,7 +78,9 @@
 !  p_pe_R1p:  	 Fraction of excretion going to PLOC
 !  p_epsChla:  	 Chla-contribution to extinction
 !  p_epsR6:  	 (m2/mgC) # Detritus-contribution to extinction
-
+!  check_fixed_quota       Check whether zooplankton have fixed quota
+!  p_poro0:      Constant porosity for 0D and 1D runs
+ 
 &Param_parameters
 p_small = 1.0e-80,
 p_q10diff = 1.49,
@@ -86,7 +89,8 @@ p_qon_dentri = 1.25,
 p_qon_nitri = 2.0,
 p_clDxm = 0.001,
 CalcPelagicFlag = .TRUE.,
-CalcBenthicFlag = 0,
+CalcBenthicFlag = 3,
+p_poro0 = 0.4 ,
 CalcPhytoPlankton(1) = .TRUE.,
 CalcPhytoPlankton(2) = .TRUE.,
 CalcPhytoPlankton(3) = .TRUE.,
@@ -104,13 +108,14 @@ CalcBenOrganisms(4) = .TRUE.,
 CalcBenOrganisms(5) = .TRUE.,
 CalcBenBacteria(1) = .TRUE.,
 CalcBenBacteria(2) = .TRUE.,
-AssignPelBenFluxesInBFMFlag = .TRUE.,
-AssignAirPelFluxesInBFMFlag = .TRUE.,
+AssignPelBenFluxesInBFMFlag = .FALSE.,
+AssignAirPelFluxesInBFMFlag = .FALSE.,
 p_PAR = 0.50,
 ChlLightFlag = 2,
 LightForcingFlag = 1,
+LightLocationFlag = 3,
 p_qchlc = 0.05,0.03,0.07,0.02,
-p_eps0 = 0.04,
+p_eps0 = 0.12,
 p_epsESS = 0.04e-3,
 p_InitSink = 100.0,
 p_d_tot = 0.30,
@@ -120,7 +125,8 @@ p_pe_R1n = 0.72,
 p_pe_R1p = 0.832,
 p_pe_R1s = 0.06,
 p_epsChla = 10.0e-3,
-p_epsR6 = 0.1e-3
+p_epsR6 = 0.1e-3,
+check_fixed_quota = 0
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist

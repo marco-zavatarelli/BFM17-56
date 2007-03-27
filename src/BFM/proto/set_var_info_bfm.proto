@@ -69,6 +69,10 @@ subroutine set_var_info_bfm
 %2d-state-string 
 %2d-diagnos-string  
 %2d-diaggrp-string  
+%3d-state-surface-string 
+%3d-state-bottom-string 
+
+
 %2d-flux-string
 
 %dd-string-index

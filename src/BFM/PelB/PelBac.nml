@@ -50,8 +50,9 @@
 !  p_chdo:  	 Michaelis const for O2 dependence (mmol/m3)
 !  p_sd:  	 Independent specific mortality (1/d)
 !  p_sd2:  	 Density dependent mortality (value: 0.009) (1/d)
-!  p_suR1:  	 Specific potential DOM availability (1/d)
-!  p_suR2:  	 Specific potential DOM availability (1/d)
+!  p_suhR1:  	 Specific potential availability for rich DOM (1/d)
+!  p_sulR1:  	 Specific potential availability for poor DOM (1/d)
+!  p_suR2:  	 Specific potential availability refractory DOC (1/d)
 !  p_suR6:  	 Availability of POM (1/d)
 !  p_sum:  	 Specific potential uptake (1/d)
 !  p_pu_ra:  	 Activity respiration (-)
@@ -72,9 +73,10 @@ p_q10 = 2.95,
 p_chdo = 30.0,
 p_sd = 0.0,
 p_sd2 = 0.0,
-p_suR1 = 0.5,
+p_suhR1 = 0.5,
+p_sulR1 = 0.0,
 p_suR2 = 0.25,
-p_suR6 = 0.1,
+p_suR6 = 0.10,
 p_sum = 8.38,
 p_pu_ra = 0.6,
 p_pu_ra_o = 0.2,

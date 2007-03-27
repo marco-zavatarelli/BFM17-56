@@ -36,7 +36,7 @@
   ! The following Pelagic 2-d global boxvars got a value: sunPI
   ! The following Pelagic 2-d global boxvars  are used: qpPc, qnPc, qsPc, qlPc
   ! The following groupmember vars  are used: iiP1, iiP4
-  ! The following 0-d global box parametes are used: p_small, &
+  ! The following 0-d global parameters are used: p_small, &
   ! ChlLightFlag, LightForcingFlag
   ! The following 1-d global parameter vars are used: p_qchlc
   ! The following global constants are used: RLEN
@@ -56,9 +56,10 @@
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, SUNQ, ThereIsLight, flP1R6s, ETW, EIR, xEPS, &
     Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, iiP1, iiP4, NO_BOXES, &
-    iiBen, iiPel, flux_vector
+    iiBen, iiPel, flux_vector, runPIn
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag, p_qchlc
+  use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag, p_qchlc, &
+                        LightLocationFlag
   use mem_Phyto
 
 
@@ -122,7 +123,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer,dimension(NO_BOXES)  :: i
+  integer                         :: silica_control
+  integer,dimension(NO_BOXES)     :: i
   real(RLEN),dimension(NO_BOXES)  :: r
   real(RLEN),dimension(NO_BOXES)  :: et
   real(RLEN),dimension(NO_BOXES)  :: sum
@@ -149,10 +151,11 @@
   real(RLEN),dimension(NO_BOXES)  :: rums
   real(RLEN),dimension(NO_BOXES)  :: rups
   real(RLEN),dimension(NO_BOXES)  :: miss
+  real(RLEN),dimension(NO_BOXES)  :: tN
   real(RLEN),dimension(NO_BOXES)  :: iN
   real(RLEN),dimension(NO_BOXES)  :: iN1p
   real(RLEN),dimension(NO_BOXES)  :: iNIn
-  real(RLEN),dimension(NO_BOXES)  :: iN5s
+  real(RLEN),dimension(NO_BOXES)  :: eN5s
   real(RLEN),dimension(NO_BOXES)  :: rrc
   real(RLEN),dimension(NO_BOXES)  :: rr1c
   real(RLEN),dimension(NO_BOXES)  :: rr1n
@@ -171,7 +174,31 @@
   real(RLEN),dimension(NO_BOXES)  :: rate_Chl
   real(RLEN),dimension(NO_BOXES)  :: Photo_max
   real(RLEN),dimension(NO_BOXES)  :: flPIR2c
+
+  real(RLEN),dimension(NO_BOXES)  :: seo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !  silica_control =0 : no silica component present in cell
+  !  silica_control =1 : external regulation of silica limitation & limitation of
+  !                      carbon fixation under silica depletion
+  !  silica_control =2 : internal regulation of silica limitation & excretion
+  !                      of fixed carbon under nutrient stress
+  !                      Process description based on:
+  !                      Growth physiology and fate of diatoms in the ocean: a review
+  !                      G.Sarthou, K.R. Timmermans, S. Blain, & P. Treguer
+  !                      JSR 53 (2005) 25-42
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+
+   silica_control=0
+   if ( p_qus(phyto) > 0.0 )  then
+      silica_control=2
+   elseif ( p_chPs(phyto) > 0.0 ) then
+      silica_control=1
+   endif
+  
+   ! force external regulation with nutrient-stress excretion
+   if ( (.not.p_netgrowth(phyto)).and.(ppphytos > 0))  silica_control=1
+ 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -190,22 +217,6 @@
     :)- p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
   iNIn = min( 1.0D+00, max( p_small, ( qnPc(phyto, &
     :)- p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Nutrient limitation due to intra- extracellular silicate.
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  select case ( phyto)
-    case ( iiP1 )
-      iN5s = min( 1.0D+00, max( p_small, ( qsPc(phyto, &
-        :)- p_qslc(phyto))/(( p_qsRc(phyto)- p_qslc(phyto)))))
-
-
-
-    case default
-      iN5s  =   1.0D+00
-
-
-  end select
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -227,6 +238,30 @@
   end select
 
 
+  ! tN controls sedimentation of phytoplankton
+  tN= iN;
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Nutrient limitation due to intra- extracellular silicate.
+  ! eN5s limit externally nutrient limitation.
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  !calculate internal quota
+  if ( silica_control > 0 ) then
+    select case (silica_control) 
+      case(1)
+        eN5s = min( 1.0,N5s/(N5s + p_chPs(phyto)));
+        tN=min(iN,eN5s);
+      case(2)
+        eN5s=1.0D+00
+        r = max( p_small, ( qsPc(phyto,:)- p_qslc(phyto))/ &
+                                    (( p_qsRc(phyto)- p_qslc(phyto))))
+        tN=min(r,iN);
+      end select
+  else
+    eN5s  =   1.0D+00
+  endif
+
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature response of Phytoplankton
@@ -238,31 +273,34 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   if ( ChlLightFlag== 2) then
-    !Irr = EIR*exp(-xEPS* 0.5 * Depth)*SEC_PER_DAY;
-    Irr = max( p_small, EIR(:)/ xEPS(:)/ Depth(:)*( 1.0D+00- exp( &
-      - xEPS(:)* Depth(:)))* SEC_PER_DAY)
+
+    select case ( LightLocationFlag)
+       case ( 1 )
+          ! Light at the top of the cell
+          Irr =  max(p_small, EIR(:))*SEC_PER_DAY;
+       case ( 2 )
+          ! Light in the middle of the cell
+          Irr = max(p_small, EIR(:))*exp(-xEPS* 0.5 * Depth)*SEC_PER_DAY;
+       case ( 3 ) ! default
+          ! Average Light in the cell
+          Irr = max( p_small, EIR(:)/ xEPS(:)/ Depth(:)*( 1.0D+00- exp( &
+            - xEPS(:)* Depth(:)))* SEC_PER_DAY)
+    end select
 
     eiPI(phyto,:) = ( 1.0D+00- exp( - qlPc(phyto, :)* p_alpha_chl(phyto)/ &
       p_sum(phyto)* Irr))
 
-    ! ( See CalcLightDistribution)
-    ! if one use average light per day calculate sum according:
   end if
 
   select case ( LightForcingFlag)
     case ( 1 )
-      sum  =   p_sum(phyto)* et* eiPI(phyto,:)* iN5s
-
-
+      sum  =   p_sum(phyto)* et* eiPI(phyto,:)   *  eN5s
 
     case ( 2 )
-      sum  =   p_sum(phyto)* et* eiPI(phyto,:)* iN5s*( SUNQ/ HOURS_PER_DAY)
-
-
+      sum  =   p_sum(phyto)* et* eiPI(phyto,:)*( SUNQ/ HOURS_PER_DAY) * eN5s
 
     case ( 3 )
-      sum  =   p_sum(phyto)* et* eiPI(phyto,:)* iN5s* ThereIsLight
-
+      sum  =   p_sum(phyto)* et* eiPI(phyto,:)* ThereIsLight * eN5s
 
   end select
 
@@ -270,18 +308,18 @@
   ! Lysis and excretion
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   sdo  =  ( p_thdo(phyto)/( iN+ p_thdo(phyto)))* p_sdmo(phyto)  ! nutr. -stress lysis
-
-  select case ( phyto)
-
-    case ( iiP4 )  ! extra lysis for P4 only
-      sdo  =   sdo+ p_seo(phyto)* MM_vector(  phytoc,  100.0D+00)
-
-
-
-  end select
+  ! extra lysis for high-density
+  sdo  =   sdo+ p_seo(phyto)* MM_vector(  phytoc,  100.0D+00)
 
 
   sea  =   sum* p_pu_ea(phyto)  ! activity excretion
+
+  if (p_netgrowth(phyto)) then
+     seo = 0.0D+00
+  else 
+     ! nutrient stress excretion
+     seo = sum*(1.0D+00-p_pu_ea(phyto))*(1.0D+00- iN) 
+  end if
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Apportioning over R1 and R6:
@@ -309,24 +347,35 @@
   ! Production, productivity and C flows
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rugc  =   sum* phytoc  ! gross production
-  slc  =   sea+ srt+ sdo  ! specific loss terms
-  call flux_vector( iiPel, ppphytoc,ppphytoc,-(- rugc) )  ! source/sink.c
-  call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )  ! source/sink.c
-  call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )  ! source/sink.c
+  slc  =   sea + seo + srt+ sdo  ! specific loss terms
+  if (p_netgrowth(phyto)) then
+     ! Activity excretion is assigned to R2
+     flPIR2c  =   sea* phytoc
+  else
+     ! Activity excretion is assigned to R1
+     rr1c = rr1c + sea*phytoc
+     ! Nutrient-stress excretion is assigned to R2
+     flPIR2c  =   seo*phytoc
+  end if
 
-  !  These fluxes are first added before defining as flux!
-  flPIR2c  =   sea* phytoc
+  call flux_vector( iiPel, ppphytoc,ppphytoc,-(- rugc) )  
+  call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )
+  call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )
 
-  call flux_vector( iiPel, ppphytoc,ppphytoc,-( rrc) )  ! source/sink.c
-  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0D+00) )  ! source/sink.o
-  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ 12.0D+00 )  ! source/sink.o
+
+  call flux_vector( iiPel, ppphytoc,ppphytoc,-( rrc) )
+  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0D+00) )
+  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ 12.0D+00 )
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Potential-Net prim prod. (mgC /m3/d)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  sadap  =   max(  srs,  sum)
+  if (p_netgrowth(phyto)) then
+     sadap  =   max(  srs,  sum)
+  else
+     sadap  =   max(  srs,  p_sum(phyto))
+  end if
   run  =   max(  0.0D+00, ( sum- slc)* phytoc)  ! net production
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -343,41 +392,44 @@
 
   rump  =   p_qup(phyto)* N1p(:)* phytoc  ! max pot. uptake
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Check if which fraction C-fixation can be used for new biomass
-  ! by checking the potential nutrient avilability
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (p_netgrowth(phyto)) then
+   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   ! Check which fraction of fixed C can be used for new biomass
+   ! by comparing the potential nutrient availability
+   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      netgrowth = min( run, ( rumn+ max( 0.0D+00, 0.05D+00* &
+      rugc*( qnPc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
+      netgrowth = min( netgrowth, ( rump+ max( 0.0D+00, &
+       0.05D+00* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
+      if ( silica_control  ==  2) then
+          rums  =   p_qus(phyto)* N5s(:)* phytoc  ! max pot uptake
+          netgrowth = min( netgrowth, ( rums+ max( 0.0D+00, &
+            1.00D+00* rugc*( qsPc(phyto, :)- p_qslc(phyto))))/ p_qslc(phyto))
+      endif
+   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   ! Excrete C which can not be used for growth as carbo-hydrates:
+   ! Correct net C-uptake
+   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      netgrowth  =   max(  netgrowth,  0.0D+00)
+      flPIR2c  =   flPIR2c+ run- netgrowth
+      run  =   netgrowth
+  end if
 
-  netgrowth = min( run, ( rumn+ max( 0.0D+00, 0.05D+00* &
-    rugc*( qnPc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
-  netgrowth = min( netgrowth, ( rump+ max( 0.0D+00, &
-    0.05D+00* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
-
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Excrete C which can not be used for growth as carbo-hydrates:
-  ! Correct net C-uptake
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  netgrowth  =   max(  netgrowth,  0.0D+00)
-  flPIR2c  =   flPIR2c+ run- netgrowth
   call flux_vector( iiPel, ppphytoc,ppR2c, flPIR2c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Apparent Net prim prod. (mgC /m3/d)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  run  =   netgrowth
   sunPI(phyto,:)  =   run/( p_small+ phytoc)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
   misn  =   sadap*( p_xqn(phyto)* p_qnRc(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
   rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
   runn  =   min(  rumn,  rupn+ misn)  ! actual uptake of NI
+  runPIn(phyto,:)  =   runn
 
   r  =   insw_vector(  runn)
   runn3  =   r* runn* rumn3/( p_small+ rumn)  ! actual uptake of Nn
@@ -389,7 +441,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
   misp  =   sadap*( p_xqp(phyto)* p_qpRc(phyto)* phytoc- phytop)  ! intracellular missing amount of P
   rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
   runp  =   min(  rump,  rupp+ misp)  ! actual uptake
@@ -404,7 +455,7 @@
   rr6n  =   pe_R6* sdo* phyton
   rr1n  =   sdo* phyton- rr6n
 
-  rr6p  =   rr6c* p_qplc(phyto)
+  rr6p  =   pe_R6* sdo* phytop
   rr1p  =   sdo* phytop- rr6p
 
   call flux_vector( iiPel, ppphyton,ppR1n, rr1n )  ! source/sink.n
@@ -417,22 +468,28 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: SILICATE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if ( silica_control > 0 )  then
+    select case (silica_control)
 
-  if ( phyto== iiP1) then
+    case (1)
 
-    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    !  Nutrient uptake
-    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     runs = max(0.0, p_qsRc(phyto) * run );          ! net uptake
+     call flux_vector( iiPel, ppN5s,ppphytos, runs)  ! source/sink.c
 
-    rums  =   p_qus(phyto)* N5s(:)* phytoc  ! max pot uptake
+    case (2)
 
-    miss  =   sadap*( p_qsRc(phyto)* phytoc- phytos)  ! intracellular missing Si
-    rups  =   run* p_qsRc(phyto)-( sdo+ srs)* phytos  ! Si uptake based on C uptake
-    runs  =   min(  rums,  rups+ miss)  ! actual uptake
-    r  =   insw_vector(  runs)
-    call flux_vector( iiPel, ppN5s,ppphytos, runs* r )  ! source/sink.c
-    call flux_vector(iiPel, ppphytos,ppN5s,- runs*( 1.0D+00- r))  ! source/sink.c
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      !  Nutrient uptake
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+      miss  =   sadap*( p_xqs(phyto)* p_qsRc(phyto)* phytoc- phytos)  ! intracellular missing Si
+      rups  =   (run* p_qsRc(phyto)-( sdo+ srs)* phytos)  ! Si uptake based on C uptake
+      runs  =   min(  rums,  rups+ miss)  ! actual uptake
+
+      call flux_vector( iiPel, ppN5s,ppphytos, runs* insw_vector(runs) )  ! source/sink.c
+      call flux_vector(iiPel, ppphytos,ppN5s,- runs*insw_vector(-runs))  ! source/sink.c
+    end select
+              
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Losses of Si
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -440,36 +497,24 @@
 
     ! Collect first all fluxes of P-->silica
     flP1R6s(:)  =   flP1R6s(:)+ rr6s
-
-  end if
-
+  endif
 
 
   if ( ChlLightFlag== 2) then
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
-      WHERE ( ( phytoc> p_small) )
-        rho_Chl = p_qchlc( phyto)* p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
+      rho_Chl = p_qchlc( phyto)* p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
           p_alpha_chl(phyto)*( phytol+ p_small)* Irr)
-        ! total synthesis, only when there is net production (run > 0)
+! total synthesis, only when there is net production (run > 0)
 !       rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
 !         0.0D+00, sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
-         rate_Chl = rho_Chl*( max(srs,sum-slc) )* phytoc- sdo* phytol+ min( &
-               -srs, sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
+        rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
+          -p_sdchl(phyto), sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
+!     rate_Chl = rho_Chl*( max(srs,sum-slc) )* phytoc- sdo* phytol+ min( &
+!         -srs -p_sdchl, sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
 
-
-
-
-      ELSEWHERE
-        ! construction to overcome probelems with the GCC64bits compiler:
-        rate_Chl = run* p_qchlc( phyto)+ phytoc*( p_qchlc( phyto)- &
-          qlPc(phyto,:))
-
-
-    END WHERE
+        rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( 0.0D+00, ( p_esNI(phyto)-tN))
 
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
   end if
@@ -480,8 +525,8 @@
   ! Sedimentation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if ( p_res(phyto)> 0.0D+00) then
-    sediPI(phyto,:) = sediPI(phyto,:)+ p_res(phyto)* max( 0.0D+00, ( &
-      p_esNI(phyto)- min( iN5s, iN)))
+    sediPI(phyto,:) = sediPI(phyto,:) &
+                   + p_res(phyto)* max( 0.0D+00, ( p_esNI(phyto)-tN))
   end if
 
 

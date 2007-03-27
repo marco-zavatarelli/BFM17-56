@@ -95,7 +95,8 @@
 !
 !
 ! !USES:
-   use mem, only: NO_D3_BOX_STATES, NO_BOXES,          &
+   use constants, only: E2W
+   use mem, 	  only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
@@ -223,8 +224,10 @@
    call set_var_info_bfm
    !---------------------------------------------
    ! Allocate memory and give initial values
+   ! to the pelagic system
    !---------------------------------------------
-   ! the argument list is kept for compatibility with GOTM
+   ! the argument list is kept for compatibility 
+   ! with GOTM
    call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
    !---------------------------------------------
    ! Assign depth
@@ -232,15 +235,24 @@
    Depth = indepth
    Depth_ben = Depth
    !---------------------------------------------
-   ! initialise netcdf output
+   ! Initialise the benthic system
+   ! Layer depths and pore-water nutrients are initialised 
+   ! according to the value of calc_inital_bennut_states
+   !---------------------------------------------
+   call envforcing_bfm
+   call init_benthic_bfm(namlst,'bfm.nml',unit,bio_setup)
+   !---------------------------------------------
+   ! Initialise netcdf output
    !---------------------------------------------
    call calcmean_bfm(INIT)
+   call calcmean_bfm(ACCUMULATE)
    call init_netcdf_bfm(out_title,'01-01-0000',0,  &
              lat=latitude,lon=longitude,z=Depth,   &
              oceanpoint=(/(i,i=1,NO_BOXES)/),      &
              surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
              bottompoint=(/(i,i=1,NO_BOXES_XY)/))
    call init_save_bfm
+   call calcmean_bfm(RESET)
    !---------------------------------------------
    ! allocate and initialise integration arrays
    !---------------------------------------------
@@ -280,11 +292,12 @@
 !
 ! !USES
    use api_bfm
-   use constants,  only: E2W
    use global_mem, only: RLEN
-   use mem,        only: ETW,ESW,EIR,ESS,SUNQ,ThereIsLight, &
-                         rutQ6c,rutQ6n,rutQ6p,rutQ6s,R6c,R6n,R6p,R6s,O2o
+   use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND, &
+                         jbotR6c,jbotR6n,jbotR6p,jbotR6s,     &
+                         R6c,R6n,R6p,R6s,O2o
    use mem_Param,  only: LightForcingFlag,p_PAR
+   use constants,  only: E2W 
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -322,11 +335,12 @@
       wlight=instLight(wlight,sunq,dfrac)
     case default ! light constant during the day
    end select
-   ESS = 0.
    ETW = temperature(dyear,dfrac)
    ESW = salinity(dyear,dfrac)
    ! convert from irradiance to PAR in uE/m2/s
    EIR = wlight*p_PAR/E2W
+   ! constant wind velocity (function to be added)
+   EWIND = 10.0
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW
    LEVEL2 'ESW=',ESW
@@ -338,7 +352,7 @@
       ! Bottom deposition and ventilation fluxes
       ! (mg C m^-2 d^-1 or mmol NUT m^-2 d^-1)
       ! currently constant deposition rates read from namelist
-      ! (se to zero for no deposition)
+      ! (set to zero for no deposition)
       biodelta=GetDelta()
       R6c(:) = R6c(:)+botdep_c*biodelta
       R6n(:) = R6n(:)+botdep_n*biodelta

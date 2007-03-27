@@ -21,7 +21,7 @@
   subroutine EcologyDynamics
 !
 ! !USES:
-  ! The following 0-d global box parametes are used: CalcPelagicFlag, &
+  ! The following 0-d global parameters are used: CalcPelagicFlag, &
   ! CalcBenthicFlag
   ! The following global constants are used: RLEN
   ! The following constants are used: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
@@ -89,38 +89,42 @@
 
   end if
 
+  if ( CalcBenthicFlag > 0 ) then
 
-  call SettlingDynamics
+         call SettlingDynamics
+  
 
-  select case ( CalcBenthicFlag)
+       select case ( CalcBenthicFlag)
 
-    case ( BENTHIC_RETURN )  ! Simple benthic return
-      call BenthicReturn1Dynamics
-
-
-    case ( BENTHIC_BIO )  ! Intermediate benthic return
-      call PelForcingForBenDynamics
-      call BenthicSystemDynamics
-      call BenthicNutrient2Dynamics
+         case ( BENTHIC_RETURN )  ! Simple benthic return
+           call BenthicReturn1Dynamics
 
 
-    case ( BENTHIC_FULL )  ! Full benthic nutrients
-      call PelForcingForBenDynamics
-      call BenthicSystemDynamics
-      call BenthicNutrient3Dynamics
+         case ( BENTHIC_BIO )  ! Intermediate benthic return
+           call PelForcingForBenDynamics
+           call BenthicSystemDynamics
+           call BenthicNutrient2Dynamics
+
+
+         case ( BENTHIC_FULL )  ! Full benthic nutrients
+           call PelForcingForBenDynamics
+           call BenthicSystemDynamics
+           call BenthicNutrient3Dynamics
 
 
 
-  end select
+       end select
 
 
-  call ControlBenPartNutrientBuffersDynamics
+       call ControlBenPartNutrientBuffersDynamics
 
-  call BentoPelCoupDynamics
+       call BentoPelCoupDynamics
 
-  call SedimentationDynamics
+       call SedimentationDynamics
 
-  call BenCheckMassConservationDynamics
+  endif
+
+  call CheckMassConservationDynamics
 
 
 

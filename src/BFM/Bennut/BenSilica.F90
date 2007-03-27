@@ -11,7 +11,7 @@
 !   Description of the diagenitic processes in the sediment
 !       Details on the equations and the method used to calculate
 !       the equilibrium and transient profiles can be found in
-!       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483 
+!       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483
 !
 !
 
@@ -30,13 +30,13 @@
   ! The following global vars are modified: dummy
   ! The following global scalar vars are used: &
   ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY, idummy, LocalDelta
+  ! BoxNumber, BoxNumberXY, idummy, InitializeModel, LocalDelta
   ! The following Benthic 1-d global boxvars are modified : M5s, KSIO3, KSIO3E, &
-  ! jK5N5s
+  ! jK15K5s, jbotN5s
   ! The following Benthic 1-d global boxvars are used: irrenh, ETW_Ben, &
   ! N5s_Ben, shiftD2m
   ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global box parametes are used: p_clD1D2m, p_q10diff, &
+  ! The following 0-d global parameters are used: p_clD1D2m, p_q10diff, &
   ! p_clDxm, p_d_tot
   ! The following global constants are used: RLEN
   ! The following constants are used: LAYERS, &
@@ -52,10 +52,10 @@
 
   use global_mem, ONLY:RLEN
   use mem,  ONLY: K5s, Q6s, D9m, D1m, D2m, D2STATE
-  use mem, ONLY: ppK5s, ppQ6s, ppD9m, ppD1m, ppD2m, dummy, &
-    BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-    BoxNumber, BoxNumberXY, idummy, LocalDelta, M5s, KSIO3, KSIO3E, jK5N5s, &
-    irrenh, ETW_Ben, N5s_Ben, shiftD2m, iiBen, iiPel, flux
+  use mem, ONLY: ppK5s, ppQ6s, ppD9m, ppD1m, ppD2m, &
+    dummy, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
+    BoxNumber, BoxNumberXY, idummy, InitializeModel, LocalDelta, M5s, KSIO3, &
+    KSIO3E, jbotN5s, jK15K5s, irrenh, ETW_Ben, N5s_Ben, shiftD2m, iiBen, iiPel, flux
   use constants, ONLY: LAYERS, LAYER1, DIFFUSION, &
     FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, QUADRATIC_TERM, LINEAR_TERM, &
     CONSTANT_TERM, PARAMETER_DEFINE, BESSELI_EXP_TERM, SET_CONTINUITY, STANDARD, &
@@ -84,28 +84,18 @@
   ! The following sesame functions are used:IntegralExp, insw
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp, insw
-
-
-
 !  
 !
 ! !AUTHORS
 !   Original version by  P. Ruardij
 !
 !
-!
 ! !REVISION_HISTORY
-!   April 15, 1994 by EGM Embsen and P Ruardij:
-!               Created a new version of the this process
-!               so that it can be used with OpenSESAME.
-!       September 1999 by M. Vichi
-!               Commented version 
-!
-!
+!       September 1999 by M. Vichi     Commented version
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij & M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -146,7 +136,6 @@
   real(RLEN)  :: suD1
   real(RLEN)  :: rmQ6s
   real(RLEN)  :: s
-  real(RLEN)  :: jK15K5s
   real(RLEN)  :: jQ6K5s
   real(RLEN)  :: jQ6K15s
   real(RLEN)  :: smQ6
@@ -269,15 +258,19 @@
       ! Insert other boundary conditions and continuity between layers:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      call CompleteSet( KSIO3(BoxNumberXY), SET_CONTINUITY, STANDARD, idummy, &
-        dummy, dummy)
+      call CompleteSet( KSIO3(BoxNumberXY), SET_CONTINUITY, STANDARD, idummy, dummy)
 
       call CompleteSet( KSIO3(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-        EQUATION, 0.0D+00, chM5s- N5s_Ben(BoxNumberXY))
+        EQUATION, 0.0D+00, value=chM5s- N5s_Ben(BoxNumberXY))
 
-      call CompleteSet( KSIO3(BoxNumberXY), INPUT_TERM, 13, PARAMETER, dummy, &
-        - zuBT)
 
+      if ( InitializeModel== 0) then
+         call CompleteSet( KSIO3(BoxNumberXY), INPUT_TERM, 13, PARAMETER, dummy, &
+                value=- zuBT)
+      else
+          call CompleteSet( KSIO3(BoxNumberXY), SET_BOUNDARY, LAYER1, &
+          DERIVATIVE, 0.0D+00, value=0.0D+00)
+      endif
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate for the above defined set of boundary conditions
@@ -288,128 +281,132 @@
       cM5s = CalculateSet( KSIO3(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, LAYER1, &
         LAYER2, cD2m, 0.0D+00)/ cD2m
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate the adaptation time to the steady-state profile
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      if ( InitializeModel== 0) then
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate the adaptation time to the steady-state profile
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      Tau  =   CalculateTau(  0.0D+00,  diff,  p_p,  cD2m)
+        Tau  =   CalculateTau(  0.0D+00,  diff,  p_p,  cD2m)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Estimate the average value of M5s over the actual time step
-      ! (transient value).
-      ! This value depends on the adaptation time, the actual time step,
-      ! the ''old'' value and the ''equilibrium value''
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Estimate the average value of M5s over the actual time step
+        ! (transient value).
+        ! This value depends on the adaptation time, the actual time step,
+        ! the ''old'' value and the ''equilibrium value''
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      cM5s = cM5s+( chM5s- M5s(BoxNumberXY)- cM5s)* IntegralExp( - LocalDelta/ &
-        Tau, 1.0D+00)
+        cM5s = cM5s+( chM5s- M5s(BoxNumberXY)- cM5s)* IntegralExp( - &
+          LocalDelta/ Tau, 1.0D+00)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! 1.Store equilibrium profile
-      ! 2.Derive the equations for the transient profiles, assuming the same
-      !  solution as for the steady-state case and using cM5s as new constraint.
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! 1.Store equilibrium profile
+        ! 2.Derive the equations for the transient profiles, assuming the same
+        ! solution as for the steady-state case and using cM5s as new &
+        ! constraint.
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      KSIO3E(BoxNumberXY) = CopySet( KSIO3(BoxNumberXY), &
-        KSIO3E(BoxNumberXY))
-      dummy = CalculateSet( KSIO3(BoxNumberXY), ADD, 0, 0, dummy, cD2m* &
-        cM5s)
+        KSIO3E(BoxNumberXY) = CopySet( KSIO3(BoxNumberXY), &
+          KSIO3E(BoxNumberXY))
+        dummy = CalculateSet( KSIO3(BoxNumberXY), ADD, 0, 0, dummy, cD2m* &
+          cM5s)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Recalculate the pore-water average concentrations for the standard &
-      ! ''D2.n''
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Recalculate the pore-water average concentrations for the standard &
+        ! ''D2.n''
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      M5s(BoxNumberXY) = chM5s- CalculateFromSet( KSIO3E(BoxNumberXY), &
-        INTEGRAL, STANDARD, 0.0D+00, D2m(BoxNumberXY))/ D2m(BoxNumberXY)
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Start calculation of fluxes:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        M5s(BoxNumberXY) = chM5s- CalculateFromSet( KSIO3E(BoxNumberXY), &
+          INTEGRAL, STANDARD, 0.0D+00, D2m(BoxNumberXY))/ D2m(BoxNumberXY)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Start calculation of fluxes:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate flux at the sediment/water interface:
-      ! Flux limitation at very low values of N5s
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate flux at the sediment/water interface:
+        ! Flux limitation at very low values of N5s
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      jK5N5s(BoxNumberXY) = - CalculateFromSet( KSIO3(BoxNumberXY), DERIVATIVE, &
-        RFLUX, 0.0D+00, dummy)
-      jK5N5s(BoxNumberXY) = jK5N5s(BoxNumberXY)* insw( ( &
-        M5s(BoxNumberXY)- N5s_Ben(BoxNumberXY))* jK5N5s(BoxNumberXY))
-
-
-
-
-      call flux(BoxNumberXY, iiBen, ppK5s, ppK5s, -( jK5N5s(BoxNumberXY)) )
+        jbotN5s(BoxNumberXY) = - CalculateFromSet( KSIO3(BoxNumberXY), &
+          DERIVATIVE, RFLUX, 0.0D+00, dummy)
+        jbotN5s(BoxNumberXY) = jbotN5s(BoxNumberXY)* insw( ( &
+          M5s(BoxNumberXY)- N5s_Ben(BoxNumberXY))* jbotN5s(BoxNumberXY))
 
 
-      jK15K5s = - CalculateFromSet( KSIO3(BoxNumberXY), DERIVATIVE, RFLUX, &
-        cD2m, dummy)
-      call flux(BoxNumberXY, iiBen, ppK5s, ppK5s, -(- jK15K5s) )
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate new depth of the sulphide horizon
-      ! and the flux of silicate related to this shifting
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      if ( abs(shiftD2m(BoxNumberXY))> 0.0D+00) then
+        call flux(BoxNumberXY, iiBen, ppK5s, ppK5s, -( jbotN5s(BoxNumberXY)) )
 
-        cD2mNew = min( p_chD2m, max( p_clD2m, &
-          D2m(BoxNumberXY)+ shiftD2m(BoxNumberXY)* LocalDelta))
 
-        cShiftD2m  =   cD2mNew- cD2m
+        jK15K5s(BoxNumberXY) = - CalculateFromSet( KSIO3(BoxNumberXY), DERIVATIVE, RFLUX, &
+          cD2m, dummy)
+        call flux(BoxNumberXY, iiBen, ppK5s, ppK5s, -(- jK15K5s(BoxNumberXY)) )
 
-        if ( abs(cShiftD2m)> 0.0D+00) then
-          s = chM5s* cShiftD2m* p_poro(BoxNumberXY)*( 1.0D+00+ &
-            p_p)- CalculateFromSet( KSIO3(BoxNumberXY), INTEGRAL, MASS, cD2m, &
-            cD2mNew)
-          if ( cShiftD2m< 0.0D+00) then
-            !        s=max(s, cShiftD2m*M5s*p_poro*(1.0+p_p));
-            s  =   max(  s, - LocalDelta* K5s(BoxNumberXY))
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate new depth of the sulphide horizon
+        ! and the flux of silicate related to this shifting
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        if ( abs(shiftD2m(BoxNumberXY))> 0.0D+00) then
+
+          cD2mNew = min( p_chD2m, max( p_clD2m, &
+            D2m(BoxNumberXY)+ shiftD2m(BoxNumberXY)* LocalDelta))
+
+          cShiftD2m  =   cD2mNew- cD2m
+
+          if ( abs(cShiftD2m)> 0.0D+00) then
+            s = chM5s* cShiftD2m* p_poro(BoxNumberXY)*( 1.0D+00+ &
+              p_p)- CalculateFromSet( KSIO3(BoxNumberXY), INTEGRAL, MASS, cD2m, &
+              cD2mNew)
+            if ( cShiftD2m< 0.0D+00) then
+              !        s=max(s, cShiftD2m*M5s*p_poro*(1.0+p_p));
+              s  =   max(  s, - LocalDelta* K5s(BoxNumberXY))
+            end if
+
+            ! recalculation to rates per day....
+            call flux(BoxNumberXY, iiBen, ppK5s, ppK5s, -(- s/ LocalDelta) )
+            jK15K5s(BoxNumberXY)  =   jK15K5s(BoxNumberXY)+ s/ LocalDelta
           end if
 
-          ! recalculation to rates per day....
-          call flux(BoxNumberXY, iiBen, ppK5s, ppK5s, -(- s/ LocalDelta) )
-          jK15K5s  =   jK15K5s+ s/ LocalDelta
         end if
 
+
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! the dissolution fluxes:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        jQ6K15s = max( 0.0D+00, suD1* CalculateFromSet( &
+          KSIO3E(BoxNumberXY), EXPONENTIAL_INTEGRAL, RFLUX, cD2m, p_d_tot))
+        call flux(BoxNumberXY, iiBen, ppQ6s, ppQ6s, -( jQ6K15s) )
+
+        jQ6K5s = max( 0.0D+00, suD1* CalculateFromSet( &
+          KSIO3E(BoxNumberXY), EXPONENTIAL_INTEGRAL, RFLUX, cD1m, cD2m))
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Determine dissolution rate in oxidized layer (mMol/m3).
+        ! Zero order process:
+        ! Maximalization: this important source can not cause higher values
+        ! than equilibrium flux of jQ6M5s is limited in such a way that M5s can
+        ! never reach a value higher than the chM5s:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        rmQ6s = - GetInfoFromSet( KSIO3E(BoxNumberXY), INTEGRAL, PARAMETER, &
+          13, at_x=0.0D+00, to_x=cD1m)
+
+        s = max( 0.0D+00, min( ( chM5s- &
+          M5s(BoxNumberXY))* cD1m* p_poro(BoxNumberXY)*( 1.0D+00+ p_p)+ &
+          jbotN5s(BoxNumberXY)- jK15K5s(BoxNumberXY)- jQ6K5s, rmQ6s))
+
+        call flux(BoxNumberXY, iiBen, ppQ6s, ppK5s, jQ6K5s+ s )
+
+
+        call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.5D+00* &
+          cD2m- D9m(BoxNumberXY))*( jQ6K5s)/( 1.0D-80+ Q6s(BoxNumberXY)) )
+        call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.5D+00*( &
+          p_d_tot- cD2m)- D9m(BoxNumberXY))*( jQ6K15s)/( 1.0D-80+ &
+          Q6s(BoxNumberXY)) )
       end if
 
-
-
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! the dissolution fluxes:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      jQ6K15s = max( 0.0D+00, suD1* CalculateFromSet( &
-        KSIO3E(BoxNumberXY), EXPONENTIAL_INTEGRAL, RFLUX, cD2m, p_d_tot))
-      call flux(BoxNumberXY, iiBen, ppQ6s, ppQ6s, -( jQ6K15s) )
-
-      jQ6K5s = max( 0.0D+00, suD1* CalculateFromSet( &
-        KSIO3E(BoxNumberXY), EXPONENTIAL_INTEGRAL, RFLUX, cD1m, cD2m))
-
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Determine dissolution rate in oxidized layer (mMol/m3).
-      ! Zero order process:
-      ! Maximalization: this important source can not cause higher values
-      ! than equilibrium flux of jQ6M5s is limited in such a way that M5s can
-      ! never reach a value higher than the chM5s:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      rmQ6s = - GetInfoFromSet( KSIO3E(BoxNumberXY), INTEGRAL, PARAMETER, &
-        13, 0.0D+00, cD1m)
-
-      s = max( 0.0D+00, min( ( chM5s- M5s(BoxNumberXY))* &
-        cD1m* p_poro(BoxNumberXY)*( 1.0D+00+ p_p)+ jK5N5s(BoxNumberXY)- jK15K5s- &
-        jQ6K5s, rmQ6s))
-
-      call flux(BoxNumberXY, iiBen, ppQ6s, ppK5s, jQ6K5s+ s )
-
-
-      call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.5D+00* cD2m- &
-        D9m(BoxNumberXY))*( jQ6K5s)/( 1.0D-80+ Q6s(BoxNumberXY)) )
-      call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.5D+00*( &
-        p_d_tot- cD2m)- D9m(BoxNumberXY))*( jQ6K15s)/( 1.0D-80+ Q6s(BoxNumberXY)) &
-        )
 
 
     end DO

@@ -5,7 +5,6 @@ subroutine prepare_bio_output(mode, nlev, h)
                       stPelStateE,stPelDiagE,stPelFluxE,stBenStateE,stBenDiagE,stBenFluxE, &
                       var_ave, cc_ave,ccb_ave, ave_count, &
                       cc,ccb,diag,diagb,c1dim,bio_setup
-   use mem,only:make_flux_output
 
     implicit none 
     integer,intent(IN)                     ::mode
@@ -20,13 +19,13 @@ subroutine prepare_bio_output(mode, nlev, h)
     select case (mode)
         case(0)   ! initialization
           i=count(var_ave(stPelStateS:stPelFluxE))
-          if ( i > 0 .and. bio_setup/=2) then
+          if ( (i > 0) .and. bio_setup/=2) then
             allocate(cc_ave(1:i,0:nlev),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating cc_ave)'
              cc_ave=0;
           endif
           i=count(var_ave(stBenStateS:stBenFluxE))
-          if ( i > 0 .and. bio_setup>1) then
+          if ( ( i > 0) .and. bio_setup>1) then
             allocate(ccb_ave(1:i,0:1),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating cc_ave)'
             ccb_ave=0;
@@ -70,7 +69,7 @@ subroutine prepare_bio_output(mode, nlev, h)
              j=j+1
              if ( var_ave(i) ) then
                 k=k+1
-                call make_flux_output(1,j,nlev,h,c1dim)
+                call make_flux_output(1,j,0,nlev,c1dim)
                 if ( ave_count < 1.5 ) then
                    cc_ave(k,:)=c1dim
                 else
@@ -110,7 +109,7 @@ subroutine prepare_bio_output(mode, nlev, h)
              j=j+1
              if ( var_ave(i) ) then
                 k=k+1
-                call make_flux_output(2,j,nlev,h,c1dim)
+                call make_flux_output(2,j,0,nlev,c1dim)
                 if ( ave_count < 1.5 ) then
                    ccb_ave(k,0:1)=c1dim(0:1)
                 else

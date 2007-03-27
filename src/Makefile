@@ -14,6 +14,7 @@ BFM_MOD = \
 	${LIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
 	${LIB}(${BFMSRC}/General/ModuleConstants.o)			\
 	${LIB}(${BFMSRC}/General/ModuleGlobFun.o)			\
+	${LIB}(${BFMSRC}/General/bfm_error_msg.o)			\
 	${LIB}(${BFMSRC}/General/ModuleMem.o)				\
 	${LIB}(${BFMSRC}/General/ModuleParam.o)				\
 	${LIB}(${BFMSRC}/General/ModuleInterface.o)			\
@@ -32,6 +33,7 @@ BFM_MOD = \
 	${LIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
 	${LIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
 	${LIB}(${BFMSRC}/Ben/ModuleBioturbation.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenthicNutrient3.o)		\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenAmmonium.o)			\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenAnoxic.o)			\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenDenitriDepth.o)		\
@@ -54,12 +56,14 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/General/InitBoxParams.o)			\
 	${LIB}(${BFMSRC}/General/Initialize.o)				\
 	${LIB}(${BFMSRC}/General/InitTransportStateTypes.o)		\
+	${LIB}(${BFMSRC}/General/CheckMassConservation.o)		\
 	${LIB}(${BFMSRC}/General/eTq.o)					\
+	${LIB}(${BFMSRC}/General/CheckMassConservation.o)		\
 	${LIB}(${BFMSRC}/Light/LightAdaptation.o)			\
 	${LIB}(${BFMSRC}/Light/PhotoAvailableRadiation.o)		\
 	${LIB}(${BFMSRC}/Oxygen/WindOxReaeration_3.o)			\
 	${LIB}(${BFMSRC}/Oxygen/CalcOxygenSaturation_3.o)		\
-	${LIB}(${BFMSRC}/Oxygen/CalcSchmidtNumberOx.o)		\
+	${LIB}(${BFMSRC}/Oxygen/CalcSchmidtNumberOx.o)			\
 	${LIB}(${BFMSRC}/PelB/CalcChlorophylla.o)			\
 	${LIB}(${BFMSRC}/PelB/CalcVerticalExtinction.o)			\
 	${LIB}(${BFMSRC}/PelB/MicroZoo.o)				\
@@ -82,7 +86,6 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/Ben/Bioturbation.o)				\
 	${LIB}(${BFMSRC}/Ben/FilterFeeder.o)				\
 	${LIB}(${BFMSRC}/Ben/ResetTotMassVar.o)				\
-	${LIB}(${BFMSRC}/Ben/BenCheckMassConservation.o)		\
 	${LIB}(${BFMSRC}/Bennut/BenAmmonium.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenAnoxic.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenDenitriDepth.o) 			\
@@ -96,6 +99,8 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/Bennut/BenthicNutrient3.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenthicReturn1.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenthicReturn2.o) 			\
+	${LIB}(${BFMSRC}/Bennut/InitBenthicNutrient.o)			\
+	${LIB}(${BFMSRC}/Bennut/InitBenthicNutrient3.o)			\
 	${LIB}(${BFMSRC}/Bennut/CalculateFromSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/CalculateSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/CalculateShift.o) 			\
@@ -131,8 +136,10 @@ APIBFM_MOD = \
 	${LIB}(./share/netcdf_bfm.o)			\
 	${LIB}(./share/string_functions.o)		\
 	${LIB}(./share/init_var_bfm.o)			\
+	${LIB}(./share/init_benthic_bfm.o)		\
 	${LIB}(./share/init_cnps.o)			\
 	${LIB}(./share/calcmean_bfm.o)			\
+	${LIB}(./share/make_flux_output.o)		\
 	${LIB}(${BFMSRC}/General/set_var_info_bfm.o)
 
 STDALONE_MOD = \
@@ -155,20 +162,26 @@ $(EXE): $(MAINOBJ)
 
 $(BFM_MOD) : $(BFMSRC)/General/ModuleMem.F90
 
-${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model
+${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model $(BFMSRC)/General/FluxFunctions.F90
 	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
-		-from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem 
-	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
-		-from ${BFMSRC}/proto -to ${BFMSRC}/include -actions headermem
+	-from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem \
+	-to ${BFMSRC}/include -actions headermem
+${BFMSRC}/General/AllocateMem.F90: $(BFMSRC)/General/ModuleMem.F90
+${BFMSRC}/General/set_var_info_bfm.F90: $(BFMSRC)/General/ModuleMem.F90
 
-distclean: clean
-
-clean:
+clean: 
 	$(RM) ../modules/$(FORTRAN_COMPILER)/*.{m,mod}
 	$(RM) ../lib/$(FORTRAN_COMPILER)/lib*$(buildtype).a
 	$(RM) ./share/*.o
 	$(RM) ./standalone/*.o
 	$(RM) ${BFMSRC}/*/*.o
+
+distclean:
+	$(RM) ../modules/*/*.{m,mod}
+	$(RM) ../lib/*/lib*.a
+	$(RM) ./share/*.o
+	$(RM) ./standalone/*.o
+	$(RM) ./BFM/*/*.o
 
 depend:
 	makedepf90 ${BFMSRC}/*/*.?90 ./share/*.?90 ./standalone/*.?90 > .depend

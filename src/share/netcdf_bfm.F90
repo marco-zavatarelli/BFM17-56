@@ -19,7 +19,6 @@
    use api_bfm, only: bio_setup,var_ids,var_names,var_long,var_units,c1dim
    use api_bfm, only: D3ave,D2ave,var_ave,ave_count
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
-   use mem,     only: make_flux_output
    implicit none
 
    include 'netcdf.inc'
@@ -41,6 +40,7 @@
    ! Dimension IDs
    !---------------------------------------------
    integer                            :: lon_dim,lat_dim,depth_dim
+   integer                            :: x_dim,y_dim
    integer                            :: ocepoint_dim
    integer                            :: surfpoint_dim,botpoint_dim
    integer                            :: time_dim
@@ -50,7 +50,7 @@
    ! Coordinate variables IDs
    !---------------------------------------------
    integer          :: lon_id,lat_id,z_id,z1_id,time_id
-   integer          :: zeta_id
+   integer          :: zeta_id, mask_id
    integer          :: depth_id,ocepoint_id,surfpoint_id,botpoint_id
 
 !
@@ -75,7 +75,8 @@
 !
 ! !INTERFACE:
    subroutine init_netcdf_bfm(title,start_time,time_unit,lat,lon,z,dz, &
-                              lat2d,lon2d,oceanpoint,surfacepoint,bottompoint)
+                              lat2d,lon2d,oceanpoint,surfacepoint,     &
+                              bottompoint,mask3d)
 !
 ! !DESCRIPTION:
 !  Prepare the netcdf output file which is finalized in init_save_bfm
@@ -89,8 +90,9 @@
    REALTYPE, intent(in),optional                :: lat,lon
    REALTYPE, intent(in),dimension(:,:),optional :: lat2d,lon2d
    REALTYPE, intent(in),dimension(:),optional   :: z,dz
-   integer, intent(in),dimension(:),optional   :: oceanpoint
-   integer, intent(in),dimension(:),optional   :: surfacepoint,bottompoint
+   integer, intent(in),dimension(:),optional    :: oceanpoint
+   integer, intent(in),dimension(:),optional    :: surfacepoint,bottompoint
+   REALTYPE,intent(in),dimension(:,:,:),optional:: mask3d
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -100,7 +102,7 @@
 !
 ! !LOCAL VARIABLES:
    character(len=PATH_MAX)   :: ext,fname
-   integer                   :: iret
+   integer                   :: iret,ndims
    character(len=128)        :: ncdf_time_str,history
 !  dimension lengths (not used yet)
    integer                   :: lon_len
@@ -127,15 +129,24 @@
    !---------------------------------------------
    ! define dimensions
    !---------------------------------------------
-   iret = nf_def_dim(ncid_bfm, 'lon', NO_BOXES_XY, lon_dim)
-   call check_err(iret)
-   iret = nf_def_dim(ncid_bfm, 'lat', NO_BOXES_XY, lat_dim)
-   call check_err(iret)
+   if (present(lon).AND.present(lat)) then
+      iret = nf_def_dim(ncid_bfm, 'lon', NO_BOXES_XY, lon_dim)
+      call check_err(iret)
+      iret = nf_def_dim(ncid_bfm, 'lat', NO_BOXES_XY, lat_dim)
+      call check_err(iret)
+   else if (present(lon2d).AND.present(lat2d)) then
+      iret = nf_def_dim(ncid_bfm, 'x', NO_BOXES_X, x_dim)
+      call check_err(iret)
+      iret = nf_def_dim(ncid_bfm, 'y', NO_BOXES_Y, y_dim)
+      call check_err(iret)
+   else
+      stop '### init_netcdf_bfm: lat and lon must be given'
+   end if
    iret = nf_def_dim(ncid_bfm, 'z', NO_BOXES_Z, depth_dim)
    call check_err(iret)
    iret = nf_def_dim(ncid_bfm, 'oceanpoint', NO_BOXES, ocepoint_dim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_bfm, 'surfacepoint', NO_BOXES, surfpoint_dim)
+   iret = nf_def_dim(ncid_bfm, 'surfacepoint', NO_BOXES_XY, surfpoint_dim)
    call check_err(iret)
    iret = nf_def_dim(ncid_bfm, 'bottompoint', NO_BOXES_XY, botpoint_dim)
    call check_err(iret)
@@ -143,14 +154,29 @@
    call check_err(iret)
 
    !---------------------------------------------
-   ! define coordinates
+   ! define coordinate variables
    !---------------------------------------------
-   dims(1) = lon_dim
-   iret = nf_def_var(ncid_bfm,'lon',NF_REAL,1,dims,lon_id)
+   if (present(lon)) then
+      dims(1) = lon_dim
+      ndims = 1
+   elseif (present(lon2d)) then
+      dims(1) = x_dim
+      dims(2) = y_dim
+      ndims = 2
+   end if
+   iret = nf_def_var(ncid_bfm,'lon',NF_REAL,ndims,dims,lon_id)
    call check_err(iret)
-   dims(1) = lat_dim
-   iret = nf_def_var(ncid_bfm,'lat',NF_REAL,1,dims,lat_id)
+   if (present(lat)) then
+      dims(1) = lat_dim
+      ndims = 1
+   elseif (present(lat2d)) then
+      dims(1) = x_dim
+      dims(2) = y_dim
+      ndims = 2
+   end if
+   iret = nf_def_var(ncid_bfm,'lat',NF_REAL,ndims,dims,lat_id)
    call check_err(iret)
+
    dims(1) = depth_dim
    iret = nf_def_var(ncid_bfm,'z',NF_REAL,1,dims,depth_id)
    call check_err(iret)
@@ -166,6 +192,16 @@
    dims(1) = time_dim
    iret = nf_def_var(ncid_bfm,'time',NF_REAL,1,dims,time_id)
    call check_err(iret)
+   !---------------------------------------------
+   ! define mask variables
+   !---------------------------------------------
+   if (present(mask3d)) then
+      dims(1) = x_dim
+      dims(2) = y_dim
+      dims(3) = depth_dim
+      iret = nf_def_var(ncid_bfm,'mask',NF_REAL,3,dims,mask_id)
+      call check_err(iret)
+   end if
 
    !---------------------------------------------
    ! assign attributes
@@ -181,13 +217,22 @@
    iret = set_attributes(ncid_bfm,botpoint_id,compress='none')
    iret = set_attributes(ncid_bfm,surfpoint_id,formula_term='surface points')
    iret = set_attributes(ncid_bfm,surfpoint_id,compress='none')
-#else ifdef BFM_GOTM
+#endif
+#ifdef BFM_GOTM
    iret = set_attributes(ncid_bfm,ocepoint_id,formula_term='watercolumn levels')
    iret = set_attributes(ncid_bfm,ocepoint_id,compress='z')
    iret = set_attributes(ncid_bfm,surfpoint_id,formula_term='watercolumn surface')
    iret = set_attributes(ncid_bfm,surfpoint_id,compress='z')
    iret = set_attributes(ncid_bfm,botpoint_id,formula_term='watercolumn bottom')
    iret = set_attributes(ncid_bfm,botpoint_id,compress='z')
+#endif
+#ifdef BFM_NEMO
+   iret = set_attributes(ncid_bfm,ocepoint_id,formula_term='water points')
+   iret = set_attributes(ncid_bfm,ocepoint_id,compress='x y z')
+   iret = set_attributes(ncid_bfm,botpoint_id,formula_term='bottom points')
+   iret = set_attributes(ncid_bfm,botpoint_id,compress='x y z')
+   iret = set_attributes(ncid_bfm,surfpoint_id,formula_term='surface points')
+   iret = set_attributes(ncid_bfm,surfpoint_id,compress='x y z')
 #endif
    select case (ncdf_time_unit)
       case(0)                           ! seconds
@@ -226,6 +271,12 @@
       iret = store_data(ncid_bfm,lon_id,POINT,1,scalar=lon)
    if (present(lat)) &
       iret = store_data(ncid_bfm,lat_id,POINT,1,scalar=lat)
+   if (present(lat2d)) &
+      iret = store_data(ncid_bfm,lat_id,XY_SHAPE,NO_BOXES_Z, &
+                        array2d=lat2d)
+   if (present(lon2d)) &
+      iret = store_data(ncid_bfm,lon_id,XY_SHAPE,NO_BOXES_Z, &
+                        array2d=lon2d)
    if (present(z)) &
       iret = store_data(ncid_bfm,depth_id,Z_SHAPE,NO_BOXES_Z,array=z)
    if (present(dz)) &
@@ -236,6 +287,9 @@
       iret = store_data(ncid_bfm,botpoint_id,G_SHAPE,NO_BOXES_XY,iarray=bottompoint)
    if (present(surfacepoint)) &
       iret = store_data(ncid_bfm,surfpoint_id,G_SHAPE,NO_BOXES_XY,iarray=surfacepoint)
+   if (present(mask3d)) &
+      iret = store_data(ncid_bfm,mask_id,XYZ_SHAPE,NO_BOXES_Z, &
+                        array3d=mask3d)
 
    !---------------------------------------------
    ! syncronize
@@ -270,6 +324,7 @@
    integer, save             :: nn       ! number pel.var to be saved 
    integer, save             :: nnb      ! number ben.var to be saved 
    integer                   :: iret,rc
+   REALTYPE                  :: ltime
    integer                   :: out_unit=67
    integer                   :: i,j,n
 !EOP
@@ -312,6 +367,12 @@
 
    iret = define_mode(ncid_bfm,.false.)
    LEVEL2 'NetCDF definitions completed.'
+
+   !---------------------------------------------
+   ! Store the initial conditions
+   !---------------------------------------------
+   ltime=0.0
+   call save_bfm(ltime)
 
    return
    end subroutine init_save_bfm
@@ -390,7 +451,7 @@
    do n=stPelFluxS,stPelFluxE
       i=i+1
       if ( var_ids(n) > 0 ) then
-         call make_flux_output(1,i,NO_BOXES, Depth, c1dim)
+         call make_flux_output(1,i,1,NO_BOXES,c1dim)
          iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)
       end if
    end do
@@ -405,7 +466,9 @@
       endif
    end do
 
-   if (bio_setup>1) then
+! MAV: we need to solve the storage of 2D diagnostics
+!      going through all these loops is probably too expensive
+!   if (bio_setup>1) then
       !---------------------------------------------
       ! Store snapshot of benthic variables
       !---------------------------------------------
@@ -425,17 +488,6 @@
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
       end do
       !---------------------------------------------
-      ! Store snapshot of benthic fluxes
-      !---------------------------------------------
-      i=0
-      do n=stBenFluxS,stBenFluxE
-         i=i+1
-         if ( var_ids(n) > 0 ) then
-            call make_flux_output(2,i,NO_BOXES_XY, Depth, c1dim)
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim)
-         endif
-      end do
-      !---------------------------------------------
       ! Store mean values of (any) benthic entity
       !---------------------------------------------
       k=0
@@ -445,7 +497,19 @@
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
          endif
       end do 
-   end if
+!   end if
+   !---------------------------------------------
+   ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
+   !---------------------------------------------
+   i=0
+   do n=stBenFluxS,stBenFluxE
+      i=i+1
+      if ( var_ids(n) > 0 ) then
+          call make_flux_output(2,i,1,NO_BOXES_XY, c1dim)
+          iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim)
+      endif
+   end do
+
 
    iret = nf_sync(ncid_bfm)
    call check_err(iret)
@@ -690,8 +754,9 @@
 ! !IROUTINE: Store values in a NetCDF file
 !
 ! !INTERFACE:
-   integer function store_data(ncid,id,var_shape,nbox, &
-                               iscalar,iarray,scalar,array,garray)
+   integer function store_data(ncid,id,var_shape,nbox,             &
+                               iscalar,iarray,scalar,array,garray, &
+                               array2d,array3d)
 !
 ! !DESCRIPTION:
 !  This routine is used to store a variable in the NetCDF file.
@@ -708,6 +773,8 @@
    REALTYPE, optional                  :: scalar
    REALTYPE, optional                  :: array(1:nbox)
    REALTYPE, optional                  :: garray(1:nbox)
+   REALTYPE, optional                  :: array2d(:,:)
+   REALTYPE, optional                  :: array3d(:,:,:)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -722,9 +789,10 @@
 !
 !-----------------------------------------------------------------------
 !BOC
-   if (.not. present(iscalar) .and. .not. present(iarray) .and. &
-       .not. present(scalar)  .and. .not. present(array) .and.  &
-       .not. present(garray)) then
+   if (.not. present(iscalar) .and. .not. present(iarray)  .and. &
+       .not. present(scalar)  .and. .not. present(array)   .and. &
+       .not. present(garray)  .and. .not. present(array2d) .and. &
+       .not. present(array3d)) then
       FATAL 'At least one optional argument has to be passed to - store_data()'
       stop 'store_data'
    end if
@@ -734,6 +802,8 @@
    if(present(scalar))  n = n+1
    if(present(array))   n = n+1
    if(present(garray))  n = n+1
+   if(present(array2d)) n = n+1
+   if(present(array3d)) n = n+1
    if(n .ne. 1) then
       FATAL 'Only one optional argument must be passed to - store_data()'
       stop 'store_data'
@@ -780,21 +850,31 @@
             FATAL 'A non valid - var_shape - has been passed in store_data()'
             stop 'store_data'
       end select
-   else if (present(array)) then
+   else if (present(array) .OR. present(array2d) .OR. present(array3d) ) then
       select case (var_shape)
          case(Z_SHAPE,G_SHAPE)
             start(1) = 1;   edges(1) = nbox
+            dum(1:nbox) = array(1:nbox)
+            iret = nf_put_vara_real(ncid,id,start,edges,dum(1:nbox))
+         case(XY_SHAPE)
+            start(1) = 1;   edges(1) = lon_len
+            start(2) = 1;   edges(2) = lat_len
+            iret = nf_put_vara_real(ncid,id,start,edges,real(array2d(:,:),4))
+         case(XYZ_SHAPE)
+            start(1) = 1;   edges(1) = lon_len
+            start(2) = 1;   edges(2) = lat_len
+            start(3) = 1;   edges(3) = nbox
+            iret = nf_put_vara_real(ncid,id,start,edges,real(array3d(:,:,:),4))
          case(XYZT_SHAPE)
             start(1) = 1;   edges(1) = lon_len
             start(2) = 1;   edges(2) = lat_len
             start(3) = 1;   edges(3) = nbox
             start(4) = recnum; edges(4) = 1
+            iret = nf_put_vara_real(ncid,id,start,edges,real(array3d(:,:,:),4))
          case default
             FATAL 'A non valid - var_shape - has been passed in store_data()'
             stop 'store_data'
       end select
-      dum(1:nbox)=array(1:nbox)
-      iret = nf_put_vara_real(ncid,id,start,edges,dum)
    else if (present(garray)) then
       select case (var_shape)
          case(OCET_SHAPE)

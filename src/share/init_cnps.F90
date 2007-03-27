@@ -5,7 +5,7 @@
 ! !SUBROUTINE: Initialise variable components
 !
 ! !INTERFACE:
-   subroutine init_cnps(c,n,p,s,nc,pc,sc)
+   subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
 !
 ! !DESCRIPTION:
 !  This subroutine initialises the other internal components
@@ -15,45 +15,55 @@
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-    REALTYPE,dimension(:),intent(in)           :: c
-    REALTYPE,intent(in),optional               :: nc,pc,sc
+    REALTYPE,dimension(:),intent(in)        :: c
+    REALTYPE,intent(in),optional            :: nc,pc,sc,lc
 !
 ! !OUTPUT PARAMETERS:
-    REALTYPE,dimension(:),intent(out),optional :: n
-    REALTYPE,dimension(:),intent(out),optional :: p
-    REALTYPE,dimension(:),intent(out),optional :: s
+    REALTYPE,dimension(:),intent(inout),optional :: n,p,s,l
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi
 !
 !LOCAL VARIABLES:
-    REALTYPE                     :: nc_ratio,pc_ratio,sc_ratio
+    REALTYPE                     :: nc_ratio,pc_ratio,sc_ratio, &
+                                    lc_ratio
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
-    if (present(nc)) then
-      nc_ratio = nc
-    else
-      nc_ratio = 0.0126 ! Redfield
-    end if
+    nc_ratio = 0.0126 ! Redfield
+    if ((present(nc)).AND.(nc>_ZERO_)) nc_ratio = nc
 
-    if (present(pc)) then
-      pc_ratio = pc
-    else
-      pc_ratio = 0.7862e-3 ! Redfield
-    end if
+    pc_ratio = 0.7862e-3 ! Redfield
+    if ((present(pc)).AND.(pc>_ZERO_)) pc_ratio = pc
 
-    if (present(sc)) then
-      sc_ratio = sc
-    else
-      sc_ratio = 0.0145 ! Redfield
-    end if
+    sc_ratio = 0.0145 ! Redfield
+    if ((present(sc)).AND.(sc>_ZERO_)) sc_ratio = sc
 
-    if (present(n)) n = nc_ratio*c
-    if (present(p)) p = pc_ratio*c
-    if (present(s)) s = sc_ratio*c
+    lc_ratio = 0.03 ! standard diatom value
+    if ((present(lc)).AND.(lc>_ZERO_)) lc_ratio = lc
+
+    if (present(n)) then
+       where (n==_ZERO_) 
+          n = nc_ratio*c
+       end where
+    end if
+    if (present(p)) then
+       where (p==_ZERO_) 
+          p = pc_ratio*c
+       end where
+    end if
+    if (present(s)) then
+       where (s==_ZERO_) 
+          s = sc_ratio*c
+       end where
+    end if
+    if (present(l)) then
+       where (l==_ZERO_) 
+          l = sc_ratio*c
+       end where
+    end if
 
   end subroutine init_cnps
 !EOC

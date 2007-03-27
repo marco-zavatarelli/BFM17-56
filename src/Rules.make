@@ -3,19 +3,12 @@
 
 SHELL   = /bin/sh
 
-## Local settings
-## Required environment variables (see bfm_env.sh)
-#BFMDIR=
-#FORTRAN_COMPILER=
-#NETCDFINC=
-#NETCDFLIBDIR=
-
 ## The compilation mode is obtained from $COMPILATION_MODE -
 #### default production - else debug or profiling
 ifndef COMPILATION_MODE
-	compilation=production
+  compilation=production
 else
-	compilation=$(COMPILATION_MODE)
+  compilation=$(COMPILATION_MODE)
 endif
 
 FEATURES	=
@@ -25,6 +18,12 @@ INCDIRS		=
 LDFLAGS		=
 
 ## Netcdf specifications
+ifndef NETCDFINC 
+  $(error The environment variable NETCDFINC is not defined!)
+endif
+ifndef NETCDFLIBDIR 
+  $(error The environment variable NETCDFLIBDIR is not defined!)
+endif
 INCDIRS		+= -I$(NETCDFINC)
 ## NETCDFLIB	= $(NETCDFLIBNAME)
 NETCDFLIB	= -lnetcdf
@@ -35,9 +34,10 @@ LDFLAGS		+= -L$(NETCDFLIBDIR)
 ##
 .PHONY: clean realclean distclean dummy
 
-## Default root directory BFM
+# Default root directory BFM
+# BFMDIR path must be given with an environmental variable
 ifndef BFMDIR
-BFMDIR  := $(HOME)
+  $(error The environment variable BFMDIR is not defined!)
 endif
 
 CPP = /lib/cpp
@@ -72,6 +72,10 @@ INCDIRS		+= -I$(BFMINCDIR)
 ## The Fortran compiler is determined from the EV FORTRAN_COMPILER - options 
 ## so far NAG(linux), FUJITSU(Linux), DECF90 (OSF1 and likely Linux on alpha),
 ## SunOS, PGF90 - Portland Group Fortran Compiler (on Intel Linux), Intel (ifc, ifort)
+## Default is IFORT
+ifndef FORTRAN_COMPILER
+  FORTRAN_COMPILER=IFORT
+endif
 
 include $(BFMDIR)/compilers/compiler.$(FORTRAN_COMPILER)
 

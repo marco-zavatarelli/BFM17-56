@@ -11,7 +11,7 @@
 !   Description of the phosphate diagenitic processes in the sediment
 !       Details on the equations and the method used to calculate
 !       the equilibrium and transient profiles can be found in
-!       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483  
+!       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483
 !
 !
 
@@ -29,21 +29,21 @@
   ! The following Benthic-states are used (NOT in fluxes): D1m, D2m, D8m
   ! The following global vars are modified: dummy
   ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY, LocalDelta
+  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, &
+  ! NO_BOXES_Y, BoxNumber, BoxNumberXY, InitializeModel, LocalDelta
   ! The following Benthic 1-d global boxvars are modified : M1p, M11p, M21p, &
-  ! KPO4, jK1N1p
+  ! KPO4, jbotN1p
   ! The following Benthic 1-d global boxvars are used: reBTp, &
   ! reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m
   ! The following Benthic 1-d global boxpars  are used: p_poro, p_p_ae
-  ! The following 0-d global box parametes are used: p_d_tot, p_clDxm, p_q10diff
+  ! The following 0-d global parameters are used: p_d_tot, p_clDxm, p_q10diff
   ! The following global constants are used: RLEN
   ! The following constants are used: QUADRATIC_TERM, &
   ! ZERO_EXPONENTIAL_TERM, LAYERS, LAYER1, LAYER2, LAYER3, &
   ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, LAYER4, &
   ! DEFINE, LINEAR_TERM, CONSTANT_TERM, SET_CONTINUITY, FLAG, &
   ! MASS, SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, SET_LAYER_INTEGRAL_UNTIL, &
-  ! INPUT_TERM, PARAMETER, START_ADD_TERM, STANDARD, INPUT_SUBTRACT_TERM, ADD, &
+  ! INPUT_TERM, INPUT_ADD__TERM,PARAMETER, START_ADD_TERM, STANDARD, ADD, &
   ! DERIVATIVE, RFLUX, SHIFT, ONE_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -54,18 +54,18 @@
   use mem,  ONLY: K1p, K11p, K21p, D1m, D2m, D8m, D2STATE
   use mem, ONLY: ppK1p, ppK11p, ppK21p, ppD1m, ppD2m, ppD8m, &
     dummy, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-    BoxNumber, BoxNumberXY, LocalDelta, M1p, M11p, M21p, KPO4, jK1N1p, reBTp, &
-    reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m, iiBen, iiPel, &
-    flux
+    BoxNumber, BoxNumberXY, InitializeModel, LocalDelta, M1p, M11p, M21p, KPO4, &
+    jbotN1p, reBTp, reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m, &
+    iiBen, iiPel, flux
   use constants, ONLY: QUADRATIC_TERM, ZERO_EXPONENTIAL_TERM, LAYERS, &
     LAYER1, LAYER2, LAYER3, DIFFUSION, FOR_ALL_LAYERS, POROSITY, &
     ADSORPTION, LAYER4, DEFINE, LINEAR_TERM, CONSTANT_TERM, SET_CONTINUITY, &
     FLAG, MASS, SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, &
-    SET_LAYER_INTEGRAL_UNTIL, INPUT_TERM, PARAMETER, START_ADD_TERM, &
-    STANDARD, INPUT_SUBTRACT_TERM, ADD, DERIVATIVE, RFLUX, SHIFT, ONE_PER_DAY
+    SET_LAYER_INTEGRAL_UNTIL, INPUT_TERM,INPUT_ADD_TERM, PARAMETER, START_ADD_TERM, &
+    STANDARD, ADD, DERIVATIVE, RFLUX, SHIFT, ONE_PER_DAY
   use mem_Param,  ONLY: p_poro, p_p_ae, p_d_tot, p_clDxm, p_q10diff
   use mem_BenPhosphate
-
+  use mem_BenthicNutrient3, ONLY:p_max_shift_change
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:InitializeSet, &
@@ -85,28 +85,18 @@
   ! The following sesame functions are used:IntegralExp, insw
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp, insw
-
-
-
 !  
 !
 ! !AUTHORS
 !   Original version by  P. Ruardij
 !
 !
-!
 ! !REVISION_HISTORY
-!   April 15, 1994 by EGM Embsen and P Ruardij:
-!               Created a new version of the this process
-!               so that it can be used with OpenSESAME.
-!       September 1999 by M. Vichi
-!               Commented version  
-!
-!
+!       September 1999 by M. Vichi !               Commented version
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij & M.Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -193,9 +183,6 @@
             p_poro(BoxNumberXY)/ D1m(BoxNumberXY)
           term  =   QUADRATIC_TERM
 
-
-
-
         case( .FALSE. )
           zuBT = max( 1.D-20, reBTp(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
             IntegralExp( - alpha, D1m(BoxNumberXY))
@@ -277,82 +264,101 @@
 
       call  DefineSet(  KPO4(BoxNumberXY),  DEFINE,  13,  term, - alpha,  dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 14, LINEAR_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 14, LINEAR_TERM, dummy, dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
 
 
       call DefineSet( KPO4(BoxNumberXY), DEFINE, 21, ZERO_EXPONENTIAL_TERM, - &
         alpha, dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 24, LINEAR_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 24, LINEAR_TERM, dummy, dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 25, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 25, CONSTANT_TERM, dummy, dummy)
 
 
       call DefineSet( KPO4(BoxNumberXY), DEFINE, 31, ZERO_EXPONENTIAL_TERM, - &
         alpha, dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 34, LINEAR_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 34, LINEAR_TERM, dummy, dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 35, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 35, CONSTANT_TERM, dummy, dummy)
 
 
       call DefineSet( KPO4(BoxNumberXY), DEFINE, 41, ZERO_EXPONENTIAL_TERM, - &
         alpha, dummy)
 
-      call DefineSet( KPO4(BoxNumberXY), DEFINE, 45, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KPO4(BoxNumberXY), DEFINE, 45, CONSTANT_TERM, dummy, dummy)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Insert other boundary conditions and continuity between layers:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      call CompleteSet( KPO4(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, &
-        dummy, dummy)
+      call CompleteSet( KPO4(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy)
 
       call CompleteSet( KPO4(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-        EQUATION, 0.0D+00, N1p_Ben(BoxNumberXY))
-
-      call CompleteSet( KPO4(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER2, &
-        LAYER2, dummy, K11p(BoxNumberXY))
-
-      call CompleteSet( KPO4(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, LAYER3, &
-        LAYER4, p_d_tot, K21p(BoxNumberXY))
+        EQUATION, 0.0D+00, value=N1p_Ben(BoxNumberXY))
 
 
+      select case ( InitializeModel)
+        case ( 0 )
+          call CompleteSet( KPO4(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER2, &
+            LAYER2, dummy, value=K11p(BoxNumberXY))
+
+          call CompleteSet( KPO4(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, &
+            LAYER3, LAYER4, p_d_tot, value=K21p(BoxNumberXY))
+
+        case ( 1 )
+          ! The mineralization at D1m equal to the oxic minerlaization at D1m under
+          ! assumuption of that the mineralization distribution in oxic layer is distributed
+          ! according detritus distribution alpha 
+          zuD1= reBTp(BoxNumberXY) / p_poro(BoxNumberXY)/   &
+            IntegralExp( - alpha, D1m(BoxNumberXY)) *exp(-alpha * D1m(BoxNumberXY))
+          zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY)- D1m(BoxNumberXY)))
+          call CompleteSet( KPO4(BoxNumberXY), INPUT_TERM, 21, PARAMETER, &
+            dummy, value=zuD1)
+
+!         call CompleteSet( KPO4(BoxNumberXY), INPUT_TERM, 31, PARAMETER, &
+!           dummy, value=zuD2)
+
+!         call CompleteSet( KPO4(BoxNumberXY), SET_BOUNDARY, LAYER1, &
+!         DERIVATIVE, 0.0D+00, value=0.0D+00)
+
+          call CompleteSet( KPO4(BoxNumberXY), SET_BOUNDARY, LAYER1, &
+                                   DERIVATIVE, 0.0D+00, mfac=p_poro(BoxNumberXY)*diff)
+          call CompleteSet( KPO4(BoxNumberXY), INPUT_ADD_TERM, 21, PARAMETER, dummy, &
+            mfac=-IntegralExp(-alpha,D2m(BoxNumberXY)-D1m(BoxNUmberXY)))
+          call CompleteSet( KPO4(BoxNumberXY), INPUT_ADD_TERM, 31, PARAMETER, dummy, &
+            mfac=-IntegralExp(-alpha,dx-D2m(BoxNUmberXY)))
+          call CompleteSet( KPO4(BoxNumberXY), INPUT_ADD_TERM, 41, PARAMETER, dummy, &
+            mfac=-IntegralExp(-alpha,p_d_tot-dx))
+          call CompleteSet( KPO4(BoxNumberXY), ADD, 0, 0, dummy,reBTp(BoxNumberXY))
+
+      end select
+
+
+      ! condtion for fourth layer....
       r  =   exp( - alpha*( dx- D2m(BoxNumberXY)))
 
       select case ( r> 1.0D-20)
 
         case( .FALSE. )
           call CompleteSet( KPO4(BoxNumberXY), INPUT_TERM, 41, PARAMETER, &
-            dummy, 0.0D+00)
-
-
-
+            dummy, value=0.0D+00)
 
         case( .TRUE. )
           call CompleteSet( KPO4(BoxNumberXY), START_ADD_TERM, 41, STANDARD, &
-            dummy, r)
+            dummy, mfac=1.0D+00/r)
 
-          call CompleteSet( KPO4(BoxNumberXY), INPUT_SUBTRACT_TERM, 31, &
-            STANDARD, dummy, 1.0D+00)
-
-
+          call CompleteSet( KPO4(BoxNumberXY), INPUT_ADD_TERM, 31, &
+            STANDARD, dummy, mfac=-1.0D+00)
 
       end select
 
 
       call CompleteSet( KPO4(BoxNumberXY), INPUT_TERM, 13, PARAMETER, dummy, &
-        zuBT)
+        value=zuBT)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -364,169 +370,143 @@
       cK1p = CalculateSet( KPO4(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER1, &
         LAYER1, dummy, 0.0D+00)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate the adaptation time to the steady-state profile
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      if ( InitializeModel== 0) then
 
-      Tau = CalculateTau( 0.0D+00, diff, p_p_ae(BoxNumberXY), &
-        D1m(BoxNumberXY))
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate the adaptation time to the steady-state profile
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Estimate the average value of K1p over the actual time step
-      ! (transient value).
-      ! This value depends on the adaptation time, the actual time step,
-      ! the ''old'' value and the ''equilibrium value''
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        Tau = CalculateTau( 0.0D+00, diff, p_p_ae(BoxNumberXY), &
+          D1m(BoxNumberXY))
 
-      cK1p = cK1p+( K1p(BoxNumberXY)- cK1p)* IntegralExp( - LocalDelta/ &
-        Tau, 1.0D+00)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Estimate the average value of K1p over the actual time step
+        ! (transient value).
+        ! This value depends on the adaptation time, the actual time step,
+        ! the ''old'' value and the ''equilibrium value''
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Derive the equations for the transient profiles, assuming the same
-      ! solution as for the steady-state case and using cK1p as new constraint.
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        cK1p = cK1p+( K1p(BoxNumberXY)- cK1p)* IntegralExp( - LocalDelta/ &
+          Tau, 1.0D+00)
 
-      dummy  =   CalculateSet(  KPO4(BoxNumberXY),  ADD,  0,  0,  dummy,  cK1p)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Derive the equations for the transient profiles, assuming the same
+        ! solution as for the steady-state case and using cK1p as new &
+        ! constraint.
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Start calculation of fluxes:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        dummy = CalculateSet( KPO4(BoxNumberXY), ADD, 0, 0, dummy, cK1p)
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Vertical fluxes :
-      ! There are 2 problems with this model in this version both connected
-      ! with the shifting of the layers:
-      ! 1. shifting from the oxic+denitrification layer with high
-      !  adsorped fraction phosphate to the lower anoxic layer with a very
-      !  low percentage of adsorped phosphate.
-      ! 2. Too large changes in spring due to large change of D1.m:
-      !  This lead sometimes to a calculated phosphate gradient which
-      !  has at some depth negative values.
-      !
-      !  Solution:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Start calculation of fluxes:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate flux at the sediment/water interface:
-      ! Check on; to high fluxes from pelagic and on concisteny of gradient
-      ! ( only flux of M1p > N1p!)
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Vertical fluxes :
+        ! There are 2 problems with this model in this version both connected
+        ! with the shifting of the layers:
+        ! 1. shifting from the oxic+denitrification layer with high
+        !  adsorped fraction phosphate to the lower anoxic layer with a very
+        !  low percentage of adsorped phosphate.
+        ! 2. Too large changes in spring due to large change of D1.m:
+        !  This lead sometimes to a calculated phosphate gradient which
+        !  has at some depth negative values.
+        !
+        !  Solution:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      jK1N1p(BoxNumberXY) = max( CalculateFromSet( KPO4(BoxNumberXY), &
-        DERIVATIVE, RFLUX, 0.0D+00, 0.0D+00), - 0.5D+00* &
-        N1p_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY))
-      jK1N1p(BoxNumberXY) = jK1N1p(BoxNumberXY)* insw( &
-        jK1N1p(BoxNumberXY)*( M1p(BoxNumberXY)- N1p_Ben(BoxNumberXY)))
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate flux at the sediment/water interface:
+        ! Check on; to high fluxes from pelagic and on concisteny of gradient
+        ! ( only flux of M1p > N1p!)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      call flux(BoxNumberXY, iiBen, ppK1p, ppK1p, -( jK1N1p(BoxNumberXY)) )
+        jbotN1p(BoxNumberXY) =  CalculateFromSet( KPO4(BoxNumberXY), &
+          DERIVATIVE, RFLUX, 0.0D+00, 0.0D+00)
+!        max(, - 0.1D+00* & N1p_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY))
+        jbotN1p(BoxNumberXY) = jbotN1p(BoxNumberXY)* insw( &
+          jbotN1p(BoxNumberXY)*( M1p(BoxNumberXY)- N1p_Ben(BoxNumberXY)))
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate new depth of the oxygen horizon
-      ! and the flux of phosphate related to this shifting
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        call flux(BoxNumberXY, iiBen, ppK1p, ppK1p, -( jbotN1p(BoxNumberXY)) )
 
-      Dnew  =   D1m(BoxNumberXY)+ shiftD1m(BoxNumberXY)* LocalDelta
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate new depth of the oxygen horizon
+        ! and the flux of phosphate related to this shifting
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      jK11K1p = CalculateFromSet( KPO4(BoxNumberXY), SHIFT, LAYER1, &
-        D1m(BoxNumberXY), Dnew)/ LocalDelta
+        Dnew  =   D1m(BoxNumberXY)+ shiftD1m(BoxNumberXY)* LocalDelta
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! limit flux according to the actual phosphate content in the layer
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        jK11K1p = CalculateFromSet( KPO4(BoxNumberXY), SHIFT, LAYER1, &
+          D1m(BoxNumberXY), Dnew)/ LocalDelta
 
-      select case ( jK11K1p> 0.0D+00)
-        case( .TRUE. )
-          jK11K1p = ( jK11K1p* K11p(BoxNumberXY)/ ONE_PER_DAY/( &
-            K11p(BoxNumberXY)/ ONE_PER_DAY+ jK11K1p))
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! limit flux according to the actual phosphate content in the layer
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+        r= 1.0D-80+insw(jK11K1p)* K11p(BoxNumberXY)+insw(-jK11K1p)* K1p(boxNumberXY)
+        jK11K1p=jK11K1p*p_max_shift_change/(abs(jK11K1p/r)+p_max_shift_change);
 
-        case( .FALSE. )
-          jK11K1p = -(- jK11K1p* K1p(BoxNumberXY)/ ONE_PER_DAY/( &
-            K1p(BoxNumberXY)/ ONE_PER_DAY- jK11K1p))
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate diffusive flux at the oxic/denitrification interface:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-
-
-      end select
-
-
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate diffusive flux at the oxic/denitrification interface:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      r = CalculateFromSet( KPO4(BoxNumberXY), DERIVATIVE, RFLUX, &
-        D1m(BoxNumberXY), 1.0D+00)
-      jK11K1p  =   jK11K1p+ r* insw( ( M11p(BoxNumberXY)- M1p(BoxNumberXY))* r)
+        r = CalculateFromSet( KPO4(BoxNumberXY), DERIVATIVE, RFLUX, &
+          D1m(BoxNumberXY), 1.0D+00)
+        jK11K1p = jK11K1p+ r* insw( ( M11p(BoxNumberXY)- M1p(BoxNumberXY))* r)
 
 
-      call flux(BoxNumberXY, iiBen, ppK11p, ppK1p, jK11K1p* insw( jK11K1p) )
-      call flux(BoxNumberXY, iiBen, ppK1p, ppK11p, - jK11K1p* insw( - jK11K1p) )
+        call flux(BoxNumberXY, iiBen, ppK11p, ppK1p, jK11K1p* insw( jK11K1p) )
+        call flux(BoxNumberXY, iiBen, ppK1p, ppK11p, - jK11K1p* insw( - jK11K1p) )
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! All the nutrient mineralization source term in the anoxic layer
-      ! has been added to K11.p in BenBacDynamics
-      ! However in the model this layer is subdivided and hence a partition
-      ! flux is here calculated according to the exponential distribution.
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! All the nutrient mineralization source term in the anoxic layer
+        ! has been added to K11.p in BenBacDynamics
+        ! However in the model this layer is subdivided and hence a partition
+        ! flux is here calculated according to the exponential distribution.
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      jK21K11p = - zuD2* p_poro(BoxNumberXY)* IntegralExp( - alpha, &
-        p_d_tot- D2m(BoxNumberXY))
+        jK21K11p = - zuD2* p_poro(BoxNumberXY)* IntegralExp( - &
+          alpha, p_d_tot- D2m(BoxNumberXY))
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate new depth of the sulphide horizon:
-      ! and the flux of phosphate related to this shifting
-      ! (this calculation involves the change of the adsorption coefficient)
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate new depth of the sulphide horizon:
+        ! and the flux of phosphate related to this shifting
+        ! (this calculation involves the change of the adsorption coefficient)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      Dnew  =   D2m(BoxNumberXY)+ shiftD2m(BoxNumberXY)* LocalDelta
+        Dnew  =   D2m(BoxNumberXY)+ shiftD2m(BoxNumberXY)* LocalDelta
 
-      jK21K11p = jK21K11p+ CalculateFromSet( KPO4(BoxNumberXY), SHIFT, &
-        LAYER2, D2m(BoxNumberXY), Dnew)/ LocalDelta
+        jK21K11p = jK21K11p+ CalculateFromSet( KPO4(BoxNumberXY), SHIFT, &
+          LAYER2, D2m(BoxNumberXY), Dnew)/ LocalDelta
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate diffusive flux at the denitrification/anoxic interface:
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        r= 1.0D-80+insw(jK21K11p)* K21p(BoxNumberXY)+insw(-jK21K11p)* K11p(boxNumberXY)
+        jK21K11p=jK21K11p*p_max_shift_change/(abs(jK21K11p/r)+p_max_shift_change);
 
-      jK21K11p = jK21K11p+ CalculateFromSet( KPO4(BoxNumberXY), DERIVATIVE, &
-        RFLUX, D2m(BoxNumberXY), 1.0D+00)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate diffusive flux at the denitrification/anoxic interface:
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! limit flux according to the actual phosphate content in the layer
-      ! if the flux is upwards.
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        jK21K11p = jK21K11p+ CalculateFromSet( KPO4(BoxNumberXY), &
+          DERIVATIVE, RFLUX, D2m(BoxNumberXY), 1.0D+00)
 
-      select case ( jK21K11p> 0.0D+00)
+        call flux(BoxNumberXY, iiBen, ppK21p, ppK11p, jK21K11p* insw( jK21K11p) )
+        call flux(BoxNumberXY, iiBen, ppK11p, ppK21p,-jK21K11p* insw(-jK21K11p) )
 
-        case( .TRUE. )
-          jK21K11p = ( jK21K11p* K21p(BoxNumberXY)/( K21p(BoxNumberXY)+ &
-            jK21K11p))
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        ! Calculate flux at the lower boundary
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+        jK31K21p = CalculateFromSet( KPO4(BoxNumberXY), DERIVATIVE, RFLUX, &
+          p_d_tot, 0.0D+00)
+        if ( jK31K21p< 0.0D+00) then
+          jK31K21p = ( jK31K21p* K21p(BoxNumberXY)/( K21p(BoxNumberXY)- &
+            jK31K21p))
+        end if
 
 
-        case( .FALSE. )
-          jK21K11p = max( - M21p(BoxNumberXY)* &
-            abs(shiftD2m(BoxNumberXY))* p_poro(BoxNumberXY)*( 1.0D+00+ p_p_an), &
-            jK21K11p)
-
-
-
-      end select
-
-      call flux(BoxNumberXY, iiBen, ppK21p, ppK11p, jK21K11p* insw( jK21K11p) )
-      call flux(BoxNumberXY, iiBen, ppK11p, ppK21p, - jK21K11p* insw( - &
-        jK21K11p) )
-
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Calculate flux at the lower boundary
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      jK31K21p = CalculateFromSet( KPO4(BoxNumberXY), DERIVATIVE, RFLUX, &
-        p_d_tot, 0.0D+00)
-      if ( jK31K21p< 0.0D+00) then
-        jK31K21p = ( jK31K21p* K21p(BoxNumberXY)/( K21p(BoxNumberXY)- &
-          jK31K21p))
+        call flux(BoxNumberXY, iiBen, ppK21p, ppK21p, -(- jK31K21p) )
       end if
 
-
-      call flux(BoxNumberXY, iiBen, ppK21p, ppK21p, -(- jK31K21p) )
 
     end DO
 

@@ -77,6 +77,7 @@
   !
   !  ---------------- Nutrient parameters in phytoplankton -----------------
   !
+  logical  :: p_netgrowth(iiPhytoPlankton)=.TRUE.  ! logical switch for nut. limitation growth
   integer  :: p_limnut(iiPhytoPlankton)  ! switch for nut. limitation (Liebig is default)
   real(RLEN)  :: p_qnlc(iiPhytoPlankton)
   real(RLEN)  :: p_qnRc(iiPhytoPlankton)
@@ -84,14 +85,14 @@
   real(RLEN)  :: p_qplc(iiPhytoPlankton)
   real(RLEN)  :: p_qpRc(iiPhytoPlankton)
   real(RLEN)  :: p_xqp(iiPhytoPlankton)
-  real(RLEN)  :: p_chPs(iiPhytoPlankton)  ! half-value of SIO4-lim (mmol Si m-3)
   real(RLEN)  :: p_qslc(iiPhytoPlankton)  ! Minimum quotum Si in PI
   real(RLEN)  :: p_qsRc(iiPhytoPlankton)  ! Reference quotum Si in PI
-  real(RLEN)  :: p_xqs(iiPhytoPlankton)  ! factor for max quotum S
+  real(RLEN)  :: p_xqs(iiPhytoPlankton)
   real(RLEN)  :: p_qus(iiPhytoPlankton)  ! affinity of PI for Si
   real(RLEN)  :: p_qun(iiPhytoPlankton)
   real(RLEN)  :: p_qup(iiPhytoPlankton)
   real(RLEN)  :: p_lN4(iiPhytoPlankton)
+  real(RLEN)  :: p_chPs(iiPhytoPlankton)
   real(RLEN)  :: p_alpha_chl(iiPhytoPlankton)  ! Initial slope P-I curve
   !
   !  ------------- Chlorophyll parameters -----------
@@ -121,8 +122,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Phyto_parameters/ p_q10, p_sum, p_srs, p_sdmo, p_seo, p_pu_ea, &
     p_pu_ra, p_qnlc, p_qplc, p_qslc, p_qnRc, p_qpRc, p_qsRc, p_qun, p_qup, &
-    p_qus, p_xqn, p_xqp, p_xqs, p_esNI, p_thdo, p_res, p_chPs, p_lN4, &
-    p_limnut, p_alpha_chl, p_sdchl
+    p_qus, p_xqn, p_xqp, p_xqs, p_esNI, p_thdo, p_res, p_lN4,p_chPs, &
+    p_netgrowth,p_limnut, p_alpha_chl, p_sdchl
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

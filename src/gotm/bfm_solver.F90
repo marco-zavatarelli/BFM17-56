@@ -1,12 +1,50 @@
-!$Id: ode_solvers.F90,v 1.9 2005-12-13 14:12:45 hb Exp $
 #include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
 !
-! !ROUTINE: General ODE solver \label{sec:ode-solver}
+! !MODULE: bfm_solver --- ODE integration routines for BFM
 !
 ! !INTERFACE:
-   subroutine ode_solver(solver,numc,nlev,dt,h,cc,t)
+   module bfm_solver
+!
+! !DESCRIPTION:
+! This module is a wrapper for all the ode solvers.
+! It is meant to simplify the exchange of information between the BFM
+! models and the memory system.
+! NOTE:
+! 4th order schemes not implemented yet!
+!
+! !USES:
+   use bio_var, only: bio_setup,numc,cc,pp,dd,numbc,ccb,ppb,ddb
+   use bio_bfm, only: do_bio_bfm
+!
+!  default: all is private.
+   private
+   integer,parameter :: NLEVB=1     ! number of benthic levels
+   logical,save                        :: first=.TRUE.
+   integer                             :: i,j,ci
+!
+! !PUBLIC MEMBER FUNCTIONS:
+  public ode_solver_bfm
+!
+! !REVISION HISTORY:!
+!  Original author(s): Hans Burchard & Karsten Bolding
+!                    : Marcello Vichi & Piet Ruardij
+!
+! !PRIVATE DATA MEMBERS:
+!
+!EOP
+!-----------------------------------------------------------------------
+
+   contains
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: General ODE solver \label{sec:ode-solver}
+!
+! !INTERFACE:
+   subroutine ode_solver_bfm(solver,nlev,dt)
 !
 ! !DESCRIPTION:
 ! Here, 10 different numerical solvers for the right hand sides of the
@@ -57,13 +95,10 @@
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   integer, intent(in)                 :: solver,nlev,numc
+   integer, intent(in)                 :: solver,nlev
    REALTYPE, intent(in)                :: dt
-   REALTYPE, intent(in)                :: t(0:nlev)
-   REALTYPE, intent(in)                :: h(0:nlev)
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
@@ -72,35 +107,39 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
    select case (solver)
       case (1)
-         call euler_forward(dt,numc,nlev,cc,h,t)
+         call euler_forward(dt,nlev)
       case (2)
-         call runge_kutta_2(dt,numc,nlev,cc,h,t)
+         call runge_kutta_2(dt,nlev)
       case (3)
-         call runge_kutta_4(dt,numc,nlev,cc,h,t)
+         stop "bfm_solver:  runge_kutta_4 not yet implemented!"
+         call runge_kutta_4(dt,nlev)
       case (4)
-         call patankar(dt,numc,nlev,cc,h,t)
+         call patankar(dt,nlev)
       case (5)
-         call patankar_runge_kutta_2(dt,numc,nlev,cc,h,t)
+         call patankar_runge_kutta_2(dt,nlev)
       case (6)
-         call patankar_runge_kutta_4(dt,numc,nlev,cc,h,t)
+         stop "bfm_solver:  patankar_runge_kutta_4 not yet implemented!"
+         call patankar_runge_kutta_4(dt,nlev)
       case (7)
-         call modified_patankar(dt,numc,nlev,cc,h,t)
+         call modified_patankar(dt,nlev)
       case (8)
-         call modified_patankar_2(dt,numc,nlev,cc,h,t)
+         call modified_patankar_2(dt,nlev)
       case (9)
-         call modified_patankar_4(dt,numc,nlev,cc,h,t)
+         stop "bfm_solver:  modified_patankar not yet implemented!"
+         call modified_patankar_4(dt,nlev)
       case (10)
-         call emp_1(dt,numc,nlev,cc,h,t)
+         call emp_1(dt,nlev)
       case (11)
-         call emp_2(dt,numc,nlev,cc,h,t)
+         call emp_2(dt,nlev)
       case default
-         stop "bio: no valid solver method specified in bio.inp !"
+         stop "bio: no valid solver method specified in bio.nml !"
    end select
 
    return
-   end subroutine ode_solver
+   end subroutine ode_solver_bfm
 !EOC
 
 !-----------------------------------------------------------------------
@@ -109,7 +148,7 @@
 ! !IROUTINE: First-order Euler-forward scheme
 !
 ! !INTERFACE:
-   subroutine euler_forward(dt,numc,nlev,cc,h,t)
+   subroutine euler_forward(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the first-order Euler-forward (E1) scheme is coded, with one 
@@ -128,37 +167,31 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-  REALTYPE, intent(inout)              :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: rhs
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  integer  :: i,j,ci
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
+   ! MAV: reset diagonal is moved to do_bio_bfm!
+   call do_bio_bfm(first,nlev)
+   first=.false.
 
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
-
-   do ci=1,nlev
-      do i=1,numc
-         rhs=0.
-         do j=1,numc
-            rhs=rhs+pp(i,j,ci)-dd(i,j,ci)
-         end do
-         cc(i,ci)=cc(i,ci)+dt*rhs
-      end do
-   end do
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
+     cc(:,:) = cc(:,:) + dt*sum(pp(:,:,:)-dd(:,:,:),2)
+   end if
+   ! integrate benthic variables 
+   if (bio_setup>1) then
+      ccb(:,:) = ccb(:,:) + dt*sum(ppb(:,:,:)-ddb(:,:,:),2)
+   end if
 
    return
    end subroutine euler_forward
@@ -170,7 +203,7 @@
 ! !IROUTINE: Second-order Runge-Kutta scheme
 !
 ! !INTERFACE:
-   subroutine runge_kutta_2(dt,numc,nlev,cc,h,t)
+   subroutine runge_kutta_2(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the second-order Runge-Kutta (RK2) scheme is coded, with two
@@ -197,61 +230,94 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
   REALTYPE :: rhs(1:numc,0:nlev),rhs1(1:numc)
-  REALTYPE :: cc1(1:numc,0:nlev)
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  integer  :: i,j,ci
+  REALTYPE :: cc0(1:numc,0:nlev)
+  REALTYPE :: rhsb(1:numbc,0:nlev),rhsb1(1:numbc)
+  REALTYPE :: ccb0(1:numbc,0:nlev)
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   ! MAV: reset diagonal is moved to do_bio_bfm!
+   call do_bio_bfm(first,nlev)
+   first=.false.
 
-   do ci=1,nlev
-      do i=1,numc
-         rhs(i,ci)=0.
-         do j=1,numc
-            rhs(i,ci)=rhs(i,ci)+pp(i,j,ci)-dd(i,j,ci)
-         end do
-         cc1(i,ci)=cc(i,ci)+dt*rhs(i,ci)
-      end do
-   end do
+   if (bio_setup/=2) then
+     ! store the initial pelagic state
+     cc0 = cc
+     do ci=1,nlev
+        do i=1,numc
+           rhs(i,ci)=0.
+           do j=1,numc
+              rhs(i,ci)=rhs(i,ci)+pp(i,j,ci)-dd(i,j,ci)
+           end do
+           cc(i,ci)=cc0(i,ci)+dt*rhs(i,ci)
+        end do
+     end do
+   end if ! bio_setup/=2
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   if (bio_setup>1) then
+     ! store the initial benthic state
+     ccb0 = ccb
+     do ci=1,NLEVB
+        do i=1,numbc
+           rhsb(i,ci)=0.
+           do j=1,numbc
+              rhsb(i,ci)=rhsb(i,ci)+ppb(i,j,ci)-ddb(i,j,ci)
+           end do
+           ccb(i,ci)=ccb0(i,ci)+dt*rhsb(i,ci)
+        end do
+     end do
+   end if ! bio_setup>1
+   
+   call do_bio_bfm(first,nlev)
 
-   do ci=1,nlev
-      do i=1,numc
-         rhs1(i)=0.
-         do j=1,numc
-            rhs1(i)=rhs1(i)+pp(i,j,ci)-dd(i,j,ci)
-         end do
-         cc(i,ci)=cc(i,ci)+dt*0.5*(rhs(i,ci)+rhs1(i))
-      end do
-   end do
+   if (bio_setup/=2) then
+     do ci=1,nlev
+        do i=1,numc
+           rhs1(i)=0.
+           do j=1,numc
+              rhs1(i)=rhs1(i)+pp(i,j,ci)-dd(i,j,ci)
+           end do
+           cc(i,ci)=cc0(i,ci)+dt*0.5*(rhs(i,ci)+rhs1(i))
+        end do
+     end do
+   end if ! bio_setup/=2
+
+   if (bio_setup>1) then
+     do ci=1,NLEVB
+        do i=1,numbc
+           rhsb1(i)=0.
+           do j=1,numbc
+              rhsb1(i)=rhsb1(i)+ppb(i,j,ci)-ddb(i,j,ci)
+           end do
+           ccb(i,ci)=ccb0(i,ci)+dt*0.5*(rhsb(i,ci)+rhsb1(i))
+        end do
+     end do
+   end if ! bio_setup>1
+
 
    return
    end subroutine runge_kutta_2
 !EOC
 
+!MAV NOT DONE
 !-----------------------------------------------------------------------
 !BOP
 !
 ! !IROUTINE: Fourth-order Runge-Kutta scheme
 !
 ! !INTERFACE:
-   subroutine runge_kutta_4(dt,numc,nlev,cc,h,t)
+   subroutine runge_kutta_4(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the fourth-order Runge-Kutta (RK4) scheme is coded, 
@@ -290,28 +356,25 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
   REALTYPE :: rhs(1:numc,0:nlev),rhs1(1:numc,0:nlev)
   REALTYPE :: rhs2(1:numc,0:nlev),rhs3(1:numc,0:nlev)
   REALTYPE :: cc1(1:numc,0:nlev)
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  integer  :: i,j,ci
+  REALTYPE :: rhsb(1:numbc,0:nlev),rhsb1(1:numbc,0:nlev)
+  REALTYPE :: rhsb2(1:numbc,0:nlev),rhsb3(1:numbc,0:nlev)
+  REALTYPE :: ccb0(1:numbc,0:nlev)
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -323,7 +386,7 @@
       end do
    end do
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -335,7 +398,7 @@
       end do
    end do
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -347,7 +410,7 @@
       end do
    end do
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -369,7 +432,7 @@
 ! !IROUTINE: First-order Patankar scheme
 !
 ! !INTERFACE:
-   subroutine patankar(dt,numc,nlev,cc,h,t)
+   subroutine patankar(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the first-order Patankar-Euler scheme (PE1) scheme is coded,
@@ -389,37 +452,30 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: t(0:nlev)
-   REALTYPE, intent(in)                :: h(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
   REALTYPE :: ppsum,ddsum
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  integer  :: i,j,ci
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
-   do ci=1,nlev
-      do i=1,numc
-         ppsum=0.
-         ddsum=0.
-         do j=1,numc
-            ppsum=ppsum+pp(i,j,ci)
-            ddsum=ddsum+dd(i,j,ci)
-         end do
-         cc(i,ci)=(cc(i,ci)+dt*ppsum)/(1.+dt*ddsum/cc(i,ci))
-      end do
-   end do
+   ! MAV: reset diagonal is moved to do_bio_bfm!
+   call do_bio_bfm(first,nlev)
+   first=.false.
+
+   if (bio_setup/=2) then
+     cc = (cc+dt*sum(pp(:,:,:),2))/(1.+dt*sum(dd(:,:,:),2)/cc)
+   end if
+   ! compute benthic variables 
+    if (bio_setup>1) then
+      ccb = (ccb+dt*sum(ppb(:,:,:),2))/(1.+dt*sum(ddb(:,:,:),2)/ccb)
+    end if
 
    return
    end subroutine patankar
@@ -431,7 +487,7 @@
 ! !IROUTINE: Second-order Patankar-Runge-Kutta scheme
 !
 ! !INTERFACE:
-   subroutine patankar_runge_kutta_2(dt,numc,nlev,cc,h,t)
+   subroutine patankar_runge_kutta_2(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the second-order Patankar-Runge-Kutta (PRK2) scheme is coded,
@@ -465,63 +521,93 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
+  REALTYPE :: cc0(1:numc,0:nlev)
+  REALTYPE :: ccb0(1:numbc,0:nlev)
   REALTYPE :: ppsum(1:numc,0:nlev),ddsum(1:numc,0:nlev)
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  REALTYPE :: cc1(1:numc,0:nlev)
-  integer  :: i,j,ci
+  REALTYPE :: ppbsum(1:numbc,0:nlev),ddbsum(1:numbc,0:nlev)
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
-   do ci=1,nlev
-      do i=1,numc
-         ppsum(i,ci)=0.
-         ddsum(i,ci)=0.
-         do j=1,numc
-            ppsum(i,ci)=ppsum(i,ci)+pp(i,j,ci)
-            ddsum(i,ci)=ddsum(i,ci)+dd(i,j,ci)
-         end do
-         cc1(i,ci)=(cc(i,ci)+dt*ppsum(i,ci))/(1.+dt*ddsum(i,ci)/cc(i,ci))
-      end do
-   end do
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
+     do ci=1,nlev
+        do i=1,numc
+           ppsum(i,ci)=0.
+           ddsum(i,ci)=0.
+           do j=1,numc
+              ppsum(i,ci)=ppsum(i,ci)+pp(i,j,ci)
+              ddsum(i,ci)=ddsum(i,ci)+dd(i,j,ci)
+           end do
+           cc(i,ci)=(cc0(i,ci)+dt*ppsum(i,ci))/(1.+dt*ddsum(i,ci)/cc0(i,ci))
+        end do
+     end do
+   end if
+   ! integrate benthic variables 
+   if (bio_setup>1) then
+     do ci=1,NLEVB
+        do i=1,numbc
+           ppbsum(i,ci)=0.
+           ddbsum(i,ci)=0.
+           do j=1,numbc
+              ppbsum(i,ci)=ppbsum(i,ci)+ppb(i,j,ci)
+              ddbsum(i,ci)=ddbsum(i,ci)+ddb(i,j,ci)
+           end do
+           ccb(i,ci)=(ccb0(i,ci)+dt*ppbsum(i,ci))/(1.+dt*ddbsum(i,ci)/ccb0(i,ci))
+        end do
+     end do
+   end if
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
-   do ci=1,nlev
-      do i=1,numc
-         do j=1,numc
-            ppsum(i,ci)=ppsum(i,ci)+pp(i,j,ci)
-            ddsum(i,ci)=ddsum(i,ci)+dd(i,j,ci)
-         end do
-         cc(i,ci)=(cc(i,ci)+0.5*dt*ppsum(i,ci))/(1.+0.5*dt*ddsum(i,ci)/cc1(i,ci))
-      end do
-   end do
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
+     do ci=1,nlev
+        do i=1,numc
+           do j=1,numc
+              ppsum(i,ci)=ppsum(i,ci)+pp(i,j,ci)
+              ddsum(i,ci)=ddsum(i,ci)+dd(i,j,ci)
+           end do
+           cc(i,ci)=(cc0(i,ci)+0.5*dt*ppsum(i,ci))/(1.+0.5*dt*ddsum(i,ci)/cc(i,ci))
+        end do
+     end do
+   end if
+   ! integrate benthic variables 
+   if (bio_setup/=2) then
+     do ci=1,NLEVB
+        do i=1,numbc
+           do j=1,numbc
+              ppbsum(i,ci)=ppbsum(i,ci)+ppb(i,j,ci)
+              ddbsum(i,ci)=ddbsum(i,ci)+ddb(i,j,ci)
+           end do
+           ccb(i,ci)=(ccb0(i,ci)+0.5*dt*ppbsum(i,ci))/(1.+0.5*dt*ddbsum(i,ci)/ccb(i,ci))
+        end do
+     end do
+   end if
+
 
    return
    end subroutine patankar_runge_kutta_2
 !EOC
 
+!MAV NOT DONE
 !-----------------------------------------------------------------------
 !BOP
 !
 ! !IROUTINE: Fourth-order Patankar-Runge-Kutta scheme
 !
 ! !INTERFACE:
-   subroutine patankar_runge_kutta_4(dt,numc,nlev,cc,h,t)
+   subroutine patankar_runge_kutta_4(dt,nlev)
 !
 ! !DESCRIPTION:
 ! This subroutine should become the fourth-order Patankar Runge-Kutta
@@ -532,30 +618,29 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: ppsum(1:numc,0:nlev),ddsum(1:numc,0:nlev)
-  REALTYPE :: ppsum1(1:numc,0:nlev),ddsum1(1:numc,0:nlev)
-  REALTYPE :: ppsum2(1:numc,0:nlev),ddsum2(1:numc,0:nlev)
-  REALTYPE :: ppsum3(1:numc,0:nlev),ddsum3(1:numc,0:nlev)
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  REALTYPE :: cc1(1:numc,0:nlev)
-  integer  :: i,j,ci
+   REALTYPE :: cc1(1:numc,0:nlev)
+   REALTYPE :: ppsum(1:numc,0:nlev),ddsum(1:numc,0:nlev)
+   REALTYPE :: ppsum1(1:numc,0:nlev),ddsum1(1:numc,0:nlev)
+   REALTYPE :: ppsum2(1:numc,0:nlev),ddsum2(1:numc,0:nlev)
+   REALTYPE :: ppsum3(1:numc,0:nlev),ddsum3(1:numc,0:nlev)
+   REALTYPE :: ppbsum(1:numbc,0:nlev),ddbsum(1:numbc,0:nlev)
+   REALTYPE :: ppbsum1(1:numbc,0:nlev),ddbsum1(1:numbc,0:nlev)
+   REALTYPE :: ppbsum2(1:numbc,0:nlev),ddbsum2(1:numbc,0:nlev)
+   REALTYPE :: ppbsum3(1:numbc,0:nlev),ddbsum3(1:numbc,0:nlev)
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -569,7 +654,7 @@
       end do
    end do
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -583,7 +668,7 @@
       end do
    end do
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -597,7 +682,7 @@
       end do
    end do
 
-   call process_model(first,numc,nlev,cc1,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -623,7 +708,7 @@
 ! !IROUTINE: First-order Modified Patankar scheme
 !
 ! !INTERFACE:
-   subroutine modified_patankar(dt,numc,nlev,cc,h,t)
+   subroutine modified_patankar(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the first-order Modified Patankar-Euler scheme (MPE1) scheme is coded,
@@ -647,40 +732,57 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
   REALTYPE :: a(1:numc,1:numc),r(1:numc)
+  REALTYPE :: b(1:numbc,1:numbc),rb(1:numbc)
   integer  :: i,j,ci
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
-   do ci=1,nlev
-      do i=1,numc
-         a(i,i)=0.
-         do j=1,numc
-            a(i,i)=a(i,i)+dd(i,j,ci)
-            if (i.ne.j) a(i,j)=-dt*pp(i,j,ci)/cc(j,ci)
-         end do
-         a(i,i)=dt*a(i,i)/cc(i,ci)
-         a(i,i)=1.+a(i,i)
-         r(i)=cc(i,ci)+dt*pp(i,i,ci)
-      end do
-      call matrix(numc,a,r,cc(:,ci))
-   end do
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
+     do ci=1,nlev
+        do i=1,numc
+           a(i,i)=0.
+           do j=1,numc
+              a(i,i)=a(i,i)+dd(i,j,ci)
+              if (i.ne.j) a(i,j)=-dt*pp(i,j,ci)/(1.0D-80+cc(j,ci))
+           end do
+           a(i,i)=dt*a(i,i)/(1.0D-80+cc(i,ci))
+           a(i,i)=_ONE_+a(i,i)
+           r(i)=cc(i,ci)+dt*pp(i,i,ci)
+        end do
+        call matrix(numc,a,r,cc(:,ci))
+     end do
+   end if
+
+   ! integrate benthic variables 
+   if (bio_setup>1) then
+     do ci=1,NLEVB
+        do i=1,numbc
+           b(i,i)=0.
+           do j=1,numbc
+              b(i,i)=b(i,i)+ddb(i,j,ci)
+              if (i.ne.j) b(i,j)=-dt*ppb(i,j,ci)/(1.0D-80+ccb(j,ci))
+           end do
+           b(i,i)=dt*b(i,i)/(1.0D-80+ccb(i,ci))
+           b(i,i)=_ONE_+b(i,i)
+           rb(i)=ccb(i,ci)+dt*ppb(i,i,ci)
+        end do
+        call matrix(numbc,b,rb,ccb(:,ci))
+     end do
+    end if
 
    return
    end subroutine modified_patankar
@@ -692,7 +794,7 @@
 ! !IROUTINE: Second-order Modified Patankar-Runge-Kutta scheme
 !
 ! !INTERFACE:
-   subroutine modified_patankar_2(dt,numc,nlev,cc,h,t)
+   subroutine modified_patankar_2(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the second-order Modified Patankar-Runge-Kutta (MPRK2) scheme is coded,
@@ -739,73 +841,115 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  REALTYPE :: pp1(1:numc,1:numc,0:nlev),dd1(1:numc,1:numc,0:nlev)
-  REALTYPE :: a(1:numc,1:numc),r(1:numc)
-  REALTYPE :: cc1(1:numc,0:nlev)
-  integer  :: i,j,ci
+   REALTYPE :: pp1(1:numc,1:numc,0:nlev),dd1(1:numc,1:numc,0:nlev)
+   REALTYPE :: ppb1(1:numbc,1:numbc,0:nlev),ddb1(1:numbc,1:numbc,0:nlev)
+   REALTYPE :: a(1:numc,1:numc),r(1:numc)
+   REALTYPE :: b(1:numbc,1:numbc),rb(1:numbc)
+   REALTYPE :: cc0(1:numc,0:nlev)
+   REALTYPE :: ccb0(1:numbc,0:nlev)
+   integer  :: i,j,ci
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
-   do ci=1,nlev
-      do i=1,numc
-         a(i,i)=0.
-         do j=1,numc
-            a(i,i)=a(i,i)+dd(i,j,ci)
-            if (i.ne.j) a(i,j)=-dt*pp(i,j,ci)/cc(j,ci)
-         end do
-         a(i,i)=dt*a(i,i)/cc(i,ci)
-         a(i,i)=1.+a(i,i)
-         r(i)=cc(i,ci)+dt*pp(i,i,ci)
-      end do
-      call matrix(numc,a,r,cc1(:,ci))
-   end do
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
+     cc0 = cc
+     do ci=1,nlev
+        do i=1,numc
+           a(i,i)=_ZERO_
+           do j=1,numc
+              a(i,i)=a(i,i)+dd(i,j,ci)
+              if (i.ne.j) a(i,j)=-dt*pp(i,j,ci)/cc0(j,ci)
+           end do
+           a(i,i)=dt*a(i,i)/cc0(i,ci)
+           a(i,i)=1.+a(i,i)
+           r(i)=cc0(i,ci)+dt*pp(i,i,ci)
+        end do
+        call matrix(numc,a,r,cc(:,ci))
+     end do
+   end if
 
-   call process_model(first,numc,nlev,cc1,pp1,dd1,h,t)
+   ! integrate benthic variables 
+   if (bio_setup>1) then
+     ccb0 = ccb
+     do ci=1,NLEVB
+        do i=1,numbc
+           b(i,i)=0.
+           do j=1,numbc
+              b(i,i)=b(i,i)+ddb(i,j,ci)
+              if (i.ne.j) b(i,j)=-dt*ppb(i,j,ci)/(1.0D-80+ccb0(j,ci))
+           end do
+           b(i,i)=dt*b(i,i)/(1.0D-80+ccb0(i,ci))
+           b(i,i)=_ONE_+b(i,i)
+           rb(i)=ccb0(i,ci)+dt*ppb(i,i,ci)
+        end do
+        call matrix(numbc,b,rb,ccb(:,ci))
+     end do
+    end if
 
+   call do_bio_bfm(first,nlev)
+
+   ! integrate pelagic variables 
    pp=0.5*(pp+pp1)
    dd=0.5*(dd+dd1)
-
-   do ci=1,nlev
-      do i=1,numc
-         a(i,i)=0.
-         do j=1,numc
-            a(i,i)=a(i,i)+dd(i,j,ci)
-            if (i.ne.j) a(i,j)=-dt*pp(i,j,ci)/cc1(j,ci)
-         end do
-         a(i,i)=dt*a(i,i)/cc1(i,ci)
-         a(i,i)=1.+a(i,i)
-         r(i)=cc(i,ci)+dt*pp(i,i,ci)
-      end do
-      call matrix(numc,a,r,cc(:,ci))
-   end do
+   if (bio_setup/=2) then
+     do ci=1,nlev
+        do i=1,numc
+           a(i,i)=0.
+           do j=1,numc
+              a(i,i)=a(i,i)+dd(i,j,ci)
+              if (i.ne.j) a(i,j)=-dt*pp(i,j,ci)/cc(j,ci)
+           end do
+           a(i,i)=dt*a(i,i)/cc(i,ci)
+           a(i,i)=1.+a(i,i)
+           r(i)=cc0(i,ci)+dt*pp(i,i,ci)
+        end do
+        call matrix(numc,a,r,cc0(:,ci))
+     end do
+    end if
+   ! integrate benthic variables 
+   ppb=0.5*(ppb+ppb1)
+   ddb=0.5*(ddb+ddb1)
+   if (bio_setup>1) then
+     do ci=1,NLEVB
+        do i=1,numbc
+           b(i,i)=0.
+           do j=1,numbc
+              b(i,i)=a(i,i)+ddb(i,j,ci)
+              if (i.ne.j) b(i,j)=-dt*ppb(i,j,ci)/ccb(j,ci)
+           end do
+           b(i,i)=dt*b(i,i)/ccb(i,ci)
+           b(i,i)=1.+b(i,i)
+           rb(i)=ccb0(i,ci)+dt*ppb(i,i,ci)
+        end do
+        call matrix(numbc,b,rb,ccb0(:,ci))
+     end do
+   end if
 
    return
    end subroutine modified_patankar_2
 !EOC
 
+!MAV NOT DONE
 !-----------------------------------------------------------------------
 !BOP
 !
 ! !IROUTINE: Fourth-order Modified Patankar-Runge-Kutta scheme
 !
 ! !INTERFACE:
-   subroutine modified_patankar_4(dt,numc,nlev,cc,h,t)
+   subroutine modified_patankar_4(dt,nlev)
 !
 ! !DESCRIPTION:
 ! This subroutine should become the fourth-order Modified Patankar Runge-Kutta
@@ -816,30 +960,28 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-   REALTYPE, intent(inout)             :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  REALTYPE :: pp1(1:numc,1:numc,0:nlev),dd1(1:numc,1:numc,0:nlev)
-  REALTYPE :: pp2(1:numc,1:numc,0:nlev),dd2(1:numc,1:numc,0:nlev)
-  REALTYPE :: pp3(1:numc,1:numc,0:nlev),dd3(1:numc,1:numc,0:nlev)
-  REALTYPE :: a(1:numc,1:numc),r(1:numc)
-  REALTYPE :: cc1(1:numc,0:nlev)
-  integer  :: i,j,ci
+   REALTYPE :: cc1(1:numc,0:nlev)
+   REALTYPE :: pp1(1:numc,1:numc,0:nlev),dd1(1:numc,1:numc,0:nlev)
+   REALTYPE :: pp2(1:numc,1:numc,0:nlev),dd2(1:numc,1:numc,0:nlev)
+   REALTYPE :: pp3(1:numc,1:numc,0:nlev),dd3(1:numc,1:numc,0:nlev)
+   REALTYPE :: ppb1(1:numbc,1:numbc,0:nlev),ddb1(1:numbc,1:numbc,0:nlev)
+   REALTYPE :: ppb2(1:numbc,1:numbc,0:nlev),ddb2(1:numbc,1:numbc,0:nlev)
+   REALTYPE :: ppb3(1:numbc,1:numbc,0:nlev),ddb3(1:numbc,1:numbc,0:nlev)
+   REALTYPE :: a(1:numc,1:numc),r(1:numc)
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -855,7 +997,7 @@
       call matrix(numc,a,r,cc1(:,ci))
    end do
 
-   call process_model(first,numc,nlev,cc1,pp1,dd1,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -871,7 +1013,7 @@
       call matrix(numc,a,r,cc1(:,ci))
    end do
 
-   call process_model(first,numc,nlev,cc1,pp2,dd2,h,t)
+   call do_bio_bfm(first,nlev)
 
    do ci=1,nlev
       do i=1,numc
@@ -887,7 +1029,7 @@
       call matrix(numc,a,r,cc1(:,ci))
    end do
 
-   call process_model(first,numc,nlev,cc1,pp3,dd3,h,t)
+   call do_bio_bfm(first,nlev)
 
    pp=1./3.*(0.5*pp+pp1+pp2+0.5*pp3)
    dd=1./3.*(0.5*dd+dd1+dd2+0.5*dd3)
@@ -916,7 +1058,7 @@
 ! !IROUTINE: First-order Extended Modified Patankar scheme
 !
 ! !INTERFACE:
-   subroutine emp_1(dt,numc,nlev,cc,h,t)
+   subroutine emp_1(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the first-order Extended Modified Patankar scheme for
@@ -939,34 +1081,39 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-  REALTYPE, intent(inout)              :: cc(1:numc,0:nlev)
 !
 !
 ! !REVISION HISTORY:
 !  Original author(s): Jorn Bruggeman
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  integer  :: ci
   REALTYPE :: pi, derivative(1:numc)
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   call do_bio_bfm(first,nlev)
 
-   do ci=1,nlev
-      derivative(:) = sum(pp(:,:,ci),2)-sum(dd(:,:,ci),2)
-      call findp_bisection(numc, cc(:,ci), derivative(:), dt, 1.d-9, pi)
-      cc(:,ci) = cc(:,ci) + dt*derivative(:)*pi
-   end do
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
+      do ci=1,nlev
+         derivative(:) = sum(pp(:,:,ci),2)-sum(dd(:,:,ci),2)
+         call findp_bisection(numc, cc(:,ci), derivative(:), dt, 1.d-9, pi)
+         cc(:,ci) = cc(:,ci) + dt*derivative(:)*pi
+      end do
+   end if
 
+   if (bio_setup>1) then
+     do ci=1,NLEVB
+       derivative(:) = sum(ppb(:,:,ci),2)-sum(ddb(:,:,ci),2)
+       call findp_bisection(numbc, ccb(:,ci), derivative(:), dt, 1.d-9, pi)
+       ccb(:,ci) = ccb(:,ci) + dt*derivative(:)*pi
+     end do
+   end if
+ 
    return
    end subroutine emp_1
 !EOC
@@ -977,7 +1124,7 @@
 ! !IROUTINE: Second-order Extended Modified Patankar scheme
 !
 ! !INTERFACE:
-   subroutine emp_2(dt,numc,nlev,cc,h,t)
+   subroutine emp_2(dt,nlev)
 !
 ! !DESCRIPTION:
 ! Here, the second-order Extended Modified Patankar scheme for
@@ -1016,48 +1163,74 @@
 !
 ! !INPUT PARAMETERS:
    REALTYPE, intent(in)                :: dt
-   integer, intent(in)                 :: numc,nlev
-   REALTYPE, intent(in)                :: h(0:nlev)
-   REALTYPE, intent(in)                :: t(0:nlev)
+   integer, intent(in)                 :: nlev
 !
 ! !INPUT/OUTPUT PARAMETER:
-  REALTYPE, intent(inout)              :: cc(1:numc,0:nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Jorn Bruggeman
 !
 ! !LOCAL VARIABLES:
-  logical  :: first
-  REALTYPE :: pp(1:numc,1:numc,0:nlev),dd(1:numc,1:numc,0:nlev)
-  integer  :: i,ci
   REALTYPE :: pi, rhs(1:numc,0:nlev), cc_med(1:numc,0:nlev)
+  REALTYPE :: rhsb(1:numc,0:nlev), ccb_med(1:numc,0:nlev)
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    first=.true.
+   call do_bio_bfm(first,nlev)
 
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
-
+   ! integrate pelagic variables 
+   if (bio_setup/=2) then
    do ci=1,nlev
       rhs(:,ci) = sum(pp(:,:,ci),2) - sum(dd(:,:,ci),2)
       call findp_bisection(numc, cc(:,ci), rhs(:,ci), dt, 1.d-9, pi)
       cc_med(:,ci) = cc(:,ci) + dt*rhs(:,ci)*pi
    end do
+   end if
 
-   call process_model(first,numc,nlev,cc,pp,dd,h,t)
+   if (bio_setup>1) then
+     do ci=1,NLEVB
+      rhsb(:,ci) = sum(ppb(:,:,ci),2) - sum(ddb(:,:,ci),2)
+      call findp_bisection(numbc, ccb(:,ci), rhsb(:,ci), dt, 1.d-9, pi)
+      ccb_med(:,ci) = ccb(:,ci) + dt*rhsb(:,ci)*pi
+     end do
+   end if
 
-   do ci=1,nlev
-      rhs(:,ci) = 0.5 * (rhs(:,ci) + sum(pp(:,:,ci),2) - sum(dd(:,:,ci),2))
+   call do_bio_bfm(first,nlev)
 
-      ! Correct for the state variables that will be included in 'p'.
-      do i=1,numc
-         if (rhs(i,ci) .lt. 0.) rhs(:,ci) = rhs(:,ci) * cc(i,ci)/cc_med(i,ci)
-      end do
+   ! integrate 2nd round pelagic variables 
+   if (bio_setup/=2) then
+      do ci=1,nlev
+         rhs(:,ci) = 0.5 * (rhs(:,ci) + sum(pp(:,:,ci),2) - sum(dd(:,:,ci),2))
 
-      call findp_bisection(numc, cc(:,ci), rhs(:,ci), dt, 1.d-9, pi)
+         ! Correct for the state variables that will be included in 'p'.
+         do i=1,numc
+            if (rhs(i,ci) .lt. 0.) rhs(:,ci) = rhs(:,ci) * cc(i,ci)/cc_med(i,ci)
+         end do
 
-      cc(:,ci) = cc(:,ci) + dt*rhs(:,ci)*pi
-   end do ! ci (z-levels)
+         call findp_bisection(numc, cc(:,ci), rhs(:,ci), dt, 1.d-9, pi)
+
+         cc(:,ci) = cc(:,ci) + dt*rhs(:,ci)*pi
+      end do ! ci (z-levels)
+      ! reset diagonal terms only
+   end if
+
+   if (bio_setup>1) then
+      do ci=1,NLEVB
+         rhsb(:,ci) = 0.5 * (rhsb(:,ci) + sum(ppb(:,:,ci),2) - sum(ddb(:,:,ci),2))
+
+         ! Correct for the state variables that will be included in 'p'.
+         do i=1,numbc
+            if (rhsb(i,ci) .lt. 0.) rhsb(:,ci) = rhsb(:,ci) * ccb(i,ci)/ccb_med(i,ci)
+         end do
+
+         call findp_bisection(numbc, ccb(:,ci), rhsb(:,ci), dt, 1.d-9, pi)
+
+         ccb(:,ci) = ccb(:,ci) + dt*rhsb(:,ci)*pi
+      end do ! ci (z-levels)
+      ! reset diagonal terms only
+   end if
 
    return
    end subroutine emp_2
@@ -1218,10 +1391,11 @@
    integer, intent(in)                 :: n
 !
 ! INPUT/OUTPUT PARAMETERS:
-  REALTYPE                             :: a(1:n,1:n),r(1:n)
+  REALTYPE,dimension(:,:),intent(INOUT)              :: a
+  REALTYPE,dimension(:),intent(INOUT)                :: r
 !
 ! OUTPUT PARAMETERS:
-  REALTYPE, intent(out)                :: c(1:n)
+  REALTYPE,dimension(:),intent(OUT)                :: c
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard, Karsten Bolding
@@ -1231,10 +1405,23 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+! Alternative using vectors:
+!  do i=1,n
+!     a(i,i+1:n)=a(i,i+1:n)/a(i,i)
+!     a(i,i)=1.0
+!     do k=i+1,n
+!        r(k)=r(k)-a(k,i)*r(i)
+!        a(k,i+1:n)=a(k,i+1:n)-a(k,i)*a(i,i+1:n)
+!     end do
+!  end do
+!  do i=n,1,-1
+!     c(i)=r(i)-sum(a(i,i+1:n)*c(i+1:n)) 
+!  end do
+
    do i=1,n
       r(i)=r(i)/a(i,i)
       do j=n,i,-1
-         a(i,j)=a(i,j)/a(i,i)
+         a(i,j)=a(i,j)/(1.0D-80+a(i,i))
       end do
       do k=i+1,n
          r(k)=r(k)-a(k,i)*r(i)
@@ -1245,7 +1432,7 @@
    end do
 
    do i=n,1,-1
-      c(i)=r(i)
+      c(i)=r(i) 
       do j=i+1,n
          c(i)=c(i)-a(i,j)*c(j)
       end do
@@ -1255,6 +1442,9 @@
    end subroutine matrix
 !EOC
 
+  end module bfm_solver
+
 !-----------------------------------------------------------------------
-! Copyright by the GOTM-team under the GNU Public License - www.gnu.org
+! Copyright by the GOTM-team and BFM-team 
+! under the GNU Public License - www.gnu.org
 !-----------------------------------------------------------------------

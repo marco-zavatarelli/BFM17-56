@@ -45,11 +45,11 @@
         USE bennut_interface,ONLY:BESSK1, BESSK0, BESSI1, BESSI0, &
           QGAUS_EXP
         IMPLICIT  NONE
-        integer,intent(IN) ::mode ! Specification
-        integer,intent(IN) ::chterm ! Specification
+        integer,intent(IN) ::mode          ! Specification
+        integer,intent(IN) ::chterm        ! Specification
         type (ty_coeff),intent(IN) ::coeff ! Specification
-        REAL(RLEN),intent(IN) ::basis ! Specification
-        REAL(RLEN),intent(IN) ::x ! Specification
+        REAL(RLEN),intent(IN) ::basis      ! Specification
+        REAL(RLEN),intent(IN) ::x          ! Specification
 
         REAL(RLEN),parameter :: pi=3.141592D+00
         REAL(RLEN) ::r

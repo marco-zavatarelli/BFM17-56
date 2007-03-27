@@ -35,14 +35,14 @@
   ! The following Benthic 2-d global boxvars  are used: ruHI, reHI
   ! The following groupmember vars  are used: iiH1, iiH2
   ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global box parametes are used: p_q10diff, p_clDxm, p_d_tot
+  ! The following 0-d global parameters are used: p_q10diff, p_clDxm, p_d_tot
   ! The following global constants are used: RLEN
   ! The following constants are used: &
   ! LAYERS, LAYER1, LAYER2, DIFFUSION, FOR_ALL_LAYERS, &
   ! POROSITY, ADSORPTION, DEFINE, EXPONENTIAL_TERM, CONSTANT_TERM, &
   ! ZERO_EXPONENTIAL_TERM, LINEAR_TERM, SET_CONTINUITY, FLAG, MASS, &
   ! SET_BOUNDARY, DERIVATIVE, SET_LAYER_INTEGRAL, LAYER3, INPUT_TERM, &
-  ! STANDARD, START_ADD_TERM, INPUT_SUBTRACT_TERM, SET_LAYER_INTEGRAL_UNTIL, &
+  ! STANDARD, START_ADD_TERM, SET_LAYER_INTEGRAL_UNTIL, INPUT_ADD_TERM,&
   ! ADD, SHIFT, RFLUX, ONE_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -59,10 +59,13 @@
     DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, EXPONENTIAL_TERM, &
     CONSTANT_TERM, ZERO_EXPONENTIAL_TERM, LINEAR_TERM, SET_CONTINUITY, FLAG, &
     MASS, SET_BOUNDARY, DERIVATIVE, SET_LAYER_INTEGRAL, LAYER3, INPUT_TERM, &
-    STANDARD, START_ADD_TERM, INPUT_SUBTRACT_TERM, SET_LAYER_INTEGRAL_UNTIL, ADD, &
+    STANDARD, START_ADD_TERM, SET_LAYER_INTEGRAL_UNTIL, ADD, INPUT_ADD_TERM,&
     SHIFT, RFLUX, ONE_PER_DAY
   use mem_Param,  ONLY: p_poro, p_q10diff, p_clDxm, p_d_tot
   use mem_BenQ1Transport
+  use mem_BenthicNutrient3, ONLY:p_max_shift_change
+
+
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -83,9 +86,6 @@
   ! The following sesame functions are used:IntegralExp, insw
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp, insw
-
-
-
 !  
 !
 ! !AUTHORS
@@ -159,9 +159,11 @@
       ! production/consumption in the oxic layer (m2 --> m3 porewater)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      sQ1 = max( 0.001D+00, ruHI(iiH1, BoxNumberXY)/ &
-        D1m(BoxNumberXY)/ p_poro(BoxNumberXY))/( 1.0D-80+ Q1c(BoxNumberXY))
-      M  =   reHI(iiH1,BoxNumberXY)
+      sQ1 = max( 0.001D+00, ruHI(iiH1, BoxNumberXY)/( 1.0D-80+ Q1c(BoxNumberXY)))
+      M  =   reHI(iiH1,BoxNumberXY)/D1m(BoxNumberXY)/ p_poro(BoxNumberXY)
+!     sQ1 = max( 0.001D+00, ruHI(iiH1, BoxNumberXY)/ &
+!       D1m(BoxNumberXY)/ p_poro(BoxNumberXY))/( 1.0D-80+ Q1c(BoxNumberXY))
+!     M  =   reHI(iiH1,BoxNumberXY)
 
       a15  =   M/ sQ1
 
@@ -181,7 +183,7 @@
 
       alpha  =   1.0D+00/ max(  p_clDxm,  D6m(BoxNumberXY))
       rQ11 = ( reHI(iiH2,BoxNumberXY)- ruHI(iiH2,BoxNumberXY))/ &
-        p_poro(BoxNumberXY)/( p_d_tot- D1m(BoxNumberXY))
+                  p_poro(BoxNumberXY)/( p_d_tot- D1m(BoxNumberXY))
       zuD1 = max( 1.D-20, rQ11)/ IntegralExp( - alpha, p_d_tot- &
         D1m(BoxNumberXY))
 
@@ -253,16 +255,15 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       !4
-      call CompleteSet( KQ1(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy, &
-        dummy)
+      call CompleteSet( KQ1(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy)
 
       !5
       call CompleteSet( KQ1(BoxNumberXY), SET_BOUNDARY, LAYER1, DERIVATIVE, &
-        0.0D+00, 0.0D+00)
+        0.0D+00, value=0.0D+00)
 
       !6:
       call CompleteSet( KQ1(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER2, &
-        LAYER3, dummy, Q11c(BoxNumberXY))
+        LAYER3, dummy, value=Q11c(BoxNumberXY))
 
       !7:
       r  =   exp( - alpha*( D1m(BoxNumberXY)- D2m(BoxNumberXY)))
@@ -271,27 +272,20 @@
 
         case( .FALSE. )
           call CompleteSet( KQ1(BoxNumberXY), INPUT_TERM, 31, STANDARD, &
-            dummy, 0.0D+00)
-
-
-
+            dummy, value=0.0D+00)
 
         case( .TRUE. )
           call CompleteSet( KQ1(BoxNumberXY), START_ADD_TERM, 31, STANDARD, &
-            dummy, r)
+            dummy, mfac=1.0D+00/r)
 
-          call CompleteSet( KQ1(BoxNumberXY), INPUT_SUBTRACT_TERM, 21, STANDARD, &
-            dummy, 1.0D+00)
-
-
+          call CompleteSet( KQ1(BoxNumberXY), INPUT_ADD_TERM, 21, STANDARD, &
+            dummy, mfac=-1.0D+00)
 
       end select
 
       !8:
       call CompleteSet( KQ1(BoxNumberXY), INPUT_TERM, 15, STANDARD, dummy, &
-        a15)
-
-
+        value=a15)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate for the above defined set of boundary conditions
@@ -346,29 +340,21 @@
       ! Limit for too large fluxes
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      select case ( flow< 0.0D+00)
+!     r= 1.0D-80+insw(flow)* (Q11c(BoxNumberXY)-ruHI(iiH2,BoxNumberXY)+reHI(iiH2,BoxNumberXY))& 
+!               +insw(-flow)* (Q1c(BoxNumberXY)-ruHI(iiH1,BoxNumberXY)+reHI(iiH1,BoxNumberXY))
+      r= 1.0D-80+insw(flow)* (Q11c(BoxNumberXY))& 
+                +insw(-flow)* (Q1c(BoxNumberXY))
+      flow=flow*p_max_shift_change/(abs(flow/r)+p_max_shift_change);
 
-        case( .TRUE. )
-          jQ1Q11c = (- flow* Q1c(BoxNumberXY)/ ONE_PER_DAY/( &
-            Q1c(BoxNumberXY)/ ONE_PER_DAY- flow))* insw( - flow)
-          jQ11Q1c  =   0.0D+00
+      jQ1Q11c=-flow*insw(-flow)
+      jQ11Q1c= flow*insw( flow)
+      call flux(BoxNumberXY, iiBen, ppQ11c, ppQ1c, jQ11Q1c) 
+      call flux(BoxNumberXY, iiBen, ppQ1c, ppQ11c, jQ1Q11c )
 
-
-
-        case( .FALSE. )
-          jQ11Q1c = ( flow* Q11c(BoxNumberXY)/ ONE_PER_DAY/( Q11c(BoxNumberXY)/ &
-            ONE_PER_DAY+ flow))* insw( flow)
-          jQ1Q11c  =   0.0D+00
-
-
-
-      end select
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! One of the 2 fluxes between the some constituents is 0!
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      call flux(BoxNumberXY, iiBen, ppQ1c, ppQ11c, jQ1Q11c )
-      call flux(BoxNumberXY, iiBen, ppQ11c, ppQ1c, jQ11Q1c )
 
       call flux(BoxNumberXY, iiBen, ppQ1n, ppQ11n, jQ1Q11c/ Q1c(BoxNumberXY)* &
         Q1n(BoxNumberXY) )
@@ -379,9 +365,6 @@
         Q1p(BoxNumberXY) )
       call flux(BoxNumberXY, iiBen, ppQ11p, ppQ1p, jQ11Q1c/ Q11c(BoxNumberXY)* &
         Q11p(BoxNumberXY) )
-
-
-
 
     end DO
 
