@@ -1,4 +1,4 @@
-!$Id: bio_var.F90,v 1.10 2006-11-17 07:13:17 kbk Exp $
+!$Id: bio_var.F90,v 1.11 2007-03-14 12:46:07 kbk Exp $
 #include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
@@ -65,9 +65,8 @@
    REALTYPE, dimension(:), allocatable      :: bioshade_
    REALTYPE, dimension(:), allocatable      :: abioshade_
 
-   integer                               :: bio_setup =1        !BFM
-   integer,public                        :: pelvar_save_all=0   !BFM
-   REALTYPE, dimension(:), allocatable   :: c1dim
+   logical                                  :: init_saved_vars=.true.
+   integer                                  :: bio_setup =1        !BFM
 
 #ifdef BFM_GOTM
    ! additional storage variables for benthic and diagnostics
@@ -95,6 +94,7 @@
    integer, parameter   :: ALLTRANSPORT=20
 
    !additional BFM pelagic arrays
+   REALTYPE, dimension(:),     allocatable         ::  c1dim
    REALTYPE, dimension(:),     allocatable         ::  SSt,RRa
    REALTYPE, dimension(:,:,:), allocatable, target ::  dd,pp
 
@@ -123,6 +123,9 @@
 !  BFM additions:      Piet Ruardij & Marcello Vichi
 !
 !  $Log: bio_var.F90,v $
+!  Revision 1.11  2007-03-14 12:46:07  kbk
+!  proper cleaning after simulation
+!
 !  Revision 1.10  2006-11-17 07:13:17  kbk
 !  rho amd wind-speed available via bio_var
 !
@@ -161,4 +164,4 @@
 
 !-----------------------------------------------------------------------
 ! Copyright by the GOTM-team under the GNU Public License - www.gnu.org
-!-----------------------------------------------------------------------
+!----------------------------------------------------------------------- 

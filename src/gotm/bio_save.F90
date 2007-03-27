@@ -1,4 +1,4 @@
-!$Id: bio_save.F90,v 1.6 2006-10-26 13:12:46 kbk Exp $
+!$Id: bio_save.F90,v 1.8 2007-03-14 12:46:07 kbk Exp $
 #include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
@@ -42,6 +42,10 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+   if (init_saved_vars) then
+      init_saved_vars=.false.
+      first=.true.
+   end if
    select case (out_fmt)
       case (ASCII)
          if(first) then

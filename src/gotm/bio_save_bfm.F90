@@ -32,6 +32,10 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+            ! compute average values
+            ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
+            call prepare_bio_output(1,nlev,_ZERO_)
+
             if(first) then
                first = .false.
                iret = define_mode(ncid,.true.)
@@ -49,7 +53,7 @@
                                            long_name=var_long(n))
                   end if
                end do
-            end if
+            end if !first
             if (bio_setup>1) then ! define benthic variables
                dims(1) = lon_dim
                dims(2) = lat_dim

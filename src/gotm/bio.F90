@@ -1,4 +1,4 @@
-!$Id: bio.F90,v 1.35 2007-01-06 11:49:15 kbk Exp $
+!$Id: bio.F90,v 1.36 2007-03-14 12:46:07 kbk Exp $
 #include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
@@ -48,7 +48,7 @@
    use trace_bdy, only:init_trace_bdy,init_var_trace
 #endif
 
-   use output, only: out_fmt,write_results,ts
+   use output, only: out_fmt,write_results,ts,close_output
 
    use util
 !
@@ -56,13 +56,16 @@
    private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public init_bio, set_env_bio, do_bio, get_bio_updates, end_bio
+   public init_bio, set_env_bio, do_bio, get_bio_updates, clean_bio
    logical, public                     :: bio_calc=.false.
 !
 ! !REVISION HISTORY:!
 !  Original author(s): Hans Burchard & Karsten Bolding
 !
 !  $Log: bio.F90,v $
+!  Revision 1.36  2007-03-14 12:46:07  kbk
+!  proper cleaning after simulation
+!
 !  Revision 1.35  2007-01-06 11:49:15  kbk
 !  namelist file extension changed .inp --> .nml
 !
@@ -246,10 +249,6 @@
          end if
       end if
 
-      allocate(par(0:nlev),stat=rc)
-      if (rc /= 0) STOP 'init_bio: Error allocating (par)'
-
-
       select case (bio_model)
 
       case (-1)
@@ -326,6 +325,9 @@
          ! water-column physical conditions
          call envforcing_bfm(nlev,bioshade_feedback)
          call init_benthic_bfm(namlst,'bio_bfm.nml',unit,bio_setup)
+         ! initialize averaging of BFM output variables
+         ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
+         call prepare_bio_output(0,nlev,_ZERO_)
 
        case (7)  ! The trace model
 
@@ -626,11 +628,12 @@
             call test_on_negative_states(j,.TRUE.,cc(j,:),h,nlev,"biology",kt)
             ! MAV: this part could be put behind a flag: stop_on_negative
             if ( kt.lt.0) then
-                call gotm_error('do_bio', 'negative state value');
-           return
-        endif
-#endif
-#ifdef BFM_GETM
+               call bio_save(nlev,_ZERO_)
+               call close_output()
+               call gotm_error('do_bio', 'negative state value');
+               return
+            endif
+#  ifdef BFM_GETM
 !           do advection step due to settling or rising
 !           NOTE: in BFM_GETM this is done only when depth is greater than a
 !           certain value
@@ -638,11 +641,12 @@
                call adv_center(nlev,dt,h,h,ws(j,:),flux,           &
                     flux,_ZERO_,_ZERO_,w_adv_discr,adv_mode_1,cc(j,:))
             end if
-#else
+#  else
 !           do advection step due to settling or rising
             if ( llws(j) ) &
                call adv_center(nlev,dt,h,h,ws(j,:),flux,           &
                     flux,_ZERO_,_ZERO_,w_adv_discr,adv_mode_1,cc(j,:))
+#  endif
 #endif
 
 !           do advection step due to vertical velocity
@@ -655,9 +659,11 @@
             call diff_center(nlev,dt,cnpar,posconc(j),h,Neumann,Neumann,&
                 sfl(j),bfl(j),nuh,Lsour,Qsour,RelaxTau,cc(j,:),cc(j,:))
 #ifdef BFM_GOTM
-            call test_on_negative_states(j,llsumh,cc(j,:),h,nlev,"GOTM physics",kt)
             ! MAV: this part could be put behind a flag: stop_on_negative
+            call test_on_negative_states(j,llsumh,cc(j,:),h,nlev,"GOTM physics",kt)
             if ( kt.lt.0) then
+              call bio_save(nlev,_ZERO_)
+              call close_output()
               call gotm_error('do_bio', 'negative state value');
               return
             endif
@@ -666,6 +672,7 @@
 #endif
         end do
       else ! Lagrangian particle calculations
+#if 0
          if (bio_model.ne.3) then
             stop 'set bio_model=3 for Lagrangian calculations. Stop in bio.F90'
          end if
@@ -711,6 +718,7 @@
                end if
             end if
          end do
+#endif
       end if
 
       do split=1,split_factor
@@ -740,6 +748,11 @@
             case (6)
                call envforcing_bfm(nlev,bioshade_feedback)
                call ode_solver_bfm(ode_method,nlev,dt_eff)
+               ! accumulate BFM output variables
+               ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
+               call prepare_bio_output(10,nlev,_ZERO_)
+               call prepare_bio_output(11,nlev,_ZERO_)
+               call prepare_bio_output(12,nlev,_ZERO_)
 #endif
          end select
 
@@ -792,7 +805,7 @@
 ! !IROUTINE: Finish the bio calculations
 !
 ! !INTERFACE:
-   subroutine end_bio
+   subroutine clean_bio
 !
 ! !DESCRIPTION:
 !  Nothing done yet --- supplied for completeness.
@@ -806,12 +819,52 @@
 !-----------------------------------------------------------------------
 !BOC
 
+   LEVEL1 'clean_bio'
+
    if (mussels_calc) then
       call end_mussels()
    end if
 
+   if (allocated(par))            deallocate(par)
+   if (allocated(cc))             deallocate(cc)
+   if (allocated(ws))             deallocate(ws)
+   if (allocated(sfl))            deallocate(sfl)
+   if (allocated(bfl))            deallocate(bfl)
+   if (allocated(posconc))        deallocate(posconc)
+   if (allocated(mussels_inhale)) deallocate(mussels_inhale)
+   if (allocated(var_ids))        deallocate(var_ids)
+   if (allocated(var_names))      deallocate(var_names)
+   if (allocated(var_units))      deallocate(var_units)
+   if (allocated(var_long))       deallocate(var_long)
+
+!  The external provide arrays
+   if (allocated(h))              deallocate(h)
+   if (allocated(nuh))            deallocate(nuh)
+   if (allocated(t))              deallocate(t)
+   if (allocated(s))              deallocate(s)
+   if (allocated(rho))            deallocate(rho)
+   if (allocated(rad))            deallocate(rad)
+   if (allocated(w))              deallocate(w)
+   if (allocated(bioshade_))      deallocate(bioshade_)
+   if (allocated(abioshade_))     deallocate(abioshade_)
+
+#ifdef BFM_GOTM 
+   if (allocated(llws))           deallocate(llws)
+   if (allocated(c1dim))          deallocate(c1dim)
+   if (allocated(pp))             deallocate(pp)
+   if (allocated(dd))             deallocate(dd)
+   if (allocated(ccb))            deallocate(ccb)
+   if (allocated(ppb))            deallocate(ppb)
+   if (allocated(ddb))            deallocate(ddb)
+   if (allocated(pelvar_type))    deallocate(pelvar_type)
+#endif
+
+   init_saved_vars=.true.
+
+   LEVEL1 'done.'
+
    return
-   end subroutine end_bio
+   end subroutine clean_bio
 !EOC
 
 !-----------------------------------------------------------------------
@@ -844,6 +897,10 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
+   allocate(par(0:nlev),stat=rc)
+   if (rc /= 0) STOP 'init_bio: Error allocating (par)'
+
    allocate(cc(1:numc,0:nlev),stat=rc)
    if (rc /= 0) STOP 'init_bio: Error allocating (cc)'
    cc=_ZERO_

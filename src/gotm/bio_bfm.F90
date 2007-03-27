@@ -617,7 +617,7 @@ IMPLICIT NONE
         integer              ::i
         REALTYPE             ::r
         character(len=160)   ::msg
-        character(len=20)    ::onem
+        character(len=22)    ::onem
 !
 ! !BUGS:
 !
@@ -653,7 +653,7 @@ IMPLICIT NONE
             k=0
             do i = 1,nlev     
               if ( c1dim(i).lt.0.0D+00) then
-                  write(onem,'(I2,'':'',F10.3,''/'')') i,c1dim(i) 
+                  write(onem,'(''Lev. '',I2,'':'',F10.3,''/  '')') i,c1dim(i) 
                   msg(len_trim(msg)+1:)=onem
                   k=-i
                   call set_warning_for_getm()
