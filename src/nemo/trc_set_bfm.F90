@@ -21,7 +21,7 @@
    use mem_PelGlobal, only: p_rR6m
    use mem
    use constants,    only: SEC_PER_DAY
-   use mem_settling, only: p_burvel
+   use mem_settling, only: p_burvel_R6,p_burvel_R2,p_burvel_PI
    use api_bfm
 
    implicit none
@@ -93,46 +93,8 @@
 
 #ifdef FLUXES
    !---------------------------------------------
-   ! Surface fluxes
+   ! Surface fluxes (to be copied from GOTM)
    !---------------------------------------------
-   topm3psec=_ONE_/Depth(NO_BOXES_Z)/ SEC_PER_DAY
-   if ( .NOT. AssignAirPelFluxesInBFMFlag ) then
-           sfl(ppN3n) =   0.09  *topm3psec
-           sfl(ppN4n) =   0.10  *topm3psec
-           sfl(ppN1p) =   0.0  !0.0
-           sfl(ppO2o) =   jOAO2o(1) *topm3psec
-   endif
-
-   !---------------------------------------------
-   ! Bottom fluxes
-   !---------------------------------------------
-   topm3psec=1.0/Depth(1)/ SEC_PER_DAY
-   if (bio_setup == 3 .and. ( .NOT.AssignPelBenFluxesInBFMFlag)) then
-
-      bfl(ppR6c) = ( -rutQ6c(1))*topm3psec
-      bfl(ppR6n) = ( -rutQ6n(1))*topm3psec
-      bfl(ppR6p) = ( -rutQ6p(1))*topm3psec
-      bfl(ppR6s) = ( -rutQ6s(1))*topm3psec
-
-      bfl(ppR1c) =  -rutQ1c(1)*topm3psec
-      bfl(ppR1n) =  -rutQ1n(1)*topm3psec
-      bfl(ppR1p) =  -rutQ1p(1)*topm3psec
-
-      bfl(ppO2o) = jG2O2o(1)*topm3psec
-      bfl(ppN1p) = jK1N1p(1)*topm3psec
-      bfl(ppN3n) = jK3N3n(1)*topm3psec
-      bfl(ppN4n) = jK4N4n(1)*topm3psec
-      bfl(ppN5s) = jK5N5s(1)*topm3psec
-      bfl(ppN6r) = jK6N6r(1)*topm3psec
-
-      do i=1,iiPhytoPlankton
-        bfl(ppPhytoPlankton(i,iiC)) = -retPIc(i,1)*topm3psec
-        bfl(ppPhytoPlankton(i,iiN)) = -retPIn(i,1)*topm3psec
-        bfl(ppPhytoPlankton(i,iiP)) = -retPIp(i,1)*topm3psec
-        bfl(ppPhytoPlankton(i,iiL)) = -retPIl(i,1)*topm3psec
-        k=ppPhytoPlankton(i,iiS)
-        if ( k > 0 ) bfl(k) = -retPIs(i,1)*topm3psec
-      enddo
 #endif
 
 

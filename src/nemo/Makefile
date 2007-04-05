@@ -46,6 +46,7 @@ BFM_MOD = \
 	${BFMLIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
 	${BFMLIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
 	${BFMLIB}(${BFMSRC}/Ben/ModuleBioturbation.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicNutrient3.o)		\
 	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenAmmonium.o)			\
 	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenAnoxic.o)			\
 	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenDenitriDepth.o)		\
