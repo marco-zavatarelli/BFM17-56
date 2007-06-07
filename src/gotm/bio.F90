@@ -36,9 +36,6 @@
    use bio_mab, only : init_bio_mab,init_var_mab,var_info_mab
    use bio_mab, only : light_mab,surface_fluxes_mab,do_bio_mab
 
-   use mussels, only : init_mussels, do_mussels, end_mussels
-   use mussels, only : mussels_calc,total_mussel_flux
-
 #ifdef BFM_GOTM
    use bfm_solver
    use bio_bfm, only : init_bio_bfm,var_info_bfm
@@ -61,115 +58,6 @@
 !
 ! !REVISION HISTORY:!
 !  Original author(s): Hans Burchard & Karsten Bolding
-!
-!  $Log: bio.F90,v $
-!  Revision 1.36  2007-03-14 12:46:07  kbk
-!  proper cleaning after simulation
-!
-!  Revision 1.35  2007-01-06 11:49:15  kbk
-!  namelist file extension changed .inp --> .nml
-!
-!  Revision 1.34  2007-01-04 12:54:12  hb
-!  ifdef LAGRANGE removed
-!
-!  Revision 1.33  2006-11-17 07:13:17  kbk
-!  rho amd wind-speed available via bio_var
-!
-!  Revision 1.32  2006-11-12 19:42:44  hb
-!  vertical advection due to physical vertical velocities enabled for the bio module
-!
-!  Revision 1.31  2006-11-06 13:36:46  hb
-!  Option for conservative vertical advection added to adv_center
-!
-!  Revision 1.30  2006-10-26 13:12:46  kbk
-!  updated bio models to new ode_solver
-!
-!  Revision 1.29  2005-12-27 11:23:04  hb
-!  Weiss 1970 formula now used for surface oxygen saturation calculation in bio_mab.F90
-!
-!  Revision 1.28  2005-12-27 06:51:49  hb
-!  New biomodel bio_mab (bio_iow with additional sediment equation) added
-!
-!  Revision 1.27  2005-12-02 20:57:27  hb
-!  Documentation updated and some bugs fixed
-!
-!  Revision 1.26  2005-11-18 10:59:35  kbk
-!  removed unused variables - some left in parameter lists
-!
-!  Revision 1.25  2005/11/17 09:58:18  hb
-!  explicit argument for positive definite variables in diff_center()
-!
-!  Revision 1.24  2005/10/11 08:43:44  lars
-!  checked new transport routines
-!
-!  Revision 1.23  2005/09/19 21:07:00  hb
-!  yevol replaced by adv_center and diff_center
-!
-!  Revision 1.22  2005/09/12 14:48:33  kbk
-!  merged generic biological module support
-!
-!  Revision 1.21.2.1  2005/07/06 09:00:19  hb
-!  moved bio_save() from do_bio() to time_loop - temporary no NPZD totn calculation
-!
-!  Revision 1.21  2004/08/18 11:34:14  hb
-!  zlev now allocated from 0 to nlev
-!
-!  Revision 1.20  2004/08/02 11:44:12  kbk
-!  bio module compiles and runs with GETM
-!
-!  Revision 1.19  2004/08/02 08:35:08  hb
-!  no need to pass time information
-!
-!  Revision 1.18  2004/08/01 15:54:49  hb
-!  call to light_fasham commented in again
-!
-!  Revision 1.17  2004/07/30 09:22:20  hb
-!  use bio_var in specific bio models - simpliefied internal interface
-!
-!  Revision 1.16  2004/07/28 11:34:29  hb
-!  Bioshade feedback may now be switched on or off, depending on bioshade_feedback set to .true. or .false. in bio.nml
-!
-!  Revision 1.15  2004/06/29 08:03:16  hb
-!  Fasham et al. 1990 model implemented
-!
-!  Revision 1.14  2004/05/28 13:24:49  hb
-!  Extention of bio_iow to fluff layer and surface nutrient fluxes
-!
-!  Revision 1.13  2004/04/13 09:18:54  kbk
-!  size and temperature dependend filtration rate
-!
-!  Revision 1.12  2004/03/31 12:58:52  kbk
-!  lagrangian solver uses - total_mussel_flux
-!
-!  Revision 1.11  2004/03/30 11:32:48  kbk
-!  select between eulerian or lagrangian solver
-!
-!  Revision 1.10  2003/12/11 09:58:22  kbk
-!  now compiles with FORTRAN_COMPILER=IFORT - removed TABS
-!
-!  Revision 1.9  2003/10/28 10:22:45  hb
-!  added support for sedimentation only 1 compartment bio model
-!
-!  Revision 1.8  2003/10/16 15:42:16  kbk
-!  simple mussesl model implemented - filter only
-!
-!  Revision 1.7  2003/10/14 08:00:09  hb
-!  initialise sfl - no special treatment when cc(,) < 0
-!
-!  Revision 1.6  2003/09/16 12:11:24  hb
-!  added new biological model - bio_iow
-!
-!  Revision 1.5  2003/07/23 12:27:31  hb
-!  more generic support for different bio models
-!
-!  Revision 1.3  2003/04/05 07:01:41  kbk
-!  moved bioshade variable to meanflow - to compile properly
-!
-!  Revision 1.2  2003/04/04 14:25:52  hb
-!  First iteration of four-compartment geobiochemical model implemented
-!
-!  Revision 1.1  2003/04/01 17:01:00  hb
-!  Added infrastructure for geobiochemical model
 !
 ! !PRIVATE DATA MEMBERS:
 !  from a namelist
@@ -411,8 +299,6 @@
          end do
       end if
 
-!     Initialise 'mussels' module
-      call init_mussels(namlst,"mussels.nml",unit,nlev,h)
    end if
 
    return
@@ -596,10 +482,6 @@
 #endif
       end select
 
-      if (mussels_calc) then
-         call do_mussels(numc,dt,t(1))
-      end if
-
 #ifdef BFM_GETM
       call get_parallel_flag_from_getm(parallel)
       if (parallel .and.bio_eulerian.and.bio_model==6) then
@@ -685,13 +567,6 @@
                           particle_active(j,:), &
                           particle_indx(j,:),   &
                           particle_pos(j,:))
-            if (mussels_calc) then
-               filter_depth=-depth+total_mussel_flux*dt
-               do i=1,bio_npar
-                  if (particle_pos(j,i) .lt. filter_depth) &
-                      particle_active(j,i)=.false.
-               end do 
-            end if 
 !           convert particle counts  into concentrations
             if( write_results .or. bio_lagrange_mean ) then
                if (set_C_zero) then
@@ -821,17 +696,12 @@
 
    LEVEL1 'clean_bio'
 
-   if (mussels_calc) then
-      call end_mussels()
-   end if
-
    if (allocated(par))            deallocate(par)
    if (allocated(cc))             deallocate(cc)
    if (allocated(ws))             deallocate(ws)
    if (allocated(sfl))            deallocate(sfl)
    if (allocated(bfl))            deallocate(bfl)
    if (allocated(posconc))        deallocate(posconc)
-   if (allocated(mussels_inhale)) deallocate(mussels_inhale)
    if (allocated(var_ids))        deallocate(var_ids)
    if (allocated(var_names))      deallocate(var_names)
    if (allocated(var_units))      deallocate(var_units)
@@ -921,9 +791,6 @@
    if (rc /= 0) STOP 'init_bio: Error allocating (posconc)'
    posconc=1
 
-   allocate(mussels_inhale(1:numc),stat=rc)
-   if (rc /= 0) STOP 'init_bio: Error allocating (mussels_inhale)'
-   mussels_inhale=.false.
 #ifdef BFM_GOTM 
    allocate(llws(1:numc),stat=rc)
    if (rc /= 0) STOP 'init_bio: Error allocating (llws)'

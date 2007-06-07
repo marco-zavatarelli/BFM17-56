@@ -26,7 +26,6 @@ ${LIB}(bio_iow.o)				\
 ${LIB}(bio_mab.o)				\
 ${LIB}(bio_fasham.o)				\
 ${LIB}(bio_sed.o)				\
-${LIB}(mussels.o)             			\
 ${LIB}(${BFMSHARE}/string_functions.o)		\
 ${LIB}(${BFMSHARE}/init_cnps.o)			\
 ${LIB}(${BFMSHARE}/ResetFluxes.o)		\
