@@ -84,15 +84,36 @@
    ! Benthic variables
    !---------------------------------------------
    Y1c0  = _ONE_
+   Y1n0  = _ZERO_
+   Y1p0  = _ZERO_
    Y2c0  = _ONE_
+   Y2n0  = _ZERO_
+   Y2p0  = _ZERO_
    Y3c0  = _ONE_
+   Y3n0  = _ZERO_
+   Y3p0  = _ZERO_
    Y4c0  = _ONE_
+   Y4n0  = _ZERO_
+   Y4p0  = _ZERO_
    Y5c0  = _ONE_
+   Y5n0  = _ZERO_
+   Y5p0  = _ZERO_
    Q1c0  = _ONE_
+   Q1n0  = _ZERO_
+   Q1p0  = _ZERO_
    Q11c0 = _ONE_
+   Q11n0 = _ZERO_
+   Q11p0 = _ZERO_
    Q6c0  = _ONE_
+   Q6n0  = _ZERO_
+   Q6p0  = _ZERO_
+   Q6s0  = _ZERO_
    H1c0  = _ONE_
+   H1n0  = _ZERO_
+   H1p0  = _ZERO_
    H2c0  = _ONE_
+   H2n0  = _ZERO_
+   H2p0  = _ZERO_
    K1p0  = _ONE_
    K11p0 = _ONE_
    K21p0 = _ONE_
@@ -110,9 +131,9 @@
    D8m0  = _ONE_
    D9m0  = _ONE_
    G2o0  = _ONE_
-   p_qpQIc = -_ONE_
-   p_qnQIc = -_ONE_
-   p_qsQIc = -_ONE_
+   p_qpQIc = -_ZERO_
+   p_qnQIc = -_ZERO_
+   p_qsQIc = -_ZERO_
 
    !---------------------------------------------
    ! Open and read the namelist
@@ -159,66 +180,95 @@
    !MAV: need to always give initial non-zero values
    ! because there are still part of the
    ! benthic system which are computed when setup=1
-      Y1c  = Y1c0
-      Y2c  = Y2c0
-      Y3c  = Y3c0
-      Y4c  = Y4c0
-      Y5c  = Y5c0
-      Q1c  = Q1c0
-      Q11c = Q11c0
-      Q6c  = Q6c0
-      H1c  = H1c0
-      H2c  = H2c0
-      K1p  = K1p0
-      K11p = K11p0
-      K21p = K21p0
-      K3n  = K3n0
-      G4n  = G4n0
-      K4n  = K4n0
-      K14n = K14n0
-      K24n = K24n0
-      K6r  = K6r0
-      K5s  = K5s0
-      D1m  = D1m0
-      D2m  = D2m0
-      D6m  = D6m0
-      D7m  = D7m0
-      D8m  = D8m0
-      D9m  = D9m0
-      G2o  = G2o0
+   Y1c  = Y1c0  
+   Y1n  = Y1n0
+   Y1p  = Y1p0
+   Y2c  = Y2c0
+   Y2n  = Y2n0
+   Y2p  = Y2p0
+   Y3c  = Y3c0
+   Y3n  = Y3n0
+   Y3p  = Y3p0
+   Y4c  = Y4c0
+   Y4n  = Y4n0 
+   Y4p  = Y4p0
+   Y5c  = Y5c0
+   Y5n  = Y5n0
+   Y5p  = Y5p0
+   Q1c  = Q1c0
+   Q1n  = Q1n0
+   Q1p  = Q1p0
+   Q11c = Q11c0
+   Q11n = Q11n0
+   Q11p = Q11p0
+   Q6c  = Q6c0
+   Q6n  = Q6n0
+   Q6p  = Q6p0
+   Q6s  = Q6s0
+   H1c  = H1c0 
+   H1n  = H1n0 
+   H1p  = H1p0
+   H2c  = H2c0
+   H2n  = H2n0
+   H2p  = H2p0
+   K1p  = K1p0
+   K11p = K11p0
+   K21p = K21p0
+   K3n  = K3n0
+   G4n  = G4n0
+   K4n  = K4n0
+   K14n = K14n0
+   K24n = K24n0
+   K6r  = K6r0
+   K5s  = K5s0
+   D1m  = D1m0
+   D2m  = D2m0
+   D6m  = D6m0
+   D7m  = D7m0
+   D8m  = D8m0
+   D9m  = D9m0
+   G2o  = G2o0
 
-      !---------------------------------------------
-      ! Initialise organisms' internal components
-      ! with Redfield
-      !---------------------------------------------
-      call init_cnps(c=Y1c,n=Y1n,p=Y1p)
-      call init_cnps(c=Y2c,n=Y2n,p=Y2p)
-      call init_cnps(c=Y3c,n=Y3n,p=Y3p)
-      call init_cnps(c=Y4c,n=Y4n,p=Y4p)
-      call init_cnps(c=Y5c,n=Y5n,p=Y5p)
-      call init_cnps(c=H1c,n=H1n,p=H1p,nc=p_qnc(iiH1), &
-           pc=p_qpc(iiH1))
-      call init_cnps(c=H2c,n=H2n,p=H2p,nc=p_qnc(iiH2), &
-           pc=p_qpc(iiH2))
+   !---------------------------------------------
+   ! Initialise organisms' internal components
+   ! with Redfield
+   !---------------------------------------------
+   do i = 1,iiBenOrganisms
+      call init_cnps(c=BenOrganisms(i,iiC),     &
+            n=D2STATE(ppBenOrganisms(i,iiN),:), &
+            p=D2STATE(ppBenOrganisms(i,iiP),:))
+   end do
 
-      !---------------------------------------------
-      ! Initialise detritus' components  with Redfield
-      !---------------------------------------------
-      call init_cnps(c=Q1c,n=Q1n,p=Q1p,nc=p_qnQIc,pc=p_qpQIc)
-      call init_cnps(c=Q11c,n=Q11n,p=Q11p,nc=p_qnQIc,pc=p_qpQIc)
-      call init_cnps(c=Q6c,n=Q6n,p=Q6p,s=Q6s,nc=p_qnQIc,pc=p_qpQIc,sc=p_qsQIc)
+   do i = 1,iiBenBacteria
+      call init_cnps(c=BenOrganisms(i,iiC),     &
+            n=D2STATE(ppBenBacteria(i,iiN),:),  &
+            p=D2STATE(ppBenBacteria(i,iiP),:),  &
+            nc=p_qnc(i), pc=p_qpc(i))
+   end do
 
-      !---------------------------------------------
-      ! Initialise benthic nutrients from water column
-      ! conditions
-      !---------------------------------------------
+   !---------------------------------------------
+   ! Initialise detritus' components  
+   !---------------------------------------------
+   do i = 1,iiBenDetritus
+      call init_cnps(c=BenDetritus(i,iiC),     &
+            n=D2STATE(ppBenDetritus(i,iiN),:), &
+            p=D2STATE(ppBenDetritus(i,iiP),:), &
+            nc=p_qnQIc, pc=p_qpQIc)
+   end do
+   call init_cnps(c=Q6c,n=Q6n,p=Q6p,s=Q6s,  &
+                  nc=p_qnQIc,pc=p_qpQIc,sc=p_qsQIc)
+
+   !---------------------------------------------
+   ! Initialise benthic nutrients from water column
+   ! conditions
+   !---------------------------------------------
 #ifndef BFM_GETM
-      if ( calc_init_bennut_states == 1) then
-           LEVEL4 "Benthic nutrient variables are initialised by assuming"
-           LEVEL4 "equilibrium between input (nutrient regeneratation) and output"
-           LEVEL4 "(flux to water column and definitive loss processes)"
-           call InitBenthicNutrientDynamics
-      end if
+   if ( calc_init_bennut_states == 1) then
+        LEVEL4 "Benthic nutrient variables are initialised by assuming"
+        LEVEL4 "equilibrium between input (nutrient regeneratation) and output"
+        LEVEL4 "(flux to water column and definitive loss processes)"
+        call InitBenthicNutrientDynamics
+   end if
 #endif
 
    !---------------------------------------------
