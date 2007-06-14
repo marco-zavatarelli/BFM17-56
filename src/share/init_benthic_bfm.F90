@@ -39,17 +39,17 @@
 !
 ! !LOCAL VARIABLES:
    integer   :: icontrol,i,j,iiLastElement,n
-   REALTYPE  :: Y1c0, Y2c0, Y3c0, Y4c0, Y5c0,       &
-                Q1c0, q11c0, Q6c0, K3n0, G4n0,      &
-                H1c0, H2c0, K1p0, k11p0, k21p0,     &
+   REALTYPE  :: Y1c0, Y1n0, Y1p0, Y2c0, Y2n0, Y2p0, Y3c0, Y3n0, Y3p0, Y4c0, Y4n0, Y4p0, Y5c0,       &
+                Y5n0, Y5p0, Q1c0, Q1n0, Q1p0, Q11c0, Q11n0, Q11p0, Q6c0, Q6n0, Q6p0, Q6s0, K3n0, G4n0,      &
+                H1c0, H1n0, H1p0, H2c0, H2n0, H2p0, K1p0, K11p0, K21p0,     &
                 K4n0, k14n0, k24n0, K6r0,K5s0,      &
                 D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, &
                 G2o0, p_qpQIc,p_qnQIc,p_qsQIc
   namelist /bfm_ben_init_nml/  calc_init_bennut_states,    &
                            p_qpQIc,p_qnQIc,p_qsQIc,          &
-                           Y1c0, Y2c0, Y3c0, Y4c0, Y5c0,     &
-                           Q1c0, q11c0, Q6c0, K3n0, G4n0,    &
-                           H1c0, H2c0, K1p0, k11p0, k21p0,   &
+                           Y1c0, Y1n0, Y1p0, Y2c0, Y2n0, Y2p0, Y3c0, Y3n0, Y3p0, Y4c0, Y4n0, Y4p0, Y5c0,     &
+                           Y5n0, Y5p0, Q1c0, Q1n0, Q1p0, Q11c0, Q11n0, Q11p0, Q6c0, Q6n0, Q6p0, Q6s0, K3n0, G4n0,    &
+                           H1c0, H1n0, H1p0, H2c0, H2n0, H2p0, K1p0, K11p0, K21p0,   &
                            K4n0, k14n0, k24n0, K6r0,K5s0,    &
                            D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, G2o0
    interface
