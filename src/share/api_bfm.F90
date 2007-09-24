@@ -47,9 +47,9 @@
    !---------------------------------------------
    integer, dimension(:), allocatable    :: var_ids
    logical, dimension(:), allocatable    :: var_ave
-   REALTYPE                              :: ave_count
-   REALTYPE,allocatable,dimension(:,:)   :: D3ave
-   REALTYPE,allocatable,dimension(:,:)   :: D2ave
+   real(RLEN)                              :: ave_count
+   real(RLEN),allocatable,dimension(:,:)   :: D3ave
+   real(RLEN),allocatable,dimension(:,:)   :: D2ave
    character(len=64), dimension(:), allocatable :: var_names
    character(len=64), dimension(:), allocatable :: var_units
    character(len=64), dimension(:), allocatable :: var_long
@@ -72,7 +72,7 @@
    !---------------------------------------------
    ! Additional output variables
    !---------------------------------------------
-   REALTYPE, dimension(:), allocatable   :: c1dim
+   real(RLEN), dimension(:), allocatable   :: c1dim
 
    !---------------------------------------------
    ! Additional 1D arrays
@@ -81,6 +81,40 @@
    integer,allocatable,dimension(:),public  :: BOTindices,SRFindices
 
 #ifdef BFM_NEMO
+   !---------------------------------------------
+   ! Additional 3D arrays
+   !---------------------------------------------
+   real(RLEN),allocatable,dimension(:,:,:),public  :: ZEROS
+   ! 3D boolean Land-sea mask
+   logical,allocatable,dimension(:,:,:),public     :: SEAmask
+   ! 3D boolean sea-bottom mask
+   logical,allocatable,dimension(:,:,:),public     :: BOTmask
+   ! 3D boolean mask of the surface points
+   logical,allocatable,dimension(:,:,:),public     :: SRFmask
+
+   !---------------------------------------------
+   ! Additional integration arrays
+   ! for leapfrog scheme
+   !---------------------------------------------
+   real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB
+
+   !---------------------------------------------
+   ! Additional allocatable temporary arrays
+   !---------------------------------------------
+   logical,allocatable,dimension(:),public        :: btmp1D
+   logical,allocatable,dimension(:,:),public      :: btmp2D
+   logical,allocatable,dimension(:,:,:),public    :: btmp3D
+   integer,allocatable,dimension(:),public        :: itmp1D
+   integer,allocatable,dimension(:,:),public      :: itmp2D
+   integer,allocatable,dimension(:,:,:),public    :: itmp3D
+   real(RLEN),allocatable,dimension(:),public     :: rtmp1D
+   real(RLEN),allocatable,dimension(:,:),public   :: rtmp2D
+   real(RLEN),allocatable,dimension(:,:,:),public :: rtmp3Da
+   real(RLEN),allocatable,dimension(:,:,:),public :: rtmp3Db
+#endif
+
+#ifdef BFM_POM
    !---------------------------------------------
    ! Additional 3D arrays
    !---------------------------------------------

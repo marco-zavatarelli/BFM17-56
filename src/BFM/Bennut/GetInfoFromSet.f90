@@ -39,7 +39,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION GetInfoFromSet(NUTR,option,input,termnr,  &
+      FUNCTION GetInfoFromSet(NUTR,option,input,termnr,  &
                                                           at_x,to_x)
         USE constants, ONLY:RLEN,GET,COEFFICIENT,LABDA_1,LABDA_2, &
             INTEGRAL,EXPONENTIAL_INTEGRAL,RFLUX,MASS,DERIVATIVE,PARAMETER
@@ -55,6 +55,7 @@
         integer,intent(IN)             ::input ! Specification
         REAL(RLEN),intent(IN),optional ::at_x ! Specification
         REAL(RLEN),intent(IN),optional ::to_x ! Specification
+        REAL(RLEN)                     ::GetInfoFromSet
 
         integer      ::seqnr,j,layer
         real(RLEN)   ::bC,r,s
@@ -86,14 +87,17 @@
           layer=termnr/10
           bC=sets(NUTR)%b(layer)
           s=sets(NUTR)%factor(seqnr)
-          j=-2* (input == PARAMETER) 
+          if (input == PARAMETER)  then
+             j = -2
+          else
+             j = 0
+          end if
           if ( s/=0.0 ) then
             r= funcalc(option,j,sets(NUTR)%coeffs(seqnr),bC,at_x)
             !calculate of the result at the upper bborder and substratc result &
             ! of under
             !bborder
-            if (option == INTEGRAL.or. &
-              option == EXPONENTIAL_INTEGRAL) then
+            if (option == INTEGRAL.or. option == EXPONENTIAL_INTEGRAL) then
               if ( .not.present(to_x)) then
                stop 'GetInfoFromSet optional to_x NOT defined'
               endif

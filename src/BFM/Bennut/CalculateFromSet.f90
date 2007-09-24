@@ -44,7 +44,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION CalculateFromSet(NUTR,mode,input,from,to)
+      FUNCTION CalculateFromSet(NUTR,mode,input,from,to)
         USE global_mem, ONLY:RLEN
         USE constants
         USE bennut_interface,ONLY: noutput,CalculateLayer,CalculateShift
@@ -54,6 +54,7 @@
         integer,intent(IN) ::input ! Specification
         REAL(RLEN),intent(IN) ::from ! Specification
         REAL(RLEN),intent(IN) ::to ! Specification
+        REAL(RLEN)            :: CalculateFromSet
         !mode =1 : perfrom an integration.
         !if x_from>x_to an integration is perform between x_to and x_from but the sign is &
         ! changed

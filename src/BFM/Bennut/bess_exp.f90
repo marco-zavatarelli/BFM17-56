@@ -38,18 +38,20 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION BESS_EXP(X,LABDA,FN)
+      FUNCTION BESS_EXP(X,LABDA,FN)
         USE global_mem, ONLY:RLEN
         USE constants
         IMPLICIT  NONE
         REAL(RLEN),intent(IN)    ::x ! Specification
         REAL(RLEN),intent(IN)    ::labda(2) ! Specification
+        REAL(RLEN)               ::BESS_EXP
 
         INTERFACE                             ! Specification
-          REAL(RLEN) FUNCTION FN(X )          ! Specification
+          FUNCTION FN(X )          ! Specification
           USE global_mem, ONLY:RLEN
           REAL(RLEN),INTENT(IN)   ::X              ! Specification
-        END FUNCTION                         ! Specification
+          REAL(RLEN)              ::FN
+          END FUNCTION                         ! Specification
         END  INTERFACE                       ! Specification     
 
         real(RLEN)  :: r

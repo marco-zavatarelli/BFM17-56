@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -52,8 +52,8 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: R1c, R2c, R6c, R1n, R6n, R1p, R6p, R6s, PhytoPlankton, D3STATE
   use mem, ONLY: ppR1c, ppR6c, ppR1n, ppR6n, ppR1p, ppR6p, &
-    ppR6s, ppPhytoPlankton, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
-    BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
+    ppR6s, ppPhytoPlankton, BoxNumberZ, NO_BOXES_Z, &
+    NO_BOXES_XY, BoxNumber, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
     jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, iiPhytoPlankton, &
     iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
@@ -126,11 +126,9 @@
   integer, external  :: D3toD1
   integer, external  :: D2toD1
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
+  BoxNumberZ = NO_BOXES_Z
+    DO BoxNumberXY=1,NO_BOXES_XY
+      BoxNumber=D3toD1(BoxNumberXY,BoxNumberZ)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -245,9 +243,6 @@
       jbotR6p(BoxNumberXY)  =   jbotR6p(BoxNumberXY)- ruQ6p
       jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
 
-
-
-    end DO
 
 
   end DO

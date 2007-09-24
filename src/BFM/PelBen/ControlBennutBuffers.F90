@@ -1,11 +1,11 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: ControlBenPartNutrientBuffers
+! !ROUTINE: ControlBennutBuffers
 !
 ! DESCRIPTION
 !   This process forces the system to calculate a flux from
@@ -38,7 +38,7 @@
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-  subroutine ControlBenPartNutrientBuffersDynamics
+  subroutine ControlBennutBuffersDynamics
 !
 ! !USES:
 
@@ -60,10 +60,10 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: Q6n, D9m, D7m, Q6p, D8m, Q6s, D2STATE
   use mem, ONLY: ppQ6n, ppD9m, ppD7m, ppQ6p, ppD8m, ppQ6s, &
-    BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
+    BoxNumberZ, NO_BOXES_Z, NO_BOXES_XY, &
     BoxNumber, BoxNumberXY, jbotN4n, jbotN1p, jbotN5s, N4n_Ben, Depth_Ben, jbotR6n, &
     N1p_Ben, jbotR6p, N5s_Ben, jbotR6s, iiBen, iiPel, flux
-  use mem_ControlBenPartNutrientBuffers
+  use mem_ControlBennutBuffers
 
 
 !
@@ -110,11 +110,9 @@
   integer, external  :: D3toD1
   integer, external  :: D2toD1
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
+  BoxNumberZ = NO_BOXES_Z
+    DO BoxNumberXY=1,NO_BOXES_XY
+      BoxNumber=D3toD1(BoxNumberXY,BoxNumberZ)
 
 
       !----N:----------------------------------------------------------------
@@ -164,10 +162,6 @@
 
       end if
 
-
-
-
-    end DO
 
 
 

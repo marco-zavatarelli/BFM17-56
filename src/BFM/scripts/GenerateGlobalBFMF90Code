@@ -1055,7 +1055,7 @@ foreach groupname $VARS($dim,group) members $VARS($dim,member) constituents $VAR
     PrintLine -print ""
     regsub -all {^| } $members &pp tmp
     regsub -all { |$} $tmp $firstc& tmp
-    PrintLine -print "integer,dimension([llength $members])  :: referto=\[[join $tmp , ]\]"
+    PrintLine -print "integer,dimension([llength $members])  :: referto=(/[join $tmp , ]/)"
     unset tmp
     foreach member $members {
        set components [ lfind -glob -all $VARS($dim,state,name) \
@@ -1063,7 +1063,7 @@ foreach groupname $VARS($dim,group) members $VARS($dim,member) constituents $VAR
        regexp {[a-z]+$} $components j					
        lappend tmp [ expr [ string first $j $VARS(maxcon) ] +1 ]
     }
-    PrintLine -print "integer,dimension([llength $members])  :: const_max=\[[join $tmp , ]\]"
+    PrintLine -print "integer,dimension([llength $members])  :: const_max=(/[join $tmp , ]/)"
     regsub -all . $VARS(maxcon) "0 " tmp
     set i 0
     regsub -all . $constituents "& " split_constituents
@@ -1071,7 +1071,7 @@ foreach groupname $VARS($dim,group) members $VARS($dim,member) constituents $VAR
       lset tmp [ string first $constituent $VARS(maxcon) ] $i
       incr i
     }
-    PrintLine -print "integer,dimension([llength $tmp])  :: constituent_add=\[[join $tmp , ]\]"
+    PrintLine -print "integer,dimension([llength $tmp])  :: constituent_add=(/[join $tmp , ]/)"
     PrintLine -print ""
     PrintLine -print "if ( constituent <=const_max(n) ) then" 
     Section -incr body

@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -116,7 +116,7 @@
        end select
 
 
-       call ControlBenPartNutrientBuffersDynamics
+       call ControlBennutBuffersDynamics
 
        call BentoPelCoupDynamics
 

@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -44,8 +44,8 @@
 
   use global_mem, ONLY:RLEN
   use mem,  ONLY: O2o, D3STATE
-  use mem, ONLY: ppO2o, BoxNumberZ, BoxNumberY, NO_BOXES_Y, NO_BOXES_Z, &
-    BoxNumberX, NO_BOXES_X, BoxNumber, BoxNumberXY, EWIND, ETW, cxoO2, Depth, &
+  use mem, ONLY: ppO2o, NO_BOXES_XY,  &
+    BoxNumberXY, EWIND, ETW, cxoO2, Depth, &
     jsurO2o, iiBen, iiPel, flux
   use mem_Param,  ONLY: AssignAirPelFluxesInBFMFlag
   use mem_WindOxReaeration_3
@@ -99,23 +99,12 @@
   real(RLEN)  :: p_schmidt
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! user defined external functions
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = NO_BOXES_Z
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-
-
+    do BoxNumberXY=1,NO_BOXES_XY
       !
       ! The authors assumed a Schimdt number of CO2 (=reference) of 660.0
       !
 
-      p_schmidt  =   CalcSchmidtNumberOx(  ETW(BoxNumber))/ 660.0D+00
+      p_schmidt  =   CalcSchmidtNumberOx(  ETW(BoxNumberXY))/ 660.0D+00
 
       !
       ! Calculate wind dependency:
@@ -123,22 +112,19 @@
 
       reacon  =   k* (EWIND(BoxNumberXY))**(2.0D+00)/ sqrt(  p_schmidt)
 
-      jsurO2o(BoxNumberXY)  =   reacon*( cxoO2(BoxNumber)- O2o(BoxNumber))
+      jsurO2o(BoxNumberXY)  =   reacon*( cxoO2(BoxNumberXY)- O2o(BoxNumberXY))
 
       if ( AssignAirPelFluxesInBFMFlag) then
-        call flux(BoxNumber, iiPel, ppO2o, ppO2o, jsurO2o(BoxNumberXY)/ &
-          Depth(BoxNumber) )
+        call flux(BoxNumberXY, iiPel, ppO2o, ppO2o, jsurO2o(BoxNumberXY)/ &
+          Depth(BoxNumberXY) )
       end if
 
 
 
-    end DO
-
-
-  end DO
+  end do
 
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

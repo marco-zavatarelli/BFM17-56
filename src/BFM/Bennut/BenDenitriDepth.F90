@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -38,8 +38,7 @@
 
   use global_mem, ONLY:RLEN
   use mem,  ONLY: D2m, D1m, D2STATE
-  use mem, ONLY: K3n,K4n,ppD2m, ppD1m, BoxNumberZ, NO_BOXES_Z, BoxNumberX, &
-    NO_BOXES_X, BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, dummy, &
+  use mem, ONLY: K3n,K4n,ppD2m, ppD1m, NO_BOXES_XY, BoxNumberXY, dummy, &
     InitializeModel, shiftD1m, shiftD2m, KNO3, KNH4, iiBen, iiPel, flux
   use mem,ONLY: jbotN3n,jbotN4n,N3n_Ben,N4n_Ben,K14n,K24n,D6m,D7m
   use constants,  ONLY: EQUATION, STANDARD, GET, LABDA_1, ONE_PER_DAY
@@ -96,17 +95,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! user defined external functions
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
   integer, external  :: PrintSet
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-
-
+    do BoxNumberXY=1,NO_BOXES_XY
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate concentration of nitrate in porewater in M3n:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -179,9 +170,6 @@
 
 
       end select
-
-
-    end DO
 
 
   end DO

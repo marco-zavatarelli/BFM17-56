@@ -1,5 +1,28 @@
-#INCLUDE "DEBUG.h"
-#INCLUDE "INCLUDE.h"
+#include "DEBUG.h"
+#include "INCLUDE.h"
+
+#ifdef GFORTRAN
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+! This routine creates an internal compiler error with gfortran
+! Therefore it cannot be used and generates an error that 
+! stops the simulation
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  subroutine LightAdaptationDynamics(phyto, ppphytoc, ppphyton, ppphytop, &
+    ppphytos, ppphytol)
+
+  IMPLICIT NONE
+  integer,intent(IN)  :: phyto
+  integer,intent(IN) :: ppphytoc
+  integer,intent(IN) :: ppphyton
+  integer,intent(IN) :: ppphytop
+  integer,intent(IN) :: ppphytos
+  integer,intent(IN) :: ppphytol
+
+  stop 'Irropt Photoadaptation does not work with GFORTRAN compiler'
+
+  end subroutine LightAdaptationDynamics
+
+#else
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -35,11 +58,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN,NOTRANSPORT
-#IFDEF NOPOINTERS
+#ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
-#ELSE
+#else
   use mem,  ONLY: D3STATE, PhytoPlankton
-#ENDIF
+#endif
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, Depth, xEPS, EIR, EPLi, &
     iiL, iiC, Source_D3_vector, NO_BOXES, iiBen, iiPel, flux_vector
   use mem_LightAdaptation
@@ -105,12 +128,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer  :: i
+  integer  :: iphytol
   real(RLEN),dimension(NO_BOXES)  :: addepth
   real(RLEN),dimension(NO_BOXES)  :: adfactor
-  real(RLEN),dimension(NO_BOXES)  :: sum_state_phyto
-  real(RLEN),dimension(NO_BOXES)  :: sum_rate_phyto
-  real(RLEN),dimension(NO_BOXES)  :: loss
   real(RLEN),dimension(NO_BOXES)  :: rate_PLi
   real(RLEN),dimension(NO_BOXES)  :: rate_EPLi
   real(RLEN),dimension(NO_BOXES)  :: new_EPLi
@@ -134,8 +154,6 @@
   ! high resolution vertical grid. In that case the central depth
   ! of the layer is used.
 
-
-  ! addepth  = min(Depth/2.0, p_addepth);
   addepth  =   min(  Depth(:),  p_addepth(phyto))
   adfactor  =   exp( - xEPS(:)* addepth)
 
@@ -147,13 +165,10 @@
       new_EPLi  =   max(  eir_c,  p_clEPLi(phyto))
       new_EPLi  =   min(  new_EPLi,  p_chEPLi(phyto))
 
-
-
     case ( 2 )
       new_EPLi = max( 2.0D+00* eir_c* p_chEPLi(phyto)/( &
         eir_c+ p_chEPLi(phyto)), p_clEPLi(phyto))
       new_EPLi  =   min(  new_EPLi,  p_chEPLi(phyto))
-
 
   end select
 
@@ -161,37 +176,25 @@
   ! Speed of adaptation is controlled by p_ruPLi ( 1 maximum speed
   !                        0 no adaptation )
 
-  i  =   ppPhytoPlankton(phyto,iiL)
-  select case ( D3STATETYPE( i))
+  iphytol  =   ppPhytoPlankton(phyto,iiL)
+  select case ( D3STATETYPE( iphytol))
 
     case ( NOTRANSPORT )
 
-      rate_EPLi  =   p_ruEPLi(phyto)*( new_EPLi- EPLi(phyto,:))
-      call flux_vector( iiPel, &
-        ppPhytoPlankton(phyto,iiL),ppPhytoPlankton(phyto,iiL), rate_EPLi )
-
-
-
+      rate_EPLi  =   p_ruEPLi(phyto)*( new_EPLi(:)- EPLi(phyto,:))
+      call flux_vector( iiPel, iphytol,iphytol, rate_EPLi )
 
     case default
 
       rate_PLi = Source_D3_vector(ppPhytoPlankton(phyto,iiC))* EPLi(phyto,:)+ &
-        p_ruEPLi(phyto)*( new_EPLi- EPLi(phyto,:))* phytoc
-      call flux_vector( iiPel, &
-        ppPhytoPlankton(phyto,iiL),ppPhytoPlankton(phyto,iiL), rate_PLi )
-
-
-
+                 p_ruEPLi(phyto)*( new_EPLi- EPLi(phyto,:))* phytoc
+      call flux_vector( iiPel, iphytol,iphytol, rate_PLi )
 
   end select
 
-
-
-
-
-
-  end
-!BOP
+  end subroutine LightAdaptationDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#endif

@@ -70,11 +70,12 @@ INCDIRS		+= -I$(BFMINCDIR)
 ## Normally this should not be changed - unless you want something very specific.
 
 ## The Fortran compiler is determined from the EV FORTRAN_COMPILER - options 
-## so far NAG(linux), FUJITSU(Linux), DECF90 (OSF1 and likely Linux on alpha),
+## so far:
 ## SunOS, PGF90 - Portland Group Fortran Compiler (on Intel Linux), Intel (ifc, ifort)
-## Default is IFORT
+## gfortran, NEC SXF90
+## Default is none
 ifndef FORTRAN_COMPILER
-  FORTRAN_COMPILER=IFORT
+  $(error The environment variable FORTRAN_COMPILER is not defined!)
 endif
 
 include $(BFMDIR)/compilers/compiler.$(FORTRAN_COMPILER)
@@ -130,3 +131,8 @@ else
 %.o: %.f90
 	$(FC) $(F90FLAGS) $(EXTRA_FFLAGS) -c $< -o $@
 endif
+## Special option for GFORTRAN
+ifeq ($(FORTRAN_COMPILER),GFORTRAN)
+%.o: %.mod
+endif
+

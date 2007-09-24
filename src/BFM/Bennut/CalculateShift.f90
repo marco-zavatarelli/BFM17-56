@@ -39,13 +39,14 @@
 !
 !
 
-     real(RLEN) function CalculateShift(KMI,layer,from,to)
+     function CalculateShift(KMI,layer,from,to)
      USE global_mem, ONLY:RLEN
      USE bennut_interface,ONLY: noutput,CalculateLayer
      USE constants, ONLY: LAYERS,INTEGRAL,MASS
      implicit none 
      integer    :: layer,KMI       ! Specification
      real(RLEN) ::  from,to        ! Specification
+     real(RLEN) ::  CalculateShift
 
       integer ::  n,i
       real(RLEN)    ::  rshift

@@ -400,6 +400,9 @@
    integer                   :: i,j,k,n
    REALTYPE                  :: temp_time
 
+#ifdef DEBUG
+   LEVEL1 'save_bfm',time
+#endif
 !   if ( first ) then
 !      iret = store_data(ncid_bfm,z_id,Z_SHAPE,nlev,array=z)
 !      if( .not. GrADS ) then

@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -54,8 +54,8 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: K3n, G4n, D2m, D6m, D1m, K6r, D2STATE
   use mem, ONLY: ppK3n, ppG4n, ppD2m, ppD6m, ppD1m, ppK6r, &
-    dummy, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-    BoxNumber, BoxNumberXY, InitializeModel, LocalDelta, KNO3, jbotN3n, M3n, jK3G4n,&
+    dummy, NO_BOXES_XY, &
+    BoxNumberXY, InitializeModel, LocalDelta, KNO3, jbotN3n, M3n, jK3G4n,&
     jK4K3n, rrATo, irrenh, ETW_Ben, KNH4, N3n_Ben, iiBen, iiPel, flux
   use constants, ONLY: GET, LABDA_1, LABDA_2, &
     COEFFICIENT, LAYERS, LAYER1, DIFFUSION, FOR_ALL_LAYERS, POROSITY, &
@@ -137,18 +137,7 @@
   real(RLEN)  :: r
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! user defined external functions
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-
-
+    do BoxNumberXY=1,NO_BOXES_XY
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables
       ! (Diagnostic variables, not used in calculations)
@@ -407,10 +396,7 @@
         call flux(BoxNumberXY, iiBen, ppK3n, ppK3n, -( jbotN3n(BoxNumberXY)) )
       end if
 
-    end DO
-
-
-  end DO
+  end do
 
   end
 !BOP

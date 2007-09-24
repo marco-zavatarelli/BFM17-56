@@ -45,7 +45,7 @@
 !
 !  p_iswLtyp:  	 Shape of the productivity function
 
-&PhotoAvailableRadiation_parameters
+&PAR_parameters
 p_iswLtyp = 5,5,5,5
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

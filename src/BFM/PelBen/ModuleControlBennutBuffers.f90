@@ -3,7 +3,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: ControlBenPartNutrientBuffers
+! !ROUTINE: mem_ControlBennutBuffers
 !
 ! DESCRIPTION
 !   This process maximize input to benthos in
@@ -26,7 +26,7 @@
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-  module mem_ControlBenPartNutrientBuffers
+  module mem_ControlBennutBuffers
 !
 ! !USES:
 
@@ -82,14 +82,14 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
-  public InitControlBenPartNutrientBuffers
+  public InitControlBennutBuffers
   contains
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  subroutine InitControlBenPartNutrientBuffers()
+  subroutine InitControlBennutBuffers()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /ControlBenPartNutrientBuffers_parameters/ p_rn, p_s, p_refill_time, &
+  namelist /ControlBennutBuffers_parameters/ p_rn, p_s, p_refill_time, &
     p_control_n, p_control_p, p_control_s
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -100,12 +100,12 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading ControlBenPartNutrientBuffers parameters.."
-open(NMLUNIT,file='ControlBenPartNutrientBuffers.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=ControlBenPartNutrientBuffers_parameters,err=101)
+   write(LOGUNIT,*) "#  Reading ControlBennutBuffers parameters.."
+open(NMLUNIT,file='ControlBennutBuffers.nml',status='old',action='read',err=100)
+    read(NMLUNIT,nml=ControlBennutBuffers_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=ControlBenPartNutrientBuffers_parameters)
+    write(LOGUNIT,nml=ControlBennutBuffers_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -113,11 +113,11 @@ open(NMLUNIT,file='ControlBenPartNutrientBuffers.nml',status='old',action='read'
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitControlBenPartNutrientBuffers.f90","ControlBenPartNutrientBuffers.nml")
-101 call error_msg_prn(NML_READ,"InitControlBenPartNutrientBuffers.f90","ControlBenPartNutrientBuffers_parameters")
+100 call error_msg_prn(NML_OPEN,"ModuleControlBennutBuffers.F90","ControlBennutBuffers.nml")
+101 call error_msg_prn(NML_READ,"ModuleControlBennutBuffers.F90","ControlBennutBuffers_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  end  subroutine InitControlBenPartNutrientBuffers
-  end module mem_ControlBenPartNutrientBuffers
+  end  subroutine InitControlBennutBuffers
+  end module mem_ControlBennutBuffers
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50

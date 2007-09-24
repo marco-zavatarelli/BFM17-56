@@ -80,7 +80,7 @@
   subroutine InitPhotoAvailableRadiation()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /PhotoAvailableRadiation_parameters/ p_iswLtyp
+  namelist /PAR_parameters/ p_iswLtyp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -92,10 +92,10 @@
 write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
    write(LOGUNIT,*) "#  Reading PhotoAvailableRadiation parameters.."
 open(NMLUNIT,file='PhotoAvailableRadiation.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=PhotoAvailableRadiation_parameters,err=101)
+    read(NMLUNIT,nml=PAR_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=PhotoAvailableRadiation_parameters)
+    write(LOGUNIT,nml=PAR_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

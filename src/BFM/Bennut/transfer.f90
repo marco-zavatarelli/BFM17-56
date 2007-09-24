@@ -38,7 +38,8 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION transfer(mode,coeff,input,diff)
+      FUNCTION transfer(mode,coeff,input,diff)
+        USE global_mem, ONLY: RLEN
         USE bennut_constants
         USE bennut_type
         USE constants
@@ -47,6 +48,7 @@
         type (ty_coeff),intent(IN) ::coeff ! Specification
         REAL(RLEN),intent(IN) ::diff ! Specification
         REAL(RLEN),intent(IN) ::input ! Specification
+        REAL(RLEN)            ::transfer
 
         REAL(RLEN) ::r
         integer ::term 

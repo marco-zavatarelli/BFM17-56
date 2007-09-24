@@ -46,17 +46,18 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION CalculateTau(sMI,xdiffMI,ptMI,DXm)
-        USE global_mem, ONLY:RLEN
+      FUNCTION CalculateTau(sMI,xdiffMI,ptMI,DXm)
+        USE global_mem, ONLY:RLEN,ONE
         IMPLICIT  NONE
         REAL(RLEN),intent(IN) ::smi ! Specification
         REAL(RLEN),intent(IN) ::xdiffmi ! Specification
         REAL(RLEN),intent(IN) ::ptmi ! Specification
         REAL(RLEN),intent(IN) ::dxm ! Specification
         REAL(RLEN) ::pip2
+        REAL(RLEN) ::CalculateTau
         parameter (pip2=9.8696044D+00)
 
-        CalculateTau= (1.0D+00+ptMI)/(sMI+pip2*xdiffMI/(DXm**2))
+        CalculateTau= (ONE+ptMI)/(sMI+pip2*xdiffMI/(DXm**2))
 
         return
       end

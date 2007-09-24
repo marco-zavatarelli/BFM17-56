@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -51,10 +51,9 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO,ONE
   use mem,  ONLY: K6r, G2o, D6m, D1m, D2STATE
-  use mem, ONLY: ppK6r, ppG2o, ppD6m, ppD1m, dummy, BoxNumberZ, &
-    NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, BoxNumber, &
+  use mem, ONLY: ppK6r, ppG2o, ppD6m, ppD1m, dummy, NO_BOXES_XY,  &
     BoxNumberXY, LocalDelta, InitializeModel, M6r, KRED, jbotN6r, jG2K7o, rrATo, &
     rrBTo, irrenh, ETW_Ben, KNO3, N6r_Ben, iiBen, iiPel, flux
   use constants, ONLY: GET, LABDA_1, LABDA_2, COEFFICIENT, &
@@ -134,24 +133,13 @@
   real(RLEN)  :: jK16K6r
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! user defined external functions
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-
-
+    do BoxNumberXY=1,NO_BOXES_XY
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables
       ! (Diagnostic variables, not used in calculations)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      M6r(BoxNumberXY) = K6r(BoxNumberXY)/ p_poro(BoxNumberXY)/( p_p+ 1.0D+00)/( &
+      M6r(BoxNumberXY) = K6r(BoxNumberXY)/ p_poro(BoxNumberXY)/( p_p+ ONE)/( &
         p_d_tot)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -159,10 +147,10 @@
       ! mineralization. D6.m is the average penetration depth for C-detritus
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      alpha  =   1.0D+00/ max(  p_clDxm,  D6m(BoxNumberXY))
+      alpha  =   ONE/ max(  p_clDxm,  D6m(BoxNumberXY))
 
 
-      if ( InitializeModel == 0  .or. rrATo(BoxNumber) .gt.0.0) then
+      if ( InitializeModel == 0  .or. rrATo(BoxNumberXY) .gt.0.0) then
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Convert anoxic mineralization (mmol S/m2/d)
         ! This rate is already assigned to the dynamical equation for K6.r
@@ -271,7 +259,7 @@
       call CompleteSet( KRED(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy)
 
       call CompleteSet( KRED(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-        EQUATION, 0.0D+00, value=N6r_Ben(BoxNumberXY))
+        EQUATION, ZERO, value=N6r_Ben(BoxNumberXY))
 
 
       call CompleteSet( KRED(BoxNumberXY), INPUT_TERM, 22, PARAMETER, dummy, &
@@ -282,7 +270,7 @@
             value=zuD1)
       else
           call CompleteSet( KRED(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-                        DERIVATIVE, 0.0D+00, value=0.0D+00)
+                        DERIVATIVE, ZERO, value=ZERO)
       endif
 
 
@@ -291,14 +279,15 @@
       ! the steady-state profiles and return the vertically integrated
       ! concentration.
       !
-      ! Technical improvements: in case of utlimate low mineralization rates and
+      ! Technical improvements: in case of very low mineralization rates and
       ! a nearly empty reduction equivalent pool. There is a chance the
-      ! estimated equilibrium value is negative. Therfore cK6r is limited to &
+      ! estimated equilibrium value is negative. Therfore cK6r is limited to 
       ! values >=0
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      cK6r = max( 0.0D+00, CalculateSet( KRED(BoxNumberXY), &
-        SET_LAYER_INTEGRAL_UNTIL, LAYER1, LAYER2, p_d_tot, 0.0D+00))
+      cK6r = CalculateSet( KRED(BoxNumberXY), &
+        SET_LAYER_INTEGRAL_UNTIL, LAYER1, LAYER2, p_d_tot, ZERO)
+      cK6r = max(cK6r,ZERO)
 
       if ( InitializeModel== 0) then
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -315,7 +304,7 @@
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
          cK6r = cK6r+( K6r(BoxNumberXY)- cK6r)* IntegralExp( - LocalDelta/ &
-           Tau, 1.0D+00)
+           Tau, ONE)
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Derive the equations for the transient profiles, assuming the same
@@ -332,7 +321,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         jbotN6r(BoxNumberXY) = CalculateFromSet( KRED(BoxNumberXY), DERIVATIVE, &
-          RFLUX, 0.0D+00, dummy)
+          RFLUX, ZERO, dummy)
         jbotN6r(BoxNumberXY) = jbotN6r(BoxNumberXY)* insw( ( &
           M6r(BoxNumberXY)- N6r_Ben(BoxNumberXY))* jbotN6r(BoxNumberXY))
 
@@ -345,7 +334,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         jK6BTr = p_rOS* CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, &
-          RFLUX, 0.0D+00, D1m(BoxNumberXY))
+          RFLUX, ZERO, D1m(BoxNumberXY))
 
         jG2K7o(BoxNumberXY)  =   jK6BTr/ p_qro
 
@@ -360,8 +349,10 @@
         ! flux at the lower boundary
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        jK16K6r = max( CalculateFromSet( KRED(BoxNumberXY), DERIVATIVE, &
-          RFLUX, p_d_tot, dummy), - 0.1D+00* K6r(BoxNumberXY))
+        jK16K6r = CalculateFromSet( KRED(BoxNumberXY), DERIVATIVE, &
+                  RFLUX, p_d_tot, dummy)
+        !MAV: hidden parameter
+        jK16K6r = max(jK16K6r,- 0.1_RLEN* K6r(BoxNumberXY))
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! At low value of K6.r there is possibility that K6.r becomes negative
@@ -373,10 +364,10 @@
         if ( jbotN6r(BoxNumberXY)+ jK6G4r+ jK6BTr> K6r(BoxNumberXY)/ ONE_PER_DAY+ &
           jATK6r+ jK16K6r) then
 
-          jK6BTr  =   0.0D+00
+          jK6BTr  =   ZERO
           jG2K7o(BoxNumberXY)  =  -( jK6G4r+ jbotN6r(BoxNumberXY)- jATK6r)/ p_qro
 
-          jK16K6r  =   0.0D+00
+          jK16K6r  =   ZERO
           jK6G4r  =   jATK6r
 
         end if
@@ -393,16 +384,13 @@
 
       else
           jK6BTr = p_rOS* CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, &
-          RFLUX, 0.0D+00, D1m(BoxNumberXY))
+          RFLUX, ZERO, D1m(BoxNumberXY))
 
           jG2K7o(BoxNumberXY)  =   jK6BTr/ p_qro
       end if
 
 
-    end DO
-
-
-  end DO
+  end do
 
   end
 !BOP

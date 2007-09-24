@@ -38,7 +38,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION CalculateSet(NUTR, mode,option,input,&
+      FUNCTION CalculateSet(NUTR, mode,option,input,&
                                                           xinput,yinput)
         USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn
         USE bennut_variables, ONLY:ns,Y2,C,nutr_seq,nn_boundaries
@@ -52,6 +52,7 @@
         integer,intent(IN) ::option ! Specification
         REAL(RLEN),intent(IN) ::xinput ! Specification
         REAL(RLEN),intent(IN) ::yinput ! Specification
+        REAL(RLEN)            :: CalculateSet
 
         real(RLEN),dimension(NCOEFF)  :: Y3
         real(RLEN),dimension(NCOEFF*NCOEFF):: C2
@@ -117,13 +118,14 @@
         endif
       end
 
-      REAL(RLEN) FUNCTION CalculateFromCondition (irow,C,Y,nn)
-        USE constants,ONLY: RLEN
+      FUNCTION CalculateFromCondition (irow,C,Y,nn)
+        USE global_mem, ONLY: RLEN
         IMPLICIT  NONE
         integer,intent(IN) ::irow ! Specification
         integer,intent(IN) ::nn ! Specification
         REAL(RLEN),intent(IN) ::c(nn,nn) ! Specification
         REAL(RLEN),intent(IN) ::y(nn) ! Specification
+        REAL(RLEN)            :: CalculateFromCondition
  
         CalculateFromCondition=dot_product(C(irow,1:nn),Y(1:nn))
         return

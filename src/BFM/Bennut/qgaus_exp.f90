@@ -1,18 +1,20 @@
-      REAL(RLEN)FUNCTION QGAUS_EXP(A,B,LABDA,FN)
+      FUNCTION QGAUS_EXP(A,B,LABDA,FN)
         USE global_mem, ONLY:RLEN
         USE bennut_interface,ONLY:BESS_EXP
 
-        REAL(RLEN) ::	A,B,LABDA(2)         ! Specification
+        REAL(RLEN) ::A,B,LABDA(2)         ! Specification
+        REAL(RLEN) ::QGAUS_EXP
 
         INTERFACE                            ! Specification
-           REAL(RLEN) FUNCTION FN(X)         ! Specification
+           FUNCTION FN(X)         ! Specification
             USE global_mem, ONLY:RLEN
             REAL(RLEN),INTENT(IN)   ::X      ! Specification
+            REAL(RLEN)              ::FN
           END FUNCTION                       ! Specification
         END  INTERFACE                       ! Specification    
 
-        REAL(RLEN) ::	X(5),W(5)
-        REAL(RLEN) ::	XM,XR,SS,DX
+        REAL(RLEN) ::X(5),W(5)
+        REAL(RLEN) ::XM,XR,SS,DX
 
 
         X(1)= .1488743389D0

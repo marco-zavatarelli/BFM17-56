@@ -96,7 +96,7 @@
 !
 ! !USES:
    use constants, only: E2W
-   use mem, 	  only: NO_D3_BOX_STATES, NO_BOXES,          &
+   use mem,   only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
@@ -184,7 +184,7 @@
    !---------------------------------------------
    timestep = maxdelt
    call init_time(MinN,MaxN)
-   if (HasRealTime==.true.) then
+   if (HasRealTime) then
       timesec=julianday*SEC_PER_DAY+secondsofday
       simdays=nint(simtime/SEC_PER_DAY)
    else
@@ -325,7 +325,7 @@
    dtime = timesec/SEC_PER_DAY
    sunq=daylength(dtime,latitude)
    dfrac=(dtime-floor(dtime)) ! fraction of the day
-   dyear=mod(dtime,360.) ! Day of the year
+   dyear=mod(dtime,360._RLEN) ! Day of the year
    wlight=light(dyear,dfrac)
    select case(LightForcingFlag)
     case (3) ! light on/off distribution for daylight average

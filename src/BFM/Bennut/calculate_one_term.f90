@@ -38,7 +38,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION calculate_one_term(mode,option,xinput, &
+      FUNCTION calculate_one_term(mode,option,xinput, &
            coeff,b,factor)
         USE bennut_type
         USE constants
@@ -50,6 +50,7 @@
         REAL(RLEN),intent(IN) ::xinput ! Specification
         REAL(RLEN),intent(IN) ::b ! Specification
         REAL(RLEN),intent(IN) ::factor ! Specification
+        REAL(RLEN)            ::calculate_one_term
 
         REAL(RLEN) ::r 
         integer ::i

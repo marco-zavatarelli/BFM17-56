@@ -48,7 +48,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION noutput(NUTR,mode,option,input,xinput,yinput)
+      FUNCTION noutput(NUTR,mode,option,input,xinput,yinput)
         USE global_mem, ONLY:RLEN
         USE mem, ONLY:NO_BOXES_XY
         USE bennut_type
@@ -63,6 +63,7 @@
         integer,intent(IN) ::nutr ! Specification
         REAL(RLEN),intent(IN) ::xinput ! Specification
         REAL(RLEN),intent(IN) ::yinput ! Specification
+        REAL(RLEN)            ::noutput
 
         REAL(RLEN) ::r
         REAL(RLEN) ::bC

@@ -1,5 +1,5 @@
-#INCLUDE "DEBUG.h"
-#INCLUDE "INCLUDE.h"
+#include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -38,12 +38,12 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN,LOGUNIT
-#IFDEF NOPOINTERS
+  use global_mem, ONLY:RLEN,ZERO,LOGUNIT
+#ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
-#ELSE
+#else
   use mem,  ONLY: D1m, G2o, D2m
-#ENDIF
+#endif
   use mem, ONLY: ppD1m, ppG2o, ppD2m, InitializeModel, LocalDelta, shiftD1m, &
     jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
     iiPel, flux_vector
@@ -95,8 +95,8 @@
   ! Emperical equation derived from Broecker and Peng (1973)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  diff = SEC_PER_DAY* 1.0D-9* (10.0D+00)**((- 984.26D+00/( 273.0D+00+ &
-    ETW_Ben(:))+ 3.672D+00))* p_poro* irrenh(:)* p_exsaf
+  diff = SEC_PER_DAY* 1.0D-9* (10.0_RLEN)**((- 984.26_RLEN/( 273.0_RLEN+ &
+    ETW_Ben(:))+ 3.672_RLEN))* p_poro* irrenh(:)* p_exsaf
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Recalculate total consumption from /m2 to /m3 pw:
@@ -108,7 +108,7 @@
   ! Determine new thickness:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  D1mNew  =   sqrt(  2.0D+00* diff* O2o_Ben(:)/( p_small+ zmG2o))
+  D1mNew  =   sqrt(  2.0_RLEN* diff* O2o_Ben(:)/( p_small+ zmG2o))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate rate of change of thickness of the aerobic layer:
@@ -130,7 +130,7 @@
   ! Damping the change of D1m in case of too thick D1m
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  r= min( shiftD1m(:),max(0.0,p_d_tot-p_chD1m-D1m(:)))
+  r= min( shiftD1m(:),max(ZERO,p_d_tot-p_chD1m-D1m(:)))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! recalculate the new D1mNew at the actual time step:
@@ -177,12 +177,8 @@
     end if
   endif
 
-
-
-
-
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

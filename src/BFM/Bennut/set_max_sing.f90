@@ -64,8 +64,7 @@
           endif
         enddo
         if (nutrnr.gt.0.and.j.gt.0) then
-          write(0,'(''Calculateset 1:ill conditioned set BoxNumberX='' &
-                               ,I4,''BoxNumberY='',I4,''SetNr='',I4)') &
+          write(0,'(''Calculateset 1:ill conditioned set BoxNumberX='' ,I4,''BoxNumberY='',I4,''SetNr='',I4)') &
             BoxNumberX, BoxNUmberY,NUTRNR
         endif
 

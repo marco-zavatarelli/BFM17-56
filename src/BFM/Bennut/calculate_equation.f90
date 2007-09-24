@@ -40,7 +40,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION calculate_equation(mode,x,coeffs,b,factor,nn)
+      FUNCTION calculate_equation(mode,x,coeffs,b,factor,nn)
         USE global_mem, ONLY:RLEN
         USE bennut_type, ONLY:ty_coeff
         USE bennut_interface,ONLY: funcalc
@@ -51,6 +51,7 @@
         REAL(RLEN),intent(IN) ::x ! Specification
         REAL(RLEN),intent(IN) ::b ! Specification
         REAL(RLEN),intent(IN) ::factor(nn) ! Specification
+        REAL(RLEN)            ::calculate_equation
 
         integer ::j
         REAL(RLEN) ::r

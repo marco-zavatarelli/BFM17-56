@@ -38,11 +38,13 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION BESSK1(X)
+      FUNCTION BESSK1(X)
+       USE global_mem, ONLY: RLEN
        USE constants
        USE bennut_interface,ONLY:BESSI1
         IMPLICIT  NONE
         REAL(RLEN),intent(IN) ::x ! Specification
+        REAL(RLEN)            :: BESSK1
 
         REAL(RLEN) ::y
         REAL(RLEN) ::p1

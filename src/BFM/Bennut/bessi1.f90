@@ -38,10 +38,12 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION BESSI1(X)
+      FUNCTION BESSI1(X)
+        USE global_mem, ONLY:RLEN
         USE constants
         IMPLICIT  NONE
         REAL(RLEN),intent(IN) ::x ! Specification
+        REAL(RLEN)            :: BESSI1
 
         REAL(RLEN) ::y
         REAL(RLEN) ::p1

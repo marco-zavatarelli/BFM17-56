@@ -63,10 +63,11 @@
   integer,    parameter ::RLEN=kind(1D0)
   integer,    parameter ::NMLUNIT=310
   integer,    parameter ::LOGUNIT=0
-  real(RLEN), parameter ::ZERO=0.0D+00
-  real(RLEN), parameter ::PI=3.14159265359D+00
-  real(RLEN), parameter ::BASETEMP= 10.0D+00
-  real(RLEN), parameter ::ZERO_KELVIN=-273.3D+00
+  real(RLEN), parameter ::ZERO=0.0_RLEN
+  real(RLEN), parameter ::ONE=1.0_RLEN
+  real(RLEN), parameter ::PI=3.14159265359_RLEN
+  real(RLEN), parameter ::BASETEMP= 10.0_RLEN
+  real(RLEN), parameter ::ZERO_KELVIN=-273.3_RLEN
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Next parameters are defined to define differnt types of State variables. &
   ! There are four different types defined:
@@ -74,7 +75,7 @@
   integer,    parameter ::NOTRANSPORT=0
   integer,    parameter ::HORTRANSPORT=10
   integer,    parameter ::ALLTRANSPORT=20
-  real(RLEN), parameter :: DONE=1.D+00
+  real(RLEN), parameter :: DONE=1._RLEN
   ! Error codes:
   integer,    parameter ::ALLOC=10
   integer,    parameter ::NML_OPEN=11
@@ -90,8 +91,8 @@
   IMPLICIT NONE
   integer :: code
   character(LEN=*) :: what,infile
-write(LOGUNIT,*) "*********** RUN TIME ERROR BEGIN ***********"
-      select case (code)
+   write(LOGUNIT,*) "*********** RUN TIME ERROR BEGIN ***********"
+   select case (code)
         case (ALLOC)
           write(LOGUNIT,*) "Unable to allocate ",trim(what)," in ", &
                                 trim(infile)
@@ -109,7 +110,7 @@ write(LOGUNIT,*) "*********** RUN TIME ERROR BEGIN ***********"
     stop "BFM error (see logfile)"
   end subroutine
   end module
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

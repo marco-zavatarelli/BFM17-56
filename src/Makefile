@@ -28,7 +28,7 @@ BFM_MOD = \
 	${LIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${LIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
 	${LIB}(${BFMSRC}/PelBen/ModuleSettling.o)			\
-	${LIB}(${BFMSRC}/PelBen/ModuleControlBenPartNutrientBuffers.o)	\
+	${LIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)		\
 	${LIB}(${BFMSRC}/Ben/ModuleBenOrganism.o)			\
 	${LIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
 	${LIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
@@ -79,7 +79,7 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/PelBen/PelForcingForBen.o)			\
 	${LIB}(${BFMSRC}/PelBen/Sedimentation.o)			\
 	${LIB}(${BFMSRC}/PelBen/Settling.o)				\
-	${LIB}(${BFMSRC}/PelBen/ControlBenPartNutrientBuffers.o)	\
+	${LIB}(${BFMSRC}/PelBen/ControlBennutBuffers.o)			\
 	${LIB}(${BFMSRC}/Ben/BenBac.o)					\
 	${LIB}(${BFMSRC}/Ben/BenOrganism.o)				\
 	${LIB}(${BFMSRC}/Ben/BenthicSystem.o)				\

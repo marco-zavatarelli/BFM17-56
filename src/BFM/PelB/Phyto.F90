@@ -1,5 +1,5 @@
-#INCLUDE "DEBUG.h"
-#INCLUDE "INCLUDE.h"
+#include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -46,13 +46,13 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
-#IFDEF NOPOINTERS
+  use global_mem, ONLY:RLEN,ZERO,ONE
+#ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
-#ELSE
+#else
   use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, N3n, N4n, N1p, R1n, R6n, R1p, R6p, &
     N5s
-#ENDIF
+#endif
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, SUNQ, ThereIsLight, flP1R6s, ETW, EIR, xEPS, &
     Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, iiP1, iiP4, NO_BOXES, &
@@ -213,9 +213,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitation (intracellular) N, P
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  iN1p = min( 1.0D+00, max( p_small, ( qpPc(phyto, &
+  iN1p = min( ONE, max( p_small, ( qpPc(phyto, &
     :)- p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
-  iNIn = min( 1.0D+00, max( p_small, ( qnPc(phyto, &
+  iNIn = min( ONE, max( p_small, ( qnPc(phyto, &
     :)- p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
 
 
@@ -232,7 +232,7 @@
 
 
     case ( 2 )
-      iN  =   2.0D+00/( 1.0D+00/ iN1p+ 1.0D+00/ iNIn)  ! combined
+      iN  =   2.0D+00/( ONE/ iN1p+ ONE/ iNIn)  ! combined
 
 
   end select
@@ -249,16 +249,16 @@
   if ( silica_control > 0 ) then
     select case (silica_control) 
       case(1)
-        eN5s = min( 1.0,N5s/(N5s + p_chPs(phyto)));
+        eN5s = min( ONE,N5s/(N5s + p_chPs(phyto)));
         tN=min(iN,eN5s);
       case(2)
-        eN5s=1.0D+00
+        eN5s=ONE
         r = max( p_small, ( qsPc(phyto,:)- p_qslc(phyto))/ &
                                     (( p_qsRc(phyto)- p_qslc(phyto))))
         tN=min(r,iN);
       end select
   else
-    eN5s  =   1.0D+00
+    eN5s  =   ONE
   endif
 
 
@@ -283,11 +283,11 @@
           Irr = max(p_small, EIR(:))*exp(-xEPS* 0.5 * Depth)*SEC_PER_DAY;
        case ( 3 ) ! default
           ! Average Light in the cell
-          Irr = max( p_small, EIR(:)/ xEPS(:)/ Depth(:)*( 1.0D+00- exp( &
+          Irr = max( p_small, EIR(:)/ xEPS(:)/ Depth(:)*( ONE- exp( &
             - xEPS(:)* Depth(:)))* SEC_PER_DAY)
     end select
 
-    eiPI(phyto,:) = ( 1.0D+00- exp( - qlPc(phyto, :)* p_alpha_chl(phyto)/ &
+    eiPI(phyto,:) = ( ONE- exp( - qlPc(phyto, :)* p_alpha_chl(phyto)/ &
       p_sum(phyto)* Irr))
 
   end if
@@ -308,17 +308,18 @@
   ! Lysis and excretion
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   sdo  =  ( p_thdo(phyto)/( iN+ p_thdo(phyto)))* p_sdmo(phyto)  ! nutr. -stress lysis
+  !MAV: TO BE REMOVED ASAP !
   ! extra lysis for high-density
-  sdo  =   sdo+ p_seo(phyto)* MM_vector(  phytoc,  100.0D+00)
+  sdo  =   sdo+ p_seo(phyto)* MM_vector(  phytoc,  100.0_RLEN)
 
 
   sea  =   sum* p_pu_ea(phyto)  ! activity excretion
 
   if (p_netgrowth(phyto)) then
-     seo = 0.0D+00
+     seo = ZERO
   else 
      ! nutrient stress excretion
-     seo = sum*(1.0D+00-p_pu_ea(phyto))*(1.0D+00- iN) 
+     seo = sum*(ONE-p_pu_ea(phyto))*(ONE- iN) 
   end if
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -331,9 +332,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   pe_R6 = min( p_qplc(phyto)/( qpPc(phyto, :)+ p_small), p_qnlc(phyto)/( &
     qnPc(phyto, :)+ p_small))
-  pe_R6  =   min(  1.0D+00,  pe_R6)
+  pe_R6  =   min(  ONE,  pe_R6)
   rr6c  =   pe_R6* sdo* phytoc
-  rr1c  =  ( 1.0D+00- pe_R6)* sdo* phytoc
+  rr1c  =  ( ONE- pe_R6)* sdo* phytoc
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Respiration rate
@@ -376,7 +377,7 @@
   else
      sadap  =   max(  srs,  p_sum(phyto))
   end if
-  run  =   max(  0.0D+00, ( sum- slc)* phytoc)  ! net production
+  run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient Uptake: calculate maximal uptake of N, P
@@ -397,20 +398,20 @@
    ! Check which fraction of fixed C can be used for new biomass
    ! by comparing the potential nutrient availability
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      netgrowth = min( run, ( rumn+ max( 0.0D+00, 0.05D+00* &
+      netgrowth = min( run, ( rumn+ max( ZERO, 0.05D+00* &
       rugc*( qnPc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
-      netgrowth = min( netgrowth, ( rump+ max( 0.0D+00, &
+      netgrowth = min( netgrowth, ( rump+ max( ZERO, &
        0.05D+00* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
       if ( silica_control  ==  2) then
           rums  =   p_qus(phyto)* N5s(:)* phytoc  ! max pot uptake
-          netgrowth = min( netgrowth, ( rums+ max( 0.0D+00, &
+          netgrowth = min( netgrowth, ( rums+ max( ZERO, &
             1.00D+00* rugc*( qsPc(phyto, :)- p_qslc(phyto))))/ p_qslc(phyto))
       endif
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Excrete C which can not be used for growth as carbo-hydrates:
    ! Correct net C-uptake
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      netgrowth  =   max(  netgrowth,  0.0D+00)
+      netgrowth  =   max(  netgrowth,  ZERO)
       flPIR2c  =   flPIR2c+ run- netgrowth
       run  =   netgrowth
   end if
@@ -436,7 +437,7 @@
   runn4  =   r* runn* rumn4/( p_small+ rumn)  ! actual uptake of Nn
   call flux_vector( iiPel, ppN3n,ppphyton, runn3 )  ! source/sink.n
   call flux_vector( iiPel, ppN4n,ppphyton, runn4 )  ! source/sink.n
-  call flux_vector(iiPel, ppphyton,ppN4n,- runn*( 1.0D+00- r))  ! source/sink.n
+  call flux_vector(iiPel, ppphyton,ppN4n,- runn*( ONE- r))  ! source/sink.n
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
@@ -447,7 +448,7 @@
 
   r  =   insw_vector(  runp)
   call flux_vector( iiPel, ppN1p,ppphytop, runp* r )  ! source/sink.p
-  call flux_vector(iiPel, ppphytop,ppN1p,- runp*( 1.0D+00- r))  ! source/sink.p
+  call flux_vector(iiPel, ppphytop,ppN1p,- runp*( ONE- r))  ! source/sink.p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
@@ -473,7 +474,7 @@
 
     case (1)
 
-     runs = max(0.0, p_qsRc(phyto) * run );          ! net uptake
+     runs = max(ZERO, p_qsRc(phyto) * run );          ! net uptake
      call flux_vector( iiPel, ppN5s,ppphytos, runs)  ! source/sink.c
 
     case (2)
@@ -508,13 +509,13 @@
           p_alpha_chl(phyto)*( phytol+ p_small)* Irr)
 ! total synthesis, only when there is net production (run > 0)
 !       rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
-!         0.0D+00, sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
+!         ZERO, sum- slc+ sdo)* max( ZERO, phytol- p_qchlc( phyto)* phytoc)
         rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
-          -p_sdchl(phyto), sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
+          -p_sdchl(phyto), sum- slc+ sdo)* max( ZERO, phytol- p_qchlc( phyto)* phytoc)
 !     rate_Chl = rho_Chl*( max(srs,sum-slc) )* phytoc- sdo* phytol+ min( &
-!         -srs -p_sdchl, sum- slc+ sdo)* max( 0.0D+00, phytol- p_qchlc( phyto)* phytoc)
+!         -srs -p_sdchl, sum- slc+ sdo)* max( ZERO, phytol- p_qchlc( phyto)* phytoc)
 
-        rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( 0.0D+00, ( p_esNI(phyto)-tN))
+        rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN))
 
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
   end if
@@ -524,9 +525,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sedimentation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if ( p_res(phyto)> 0.0D+00) then
+  if ( p_res(phyto)> ZERO) then
     sediPI(phyto,:) = sediPI(phyto,:) &
-                   + p_res(phyto)* max( 0.0D+00, ( p_esNI(phyto)-tN))
+                   + p_res(phyto)* max( ZERO, ( p_esNI(phyto)-tN))
   end if
 
 

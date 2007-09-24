@@ -47,7 +47,7 @@
   use mem_BenSilica
   use mem_BenQ1Transport
   use mem_Settling
-  use mem_ControlBenPartNutrientBuffers
+  use mem_ControlBennutBuffers
 
 !  
 !
@@ -114,7 +114,7 @@
       call InitBenSilica
       call InitBenQ1Transport
       call InitSettling
-      call InitControlBenPartNutrientBuffers
+      call InitControlBennutBuffers
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -138,7 +138,7 @@
        end do
 
 
-    END SUBROUTINE
+    END SUBROUTINE Initialize
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50

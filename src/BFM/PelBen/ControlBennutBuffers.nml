@@ -3,7 +3,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: ControlBenPartNutrientBuffers
+! !ROUTINE: ControlBennutBuffers
 !
 ! DESCRIPTION
 !   List of parameters values
@@ -14,7 +14,7 @@
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-! parameter values for mem_ControlBenPartNutrientBuffers filled by InitControlBenPartNutrientBuffers
+! parameter values for mem_ControlBennutBuffers filled by InitControlBennutBuffers
 !
 
 !  
@@ -46,7 +46,7 @@
 !  p_rn:  	 zero order coeff for N
 !  p_s:  	 first order coeff.
 
-&ControlBenPartNutrientBuffers_parameters
+&ControlBennutBuffers_parameters
 p_rn = 0.01,
 p_s = 0.005,
 p_refill_time = 60.0,

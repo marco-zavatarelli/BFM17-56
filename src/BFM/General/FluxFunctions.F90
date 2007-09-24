@@ -41,8 +41,10 @@
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#ifdef IFORT
             TESTNANVECTOR(flux,iiSub,origin,destination)
             CHECKFLUX(-1,iiSub,origin,destination)
+#endif
 
             if ( origin /= destination )  then
               if ( minval(flux) < ZERO) then
@@ -53,8 +55,6 @@
                 if ( iiSub == iiBen) D23="Benthic"
                 write(LOGUNIT,'(''In '',A,'':origin='',i4,'' destination='',i4)') &
                   D23, origin,destination
-                write(LOGUNIT,'(''In '',A,'':origin='',i4,'' &
-                  destination='',i4)') D23, origin,destination
                 write(LOGUNIT,'(''flux='',(G16.8))') flux
                 STDERR  "Error in flux_vector function: negative flux !"
                 do i=1,size(flux)
@@ -122,8 +122,10 @@
           character(len=8)                   :: D23
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           !BEGIN compute
+#ifdef IFORT
           TESTNAN(flow,grid_nr,iiSub,origin,destination)
           CHECKFLUX(grid_nr,iiSub,origin,destination)
+#endif
 
           if ( origin /= destination ) then
             if ( flow < ZERO) then
@@ -288,7 +290,7 @@
                                           destination,flux,collect)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       use global_mem, only: LOGUNIT
-      use constants, only: RLEN, LOGUNIT
+      use constants, only: RLEN
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Implicit typing is never allowed
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -335,6 +337,8 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ! NaN-check routines
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#ifdef IFORT
+! Important note: the intrinsic isnan is not allowed with strict F95
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           subroutine testnan_vector(array,iiSub,origin,destination)
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -346,7 +350,7 @@
             integer,intent(IN) :: destination
             integer:: i=0
             do i=1,size(array)
-              if (isnan(array(i))== .true. ) then
+              if (isnan(array(i))) then
                 write(LOGUNIT,'(''at level:'',I4)') i
                 write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') &
                   origin,destination
@@ -374,7 +378,7 @@
             integer,intent(IN) :: iiSub
             integer,intent(IN) :: origin
             integer,intent(IN) :: destination
-            if (isnan(scalar)== .true. ) then
+            if (isnan(scalar)) then
                write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') origin,destination
                if ( iiSub == iiBen)  then
                     write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
@@ -388,6 +392,6 @@
             endif
           end subroutine testnan
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
+#endif
 
 !EOC

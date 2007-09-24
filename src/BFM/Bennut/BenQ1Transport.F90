@@ -1,4 +1,4 @@
-#INCLUDE "DEBUG.h"
+#include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -52,8 +52,8 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: Q11c, Q1c, Q11n, Q1n, Q11p, Q1p, D1m, D6m, D2m, D2STATE
   use mem, ONLY: ppQ11c, ppQ1c, ppQ11n, ppQ1n, ppQ11p, ppQ1p, &
-    ppD1m, ppD6m, ppD2m, dummy, BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
-    BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, LocalDelta, KQ1, irrenh, &
+    ppD1m, ppD6m, ppD2m, dummy, &
+    NO_BOXES_XY, BoxNumberXY, LocalDelta, KQ1, irrenh, &
     ETW_Ben, shiftD1m, ruHI, reHI, iiH1, iiH2, iiBen, iiPel, flux
   use constants, ONLY: LAYERS, LAYER1, LAYER2, &
     DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, EXPONENTIAL_TERM, &
@@ -142,18 +142,7 @@
   real(RLEN)  :: Dnew
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! user defined external functions
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-
-
+    do BoxNumberXY=1,NO_BOXES_XY
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Get total Net Benthic DOC (Q1.c)
       ! production/consumption in the oxic layer (m2 --> m3 porewater)
@@ -366,13 +355,10 @@
       call flux(BoxNumberXY, iiBen, ppQ11p, ppQ1p, jQ11Q1c/ Q11c(BoxNumberXY)* &
         Q11p(BoxNumberXY) )
 
-    end DO
-
-
-  end DO
+  end do
 
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

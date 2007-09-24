@@ -30,38 +30,48 @@
     integer                     ::j
     integer                     ::k
     integer                     ::rc
+    logical,save                ::do_3ave,do_2ave
 
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+#ifdef DEBUG
+   LEVEL1 'calcmean_bfm, mode=',mode
+#endif
 
    select case (mode)
       case(INIT)   ! initialization
-         i=count(var_ave(stPelStateS:stPelFluxE)== .true. )
+         i=count(var_ave(stPelStateS:stPelFluxE))
          if ( i > 0 ) then
             allocate(D3ave(1:i,1:NO_BOXES),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D3ave'
             D3ave=0.0
+            do_3ave = .true.
+         else
+            do_3ave = .false.
          endif
-         i=count(var_ave(stBenStateS:stBenFluxE)== .true. )
+         i=count(var_ave(stBenStateS:stBenFluxE))
          if ( i > 0 ) then
             allocate(D2ave(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D3ave'
             D2ave=0.0
+            do_2ave = .true.
+         else
+            do_2ave = .false.
          end if
          ave_count=0.0
       case(RESET)
-	ave_count=0.0
+         ave_count=0.0
       case(MEAN)    ! prepare for printing
-         D3ave=D3ave/ave_count
-         D2ave=D2ave/ave_count
+         if (do_3ave) D3ave=D3ave/ave_count
+         if (do_2ave) D2ave=D2ave/ave_count
          ave_count=0.0
       case(ACCUMULATE)   ! Start of new time-step
          ave_count=ave_count+1.0
          !---------------------------------------------
          ! Compute pelagic means
          !---------------------------------------------
-         if (stPelStateE /= 0 ) then
+         if (stPelStateE /= 0 .and. do_3ave ) then
             k=0
             j=0
             do i=stPelStateS,stPelStateE
@@ -101,7 +111,7 @@
                end if
             end do
          endif
-         if (stBenStateE /= 0) then
+         if (stBenStateE /= 0 .and. do_2ave) then
             !---------------------------------------------
             ! Compute benthic means
             !---------------------------------------------

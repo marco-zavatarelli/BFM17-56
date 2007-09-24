@@ -38,7 +38,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      REAL(RLEN) FUNCTION funcalc(mode,chterm,coeff,basis,x)
+      FUNCTION funcalc(mode,chterm,coeff,basis,x)
         USE global_mem, ONLY:RLEN
         USE bennut_type
         USE constants
@@ -50,6 +50,7 @@
         type (ty_coeff),intent(IN) ::coeff ! Specification
         REAL(RLEN),intent(IN) ::basis      ! Specification
         REAL(RLEN),intent(IN) ::x          ! Specification
+        REAL(RLEN)            ::funcalc
 
         REAL(RLEN),parameter :: pi=3.141592D+00
         REAL(RLEN) ::r

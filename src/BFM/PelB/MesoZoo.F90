@@ -1,5 +1,5 @@
-#INCLUDE "DEBUG.h"
-#INCLUDE "INCLUDE.h"
+#include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
@@ -45,13 +45,13 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
-#IFDEF NOPOINTERS
+  use global_mem, ONLY:RLEN,ZERO,ONE
+#ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
-#ELSE
+#else
   use mem, ONLY: D3STATE, O2o, N1p, N4n, R6c, R6p, &
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
-#ENDIF
+#endif
   use mem, ONLY: ppO2o, ppN1p, ppN4n, ppR6c, ppR6p, &
     ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
     qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
@@ -172,9 +172,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   zooc = D3STATE(ppzooc,:)
 
-  tfluxc=0.0D+00
-  tfluxn=0.0D+00
-  tfluxp=0.0D+00
+  tfluxc=ZERO
+  tfluxn=ZERO
+  tfluxp=ZERO
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !Physiological temperature response
@@ -187,7 +187,7 @@
   ! rua: food uptake generalized. Addition of new FG become much more simpler!
 
 
-  rumc  =   0.0D+00
+  rumc  =   ZERO
   do i = 1 , ( iiPhytoPlankton)
 
     rumPIc(:, i)  =   p_puPI(zoo,i)* PhytoPlankton(i,iiC)
@@ -218,9 +218,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Total Gross Uptakes
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rut_c  =   0.0D+00
-  rut_n  =   0.0D+00
-  rut_p  =   0.0D+00
+  rut_c  =   ZERO
+  rut_n  =   ZERO
+  rut_p  =   ZERO
   do i = 1 , ( iiPhytoPlankton)
 
     ruPIc  =   put_u* rumPIc(:, i)
@@ -325,8 +325,8 @@
   ! Respiration and basal metabolism
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rra_c  =   prI_R6* rut_c
-  rra_n  =   0.0D+00
-  rra_p  =   0.0D+00
+  rra_n  =   ZERO
+  rra_p  =   ZERO
 
   rrs_c  =   p_srs(zoo)* et* zooc
   rrs_n  =   p_srs(zoo)* et* zooc * qnZc(zoo,:)
@@ -360,31 +360,31 @@
 
 
     WHERE (( nut_lim)==1)
-      pe_R6c  =   0.0D+00
-      pe_N1p = max( 0.0D+00, ( 1.0D+00- p_peI_R6(zoo))* rut_p- p_qpc(zoo)* &
+      pe_R6c  =  ZERO
+      pe_N1p = max( ZERO, ( ONE- p_peI_R6(zoo))* rut_p- p_qpc(zoo)* &
         ru_c)
       pe_N1p  =   pe_N1p/( p_small+ rut_p)
-      pe_N4n = max( 0.0D+00, ( 1.0D+00- p_peI_R6(zoo))* rut_n- p_qnc(zoo)* &
+      pe_N4n = max( ZERO, ( ONE- p_peI_R6(zoo))* rut_n- p_qnc(zoo)* &
         ru_c)
       pe_N4n  =   pe_N4n/( p_small+ rut_n)
 
 
 
     ELSEWHERE (( nut_lim)==2)
-      pe_N1p  =   0.0D+00
-      pe_R6c  =  max(0.0,( p_qpc(zoo)* ru_c)-( 1.0D+00- p_peI_R6(zoo))* rut_p)
+      pe_N1p  =   ZERO
+      pe_R6c  =  max(ZERO,( p_qpc(zoo)* ru_c)-( ONE- p_peI_R6(zoo))* rut_p)
       pe_R6c  =   pe_R6c/( p_small+ p_qpc(zoo)* rut_c)
-      pe_N4n = max( 0.0D+00, ( 1.0D+00- p_peI_R6(zoo))* rut_n- p_qnc(zoo)*( &
+      pe_N4n = max( ZERO, ( ONE- p_peI_R6(zoo))* rut_n- p_qnc(zoo)*( &
         ru_c- pe_R6c* rut_c))
       pe_N4n  =   pe_N4n/( p_small+ rut_n)
 
 
 
     ELSEWHERE (( nut_lim)==3)
-      pe_N4n  =   0.0D+00
-      pe_R6c  = max(0.0, ( p_qnc(zoo)* ru_c)-( 1.0D+00- p_peI_R6(zoo))* rut_n)
+      pe_N4n  =   ZERO
+      pe_R6c  = max(ZERO, ( p_qnc(zoo)* ru_c)-( ONE- p_peI_R6(zoo))* rut_n)
       pe_R6c  =   pe_R6c/( p_small+ p_qnc(zoo)* rut_c)
-      pe_N1p = max( 0.0D+00, ( 1.0D+00- p_peI_R6(zoo))* rut_p- p_qpc(zoo)*( &
+      pe_N1p = max( ZERO, ( ONE- p_peI_R6(zoo))* rut_p- p_qpc(zoo)*( &
         ru_c- pe_R6c* rut_c))
       pe_N1p  =   pe_N1p/( p_small+ rut_p)
 
@@ -412,7 +412,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! flow statements
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0D+00) )
+  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0_RLEN) )
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
                              ppzooc,ppzooc,-( rrc),tfluxc )
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
