@@ -36,36 +36,38 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO
+  use constants, ONLY: MW_P, MW_N, MW_SI
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE,D3STATE
 #else
-  use mem, ONLY: P1p, P2p, P3p, P4p, B1p,  R1p, R6p, N1p, &
-    P1n, P2n, P3n, P4n, B1n, R1n, R6n, N3n, N4n, O4n, P1s, &
-    R6s, N5s, D2STATE
-  use mem, ONLY: Q1p, Q6p, Q1n, Q6n, Q6s, Y1p, Y2p, Y3p, Y4p, Y5p, H1p, H2p, &
+  use mem, ONLY: B1c, B1p, B1n, N1p, N3n, N4n, O4n, &
+    N5s, O3c, D2STATE
+  use mem, ONLY: Q1c, Q6c, Q1p, Q6p, Q1n, Q6n, Q6s, Y1p, Y2p, Y3p, Y4p, Y5p, H1p, H2p, &
     Q11p, K1p, K11p, Y1n, Y2n, Y3n, Y4n, Y5n, H1n, H2n, Q11n, K4n, K14n, K21p, &
     G4n, K3n, K24n, K5s, D3STATE
 #endif
-  use mem, ONLY: ppP1p, ppP2p, ppP3p, ppP4p, ppB1p, ppZ3p, ppZ4p, ppZ5p, ppZ6p, &
-    ppR1p, ppR6p, ppN1p, ppP1n, ppP2n, ppP3n, ppP4n, ppB1n, ppZ3n, ppZ4n, ppZ5n, &
-    ppZ6n, ppR1n, ppR6n, ppN3n, ppN4n, ppO4n, ppP1s, ppR6s, ppN5s, D2STATE, Depth
-  use mem, ONLY: ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
+  use mem, ONLY: ppB1c,ppB1p,ppB1n, &
+     ppN1p, ppN3n, ppN4n, ppO4n, ppN5s, ppO3c, D2STATE, &
+    Depth, Volume, Area, Area2d
+  use mem, ONLY: ppQ1c, ppQ6c, ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
     ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
     ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
-    ppG4n, ppK3n, ppK24n, ppK5s, totbenp, totbenn, totbens, NO_BOXES_XY, iiBen, &
-    totpelp, totpeln, totpels, totsysp, totsysn, totsyss, &
+    ppG4n, ppK3n, ppK24n, ppK5s, totbenc, totbenp, totbenn, totbens, NO_BOXES_XY, iiBen
+  use mem, ONLY: &
+    totpelc, totpelp, totpeln, totpels, totsysc, totsysp, totsysn, totsyss, &
     iiPel, flux_vector,ppMicroZooplankton,ppMesoZooPlankton,MicroZooplankton,MesoZooPlankton, &
-    iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,iiN,iiP
+    iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,iiC,iiN,iiP,iiS,&
+    PhytoPlankton,iiPhytoPlankton,ppPhytoPlankton,PelDetritus,iiPelDetritus,ppPelDetritus
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
-  use mem_Param,  ONLY: CalcBenthicFlag
+  use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
   use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
 
 !  
 !
 ! !AUTHORS
-!   Piet Ruardij
+!   Piet Ruardij and Marcello Vichi
 !
 !
 !
@@ -76,7 +78,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -103,43 +105,84 @@
   real(RLEN),dimension(NO_BOXES)  :: s
   integer                         ::i,j
   
-  totpelp=0.0D+00;
-  totpeln=0.0D+00;
+  totpelc=ZERO
+  totpelp=ZERO
+  totpeln=ZERO
+  totpels=ZERO
+  do i=1, iiPhytoPlankton
+     s=PhytoPlankton(i,iiC)
+     totpelc=totpelc + s
+     s=PhytoPlankton(i,iiN)
+     totpeln=totpeln + s
+     s=PhytoPlankton(i,iiP)
+     totpelp=totpelp + s
+     j=ppPhytoPlankton(i,iiS)
+     if ( j/=0) then
+        s=PhytoPlankton(i,iiS)
+        totpels=totpels + s
+     end if
+  end do
   do i=1, iiMicroZooplankton
      j=max(1,ppMicroZooPlankton(i,iiN))
      s=MicroZooplankton(i,j)
      if ( j==1) s=s*p_qn_mz(i)
-     totpeln=totpeln +sum(s*Depth)
+     totpeln=totpeln + s
      j=max(1,ppMicroZooPlankton(i,iiP))
      s=MicroZooplankton(i,j)
      if ( j==1) s=s*p_qp_mz(i)
-     totpelp=totpelp +sum(s*Depth)
-  enddo
+     totpelp=totpelp + s
+  end do
   do i=1, iiMesoZooplankton
      j=max(1,ppMesoZooPlankton(i,iiN))
      s=MesoZooplankton(i,j)
      if ( j==1) s=s*p_qnMc(i)
-     totpeln=totpeln +sum(s*Depth)
+     totpeln=totpeln + s
      j=max(1,ppMesoZooPlankton(i,iiP))
      s=MesoZooplankton(i,j)
      if ( j==1) s=s*p_qpMc(i)
-     totpelp=totpelp +sum(s*Depth)
-   enddo
+     totpelp=totpelp + s
+   end do
+  do i=1, iiPelDetritus
+     if ( ppPelDetritus(i,iiC)/=0) then
+        s=PelDetritus(i,iiC)
+        totpelc=totpelc + s
+     end if
+     if ( ppPelDetritus(i,iiN)/=0) then
+        s=PelDetritus(i,iiN)
+        totpeln=totpeln + s
+     end if
+     if ( ppPelDetritus(i,iiP)/=0) then
+        s=PelDetritus(i,iiP)
+        totpelp=totpelp + s
+     end if
+     if ( ppPelDetritus(i,iiS)/=0) then
+        s=PelDetritus(i,iiS)
+        totpels=totpels + s
+     end if
+  end do
 
-  totpelp(1)=totpelp(1)+ sum((P1p+ P2p+ P3p+ P4p+ B1p+ R1p+ R6p+ N1p)* Depth)
-  totpeln(1)=totpeln(1)+ sum((P1n+ P2n+ P3n+ P4n+ B1n+ R1n+ R6n+ N3n+ N4n+ O4n)* Depth)
-  totpels(1)  = sum( (P1s+ R6s+ N5s)* Depth)
+  ! Convert from default units to g and multiply for the water volume
+  totpelc = (totpelc+ ( O3c + B1c ))*Volume/1000.0_RLEN
+  totpeln = (totpeln+ ( B1n + N3n + N4n + O4n))*Volume*MW_N/1000.0_RLEN
+  totpelp = (totpelp+ ( B1p + N1p))*Volume*MW_P/1000.0_RLEN
+  totpels = (totpels+ ( N5s ))*Volume*MW_SI/1000.0_RLEN
 
+  totsysc = sum(totpelc(:))
+  totsysn = sum(totpeln(:))
+  totsysp = sum(totpelp(:))
+  totsyss = sum(totpels(:))
 
   select case ( CalcBenthicFlag)
 
     case ( 0 )
-      totbenp(:)  =   0.0D+00
-      totbenn(:)  =   0.0D+00
-      totbens(:)  =   0.0D+00
+      totbenc(:)  =  ZERO
+      totbenp(:)  =  ZERO
+      totbenn(:)  =  ZERO
+      totbens(:)  =  ZERO
 
     case ( BENTHIC_RETURN )  ! Simple benthic return
       ! Mass conservation variables
+      totbenc(:)  =  ( Q1c(:)+ Q6c(:))
       totbenp(:)  =  ( Q1p(:)+ Q6p(:))
       totbenn(:)  =  ( Q1n(:)+ Q6n(:))
       totbens(:)  =  ( Q6s(:))
@@ -161,9 +204,17 @@
 
   end select
 
-  totsysn(:)=totpeln(:)+totbenn(:)
-  totsysp(:)=totpelp(:)+totbenp(:)
-  totsyss(:)=totpels(:)+totbens(:)
+  ! Convert from default units to g and multiply for the sediment volume
+  totbenc = totbenc(:)/1000.0_RLEN*Area2d*p_d_tot
+  totbenn = totbenn(:)*MW_N/1000.0_RLEN*Area2d*p_d_tot
+  totbenp = totbenp(:)*MW_P/1000.0_RLEN*Area2d*p_d_tot
+  totbens = totbens(:)*MW_Si/1000.0_RLEN*Area2d*p_d_tot
+
+  ! Add benthic mass to the total
+  totsysc = totsysc+sum(totbenc(:))
+  totsysn = totsysn+sum(totbenn(:))
+  totsysp = totsysp+sum(totbenp(:))
+  totsyss = totsyss+sum(totbens(:))
 
   end
 !BOP

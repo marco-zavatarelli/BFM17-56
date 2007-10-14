@@ -21,9 +21,6 @@
   subroutine PelagicSystemDynamics
 !
 ! !USES:
-  ! The following Pelagic 1-d global boxvars  are used: Depth
-  ! The following Benthic 1-d global boxvars are modified : totpeln, totpels
-  ! The following Benthic 1-d global boxvars  are used: totpelp
   ! The following groupmember vars are used: iiP1, iiP2, iiP3, iiP4, iiZ3, iiZ4, &
   ! iiZ5, iiZ6
   ! The following 0-d global parameters are used: &
@@ -89,23 +86,26 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
 
-
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Diagnostic chlorophyll
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   call  CalcChlorophylla( )
 
-
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Other pelagic diagnostics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   call PelGlobalDynamics
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute oxygen variables: cxoO2 eO2mO2
   ! calculate oxygen OxygenReaeration
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
   call  CalcOxygenSaturation( )
-
-#ifndef BFM_NEMO
   call OxygenReaerationDynamics
-#endif
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! This part is executed if Optimal Irradiance is used
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( ChlLightFlag== 1) then
     if ( CalcPhytoPlankton(iiP1)) then
       call PhotoAvailableRadiationDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, &
@@ -130,8 +130,9 @@
   end if
 
 
-
-
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute phytoplankton dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( CalcPhytoPlankton(iiP1)) then
     call PhytoDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, ppP1l)
   end if
@@ -149,6 +150,9 @@
   end if
 
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! This part is executed if Optimal Irradiance is used
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( ChlLightFlag== 1) then
     if ( CalcPhytoPlankton(iiP1)) then
       call LightAdaptationDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, ppP1l)

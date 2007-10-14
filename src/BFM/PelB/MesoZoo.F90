@@ -49,10 +49,10 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
 #else
-  use mem, ONLY: D3STATE, O2o, N1p, N4n, R6c, R6p, &
+  use mem, ONLY: D3STATE, O2o, O3c, N1p, N4n, R6c, R6p, &
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
 #endif
-  use mem, ONLY: ppO2o, ppN1p, ppN4n, ppR6c, ppR6p, &
+  use mem, ONLY: ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6p, &
     ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
     qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiP1, iiC, iiN, iiP, iiL, NO_BOXES, &
@@ -414,7 +414,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0_RLEN) )
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
-                             ppzooc,ppzooc,-( rrc),tfluxc )
+                             ppzooc,ppO3c, rrc,tfluxc )
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
                              ppzoop,ppN1p, rep ,tfluxp)
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &

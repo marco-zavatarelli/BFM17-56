@@ -51,6 +51,8 @@
 !        :  	 alpha is used in expo.func and values > 1/0.001 leadt
 !  CalcPelagicFlag:  	 Switch for pelagic system
 !  CalcBenthicFlag:  	 Switch for benthic system
+!  CalcTransportFlag:    Switch for transport
+!  CalcConservationFlag:    Switch for mass conservation check
 !  CalcPhytoPlankton:  	 Switches to turn on/off the calculation of pelagic groups
 !  CalcBacteria:
 !  CalcMesoZooPlankton:
@@ -88,6 +90,8 @@ p_qro = 0.5,
 p_qon_dentri = 1.25,
 p_qon_nitri = 2.0,
 p_clDxm = 0.001,
+CalcConservationFlag = .FALSE.,
+CalcTransportFlag = .FALSE.,
 CalcPelagicFlag = .TRUE.,
 CalcBenthicFlag = 3,
 p_poro0 = 0.4 ,

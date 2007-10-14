@@ -1,0 +1,60 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!BOP
+!
+! !ROUTINE: CO2
+!
+! DESCRIPTION
+!   List of parameters values
+!
+! !INTERFACE
+! parameter values for mem_CO2 filled by InitCO2
+!
+!
+! !AUTHORS
+!   BFM team
+!
+! !REVISION_HISTORY
+!   ---
+!
+! COPYING
+!   
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
+!EOP
+!-------------------------------------------------------------------------!
+!BOC
+!
+!
+
+&CO2_parameters
+! Initial Partial pressure in the air
+pco2air=365.0D0,
+
+! Choice of the acidity constants parameterization
+! Mehrbach et al (1973) refit by:
+! K1K2==1 Dickson & Millero (1987)
+! K1K2==2 Millero (1995)
+! K1K2==3 Lueker et al. (2000)
+K1K2=1,
+
+! Choice of [H+] numerical computation
+! CalcCO2ITER=.true. Standard OCMIP iteration
+! CalcCO2ITER=.false. Follows et al., Ocean Modelling 2006
+CalcCO2ITER=.false.
+/
+
+!EOC
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model version 2.50
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

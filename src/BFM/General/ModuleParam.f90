@@ -65,7 +65,7 @@
   !  Global Model Parameters
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ! 0d-parameter used in pelagic submodel
+  ! 0d-parameter used in pelagic and benthic submodels
   real(RLEN)   :: &
       p_small=1.0D-80  ,  &
       p_q10diff=1.49  ,  &  ! Temperature-dependency porewater diffusion
@@ -78,9 +78,15 @@
   ! 0d-parameter used in pelagic submodel
   logical   :: &
       CalcPelagicFlag=.TRUE.  ! Switch for pelagic system
-  ! 0d-parameter used in pelagic submodel
+  ! 0d-parameter used in benthic submodel
   integer   :: &
       CalcBenthicFlag=3  ! Switch for benthic system
+  ! 0d-parameter used in pelagic submodel when coupled with GCM
+  logical   :: &
+      CalcTransportFlag=.TRUE.  ! Switch for pelagic system
+  ! 0d-parameter used for mass conservation check
+  logical   :: &
+      CalcConservationFlag=.TRUE.  
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !  Allocate the logical flags for switch on the LFG
@@ -146,12 +152,12 @@
   use mem
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,      &
-    p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,                 &
-    CalcPhytoPlankton,CalcMicroZooPlankton,                                 &
+    p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
+    CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,            &
     CalcPelChemistry,CalcMesoZooPlankton,CalcBenOrganisms,CalcBenBacteria,  &
     CalcBacteria, AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, &
     p_PAR, ChlLightFlag, LightForcingFlag, LightLocationFlag,               &
-    p_qchlc, p_poro0, p_eps0, p_epsESS,                                              &
+    p_qchlc, p_poro0, p_eps0, p_epsESS,                                      &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s, &
     p_epsChla, p_epsR6,check_fixed_quota
    integer :: i

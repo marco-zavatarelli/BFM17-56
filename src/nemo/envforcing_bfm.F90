@@ -15,11 +15,15 @@
    use global_mem, only:RLEN,ZERO
    use mem_param,  only: p_PAR, p_small
    use mem,        only: xEPS, ESS, ETW, ESW, EWIND,    &
-                        Depth, EIR
+                        Depth, EIR, ERHO, EICE, EPCO2air
    use api_bfm
+   use mem_CO2,    only: pco2air
+! OPA modules
    use oce_trc
-
+   use trc_oce, only: etot3
 IMPLICIT NONE
+! OPA domain substitutions
+#include "domzgr_substitute.h90"
 !
 ! !INPUT PARAMETERS:
 
@@ -30,17 +34,18 @@ IMPLICIT NONE
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
-   integer             :: k
+   integer             :: i,j,k
 
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
    !---------------------------------------------
-   ! Assign temperature and salinity
+   ! Assign temperature, salinity and density
    !---------------------------------------------
       ETW = pack(tn,SEAmask)
       ESW = pack(sn,SEAmask)
+      ERHO = pack(rhop,SEAmask)
 
 #if defined key_flx_bulk_monthly || defined key_flx_bulk_daily
    !---------------------------------------------
@@ -48,8 +53,20 @@ IMPLICIT NONE
    !---------------------------------------------
       EWIND = pack(vatm,SRFmask(:,:,1) )
 #else
-      !write(numout,*) 'BFM WARNING: wind speed is not defined in NEMO!'
+      !MAV: this must be temporary! 
+      EWIND = 5.0_RLEN
 #endif
+
+   !---------------------------------------------
+   ! Assign Sea-ice cover
+   !---------------------------------------------
+      EICE = pack(freeze,SRFmask(:,:,1) )
+
+   !---------------------------------------------
+   ! Assign atmospheric pCO2
+   !---------------------------------------------
+      EPCO2air = pco2air !costant
+      !EPCO2air = pack(,SRFmask(:,:,1) )
 
    !---------------------------------------------
    ! Temporary 3D array for the storage of the 
@@ -74,18 +91,31 @@ IMPLICIT NONE
       allocate(rtmp3Db(jpi,jpj,jpk))
       rtmp3Db = unpack(xEPS,SEAmask,ZEROS)
       do k = 1,jpk-1
-         rtmp3Da(:,:,k+1) = rtmp3Da(:,:,k)*exp(-rtmp3Db(:,:,k)*e3t_0(k))
+         do j = 1,jpj
+            do i = 1,jpi
+               rtmp3Da(i,j,k+1) = rtmp3Da(i,j,k)* &
+                       exp(-rtmp3Db(i,j,k)*fse3t(i,j,k))
+            end do 
+         end do 
       end do 
       EIR = pack(rtmp3Da,SEAmask)
-      deallocate(rtmp3Da)
-      deallocate(rtmp3Db)
 
    !---------------------------------------------
-   ! bioshade is instead derived in the
-   ! middle of the layer and it's non-dimensional
+   ! bioshading is stored to be passed to OPA
+   ! (converted back to W m-2)
+   ! The dynamics of active tracers is indeed
+   ! computed after the BFM.
+   ! It already includes the abiotic part, so that
+   ! the BFM extinction coefficients are used
+   ! and not the OPA ones
    !---------------------------------------------
-   !if (bioshade_feedback) &
-   !  bioshade(1:nlev) =  EIR(:)*exp(-xEPS(:)*Depth(:)*0.5)/ EIR(nlev)
+      etot3(:,:,:) = rtmp3Da(:,:,:)*E2W/p_PAR
+
+   !---------------------------------------------
+   ! Deallocate temporary arrays
+   !---------------------------------------------
+      deallocate(rtmp3Da)
+      deallocate(rtmp3Db)
 
    end subroutine envforcing_bfm
 !EOC

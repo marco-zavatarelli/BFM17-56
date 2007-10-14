@@ -20,12 +20,15 @@
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
                   NO_STATES,Depth,Depth_ben, D3STATE, D2STATE
+   use mem, only: Volume, Area, Area2d
    use global_mem, only:RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    ! NEMO modules
    USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd    
    use oce_trc
+   ! shared variables for bioshading
+   use trc_oce, only: lk_qsr_sms,etot3
 
    IMPLICIT NONE
 !
@@ -56,6 +59,8 @@
    allocate(ZEROS(jpi,jpj,jpk))   ! allocate ancillary pack mask
    ZEROS = ZERO
    allocate(rtmp3Da(jpi,jpj,jpk)) ! allocate temporary 3D array
+   allocate(rtmp3Db(jpi,jpj,jpk)) ! allocate temporary 3D array
+   rtmp3Da = ZERO; rtmp3Db = ZERO
 
    where (tmask > ZERO)         ! assign logical Land-Sea mask
      SEAmask = .TRUE.
@@ -63,23 +68,16 @@
      SEAmask = .FALSE.
    end where
 
-
    !-------------------------------------------------------
-   ! Prepares the masks for the bottom and surface
-   ! grid points.
+   ! Prepares the spatial information and the masks 
+   ! for the bottom and surface grid points.
    ! 3D boolean arrays with .T. at the first
    ! and last ocean layers only
    !-------------------------------------------------------
-
    do j = 1,jpj
       do i = 1,jpi
-!if mbathy is defined uncomment the next lines
-! minimum of mbathy is now 2. Check if still works
-!          if (mbathy(i,j) > 0) then
-!            SRFmask(i,j,1) =  .TRUE.
-!            BOTmask(i,j,mbathy(i,j)) =  .TRUE.
-!          end if
          rtmp3Da(i,j,:) = fse3t(i,j,:)
+         rtmp3Db(i,j,:) = e1t(i,j)*e2t(i,j)
          if (SEAmask(i,j,1)) then
             SRFmask(i,j,1) = .TRUE.
             do k = 1,jpk
@@ -112,33 +110,19 @@
    allocate(mask1d(1:NO_BOXES_X*NO_BOXES_Y*NO_BOXES_Z))
    mask1d = reshape(SEAmask,(/NO_BOXES_X*NO_BOXES_Y*NO_BOXES_Z/))
    ocepoint = find(mask1d,NO_BOXES)
-   deallocate(mask1d)
-
    allocate(surfpoint(NO_BOXES_XY))
+   mask1d = reshape(SRFmask,(/NO_BOXES_X*NO_BOXES_Y*NO_BOXES_Z/))
+   surfpoint = find(mask1d,NO_BOXES_XY)
    allocate(botpoint(NO_BOXES_XY))
-
-
-!MAV:WIND?
-   !   allocate(EWind(NO_BOXES)) ! allocate wind as 1-D variable
-
-   !-------------------------------------------------------
-   ! allocate the arrays for surface and bottom boundary conditions
-   ! At the moment only for inorganic components (nutrients and gases)
-   !-------------------------------------------------------
-!      allocate(bc2D_bio_surf(NO_D3_BOX_STATES,NO_BOXES),stat=status)
-!      if (status /= 0)
-!     &  stop "# FATAL ERROR in ini_trc_bfm: Error allocating bc2D_bio_surf"
-!      bc2D_bio_surf = ZERO
-!      allocate(bc2D_bio_bot(NO_D3_BOX_STATES,NO_BOXES),stat=status)
-!      if (status /= 0)
-!     &  stop "# FATAL ERROR in ini_trc_bfm: Error allocating bc2D_bio_bot"
-!      bc2D_bio_surf = ZERO
+   mask1d = reshape(BOTmask,(/NO_BOXES_X*NO_BOXES_Y*NO_BOXES_Z/))
+   botpoint = find(mask1d,NO_BOXES_XY)
+   deallocate(mask1d)
 
    !-------------------------------------------------------
    ! Prepares the array containing the indices of the
    ! elements in pelagic BFM 1D arrays that have a benthic layer
    !-------------------------------------------------------
-   allocate(BOTindices(NO_BOXES)); BOTindices = 0
+   allocate(BOTindices(NO_BOXES_XY)); BOTindices = 0
    allocate(btmp1D(NO_BOXES))
    btmp1D = pack(BOTmask,SEAmask)
    BOTindices = find(btmp1D,NO_BOXES_XY)
@@ -147,11 +131,19 @@
    ! Prepares the array containing the indices of the
    ! elements in pelagic BFM 1D arrays that have a surface layer
    !-------------------------------------------------------
-   allocate(SRFindices(NO_BOXES)); SRFindices = 0
+   allocate(SRFindices(NO_BOXES_XY)); SRFindices = 0
    btmp1D = pack(SRFmask,SEAmask)
    SRFindices = find(btmp1D,NO_BOXES_XY)
    deallocate(btmp1D)
 
+   !---------------------------------------------
+   ! Initialise the OPA array to store biological 
+   ! light extinction. Used in traqsr.F90 and passed
+   ! via oce_trc.F90
+   !---------------------------------------------
+   lk_qsr_sms = .TRUE.
+   etot3 = ZERO
+   
    !---------------------------------------------
    ! Initialise ancillary arrays for output
    !---------------------------------------------
@@ -169,22 +161,27 @@
    call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
 
    !-------------------------------------------------------
-   ! Prepares the BFM 1D array containing the thickness
-   ! at each sea gridpoint (Depth(NO_BOXES))
-   !---------------------------------------------
-   Depth = pack(rtmp3Da,SEAmask)
+   ! Prepares the BFM 1D arrays containing the 
+   ! spatial informations (have to be done after allocation
+   ! but temporary arrays allocated above)
+   !-------------------------------------------------------
+   Area2d = pack(rtmp3Db(:,:,1),SEAmask(:,:,1))
+   Area   = pack(rtmp3Db,SEAmask)
+   Volume = pack(rtmp3Da*rtmp3Db,SEAmask)
+   !thickness at each sea gridpoint (Depth(NO_BOXES))
+   Depth  = pack(rtmp3Da,SEAmask)
    deallocate(rtmp3Da)
+   deallocate(rtmp3Db)
 
    !---------------------------------------------
    ! initialise netcdf output
-   ! MAV: MISSING THE MAPPING OF OCEPOINT
    !---------------------------------------------
    call calcmean_bfm(INIT)
    call init_netcdf_bfm(out_title,'01-01-0000',0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_0,      &
+             lat2d=gphit,lon2d=glamt,z=gdept_0,    &
              oceanpoint=ocepoint,                  &
-             surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
-             bottompoint=(/(i,i=1,NO_BOXES_XY)/),  &
+             surfacepoint=surfpoint,               &
+             bottompoint=botpoint,                 &
              mask3d=tmask)
    call init_save_bfm
 

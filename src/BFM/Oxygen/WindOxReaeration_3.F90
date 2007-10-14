@@ -99,7 +99,8 @@
   real(RLEN)  :: p_schmidt
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    do BoxNumberXY=1,NO_BOXES_XY
+  do BoxNumberXY=1,NO_BOXES_XY
+
       !
       ! The authors assumed a Schimdt number of CO2 (=reference) of 660.0
       !
@@ -118,8 +119,6 @@
         call flux(BoxNumberXY, iiPel, ppO2o, ppO2o, jsurO2o(BoxNumberXY)/ &
           Depth(BoxNumberXY) )
       end if
-
-
 
   end do
 

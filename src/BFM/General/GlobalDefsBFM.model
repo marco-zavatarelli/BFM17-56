@@ -18,17 +18,32 @@ end
     Ouput7 : any :any
 end
 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#	Dimensional variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 3d-variable
-  Depth	
+  Depth	: Gridpoint Depth: m
+  Volume: Gridpoint Volume: m3
+  Area  : Gridpoint Area: m2
+end
+2d-variable
+  Area2d  : 2-D Gridpoint Area: m2
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#	Physical variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-variable
   ETW	: temperature : C
   ESW	: Salinity : --
   EIR	: Irradiance : uE/m2/s
   ESS	: Suspended sediment : g/m3
-  ERHO  : density : g/m3
+  ERHO  : Seawater Density : kg/m3
 end	
 
 2d-variable
   EWIND	: 2D Wind speed : m/s
+  EICE  : 2D Sea-ice fraction: -
 end 
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -43,6 +58,29 @@ end
     XO2o :  Net O2 conc. = O2 - H2S  :mmol O2/m3
     eO2mO2                 : Relative Oxygen saturation: % 
 end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#	Carbonate system variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2d-variable
+  EPCO2air : atmospheric CO2 partial pressure : uatm
+  CO2airflux : atm-ocean CO2 fluxes : mmol/m2/d
+end
+
+3d-state
+  O3c  : Dissolved Inorganic Carbon :  mg C/m3
+  O3h  : Alkalinity  : umol/kg
+end
+
+3d-variable
+    dic        : Dissolved Inorganic Carbon : umol/kg
+    co2        : CO2(aq) : umol/kg
+    pco2       : Oceanic pCO2 : uatm
+    hco3       : Bicarbonate :  umol/kg
+    co3        : Carbonate : umol/kg
+    pH         : pH : -
+end
+
 
 3d-state
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -105,6 +143,14 @@ end
 
 3d-variable
 
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables to check totmass of C N P Si in pelagic
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    totpel[cnps]  : total mass present in pelagic: g C: g N: g P: g Si
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Diagnostic variables 
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     Chla	:   Chlorophyll : mg Chl/m3
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -225,6 +271,11 @@ end
 
 2d-variable
 
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables to check totmass of C N P Si in benthic
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  totben[cnps]  : total mass present in benthos: g C: g N: g P: g Si
+
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	These variables are used as input to the Benthic Nutrient Model: 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -319,14 +370,16 @@ end
   jK13K3n :  flux of nitrate at lower benthic boundary : mmol/m2/d 
   jK15K5s :  flux of silicate at lower benthic boundary : mmol/m2/d 
 
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  # Variables to check totmass of C N and P in pelagic and benthic
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+end
 
-  totpel[nps]  : total mass present in pelagic: mmol N/m2: mmol P/m2: mmol Si/m2
-  totben[nps]  : total mass present in benthos: mmol N/m2: mmol P/m2: mmol Si/m2
-  totsys[nps]  : total mass present in system: mmol N/m2: mmol P/m2: mmol Si/m2
-
+2d-variable
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables to check total mass of C N P Si in the system
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  totsysc  : total mass :  g C
+  totsysn  : total mass :  g N
+  totsysp  : total mass :  g P
+  totsyss  : total mass :  g Si
 end
 
 3d-flux 

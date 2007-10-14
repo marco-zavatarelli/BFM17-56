@@ -33,7 +33,7 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: iiBen, iiPel, iiReset, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
-  use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag
+  use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag, CalcConservationFlag
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -124,7 +124,8 @@
 
   endif
 
-  call CheckMassConservationDynamics
+  if (CalcConservationFlag) &
+     call CheckMassConservationDynamics
 
 
 

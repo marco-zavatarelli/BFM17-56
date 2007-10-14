@@ -47,7 +47,8 @@ BFM_MOD = \
 	${LIB}(${BFMSRC}/Bennut/ModuleBenQ1Transport.o)			\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenSilica.o)			\
 	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn1.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)			 
+	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)			\
+	${LIB}(${BFMSRC}/CO2/ModuleCO2.o)
 
 	
 BFM_OBJ = \
@@ -129,7 +130,11 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/Bennut/set_max_sing.o) 			\
 	${LIB}(${BFMSRC}/Bennut/svbksb.o) 				\
 	${LIB}(${BFMSRC}/Bennut/svdcmp.o) 				\
-	${LIB}(${BFMSRC}/Bennut/transfer.o) 
+	${LIB}(${BFMSRC}/Bennut/transfer.o)\
+	${LIB}(${BFMSRC}/CO2/CO2Calc.o)\
+	${LIB}(${BFMSRC}/CO2/CO2Flux.o)\
+	${LIB}(${BFMSRC}/CO2/Drtsafe.o)\
+	${LIB}(${BFMSRC}/CO2/Ta_Iter_1.o)
 
 APIBFM_MOD = \
 	${LIB}(./share/api_bfm.o)			\

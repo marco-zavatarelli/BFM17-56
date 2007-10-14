@@ -25,6 +25,7 @@
   use mem_WindOxReaeration_3
   use mem_PelGlobal
   use mem_PelChem
+  use mem_CO2
   use mem_PelBac
   use mem_MesoZoo,p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo
@@ -92,6 +93,7 @@
       call InitWindOxReaeration_3
       call InitPelGlobal
       call InitPelChem
+      call InitCO2
       call InitPelBac
       call InitMesoZoo
       call InitMicroZoo

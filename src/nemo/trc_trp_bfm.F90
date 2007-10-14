@@ -48,6 +48,7 @@ SUBROUTINE trc_trp_bfm( kt )
    USE constants, ONLY: SEC_PER_DAY
    USE global_mem
    USE mem,       ONLY: NO_D3_BOX_STATES,D3STATETYPE,D3SOURCE,D3STATE,D3SINK
+   USE mem_param, ONLY: CalcTransportFlag, CalcConservationFlag
    USE api_bfm
 
    IMPLICIT NONE
@@ -59,14 +60,20 @@ SUBROUTINE trc_trp_bfm( kt )
       INTEGER, INTENT( in ) ::  kt  ! ocean time-step index
    !! ---------------------------------------------------------------------
       INTEGER               :: m
-integer :: k
+      integer :: k
+
+   !
+   ! Exit if transport is not computed. Time integration is carried out 
+   ! with an ODE solver in trcbfm.F90
+   ! The same is done for benthic variables if active 
+   !
+      if (.NOT.CalcTransportFlag) return
+
    !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
    ! BFM tracers, loop over number of state variables
    !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    !-----------------------------------------------------------------------
 
-do k=1,jpkm1
-end do
       DO m = 1,NO_D3_BOX_STATES
          IF (D3STATETYPE(m)>=ALLTRANSPORT) THEN
             ! remap the biological states and trends to 3D arrays
@@ -80,9 +87,11 @@ end do
             END IF
             tra(:,:,:,1) = unpack(sum(D3SOURCE(m,:,:)-D3SINK(m,:,:),1),SEAmask,ZEROS)
 
-            CALL trc_sbc( kt )            ! surface boundary condition (only dilution here, 
+            IF (.NOT.CalcConservationFlag) &
+               CALL trc_sbc( kt )         ! surface boundary condition (only dilution here, 
                                           ! NOTE: does not conserve mass,
-                                          ! comment for mass conservation
+                                          ! because non-dynamical volume is
+                                          ! used; thus, excluded for mass conservation
                                           ! checkings)
             CALL trc_set_bfm( kt, m)      ! set other boundary conditions and compute sinking
 
@@ -125,8 +134,8 @@ end do
 
             CALL trc_nxt( kt )            ! tracer fields at next time step
 
-            CALL trc_rad( kt )            ! Correct artificial negative concentrations for isopycnal scheme            
-                                          ! Nothing is done for the BFM yet
+!            CALL trc_rad( kt )            ! Correct artificial negative concentrations for isopycnal scheme            
+                                           ! Nothing is done for the BFM yet
 
             IF( ln_zps .AND. .NOT. lk_trccfg_1d ) &
                &                     CALL zps_hde_trc( kt, trb, gtru, gtrv )  ! Partial steps: now horizontal gradient

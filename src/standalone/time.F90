@@ -101,7 +101,7 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer                   :: jul1,secs1,jul2,secs2
+   integer                   :: jul1=-1,secs1=-1,jul2,secs2
    integer                   :: ndays,nsecs
 !
 !-------------------------------------------------------------------------

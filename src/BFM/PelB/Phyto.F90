@@ -47,13 +47,14 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN,ZERO,ONE
+  use constants, ONLY: MW_C
 #ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
 #else
-  use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, N3n, N4n, N1p, R1n, R6n, R1p, R6p, &
-    N5s
+  use mem, ONLY: D3STATE, R1c, R6c, O2o, O3c, R2c, &
+                 N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
 #endif
-  use mem, ONLY: ppR1c, ppR6c, ppO2o, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
+  use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, SUNQ, ThereIsLight, flP1R6s, ETW, EIR, xEPS, &
     Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, iiP1, iiP4, NO_BOXES, &
     iiBen, iiPel, flux_vector, runPIn
@@ -359,14 +360,14 @@
      flPIR2c  =   seo*phytoc
   end if
 
-  call flux_vector( iiPel, ppphytoc,ppphytoc,-(- rugc) )  
+  call flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
   call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )
   call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )
 
 
-  call flux_vector( iiPel, ppphytoc,ppphytoc,-( rrc) )
-  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0D+00) )
-  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ 12.0D+00 )
+  call flux_vector( iiPel, ppphytoc,ppO3c, rrc )
+  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
+  call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

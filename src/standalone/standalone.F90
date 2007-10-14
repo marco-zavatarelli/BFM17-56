@@ -15,13 +15,14 @@
 !
 ! !USES:
 !  default: all is private.
-   use global_mem, only:RLEN
+   use global_mem, only:RLEN,ONE
    use constants,  only:SEC_PER_DAY
    private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
    public envforcing_bfm,timestepping,init_standalone
    public temperature,salinity,light,lightAtTime,daylength,instLight
+   public density
 ! !PUBLIC DATA MEMBERS:
    ! Note: all read from namelist
    !---------------------------------------------
@@ -101,6 +102,7 @@
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
                   NO_STATES,Depth,Depth_ben, D3STATE, D2STATE
+   use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
@@ -174,7 +176,12 @@
                  NO_D2_BOX_STATES * NO_BOXES_XY
    LEVEL3 'Number of Boxes:',nboxes
    LEVEL3 'Box Depth:',indepth
-
+   ! set where surface and bottom boxes are 
+   ! (actually all boxes in standalone mode)
+   allocate(SRFindices(NO_BOXES_XY))
+   allocate(BOTindices(NO_BOXES_XY))
+   SRFindices = (/(i,i=1,NO_BOXES_XY)/)
+   BOTindices = (/(i,i=1,NO_BOXES_XY)/)
 
    !---------------------------------------------
    ! initialise the timestepping parameters
@@ -234,12 +241,20 @@
    !---------------------------------------------
    Depth = indepth
    Depth_ben = Depth
+   ! assume area is 1m^2 (make a parameter in the future for 
+   ! mesocosm simulations)
+   Area = ONE
+   Area2d = ONE
+   Volume = Depth*Area
+   !---------------------------------------------
+   ! Initialise external forcing functions
+   !---------------------------------------------
+   call envforcing_bfm
    !---------------------------------------------
    ! Initialise the benthic system
    ! Layer depths and pore-water nutrients are initialised 
    ! according to the value of calc_inital_bennut_states
    !---------------------------------------------
-   call envforcing_bfm
    call init_benthic_bfm(namlst,'bfm.nml',unit,bio_setup)
    !---------------------------------------------
    ! Initialise netcdf output
@@ -293,11 +308,12 @@
 ! !USES
    use api_bfm
    use global_mem, only: RLEN
-   use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND, &
-                         jbotR6c,jbotR6n,jbotR6p,jbotR6s,     &
-                         R6c,R6n,R6p,R6s,O2o
+   use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND,  &
+                         EICE,jbotR6c,jbotR6n,jbotR6p,jbotR6s, &
+                         R6c,R6n,R6p,R6s,O2o,ERHO,EPCO2air,Depth
    use mem_Param,  only: LightForcingFlag,p_PAR
    use constants,  only: E2W 
+   use mem_CO2,    only: pco2air
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -337,14 +353,22 @@
    end select
    ETW = temperature(dyear,dfrac)
    ESW = salinity(dyear,dfrac)
+   ERHO = density(ETW,ESW,Depth/2.0_RLEN)
    ! convert from irradiance to PAR in uE/m2/s
    EIR = wlight*p_PAR/E2W
    ! constant wind velocity (function to be added)
-   EWIND = 10.0
+   EWIND = 10.0_RLEN
+   ! constant sea-ice fraction (function to be added)
+   EICE = 0.0_RLEN
+   ! constant pCO2 in the air (function to be added)
+   EPCO2air = pco2air*(ONE+0.01_RLEN/360._RLEN*dtime)
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW
    LEVEL2 'ESW=',ESW
    LEVEL2 'EIR=',EIR
+   LEVEL2 'ERHO=',ERHO
+   LEVEL2 'EWIND=',EWIND
+   LEVEL2 'EICE=',EICE
 #endif
    call CalcVerticalExtinction
 
@@ -583,6 +607,70 @@
      temperature=(ts+tw)/2.-(ts-tw)/2.*cos((dy+(df-.5))*RFACTOR) &
                     -tde*.5*cos(2*Pi*df)
    END FUNCTION temperature
+!EOC
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:
+!
+! !INTERFACE:
+   FUNCTION density(tr,sr,dep)
+!
+! !DESCRIPTION:
+! This function computes density in kg/m3 from potential temperature
+! Mellor, 1991, J. Atmos. Oceanic Tech., 609-611
+!
+! !USES:
+   use global_mem, only:RLEN
+   use mem,        only: NO_BOXES
+   IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+   real(RLEN),intent(in),dimension(NO_BOXES) :: tr,sr,dep
+!
+!
+! !INPUT/OUTPUT PARAMETERS:
+
+!
+! !OUTPUT PARAMETERS:
+   real(RLEN) :: density(NO_BOXES)
+
+!
+! !REVISION HISTORY:
+!  Author(s): M. Vichi, adapted from POM
+!
+! !LOCAL VARIABLES:
+
+   real(RLEN),parameter :: GRAV=9.806E0_RLEN
+   real(RLEN),dimension(NO_BOXES) :: TR2,TR3,TR4,TR5,SR2,P,P2,CR
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+      TR2=TR  * TR
+      TR3=TR2 * TR
+      TR4=TR3 * TR
+      TR5=TR4 * TR
+      SR2=SR  * SR
+      ! approximate pressure in units of bars
+      P=-GRAV*1.025_RLEN*dep*0.01_RLEN
+      p2=p*p
+      CR = 1449.1_RLEN+0.0821_RLEN*P+4.55_RLEN*   &
+         TR-0.045_RLEN*TR2+1.34_RLEN*(SR-35._RLEN)
+      CR=P/(CR*CR)
+
+      density = (999.842594_RLEN          + 6.793952E-2_RLEN*TR &
+            -   9.095290E-3_RLEN*TR2   + 1.001685E-4_RLEN*TR3   &
+            -   1.120083E-6_RLEN*TR4   + 6.536332E-9_RLEN*TR5   &
+            +(  0.824493_RLEN          - 4.0899E-3_RLEN  *TR    &
+            +   7.6438E-5_RLEN  *TR2   - 8.2467E-7_RLEN  *TR3   &
+            +   5.3875E-9_RLEN  *TR4  )             *SR         &
+            +( -5.72466E-3_RLEN        + 1.0227E-4_RLEN  *TR    &
+            -   1.6546E-6_RLEN  *TR2  )             *SR**1.5    &
+            +   4.8314E-4_RLEN  *SR2                   )        &
+            +   1.E5_RLEN       *CR    *  (ONE-(CR+CR))
+   END FUNCTION density
 !EOC
 
 !-----------------------------------------------------------------------

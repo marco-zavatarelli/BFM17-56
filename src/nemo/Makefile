@@ -1,6 +1,7 @@
 #
 # Makefile to build the BFM model coupled with NEMO
-#
+# Author: M. Vichi (vichi@bo.ingv.it)
+# 
 # $NEMOLIBDIR is obtained from the parent Makefile via export
 #
 BFMLIB     = $(NEMOLIBDIR)/oce/libopa.a
@@ -16,9 +17,11 @@ BFMSHARE   = $(BFMDIR)/src/share
 # compilation macros (compiler dependent, DO SOMETHING)
 REAL_4B = real\(4\)
 
+## NEMO modules (with absolute path)
+F_O += -I$(NEMOLIBDIR)/oce
 ## BFM include files and pp macros
 BFMINCDIR = $(BFMDIR)/src/BFM/include
-F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR)
+F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
 P_P += -DBFM_NEMO  -DREAL_4B=$(REAL_4B)
 ##P_P += -DNOT_STANDALONE -DBFM_NOPOINTERS 
 
@@ -41,7 +44,7 @@ BFM_MOD = \
 	${BFMLIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
 	${BFMLIB}(${BFMSRC}/PelBen/ModuleSettling.o)			\
-	${BFMLIB}(${BFMSRC}/PelBen/ModuleControlBenPartNutrientBuffers.o)	\
+	${BFMLIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)	\
 	${BFMLIB}(${BFMSRC}/Ben/ModuleBenOrganism.o)			\
 	${BFMLIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
 	${BFMLIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
@@ -60,7 +63,9 @@ BFM_MOD = \
 	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenQ1Transport.o)		\
 	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenSilica.o)			\
 	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicReturn1.o)		\
-	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)			 
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)		\
+	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2.o)
+
 
 BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMSHARE}/api_bfm.o)		\
@@ -113,7 +118,7 @@ BFM_OBJ = \
 	${BFMLIB}(${BFMSRC}/PelBen/PelForcingForBen.o)			\
 	${BFMLIB}(${BFMSRC}/PelBen/Sedimentation.o)			\
 	${BFMLIB}(${BFMSRC}/PelBen/Settling.o)				\
-	${BFMLIB}(${BFMSRC}/PelBen/ControlBenPartNutrientBuffers.o)	\
+	${BFMLIB}(${BFMSRC}/PelBen/ControlBennutBuffers.o)		\
 	${BFMLIB}(${BFMSRC}/Ben/BenBac.o)				\
 	${BFMLIB}(${BFMSRC}/Ben/BenOrganism.o)				\
 	${BFMLIB}(${BFMSRC}/Ben/BenthicSystem.o)			\
@@ -163,7 +168,12 @@ BFM_OBJ = \
 	${BFMLIB}(${BFMSRC}/Bennut/set_max_sing.o) 			\
 	${BFMLIB}(${BFMSRC}/Bennut/svbksb.o) 				\
 	${BFMLIB}(${BFMSRC}/Bennut/svdcmp.o) 				\
-	${BFMLIB}(${BFMSRC}/Bennut/transfer.o) 
+	${BFMLIB}(${BFMSRC}/Bennut/transfer.o)				\
+	${BFMLIB}(${BFMSRC}/CO2/CO2Calc.o)				\
+	${BFMLIB}(${BFMSRC}/CO2/CO2Flux.o)				\
+	${BFMLIB}(${BFMSRC}/CO2/Drtsafe.o)				\
+	${BFMLIB}(${BFMSRC}/CO2/Ta_Iter_1.o)
+
 
 .PHONY: all depend clean
 
@@ -183,6 +193,7 @@ depend:
 	makedepf90 ${BFMSRC}/*/*.?90 ${BFMNEMOSRC}/*.?90 ${BFMSHARE}/*.?90 > .depend
 clean:
 	rm -rf ${BFMSRC}/*/*.o ${BFMNEMOSRC}/*.o ${BFMSHARE}/*.o
+	rm -rf ${BFMNEMOSRC}/*.mod
 
 .SUFFIXES: 
 .SUFFIXES: .f90 .F90
@@ -196,6 +207,7 @@ clean:
 		-@#$(A_C) $(BFMLIB) $*.o  > /dev/null
 		-@#$(RM) $*.[of]
 		-@if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
+		-@#if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
 		-@if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
 %.o: %.F90
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
@@ -203,6 +215,7 @@ clean:
 		-@#$(A_C) $(BFMLIB) $*.o  > /dev/null
 		-@#$(RM) $*.[of]
 		-@if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
+		-@#if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
 		-@if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
 
 

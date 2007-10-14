@@ -53,6 +53,7 @@
                 P1c0,P2c0,P3c0,P4c0,Z3c0,  &
                 Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
                 R2c0,R6c0,R7c0,O2o0,O4n0,  &
+                O3c0,O3h0,                 &
                 P1l0,P2l0,P3l0,P4l0,       &
                 P1n0,P2n0,P3n0,P4n0,       &
                 P1p0,P2p0,P3p0,P4p0,P1s0
@@ -63,6 +64,7 @@
                            P1c0,P2c0,P3c0,P4c0,Z3c0,  &
                            Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
                            R2c0,R6c0,R7c0,O2o0,O4n0,  &
+                           O3c0,O3h0,                 &
                            P1l0,P2l0,P3l0,P4l0,       &
                            P1n0,P2n0,P3n0,P4n0,       &
                            P1p0,P2p0,P3p0,P4p0,P1s0
@@ -108,7 +110,9 @@
    N4n0 = _ONE_
    N5s0 = _ONE_
    N6r0 = _ONE_
-   O2o0 = 300.0
+   O2o0 = 280.0_RLEN
+   O3c0 = 24785.0_RLEN ! conversion from GLODAP 2303 umol/kg to mg/m3
+   O3h0 = 2303.0_RLEN  ! GLODAP surface average (umol/kg)
    O4n0 = _ONE_
    P1c0 = _ZERO_
    P2c0 = _ZERO_
@@ -212,6 +216,8 @@
       N5s = N5s0
       N6r = N6r0
       O2o = O2o0
+      O3c = O3c0
+      O3h = O3h0
       O4n = O4n0
       P1c = P1c0
       P1n = P1n0
