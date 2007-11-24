@@ -24,13 +24,15 @@
 #endif
    use mem
    use mem_Phyto, ONLY: p_qnRc,p_qpRc,p_qsRc
-   use mem_BenBac, ONLY: p_qnc,p_qpc
    use constants, ONLY: HOURS_PER_DAY
    use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc, &
                         CalcPhytoPlankton,CalcMicroZooPlankton,          &
-                        CalcMesoZooPlankton,CalcBenOrganisms,            &
-                        CalcBenBacteria,CalcBacteria,CalcPelChemistry,   &
-                        p_small
+                        CalcMesoZooPlankton,CalcPelChemistry
+#ifdef BFM_BENTHIC
+   use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria, CalcBacteria
+   use mem_BenBac, ONLY: p_qnc,p_qpc
+#endif
+   use mem_Param, ONLY: AssignPelBenFluxesInBFMFlag
    use string_functions, ONLY: getseq_number,empty
    IMPLICIT NONE
 !
@@ -293,6 +295,11 @@
       case (1) ! Pelagic only
          LEVEL2 "Pelagic-only setup (bio_setup=1), Switching off the benthic system"
          CalcBenthicFlag = 0
+#ifndef BFM_GOTM
+         ! force computation of bottom fluxes in the BFM
+         AssignPelBenFluxesInBFMFlag = .TRUE.
+#endif
+#ifdef BFM_BENTHIC
       case (2) ! Benthic only
          LEVEL2 "Benthic-only setup (bio_setup=2), Switching off the pelagic system"
          CalcPelagicFlag = .FALSE.
@@ -306,6 +313,7 @@
             LEVEL3 'Warning, benthic system is switched off!'
          if (.NOT.CalcPelagicFlag) &
             LEVEL3 'Warning, pelagic system is switched off!'
+#endif
    end select
 
    !---------------------------------------------
@@ -350,6 +358,7 @@
          end do
       end if
    end do
+#ifdef BFM_BENTHIC
    do j = 1,iiBenOrganisms
       iiLastElement = iiP
       if (.NOT.CalcBenOrganisms(j)) then
@@ -372,6 +381,7 @@
       D3STATETYPE(ppB1n) = NOTRANSPORT
       D3STATETYPE(ppB1p) = NOTRANSPORT
    end if
+#endif
 
    return
 

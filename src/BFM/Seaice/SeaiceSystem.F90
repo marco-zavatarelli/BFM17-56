@@ -1,55 +1,55 @@
 #include "DEBUG.h"
-#include "INCLUDE.h"
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: ResetTotMassVar
+! !ROUTINE: SeaiceSystemDynamics
 !
 ! DESCRIPTION
-!   !
-
+!   This is the Pelagic Submodel. 
+!   All the pelagic biogeochemical modules are called in sequence
+!   according to the logical switches
+!        
 !   This file is generated directly from OpenSesame model code, using a code 
 !   generator which transposes from the sesame meta language into F90.
 !   F90 code generator written by P. Ruardij.
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-  SUBROUTINE ResetTotMassVar()
+  subroutine SeaiceSystemDynamics
 !
 ! !USES:
-  ! The following Benthic 1-d global boxvars got a value: totpeln, &
-  ! totpelp, totpels, totbenn, totbenp, totbens
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem, ONLY: totpeln, totpelp, totpels, totbenn, totbenp, totbens, &
-    NO_BOXES_XY, iiBen, iiPel, flux_vector
+  use mem, ONLY: ppS1p, ppS2p, &
+    ppS1n, ppS2n,  &
+    ppS1s, ppS2s, ppS1c, &
+    ppS1l, ppS2c, ppS2l 
+    use mem, ONLY: iiS1, iiS2 
+   
+  use mem_Param, ONLY:  CalcSeaiceAlgae
 
-
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Global interface
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !use global_interface, ONLY: SeaiceDynamics
 
 !  
 !
 ! !AUTHORS
-!   Piet Ruardij
-!
-!
+!   ERSEM team
 !
 ! !REVISION_HISTORY
-!   Created at Thu Sep 02 10:54:32 AM CEST 2004
-!
-!
-!
+
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -70,19 +70,25 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Other Seaice diagnostics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  call SeaiceGlobalDynamics
 
-  totpeln(:)  =   0.0D+00
-  totpelp(:)  =   0.0D+00
-  totpels(:)  =   0.0D+00
-  totbenn(:)  =   0.0D+00
-  totbenp(:)  =   0.0D+00
-  totbens(:)  =   0.0D+00
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute sea-ice algae dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  if ( CalcSeaiceAlgae(iiS1)) then
+    call SeaiceAlgaeDynamics( iiS1, ppS1c, ppS1n, ppS1p, ppS1s, ppS1l)
+  end if
 
-
+  if ( CalcSeaiceAlgae(iiS2)) then
+    call SeaiceAlgaeDynamics( iiS2, ppS2c, ppS2n, ppS2p, ppS2s, ppS2l)
+  end if
 
 
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

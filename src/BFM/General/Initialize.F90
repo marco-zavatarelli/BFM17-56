@@ -32,6 +32,8 @@
   use mem_Phyto
   use mem_PhotoAvailableRadiation
   use mem_LightAdaptation
+  use mem_Settling
+#ifdef BFM_BENTHIC
   use mem_BenOrganism
   use mem_FilterFeeder
   use mem_BenBac
@@ -47,8 +49,11 @@
   use mem_BenPhosphate
   use mem_BenSilica
   use mem_BenQ1Transport
-  use mem_Settling
   use mem_ControlBennutBuffers
+#endif
+#ifdef BFM_SI
+  use mem_SeaiceAlgae
+#endif
 
 !  
 !
@@ -100,6 +105,8 @@
       call InitPhyto
       call InitPhotoAvailableRadiation
       call InitLightAdaptation
+      call InitSettling
+#ifdef BFM_BENTHIC
       call InitBenOrganism
       call InitFilterFeeder
       call InitBenBac
@@ -115,8 +122,11 @@
       call InitBenPhosphate
       call InitBenSilica
       call InitBenQ1Transport
-      call InitSettling
       call InitControlBennutBuffers
+#endif
+#ifdef BFM_SI
+      call InitSeaiceAlgae
+#endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -10,7 +10,7 @@ MAINOBJ	= ./standalone/standalone_main.o
 LIB	= $(LIBDIR)/libbfm$(buildtype).a
 BFMSRC = ./BFM
 
-BFM_MOD = \
+BFM_PELMOD = \
 	${LIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
 	${LIB}(${BFMSRC}/General/ModuleConstants.o)			\
 	${LIB}(${BFMSRC}/General/ModuleGlobFun.o)			\
@@ -28,30 +28,10 @@ BFM_MOD = \
 	${LIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${LIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
 	${LIB}(${BFMSRC}/PelBen/ModuleSettling.o)			\
-	${LIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)		\
-	${LIB}(${BFMSRC}/Ben/ModuleBenOrganism.o)			\
-	${LIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
-	${LIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
-	${LIB}(${BFMSRC}/Ben/ModuleBioturbation.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenthicNutrient3.o)		\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenAmmonium.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenAnoxic.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenDenitriDepth.o)		\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenNitrate.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenNutConstants.o)		\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenNutType.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenNutInterface.o)		\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenNutVariables.o)		\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenOxygen.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenPhosphate.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenQ1Transport.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenSilica.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn1.o)			\
-	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)			\
 	${LIB}(${BFMSRC}/CO2/ModuleCO2.o)
 
 	
-BFM_OBJ = \
+BFM_PELOBJ = \
 	${LIB}(${BFMSRC}/General/AllocateMem.o)				\
 	${LIB}(${BFMSRC}/General/Ecology.o)				\
 	${LIB}(${BFMSRC}/General/InitBoxParams.o)			\
@@ -75,18 +55,46 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/PelB/PelGlobal.o)				\
 	${LIB}(${BFMSRC}/PelB/PelagicSystem.o)				\
 	${LIB}(${BFMSRC}/PelB/Phyto.o)					\
-	${LIB}(${BFMSRC}/Ben/ResetTotMassVar.o)				\
 	${LIB}(${BFMSRC}/PelBen/BentoPelCoup.o)				\
+	${LIB}(${BFMSRC}/PelBen/Settling.o)				\
+	${LIB}(${BFMSRC}/CO2/CO2Calc.o)					\
+	${LIB}(${BFMSRC}/CO2/CO2Flux.o)					\
+	${LIB}(${BFMSRC}/CO2/Drtsafe.o)					\
+	${LIB}(${BFMSRC}/CO2/Ta_Iter_1.o)
+
+ifeq ($(BFM_BENTHIC),true)
+BFM_BENMOD = \
+	${LIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)		\
+	${LIB}(${BFMSRC}/Ben/ModuleBenOrganism.o)			\
+	${LIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
+	${LIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
+	${LIB}(${BFMSRC}/Ben/ModuleBioturbation.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenthicNutrient3.o)		\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenAmmonium.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenAnoxic.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenDenitriDepth.o)		\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenNitrate.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenNutConstants.o)		\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenNutType.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenNutInterface.o)		\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenNutVariables.o)		\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenOxygen.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenPhosphate.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenQ1Transport.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenSilica.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn1.o)			\
+	${LIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)			\
+
+BFM_BENOBJ = \
+	${LIB}(./share/init_benthic_bfm.o)				\
 	${LIB}(${BFMSRC}/PelBen/PelForcingForBen.o)			\
 	${LIB}(${BFMSRC}/PelBen/Sedimentation.o)			\
-	${LIB}(${BFMSRC}/PelBen/Settling.o)				\
 	${LIB}(${BFMSRC}/PelBen/ControlBennutBuffers.o)			\
 	${LIB}(${BFMSRC}/Ben/BenBac.o)					\
 	${LIB}(${BFMSRC}/Ben/BenOrganism.o)				\
 	${LIB}(${BFMSRC}/Ben/BenthicSystem.o)				\
 	${LIB}(${BFMSRC}/Ben/Bioturbation.o)				\
 	${LIB}(${BFMSRC}/Ben/FilterFeeder.o)				\
-	${LIB}(${BFMSRC}/Ben/ResetTotMassVar.o)				\
 	${LIB}(${BFMSRC}/Bennut/BenAmmonium.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenAnoxic.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenDenitriDepth.o) 			\
@@ -130,18 +138,14 @@ BFM_OBJ = \
 	${LIB}(${BFMSRC}/Bennut/set_max_sing.o) 			\
 	${LIB}(${BFMSRC}/Bennut/svbksb.o) 				\
 	${LIB}(${BFMSRC}/Bennut/svdcmp.o) 				\
-	${LIB}(${BFMSRC}/Bennut/transfer.o)\
-	${LIB}(${BFMSRC}/CO2/CO2Calc.o)\
-	${LIB}(${BFMSRC}/CO2/CO2Flux.o)\
-	${LIB}(${BFMSRC}/CO2/Drtsafe.o)\
-	${LIB}(${BFMSRC}/CO2/Ta_Iter_1.o)
+	${LIB}(${BFMSRC}/Bennut/transfer.o)
+endif
 
 APIBFM_MOD = \
 	${LIB}(./share/api_bfm.o)			\
 	${LIB}(./share/netcdf_bfm.o)			\
 	${LIB}(./share/string_functions.o)		\
 	${LIB}(./share/init_var_bfm.o)			\
-	${LIB}(./share/init_benthic_bfm.o)		\
 	${LIB}(./share/init_cnps.o)			\
 	${LIB}(./share/calcmean_bfm.o)			\
 	${LIB}(./share/make_flux_output.o)		\
@@ -158,8 +162,18 @@ STDALONE_MOD = \
 	${LIB}(./standalone/ResetFluxes.o)	\
 	${LIB}(./standalone/GetDelta.o)
 
+ifeq ($(BFM_SI),true)
+BFM_SIMOD = \
+	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceAlgae.o)
+BFM_SIOBJ = \
+	${LIB}(${BFMSRC}/Seaice/init_seaice_bfm.o)			\
+	${LIB}(${BFMSRC}/Seaice/SeaiceSystem.o)				\
+	${LIB}(${BFMSRC}/Seaice/SeaiceGlobal.o)				\
+	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)
+endif
 
-all: ${BFM_MOD} ${APIBFM_MOD} ${STDALONE_MOD} ${BFM_OBJ} ${EXE}
+all: ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_SIMOD} ${APIBFM_MOD} ${STDALONE_MOD} \
+	${BFM_PELOBJ} ${BFM_BENOBJ} ${BFM_SIOBJ} ${EXE}
 	$(MOVE_MODULES_COMMAND)
 
 $(EXE): $(MAINOBJ) 
@@ -189,7 +203,25 @@ distclean:
 	$(RM) ./BFM/*/*.o
 
 depend:
+ifeq ($(BFM_BENTHIC),true)
 	makedepf90 ${BFMSRC}/*/*.?90 ./share/*.?90 ./standalone/*.?90 > .depend
+else
+	makedepf90 ${BFMSRC}/General/*.?90 \
+		${BFMSRC}/PelB/*.?90 \
+		${BFMSRC}/CO2/*.?90 \
+		${BFMSRC}/Light/*.?90 \
+		${BFMSRC}/Oxygen/*.?90 \
+		${BFMSRC}/Forcing/*.?90 \
+		${BFMSRC}/PelBen/ModuleSettling.f90 \
+		${BFMSRC}/PelBen/Settling.F90 \
+		${BFMSRC}/PelBen/BentoPelCoup.F90 \
+		./share/*.?90 ./standalone/*.?90 > .depend.pelagic
+endif
 
+# include dependencies depending on the model configuration
+ifeq ($(BFM_BENTHIC),true)
 include .depend
+else
+include .depend.pelagic
+endif
 

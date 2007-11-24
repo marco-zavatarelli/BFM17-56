@@ -1,3 +1,7 @@
+BFM v4.0
+--------
+First official all-round release of the BFM
+
 SYSTEM v3.0
 This is the first release that relax the separation betweeen the system and the
 BFM model code. There will be one sigle number for the whole code structure.

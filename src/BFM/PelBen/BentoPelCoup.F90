@@ -47,10 +47,13 @@
   use mem, ONLY: ppR6c, ppR6n, ppR6p, ppR6s, ppO2o, ppN1p, &
     ppN3n, ppN4n, ppN5s, ppN6r, ppR1c, ppR1n, ppR1p, ppPhytoPlankton, BoxNumberZ, &
     NO_BOXES_Z, NO_BOXES_XY, BoxNumber, &
-    BoxNumberXY, Depth, jPIY3c, PIc, jRIY3c, jRIY3n, jRIY3p, jRIY3s, jbotO2o, &
+    BoxNumberXY, Depth,  jbotO2o, &
     jbotN1p, jbotN3n, jbotN4n, jbotN5s, jbotN6r, jbotR6c, jbotR6n, jbotR6p, jbotR6s, &
     jbotR1c, jbotR1n, jbotR1p, PELBOTTOM, &
     iiPhytoPlankton, iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, flux
+#ifdef BFM_BENTHIC
+  use mem, ONLY: PIc, jPIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s
+#endif
   use mem_Param,  ONLY: AssignPelBenFluxesInBFMFlag, p_small
 
 
@@ -110,13 +113,13 @@
     DO BoxNumberXY=1,NO_BOXES_XY
       BoxNumber=D3toD1(BoxNumberXY,BoxNumberZ)
 
-
+#ifdef BFM_BENTHIC
       ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate Phyto Fluxes to Filterfeeder from Pelagic for
       ! all phyt types/constituents
       ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        if ( jPIY3c(BoxNumberXY)> 0) then
-          do i = 1 , ( iiPhytoPlankton)
+      if ( jPIY3c(BoxNumberXY)> 0) then
+        do i = 1 , ( iiPhytoPlankton)
 
           lcl_PhytoPlankton => PhytoPlankton(i,iiC)
           Pc  =   lcl_PhytoPlankton(BoxNumber)
@@ -142,13 +145,9 @@
               PELBOTTOM(j,BoxNumberXY) =  PELBOTTOM(j,BoxNumberXY)  &
                               -uptake* lcl_PhytoPlankton(BoxNumber)/ Pc
             end if
-
           end if
-
         end do
-
       end if
-
 
       ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Net detritus Fluxes to Benthic from Pelagic by Y3
@@ -162,6 +161,7 @@
         Depth(BoxNumber)) )
       call flux(BoxNumber, iiPel, ppR6s, ppR6s, -( jRIY3s(BoxNumberXY)/ &
         Depth(BoxNumber)) )
+#endif
 
       ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! All Fluxes to Benthic from Pelagic defined for the

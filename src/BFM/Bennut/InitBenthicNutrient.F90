@@ -37,14 +37,6 @@
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
   use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag
 
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following global functions are used:ResetTotMassVar
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use global_interface,   ONLY: ResetTotMassVar
-
-
-
 !  
 !
 ! !AUTHORS

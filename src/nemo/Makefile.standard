@@ -1,5 +1,5 @@
 #
-# Makefile to build the pelagic configuration of the BFM model coupled with NEMO
+# Makefile to build the BFM model coupled with NEMO
 # Author: M. Vichi (vichi@bo.ingv.it)
 # 
 # $NEMOLIBDIR is obtained from the parent Makefile via export
@@ -22,10 +22,10 @@ F_O += -I$(NEMOLIBDIR)/oce
 ## BFM include files and pp macros
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
-P_P += -DBFM_NEMO  -DREAL_4B=$(REAL_4B)
+P_P += -DBFM_NEMO -DBFM_BENTHIC  -DREAL_4B=$(REAL_4B)
 
 
-BFM_PELMOD = \
+BFM_MOD = \
 	${BFMLIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
 	${BFMLIB}(${BFMSRC}/General/ModuleConstants.o)			\
 	${BFMLIB}(${BFMSRC}/General/ModuleGlobFun.o)			\
@@ -43,6 +43,26 @@ BFM_PELMOD = \
 	${BFMLIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
 	${BFMLIB}(${BFMSRC}/PelBen/ModuleSettling.o)			\
+	${BFMLIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)	\
+	${BFMLIB}(${BFMSRC}/Ben/ModuleBenOrganism.o)			\
+	${BFMLIB}(${BFMSRC}/Ben/ModuleBenBac.o)				\
+	${BFMLIB}(${BFMSRC}/Ben/ModuleFilterFeeder.o)			\
+	${BFMLIB}(${BFMSRC}/Ben/ModuleBioturbation.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicNutrient3.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenAmmonium.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenAnoxic.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenDenitriDepth.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenNitrate.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenNutConstants.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenNutType.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenNutInterface.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenNutVariables.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenOxygen.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenPhosphate.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenQ1Transport.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenSilica.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicReturn1.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/ModuleBenthicReturn2.o)		\
 	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2.o)
 
 
@@ -68,7 +88,7 @@ BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMNEMOSRC}/D3toD1.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/D2toD1.o)
 
-BFM_PELOBJ = \
+BFM_OBJ = \
 	${BFMLIB}(${BFMSRC}/General/set_var_info_bfm.o)			\
 	${BFMLIB}(${BFMSRC}/General/AllocateMem.o)			\
 	${BFMLIB}(${BFMSRC}/General/Ecology.o)				\
@@ -92,8 +112,62 @@ BFM_PELOBJ = \
 	${BFMLIB}(${BFMSRC}/PelB/PelGlobal.o)				\
 	${BFMLIB}(${BFMSRC}/PelB/PelagicSystem.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/Phyto.o)				\
+	${BFMLIB}(${BFMSRC}/Ben/ResetTotMassVar.o)			\
 	${BFMLIB}(${BFMSRC}/PelBen/BentoPelCoup.o)			\
+	${BFMLIB}(${BFMSRC}/PelBen/PelForcingForBen.o)			\
+	${BFMLIB}(${BFMSRC}/PelBen/Sedimentation.o)			\
 	${BFMLIB}(${BFMSRC}/PelBen/Settling.o)				\
+	${BFMLIB}(${BFMSRC}/PelBen/ControlBennutBuffers.o)		\
+	${BFMLIB}(${BFMSRC}/Ben/BenBac.o)				\
+	${BFMLIB}(${BFMSRC}/Ben/BenOrganism.o)				\
+	${BFMLIB}(${BFMSRC}/Ben/BenthicSystem.o)			\
+	${BFMLIB}(${BFMSRC}/Ben/Bioturbation.o)				\
+	${BFMLIB}(${BFMSRC}/Ben/FilterFeeder.o)				\
+	${BFMLIB}(${BFMSRC}/Ben/ResetTotMassVar.o)			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenAmmonium.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenAnoxic.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenDenitriDepth.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenNitrate.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenNitrogenShifting.o) 		\
+	${BFMLIB}(${BFMSRC}/Bennut/BenOxygen.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenPhosphate.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenQ1Transport.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenSilica.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenthicNutrient2.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenthicNutrient3.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenthicReturn1.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/BenthicReturn2.o) 			\
+        ${BFMLIB}(${BFMSRC}/Bennut/InitBenthicNutrient.o)		\
+        ${BFMLIB}(${BFMSRC}/Bennut/InitBenthicNutrient3.o)		\
+	${BFMLIB}(${BFMSRC}/Bennut/CalculateFromSet.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/CalculateSet.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/CalculateShift.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/CalculateTau.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/CompleteSet.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/InitializeSet.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/DefineSet.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/GetInfoFromSet.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/PrintSet.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/bess_exp.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/bessi0.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/bessi1.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/bessk0.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/bessk1.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/calculate_equation.o) 		\
+	${BFMLIB}(${BFMSRC}/Bennut/calculatelayer.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/funcalc.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/input_para.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/kfind.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/lubksb.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/ludcmp.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/manage_coeff.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/noutput.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/qgaus_exp.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/re_store.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/set_max_sing.o) 			\
+	${BFMLIB}(${BFMSRC}/Bennut/svbksb.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/svdcmp.o) 				\
+	${BFMLIB}(${BFMSRC}/Bennut/transfer.o)				\
 	${BFMLIB}(${BFMSRC}/CO2/CO2Calc.o)				\
 	${BFMLIB}(${BFMSRC}/CO2/CO2Flux.o)				\
 	${BFMLIB}(${BFMSRC}/CO2/Drtsafe.o)				\
@@ -105,8 +179,8 @@ BFM_PELOBJ = \
 # Include the dependency-list created by makedepf90 below
 include .depend
 
-all .depend: depend $(BFM_PELMOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) 
-#all : $(BFM_PELMOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) 
+all .depend: depend $(BFM_MOD) $(BFMNEMO_OBJ) $(BFM_OBJ) 
+#all : $(BFM_MOD) $(BFMNEMO_OBJ) $(BFM_OBJ) 
 
 $(BFM_MOD) : $(BFMSRC)/General/ModuleMem.F90
 
@@ -115,16 +189,7 @@ ${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model
                 -from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem \
                 -to ${BFMSRC}/include -actions headermem
 depend:
-	makedepf90 ${BFMSRC}/General/*.?90 \
-		${BFMSRC}/PelB/*.?90 \
-		${BFMSRC}/CO2/*.?90 \
-		${BFMSRC}/Light/*.?90 \
-		${BFMSRC}/Oxygen/*.?90 \
-		${BFMSRC}/Forcing/*.?90 \
-		${BFMSRC}/PelBen/ModuleSettling.f90 \
-		${BFMSRC}/PelBen/Settling.F90 \
-		${BFMSRC}/PelBen/BentoPelCoup.F90 \
-		${BFMNEMOSRC}/*.?90 ${BFMSHARE}/*.?90 > .depend
+	makedepf90 ${BFMSRC}/*/*.?90 ${BFMNEMOSRC}/*.?90 ${BFMSHARE}/*.?90 > .depend
 clean:
 	rm -rf ${BFMSRC}/*/*.o ${BFMNEMOSRC}/*.o ${BFMSHARE}/*.o
 	rm -rf ${BFMNEMOSRC}/*.mod

@@ -22,10 +22,14 @@
 
   USE global_mem
   USE constants
-  USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, &
-    iiMicroZooPlankton, iiBenOrganisms, iiBenDetritus, iiBenBacteria, &
-    iiBenthicPhosphate, iiBenthicAmmonium
-
+  USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, iiMicroZooPlankton
+#ifdef BFM_BENTHIC
+  USE mem, ONLY: iiBenOrganisms, iiBenDetritus, iiBenBacteria, &
+                 iiBenthicPhosphate, iiBenthicAmmonium
+#endif
+#ifdef BFM_SI
+  USE mem, ONLY: iiSeaiceAlgae, iiSeaiceZoo
+#endif
 !  
 !
 ! !AUTHORS
@@ -95,9 +99,21 @@
   logical   :: CalcPhytoPlankton(iiPhytoPlankton) = .TRUE.
   logical   :: CalcMicroZooPlankton(iiMicroZooPlankton) = .TRUE.
   logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
+  logical   :: CalcBacteria = .TRUE. 
+#ifdef BFM_BENTHIC
   logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
   logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
-  logical   :: CalcBacteria = .TRUE.
+#endif
+
+#ifdef BFM_SI
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Sea-ice flags
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  logical   ::  CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
+  logical   :: CalcSeaiceAlgae(iiSeaiceAlgae) = .TRUE.
+  logical   :: CalcSeaiceZoo(iiSeaiceZoo) = .TRUE.
+  logical   :: CalcSeaiceBacteria = .TRUE.
+#endif
 
   logical   :: &
       CalcPelChemistry=.TRUE.  ,  &  !
@@ -140,7 +156,8 @@
       p_pe_R1p=0.832  ,  &  ! Fraction of excretion going to PLOC
       p_pe_R1s=0.06  ,  &
       p_epsChla=10.0e-3  ,  &  ! Chla-contribution to extinction
-      p_epsR6=0.1e-3  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      p_epsR6=0.1e-3  
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
   public InitParam
@@ -154,11 +171,17 @@
   namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,      &
     p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,            &
-    CalcPelChemistry,CalcMesoZooPlankton,CalcBenOrganisms,CalcBenBacteria,  &
-    CalcBacteria, AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, &
+    CalcPelChemistry,CalcMesoZooPlankton, CalcBacteria, &
+    AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, &
     p_PAR, ChlLightFlag, LightForcingFlag, LightLocationFlag,               &
     p_qchlc, p_poro0, p_eps0, p_epsESS,                                      &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s, &
+#ifdef BFM_BENTHIC
+    CalcBenOrganisms,CalcBenBacteria,  & 
+#endif
+#ifdef BFM_SI
+    CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,        &
+#endif
     p_epsChla, p_epsR6,check_fixed_quota
    integer :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

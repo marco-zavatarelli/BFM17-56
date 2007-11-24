@@ -101,12 +101,15 @@
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth,Depth_ben, D3STATE, D2STATE
+                  NO_STATES,Depth, D3STATE, D2STATE
    use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use time
+#ifdef BFM_BENTHIC
+   use mem, only: Depth_ben
+#endif
 
    IMPLICIT NONE
 !
@@ -240,7 +243,9 @@
    ! Assign depth
    !---------------------------------------------
    Depth = indepth
+#ifdef BFM_BENTHIC
    Depth_ben = Depth
+#endif
    ! assume area is 1m^2 (make a parameter in the future for 
    ! mesocosm simulations)
    Area = ONE
@@ -250,12 +255,21 @@
    ! Initialise external forcing functions
    !---------------------------------------------
    call envforcing_bfm
+#ifdef BFM_BENTHIC
    !---------------------------------------------
    ! Initialise the benthic system
    ! Layer depths and pore-water nutrients are initialised 
-   ! according to the value of calc_inital_bennut_states
+   ! according to the value of calc_initial_bennut_states
    !---------------------------------------------
    call init_benthic_bfm(namlst,'bfm.nml',unit,bio_setup)
+#endif
+#ifdef BFM_SI
+   !---------------------------------------------
+   ! Initialise the sea-ice system
+   !---------------------------------------------
+   call init_seaice_bfm(namlst,'seaice.nml',unit,bio_setup)
+#endif
+
    !---------------------------------------------
    ! Initialise netcdf output
    !---------------------------------------------
@@ -284,6 +298,16 @@
       ccc_tmp3D = D3STATE
       ccc_tmp2D = D3STATE
    end if
+
+#ifdef DEBUG
+   ! print out initial values (first grid point only)
+   do i=1,NO_D3_BOX_STATES
+     LEVEL1 trim(var_names(stPelStateS+i-1)),D3STATE(i,1)
+   end do
+   do i=1,NO_D2_BOX_STATES
+     LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE(i,1)
+   end do
+#endif
 
    return
 
@@ -314,6 +338,10 @@
    use mem_Param,  only: LightForcingFlag,p_PAR
    use constants,  only: E2W 
    use mem_CO2,    only: pco2air
+#ifdef BFM_SI
+   ! seaice forcings
+   use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
+#endif
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -384,6 +412,18 @@
       R6s(:) = R6s(:)+botdep_si*biodelta
       O2o(:) = O2o(:)+botox_o*biodelta
    end if
+
+#ifdef BFM_SI
+! sea-ice environmental forcings
+! Reading from file to be added
+  EVB = ONE
+  ETB = ONE
+  ESB = ONE
+  ! convert from irradiance to PAR in uE/m2/s
+  EIB = ONE/E2W
+  EHB = ONE
+  ESI = ONE
+#endif
 
    end subroutine envforcing_bfm
 !EOC

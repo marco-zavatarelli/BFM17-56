@@ -20,17 +20,6 @@
   subroutine CheckMassConservationDynamics
 !
 ! !USES:
-  ! The following Pelagic-states are used (NOT in fluxes): P1p, P2p, P3p, P4p, &
-  ! B1p, Z3p, Z4p, Z5p, Z6p, R1p, R6p, N1p, P1n, P2n, P3n, P4n, B1n, Z3n, Z4n, &
-  ! Z5n, Z6n, R1n, R6n, N3n, N4n, O4n, P1s, R6s, N5s
-  ! The following Benthic-states are used (NOT in fluxes): Q1p, Q6p, Q1n, Q6n, &
-  ! Q6s, Y1p, Y2p, Y3p, Y4p, Y5p, H1p, H2p, Q11p, K1p, K11p, Y1n, Y2n, Y3n, &
-  ! Y4n, Y5n, H1n, H2n, Q11n, K4n, K14n, K21p, G4n, K3n, K24n, K5s
-  ! The following Benthic 1-d global boxvars got a value: totbenp, totbenn, &
-  ! totbens
-  ! The following 0-d global parameters are used: CalcBenthicFlag
-  ! The following global constants are used: RLEN
-  ! The following constants are used: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -43,26 +32,30 @@
 #else
   use mem, ONLY: B1c, B1p, B1n, N1p, N3n, N4n, O4n, &
     N5s, O3c, D2STATE
+#ifdef BFM_BENTHIC
   use mem, ONLY: Q1c, Q6c, Q1p, Q6p, Q1n, Q6n, Q6s, Y1p, Y2p, Y3p, Y4p, Y5p, H1p, H2p, &
     Q11p, K1p, K11p, Y1n, Y2n, Y3n, Y4n, Y5n, H1n, H2n, Q11n, K4n, K14n, K21p, &
     G4n, K3n, K24n, K5s, D3STATE
 #endif
+#endif
   use mem, ONLY: ppB1c,ppB1p,ppB1n, &
      ppN1p, ppN3n, ppN4n, ppO4n, ppN5s, ppO3c, D2STATE, &
     Depth, Volume, Area, Area2d
-  use mem, ONLY: ppQ1c, ppQ6c, ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
-    ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
-    ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
-    ppG4n, ppK3n, ppK24n, ppK5s, totbenc, totbenp, totbenn, totbens, NO_BOXES_XY, iiBen
   use mem, ONLY: &
     totpelc, totpelp, totpeln, totpels, totsysc, totsysp, totsysn, totsyss, &
     iiPel, flux_vector,ppMicroZooplankton,ppMesoZooPlankton,MicroZooplankton,MesoZooPlankton, &
     iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,iiC,iiN,iiP,iiS,&
     PhytoPlankton,iiPhytoPlankton,ppPhytoPlankton,PelDetritus,iiPelDetritus,ppPelDetritus
-  use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
-  use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
   use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
+#ifdef BFM_BENTHIC
+  use mem, ONLY: ppQ1c, ppQ6c, ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
+    ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
+    ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
+    ppG4n, ppK3n, ppK24n, ppK5s, totbenc, totbenp, totbenn, totbens, NO_BOXES_XY, iiBen
+  use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
+#endif
+  use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
 
 !  
 !
@@ -172,6 +165,7 @@
   totsysp = sum(totpelp(:))
   totsyss = sum(totpels(:))
 
+#ifdef BFM_BENTHIC
   select case ( CalcBenthicFlag)
 
     case ( 0 )
@@ -215,9 +209,10 @@
   totsysn = totsysn+sum(totbenn(:))
   totsysp = totsysp+sum(totbenp(:))
   totsyss = totsyss+sum(totbens(:))
+#endif
 
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

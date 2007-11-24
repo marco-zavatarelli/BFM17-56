@@ -34,7 +34,7 @@ LDFLAGS		+= -L$(NETCDFLIBDIR)
 ##
 .PHONY: clean realclean distclean dummy
 
-# Default root directory BFM
+## Default root directory BFM
 # BFMDIR path must be given with an environmental variable
 ifndef BFMDIR
   $(error The environment variable BFMDIR is not defined!)
@@ -45,34 +45,42 @@ CPP = /lib/cpp
 EXTRA_LIBS += $(NETCDFLIB)
 
 ## Directory related settings.
-
 ifndef BINDIR
 BINDIR	= $(BFMDIR)/bin
 endif
-
 ifndef LIBDIR
 LIBDIR	= $(BFMDIR)/lib/$(FORTRAN_COMPILER)
 endif
-
 ifndef MODDIR
 MODDIR	= $(BFMDIR)/modules/$(FORTRAN_COMPILER)
 endif
 
 INCDIRS	+= -I/usr/local/include -I$(BFMDIR)/include -I$(MODDIR)
 
-## BFM include files and the library
+## BFM configuration 
+# BFM include files and the library
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 INCDIRS		+= -I$(BFMINCDIR)
-##DEFINES += -DBFM_NOPOINTERS -DNOT_STANDALONE
+## DEFINES += -DBFM_NOPOINTERS -DNOT_STANDALONE
 ## DEFINES += -DNOT_STANDALONE
-## FEATURE_LIBS += -lbio$(buildtype)
 
-## Normally this should not be changed - unless you want something very specific.
+# Benthic ecosystem (activates compilation and macros, true by default)
+BFM_BENTHIC = true
+ifeq ($(BFM_BENTHIC),true)
+DEFINES += -DBFM_BENTHIC
+endif
+# Sea-ice ecosystem (activates compilation and macros, false by default)
+BFM_SI = false
+ifeq ($(BFM_SI),true)
+DEFINES += -DBFM_SI
+endif
+
+##
+## Normally no changes below this line
+## -----------------------------------
 
 ## The Fortran compiler is determined from the EV FORTRAN_COMPILER - options 
-## so far:
-## SunOS, PGF90 - Portland Group Fortran Compiler (on Intel Linux), Intel (ifc, ifort)
-## gfortran, NEC SXF90
+## so far: Intel ifort, gfortran, NEC SXF90
 ## Default is none
 ifndef FORTRAN_COMPILER
   $(error The environment variable FORTRAN_COMPILER is not defined!)

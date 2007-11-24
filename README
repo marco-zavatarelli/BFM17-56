@@ -6,4 +6,4 @@ Users are requested to follow the quickstart instructions provided
 in the doc/ directory.
 
 A list of the important environmental variables is also given in the 
-script src/bfm_env.sh
+scripts directory

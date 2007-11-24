@@ -34,14 +34,9 @@
   use mem,  ONLY: iiBen, iiPel, iiReset, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
   use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag, CalcConservationFlag
-
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following global functions are used:ResetTotMassVar
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use global_interface,   ONLY: ResetTotMassVar
-
-
+#ifdef BFM_SI
+  use mem_Param,  ONLY: CalcSeaiceFlag
+#endif
 
 !  
 !
@@ -80,8 +75,13 @@
   call  flux(1,iiReset,1,1,0.00D+00)
 #endif
 
-  call  ResetTotMassVar( )
+#ifdef BFM_SI
+  if ( CalcSeaiceFlag) then
 
+    call SeaiceSystemDynamics
+
+  end if
+#endif
 
   if ( CalcPelagicFlag) then
 
@@ -89,6 +89,7 @@
 
   end if
 
+#ifdef BFM_BENTHIC
   if ( CalcBenthicFlag > 0 ) then
 
          call SettlingDynamics
@@ -122,7 +123,19 @@
 
        call SedimentationDynamics
 
+  else 
+       ! This case considers an inactive benthic system 
+       ! (the benthic arrays are defined but not used)
+       ! only the net sink at the bottom is computed
+       call SettlingDynamics
+       call BentoPelCoupDynamics
+
   endif
+#else
+  ! only the net sink at the bottom is computed
+  call SettlingDynamics
+  call BentoPelCoupDynamics
+#endif
 
   if (CalcConservationFlag) &
      call CheckMassConservationDynamics
@@ -131,7 +144,7 @@
 
 
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

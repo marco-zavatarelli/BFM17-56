@@ -174,14 +174,6 @@
 
   INTERFACE
 
-  SUBROUTINE ResetTotMassVar()
-  use global_mem, ONLY:RLEN
-  implicit none
-  end SUBROUTINE ResetTotMassVar
-  end INTERFACE
-
-  INTERFACE
-
   FUNCTION BoxAbove(box_no)
   use global_mem, ONLY:RLEN
   implicit none

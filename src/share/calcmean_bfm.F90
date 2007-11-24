@@ -122,9 +122,9 @@
                if ( var_ave(i) ) then
                   k=k+1
                   if ( ave_count < 1.5 ) then
-                     D2ave(k,0:1)=D2STATE(j,0:1)
+                     D2ave(k,:)=D2STATE(j,:)
                   else
-                     D2ave(k,0:1)=D2ave(k,0:1)+D2STATE(j,0:1)
+                     D2ave(k,:)=D2ave(k,:)+D2STATE(j,:)
                   end if
                end if
             end do
