@@ -22,7 +22,7 @@ F_O += -I$(NEMOLIBDIR)/oce
 ## BFM include files and pp macros
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
-P_P += -DBFM_NEMO  -DREAL_4B=$(REAL_4B)
+P_P += -DBFM_NEMO  -DREAL_4B=$(REAL_4B) -fPIC -shared-intel -mcmodel=large
 
 
 BFM_PELMOD = \
@@ -54,7 +54,6 @@ BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMSHARE}/string_functions.o)	\
 	${BFMLIB}(${BFMSHARE}/init_cnps.o)		\
 	${BFMLIB}(${BFMSHARE}/init_var_bfm.o)		\
-	${BFMLIB}(${BFMSHARE}/init_benthic_bfm.o)	\
 	${BFMLIB}(${BFMSHARE}/make_flux_output.o)	\
 	${BFMLIB}(${BFMNEMOSRC}/trc_ini_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trcbfm.o)		\
@@ -124,7 +123,14 @@ depend:
 		${BFMSRC}/PelBen/ModuleSettling.f90 \
 		${BFMSRC}/PelBen/Settling.F90 \
 		${BFMSRC}/PelBen/BentoPelCoup.F90 \
-		${BFMNEMOSRC}/*.?90 ${BFMSHARE}/*.?90 > .depend
+		${BFMSHARE}/ResetFluxes.F90 \
+		${BFMSHARE}/api_bfm.F90 \
+		${BFMSHARE}/calcmean_bfm.F90 \
+		${BFMSHARE}/init_cnps.F90 \
+		${BFMSHARE}/init_var_bfm.F90 \
+		${BFMSHARE}/netcdf_bfm.F90 \
+		${BFMSHARE}/string_functions.F90 \
+		${BFMNEMOSRC}/*.?90 > .depend
 clean:
 	rm -rf ${BFMSRC}/*/*.o ${BFMNEMOSRC}/*.o ${BFMSHARE}/*.o
 	rm -rf ${BFMNEMOSRC}/*.mod
