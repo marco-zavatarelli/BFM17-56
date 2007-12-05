@@ -1,0 +1,128 @@
+#
+# Makefile to build the pelagic configuration of the BFM model coupled with ROMS
+# Author: M. Vichi (vichi@bo.ingv.it)
+# 
+# $NEMOLIBDIR is obtained from the parent Makefile via export
+#
+
+# BFMDIR path is an environmental variable
+ifndef BFMDIR
+  $(error The environment variable BFMDIR is not defined!)
+endif
+BFMSRC 	   = $(BFMDIR)/src/BFM
+BFMROMSSRC = $(BFMDIR)/src/roms
+BFMSHARE   = $(BFMDIR)/src/share
+
+# compilation macros (compiler dependent, DO SOMETHING)
+REAL_4B = real\(4\)
+
+## BFM include files and pp macros
+BFMINCDIR = $(BFMDIR)/src/BFM/include
+CPPFLAGS += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NETCDF_INCDIR) 
+MY_CPP_FLAGS += -DBFM_ROMS  -DREAL_4B=$(REAL_4B) 
+
+sources =
+
+BFM_PELMOD = \
+	${BFMSRC}/General/ModuleGlobalMem.o			\
+	${BFMSRC}/General/ModuleConstants.o			\
+	${BFMSRC}/General/ModuleGlobFun.o			\
+	${BFMSRC}/General/bfm_error_msg.o			\
+	${BFMSRC}/General/ModuleMem.o			\
+	${BFMSRC}/General/ModuleParam.o			\
+	${BFMSRC}/General/ModuleInterface.o			\
+	${BFMSRC}/Light/ModuleLightAdaptation.o		\
+	${BFMSRC}/Light/ModulePhotoAvailableRadiation.o	\
+	${BFMSRC}/Oxygen/ModuleWindOxReaeration_3.o		\
+	${BFMSRC}/PelB/ModuleMesoZoo.o			\
+	${BFMSRC}/PelB/ModuleMicroZoo.o			\
+	${BFMSRC}/PelB/ModulePelBac.o			\
+	${BFMSRC}/PelB/ModulePelChem.o			\
+	${BFMSRC}/PelB/ModulePelGlobal.o			\
+	${BFMSRC}/PelB/ModulePhyto.o				\
+	${BFMSRC}/PelBen/ModuleSettling.o			\
+	${BFMSRC}/CO2/ModuleCO2.o
+
+
+BFMROMS_OBJ   = \
+	${BFMSHARE}/api_bfm.o		\
+	${BFMSHARE}/netcdf_bfm.o		\
+	${BFMSHARE}/ResetFluxes.o		\
+	${BFMSHARE}/calcmean_bfm.o		\
+	${BFMSHARE}/string_functions.o	\
+	${BFMSHARE}/init_cnps.o		\
+	${BFMSHARE}/init_var_bfm.o		\
+	${BFMSHARE}/make_flux_output.o
+
+BFM_PELOBJ = \
+	${BFMSRC}/General/set_var_info_bfm.o			\
+	${BFMSRC}/General/AllocateMem.o			\
+	${BFMSRC}/General/Ecology.o				\
+	${BFMSRC}/General/InitBoxParams.o			\
+	${BFMSRC}/General/Initialize.o			\
+	${BFMSRC}/General/InitTransportStateTypes.o		\
+	${BFMSRC}/General/eTq.o				\
+	${BFMSRC}/General/CheckMassConservation.o		\
+	${BFMSRC}/Light/LightAdaptation.o			\
+	${BFMSRC}/Light/PhotoAvailableRadiation.o		\
+	${BFMSRC}/Oxygen/WindOxReaeration_3.o		\
+	${BFMSRC}/Oxygen/CalcOxygenSaturation_3.o		\
+	${BFMSRC}/Oxygen/CalcSchmidtNumberOx.o		\
+	${BFMSRC}/PelB/CalcChlorophylla.o			\
+	${BFMSRC}/PelB/CalcVerticalExtinction.o		\
+	${BFMSRC}/PelB/MicroZoo.o				\
+	${BFMSRC}/PelB/MesoZoo.o				\
+	${BFMSRC}/PelB/MicroZoo.o				\
+	${BFMSRC}/PelB/PelBac.o				\
+	${BFMSRC}/PelB/PelChem.o				\
+	${BFMSRC}/PelB/PelGlobal.o				\
+	${BFMSRC}/PelB/PelagicSystem.o			\
+	${BFMSRC}/PelB/Phyto.o				\
+	${BFMSRC}/PelBen/BentoPelCoup.o			\
+	${BFMSRC}/PelBen/Settling.o				\
+	${BFMSRC}/CO2/CO2Calc.o				\
+	${BFMSRC}/CO2/CO2Flux.o				\
+	${BFMSRC}/CO2/Drtsafe.o				\
+	${BFMSRC}/CO2/Ta_Iter_1.o
+
+
+.PHONY: all depend clean
+
+
+all : $(BFM_PELMOD) $(BFMROMS_OBJ) $(BFM_PELOBJ) depend
+
+$(BFM_MOD) : $(BFMSRC)/General/ModuleMem.F90
+
+${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model
+	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
+                -from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem \
+                -to ${BFMSRC}/include -actions headermem
+${BFMSRC}/General/AllocateMem.F90: $(BFMSRC)/General/ModuleMem.F90
+${BFMSRC}/General/set_var_info_bfm.F90: $(BFMSRC)/General/ModuleMem.F90
+
+depend:
+	(cd  $(ROOTDIR)/$(SCRATCH_DIR) ; \
+	$(ROOTDIR)/$(SFMAKEDEPEND) $(MDEPFLAGS) `cat sources` > MakeDependBFM)
+
+.SUFFIXES: 
+.SUFFIXES: .f90 .F90
+
+# rules
+.DEFAULTS:
+
+%.o: %.f90 
+	cp $< $(ROOTDIR)/$(SCRATCH_DIR)/
+	cd $(ROOTDIR)/$(SCRATCH_DIR); $(FC) -c -I$(NETCDF_INCDIR) $(FFLAGS) $(*F).f90
+	echo $< >> $(ROOTDIR)/$(SCRATCH_DIR)/sources
+
+%.o: %.F90 
+	$(CPP) $(CPPFLAGS) $(MY_CPP_FLAGS) $< > $*.tmp
+	mv $*.tmp $(ROOTDIR)/$(SCRATCH_DIR)/$(*F).f90
+	cd $(ROOTDIR)/$(SCRATCH_DIR); $(FC) -c -I$(NETCDF_INCDIR) $(FFLAGS) $(*F).f90
+	echo $< >> $(ROOTDIR)/$(SCRATCH_DIR)/sources
+
+
+
+#-----------------------------------------------------------------------
+# Copyright (C) 2006 - the BFM-team
+#-----------------------------------------------------------------------
