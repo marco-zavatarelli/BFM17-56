@@ -20,9 +20,8 @@
    private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public envforcing_bfm,timestepping,init_standalone
-   public temperature,salinity,light,lightAtTime,daylength,instLight
-   public density
+   public timestepping,init_standalone,end_standalone
+
 ! !PUBLIC DATA MEMBERS:
    ! Note: all read from namelist
    !---------------------------------------------
@@ -53,11 +52,6 @@
    !---------------------------------------------
    integer,public     :: nmaxdelt,nendtim,nmin,nstep,ntime, &
                          method
-   !---------------------------------------------
-   ! forcing function parameters
-   !---------------------------------------------
-   real(RLEN), public :: tw,ts,tde,sw,ss,lw,ls
-   real(RLEN), public :: botdep_c,botdep_n,botdep_p,botdep_si,botox_o
    !---------------------------------------------
    ! arrays for integration routines
    !---------------------------------------------
@@ -107,7 +101,7 @@
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use time
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
    use mem, only: Depth_ben
 #endif
 
@@ -121,16 +115,19 @@
 ! !LOCAL VARIABLES:
    namelist /standalone_nml/ nboxes,indepth,maxdelt,    &
             mindelt,endtim,method,latitude,longitude
-   namelist /anforcings_nml/ lw,ls,sw,ss,tw,ts,tde,     &
-            botdep_c,botdep_n,botdep_p,botdep_si,botox_o
    namelist /time_nml/ timefmt,MaxN,start,stop,simdays
 !
 ! !LOCAL VARIABLES:
    real(RLEN) :: tt
    integer    :: dtm1,i
+   character(LEN=8)  :: datestr
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+   call Date_And_Time(datestr,timestr)
+   STDERR LINE
+   STDERR 'BFM standalone started on  ',datestr,' ',timestr
+   STDERR LINE
    LEVEL2 'init_standalone'
    !---------------------------------------------
    ! Give initial default values
@@ -144,24 +141,9 @@
    mindelt     = 1.0
    endtim      = 360.0
    method      = 1
-   lw          = 9.0
-   ls          = 11.0
-   sw          = 33.0
-   ss          = 37.0
-   tw          = 10.0
-   ts          = 25.0
-   tde         = 1.0
-   botdep_c    = 0.0
-   botdep_n    = 0.0
-   botdep_p    = 0.0
-   botdep_si   = 0.0
-   botox_o     = 0.0
 
    open(namlst,file='standalone.nml',status='old',action='read',err=100)
    read(namlst,nml=standalone_nml,err=101)
-   close(namlst)
-   open(namlst,file='standalone.nml',status='old',action='read',err=100)
-   read(namlst,nml=anforcings_nml,err=102)
    close(namlst)
    open(namlst,file='standalone.nml',status='old',action='read',err=100)
    read(namlst,nml=time_nml,err=103)
@@ -170,9 +152,15 @@
    !---------------------------------------------
    ! set the dimensions
    !---------------------------------------------
+#ifdef INCLUDE_BENPROFILES
+   ! dirty method to cheat the standalone model
+   NO_BOXES_X  = 1
+   NO_BOXES_Z  = nboxes
+#else
    NO_BOXES_X  = nboxes
-   NO_BOXES_Y  = 1
    NO_BOXES_Z  = 1
+#endif
+   NO_BOXES_Y  = 1
    NO_BOXES    = NO_BOXES_X * NO_BOXES_Y * NO_BOXES_Z
    NO_BOXES_XY = NO_BOXES_X * NO_BOXES_Y
    NO_STATES   = NO_D3_BOX_STATES * NO_BOXES +   &
@@ -198,7 +186,7 @@
       timesec=julianday*SEC_PER_DAY+secondsofday
       simdays=nint(simtime/SEC_PER_DAY)
    else
-      timesec=0.0
+      timesec=ZERO
    end if
    nmaxdelt=1
    LEVEL3 'nmaxdelt: ',nmaxdelt
@@ -215,7 +203,7 @@
    nmin=0
    dtm1=maxdelt
    delt=maxdelt
-   if (method.eq.3) delt=2*delt
+   if (method.eq.3) delt=2.0_RLEN*delt
    LEVEL3 'Integration method: ',method
    LEVEL3 'maxdelt (sec): ',maxdelt
    LEVEL3 'mindelt (sec): ',mindelt
@@ -243,7 +231,7 @@
    ! Assign depth
    !---------------------------------------------
    Depth = indepth
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
    Depth_ben = Depth
 #endif
    ! assume area is 1m^2 (make a parameter in the future for 
@@ -254,8 +242,9 @@
    !---------------------------------------------
    ! Initialise external forcing functions
    !---------------------------------------------
-   call envforcing_bfm
-#ifdef BFM_BENTHIC
+   call init_envforcing_bfm
+
+#ifdef INCLUDE_BEN
    !---------------------------------------------
    ! Initialise the benthic system
    ! Layer depths and pore-water nutrients are initialised 
@@ -263,7 +252,7 @@
    !---------------------------------------------
    call init_benthic_bfm(namlst,'bfm.nml',unit,bio_setup)
 #endif
-#ifdef BFM_SI
+#ifdef INCLUDE_SEAICE
    !---------------------------------------------
    ! Initialise the sea-ice system
    !---------------------------------------------
@@ -288,15 +277,15 @@
    allocate(bbccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(bccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(ccc_tmp3D(NO_D3_BOX_STATES,NO_BOXES))
-   allocate(bbccc2D(NO_D2_BOX_STATES,NO_BOXES))
-   allocate(bccc2D(NO_D2_BOX_STATES,NO_BOXES))
-   allocate(ccc_tmp2D(NO_D2_BOX_STATES,NO_BOXES))
+   allocate(bbccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
+   allocate(bccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
+   allocate(ccc_tmp2D(NO_D2_BOX_STATES,NO_BOXES_XY))
    ! Initialize prior time step for leap-frog:
    if (method == 3) then
       bbccc3d = D3STATE
       bbccc2d = D2STATE
       ccc_tmp3D = D3STATE
-      ccc_tmp2D = D3STATE
+      ccc_tmp2D = D2STATE
    end if
 
 #ifdef DEBUG
@@ -313,440 +302,10 @@
 
 100   call error_msg_prn(NML_OPEN,"standalone.f90","standalone.nml")
 101   call error_msg_prn(NML_READ,"standalone.f90","standalone_nml")
-102   call error_msg_prn(NML_READ,"standalone.f90","anforcings_nml")
 103   call error_msg_prn(NML_READ,"standalone.f90","time_nml")
 
    end subroutine init_standalone
 !EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE: Light and other environmental forcings used in the BFM
-!
-! !INTERFACE
-   subroutine envforcing_bfm()
-!
-! !DESCRIPTION
-!
-! !USES
-   use api_bfm
-   use global_mem, only: RLEN
-   use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND,  &
-                         EICE,jbotR6c,jbotR6n,jbotR6p,jbotR6s, &
-                         R6c,R6n,R6p,R6s,O2o,ERHO,EPCO2air,Depth
-   use mem_Param,  only: LightForcingFlag,p_PAR
-   use constants,  only: E2W 
-   use mem_CO2,    only: pco2air
-#ifdef BFM_SI
-   ! seaice forcings
-   use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
-#endif
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-!
-! !OUTPUT PARAMETERS:
-!
-! !REVISION HISTORY:
-!  Original author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
-   real(RLEN) :: dfrac,wlight,dtime
-   integer    :: dyear
-   real(RLEN),external :: GetDelta
-   real(RLEN) :: biodelta
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-#ifdef DEBUG
-   LEVEL1 'envforcing_bfm'
-   LEVEL2 'time=',timesec
-#endif
-   !---------------------------------------------
-   ! Computes all the forcings
-   !---------------------------------------------
-   dtime = timesec/SEC_PER_DAY
-   sunq=daylength(dtime,latitude)
-   dfrac=(dtime-floor(dtime)) ! fraction of the day
-   dyear=mod(dtime,360._RLEN) ! Day of the year
-   wlight=light(dyear,dfrac)
-   select case(LightForcingFlag)
-    case (3) ! light on/off distribution for daylight average
-      ThereIsLight=lightAtTime(dfrac,sunq)
-      wlight=wlight*ThereIsLight
-    case (1) ! instantaneous light distribution
-      wlight=instLight(wlight,sunq,dfrac)
-    case default ! light constant during the day
-   end select
-   ETW = temperature(dyear,dfrac)
-   ESW = salinity(dyear,dfrac)
-   ERHO = density(ETW,ESW,Depth/2.0_RLEN)
-   ! convert from irradiance to PAR in uE/m2/s
-   EIR = wlight*p_PAR/E2W
-   ! constant wind velocity (function to be added)
-   EWIND = 10.0_RLEN
-   ! constant sea-ice fraction (function to be added)
-   EICE = 0.0_RLEN
-   ! constant pCO2 in the air (function to be added)
-   EPCO2air = pco2air*(ONE+0.01_RLEN/360._RLEN*dtime)
-#ifdef DEBUG
-   LEVEL2 'ETW=',ETW
-   LEVEL2 'ESW=',ESW
-   LEVEL2 'EIR=',EIR
-   LEVEL2 'ERHO=',ERHO
-   LEVEL2 'EWIND=',EWIND
-   LEVEL2 'EICE=',EICE
-#endif
-   call CalcVerticalExtinction
-
-   if (bio_setup==2) then
-      ! Bottom deposition and ventilation fluxes
-      ! (mg C m^-2 d^-1 or mmol NUT m^-2 d^-1)
-      ! currently constant deposition rates read from namelist
-      ! (set to zero for no deposition)
-      biodelta=GetDelta()
-      R6c(:) = R6c(:)+botdep_c*biodelta
-      R6n(:) = R6n(:)+botdep_n*biodelta
-      R6p(:) = R6p(:)+botdep_p*biodelta
-      R6s(:) = R6s(:)+botdep_si*biodelta
-      O2o(:) = O2o(:)+botox_o*biodelta
-   end if
-
-#ifdef BFM_SI
-! sea-ice environmental forcings
-! Reading from file to be added
-  EVB = ONE
-  ETB = ONE
-  ESB = ONE
-  ! convert from irradiance to PAR in uE/m2/s
-  EIB = ONE/E2W
-  EHB = ONE
-  ESI = ONE
-#endif
-
-   end subroutine envforcing_bfm
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION daylength(time,latitude)
-!
-! !DESCRIPTION:
-! This function computes the length of the daylight period in hours
-! as a function of time of the year (days) and latitude
-!
-! !USES:
-   use global_mem, only:RLEN
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-   real(RLEN),intent(in) :: time
-   real(RLEN),intent(in) :: latitude
-!
-! !INPUT/OUTPUT PARAMETERS:
-
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN) :: daylength
-!
-! !REVISION HISTORY:
-!  Author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
-   real(RLEN)           :: declination
-   real(RLEN),parameter :: cycle=360.
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-   declination = -0.406*cos(2.*PI*int(time)/cycle)
-   daylength = acos(-tan(declination)*tan(latitude*RFACTOR))/PI*24.
-   return
-
-   END FUNCTION daylength
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION lightAtTime(df,dl)
-!
-! !DESCRIPTION:
-!  This function determines whether there is light at a certain time
-!  of the day. Returns an integer value 0 or 1
-!
-! !USES:
-   use global_mem, only:RLEN
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
- real(RLEN),intent(in) :: df,dl
-
-!
-! !INPUT/OUTPUT PARAMETERS:
-
-!
-! !OUTPUT PARAMETERS:
- integer :: lightAtTime
-
-!
-! !REVISION HISTORY:
-!  Author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
- real(RLEN) :: daytime,daylength
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-    daytime=df*24. ! time of the day = fraction of the day * 24
-    daytime=abs(daytime-12.) ! distance from noon
-    daylength=dl/2.
-    if(daytime.lt.daylength) then
-      lightAtTime=1
-    else
-      lightAtTime=0
-    endif
-    return
-   END FUNCTION lightAtTime
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION instLight(l,dl,df)
-!
-! !DESCRIPTION:
-!  This function computes the instantaneous light at a certain time of
-!  the day
-!
-! !USES:
-   use global_mem, only:RLEN
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-   real(RLEN),intent(in) :: df,dl,l
-!
-! !INPUT/OUTPUT PARAMETERS:
-
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN) :: instLight
-!
-! !REVISION HISTORY:
-!  Author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
-   real(RLEN) :: daylength,daytime
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-     daytime=df*24. ! time of the day = fraction of the day * 24
-     daytime=abs(daytime-12.) ! distance from noon
-     daylength=dl/2.
-     if(daytime.lt.daylength) then
-       daytime=daytime/daylength*PI
-       instLight=l*cos(daytime)+l
-     else
-       instLight=0.
-     endif
-     return
-   END FUNCTION instLight
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION salinity(dy,df)
-!
-! !DESCRIPTION:
-!  This function provides an articial salinity value given the
-!  parameters in the standalone.nml namelist
-!
-! !USES:
-   use global_mem, only:RLEN
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-   integer,intent(in)    :: dy
-   real(RLEN),intent(in) :: df
-!
-!
-! !INPUT/OUTPUT PARAMETERS:
-
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN) :: salinity
-
-!
-! !REVISION HISTORY:
-!  Author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
-
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-     salinity=(ss+sw)/2.-(ss-sw)/2.*cos((dy+(df-.5))*RFACTOR)
-   END FUNCTION salinity
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION temperature(dy,df)
-!
-! !DESCRIPTION:
-!  This function provides an articial temperature value given the
-!  parameters in the standalone.nml namelist
-!
-! !USES:
-   use global_mem, only:RLEN
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-   integer,intent(in)    :: dy
-   real(RLEN),intent(in) :: df
-!
-!
-! !INPUT/OUTPUT PARAMETERS:
-
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN) :: temperature
-
-!
-! !REVISION HISTORY:
-!  Author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
-
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-     temperature=(ts+tw)/2.-(ts-tw)/2.*cos((dy+(df-.5))*RFACTOR) &
-                    -tde*.5*cos(2*Pi*df)
-   END FUNCTION temperature
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION density(tr,sr,dep)
-!
-! !DESCRIPTION:
-! This function computes density in kg/m3 from potential temperature
-! Mellor, 1991, J. Atmos. Oceanic Tech., 609-611
-!
-! !USES:
-   use global_mem, only:RLEN
-   use mem,        only: NO_BOXES
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-   real(RLEN),intent(in),dimension(NO_BOXES) :: tr,sr,dep
-!
-!
-! !INPUT/OUTPUT PARAMETERS:
-
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN) :: density(NO_BOXES)
-
-!
-! !REVISION HISTORY:
-!  Author(s): M. Vichi, adapted from POM
-!
-! !LOCAL VARIABLES:
-
-   real(RLEN),parameter :: GRAV=9.806E0_RLEN
-   real(RLEN),dimension(NO_BOXES) :: TR2,TR3,TR4,TR5,SR2,P,P2,CR
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-      TR2=TR  * TR
-      TR3=TR2 * TR
-      TR4=TR3 * TR
-      TR5=TR4 * TR
-      SR2=SR  * SR
-      ! approximate pressure in units of bars
-      P=-GRAV*1.025_RLEN*dep*0.01_RLEN
-      p2=p*p
-      CR = 1449.1_RLEN+0.0821_RLEN*P+4.55_RLEN*   &
-         TR-0.045_RLEN*TR2+1.34_RLEN*(SR-35._RLEN)
-      CR=P/(CR*CR)
-
-      density = (999.842594_RLEN          + 6.793952E-2_RLEN*TR &
-            -   9.095290E-3_RLEN*TR2   + 1.001685E-4_RLEN*TR3   &
-            -   1.120083E-6_RLEN*TR4   + 6.536332E-9_RLEN*TR5   &
-            +(  0.824493_RLEN          - 4.0899E-3_RLEN  *TR    &
-            +   7.6438E-5_RLEN  *TR2   - 8.2467E-7_RLEN  *TR3   &
-            +   5.3875E-9_RLEN  *TR4  )             *SR         &
-            +( -5.72466E-3_RLEN        + 1.0227E-4_RLEN  *TR    &
-            -   1.6546E-6_RLEN  *TR2  )             *SR**1.5    &
-            +   4.8314E-4_RLEN  *SR2                   )        &
-            +   1.E5_RLEN       *CR    *  (ONE-(CR+CR))
-   END FUNCTION density
-!EOC
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !IROUTINE:
-!
-! !INTERFACE:
-   FUNCTION light(dy,df)
-!
-! !DESCRIPTION:
-!  This function provides an articial light value given the
-!  parameters in the standalone.nml namelist
-!
-! !USES:
-   use global_mem, only:RLEN
-   IMPLICIT NONE
-! !INPUT PARAMETERS:
-   integer,intent(in)    :: dy
-   real(RLEN),intent(in) :: df
-! !INPUT/OUTPUT PARAMETERS:
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN) :: light
-! !REVISION HISTORY:
-!  Author(s): Momme Butenschoen (UNIBO)
-!
-! !LOCAL VARIABLES:
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-     light=(ls+lw)/2.-(ls-lw)/2.*cos(dy*RFACTOR)
-   END FUNCTION light
-!EOC
-
 
 !-----------------------------------------------------------------------
 !BOP
@@ -764,6 +323,7 @@
    use netcdf_bfm, only: save_bfm
    use mem
    use api_bfm, only: out_delta
+   use time
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
 ! !INPUT/OUTPUT PARAMETERS:
@@ -777,6 +337,7 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+integer :: i
 
    LEVEL1 'timestepping'
 
@@ -801,11 +362,50 @@
          call save_bfm(timesec)
       end if
       call ResetFluxes
+      call update_time(ntime)
+#ifdef DEBUG
+      LEVEL2 'julian, seconds=',julianday,secondsofday
+#endif
    end do
 
    END SUBROUTINE timestepping
 !EOC
 
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: Finalise the standalone BFM
+!
+! !INTERFACE:
+   subroutine end_standalone()
+!
+! !DESCRIPTION:
+!  Terminates the standalone simulation.
+!
+!
+! !USES:
+   use time
+   IMPLICIT NONE
+! !INPUT PARAMETERS:
+! !INPUT/OUTPUT PARAMETERS:
+!
+! !OUTPUT PARAMETERS:
+! !REVISION HISTORY:
+!  Author(s): Karsten Bolding and Hans Burchard
+!
+! !LOCAL VARIABLES:
+   character(LEN=8)          :: datestr
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+   call end_envforcing_bfm
+   call ClearMem
+   call Date_And_Time(datestr,timestr)
+   STDERR LINE
+   STDERR 'BFM standalone finished on  ',datestr,' ',timestr
+   end subroutine end_standalone
+!EOC
 !-----------------------------------------------------------------------
 
    END MODULE standalone

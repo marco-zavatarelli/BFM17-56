@@ -27,6 +27,7 @@
    public                              :: julian_day, update_time
    public                              :: write_time_string
    public                              :: time_diff
+   public                              :: dayofyear
 !
 ! !PUBLIC DATA MEMBERS:
    character(len=19), public           :: timestr
@@ -430,6 +431,44 @@
 
    return
    end function  time_diff
+!EOC
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:  Convert a calendar date to true Julian day
+!
+! !INTERFACE:
+   subroutine dayofyear(julian,ddyear)
+!
+! !DESCRIPTION:
+!  Converts a Julian day to the day number in the current year
+!
+! !USES:
+   IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+   integer                             :: julian
+!
+! !OUTPUT PARAMETERS:
+   integer                             :: ddyear
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi
+!
+!EOP
+!
+! !LOCAL VARIABLES:
+   integer                             :: yy,mm,dd,julian0
+!
+!-----------------------------------------------------------------------
+!BOC
+
+      call calendar_date(julian,yy,mm,dd)
+      call julian_day(yy,1,1,julian0)
+      ddyear = julian - julian0 + 1
+
+   end subroutine dayofyear
 !EOC
 
 !-----------------------------------------------------------------------
