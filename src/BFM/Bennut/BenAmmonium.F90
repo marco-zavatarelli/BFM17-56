@@ -1,7 +1,7 @@
 #include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -30,8 +30,8 @@
   ! D7m
   ! The following global vars are modified: dummy
   ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, &
-  ! NO_BOXES_Y, BoxNumber, BoxNumberXY, InitializeModel, LocalDelta
+  !    NO_BOXES_XY,  &
+  !   BoxNumberXY, InitializeModel, LocalDelta
   ! The following Benthic 1-d global boxvars are modified : M4n, KNH4, jG2K3o, &
   ! jbotN4n
   ! The following Benthic 1-d global boxvars got a value: M14n, M24n
@@ -55,8 +55,8 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: K4n, K3n, G2o, D1m, K14n, D2m, K24n, D7m, D2STATE
   use mem, ONLY: ppK4n, ppK3n, ppG2o, ppD1m, ppK14n, ppD2m, &
-    ppK24n, ppD7m, dummy, NO_BOXES_XY, &
-    BoxNumberXY, InitializeModel, LocalDelta, &
+    ppK24n, ppD7m, dummy,    NO_BOXES_XY, &
+       BoxNumberXY, InitializeModel, LocalDelta, &
     M4n, KNH4, jG2K3o, jbotN4n, M14n, M24n, reBTn, reATn, irrenh, ETW_Ben, &
     jK4K3n, N4n_Ben, Depth_Ben, iiBen, iiPel, flux
   use constants, ONLY: LAYERS, LAYER1, LAYER2, &
@@ -65,8 +65,8 @@
     SET_CONTINUITY, FLAG, MASS, SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, &
     SET_LAYER_INTEGRAL_UNTIL, LAYER3, INPUT_TERM, PARAMETER, STANDARD, ADD, &
     INTEGRAL, RFLUX, DERIVATIVE,INPUT_ADD_TERM,START_ADD_TERM
-  use mem_Param,  ONLY: p_poro, p_d_tot, p_clDxm, p_q10diff, p_qon_nitri
-  use mem_BenthicNutrient3, ONLY:p_max_state_change, p_max_shift_change
+  use mem_Param,  ONLY: p_poro, p_d_tot, p_d_tot_2,p_clDxm, p_q10diff, p_qon_nitri
+  use mem_BenthicNutrient3, ONLY:p_max_state_change, p_InitCondition
 
   use mem_BenAmmonium
 
@@ -135,12 +135,17 @@
   real(RLEN)  :: labda
   real(RLEN)  :: a15
   real(RLEN)  :: cK4n
+  real(RLEN)  :: jK4N4n
   real(RLEN)  :: sK4K3
   real(RLEN)  :: cO2
   real(RLEN)  :: r
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    DO BoxNumberXY=1,NO_BOXES_XY
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do BoxNumberXY=1,NO_BOXES_XY
+
+
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables
       ! (Diagnostic variables, not used in calculations)
@@ -152,9 +157,9 @@
       M14n(BoxNumberXY) = K14n(BoxNumberXY)/ p_poro(BoxNumberXY)/( p_p+ &
         1.0D+00)/( D2m(BoxNumberXY)- D1m(BoxNumberXY))
       M24n(BoxNumberXY) = K24n(BoxNumberXY)/ p_poro(BoxNumberXY)/( p_p+ &
-        1.0D+00)/( p_d_tot- D2m(BoxNumberXY))
+        1.0D+00)/( p_d_tot_2- D2m(BoxNumberXY))
 
-      cO2  =   G2o(BoxNumberXY)/ p_poro(BoxNumberXY)/ D1m(BoxNumberXY)
+      cO2  =   max(1.D-20,G2o(BoxNumberXY)/ p_poro(BoxNumberXY)/ D1m(BoxNumberXY))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate coefficient for the e-folding distribution of the anoxic
@@ -178,7 +183,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
         zuD1 = max( 1.D-20, reATn(BoxNumberXY))/ p_poro(BoxNumberXY)/ IntegralExp( &
-          - alpha, p_d_tot- D1m(BoxNumberXY))
+          - alpha, p_d_tot_2- D1m(BoxNumberXY))
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -189,15 +194,17 @@
 
       diff = p_diff* p_poro(BoxNumberXY)* irrenh(BoxNumberXY)* &
       eTq( ETW_Ben(BoxNumberXY), p_q10diff)
-      sK4K3 = p_sK4K3* eTq( ETW_Ben(BoxNumberXY), p_q10)* cO2/( &
-        cO2+ p_clO2)* M4n(BoxNumberXY)/( M4n(BoxNumberXY)+ p_clM4)
+      sK4K3 = p_sK4K3* eTq( ETW_Ben(BoxNumberXY), p_q10) 
+
+      if (InitializeModel == 0 ) &
+        sK4K3=sK4K3* cO2/( cO2+ p_clO2)* M4n(BoxNumberXY)/( M4n(BoxNumberXY)+ p_clM4)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! if availability of carbon for degradation is low , the nitrification &
       ! will be hampered
       ! by the lack of carbon for nitrification bacteria. As proxy for &
       ! the degrdability
-      ! of the carbon the respiration per mass of bacteria is calulated.
+      ! of the carbon the respiration per mass of bacteria is caclulated.
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate coefficient for the exponential terms of the solution
@@ -219,7 +226,7 @@
       ! - environmental conditions (diffusion, p_porosity and adsorption coeff.)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      KNH4(BoxNumberXY) = InitializeSet( KNH4(BoxNumberXY), N_layers, N_coeff)
+      KNH4(BoxNumberXY) = InitializeSet( KNH4(BoxNumberXY), 3, 8)
 
       call DefineSet( KNH4(BoxNumberXY), LAYERS, LAYER1, &
         LAYER2, D1m(BoxNumberXY), D2m(BoxNumberXY))
@@ -248,20 +255,15 @@
 
       call DefineSet( KNH4(BoxNumberXY), DOUBLE_DEFINE, 11, EXPONENTIAL_TERM, &
         labda, sK4K3)
-
       call DefineSet( KNH4(BoxNumberXY), DOUBLE_DEFINE, 12, EXPONENTIAL_TERM, - &
         labda, sK4K3)
-
       call DefineSet( KNH4(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
 
       call DefineSet( KNH4(BoxNumberXY), DEFINE, 21, ZERO_EXPONENTIAL_TERM, -alpha, dummy)
-
       call DefineSet( KNH4(BoxNumberXY), DEFINE, 24, LINEAR_TERM, dummy, dummy)
-
       call DefineSet( KNH4(BoxNumberXY), DEFINE, 25, CONSTANT_TERM, dummy, dummy)
 
       call DefineSet( KNH4(BoxNumberXY), DEFINE, 31, ZERO_EXPONENTIAL_TERM, -alpha, dummy)
-
       call DefineSet( KNH4(BoxNumberXY), DEFINE, 35, CONSTANT_TERM, dummy, dummy)
 
 
@@ -269,8 +271,10 @@
       ! Insert other boundary conditions and continuity between layers:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+      !4
       call CompleteSet( KNH4(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy)
 
+      !5
       call CompleteSet( KNH4(BoxNumberXY), SET_BOUNDARY, LAYER1, &
         EQUATION, 0.0D+00, value=N4n_Ben(BoxNumberXY))
 
@@ -281,7 +285,7 @@
             LAYER2, dummy, value=K14n(BoxNumberXY))
 
           call CompleteSet( KNH4(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, &
-            LAYER3, LAYER3, p_d_tot, value=K24n(BoxNumberXY))
+            LAYER3, LAYER3, p_d_tot_2, value=K24n(BoxNumberXY))
  
 
           call CompleteSet( KNH4(BoxNumberXY), INPUT_TERM, 15, STANDARD, dummy, &
@@ -358,16 +362,15 @@
           ! Estimation of the Vertical fluxes from the set of transient solutions:
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          jbotN4n(BoxNumberXY) = CalculateFromSet( KNH4(BoxNumberXY), &
+          jK4N4n = CalculateFromSet( KNH4(BoxNumberXY), &
                                          DERIVATIVE, RFLUX, 0.0D+00, 0.0D+00)
-          r= 1.0D-80+insw(-jbotN4n(BoxNumberXY))* N4n_Ben(BoxNumberXY)*Depth_Ben(BoxNumberXY) &
-                                                   +insw(jbotN4n(boxNumberXY))* K4n(BoxNumberXY)
-          jbotN4n(BoxNumberXY)=jbotN4n(BoxNumberXY) &
-                             *p_max_state_change/(abs(jbotN4n(BoxNumberXY)/r)+p_max_state_change)
           !avoid to large flxues leading to negative concentrations
-!         jK4K3n(BoxNumberXY)=min(jK4K3n(BoxNumberXY), &
-!            K4n(BoxNumberXY) * p_max_state_change+ reBTN(BoxNumberXY)-jbotN4n(BoxNumberXY)) 
-          call flux(BoxNumberXY, iiBen, ppK4n, ppK4n, -( jbotN4n(BoxNumberXY)) )
+          call LimitShift(jK4N4n,N4n_Ben(BoxNumberXY)*Depth_Ben(BoxNumberXY) ,&
+                                                         K4n(boxNumberXY),p_max_state_change)
+
+          call flux(BoxNumberXY, iiBen, ppK4n, ppK4n, -( jK4N4n) )
+
+          jbotN4n(BoxNumberXY)=jbotN4n(BoxNumberXY)+jK4N4n
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
           !  All transport between layers are done in BenNitrogenShifting:
@@ -376,52 +379,33 @@
           !  jK24K14n = CalculateFromSet(KNH4, DERIVATIVE, RFLUX, D2.m, 0.0);
           !  jK34K24n = CalculateFromSet(KNH4, DERIVATIVE, RFLUX, p_d_tot, 0.0);
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       case ( 1 )
+        case ( 1 )    ! Determination of Initial condition:
           ! The mineralization at D1m equal to the oxic minerlaization at D1m under
           ! assumuption of that the mineralization distribution in oxic layer is distributed
           ! according detritus distribution alpha 
-!         zuD1= reBTn(BoxNumberXY) / p_poro(BoxNumberXY)/   &
-!           IntegralExp( - alpha, D1m(BoxNumberXY)) *exp(-alpha * D1m(BoxNumberXY))
 
-!         call CompleteSet( KNH4(BoxNumberXY), INPUT_TERM, 21, PARAMETER, &
-!           dummy, value=zuD1)
-
-!         zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY)- D1m(BoxNumberXY)))
-!         call CompleteSet( KNH4(BoxNumberXY), INPUT_TERM, 31, PARAMETER, &
-!           dummy, value=zuD2)
+          zuD1= reBTn(BoxNumberXY) / p_poro(BoxNumberXY)/   &
+            IntegralExp( - alpha, D1m(BoxNumberXY)) *exp(-alpha * D1m(BoxNumberXY))
 
 
-! condtion for third layer....
-      r  =   exp( - alpha*( D2m(BoxNUmberXY)- D1m(BoxNumberXY)))
 
-     select case ( r> 1.0D-20)
+           !6 
+           r  =   exp( - alpha*( D2m(BoxNUmberXY)- D1m(BoxNumberXY)))
+           call FixProportionCoeff(KNH4(BoxNumberXY),21,31,1.0D+00,r)
 
-        case( .FALSE. )
-          call CompleteSet( KNH4(BoxNumberXY), INPUT_TERM, 31, PARAMETER, &
-            dummy, value=0.0D+00)
-
-        case( .TRUE. )
-          call CompleteSet( KNH4(BoxNumberXY), START_ADD_TERM, 31, STANDARD, &
-            dummy, mfac=1.0/r)
-          call CompleteSet( KNH4(BoxNumberXY), INPUT_ADD_TERM, 21, &
-            STANDARD, dummy, value=1.0D+00,mfac=-1.0D+00)
-
-      end select
-
+          !7
           call CompleteSet( KNH4(BoxNumberXY), INPUT_TERM, 15, STANDARD, dummy, &
             value=a15)
 
-          ! mineralization= nitrification+ flux to watercolumn
-          call CompleteSet( KNH4(BoxNumberXY), SET_LAYER_INTEGRAL, &
-                                          LAYER1, LAYER1, dummy, mfac=sK4K3)
-          call CompleteSet( KNH4(BoxNumberXY), ADD, LAYER1, &
-                                   DERIVATIVE, 0.0D+00, mfac=p_poro(BoxNumberXY)*diff)
-          call CompleteSet( KNH4(BoxNumberXY), INPUT_ADD_TERM, 15, STANDARD, dummy, &
-            mfac=-sK4K3*D1m(BoxNumberXY))
-          call CompleteSet( KNH4(BoxNumberXY), INPUT_ADD_TERM, 21, PARAMETER, dummy, &
-            mfac=-IntegralExp(-alpha,D2m(BoxNumberXY)-D1m(BoxNumberXY)))
-          call CompleteSet( KNH4(BoxNumberXY), INPUT_ADD_TERM, 31, PARAMETER, dummy, &
-            mfac=-IntegralExp(-alpha,p_d_tot-D2m(BoxNumberXY)))
+          select case ( p_InitCondition )
+          case(2)
+            !8
+            call CompleteSet( KNH4(BoxNumberXY), INPUT_TERM, 21, PARAMETER, &
+            dummy, value=zuD1)
+            !9
+!           call CompleteSet( KNH4(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER1, &
+!           LAYER1, dummy, value=16.0 * N4n_Ben(BoxNumberXY)* p_poro(boxNumberXY) * 0.02 )
+          end select
 
           dummy = CalculateSet( KNH4(BoxNumberXY), 0, 0,  0, dummy, dummy)
 
@@ -439,10 +423,10 @@
 
       end select
 
-    end DO
+  end do
 
-  end
-!BOP
+  end subroutine BenAmmoniumDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

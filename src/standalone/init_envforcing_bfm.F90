@@ -39,7 +39,7 @@
 ! !LOCAL VARIABLES:
    namelist /forcings_nml/ forcing_method,lw,ls,sw,ss,tw,ts,tde, & 
             ww,ws,botdep_c,botdep_n,botdep_p,botdep_si,botox_o,  &
-            forcing_file, seaice_file
+            forcing_file, seaice_file, use_external_data, data_file
 !
 ! !LOCAL VARIABLES:
 !EOP
@@ -73,15 +73,27 @@
        LEVEL2 'Reading forcing data from:'
        LEVEL3 trim(forcing_file)
        open(unit_forcing,file=forcing_file,action='read',status='old',err=106)
+       if (use_external_data) then
+          LEVEL2 'Reading forcing data from:'
+          LEVEL3 trim(forcing_file)
+          open(unit_data,file=data_file,action='read',status='old',err=107)
+       end if
     case (3) ! interactive air-sea fluxes
       !call init_air_sea(data_file,latitude, longitude)
     end select
+#ifdef INCLUDE_SEAICE
+    LEVEL2 'Reading sea-ice forcing data from:'
+    LEVEL3 trim(seaice_file)
+    open(unit_seaice,file=seaice_file,action='read',status='old',err=108)
+#endif
 
    return
 
 100   call error_msg_prn(NML_OPEN,"standalone.f90","standalone.nml")
 102   call error_msg_prn(NML_READ,"standalone.f90","anforcings_nml")
 106   call error_msg_prn(NML_OPEN,"standalone.f90",trim(forcing_file))
+107   call error_msg_prn(NML_OPEN,"standalone.f90",trim(data_file))
+108   call error_msg_prn(NML_OPEN,"standalone.f90",trim(seaice_file))
 
    end subroutine init_envforcing_bfm
 !EOC

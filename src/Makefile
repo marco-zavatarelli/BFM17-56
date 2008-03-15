@@ -27,8 +27,7 @@ BFM_PELMOD = \
 	${LIB}(${BFMSRC}/PelB/ModulePelChem.o)				\
 	${LIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${LIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
-	${LIB}(${BFMSRC}/PelBen/ModuleSettling.o)			\
-	${LIB}(${BFMSRC}/CO2/ModuleCO2.o)
+	${LIB}(${BFMSRC}/PelBen/ModuleSettling.o)			
 
 	
 BFM_PELOBJ = \
@@ -37,9 +36,12 @@ BFM_PELOBJ = \
 	${LIB}(${BFMSRC}/General/InitBoxParams.o)			\
 	${LIB}(${BFMSRC}/General/Initialize.o)				\
 	${LIB}(${BFMSRC}/General/InitTransportStateTypes.o)		\
+	${LIB}(${BFMSRC}/General/CalcRiverConcentration.o)		\
 	${LIB}(${BFMSRC}/General/CheckMassConservation.o)		\
+	${LIB}(${BFMSRC}/General/check_if_in_output.o)			\
 	${LIB}(${BFMSRC}/General/eTq.o)					\
 	${LIB}(${BFMSRC}/General/CheckMassConservation.o)		\
+	${LIB}(${BFMSRC}/General/set_var_info_bfm.o)			\
 	${LIB}(${BFMSRC}/Light/LightAdaptation.o)			\
 	${LIB}(${BFMSRC}/Light/PhotoAvailableRadiation.o)		\
 	${LIB}(${BFMSRC}/Oxygen/WindOxReaeration_3.o)			\
@@ -57,12 +59,9 @@ BFM_PELOBJ = \
 	${LIB}(${BFMSRC}/PelB/Phyto.o)					\
 	${LIB}(${BFMSRC}/PelBen/BentoPelCoup.o)				\
 	${LIB}(${BFMSRC}/PelBen/Settling.o)				\
-	${LIB}(${BFMSRC}/CO2/CO2Calc.o)					\
-	${LIB}(${BFMSRC}/CO2/CO2Flux.o)					\
-	${LIB}(${BFMSRC}/CO2/Drtsafe.o)					\
-	${LIB}(${BFMSRC}/CO2/Ta_Iter_1.o)
+	${LIB}(${BFMSRC}/PelBen/RecalcPenetrationDepth.o)
 
-ifeq ($(BFM_BENTHIC),true)
+ifeq ($(INCLUDE_BEN),true)
 BFM_BENMOD = \
 	${LIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)		\
 	${LIB}(${BFMSRC}/Ben/ModuleBenOrganism.o)			\
@@ -91,9 +90,11 @@ BFM_BENOBJ = \
 	${LIB}(${BFMSRC}/PelBen/Sedimentation.o)			\
 	${LIB}(${BFMSRC}/PelBen/ControlBennutBuffers.o)			\
 	${LIB}(${BFMSRC}/Ben/BenBac.o)					\
+	${LIB}(${BFMSRC}/Ben/BenGlobal.o)				\
 	${LIB}(${BFMSRC}/Ben/BenOrganism.o)				\
 	${LIB}(${BFMSRC}/Ben/BenthicSystem.o)				\
 	${LIB}(${BFMSRC}/Ben/Bioturbation.o)				\
+	${LIB}(${BFMSRC}/Ben/CorrectConcNearBed.o)			\
 	${LIB}(${BFMSRC}/Ben/FilterFeeder.o)				\
 	${LIB}(${BFMSRC}/Bennut/BenAmmonium.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenAnoxic.o) 				\
@@ -102,6 +103,8 @@ BFM_BENOBJ = \
 	${LIB}(${BFMSRC}/Bennut/BenNitrogenShifting.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenOxygen.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenPhosphate.o) 			\
+	${LIB}(${BFMSRC}/Bennut/BenProfiles.o) 				\
+	${LIB}(${BFMSRC}/Bennut/calc_sigma_depth.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenQ1Transport.o) 			\
 	${LIB}(${BFMSRC}/Bennut/BenSilica.o) 				\
 	${LIB}(${BFMSRC}/Bennut/BenthicNutrient2.o) 			\
@@ -110,6 +113,8 @@ BFM_BENOBJ = \
 	${LIB}(${BFMSRC}/Bennut/BenthicReturn2.o) 			\
 	${LIB}(${BFMSRC}/Bennut/InitBenthicNutrient.o)			\
 	${LIB}(${BFMSRC}/Bennut/InitBenthicNutrient3.o)			\
+	${LIB}(${BFMSRC}/Bennut/LimitChange.o)				\
+	${LIB}(${BFMSRC}/Bennut/LimitShift.o)				\
 	${LIB}(${BFMSRC}/Bennut/CalculateFromSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/CalculateSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/CalculateShift.o) 			\
@@ -118,6 +123,7 @@ BFM_BENOBJ = \
 	${LIB}(${BFMSRC}/Bennut/InitializeSet.o) 			\
 	${LIB}(${BFMSRC}/Bennut/DefineSet.o) 				\
 	${LIB}(${BFMSRC}/Bennut/GetInfoFromSet.o) 			\
+	${LIB}(${BFMSRC}/Bennut/FixProportionCoeff.o) 			\
 	${LIB}(${BFMSRC}/Bennut/PrintSet.o) 				\
 	${LIB}(${BFMSRC}/Bennut/bess_exp.o) 				\
 	${LIB}(${BFMSRC}/Bennut/bessi0.o) 				\
@@ -149,20 +155,28 @@ APIBFM_MOD = \
 	${LIB}(./share/init_cnps.o)			\
 	${LIB}(./share/calcmean_bfm.o)			\
 	${LIB}(./share/make_flux_output.o)		\
+	${LIB}(./share/ResetFluxes.o)			\
+	${LIB}(./share/ClearMem.o)			\
 	${LIB}(${BFMSRC}/General/set_var_info_bfm.o)
 
 STDALONE_MOD = \
-	${LIB}(./standalone/time.o)	\
-	${LIB}(./standalone/standalone.o)	\
-	${LIB}(./standalone/integration-efw.o)	\
-	${LIB}(./standalone/integration-lf.o)	\
-	${LIB}(./standalone/integration-RK2.o)	\
-	${LIB}(./standalone/D3toD1.o)		\
-	${LIB}(./standalone/D2toD1.o)		\
-	${LIB}(./standalone/ResetFluxes.o)	\
+	${LIB}(./standalone/time.o)			\
+	${LIB}(./standalone/standalone.o)		\
+	${LIB}(./standalone/envforcing.o)		\
+	${LIB}(./standalone/init_envforcing_bfm.o)	\
+	${LIB}(./standalone/end_envforcing_bfm.o)	\
+	${LIB}(./standalone/envforcing_bfm.o)		\
+	${LIB}(./standalone/analytical_forcing.o)	\
+	${LIB}(./standalone/external_forcing.o)		\
+	${LIB}(./standalone/external_data.o)		\
+	${LIB}(./standalone/integration-efw.o)		\
+	${LIB}(./standalone/integration-lf.o)		\
+	${LIB}(./standalone/integration-RK2.o)		\
+	${LIB}(./standalone/D3toD1.o)			\
+	${LIB}(./standalone/D2toD1.o)			\
 	${LIB}(./standalone/GetDelta.o)
 
-ifeq ($(BFM_SI),true)
+ifeq ($(INCLUDE_SEAICE),true)
 BFM_SIMOD = \
 	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceAlgae.o)
 BFM_SIOBJ = \
@@ -172,19 +186,24 @@ BFM_SIOBJ = \
 	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)
 endif
 
-all: ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_SIMOD} ${APIBFM_MOD} ${STDALONE_MOD} \
-	${BFM_PELOBJ} ${BFM_BENOBJ} ${BFM_SIOBJ} ${EXE}
+all: ${BFM_MOD} ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_SIMOD} ${APIBFM_MOD} ${STDALONE_MOD} \
+	 ${BFM_PELOBJ} ${BFM_BENOBJ} ${BFM_SIOBJ} ${EXE}
 	$(MOVE_MODULES_COMMAND)
 
 $(EXE): $(MAINOBJ) 
 	$(FC) $(FFLAGS) -o ../bin/$@ $(MAINOBJ) $(LIB) -L$(NETCDFLIBDIR) -lnetcdf
 
-$(BFM_MOD) : $(BFMSRC)/General/ModuleMem.F90
+${BFM_MOD} : $(BFMSRC)/General/ModuleMem.F90
 
-${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model $(BFMSRC)/General/FluxFunctions.F90
-	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
-	-from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem \
-	-to ${BFMSRC}/include -actions headermem
+$(BFMSRC)/General/ModuleMem.o : $(BFMSRC)/General/ModuleMem.F90
+
+${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model
+	echo 'Script should start now'
+	$(BFMSRC)/scripts/GenerateGlobalBFMF90Code  $(DEFINES) \
+		-read $(BFMSRC)/General/GlobalDefsBFM.model \
+		-from $(BFMSRC)/proto -to $(BFMSRC)/General \
+		-actions statemem allocmem netcdfmem \
+                -to $(BFMSRC)/include -actions headermem
 ${BFMSRC}/General/AllocateMem.F90: $(BFMSRC)/General/ModuleMem.F90
 ${BFMSRC}/General/set_var_info_bfm.F90: $(BFMSRC)/General/ModuleMem.F90
 
@@ -201,9 +220,13 @@ distclean:
 	$(RM) ./share/*.o
 	$(RM) ./standalone/*.o
 	$(RM) ./BFM/*/*.o
+	$(RM) $(BFMSRC)/General/ModuleMem.F90
+	$(RM) $(BFMSRC)/General/AllocateMem.F90
+	$(RM) $(BFMSRC)/General/set_var_info_bfm.F90
+	$(RM) $(BFMSRC)/include/INCLUDE.h
 
 depend:
-ifeq ($(BFM_BENTHIC),true)
+ifeq ($(INCLUDE_BEN),true)
 	makedepf90 ${BFMSRC}/*/*.?90 ./share/*.?90 ./standalone/*.?90 > .depend
 else
 	makedepf90 ${BFMSRC}/General/*.?90 \
@@ -219,9 +242,9 @@ else
 endif
 
 # include dependencies depending on the model configuration
-ifeq ($(BFM_BENTHIC),true)
-include .depend
-else
-include .depend.pelagic
-endif
+#ifeq ($(INCLUDE_BEN),true)
+#include .depend
+#else
+#include .depend.pelagic
+#endif
 

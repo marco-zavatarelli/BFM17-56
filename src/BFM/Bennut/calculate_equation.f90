@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   calculate_equation.f90
@@ -10,7 +10,7 @@
 !
 ! DESCRIPTION
 !   mode <1000 calculate equation mode
-!   mode >1000 calulate one term (term is input as a number existing
+!   mode >1000 calculate one term (term is input as a number existing
 !   of equationumber*10+termnumber
 !  
 !   This file is generated from f77 code, using a code generator which

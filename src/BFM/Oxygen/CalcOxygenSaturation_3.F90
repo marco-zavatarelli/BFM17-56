@@ -46,6 +46,7 @@
 #endif
   use mem, ONLY: ppO2o, cxoO2, eO2mO2, ETW, ESW, NO_BOXES, iiBen, iiPel, &
     flux_vector
+  use mem_Param,  ONLY: p_small
 
 
 
@@ -119,7 +120,7 @@
   !
 
   cxoO2(:)  =   h/ 24.4665D-3
-  eO2mO2(:)  =   O2o(:)/ cxoO2(:)
+  eO2mO2(:)  =   max(p_small,O2o(:))/ cxoO2(:)
 
 
 

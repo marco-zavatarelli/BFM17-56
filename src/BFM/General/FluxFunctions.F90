@@ -182,6 +182,30 @@
           end subroutine flux
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        subroutine sourcesink_flux_vector(iiSub,origin,destination,flux)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            ! Implicit typing is never allowed
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            implicit none
+
+            integer,intent(IN) :: iiSub
+            integer,intent(IN) :: origin
+            integer,intent(IN) :: destination
+            real(RLEN),intent(IN) :: flux(:)
+
+            if ( destination ==0 ) then
+              call flux_vector(iiSub,origin,origin,-flux)
+            elseif ( origin ==0 ) then
+              call flux_vector(iiSub,destination,destination,flux)
+            else
+             call  flux_vector(iiSub,origin,destination,flux)
+            endif
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          end subroutine sourcesink_flux_vector
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         function Source_D3_vector(iistate)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -379,16 +403,16 @@
             integer,intent(IN) :: origin
             integer,intent(IN) :: destination
             if (isnan(scalar)) then
+               write(LOGUNIT,*) 'Nan value in scalar flux'
                write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') origin,destination
                if ( iiSub == iiBen)  then
-                    write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
-                    write(LOGUNIT,*) "state value destination:",D2STATE(destination,grid_nr)
+                    write(LOGUNIT,*) "Benthic state value origin:",D2STATE(origin,grid_nr)
+                    write(LOGUNIT,*) "Benthic state value destination:",D2STATE(destination,grid_nr)
                  else 
-                    write(LOGUNIT,*) "state value origin:",D3STATE(origin,grid_nr)
-                    write(LOGUNIT,*) "state value destination:",D3STATE(destination,grid_nr)
+                    write(LOGUNIT,*) "Pelagic state value origin:",D3STATE(origin,grid_nr)
+                    write(LOGUNIT,*) "Pelagic state value destination:",D3STATE(destination,grid_nr)
                endif
-               write(LOGUNIT,*) 'Nan value in scalar flux'
-               stop 1003
+               stop "subroutine TESTNAN forced STOP"
             endif
           end subroutine testnan
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

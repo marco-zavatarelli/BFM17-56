@@ -224,7 +224,7 @@ contains
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
    LEVEL3 "Output frequency every ",out_delta,"time-steps"
 
-#ifndef BFM_BENTHIC
+#ifndef INCLUDE_BEN
    ! force bio_setup = 1 when benthic memory is disabled with macro
    bio_setup=1
 #endif

@@ -1,7 +1,7 @@
 #include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -58,11 +58,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
+  use mem_Param, ONLY: p_small
   use mem,  ONLY: Q6n, D9m, D7m, Q6p, D8m, Q6s, D2STATE
   use mem, ONLY: ppQ6n, ppD9m, ppD7m, ppQ6p, ppD8m, ppQ6s, &
-    BoxNumberZ, NO_BOXES_Z, NO_BOXES_XY, &
-    BoxNumber, BoxNumberXY, jbotN4n, jbotN1p, jbotN5s, N4n_Ben, Depth_Ben, jbotR6n, &
-    N1p_Ben, jbotR6p, N5s_Ben, jbotR6s, iiBen, iiPel, flux
+    NO_BOXES_XY, BoxNumberXY, jbotN4n, jbotN1p, jbotN5s, N4n_Ben, Depth_Ben, &
+    jbotR6n, N1p_Ben, jbotR6p, N5s_Ben, jbotR6s, iiBen, iiPel, flux
   use mem_ControlBennutBuffers
 
 
@@ -105,15 +105,7 @@
   real(RLEN)  :: rate
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! user defined external functions
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = NO_BOXES_Z
-    DO BoxNumberXY=1,NO_BOXES_XY
-      BoxNumber=D3toD1(BoxNumberXY,BoxNumberZ)
-
+    do BoxNumberXY=1,NO_BOXES_XY
 
       !----N:----------------------------------------------------------------
       if ( p_control_n) then
@@ -124,12 +116,11 @@
           rate  =   max(  0.0D+00,  rate+ jbotR6n(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6n, ppQ6n, -(- rate) )
           call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
-            D7m(BoxNumberXY))* rate/( 1.D-80+ Q6n(BoxNumberXY)) )
+            D7m(BoxNumberXY))* rate/( p_small+ Q6n(BoxNumberXY)) )
           jbotN4n(BoxNumberXY)  =   jbotN4n(BoxNumberXY)- rate
         end if
 
       end if
-
 
       !----P:----------------------------------------------------------------
       if ( p_control_p) then
@@ -140,12 +131,11 @@
           rate  =   max(  0.0D+00,  rate+ jbotR6p(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6p, ppQ6p, -(- rate) )
           call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
-            D8m(BoxNumberXY))* rate/( 1.D-80+ Q6p(BoxNumberXY)) )
+            D8m(BoxNumberXY))* rate/( p_small+ Q6p(BoxNumberXY)) )
           jbotN1p(BoxNumberXY)  =   jbotN1p(BoxNumberXY)- rate
         end if
 
       end if
-
 
       !----Si:---------------------------------------------------------------
       if ( p_control_s) then
@@ -156,19 +146,16 @@
           rate  =   max(  0.0D+00,  rate+ jbotR6s(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6s, ppQ6s, -(- rate) )
           call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
-            D9m(BoxNumberXY))* rate/( 1.D-80+ Q6s(BoxNumberXY)) )
+            D9m(BoxNumberXY))* rate/( p_small+ Q6s(BoxNumberXY)) )
           jbotN5s(BoxNumberXY)  =   jbotN5s(BoxNumberXY)- rate
         end if
 
       end if
 
+  end do
 
-
-
-  end DO
-
-  end
-!BOP
+  end subroutine ControlBennutBuffersDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

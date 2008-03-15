@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -45,27 +45,26 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN,ZERO,ONE
+  use global_mem, ONLY:RLEN, ONE, ZERO
 #ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
 #else
-  use mem, ONLY: D3STATE, O2o, O3c, N1p, N4n, R6c, R6p, &
+  use mem, ONLY: D3STATE, O2o, N1p, N4n, R6c, R6p, R2c, &
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
 #endif
-  use mem, ONLY: ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6p, &
+  use mem, ONLY: ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6p, Depth, &
     ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
-    qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
+    qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, jnetMeZc, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiP1, iiC, iiN, iiP, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
   use mem_Param,  ONLY: p_small,check_fixed_quota
+  use constants,ONLY: MIN_VAL_EXPFUN, MW_C
   use mem_MesoZoo
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following vector functions are used:eTq_vector, MM_vector
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use mem_globalfun,   ONLY: eTq_vector, MM_vector
-
+  use mem_globalfun,   ONLY: eTq_vector, MM_vector, MM_power_vector
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Implicit typing is never allowed
@@ -122,6 +121,7 @@
   real(RLEN),dimension(NO_BOXES)  :: temp_n
   real(RLEN),dimension(NO_BOXES)  :: rumc
   real(RLEN),dimension(NO_BOXES)  :: rugc
+  real(RLEN),dimension(NO_BOXES)  :: eo
   real(RLEN),dimension(NO_BOXES)  :: et
   real(RLEN),dimension(NO_BOXES)  :: rrs_c
   real(RLEN),dimension(NO_BOXES)  :: rrs_n
@@ -166,6 +166,10 @@
   real(RLEN),dimension(NO_BOXES)  :: tfluxc
   real(RLEN),dimension(NO_BOXES)  :: tfluxn
   real(RLEN),dimension(NO_BOXES)  :: tfluxp
+  real(RLEN),dimension(NO_BOXES)  :: net
+  real(RLEN),dimension(NO_BOXES)  :: optR2c
+  real(RLEN),dimension(NO_BOXES)  :: hr
+  real(RLEN),dimension(NO_BOXES)  :: r
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
@@ -177,8 +181,9 @@
   tfluxp=ZERO
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  !Physiological temperature response
+  !Physiological temperature and oxygen response
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  eo  =   MM_power_vector(  max(p_small,O2o(:)),  p_clO2o(zoo),3)
   et  =   eTq_vector(  ETW(:),  p_q10(zoo))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -189,8 +194,13 @@
 
   rumc  =   ZERO
   do i = 1 , ( iiPhytoPlankton)
+#ifdef BFM_NS
+    r = ONE-min(ONE,(R2c(:)*R2c(:))/40000.0_RLEN)
+#else
+    r = ONE
+#endif
 
-    rumPIc(:, i)  =   p_puPI(zoo,i)* PhytoPlankton(i,iiC)
+    rumPIc(:, i)  =   r* p_puPI(zoo,i)* PhytoPlankton(i,iiC)
     rumc  =   rumc+ rumPIc(:, i)
   end do
 
@@ -212,7 +222,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate total food uptake
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rugc  =   et* p_sum(zoo)* MM_vector(  p_vum(zoo)* rumc,  p_sum(zoo))* zooc
+  rugc  =   eo *et* p_sum(zoo)* MM_vector(  p_vum(zoo)* rumc,  p_sum(zoo))* zooc
   put_u  =   rugc/ ( 1.0D-80 + rumc)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -276,11 +286,10 @@
   end do
 
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Proportion of ingested food respired by zoo = prIR6/Z4R6
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  prI_R6  =   1.0D+00- p_puI_u(zoo)- p_peI_R6(zoo)
+  prI_R6  =   ONE- p_puI_u(zoo)- p_peI_R6(zoo)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Assimilated material
@@ -328,9 +337,9 @@
   rra_n  =   ZERO
   rra_p  =   ZERO
 
-  rrs_c  =   p_srs(zoo)* et* zooc
-  rrs_n  =   p_srs(zoo)* et* zooc * qnZc(zoo,:)
-  rrs_p  =   p_srs(zoo)* et* zooc * qpZc(zoo,:)
+  rrs_c  =   p_srs(zoo)* et*eo* zooc
+  rrs_n  =   p_srs(zoo)* et*eo* zooc * qnZc(zoo,:)
+  rrs_p  =   p_srs(zoo)* et*eo* zooc * qpZc(zoo,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Defecation
@@ -340,11 +349,11 @@
   ret_p  =   p_peI_R6(zoo)* rut_p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Natural mortality
+  ! Natural mortality + low oxygen mortality
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rd_c  =   p_sd(zoo)* et* zooc
-  rd_n  =   p_sd(zoo)* et* zooc* qnZc(zoo,:)
-  rd_p  =   p_sd(zoo)* et* zooc* qpZc(zoo,:)
+  rd_c  =   (p_sd(zoo)+ p_srs(zoo)*(ONE-eo))*et* zooc
+  rd_n  =   (p_sd(zoo)+ p_srs(zoo)*(ONE-eo))* zooc* et * qnZc(zoo,:)
+  rd_p  =   (p_sd(zoo)+ p_srs(zoo)*(ONE-eo))* zooc * et* qpZc(zoo,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Density dependent mortality
@@ -368,8 +377,6 @@
         ru_c)
       pe_N4n  =   pe_N4n/( p_small+ rut_n)
 
-
-
     ELSEWHERE (( nut_lim)==2)
       pe_N1p  =   ZERO
       pe_R6c  =  max(ZERO,( p_qpc(zoo)* ru_c)-( ONE- p_peI_R6(zoo))* rut_p)
@@ -378,8 +385,6 @@
         ru_c- pe_R6c* rut_c))
       pe_N4n  =   pe_N4n/( p_small+ rut_n)
 
-
-
     ELSEWHERE (( nut_lim)==3)
       pe_N4n  =   ZERO
       pe_R6c  = max(ZERO, ( p_qnc(zoo)* ru_c)-( ONE- p_peI_R6(zoo))* rut_n)
@@ -387,8 +392,6 @@
       pe_N1p = max( ZERO, ( ONE- p_peI_R6(zoo))* rut_p- p_qpc(zoo)*( &
         ru_c- pe_R6c* rut_c))
       pe_N1p  =   pe_N1p/( p_small+ rut_p)
-
-
 
   END WHERE
   ! End of select(nut_lim)
@@ -412,7 +415,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! flow statements
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ 12.0_RLEN) )
+  call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzooc, &
                              ppzooc,ppO3c, rrc,tfluxc )
   call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
@@ -432,10 +435,11 @@
   rep=tfluxC*p_qpc(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,rep,tfluxP)
 
+  net=rut_c-rra_c-ret_c-pe_R6c* rut_c
+  jnetMeZc(1)=jnetMeZc(1)+sum(Depth(:)*net)
 
-
-  end
-!BOP
+  end subroutine MesoZooDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

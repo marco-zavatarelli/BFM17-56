@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! SUBROUTINE
 !   CalculateLayer
@@ -37,8 +37,6 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
       SUBROUTINE CalculateLayer(NUTR,mode,x,layernr,xb)
         USE global_mem, ONLY:RLEN
         USE bennut_type

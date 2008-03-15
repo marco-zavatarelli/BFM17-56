@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   GetInfoFromSet
@@ -10,19 +10,13 @@
 !   GetInfoFromSet.f90
 !
 ! DESCRIPTION
-!
-!
 !   This file is generated from f77 code, using a code generator which
 !   transposes from the F77 code into F90
 !   the code USES module file as used in the BFM model
 !   F90 code generator written by P. Ruardij.
 !
 ! AUTHORS
-!
-!
 ! CHANGE_LOG
-!
-!
 ! COPYING
 !
 !   Copyright (C) 2004 P. Ruardij, the mfstep group, the ERSEM team
@@ -37,17 +31,12 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
       FUNCTION GetInfoFromSet(NUTR,option,input,termnr,  &
                                                           at_x,to_x)
         USE constants, ONLY:RLEN,GET,COEFFICIENT,LABDA_1,LABDA_2, &
-            INTEGRAL,EXPONENTIAL_INTEGRAL,RFLUX,MASS,DERIVATIVE,PARAMETER
+            INTEGRAL,EXPONENTIAL_INTEGRAL,RFLUX,MASS,DERIVATIVE,PARAMETER,COEFF2PARA
         USE bennut_interface,ONLY: kfind, transfer,funcalc
         USE bennut_variables, ONLY: sets
-        USE bennut_constants, ONLY:COEFF2PARA
-
-
         IMPLICIT  NONE
         integer,intent(IN)             ::nutr ! Specification
         integer,intent(IN)             ::termnr ! Specification
@@ -87,17 +76,13 @@
           layer=termnr/10
           bC=sets(NUTR)%b(layer)
           s=sets(NUTR)%factor(seqnr)
-          if (input == PARAMETER)  then
-             j = -2
-          else
-             j = 0
-          end if
+          j=-2* (input == PARAMETER) 
           if ( s/=0.0 ) then
             r= funcalc(option,j,sets(NUTR)%coeffs(seqnr),bC,at_x)
-            !calculate of the result at the upper bborder and substratc result &
-            ! of under
-            !bborder
-            if (option == INTEGRAL.or. option == EXPONENTIAL_INTEGRAL) then
+            !calculate the result at the upper border and subtract it from the
+            ! lower layer
+            if (option == INTEGRAL.or. &
+              option == EXPONENTIAL_INTEGRAL) then
               if ( .not.present(to_x)) then
                stop 'GetInfoFromSet optional to_x NOT defined'
               endif
@@ -119,6 +104,4 @@
         endif
 
         return
-      end
-
-
+      end function GetInfoFromSet

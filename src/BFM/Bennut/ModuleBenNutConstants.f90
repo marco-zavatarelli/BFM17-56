@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! MODULE
 !   ModuleBenNutConstants
@@ -40,7 +40,6 @@
 !
   module bennut_constants
 
-  integer, parameter   :: COEFF2PARA=-1000
   integer, parameter   :: PARA2COEFF=1000
   integer, parameter   :: READY=-1
   integer,parameter ::READ_COEFF=81,WRITE_COEFF=82,SELECT_COEFF=83

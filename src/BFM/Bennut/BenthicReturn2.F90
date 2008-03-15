@@ -1,8 +1,7 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -23,7 +22,6 @@
 !   released to the water column as silicate.
 !
 !
-
 !   This file is generated directly from OpenSesame model code, using a code 
 !   generator which transposes from the sesame meta language into F90.
 !   F90 code generator written by P. Ruardij.
@@ -34,19 +32,11 @@
 !
 ! !USES:
 
-  ! For the following Benthic-states fluxes are defined: G2o, K6r, K1p, K11p, &
-  ! K4n, K14n, Q6s
-  ! The following Benthic-states are used (NOT in fluxes): D1m, D2m
-  ! The following Benthic 1-d global boxvars are modified : jbotN3n, jbotN4n
-  ! The following Benthic 1-d global boxvars got a value: jG2K7o, jbotN1p, jbotN5s
-  ! The following 0-d global parameters are used: p_qro, p_d_tot
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO,ONE
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
 #else
@@ -101,9 +91,8 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: rate
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-
   ! Oxygen consumption in the sediments
-  rate = p_reminO2* max( 0.0D+00, - G2o(:)/ D1m(:)+ K6r(:)/ p_qro/( &
+  rate = p_reminO2* max( ZERO, - G2o(:)/ D1m(:)+ K6r(:)/ p_qro/( &
     p_d_tot- D1m(:)))* D1m(:)
   call flux_vector( iiBen, ppG2o,ppG2o,-( rate) )
   call flux_vector( iiBen, ppK6r,ppK6r,-( rate* p_qro) )
@@ -112,11 +101,11 @@
   !----------------------------------------------------------------------
   ! Phosphorus remineralization in the sediments
   !----------------------------------------------------------------------
-  rate  =   p_reminN1* K1p(:)/ D1m(:)
+  rate  =   p_reminN1* K1p(:)
   ! jbotN1p is used in BenPelCoup to define the pelagic flux
   call flux_vector( iiBen, ppK1p,ppK1p,-( rate) )
   jbotN1p(:)  =   rate
-  rate  =   p_K11K1p* K11p(:)/( D2m(:)- D1m(:))
+  rate  =   p_K11K1p* K11p(:)
   call flux_vector( iiBen, ppK11p,ppK1p, rate )
   ! K21.p is not used in this model version
 
@@ -126,11 +115,11 @@
   rate  =   p_reminN4* K4n(:)
   ! K3.n is not used in this model version
   jbotN3n(:)  =   rate* p_pQIN3
-  jbotN4n(:)  =   rate*( 1.0D+00- p_pQIN3)
+  jbotN4n(:)  =   rate*( ONE - p_pQIN3)
   ! jbotN3n is used in BenPelCoup to define the pelagic flux
   ! jbotN4n is used in BenPelCoup to define the pelagic flux
   call flux_vector( iiBen, ppK4n,ppK4n,-( jbotN3n(:)+ jbotN4n(:)) )
-  rate  =   p_K14K4n* K14n(:)/( D2m(:)- D1m(:))
+  rate  =   p_K14K4n* K14n(:)
   call flux_vector( iiBen, ppK14n,ppK4n, rate )
 
   !----------------------------------------------------------------------
@@ -139,15 +128,10 @@
   rate  =   p_reminQ6s* Q6s(:)
   call flux_vector( iiBen, ppQ6s,ppQ6s,-( rate) )
   ! K5.s is not used in this model version
-
   jbotN5s(:)  =   rate
 
-
-
-
-
-  end
-!BOP
+  end subroutine BenthicReturn2Dynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -37,9 +37,12 @@
    ! arrays for integration routines
    !---------------------------------------------
    logical,public              :: init_forcing_vars=.true.
+   logical,public              :: use_external_data=.false.
    integer,parameter,public    :: unit_forcing=201
+   integer,parameter,public    :: unit_data=202
    integer,parameter,public    :: unit_seaice=203
-   character(len=128),public   :: forcing_file,seaice_file
+   character(len=128),public   :: forcing_file,seaice_file, &
+                                  data_file
 
 !
 ! !PRIVATE DATA MEMBERS:

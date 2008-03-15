@@ -1,6 +1,6 @@
 !Piet Ruardij (rua@nioz.nl)-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   DefineSet
@@ -36,8 +36,6 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
       SUBROUTINE DefineSet(NUTR,mode,option,input,xinput,yinput)
         USE global_mem, ONLY:RLEN
         USE bennut_variables
@@ -52,8 +50,6 @@
         integer,intent(IN) ::option ! Specification
         REAL(RLEN),intent(IN) ::xinput ! Specification
         REAL(RLEN),intent(IN) ::yinput ! Specification
-
-
         integer ::i
         integer ::j
         integer ::j_1

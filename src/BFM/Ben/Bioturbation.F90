@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -41,10 +41,10 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
 #else
-  use mem,  ONLY: D6m, D7m, D8m, D9m, Y2c, Y5c, Y1c, Y4c
+  use mem,  ONLY: D6m, D7m, D8m, D9m, Y2c, Y5c, Y1c, Y3c, Y4c
 #endif
   use mem, ONLY: ppD6m, ppD7m, ppD8m, ppD9m, ppY2c, ppY5c, ppY1c, &
-    ppY4c, turenh, irrenh, rrBTo, reBTn, reBTp, rrATo, reATn, reATp, &
+    ppY4c, turenh, irrenh, &
     ETW_Ben, NO_BOXES_XY, iiBen, iiPel, flux_vector
   use mem_Bioturbation
 
@@ -127,32 +127,12 @@
   ! Calculation of bioirrigation. ''irrenh'' is a global box variable!
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  Yirr  =   Y2c(:)+ Y5c(:)+ p_irrY4* Y4c(:)
+  Yirr  =   Y2c(:)+ Y5c(:)+ p_irrY4* Y4c(:) +Y3c(:)
 
   irrenh(:)  =   1.0D+00+ p_cmirr* MM_vector(  Yirr,  p_chirr)* et
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! In the following processes all respirations and excretions
-  ! are added to the rr???? and re??? variables.
-  ! There rates are input to the Benthic Nutrient model
-  ! first these variables are initialized:
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  rrBTo(:)  =   0.0D+00  ! mgO2/m2 # Total Benthic oxic respiration
-  reBTn(:)  =   0.0D+00  ! mmN/m2  # Total Benthic oxic N mineralization
-  reBTp(:)  =   0.0D+00  ! mmP/m2  # Total Benthic oxic P mineralization
-  rrATo(:)  =   0.0D+00  ! mgO2/m2 # Total Benthic anoxic respiration
-  reATn(:)  =   0.0D+00  ! mmN/m2  # Total Benthic anoxic N mineralization
-  reATp(:)  =   0.0D+00  ! mmP/m2  # Total Benthic anoxic P mineralization
-
-
-
-
-
-
 
   end
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -25,6 +25,8 @@
    REALTYPE, dimension(:,:), allocatable,target :: cc,ws
    logical, dimension(:),allocatable     :: llws
    integer                                      :: calc_init_bennut_states
+   REALTYPE                              :: rel_max_sedi_rate=1.0
+   REALTYPE                              :: sfl_N3n=0.0,sfl_N4n=0.0
 #else
    REALTYPE, dimension(:,:), allocatable :: cc,ws
 #endif
@@ -47,7 +49,7 @@
 
 !  external variables - i.e. provided by the calling program but
 !  made available via this module to the different biological models
-!  the variables are copied via set_env_spm() in bio.F90
+!  the variables are copied via set_env_() in bio.F90
    REALTYPE, dimension(:), allocatable      :: h
    REALTYPE, dimension(:), allocatable      :: t
    REALTYPE, dimension(:), allocatable      :: s
@@ -57,6 +59,7 @@
    REALTYPE, dimension(:), allocatable      :: rad
    REALTYPE                                 :: wind
    REALTYPE                                 :: I_0
+   REALTYPE                                 :: u_taub
    integer                                  :: w_adv_ctr=0
 
 !  external variables updated by the biological models
@@ -94,7 +97,6 @@
    integer, parameter   :: ALLTRANSPORT=20
 
    !additional BFM pelagic arrays
-   REALTYPE, dimension(:),     allocatable         ::  c1dim
    REALTYPE, dimension(:),     allocatable         ::  SSt,RRa
    REALTYPE, dimension(:,:,:), allocatable, target ::  dd,pp
 
@@ -115,6 +117,9 @@
    REALTYPE, dimension(:,:),   allocatable, target   :: cc_ave
    REALTYPE, dimension(:,:),   allocatable, target   :: ccb_ave
    REALTYPE                                          :: ave_count
+
+   ! indices of bottom and surface points
+   integer,allocatable,dimension(:),public  :: BOTindices,SRFindices
 #endif !BFM
 
 !

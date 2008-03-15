@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -23,22 +23,14 @@
 
   use global_mem
 
-!  
 !
 ! !AUTHORS
-!   EGM Embsen and P Ruardij
-!
-!
-!
-! !REVISION_HISTORY
-!   Mar 29, 1994 by EGM Embsen and P Ruardij:
-!		Created a file with the BenSilicaparameters.
-!
+!   P Ruardij
 !
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij & M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -69,13 +61,13 @@
   real(RLEN)  :: p_clD2m  !minimal thickness denitrification layer
   real(RLEN)  :: p_chD2m  ! max. depth in model.
   real(RLEN)  :: p_diff  !m2/d # molecular diffusion constant
-  real(RLEN)  :: p_p  ! -   # adsorption distribution coefficient
-  real(RLEN)  :: p_smQ6  ! /d  # dissolution coefficient of silica
+  real(RLEN)  :: p_p      ! -   # adsorption distribution coefficient
+  real(RLEN)  :: p_smQ6   ! /d  # dissolution coefficient of silica
   real(RLEN)  :: p_chM5s  ! mmol Si/m3  # concentration of dissolved
-  !  silica at saturation with biogenic silica
-  !  (T=10degC)
+                          !  silica at saturation with biogenic silica
+                          !  (T=10degC)
   real(RLEN)  :: p_cvM5s  ! mmol Si/m3  # coefficient of the T-dependence
-  !  of the saturation value
+                          !  of the saturation value
   real(RLEN)  :: p_q10  ! -   # Q10 of the T-dependence
   integer  :: N_layers
   integer  :: N_coeff
@@ -99,9 +91,9 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading BenSilica parameters.."
-open(NMLUNIT,file='BenSilica.nml',status='old',action='read',err=100)
+    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+    write(LOGUNIT,*) "#  Reading BenSilica parameters.."
+    open(NMLUNIT,file='BenSilica.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=BenSilica_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -120,5 +112,5 @@ open(NMLUNIT,file='BenSilica.nml',status='old',action='read',err=100)
   end module mem_BenSilica
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!          BFM - Biogeochemical Flux Model version 2.3
+!          BFM - Biogeochemical Flux Model 
 !
 ! SUBROUTINE
 !   ludcmp.f90
@@ -40,21 +40,25 @@
 
 
 
-       SUBROUTINE ludcmp(n,a,indx,d)
+       SUBROUTINE ludcmp(n,a,indx,d,ok)
        USE global_mem, ONLY:RLEN
        USE bennut_interface, ONLY:outerprod,imaxloc
        IMPLICIT NONE
        INTEGER, INTENT(IN) :: n
        REAL(RLEN), DIMENSION(n,n), INTENT(INOUT) :: a
-       INTEGER, DIMENSION(n), INTENT(OUT) :: indx
-       REAL(RLEN), INTENT(OUT) :: d
+       INTEGER, DIMENSION(n), INTENT(OUT)        :: indx
+       REAL(RLEN), INTENT(OUT)                   :: d
+       INTEGER,INTENT(OUT)                       :: ok
+
        REAL(RLEN), DIMENSION(n) :: vv
        REAL(RLEN), PARAMETER :: TINY=1.0D-20
        INTEGER :: j,imax
 
        d=1.0
        vv=maxval(abs(a),dim=2)
-       if (any(vv == 0.0D+00)) stop 'singular matrix in ludcmp'
+       if (any(vv == 0.0D+00))  then
+         ok=0; return
+       endif
        vv=1.0D+00/vv
        do j=1,n
               imax=(j-1)+imaxloc(n-j+1,vv(j:n)*abs(a(j:n,j)))
@@ -68,6 +72,7 @@
               a(j+1:n,j)=a(j+1:n,j)/a(j,j)
               a(j+1:n,j+1:n)=a(j+1:n,j+1:n)-outerprod(n-j,a(j+1:n,j),a(j,j+1:n))
        end do
+       ok=1
        END SUBROUTINE ludcmp
 
       SUBROUTINE swap(n,a,b)

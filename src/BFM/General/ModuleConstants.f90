@@ -59,6 +59,7 @@
   ! Global Constants
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   real(RLEN),   parameter :: DBL_MIN=2.2250738585072014e-308_RLEN
+  real(RLEN),   parameter :: MIN_VAL_EXPFUN=log(DBL_MIN)
   integer,      parameter :: ECOLOGY=1  ! Base temperature for Q10
   integer,      parameter :: TRANSPORT=2
   real(RLEN),   parameter :: MW_C=12.0_RLEN  ! Molecular weight Carbon
@@ -67,8 +68,8 @@
   real(RLEN),   parameter :: MW_SI=28.0_RLEN  ! Molecular weight Silica
   real(RLEN),   parameter :: E2W=0.217_RLEN  ! Conversion factor Einstein->W
   real(RLEN),   parameter :: SEC_PER_DAY=86400.0_RLEN  ! Seconds in day
-  real(RLEN),   parameter :: ONE_PER_DAY=1.0_RLEN  ! rate which is used in cases where implicitely is assumed
-  !  is used and which are found.
+  real(RLEN),   parameter :: ONE_PER_DAY=1.0_RLEN  ! rate which is used in cases where implicitly assumed
+  real(RLEN),   parameter :: p_ntoc=1.0_RLEN  ! proportion between H+ production/NH4-->NO3 in nitrification
   integer,      parameter :: NO_BENTHOS=0
   integer,      parameter :: BENTHIC_RETURN=1
   integer,      parameter :: BENTHIC_BIO=2
@@ -99,13 +100,10 @@
   integer,      parameter :: ZERO_EXPONENTIAL_TERM=-2
   integer,      parameter :: BESSELI_EXP_TERM=-5
   integer,      parameter :: BESSELK_EXP_TERM=-6
-  integer,      parameter :: NEW_BOUNDARY=999
   integer,      parameter :: ADD=1000
-  integer,      parameter :: SUBTRACT=2000
   integer,      parameter :: INPUT_TERM=6001
   integer,      parameter :: START_ADD_TERM=6002
   integer,      parameter :: INPUT_ADD_TERM=6000
-  integer,      parameter :: INPUT_SUBTRACT_TERM=7000
   integer,      parameter :: RFLUX=1
   integer,      parameter :: MASS=2
   integer,      parameter :: AVERAGE=3
@@ -116,11 +114,11 @@
   integer,      parameter :: SET_LAYER_INTEGRAL_UNTIL=300
   integer,      parameter :: SET_BOUNDARY=400
   integer,      parameter :: SET_DEPTH_INTEGRAL=500
-  integer,      parameter :: TO_DEPTH_INTEGRAL=-1
   integer,      parameter :: GET=9000
   integer,      parameter :: LABDA_1=1
   integer,      parameter :: LABDA_2=2
   integer,      parameter :: COEFFICIENT=3
+  integer,      parameter :: COEFF2PARA=-1000
   integer,      parameter :: LAYERS=4
   integer,      parameter :: DIFFUSION=5
   integer,      parameter :: POROSITY=6
@@ -132,10 +130,14 @@
   integer,      parameter :: LAYER2=2
   integer,      parameter :: LAYER3=3
   integer,      parameter :: LAYER4=4
+  integer,      parameter :: LAYER5=5
+  integer,      parameter :: LAYER6=6
+  integer,      parameter :: LAYER7=7
+  integer,      parameter :: LAYER8=8
   integer,      parameter :: FOR_ALL_LAYERS=-1
-  integer,      parameter :: NUMBER_OF_PROFILES=8
-  integer,      parameter :: NCOEFF=12
-  integer,      parameter :: NLAYER=5
+  integer,      parameter :: NUMBER_OF_PROFILES=12
+  integer,      parameter :: NCOEFF=22
+  integer,      parameter :: NLAYER=8
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   end module
 !BOP

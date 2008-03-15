@@ -6,7 +6,7 @@
 ! !ROUTINE: BenthicNutrient3
 !
 ! DESCRIPTION
-!   List of parameters values
+!   List of parameter values
 
 !   This file is generated directly from OpenSesame model code, using a code 
 !   generator which transposes from the sesame meta language into F90.
@@ -20,7 +20,7 @@
 !  
 !
 ! !AUTHORS
-!   mfstep/ERSEM team
+!   the BFM team
 !
 ! !REVISION_HISTORY
 !   ---
@@ -42,24 +42,32 @@
 !-------------------------------------------------------------------------!
 !BOC
 !
-! bennut_messages=0        : 1=give extensice messages if PrintSet is called.
-! p_max_shift_change=0.25  : maximum decrease of mass shift due to change of thickness in layer
-! p_max_state_change=0.25  : maximum decrease of mas change in oxic layer
-!                              ( only used for K4n and K3n)
-!
-!
+! bennut_messages     : 1=give extensive messages if PrintSet is called.
+! p_max_shift_change  : maximum change of mass due to shift of layers
+! p_max_state_change  : maximum allowed change of mass
+!bennut_messages=0        !0: suppress messages of the bennut-utility routines
+!                         !1: give messages if PinrtSet is called.
+!p_max_shift_change=0.25  ! Set the maximum allowed change due to shifting of layers
+!p_max_state_change=0.25  ! Set the maximum allowed change in a layer.
+!p_InitCondition=1        ! Define how to initialize the benthic system:
+!                         ! 1 Assume at start loss processes == input processes
+!                         ! 2 Assume 0 flux at the water column at t=0
+!p_N                      ! Number of reinitialization of BenthicNutrient Model
 !
 
 &BenthicNutrient3_parameters
 bennut_messages=0,
-p_max_shift_change=0.25,
-p_max_state_change=0.25,
+p_max_shift_change=0.1,
+p_max_state_change=0.1,
+p_InitCondition=2,
+p_N=10
 /
+
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

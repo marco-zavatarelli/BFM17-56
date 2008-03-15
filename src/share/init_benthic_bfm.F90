@@ -23,8 +23,9 @@
 #endif
    use mem
    use mem_BenBac, ONLY: p_qnc,p_qpc
-   use mem_Param,  ONLY: CalcBenthicFlag, p_small, &
-                        CalcBenOrganisms, CalcBenBacteria
+   use mem_Param,  ONLY: CalcBenthicFlag, p_small,         &
+                         CalcBenOrganisms, CalcBenBacteria, &
+                         p_d_tot, p_sedlevels,p_sedsigma
    use string_functions, ONLY: getseq_number,empty
    IMPLICIT NONE
 !
@@ -39,7 +40,7 @@
 !
 ! !LOCAL VARIABLES:
    integer   :: icontrol,i,j,iiLastElement,n
-   REALTYPE  :: Y1c0, Y1n0, Y1p0, Y2c0, Y2n0, Y2p0, Y3c0, Y3n0, Y3p0, Y4c0, Y4n0, Y4p0, Y5c0,       &
+   real(RLEN)  :: Y1c0, Y1n0, Y1p0, Y2c0, Y2n0, Y2p0, Y3c0, Y3n0, Y3p0, Y4c0, Y4n0, Y4p0, Y5c0,       &
                 Y5n0, Y5p0, Q1c0, Q1n0, Q1p0, Q11c0, Q11n0, Q11p0, Q6c0, Q6n0, Q6p0, Q6s0, K3n0, G4n0,      &
                 H1c0, H1n0, H1p0, H2c0, H2n0, H2p0, K1p0, K11p0, K21p0,     &
                 K4n0, k14n0, k24n0, K6r0,K5s0,      &
@@ -54,9 +55,10 @@
                            D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, G2o0
    interface
       subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
-         REALTYPE,dimension(:),intent(in)             :: c
-         REALTYPE,intent(in),optional                 :: nc,pc,sc,lc
-         REALTYPE,dimension(:),intent(inout),optional :: n,p,s,l
+         use global_mem, only: RLEN
+         real(RLEN),dimension(:),intent(in)             :: c
+         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc
+         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
       end subroutine init_cnps
    end interface
 ! COPYING
@@ -65,8 +67,7 @@
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
-!   it under the terms of the GNU General Public License as published by
-!   the Free Software Foundation;
+!   it under the terms of the GNU General Public License as published bytion;
 !   This program is distributed in the hope that it will be useful,
 !   but WITHOUT ANY WARRANTY; without even the implied warranty of
 !   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -164,14 +165,32 @@
    end select
 
    !---------------------------------------------
-   ! Write defined variables to stdout
+   ! Specific initialization for full benthic
    !---------------------------------------------
    if (bio_setup >= 2) then
+      !---------------------------------------------
+      ! Write defined variables to stdout
+      !---------------------------------------------
       LEVEL3 'Benthic variables:'
       do n=stBenStateS,stBenStateE
         LEVEL4 trim(var_names(n)),'  ',trim(var_units(n)), &
            '  ',trim(var_long(n))
       end do
+#ifdef INCLUDE_BENPROFILES
+      !---------------------------------------------
+      ! initialize the vertical grid for benthic 
+      ! nutrient profiles
+      !---------------------------------------------
+      LEVEL2 'Initialize the vertical grid for benthic profile diagnostics'
+!#if defined BFM_GOTM || defined BFM_POM
+      LEVEL3 'Vertical sediment grid forced equal to model grid'
+      p_sedlevels = NO_BOXES_Z
+!#endif
+      call calc_sigma_depth(p_sedlevels,p_sedsigma,p_d_tot,seddepth)
+      do n=1,p_sedlevels
+         LEVEL3 n,seddepth(n)
+      end do  
+#endif
    end if
 
    !---------------------------------------------

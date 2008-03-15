@@ -117,6 +117,17 @@
       numbc_flux=0
       stPelStateS=1
       stPelStateE=numc
+      stPelDiagS=numc+1
+      stPelDiagE=numc
+      stPelFluxS=numc+1
+      stPelFluxE=numc
+      stBenStateS=0
+      stBenStateE=0
+      stBenDiagS=0
+      stBenDiagE=0
+      stBenFluxS=0
+      stBenFluxE=0
+
       return
 
 
@@ -200,8 +211,6 @@
       enddo
 
      err= nf_close(ncid)
-     sfl=_ZERO_
-     sfl_read=_ZERO_
 
       cc(1:numc,:)=0.0;
       ivar=rriver+1

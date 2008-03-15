@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! SUBROUTINE
 !   svbksb.f90
@@ -36,8 +36,6 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
       SUBROUTINE svbksb(u,w,v,m,n,mp,np,b,x)
         USE global_mem, ONLY:RLEN
         integer,intent(INOUT) ::m ! Specification

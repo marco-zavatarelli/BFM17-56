@@ -4,13 +4,14 @@ subroutine prepare_bio_output(mode, nlev, h)
    use  bio_var, only: stPelStateS,stPelDiagS,stPelFluxS,stBenStateS,stBenDiagS,stBenFluxS, & 
                       stPelStateE,stPelDiagE,stPelFluxE,stBenStateE,stBenDiagE,stBenFluxE, &
                       var_ave, cc_ave,ccb_ave, ave_count, &
-                      cc,ccb,diag,diagb,c1dim,bio_setup
+                      cc,ccb,diag,diagb,bio_setup
 
     implicit none 
     integer,intent(IN)                     ::mode
     integer,intent(IN)                     ::nlev
     REALTYPE,dimension(nlev),intent(IN)  ::h
 
+    REALTYPE,dimension(nlev)    ::c1dim
     integer                     ::i
     integer                     ::j
     integer                     ::k

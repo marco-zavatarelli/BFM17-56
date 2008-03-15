@@ -2,16 +2,16 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
 ! !ROUTINE: Sedimentation
 !
 ! DESCRIPTION
-!   Define all fluxes of material which arrive on the sediment:
+!   Define all fluxes of material which enters the benthic system:
 !	a, fluxes of detritus (slow degradable and labile organic detritus)
-!       b. Changes in distributions states which describes exponential distribution.
+!       b. Changes in organic matter distribution depths 
 !
 
 !   This file is generated directly from OpenSesame model code, using a code 
@@ -24,12 +24,6 @@
 !
 ! !USES:
 
-  ! For the following Benthic-states fluxes are defined: Q6c, Q6n, Q6p, Q6s, &
-  ! Q1c, Q1n, Q1p, D6m, D7m, D8m, D9m
-  ! The following Benthic 1-d global boxvars are used: jbotR6c, jbotR6n, &
-  ! jbotR6p, jbotR6s, jbotR1c, jbotR1n, jbotR1p
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -38,11 +32,11 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
 #else
-  use mem,  ONLY: Q6c, Q6n, Q6p, Q6s, Q1c, Q1n, Q1p, D6m, D7m, D8m, D9m
+  use mem,  ONLY: Q6c, Q6n, Q6p, Q6s, Q1c, Q1n, Q1p, D1m, D6m, D7m, D8m, D9m
 #endif
-  use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppQ6s, ppQ1c, ppQ1n, ppQ1p, &
-    ppD6m, ppD7m, ppD8m, ppD9m, jbotR6c, jbotR6n, jbotR6p, jbotR6s, jbotR1c, &
-    jbotR1n, jbotR1p, NO_BOXES_XY, iiBen, iiPel, flux_vector
+  use mem, ONLY: NO_BOXES_XY, ppQ6c, ppQ6n, ppQ6p, ppQ6s, ppQ1c, ppQ1n, ppQ1p,&
+    ppD6m, ppD7m, ppD8m, ppD9m, jbotR6c, jbotR6n, jbotR6p, jbotR6s, jbotR1c,  &
+    jbotR1n, jbotR1p, iiBen, iiPel, flux_vector
 
 
 
@@ -60,7 +54,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -84,38 +78,42 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  real(RLEN)            :: newDm(NO_BOXES_XY)
+  REAL(RLEN)            :: LocalDelta
+  real(RLEN), external  :: GetDelta
 
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculated Fluxes from Pelagic to Benthic
-  ! These fluxes are the sum sedimentation flux + the flux of
+  ! These fluxes are the sum of sedimentation flux + the flux of
   ! material excreted by filterfeeders and originating from the pelagic.
+  ! NOTE: ALL DETRITUS FLUXES FROM THE PELAGIC TO THE SEDIMENT ARE 
+  !       DIRECTED TO Q6 VIA R6 IN SETTLING.F90
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
   call flux_vector( iiBen, ppQ6c,ppQ6c, -jbotR6c(:) )
   call flux_vector( iiBen, ppQ6n,ppQ6n, -jbotR6n(:) )
   call flux_vector( iiBen, ppQ6p,ppQ6p, -jbotR6p(:) )
   call flux_vector( iiBen, ppQ6s,ppQ6s, -jbotR6s(:) )
-
   call flux_vector( iiBen, ppQ1c,ppQ1c, -jbotR1c(:) )
   call flux_vector( iiBen, ppQ1n,ppQ1n, -jbotR1n(:) )
   call flux_vector( iiBen, ppQ1p,ppQ1p, -jbotR1p(:) )
 
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Calculation of changes due to sedimentation of detritus in
-  ! distribution state variables (Dx.m is a undetermined source).
+  ! Calculation of changes in the depth distribution state variables 
+  ! due to sedimentation of detritus (burial is thus also included)
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   LocalDelta=GetDelta( )
+   call RecalcPenetrationDepth( D1m(:), D6m(:), -jbotR6c(:)*LocalDelta, Q6c(:),newDm(:) )
+   call flux_vector(iiBen, ppD6m,ppD6m,(newDM(:)- D6m(:))/LocalDelta)
+   call RecalcPenetrationDepth( D1m(:), D7m(:), -jbotR6n(:)*LocalDelta, Q6n(:),newDm(:) )
+   call flux_vector(iiBen, ppD7m,ppD7m,(newDM(:)- D7m(:))/LocalDelta)
+   call RecalcPenetrationDepth( D1m(:), D8m(:), -jbotR6p(:)*LocalDelta, Q6p(:),newDm(:) )
+   call flux_vector(iiBen, ppD8m,ppD8m,(newDM(:)- D8m(:))/LocalDelta)
+   call RecalcPenetrationDepth(D1m(:), D9m(:), -jbotR6s(:)*LocalDelta, Q6s(:),newDm(:) )
+   call flux_vector(iiBen, ppD9m,ppD9m,(newDM(:)- D9m(:))/LocalDelta)
 
-  call flux_vector(iiBen, ppD6m,ppD6m,-( 0.0D+00- D6m(:))* jbotR6c(:)/ Q6c(:))
-  call flux_vector(iiBen, ppD7m,ppD7m,-( 0.0D+00- D7m(:))* jbotR6n(:)/ Q6n(:))
-  call flux_vector(iiBen, ppD8m,ppD8m,-( 0.0D+00- D8m(:))* jbotR6p(:)/ Q6p(:))
-  call flux_vector(iiBen, ppD9m,ppD9m,-( 0.0D+00- D9m(:))* jbotR6s(:)/ Q6s(:))
+  end subroutine SedimentationDynamics
 
-
-
-
-
-  end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

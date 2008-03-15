@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -43,20 +43,21 @@
   use mem,  ONLY: D3STATE
 #else
   use mem, ONLY: B1c, R6c, B1n, R6n, B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
-    N4n, N1p, N3n, R7c, O3c
+    N4n, N1p, N3n, R7c
 #endif
-  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, &
-    ppR1n, ppR1p, ppR2c, ppO2o, ppO3c, ppN6r, ppN4n, ppN1p, ppN3n, ppR7c, flPTN6r, &
-    ETW, qnB1c, qpB1c, eO2mO2, qpR6c, qnR6c, NO_BOXES, iiBen, iiPel, flux_vector
+  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, ppO3c, jnetB1c, &
+    ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR7c, flPTN6r, Depth,&
+    ETW, qnB1c, qpB1c, eO2mO2, qpR6c, qnR6c, NO_BOXES, iiBen, iiPel, flux_vector, &
+    sourcesink_flux_vector
   use constants,  ONLY: MW_C, ONE_PER_DAY
-  use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro
+  use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, p_small
   use mem_PelBac
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following vector functions are used:eTq_vector, MM_vector, insw_vector
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use mem_globalfun,   ONLY: eTq_vector, MM_vector, insw_vector
+  use mem_globalfun,   ONLY: eTq_vector, MM_power_vector, insw_vector
 
 
 
@@ -118,6 +119,10 @@
   real(RLEN),dimension(NO_BOXES)  :: rumn
   real(RLEN),dimension(NO_BOXES)  :: rumn3
   real(RLEN),dimension(NO_BOXES)  :: rumn4
+  real(RLEN),dimension(NO_BOXES)  :: misp
+  real(RLEN),dimension(NO_BOXES)  :: misn
+  real(RLEN),dimension(NO_BOXES)  :: rupp
+  real(RLEN),dimension(NO_BOXES)  :: rupn
   real(RLEN),dimension(NO_BOXES)  :: ren
   real(RLEN),dimension(NO_BOXES)  :: rep
   real(RLEN),dimension(NO_BOXES)  :: reR2c
@@ -157,9 +162,9 @@
 
   rd  =  ( p_sd* et+( p_sd2* B1c(:)))* B1c(:)
 
-  call flux_vector( iiPel, ppB1c,ppR6c, rd*( 1.0D+00- p_pe_R1c) )
-  call flux_vector( iiPel, ppB1n,ppR6n, rd* qnB1c(:)*( 1.0D+00- p_pe_R1n) )
-  call flux_vector( iiPel, ppB1p,ppR6p, rd* qpB1c(:)*( 1.0D+00- p_pe_R1p) )
+  call flux_vector( iiPel, ppB1c,ppR6c, rd*( ONE- p_pe_R1c) )
+  call flux_vector( iiPel, ppB1n,ppR6n, rd* qnB1c(:)*( ONE- p_pe_R1n) )
+  call flux_vector( iiPel, ppB1p,ppR6p, rd* qpB1c(:)*( ONE- p_pe_R1p) )
 
   call flux_vector( iiPel, ppB1c,ppR1c, rd* p_pe_R1c )
   call flux_vector( iiPel, ppB1n,ppR1n, rd* qnB1c(:)* p_pe_R1n )
@@ -169,8 +174,8 @@
   ! Calculate quota in R1c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  qpR1c  =   R1p(:)/ (1.0D-80 + R1c(:))
-  qnR1c  =   R1n(:)/ (1.0D-80 + R1c(:))
+  qnR1c  =   R1n(:)/ (p_small + R1c(:))
+  qpR1c  =   R1p(:)/ (p_small + R1c(:))
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -191,14 +196,14 @@
       ! No correction of food avilabilities:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      cuR1  =   min(  1.0D+00, qpR1c/ p_qpc,  qnR1c/ p_qnc)
-      cuR6  =   1.0D+00
+      cuR1  =   min(  ONE, qpR1c/ p_qpc,  qnR1c/ p_qnc)
+      cuR6  =   ONE
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! oxygen environment:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      eO2  =   min(  1.0D+00,  eO2mO2(:))
+      eO2  =   min(  ONE,  eO2mO2(:))
 
 
 
@@ -208,8 +213,8 @@
       ! Nutrient limitation (intracellular)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      iN1p  =   min(  1.0D+00,  max(  0.0D+00,   qpB1c(:)/ p_qpc))  !Phosphorus
-      iNIn  =   min(  1.0D+00,  max(  0.0D+00,   qnB1c(:)/ p_qnc))  !Nitrogen
+      iNIn  =   min(  ONE,  max(  ZERO,   qnB1c(:)/ p_qnc))  !Nitrogen
+      iN1p  =   min(  ONE,  max(  ZERO,   qpB1c(:)/ p_qpc))  !Phosphorus
 
       iN  =   min(  iN1p,  iNIn)
 
@@ -222,8 +227,8 @@
       ! correction of food avilabilities dependent on internal quota
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      cuR1  =   min(  1.0D+00, qpR1c(:)/ p_qpc,  qnR1c(:)/ p_qnc)
-      cuR6  =   min(  1.0D+00, qpR6c(:)/ p_qpc,  qnR6c(:)/ p_qnc)
+      cuR1  =   min(  ONE, qpR1c(:)/ p_qpc,  qnR1c(:)/ p_qnc)
+      cuR6  =   min(  ONE, qpR6c(:)/ p_qpc,  qnR6c(:)/ p_qnc)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! oxygen environment:
@@ -232,7 +237,37 @@
       !     eO2 = MM(O2.o, p_chdo) to the cubic one written below.
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      eO2  =   MM_vector(  (O2o(:))**(3.0D+00),  (p_chdo)**(3.0D+00))
+      eO2  =   MM_power_vector(max(p_small,O2o(:)),  p_chdo,3)
+
+    case ( 3 )  ! Piets,BFM option
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-==--=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-
+      ! Nutrient limitation (intracellular)
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+      iN  =   ONE
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      ! Potential uptake by bacteria
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      rum  =   p_sum* iN* et* B1c(:)
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! correction of food avilabilities dependent on internal quota
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+      cuR1  =   ONE
+      cuR6  =   ONE
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! oxygen environment:
+      ! To provide a faster switching between the two metabolic pathways the
+      ! oxygen dependence eO2 has been changed from the standard
+      !     eO2 = MM(O2.o, p_chdo) to the cubic one written below.
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+      eO2  =   MM_power_vector(max(p_small,O2o(:)),  p_chdo,3)
 
   end select
 
@@ -241,15 +276,16 @@
   ! Calculate amount for R1, R6, and R2 and total amount of substrate avilable
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  ruR1c  =   (p_suhR1* cuR1(:) + p_sulR1*(1.0D+00-cuR1(:))) * R1c(:)
+  ruR1c  =   (p_suhR1* cuR1(:) + p_sulR1*(ONE-cuR1(:))) * R1c(:)
   ruR6c  =   p_suR6* cuR6* R6c(:)
   ruR2c  =   p_suR2* R2c(:)
-  rut  =   1.0D-80 + ruR6c+ ruR2c+ ruR1c
+  rut  =   p_small + ruR6c+ ruR2c+ ruR1c
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Actual uptake by bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rug  =   min(  rum,  rut)
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Carbon fluxes into bacteria
@@ -273,7 +309,7 @@
   call flux_vector( iiPel, ppR1n,ppB1n, ruR1n )
 
   ruR6p  =   qpR6c(:)* ruR6c
-  ruR1p  =   qpR1c* ruR1c
+  ruR1p  =   qpR1c   * ruR1c
 
   call flux_vector( iiPel, ppR6p,ppB1p, ruR6p )
   call flux_vector( iiPel, ppR1p,ppB1p, ruR1p )
@@ -282,8 +318,8 @@
   ! Respiration calculation + flux
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rrc  =  ( p_pu_ra+ p_pu_ra_o*( 1.0D+00- eO2))* rug+ p_srs* B1c(:)* et
-  call flux_vector( iiPel, ppB1c, ppO3c, rrc)
+  rrc  =  ( p_pu_ra+ p_pu_ra_o*( ONE- eO2))* rug+ p_srs* B1c(:)* et
+  call sourcesink_flux_vector( iiPel, ppB1c,ppO3c, rrc )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Pelagic bacteria are a wide functional group comprising both aerobic and
@@ -293,8 +329,9 @@
   ! consumption (see ChemicalProcesses.p).
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+
   call flux_vector( iiPel, ppO2o,ppO2o,-( eO2* rrc/ MW_C) )
-  flB1N6r  =  ( 1.0D+00- eO2)* rrc/ MW_C* p_qro
+  flB1N6r  =  ( ONE- eO2)* rrc/ MW_C* p_qro
   call flux_vector( iiPel, ppN6r,ppN6r, flB1N6r )
   flPTN6r(:)  =   flPTN6r(:)+ flB1N6r
 
@@ -319,88 +356,92 @@
       ren  =  ( qnB1c(:)- p_qnc)* B1c(:)* ONE_PER_DAY
       call flux_vector( iiPel, ppB1n,ppN4n, ren* insw_vector( ren) )
       call flux_vector(iiPel, ppN4n,ppB1n,- ren* insw_vector( - ren)* N4n(:)/( &
-        1.0D+00+ N4n(:)))
+        ONE+ N4n(:)))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       rep  =  ( qpB1c(:)- p_qpc)* B1c(:)* ONE_PER_DAY
-      call flux_vector( iiPel, ppB1p,ppN1p, rep* insw_vector( rep) )
-      call flux_vector(iiPel, ppN1p,ppB1p,- rep* insw_vector( - rep)* N1p(:)/( &
+      call flux_vector( iiPel, ppB1p,ppN1p,  rep* insw_vector( rep) )
+      call flux_vector( iiPel, ppN1p,ppB1p,- rep* insw_vector( - rep)* N1p(:)/( &
         0.5D+00+ N1p(:)))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Activity excretion (defined as reR7c) + stress exrcetion (defined as 
+      ! Activity exrecetion (defined as reR7c) + stress excetion (defined as &
       ! reR2c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      reR7c  =   p_pu_ea_R7* max(ZERO,run)
+      reR7c  =   p_pu_ea_R7* run
 
-      r  =   max(  1.0D+00- qpB1c(:)/ p_qpc,  1.0D+00- qnB1c(:)/ p_qnc)
+      r  =   max(  ONE- qpB1c(:)/ p_qpc,  ONE- qnB1c(:)/ p_qnc)
       reR2c  =   ONE_PER_DAY* r* insw_vector(  r)* B1c(:)
 
       run  =   run- reR7c- reR2c
 
 
 
-    case ( 2 )
+    case ( 2,3 )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Inorganic Nutrient uptake
-      !
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      cqun3  =   p_lN4/( p_lN4+ N4n(:))
-      rumn3  =   p_qun* N3n(:)* B1c(:)* cqun3  ! max pot. uptake of N3
-      rumn4  =   p_qun* N4n(:)* B1c(:)  ! max pot. uptake of N4
+      cqun3  =  p_lN4/( p_lN4+ N4n(:))
+      rumn3  =  max(ZERO,p_qun* N3n(:)* B1c(:)* cqun3)  ! max pot. uptake of N3
+      rumn4  =  max(ZERO,p_qun* N4n(:)* B1c(:))  ! max pot. uptake of N4
       rumn  =   rumn3+ rumn4
+      misn  =   run/B1c(:)*( p_qnc* B1c(:)- B1n(:))  ! intracellular missing amount of N
+      rupn  =   run* p_qnc  ! N uptake based on C uptake
+      runn=     min(rumn,rupn+misn)
 
-      rump  =   p_qup* N1p(:)* B1c(:)  ! max pot. uptake
+      rump  =   max(ZERO,p_qup* N1p(:)* B1c(:))  ! max pot. uptake
+      misp  =   run/B1c(:)*( p_qpc* B1c(:)- B1p(:))  ! intracellular missing amount of P
+      rupp  =   run* p_qpc  ! P uptake based on C uptake
+      runp=     min(rump,rupp+misp)
+
+
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Only stress excetion (defined as reR7c) , no other excretion (reR2c=0)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      r  =   min(  run, ( ruR6n+ ruR1n+ rumn)/ p_qlnc)
-      reR7c  =   run- min(  r, ( ruR6p+ ruR1p+ rump)/ p_qlpc)
-      reR7c  =   max(  ZERO,  reR7c)
+      r      =  min(  run, ( ruR6n+ ruR1n+ runn)/ p_qlnc)
+      reR7c  =  run- min(  r, ( ruR6p+ ruR1p+ runp)/ p_qlpc)
+      reR7c  =  max(  ZERO,  reR7c)
 
-      reR2c  =   0.0D+00
-      run  =   run- reR7c
+      reR2c  =  ZERO
+      run    =  run- reR7c
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics
       ! insw: No excretion if net. growth <0
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      ren  =   run*(( ruR6n+ ruR1n)/(1.0D-80 + run)- p_qnc) * insw_vector(run)
+
+      ren  =   max(ruR6n+ruR1n-run*p_qnc,-runn) *insw_vector(run)
       ! excess of nutrients : ren > 0
-      r  =   insw_vector(ren)
-      call flux_vector( iiPel, ppB1n,ppN4n, r* ren )
+      call flux_vector( iiPel, ppB1n,ppN4n,  ren*insw_vector(ren) )
 
       ! shortage of nutrients : ren < 0 --> Nutrient uptake
-      runn  =   min( - ren,  rumn)*insw_vector(-ren) 
-      call flux_vector(iiPel, ppN4n,ppB1n, runn* rumn4/( 1.0D-80+ rumn))
-      call flux_vector(iiPel, ppN3n,ppB1n, runn* rumn3/( 1.0D-80+ rumn))
+      r=-ren*insw_vector(-ren)
+      call flux_vector(iiPel, ppN4n,ppB1n, r* rumn4/( p_small+ rumn))
+      call flux_vector(iiPel, ppN3n,ppB1n, r* rumn3/( p_small+ rumn))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
       ! insw: No excretion if net. growth <0
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      rep  =   run*(( ruR6p+ ruR1p)/(1.0D-80+  run)- p_qpc) * insw_vector(run)
+      rep  =   max(ruR6p+ruR1p-run*p_qpc,-runp) *insw_vector(run)
+      
       ! excess of nutrients : rep > 0
-      r  =   insw_vector(  rep)
-      call flux_vector( iiPel, ppB1p,ppN1p, rep* r )
+      call flux_vector( iiPel, ppB1p,ppN1p, rep* insw_vector(rep) )
 
       ! shortage of nutrients : rep < 0 --> Nutrient uptake
-      runp  =   min( - rep,  rump)* insw_vector(-rep)
-      call flux_vector( iiPel, ppN1p,ppB1p, runp )
-
+      call flux_vector( iiPel, ppN1p,ppB1p, -rep*insw_vector(-rep) )
 
   end select
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion fluxes + correction net prod.:
@@ -408,14 +449,16 @@
   call flux_vector( iiPel, ppB1c,ppR2c, reR2c )
   call flux_vector( iiPel, ppB1c,ppR7c, reR7c )
 
-
+  r=rug -rrc+p_srs* B1c(:)* et-reR7c-reR2c
+  jnetB1c(1)=jnetB1c(1)+sum(Depth(:)*r)
 
   ! Compute section of PelagicBacteria
 
 
 
-  end
-!BOP
+  end subroutine PelBacDynamics
+
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

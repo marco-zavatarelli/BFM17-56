@@ -80,6 +80,7 @@
 
 %2d-state-alloc-pointer
 
+%3d-Z-alloc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Start the allocation of other pelagic variables which can be outputted
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -103,8 +104,9 @@
   ! 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-%3d-state-surface-alloc-pointer 
-%3d-state-bottom-alloc-pointer 
+%3d-state-field-alloc-pointer surface
+%3d-state-field-alloc-pointer bottom
+%3d-state-field-alloc-pointer river
 
 
 

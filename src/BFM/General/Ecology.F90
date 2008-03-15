@@ -34,14 +34,14 @@
   use mem,  ONLY: iiBen, iiPel, iiReset, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
   use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag, CalcConservationFlag
-#ifdef BFM_SI
+#ifdef INCLUDE_SEAICE
   use mem_Param,  ONLY: CalcSeaiceFlag
 #endif
 
 !  
 !
 ! !AUTHORS
-!   ERSEM team	
+!   Marcello Vichi & Piet Ruardij
 !
 !
 !
@@ -75,7 +75,7 @@
   call  flux(1,iiReset,1,1,0.00D+00)
 #endif
 
-#ifdef BFM_SI
+#ifdef INCLUDE_SEAICE
   if ( CalcSeaiceFlag) then
 
     call SeaiceSystemDynamics
@@ -88,34 +88,27 @@
     call PelagicSystemDynamics
 
   end if
-
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
   if ( CalcBenthicFlag > 0 ) then
 
          call SettlingDynamics
   
-
        select case ( CalcBenthicFlag)
 
          case ( BENTHIC_RETURN )  ! Simple benthic return
            call BenthicReturn1Dynamics
-
 
          case ( BENTHIC_BIO )  ! Intermediate benthic return
            call PelForcingForBenDynamics
            call BenthicSystemDynamics
            call BenthicNutrient2Dynamics
 
-
          case ( BENTHIC_FULL )  ! Full benthic nutrients
            call PelForcingForBenDynamics
            call BenthicSystemDynamics
            call BenthicNutrient3Dynamics
 
-
-
        end select
-
 
        call ControlBennutBuffersDynamics
 
@@ -134,16 +127,12 @@
 #else
   ! only the net sink at the bottom is computed
   call SettlingDynamics
-  call BentoPelCoupDynamics
 #endif
 
   if (CalcConservationFlag) &
      call CheckMassConservationDynamics
 
-
-
-
-  end
+  end subroutine EcologyDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50

@@ -1,7 +1,7 @@
 #include "DEBUG.h"
-
+#include "INCLUDE.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -27,8 +27,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem,  ONLY: LocalDelta, iiBen, iiPel, flux
-
+  use mem,  ONLY: LocalDelta, iiBen, iiPel, ppG3c, ppG3h, flux
 !  
 !
 ! !AUTHORS
@@ -90,12 +89,22 @@
   call BenSilicaDynamics
   call BenQ1TransportDynamics
 
+#ifdef INCLUDE_BENCO2
+  ! ppG3c > 0 : BenCO2 dynamics is active....
+  if ( ppG3c > 0 ) call BenCO2TransportDynamics
+  if ( ppG3h > 0 ) call BenAlkalinityDynamics
+  if ( ppG3c > 0 .and. ppG3h> 0 ) call BenpHDynamics
+#endif
 
+#ifdef INCLUDE_BENPROFILES 
+  call BenProfiles
+#endif
+#if defined INCLUDE_BENPROFILES && defined INCLUDE_BENCO2
+  if ( ppG3c > 0 .and. ppG3h> 0 ) call BenCO2Profiles
+#endif
 
-
-
-  end
-!BOP
+  end subroutine BenthicNutrient3Dynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -41,16 +41,17 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO,ONE
+  use constants,  ONLY:MW_C
 #ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
 #else
-  use mem, ONLY: D3STATE, B1c, B1n, B1p, O2o, O3c, R1c, R6c, R1n, R6n, &
-    R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton
+  use mem, ONLY: D3STATE, B1c, B1n, B1p, O2o, R1c, R6c, R1n, R6n, &
+    R2c,R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton
 #endif
-  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppO3c, ppR1c, ppR6c, &
+  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppO3c, ppR1c, ppR6c, Depth,&
     ppR1n, ppR6n, ppR1p, ppR6p, ppN4n, ppN1p, ppPhytoPlankton, ppMicroZooPlankton, &
-    flP1R6s, ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, &
+    flP1R6s, ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, jnetMiZc, &
     qlPc, qsPc, iiPhytoPlankton, iiMicroZooPlankton, iiP1, iiC, iiN, iiP, iiL, &
     NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
@@ -59,7 +60,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following vector functions are used:eTq_vector, MM_vector
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use mem_globalfun,   ONLY: eTq_vector, MM_vector
+  use mem_globalfun,   ONLY: eTq_vector, MM_vector,MM_power_vector
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -139,8 +140,6 @@
   real(RLEN),dimension(NO_BOXES)  :: ruPIc
   real(RLEN),dimension(NO_BOXES)  :: ruZIc
   real(RLEN),dimension(NO_BOXES)  :: rumB1c
-  real(RLEN),dimension(NO_BOXES,4)  :: rumPIc
-  real(RLEN),dimension(NO_BOXES,2)  :: rumZIc
   real(RLEN),dimension(NO_BOXES)  :: rric
   real(RLEN),dimension(NO_BOXES)  :: rr1c
   real(RLEN),dimension(NO_BOXES)  :: rr6c
@@ -157,6 +156,8 @@
   real(RLEN),dimension(NO_BOXES)  :: tfluxc
   real(RLEN),dimension(NO_BOXES)  :: tfluxn
   real(RLEN),dimension(NO_BOXES)  :: tfluxp
+  real(RLEN),dimension(NO_BOXES,iiPhytoPlankton)  :: rumPIc
+  real(RLEN),dimension(NO_BOXES,iiMicroZooPlankton)  :: rumZIc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
@@ -176,8 +177,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Oxygen limitation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  CORROX  =   1.0D+00+ p_chro(zoo)
-  eO2  =   min(  1.0D+00,  CORROX* MM_vector(  eO2mO2(:),   p_chro(zoo)))
+  CORROX  =   ONE+ p_chro(zoo)
+  eO2  =   min(  ONE,  CORROX* MM_vector(  eO2mO2(:),   p_chro(zoo)))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Available food, etc...
@@ -189,14 +190,12 @@
   rump  =   rumB1c* qpB1c(:)
 
   do i = 1 , ( iiPhytoPlankton)
-
     rumPIc(:, i) = p_suPI(zoo,i)* PhytoPlankton(i,iiC)* &
       PhytoPlankton(i,iiC)/( PhytoPlankton(i,iiC)+ p_minfood(zoo))
     rumc  =   rumc+ rumPIc(:, i)
     rumn  =   rumn+ rumPIc(:, i)* qnPc(i,:)
     rump  =   rump+ rumPIc(:, i)* qpPc(i,:)
   end do
-
 
   do i = 1 , ( iiMicroZooPlankton)
 
@@ -208,7 +207,6 @@
     rump  =   rump+ rumZIc(:, i)* qp_mz(i,:)
   end do
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Uptake
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -218,7 +216,7 @@
 
   r  =   min(  rumn/ p_qn_mz(zoo),  rump/ p_qp_mz(zoo))
 
-  pu_ra  =   max(  p_pu_ra(zoo),  1.0D+00- r/ rumc)
+  pu_ra  =   max(  p_pu_ra(zoo),  ONE- r/ rumc)
 
   put_u  =   rugc/ rumc
 
@@ -256,7 +254,6 @@
     rugp  =   rugp+ ruPIc* qpPc(i,:)
   end do
 
-
   do i = 1 , ( iiMicroZooPlankton)
 
     ruZIc  =   put_u* rumZIc(:, i)
@@ -274,7 +271,6 @@
     rugp  =   rugp+ ruZIc* qp_mz(i,:)
   end do
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !       Fluxes from microzooplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -289,13 +285,13 @@
 
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppzooc,ppO3c, &
                                                   rrtc,tfluxC )
-  call flux_vector( iiPel, ppO2o,ppO2o,-( rrtc/ 12.0D+00) )
+  call flux_vector( iiPel, ppO2o,ppO2o,-( rrtc/ MW_C) )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Mortality (rdc) + Excetion (reac)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rdc  =  (( 1.0D+00- eO2)* p_sdo(zoo)+ p_sd(zoo))* zooc
+  rdc  =  (( ONE- eO2)* p_sdo(zoo)+ p_sd(zoo))* zooc
   reac  =   rugc* p_pu_ea(zoo)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -303,7 +299,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rric  =  ( reac+ rdc)
   rr1c  =   rric* p_pe_R1c
-  rr6c  =   rric*( 1.0D+00- p_pe_R1c)
+  rr6c  =   rric*( ONE- p_pe_R1c)
 
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppzooc,ppR1c, rr1c,tfluxC)
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzooc,ppzooc,ppR6c, rr6c,tfluxC)
@@ -336,12 +332,12 @@
   ! Dissolved nutrient dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  runc  =   max(  0.0D+00,  rugc*( 1.0D+00- p_pu_ea(zoo))- rrac)
-  runn  =   max(  0.0D+00,  rugn*( 1.0D+00- p_pu_ea(zoo))+ rrsc* qn_mz(zoo, :))
-  runp  =   max(  0.0D+00,  rugp*( 1.0D+00- p_pu_ea(zoo))+ rrsc* qp_mz(zoo, :))
+  runc  =   max(  ZERO,  rugc*( ONE- p_pu_ea(zoo))- rrac)
+  runn  =   max(  ZERO,  rugn*( ONE- p_pu_ea(zoo))+ rrsc* qn_mz(zoo, :))
+  runp  =   max(  ZERO,  rugp*( ONE- p_pu_ea(zoo))+ rrsc* qp_mz(zoo, :))
 
-  ren  =   max(  0.0D+00,  runn/( p_small+ runc)- p_qn_mz(zoo))* runc
-  rep  =   max(  0.0D+00,  runp/( p_small+ runc)- p_qp_mz(zoo))* runc
+  ren  =   max(  ZERO,  runn/( p_small+ runc)- p_qn_mz(zoo))* runc
+  rep  =   max(  ZERO,  runp/( p_small+ runc)- p_qp_mz(zoo))* runc
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppN4n, ren ,tfluxN)
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppzoop,ppN1p, rep ,tfluxP)
 
@@ -351,13 +347,13 @@
   r=tfluxC*p_qp_mz(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,r,tfluxP)
 
+#ifdef BFM_GOTM
+  r=rugc-rrac-reac
+  jnetMiZc(1)=jnetMiZc(1)+sum(Depth(:)*r)
+#endif
 
-
-
-
-
-  end
-!BOP
+  end subroutine MicroZooDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -128,7 +128,7 @@
    STDERR LINE
    STDERR 'BFM standalone started on  ',datestr,' ',timestr
    STDERR LINE
-   LEVEL2 'init_standalone'
+   LEVEL1 'init_standalone'
    !---------------------------------------------
    ! Give initial default values
    ! (overwritten with namelist)
@@ -258,6 +258,12 @@
    !---------------------------------------------
    call init_seaice_bfm(namlst,'seaice.nml',unit,bio_setup)
 #endif
+
+   !---------------------------------------------
+   ! Initialise the diagnostic variables
+   !---------------------------------------------
+   call CalcVerticalExtinction( )
+   call CalcChlorophylla( )
 
    !---------------------------------------------
    ! Initialise netcdf output

@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -26,14 +26,14 @@
 ! !USES:
 
   ! For the following Benthic-states fluxes are defined: Q6c, Q6n, Q6p, G2o, &
-  ! K6r, D6m, D7m, D8m
+  ! K16r, D6m, D7m, D8m
   ! The following Benthic-states are used (NOT in fluxes): D1m, D2m
   ! For the following Benthic-group-states fluxes are defined: &
   ! BenDetritus, BenthicAmmonium, BenthicPhosphate
   ! The following Benthic 1-d global boxvars are modified : rrBTo, reBTn, &
   ! reBTp, rrATo, reATn, reATp
   ! The following Benthic 1-d global boxvars  are used: ETW_Ben
-  ! The following Benthic 2-d global boxvars got a value: ruHI
+  ! The following Benthic 2-d global boxvars got a value: ruHI,reHI
   ! The following groupmember vars  are used: iiH1, iiH2
   ! The following constituent constants  are used: iiC, iiN, iiP
   ! The following 0-d global parameters are used: p_d_tot, p_small, &
@@ -44,18 +44,21 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN, ZERO, ONE
+  use constants, ONLY: MW_C
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
 #else
-  use mem, ONLY: D2STATE, Q6c, Q6n, Q6p, G2o, K6r, D6m, &
+  use mem, ONLY: D2STATE, Q6c, Q6n, Q6p, G2o, K16r, D6m, &
     D7m, D8m, D1m, D2m, BenDetritus, BenthicAmmonium, BenthicPhosphate
 #endif
-  use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG2o, ppK6r, ppD6m, &
+  use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c,ppG13c, ppG2o, ppK16r, ppD6m, &
     ppD7m, ppD8m, ppD1m, ppD2m, ppBenDetritus, ppBenthicAmmonium, &
     ppBenthicPhosphate, rrBTo, reBTn, reBTp, rrATo, reATn, reATp, ETW_Ben, ruHI, &
-    iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector
-  use mem_Param,  ONLY: p_d_tot, p_small, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro
+    iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, reHI, &
+    sourcesink_flux_vector
+  use mem_Param,  ONLY: p_d_tot, p_small, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, &
+                        p_clD1D2m
   use mem_BenBac
 
 
@@ -133,10 +136,12 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6c
   real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6n
   real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruKIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruKIp
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY)  :: rump
   real(RLEN),dimension(NO_BOXES_XY)  :: rrc
   real(RLEN),dimension(NO_BOXES_XY)  :: sm
+  real(RLEN),dimension(NO_BOXES_XY)  :: misn
+  real(RLEN),dimension(NO_BOXES_XY)  :: misp
   real(RLEN),dimension(NO_BOXES_XY)  :: ren
   real(RLEN),dimension(NO_BOXES_XY)  :: rep
   real(RLEN),dimension(NO_BOXES_XY)  :: sHc
@@ -156,6 +161,8 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: r
   real(RLEN),dimension(NO_BOXES_XY)  :: runp
   real(RLEN),dimension(NO_BOXES_XY)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
+  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
   integer,dimension(NO_BOXES_XY)  :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -173,23 +180,19 @@
   select case ( hx)
 
     case ( iiH1 )
-      clm  =   0.0D+00
+      clm  =   ZERO
       cm  =   D1m(:)
       chm  =   D1m(:)
-      cmm  =   D1m(:)/ 2.0D+00
-
-
 
     case ( iiH2 )
       clm  =   D1m(:)
       cm  =   D2m(:)
       chm  =   p_d_tot
-      cmm  =   D6m(:)+ D1m(:)
-
-
 
   end select
 
+  ! Determine where the Q6 center of mass is in the range from clm to D1m
+  cmm  =   clm-log(0.5_RLEN*(RLEN+exp(-(chm-clm)/D6m(:))))*D6m(:)*0.5_RLEN
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -197,9 +200,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   et  =   eTq_vector(  ETW_Ben(:),  p_q10(hx))
-
-  eo  =   MM_vector(  cm- clm,  p_cdm(hx))
-
+  eo  =   MM_vector(  max(cm-clm,p_clD1D2m), p_cdm(hx))
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -215,25 +216,22 @@
   availQ6_n  =   Q6n(:)* PartQ_vector(  D7m(:),  clm,  chm,  p_d_tot)
   availQ6_p  =   Q6p(:)* PartQ_vector(  D8m(:),  clm,  chm,  p_d_tot)
 
-
   qnQ6c  =   availQ6_n/( availQ6_c+ 1.0D-30)
   qpQ6c  =   availQ6_p/( availQ6_c+ 1.0D-30)
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Growth is controlled by quality of detritus (N and P content):
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  eN  =   eramp_vector(  qnQ6c,  p_qnc(hx))* eramp_vector(  qpQ6c,  p_qpc(hx))
+  eN  =   eramp_vector(qnQ6c, p_qnc(hx))* eramp_vector(qpQ6c, p_qpc(hx))
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Total substrate availability:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ruQ6c  =   p_suhQ6(hx)* availQ6_c* eN+ p_sulQ6(hx)* availQ6_c
-
-  ruQ1c  =   p_suQ1(hx)* BenDetritus(p_iQ1(hx),iiC)
+  ruQ6c  =  p_suhQ6(hx)* availQ6_c* eN+ p_sulQ6(hx)* availQ6_c
+  ruQ1c  =  p_suQ1(hx)* BenDetritus(p_iQ1(hx),iiC)
 
   rut  =   ruQ6c+ ruQ1c
 
@@ -247,15 +245,14 @@
   ! Actual uptake by bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rug  =   min(  rum,  rut)
-
+  rug  = min(rum, rut)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Carbon fluxes into bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ruQ6c  =   rug* ruQ6c/ rut
-  ruQ1c  =   rug* ruQ1c/ rut
+  ruQ6c = rug* ruQ6c/ rut
+  ruQ1c = rug* ruQ1c/ rut
 
   call flux_vector( iiBen, ppQ6c,pphxc, ruQ6c )
   call flux_vector( iiBen, ppBenDetritus(p_iQ1(hx),iiC),pphxc, ruQ1c )
@@ -270,14 +267,11 @@
   ruQ1n  =   p_suQ1(hx)* BenDetritus(p_iQ1(hx),iiN)* rug/ rut
   ruQ1p  =   p_suQ1(hx)* BenDetritus(p_iQ1(hx),iiP)* rug/ rut
 
-
   call flux_vector( iiBen, ppQ6n,pphxn, ruQ6n )
   call flux_vector( iiBen, ppQ6p,pphxp, ruQ6p )
 
-
   call flux_vector( iiBen, ppBenDetritus(p_iQ1(hx),iiN),pphxn, ruQ1n )
   call flux_vector( iiBen, ppBenDetritus(p_iQ1(hx),iiP),pphxp, ruQ1p )
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of respiration:
@@ -285,115 +279,108 @@
 
   rrc  =   p_srr(hx)* hxc* et+( ruQ1c+ ruQ6c)* p_pur(hx)
 
-  run  =   max(  0.0D+00,  rug- rrc)
+  run  =   max(ZERO, rug- rrc)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of potential nutrient uptake
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ruKIn  =   BenthicAmmonium(p_iK4(hx),iiN)* p_sumKIn(hx)
-  ruKIp  =   BenthicPhosphate(p_iK1(hx),iiP)* p_sumKIp(hx)
+  rumn =   BenthicAmmonium(p_iK4(hx),iiN) * p_sumKIn(hx) *hxc
+  rump =   BenthicPhosphate(p_iK1(hx),iiP)* p_sumKIp(hx) *hxc
+   
+  ! a too high nutrient content of food is related to the food upake ( r < 0) 
+  ! a too low nutrient content of food is related to net growth of the organisms   ( r > 0)
+  r=p_qnc(hx)* hxc(:)-hxn(:)
+  misn = (run*r*insw_vector(r)+max(rrc,rug)*r*insw_vector(-r))/hxc(:)
+  r=p_qpc(hx)* hxc(:)-hxp(:)
+  misp = (run*r*insw_vector(r)+max(rrc,rug)*r*insw_vector(-r))/hxc(:)
+   
+  rupn=run*p_qnc(hx)
+  rupp=run*p_qpc(hx)
+
+  runn=min(rumn-min(ZERO,misn),rupn+max(ZERO,misn))
+  runp=min(rump-min(ZERO,misp),rupp+max(ZERO,misp))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Carbon correction: all C which cannot be used for growth due to
   ! lack of nutrients is excreted!
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  netgrowth  =   min(  run, ( p_small+ ruQ6n+ ruQ1n+ ruKIn)/ p_qlnc(hx))
-  netgrowth  =   min(  netgrowth, ( ruQ6p+ ruQ1p+ ruKIp)/ p_qlpc(hx))
-  netgrowth  =   max(  netgrowth,  0.0D+00)
+  netgrowth  =   min(  run,       ( ruQ6n+ ruQ1n+ runn)/ p_qlnc(hx))
+  netgrowth  =   min(  netgrowth, ( ruQ6p+ ruQ1p+ runp)/ p_qlpc(hx))
+  netgrowth  =   max(  netgrowth,  ZERO)
+
   call flux_vector( iiBen, pphxc,pphxc,-( run- netgrowth) )
   run  =   netgrowth
 
-  ren  =   run*(( ruQ6n+ ruQ1n)/( p_small+ run)- p_qnc(hx))
-  rep  =   run*(( ruQ6p+ ruQ1p)/( p_small+ run)- p_qpc(hx))
+  ren  =   max(ruQ6n+ruQ1n-run*p_qnc(hx),-runn) *insw_vector(run) -min(ZERO,misn)
+  rep  =   max(ruQ6p+ruQ1p-run*p_qpc(hx),-runp) *insw_vector(run) -min(ZERO,misp)
 
-
-  r  =   insw_vector(  ren)
-  call flux_vector( iiBen, pphxn,ppBenthicAmmonium(p_iK4(hx),iiN), ren* r )
-
-  ! shortage of nutrients : ren < 0 --> Nutrient uptake
-  runn  =   min( - ren,  ruKIn)*( 1.0D+00- r)
-  call flux_vector(iiBen, ppBenthicAmmonium(p_iK4(hx),iiN),pphxn, runn)
-
-  r  =   insw_vector(  rep)
-  call flux_vector( iiBen, pphxp,ppBenthicPhosphate(p_iK1(hx),iiP), rep* r )
-
-  ! shortage of nutrients : rep < 0 --> Nutrient uptake
-  runp  =   min( - rep,  ruKIp)*( 1.0D+00- r)
-  call flux_vector(iiBen, ppBenthicPhosphate(p_iK1(hx),iiP),pphxp, runp)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of mortality
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  sm  =   p_sd(hx)*( 1.0D+00- eo)
+  sm  =   p_sd(hx)*( ONE- eo)
 
-  rqt6c  =   hxc* sm*( 1.0D+00- p_pe_R1c)
-  rqt6n  =   hxn* sm*( 1.0D+00- p_pe_R1n)
-  rqt6p  =   hxp* sm*( 1.0D+00- p_pe_R1p)
+  rqt6c  =   hxc(:)* sm*( ONE- p_pe_R1c)
+  rqt6n  =   hxn(:)* sm*( ONE- p_pe_R1n)
+  rqt6p  =   hxp(:)* sm*( ONE- p_pe_R1p)
 
-  call flux_vector( iiBen, pphxc,ppBenDetritus(p_iQ1(hx),iiC), hxc* sm* p_pe_R1c &
-    )
-  call flux_vector( iiBen, pphxn,ppBenDetritus(p_iQ1(hx),iiN), hxn* sm* p_pe_R1n &
-    )
-  call flux_vector( iiBen, pphxp,ppBenDetritus(p_iQ1(hx),iiP), hxp* sm* p_pe_R1p &
-    )
+  call flux_vector( iiBen, pphxc,ppBenDetritus(p_iQ1(hx),iiC), hxc(:)* sm* p_pe_R1c )
+  call flux_vector( iiBen, pphxn,ppBenDetritus(p_iQ1(hx),iiN), hxn(:)* sm* p_pe_R1n )
+  call flux_vector( iiBen, pphxp,ppBenDetritus(p_iQ1(hx),iiP), hxp(:)* sm* p_pe_R1p )
+
+  reHI(hx,:)  =  hxc(:)* sm* p_pe_R1c;
 
   call flux_vector( iiBen, pphxc,ppQ6c, rqt6c )
   call flux_vector( iiBen, pphxn,ppQ6n, rqt6n )
   call flux_vector( iiBen, pphxp,ppQ6p, rqt6p )
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Fluxes
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  call flux_vector(iiBen, pphxn,ppBenthicAmmonium(p_iK4(hx),iiN),  ren*insw_vector(ren))
+  call flux_vector(iiBen, ppBenthicAmmonium(p_iK4(hx),iiN),pphxn, -ren*insw_vector(-ren))
+
+  call flux_vector(iiBen, pphxp,ppBenthicPhosphate(p_iK1(hx),iiP),  rep* insw_vector(rep) )
+  call flux_vector(iiBen, ppBenthicPhosphate(p_iK1(hx),iiP),pphxp, -rep* insw_vector(-rep))
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Assigning depends on type of bacteria and layers in which they occur:
+  ! Fluxes depends on type of bacteria and layers in which they occur:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   select case ( hx)
 
     case ( iiH1 )
-
-      call flux_vector( iiBen, pphxc,pphxc,-( rrc) )
-      call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ 12.0D+00))
+      call sourcesink_flux_vector( iiBen, pphxc,ppG3c,rrc )
+      call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Add respiration and excretion to benthic totals:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      rrBTo(:)  =   rrBTo(:)+ rrc/ 12.0D+00
+      rrBTo(:)  =   rrBTo(:)+ rrc/ MW_C
       reBTn(:)  =   reBTn(:)+ ren
       reBTp(:)  =   reBTp(:)+ rep
 
-
-
-
-
     case ( iiH2 )
-
-      call flux_vector( iiBen, pphxc,pphxc,-( rrc) )
+      call sourcesink_flux_vector( iiBen, pphxc,ppG13c,rrc )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Respiration in anoxic circumstances produces reduced material
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      call flux_vector( iiBen, ppK6r,ppK6r, rrc/ 12.0D+00* p_qro )
-
+      call flux_vector( iiBen, ppK16r,ppK16r, rrc/ MW_C* p_qro )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Add respiration and excretion to benthic totals:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      rrATo(:)  =   rrATo(:)+ rrc/ 12.0D+00
+      rrATo(:)  =   rrATo(:)+ rrc/ MW_C
       reATn(:)  =   reATn(:)+ ren
       reATp(:)  =   reATp(:)+ rep
 
-
-
-
   end select
-
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of changes due to uptake of detritus in distribution
@@ -404,12 +391,8 @@
   call flux_vector(iiBen, ppD7m,ppD7m,( cmm- D7m(:))*( ruQ6n- rqt6n)/ Q6n(:))
   call flux_vector(iiBen, ppD8m,ppD8m,( cmm- D8m(:))*( ruQ6p- rqt6p)/ Q6p(:))
 
-
-
-
-
-  end
-!BOP
+  end subroutine BenBacDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -202,4 +202,14 @@
   end FUNCTION CalcSchmidtNumberOx
   end INTERFACE
 
+  INTERFACE
+
+  FUNCTION CalcSchmidtNumberCO2(Temp)
+  use global_mem, ONLY:RLEN
+  implicit none
+  real(RLEN),intent(IN) :: Temp
+  real(RLEN) :: CalcSchmidtNumberCO2
+  end FUNCTION CalcSchmidtNumberCO2
+  end INTERFACE
+
   end MODULE global_interface

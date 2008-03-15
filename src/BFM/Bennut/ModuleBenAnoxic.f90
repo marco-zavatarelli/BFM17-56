@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -67,9 +67,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN)  :: p_diff  !m2/d # constant molecular diffusion
   real(RLEN)  :: p_p  !  -  #  adsorption distribution coefficient
-  real(RLEN)  :: p_rOS  !  /d # specific reoxidation rate
-  integer  :: N_layers  ! number of layers(/equations)
-  integer  :: N_coeff  ! number of coefficients in the solution
+  real(RLEN)  :: p_sOS  !  /d # specific reoxidation rate
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -80,7 +78,7 @@
   subroutine InitBenAnoxic()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /BenAnoxic_parameters/ p_diff, p_p, p_rOS, N_layers, N_coeff
+  namelist /BenAnoxic_parameters/ p_diff, p_p, p_sOS
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -110,5 +108,5 @@ open(NMLUNIT,file='BenAnoxic.nml',status='old',action='read',err=100)
   end module mem_BenAnoxic
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

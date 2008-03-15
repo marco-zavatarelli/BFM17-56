@@ -86,7 +86,6 @@
    LEVEL2 'EWIND=',EWIND
    LEVEL2 'EICE=',EICE
 #endif
-!   call CalcVerticalExtinction
 
    ! Bottom deposition (must be negative)
    ! (mg C m^-2 d^-1 or mmol NUT m^-2 d^-1)

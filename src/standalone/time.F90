@@ -141,7 +141,7 @@
          ndays = jul2-jul1
          if (nsecs .lt. 86400 .and. jul1 .ne. jul2) ndays = ndays-1
          nsecs = nsecs - 86400*ndays
-         STDERR '        ==> ',ndays,' day(s) and ',nsecs,' seconds ==> ',MaxN,' micro time steps'
+         STDERR '  ==> ',ndays,' day(s) and ',nsecs,' seconds ==> ',MaxN,' time steps'
       case (3)
          LEVEL2 'Start:          ',start
          LEVEL2 '# of timesteps: ',MaxN

@@ -64,15 +64,28 @@ INCDIRS		+= -I$(BFMINCDIR)
 ## DEFINES += -DBFM_NOPOINTERS -DNOT_STANDALONE
 ## DEFINES += -DNOT_STANDALONE
 
-# Benthic ecosystem (activates compilation and macros, true by default)
-BFM_BENTHIC = true
-ifeq ($(BFM_BENTHIC),true)
-DEFINES += -DBFM_BENTHIC
+# Pelagic CO2 flags (activates compilation and macros, true by default)
+INCLUDE_PELCO2=false
+ifeq ($(INCLUDE_PELCO2),true)
+  DEFINES += -DINCLUDE_PELCO2
+endif
+# Benthic ecosystem flags (activates compilation and macros, true by default)
+INCLUDE_BEN = true
+INCLUDE_BENCO2=false
+INCLUDE_BENPROFILES=true
+ifeq ($(INCLUDE_BEN),true)
+  DEFINES += -DINCLUDE_BEN
+  ifeq ($(INCLUDE_BENCO2),true)
+    DEFINES += -DINCLUDE_BENCO2
+  endif
+  ifeq ($(INCLUDE_BENPROFILES),true)
+    DEFINES += -DINCLUDE_BENPROFILES
+  endif
 endif
 # Sea-ice ecosystem (activates compilation and macros, false by default)
-BFM_SI = false
-ifeq ($(BFM_SI),true)
-DEFINES += -DBFM_SI
+INCLUDE_SEAICE = false
+ifeq ($(INCLUDE_SEAICE),true)
+DEFINES += -DINCLUDE_SEAICE
 endif
 
 ##

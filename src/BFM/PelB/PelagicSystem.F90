@@ -1,7 +1,6 @@
 #include "DEBUG.h"
-
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -21,24 +20,15 @@
   subroutine PelagicSystemDynamics
 !
 ! !USES:
-  ! The following groupmember vars are used: iiP1, iiP2, iiP3, iiP4, iiZ3, iiZ4, &
-  ! iiZ5, iiZ6
-  ! The following 0-d global parameters are used: &
-  ! ChlLightFlag
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem, ONLY: ppP1p, ppP2p, ppP3p, ppP4p, ppB1p, ppZ3p, ppZ4p, ppZ5p, &
-    ppZ6p, ppR1p, ppR6p, ppN1p, ppP1n, ppP2n, ppP3n, ppP4n, ppB1n, ppZ3n, ppZ4n, &
-    ppZ5n, ppZ6n, ppR1n, ppR6n, ppN3n, ppN4n, ppO4n, ppP1s, ppR6s, ppN5s, ppP1c, &
-    ppP1l, ppP2c, ppP2l, ppP3c, ppP3l, ppP4c,  ppP4l, ppZ3c,ppZ4c, ppZ5c, ppZ6c, &
-    ppP2s, ppP3s, ppP4s
-    use mem, ONLY: iiP1, iiP2, iiP3, iiP4,iiZ3, iiZ4, iiZ5, iiZ6, iiBen, iiPel, flux 
-   
+  use mem, ONLY: iiPhytoPlankton,iiMesoZooPlankton,iiMicroZooPlankton,  &
+                  ppPhytoPlankton,ppMesoZooPlankton,ppMicroZooPlankton, &
+                  iiC, iiN, iiP, iiS, iiL   
   use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
 
@@ -59,7 +49,7 @@
 !  
 !
 ! !AUTHORS
-!   ERSEM team
+!   BFM team
 !
 ! !REVISION_HISTORY
 
@@ -85,6 +75,7 @@
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
+  integer :: i
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Diagnostic chlorophyll
@@ -107,93 +98,75 @@
   ! This part is executed if Optimal Irradiance is used
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( ChlLightFlag== 1) then
-    if ( CalcPhytoPlankton(iiP1)) then
-      call PhotoAvailableRadiationDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, &
-        ppP1l)
-    end if
-
-    if ( CalcPhytoPlankton(iiP2)) then
-      call PhotoAvailableRadiationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, &
-        ppP2l)
-    end if
-
-    if ( CalcPhytoPlankton(iiP3)) then
-      call PhotoAvailableRadiationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, &
-        ppP3l)
-    end if
-
-    if ( CalcPhytoPlankton(iiP4)) then
-      call PhotoAvailableRadiationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, &
-        ppP4l)
-    end if
-
+     do i =1,iiPhytoPlankton
+        if ( CalcPhytoPlankton(i)) then
+           call PhotoAvailableRadiationDynamics( i, ppPhytoPlankton(i,iiC),  &
+                ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),              &
+                ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
+        end if
+     end do
   end if
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute phytoplankton dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  if ( CalcPhytoPlankton(iiP1)) then
-    call PhytoDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, ppP1l)
-  end if
-
-  if ( CalcPhytoPlankton(iiP2)) then
-    call PhytoDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l)
-  end if
-
-  if ( CalcPhytoPlankton(iiP3)) then
-    call PhytoDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, ppP3l)
-  end if
-
-  if ( CalcPhytoPlankton(iiP4)) then
-    call PhytoDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l)
-  end if
-
+  do i =1,iiPhytoPlankton
+     if ( CalcPhytoPlankton(i)) then
+        call PhytoDynamics( i, ppPhytoPlankton(i,iiC),        &
+             ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),  &
+             ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
+     end if
+  end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! This part is executed if Optimal Irradiance is used
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( ChlLightFlag== 1) then
-    if ( CalcPhytoPlankton(iiP1)) then
-      call LightAdaptationDynamics( iiP1, ppP1c, ppP1n, ppP1p, ppP1s, ppP1l)
-    end if
-
-    if ( CalcPhytoPlankton(iiP2)) then
-      call LightAdaptationDynamics( iiP2, ppP2c, ppP2n, ppP2p, ppP2s, ppP2l)
-    end if
-
-    if ( CalcPhytoPlankton(iiP3)) then
-      call LightAdaptationDynamics( iiP3, ppP3c, ppP3n, ppP3p, ppP3s, ppP3l)
-    end if
-
-    if ( CalcPhytoPlankton(iiP4)) then
-      call LightAdaptationDynamics( iiP4, ppP4c, ppP4n, ppP4p, ppP4s, ppP4l)
-    end if
-
+     do i =1,iiPhytoPlankton
+        if ( CalcPhytoPlankton(i)) then
+           call LightAdaptationDynamics( i, ppPhytoPlankton(i,iiC),  &
+                ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),      &
+                ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
+        end if
+     end do
   end if
   
-  if ( CalcMesoZooPlankton(iiZ3)) then
-    call MesoZooDynamics( iiZ3, ppZ3c, ppZ3n, ppZ3p)
-  end if
-  if ( CalcMesoZooPlankton(iiZ4)) then
-    call MesoZooDynamics( iiZ4, ppZ4c, ppZ4n, ppZ4p)
-  end if
-  if ( CalcMicroZooPlankton(iiZ5)) then
-    call MicroZooDynamics( iiZ5, ppZ5c, ppZ5n, ppZ5p)
-  end if
-  if ( CalcMicroZooPlankton(iiZ6)) then
-    call MicroZooDynamics( iiZ6, ppZ6c, ppZ6n, ppZ6p)
-  end if
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute MesoZooPlankton dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do i =1,iiMesoZooPlankton
+     if ( CalcMesoZooPlankton(i)) then
+       call MesoZooDynamics( i, ppMesoZooPlankton(i,iiC),  &
+            ppMesoZooPlankton(i,iiN), ppMesoZooPlankton(i,iiP))
+     end if
+  end do
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute MicroZooPlankton dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do i =1,iiMicroZooPlankton
+     if ( CalcMicroZooPlankton(i)) then
+       call MicroZooDynamics( i, ppMicroZooPlankton(i,iiC),  &
+            ppMicroZooPlankton(i,iiN), ppMicroZooPlankton(i,iiP))
+     end if
+  end do
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute Bacteria dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( CalcBacteria) then
     call PelBacDynamics
   end if
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute HydroChemistry (including CO2 in seawater)
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( CalcPelChemistry) then
     call PelChemDynamics
   end if
 
-
-  end
-!BOP
+  end subroutine PelagicSystemDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

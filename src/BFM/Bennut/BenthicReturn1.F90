@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -17,24 +17,14 @@
 !   Oxygen consumption is stoichiometrically associated to carbon 
 !   remineralisation rates and nitrogen remineralisation is partitioned 
 !   into ammonium and nitrate flux with a constant value. 
+!   Fluxes are then used as boundary conditions for pelagic variables
+!   in BentoPelCoup.F90
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine BenthicReturn1Dynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: Q6c, Q1c, Q6p, Q1p, &
-  ! K1p, Q6n, Q1n, K3n, K4n, Q6s, K5s
-  ! The following Benthic 1-d global boxvars are modified : jbotO2o, jbotN1p, &
-  ! jbotN3n, jbotN4n, jbotN5s
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -50,8 +40,7 @@
     ppK3n, ppK4n, ppQ6s, ppK5s, jbotO2o, jbotN1p, jbotN3n, jbotN4n, jbotN5s, &
     NO_BOXES_XY, iiBen, iiPel, flux_vector
   use mem_BenthicReturn1
-
-
+  use mem_Param, ONLY: CalcConservationFlag
 
 !  
 !
@@ -67,7 +56,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -110,7 +99,8 @@
   jbotN1p(:)  =   jbotN1p(:)+ rate
 
   ! K1.p is not used in this model version
-  ! hence the amount is added which is subtracted in BentoPelCoupling
+  ! activated only for mass conservation check
+  if (CalcConservationFlag) &
   call flux_vector( iiBen, ppK1p,ppK1p,-(- jbotN1p(:)) )
 
   rate  =   p_reminQ6n* Q6n(:)
@@ -124,22 +114,23 @@
   jbotN4n(:)  =   jbotN4n(:)+ rate*( 1.0D+00- p_pQIN3)
 
   ! K3.n and K4.n are not used in this model version
-  ! hence the amount is added which is subtracted in BentoPelCoupling
-  call flux_vector( iiBen, ppK3n,ppK3n,-(- jbotN3n(:)) )
-  call flux_vector( iiBen, ppK4n,ppK4n,-(- jbotN4n(:)) )
-
+  ! activated only for mass conservation check
+  if (CalcConservationFlag) then
+     call flux_vector( iiBen, ppK3n,ppK3n,-(- jbotN3n(:)) )
+     call flux_vector( iiBen, ppK4n,ppK4n,-(- jbotN4n(:)) )
+  end if
 
   rate  =   p_reminQ6s* Q6s(:)
   call flux_vector( iiBen, ppQ6s,ppQ6s,-( rate) )
   jbotN5s(:)  =   rate
 
   ! K5.s is not used in this model version
-  ! hence the amount is added which is subtracted in BentoPelCoupling
+  ! activated only for mass conservation check
+  if (CalcConservationFlag) &
   call flux_vector( iiBen, ppK5s,ppK5s,-(- jbotN5s(:)) )
 
-
-  end
-!BOP
+  end subroutine BenthicReturn1Dynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

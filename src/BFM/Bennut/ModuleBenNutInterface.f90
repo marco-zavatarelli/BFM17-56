@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! INTERFACE
 !   ModuleBenNutInterface
@@ -40,64 +40,57 @@
 !
       MODULE bennut_interface
 
+      USE global_mem, ONLY:RLEN
 
       INTERFACE
 
-      FUNCTION bess_exp(X,labda,FN)
+      REAL(RLEN) FUNCTION bess_exp(X,labda,FN)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN)    ::X
       REAL(RLEN),intent(IN)    ::labda(2)
-      REAL(RLEN)               ::bess_exp
-        INTERFACE                            ! Specification
-           FUNCTION FN(X)         ! Specification
-            USE global_mem, ONLY:RLEN
-            REAL(RLEN),INTENT(IN)   ::X      ! Specification
-            REAL(RLEN)              ::FN
-          END FUNCTION                       ! Specification
-        END  INTERFACE                       ! Specification    
-
+      INTERFACE
+         REAL(RLEN) FUNCTION FN(X)
+         USE global_mem, ONLY:RLEN
+         REAL(RLEN),INTENT(IN)   ::X
+      END FUNCTION
+      end INTERFACE
       end FUNCTION bess_exp
-
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION BESSI0(X)
+      REAL(RLEN) FUNCTION BESSI0(X)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN) ::x
-      REAL(RLEN)            ::BESSI0
       end FUNCTION BESSI0
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION BESSI1(X)
+      REAL(RLEN) FUNCTION BESSI1(X)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN) ::x
-      REAL(RLEN)            ::BESSI1
       end FUNCTION BESSI1
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION BESSK0(X)
+      REAL(RLEN) FUNCTION BESSK0(X)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN) ::x
-      REAL(RLEN)            ::BESSK0
       end FUNCTION BESSK0
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION BESSK1(X)
+      REAL(RLEN) FUNCTION BESSK1(X)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN) ::x
-      REAL(RLEN)            ::BESSK1
       end FUNCTION BESSK1
       end INTERFACE
 
@@ -116,20 +109,19 @@
 
       INTERFACE
 
-      FUNCTION CalculateFromCondition(irow,C,Y,nn)
+      REAL(RLEN) FUNCTION CalculateFromCondition(irow,C,Y,nn)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::irow
       integer,intent(IN) ::nn
       REAL(RLEN),intent(IN) ::c(nn,nn)
       REAL(RLEN),intent(IN) ::y(nn)
-      REAL(RLEN)            ::CalculateFromCondition
       end FUNCTION CalculateFromCondition
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION calculate_equation(mode,xinput,coeffs,&
+      REAL(RLEN) FUNCTION calculate_equation(mode,xinput,coeffs,&
                                                       b,factor,nn)
       USE global_mem, ONLY:RLEN
       USE bennut_type, ONLY:ty_coeff
@@ -141,7 +133,6 @@
       REAL(RLEN),intent(IN) ::xinput
       REAL(RLEN),intent(IN) ::b
       REAL(RLEN),intent(IN) ::factor(nn)
-      REAL(RLEN)            ::calculate_equation
       end FUNCTION calculate_equation
       end INTERFACE
 
@@ -160,7 +151,7 @@
 
       INTERFACE
 
-      FUNCTION calculate_one_term(mode,option,xinput, &
+      REAL(RLEN) FUNCTION calculate_one_term(mode,option,xinput, &
       coeff,b)
       USE global_mem, ONLY:RLEN
       USE bennut_type
@@ -170,26 +161,24 @@
       type (ty_coeff),intent(IN) ::coeff
       REAL(RLEN),intent(IN) ::xinput
       REAL(RLEN),intent(IN) ::b
-      REAL(RLEN)            ::calculate_one_term
       end FUNCTION calculate_one_term
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION CalculateTau(sMI,xdiffMI,ptMI,DXm)
+      REAL(RLEN) FUNCTION CalculateTau(sMI,xdiffMI,ptMI,DXm)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN) ::smi
       REAL(RLEN),intent(IN) ::xdiffmi
       REAL(RLEN),intent(IN) ::ptmi
       REAL(RLEN),intent(IN) ::dxm
-      REAL(RLEN)            ::CalculateTau
       end FUNCTION CalculateTau
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION chebev(a,b,c,m,x)
+      REAL(RLEN) FUNCTION chebev(a,b,c,m,x)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::m
@@ -197,7 +186,6 @@
       REAL(RLEN),intent(IN) ::b
       REAL(RLEN),intent(IN) ::x
       REAL(RLEN),intent(IN) ::c(m)
-      REAL(RLEN)            ::chebev
       end FUNCTION chebev
       end INTERFACE
 
@@ -272,7 +260,7 @@
 
       INTERFACE
 
-      FUNCTION find_zero_c(k,NUTR,modx,option,bar,xnn,nn,a, &
+      REAL(RLEN) FUNCTION find_zero_c(k,NUTR,modx,option,bar,xnn,nn,a, &
       X1,X2,acc)
       USE global_mem, ONLY:RLEN
       implicit none
@@ -287,13 +275,12 @@
       integer,intent(IN) ::option(nn)
       REAL(RLEN),intent(IN) ::bar(nn)
       REAL(RLEN),intent(IN) ::xnn(2,nn)
-      REAL(RLEN)            ::find_zero_c
       end FUNCTION find_zero_c
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION find_zero(NUTR1,NUTR2,mode,k,a,b,X1,X2,acc)
+      REAL(RLEN) FUNCTION find_zero(NUTR1,NUTR2,mode,k,a,b,X1,X2,acc)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::nutr1
@@ -305,13 +292,12 @@
       REAL(RLEN),intent(IN) ::x1
       REAL(RLEN),intent(IN) ::x2
       REAL(RLEN),intent(IN) ::acc
-      REAL(RLEN)            ::find_zero
       end FUNCTION find_zero
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION funcalc(mode,termx,coeff,xx,x)
+      REAL(RLEN) FUNCTION funcalc(mode,termx,coeff,xx,x)
       USE global_mem, ONLY:RLEN
       USE bennut_type
       implicit none
@@ -320,7 +306,6 @@
       type (ty_coeff),intent(IN) ::coeff
       REAL(RLEN),intent(IN) ::xx
       REAL(RLEN),intent(IN) ::x
-      REAL(RLEN)            ::funcalc
       end FUNCTION funcalc
       end INTERFACE
 
@@ -379,7 +364,7 @@
 
       INTERFACE
 
-      FUNCTION noutput(NUTR,mode,option,input,xinput,yinput)
+      REAL(RLEN) FUNCTION noutput(NUTR,mode,option,input,xinput,yinput)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::mode
@@ -388,27 +373,23 @@
       integer,intent(IN) ::nutr
       REAL(RLEN),intent(IN) ::xinput
       REAL(RLEN),intent(IN) ::yinput
-      REAL(RLEN)            ::noutput
       end FUNCTION noutput
       end INTERFACE
  
       INTERFACE
 
-      FUNCTION QGAUS_EXP(A,B,labda,FN)
+      REAL(RLEN) FUNCTION QGAUS_EXP(A,B,labda,FN)
       USE global_mem, ONLY:RLEN
       implicit none
       REAL(RLEN),intent(IN) ::a
       REAL(RLEN),intent(IN) ::b
       REAL(RLEN),intent(IN) ::labda(2)
-      REAL(RLEN)            ::QGAUS_EXP
-        INTERFACE                            ! Specification
-           FUNCTION FN(X)         ! Specification
-            USE global_mem, ONLY:RLEN
-            REAL(RLEN),INTENT(IN)   ::X      ! Specification
-            REAL(RLEN)              ::FN
-          END FUNCTION                       ! Specification
-        END  INTERFACE                       ! Specification    
-
+      INTERFACE
+        REAL(RLEN) FUNCTION FN(Y)
+          USE global_mem, ONLY:RLEN
+          REAL(RLEN),INTENT(IN)   ::Y
+        END FUNCTION
+      end INTERFACE
       end FUNCTION QGAUS_EXP
       end INTERFACE
 
@@ -422,7 +403,7 @@
 
       INTERFACE
 
-      FUNCTION rtsafe(k,NUTR,mode,option,b,XNN,NN,a,X1,X2,acc)
+      REAL(RLEN) FUNCTION rtsafe(k,NUTR,mode,option,b,XNN,NN,a,X1,X2,acc)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::nn
@@ -436,7 +417,6 @@
       REAL(RLEN),intent(IN) ::x1
       REAL(RLEN),intent(IN) ::x2
       REAL(RLEN),intent(IN) ::acc
-      REAL(RLEN)            ::rtsafe
       end FUNCTION rtsafe
       end INTERFACE
 
@@ -481,7 +461,7 @@
 
       INTERFACE
 
-      FUNCTION GetInfoFromSet(NUTR,option,input,term,at_x,to_x)
+      REAL(RLEN) FUNCTION GetInfoFromSet(NUTR,option,input,term,at_x,to_x)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN)              ::nutr
@@ -490,7 +470,6 @@
       integer,intent(IN)              ::input
       REAL(RLEN),intent(IN),optional  ::at_x
       REAL(RLEN),intent(IN),optional  ::to_x
-      REAL(RLEN)            ::GetInfoFromSet
       end FUNCTION GetInfoFromSet
       end INTERFACE
 
@@ -537,7 +516,7 @@
 
       INTERFACE
 
-      FUNCTION transfer(mode,coeff,input,diff)
+      REAL(RLEN) FUNCTION transfer(mode,coeff,input,diff)
       USE global_mem, ONLY:RLEN
       USE bennut_type
       implicit none
@@ -545,13 +524,12 @@
       type (ty_coeff),intent(IN) ::coeff
       REAL(RLEN),intent(IN) ::diff
       REAL(RLEN),intent(IN) ::input
-      REAL(RLEN)            ::transfer
       end FUNCTION transfer
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION zbrent(k,NUTR,mode,option,bar,xnn,nn,a1,X1,X2,acc)
+      REAL(RLEN) FUNCTION zbrent(k,NUTR,mode,option,bar,xnn,nn,a1,X1,X2,acc)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::k
@@ -565,13 +543,12 @@
       REAL(RLEN),intent(IN) ::x1
       REAL(RLEN),intent(IN) ::x2
       REAL(RLEN),intent(IN) ::acc
-      REAL(RLEN)            ::zbrent
       end FUNCTION zbrent
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION CalculateFromSet(NUTR,mode,input,xh,xh1)
+      REAL(RLEN) FUNCTION CalculateFromSet(NUTR,mode,input,xh,xh1)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::NUTR
@@ -579,20 +556,18 @@
       integer,intent(IN) ::input
       REAL(RLEN),intent(IN) ::xh
       REAL(RLEN),intent(IN) ::xh1
-      REAL(RLEN)            ::CalculateFromSet
       end FUNCTION CalculateFromSet
       end INTERFACE
 
       INTERFACE
 
-      FUNCTION CalculateShift(NUTR,input,xh,xh1)
+      REAL(RLEN) FUNCTION CalculateShift(NUTR,input,xh,xh1)
       USE global_mem, ONLY:RLEN
       implicit none
       integer,intent(IN) ::NUTR
       integer,intent(IN) ::input
       REAL(RLEN),intent(IN) ::xh
       REAL(RLEN),intent(IN) ::xh1
-      REAL(RLEN)            ::CalculateShift
       end FUNCTION CalculateShift
       end INTERFACE
 
@@ -648,7 +623,7 @@
       end INTERFACE
 
       INTERFACE
-        FUNCTION CalculateSet(NUTR, mode,option,input,&
+        REAL(RLEN) FUNCTION CalculateSet(NUTR, mode,option,input,&
                                                           xinput,yinput)
         USE global_mem, ONLY:RLEN
         IMPLICIT  NONE
@@ -658,7 +633,6 @@
         integer,intent(IN) ::option ! Specification
         REAL(RLEN),intent(IN) ::xinput ! Specification
         REAL(RLEN),intent(IN) ::yinput ! Specification
-      REAL(RLEN)            ::CalculateSet
        END FUNCTION CalculateSet
 
       end INTERFACE

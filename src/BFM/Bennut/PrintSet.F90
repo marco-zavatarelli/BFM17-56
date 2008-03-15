@@ -24,9 +24,9 @@ SUBROUTINE PrintSet(NUTR,msg)
        '('' Layers/Equations:'',I5,'' total number of terms:'',I5)') &
           sets(NUTR)%equa, sets(NUTR)%nn
 
-     write( LOGUNIT,'(/,7X,''nr'',5X,''diffusion'',4X,''porosity'',5X,''adsorption   Depth'')') 
+     write( LOGUNIT,'(/,7X,''nr'',6X,''diffusion'',7X,''porosity'',5X,''adsorption   Depth'')') 
      do i= 1,sets(NUTR)%equa
-       write( LOGUNIT,'(''layer'',I6,1X,G12.6,1X,G12.6,1X,G12.6,1X,F8.4)') i,  &
+       write( LOGUNIT,'(''layer'',I6,1X,G16.6,1X,G12.6,1X,G12.6,1X,F8.4)') i,  &
               sets(NUTR)%diff(i), sets(NUTR)%poro(i), sets(NUTR)%ads(i),sets(NUTR)%b(i)
      enddo
      write(LOGUNIT,*)

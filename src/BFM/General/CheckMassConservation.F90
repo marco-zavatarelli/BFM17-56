@@ -30,16 +30,21 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE,D3STATE
 #else
-  use mem, ONLY: B1c, B1p, B1n, N1p, N3n, N4n, O4n, &
-    N5s, O3c, D2STATE
-#ifdef BFM_BENTHIC
+  use mem, ONLY: B1c, B1p, B1n, N1p, N3n, N4n, N5s, O4n
+# ifdef INCLUDE_PELCO2
+    use mem, ONLY: O3c
+# endif
+# ifdef INCLUDE_BEN
   use mem, ONLY: Q1c, Q6c, Q1p, Q6p, Q1n, Q6n, Q6s, Y1p, Y2p, Y3p, Y4p, Y5p, H1p, H2p, &
     Q11p, K1p, K11p, Y1n, Y2n, Y3n, Y4n, Y5n, H1n, H2n, Q11n, K4n, K14n, K21p, &
-    G4n, K3n, K24n, K5s, D3STATE
-#endif
+    G4n, K3n, K24n, K5s
+#  ifdef INCLUDE_BENCO2
+  use mem, ONLY: G3c
+#  endif
+# endif
 #endif
   use mem, ONLY: ppB1c,ppB1p,ppB1n, &
-     ppN1p, ppN3n, ppN4n, ppO4n, ppN5s, ppO3c, D2STATE, &
+     ppN1p, ppN3n, ppN4n, ppO4n, ppN5s, ppO3c, &
     Depth, Volume, Area, Area2d
   use mem, ONLY: &
     totpelc, totpelp, totpeln, totpels, totsysc, totsysp, totsysn, totsyss, &
@@ -48,7 +53,7 @@
     PhytoPlankton,iiPhytoPlankton,ppPhytoPlankton,PelDetritus,iiPelDetritus,ppPelDetritus
   use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
   use mem, ONLY: ppQ1c, ppQ6c, ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
     ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
     ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
@@ -154,8 +159,13 @@
      end if
   end do
 
+  totpelc = totpelc+ B1c
+#ifdef INCLUDE_PELCO2
+  totpelc = totpelc+ O3c
+#endif
   ! Convert from default units to g and multiply for the water volume
-  totpelc = (totpelc+ ( O3c + B1c ))*Volume/1000.0_RLEN
+  totpelc = totpelc*Volume/1000.0_RLEN
+  ! Convert from default units to g and multiply for the water volume
   totpeln = (totpeln+ ( B1n + N3n + N4n + O4n))*Volume*MW_N/1000.0_RLEN
   totpelp = (totpelp+ ( B1p + N1p))*Volume*MW_P/1000.0_RLEN
   totpels = (totpels+ ( N5s ))*Volume*MW_SI/1000.0_RLEN
@@ -165,7 +175,12 @@
   totsysp = sum(totpelp(:))
   totsyss = sum(totpels(:))
 
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
+  ! Mass conservation variables
+  totbenc(:)  =  ( Q1c(:)+ Q6c(:))
+  totbenp(:)  =  ( Q1p(:)+ Q6p(:))
+  totbenn(:)  =  ( Q1n(:)+ Q6n(:))
+  totbens(:)  =  ( Q6s(:))
   select case ( CalcBenthicFlag)
 
     case ( 0 )
@@ -175,11 +190,7 @@
       totbens(:)  =  ZERO
 
     case ( BENTHIC_RETURN )  ! Simple benthic return
-      ! Mass conservation variables
-      totbenc(:)  =  ( Q1c(:)+ Q6c(:))
-      totbenp(:)  =  ( Q1p(:)+ Q6p(:))
-      totbenn(:)  =  ( Q1n(:)+ Q6n(:))
-      totbens(:)  =  ( Q6s(:))
+    continue
 
     case ( BENTHIC_BIO )  ! Intermediate benthic return
       ! Mass conservation variables
@@ -198,6 +209,9 @@
 
   end select
 
+#ifdef INCLUDE_BENCO2
+  totbenc = totbenc(:)+G3c(:)
+#endif
   ! Convert from default units to g and multiply for the sediment volume
   totbenc = totbenc(:)/1000.0_RLEN*Area2d*p_d_tot
   totbenn = totbenn(:)*MW_N/1000.0_RLEN*Area2d*p_d_tot

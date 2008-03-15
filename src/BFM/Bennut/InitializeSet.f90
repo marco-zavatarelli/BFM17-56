@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   InitializeSet
@@ -16,8 +16,6 @@
 !    Piet Ruardij, NIOZ
 !
 ! CHANGE_LOG
-!
-!
 ! COPYING
 !
 !   Copyright (C) 2004 P. Ruardij, the mfstep group, the ERSEM team
@@ -32,8 +30,6 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
       integer function InitializeSet(NUTR,option,input)
         USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn
         use mem, ONLY:NO_BOXES_XY

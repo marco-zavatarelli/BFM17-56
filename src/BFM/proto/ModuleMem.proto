@@ -85,8 +85,9 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 %3d-state-array
 %2d-state-array
-%3d-state-surface-array
-%3d-state-bottom-array
+%3d-state-field-array surface
+%3d-state-field-array bottom
+%3d-state-field-array river
 %3d-diagnos-array
 %2d-diagnos-array
 
@@ -125,6 +126,7 @@
 
 %2d-state-pointer
 
+%3d-Z-pointer
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! Constituent parameters:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -174,8 +176,9 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  boundary fluxes
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-%3d-state-surface-pointer
-%3d-state-bottom-pointer
+%3d-state-field-pointer surface
+%3d-state-field-pointer bottom
+%3d-state-field-pointer river
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  Other 3d-Global Variables 
@@ -203,7 +206,7 @@
         !! SHARED GLOBAL FUNCTIONS (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         public flux, flux_vector, Source, Source_D3_vector, Source_D2_vector , &  
-               fixed_quota_flux_vector
+               fixed_quota_flux_vector, sourcesink_flux_vector
 %3d-group-function-name
 %2d-group-function-name
 
@@ -219,7 +222,11 @@
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 %2d-groupfunctions
 
+#ifdef BFM_ROMS
+#include "FluxFunctions.h"
+#else
 #include "FluxFunctions.F90"
+#endif
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! end of contain section

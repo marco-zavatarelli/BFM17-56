@@ -13,7 +13,8 @@ subroutine ResetFluxes
 ! !USES
    use global_mem, only:ZERO
    use mem, ONLY: NO_D2_BOX_STATES,NO_BOXES_XY,D2SOURCE, &
-         NO_D3_BOX_STATES,NO_BOXES,D3SOURCE, D3SINK, D2SINK
+         NO_D3_BOX_STATES,NO_BOXES,D3SOURCE, D3SINK, D2SINK, &
+         PELBOTTOM, PELSURFACE
    implicit none
 !
 ! !INPUT PARAMETERS:
@@ -31,10 +32,10 @@ subroutine ResetFluxes
 !
    ! Reset source term arrays 
 #ifdef DEBUG
-   D3SOURCE = 0.0
-   D3SINK = 0.0
-   D2SOURCE = 0.0
-   D2SINK = 0.0
+   D3SOURCE = ZERO
+   D3SINK = ZERO
+   D2SOURCE = ZERO
+   D2SINK = ZERO
 #else
    ! only the diagonal
    do i=1,NO_D3_BOX_STATES
@@ -45,6 +46,8 @@ subroutine ResetFluxes
       D2SOURCE(i,i,:) = 0.0
       D2SINK(i,i,:) = 0.0
    end do
+   PELBOTTOM = ZERO
+   PELSURFACE = ZERO
 #endif
 
 end subroutine ResetFluxes

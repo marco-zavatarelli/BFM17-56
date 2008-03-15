@@ -49,7 +49,7 @@
 
 &BenDenitriDepth_parameters
 p_xdamping = 2.0,
-p_pmM3n = 0.1,
+p_jlK3G4n = 0.0025,
 p_clM3n_D2 = 0.5,
 p_cmD2m = 0.295
 /

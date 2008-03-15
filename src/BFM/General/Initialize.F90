@@ -19,13 +19,12 @@
 !
 ! USES:
   use mem, only: InitializeModel,ppMicroZooplankton,ppMesoZooPlankton, &
-                 MicroZooplankton,MesoZooPlankton,iiMicroZooplankton,  &
-                 iiMesoZooPlankton,NO_BOXES,iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
+                 iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
+                 iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
   use mem_Param
   use mem_WindOxReaeration_3
   use mem_PelGlobal
   use mem_PelChem
-  use mem_CO2
   use mem_PelBac
   use mem_MesoZoo,p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo
@@ -33,7 +32,7 @@
   use mem_PhotoAvailableRadiation
   use mem_LightAdaptation
   use mem_Settling
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
   use mem_BenOrganism
   use mem_FilterFeeder
   use mem_BenBac
@@ -51,7 +50,18 @@
   use mem_BenQ1Transport
   use mem_ControlBennutBuffers
 #endif
-#ifdef BFM_SI
+#ifdef INCLUDE_PELCO2
+  use mem_CO2
+  use mem_PelCO2
+#endif
+#ifdef INCLUDE_BENCO2
+  use mem_BenCO2Transport
+  use mem_BenAlkalinity
+#endif
+#ifdef INCLUDE_SILT
+  use mem_Silt
+#endif
+#ifdef INCLUDE_SEAICE
   use mem_SeaiceAlgae
 #endif
 
@@ -98,7 +108,6 @@
       call InitWindOxReaeration_3
       call InitPelGlobal
       call InitPelChem
-      call InitCO2
       call InitPelBac
       call InitMesoZoo
       call InitMicroZoo
@@ -106,7 +115,7 @@
       call InitPhotoAvailableRadiation
       call InitLightAdaptation
       call InitSettling
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
       call InitBenOrganism
       call InitFilterFeeder
       call InitBenBac
@@ -124,7 +133,18 @@
       call InitBenQ1Transport
       call InitControlBennutBuffers
 #endif
-#ifdef BFM_SI
+#ifdef INCLUDE_PELCO2
+      call InitCO2
+      call InitPelCO2
+#endif
+#ifdef INCLUDE_BENCO2
+      call InitBenCO2Transport
+      call InitBenAlkalinity
+#endif
+#ifdef INCLUDE_SILT
+      call InitSilt
+#endif
+#ifdef INCLUDE_SEAICE
       call InitSeaiceAlgae
 #endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -143,7 +163,12 @@
          if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qp_mz(i) 
          if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qn_mz(i)
        end do
+               
 
+       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+       ! Compute nutrient quota in omnivorous and herbivorous mesozooplankton
+       ! in case of fixed quota qp_mz and qn_mz are one time calculated in the Initialize.F90
+       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
          if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMc(i)
          if ( ppMesoZooPlankton(i,iiN) == 0 ) qnZc(i,:)  =   p_qnMc(i)
@@ -151,7 +176,7 @@
 
 
     END SUBROUTINE Initialize
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model version 2.50
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

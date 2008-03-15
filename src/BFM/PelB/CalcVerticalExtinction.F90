@@ -3,7 +3,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -47,8 +47,7 @@
 #endif
   use mem, ONLY: ppR6c, ppPhytoPlankton, xEPS, ABIO_eps, ESS, iiPhytoPlankton, &
     iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
-  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlLightFlag, p_epsChla, &
-    p_qchlc
+  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlLightFlag, p_epsChla,p_qchlc 
 
 
 
@@ -88,14 +87,14 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
+  real(RLEN), dimension(:), pointer  ::lcl_PhytoPlankton
+
 
 
   select case ( p_eps0== 0.0D+00)
 
     case( .TRUE. )
       xEPS(:)  =   ABIO_eps(:)+ p_epsR6* R6c(:)
-
-
 
     case( .FALSE. )
       xEPS(:)  =   p_eps0+ p_epsESS* ESS(:)+ p_epsR6* R6c(:)
@@ -108,29 +107,20 @@
 
     case ( 1 )
       do i = 1 , ( iiPhytoPlankton)
-
-        xEPS(:)  =   xEPS(:)+ p_epsChla* p_qchlc( i)* PhytoPlankton(i,iiC)
+        lcl_PhytoPlankton =>    PhytoPlankton(i,iiC)
+        xEPS(:)  =   xEPS(:)+ p_epsChla * p_qchlc(i)* lcl_PhytoPlankton
       end do
-
-
-
 
     case ( 2 )
       do i = 1 , ( iiPhytoPlankton)
-
-        xEPS(:)  =   xEPS(:)+ p_epsChla* PhytoPlankton(i,iiL)
+        lcl_PhytoPlankton =>    PhytoPlankton(i,iiL)
+        xEPS(:)  =   xEPS(:)+ p_epsChla * lcl_PhytoPlankton
       end do
-
-
 
   end select
 
-
-
-
-
-  end
-!BOP
+  end subroutine CalcVerticalExtinction
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

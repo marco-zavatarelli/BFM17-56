@@ -90,7 +90,7 @@
 !BOC
      k=1
      if ( present(start) ) k=start
-     do i=1,n
+     do i=k,n
        j=index_trim(name(i),string)
        if (j == 1) then
          if (exact ) THEN

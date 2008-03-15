@@ -21,6 +21,7 @@
 #ifdef BFM_GOTM
    use bio_var
    use bio_bfm
+   use global_mem, ONLY: RLEN,ZERO,ONE
 #endif
    use mem
    use mem_Phyto, ONLY: p_qnRc,p_qpRc,p_qsRc
@@ -28,7 +29,7 @@
    use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc, &
                         CalcPhytoPlankton,CalcMicroZooPlankton,          &
                         CalcMesoZooPlankton,CalcPelChemistry
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
    use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria, CalcBacteria
    use mem_BenBac, ONLY: p_qnc,p_qpc
 #endif
@@ -55,7 +56,9 @@
                 P1c0,P2c0,P3c0,P4c0,Z3c0,  &
                 Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
                 R2c0,R6c0,R7c0,O2o0,O4n0,  &
+#ifdef INCLUDE_PELCO2
                 O3c0,O3h0,                 &
+#endif
                 P1l0,P2l0,P3l0,P4l0,       &
                 P1n0,P2n0,P3n0,P4n0,       &
                 P1p0,P2p0,P3p0,P4p0,P1s0
@@ -66,7 +69,9 @@
                            P1c0,P2c0,P3c0,P4c0,Z3c0,  &
                            Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
                            R2c0,R6c0,R7c0,O2o0,O4n0,  &
+#ifdef INCLUDE_PELCO2
                            O3c0,O3h0,                 &
+#endif
                            P1l0,P2l0,P3l0,P4l0,       &
                            P1n0,P2n0,P3n0,P4n0,       &
                            P1p0,P2p0,P3p0,P4p0,P1s0
@@ -113,8 +118,10 @@
    N5s0 = _ONE_
    N6r0 = _ONE_
    O2o0 = 280.0_RLEN
+#ifdef INCLUDE_PELCO2
    O3c0 = 24785.0_RLEN ! conversion from GLODAP 2303 umol/kg to mg/m3
    O3h0 = 2303.0_RLEN  ! GLODAP surface average (umol/kg)
+#endif
    O4n0 = _ONE_
    P1c0 = _ZERO_
    P2c0 = _ZERO_
@@ -218,8 +225,10 @@
       N5s = N5s0
       N6r = N6r0
       O2o = O2o0
+#ifdef INCLUDE_PELCO2
       O3c = O3c0
       O3h = O3h0
+#endif
       O4n = O4n0
       P1c = P1c0
       P1n = P1n0
@@ -299,7 +308,7 @@
          ! force computation of bottom fluxes in the BFM
          AssignPelBenFluxesInBFMFlag = .TRUE.
 #endif
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
       case (2) ! Benthic only
          LEVEL2 "Benthic-only setup (bio_setup=2), Switching off the pelagic system"
          CalcPelagicFlag = .FALSE.
@@ -341,7 +350,12 @@
       end if
    end do
    do j = 1,iiMesoZooPlankton
-      iiLastElement = iiP
+      if ( (ppMesoZooPlankton(j,iiP)>0) .and. &
+           (ppMesoZooPlankton(j,iiN)>0) ) then
+         iiLastElement = iiP
+      else
+         iiLastElement = iiC
+      end if
       if (.NOT.CalcMesoZooPlankton(j)) then
          do i = iiC,iiLastElement
             D3STATE(ppMesoZooPlankton(j,i),:) = p_small
@@ -350,7 +364,12 @@
       end if
    end do
    do j = 1,iiMicroZooPlankton
-      iiLastElement = iiP
+      if ( (ppMicroZooPlankton(j,iiP)>0) .and. &
+           (ppMicroZooPlankton(j,iiN)>0) ) then
+         iiLastElement = iiP
+      else
+         iiLastElement = iiC
+      end if
       if (.NOT.CalcMicroZooPlankton(j)) then
          do i = iiC,iiLastElement
             D3STATE(ppMicroZooPlankton(j,i),:) = p_small
@@ -358,7 +377,7 @@
          end do
       end if
    end do
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
    do j = 1,iiBenOrganisms
       iiLastElement = iiP
       if (.NOT.CalcBenOrganisms(j)) then

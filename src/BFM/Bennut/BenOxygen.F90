@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -38,7 +38,7 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN,ZERO,LOGUNIT
+  use global_mem, ONLY:RLEN,LOGUNIT
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
 #else
@@ -46,10 +46,14 @@
 #endif
   use mem, ONLY: ppD1m, ppG2o, ppD2m, InitializeModel, LocalDelta, shiftD1m, &
     jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
-    iiPel, flux_vector
-  use constants,  ONLY: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO
+    iiPel, flux_vector,KNO3,M3n,dummy, BoxNumberXY
+  use constants,  ONLY: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO,STANDARD,EQUATION
   use mem_Param,  ONLY: p_poro, p_small, p_d_tot, CalcBenthicFlag
   use mem_BenOxygen
+  use bennut_interface, ONLY: CalculateFromSet
+  use mem_Param,  ONLY: p_d_tot, p_clD1D2m
+
+
 
 !  
 !
@@ -88,6 +92,7 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: zmG2o
   real(RLEN),dimension(NO_BOXES_XY)  :: D1mNew
   real(RLEN),dimension(NO_BOXES_XY)  :: G2oNew
+  real(RLEN),dimension(NO_BOXES_XY)  :: jG2O2o
   real(RLEN),dimension(NO_BOXES_XY)  :: unc_shiftD1m
 
 
@@ -95,7 +100,7 @@
   ! Emperical equation derived from Broecker and Peng (1973)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  diff = SEC_PER_DAY* 1.0D-9* (10.0_RLEN)**((- 984.26_RLEN/( 273.0_RLEN+ &
+  diff = SEC_PER_DAY* 1.0e-9_RLEN* (10.0_RLEN)**((- 984.26_RLEN/( 273.0_RLEN+ &
     ETW_Ben(:))+ 3.672_RLEN))* p_poro* irrenh(:)* p_exsaf
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -109,6 +114,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   D1mNew  =   sqrt(  2.0_RLEN* diff* O2o_Ben(:)/( p_small+ zmG2o))
+  D1mNew  = min(D1mnew ,p_d_tot-2.0_RLEN*p_clD1D2m);
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate rate of change of thickness of the aerobic layer:
@@ -121,8 +127,18 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   if ( InitializeModel== 0) then
-    shiftD1m(:) = shiftD1m(:)* (D1m(:)/( D1m(:)+ &
+     shiftD1m(:) = shiftD1m(:)* (D1m(:)/( D1m(:)+ &
       abs(shiftD1m(:))))**(p_xdampingD1m)*( p_chD1m/( p_chD1m+ D1m(:)))
+     if ( CalcBenthicFlag > BENTHIC_BIO) then
+        do BoxNumberXY = 1,NO_BOXES_XY
+           r(1) = CalculateFromSet( KNO3(BoxNumberXY), EQUATION, &
+                  STANDARD, D1m(BoxNumberXY), dummy)/M3n(BoxNumberXY)
+           if ( r(1) .lt.ZERO) then
+             write(LOGUNIT,*) "BFM Warning: BenOxygen proportion M3n(D1m)/M3n(0..D2m)=",r(1)
+           endif
+        end do
+     end if
+     shiftD1m(:)= shiftD1m(:) * max(ZERO,min(ONE,r*2.0_RLEN));
   end if
 
 
@@ -142,20 +158,20 @@
   ! calculate the consumption which belongs to the corrected D1mNew
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  zmG2o  =  ( 2.0D+00* diff* O2o_Ben(:))/( D1mNew* D1mNew)
+  zmG2o  =  ( 2.0_RLEN* diff* O2o_Ben(:))/( D1mNew* D1mNew)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! New oxygen conc. in the sediment:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  G2oNew = D1mNew*( O2o_Ben(:)- 0.66667D+00* zmG2o* D1mNew* D1mNew/( 2.0D+00* &
+  G2oNew = D1mNew*( O2o_Ben(:)- 0.66667_RLEN* zmG2o* D1mNew* D1mNew/( 2.0_RLEN* &
     diff))* p_poro
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! flux to pelagic: correct flux for rate of change of G2o
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  jbotO2o(:) = -( rrBTo(:)+ jG2K3o(:)+ jG2K7o(:))-( G2oNew- G2o(:))/ &
+  jG2O2o = -( rrBTo(:)+ jG2K3o(:)+ jG2K7o(:))-( G2oNew- G2o(:))/ &
     ONE_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -163,22 +179,21 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if ( InitializeModel== 0) then
     shiftD1m(:)=r
-!   if ( D1m(1).gt.0.285) then
-!     write(LOGUNIT,'(''D1m='',F10.3,'' Change='',F10.4)') D1m(1),r(1)
-!   endif
     call flux_vector( iiBen, ppD1m,ppD1m, r )
-    call flux_vector( iiBen, ppG2o,ppG2o,-( jbotO2o(:)) )
-
+    call flux_vector( iiBen, ppG2o,ppG2o,-jG2O2o )
+    jbotO2o(:)=jbotO2o(:)+jG2O2o
     if ( CalcBenthicFlag== BENTHIC_BIO) then
       ! Compute shifting of the denitrification layer here in case of running only
       ! the benthic submodel and NOT the benthic nutrient model.
       r  =   p_d_tot- D2m(:)
-      call flux_vector( iiBen, ppD2m,ppD2m, shiftD1m(:)* r/( r+ 0.01D+00) )
+      call flux_vector( iiBen, ppD2m,ppD2m, shiftD1m(:)* r/( r+ 0.01_RLEN) )
     end if
+  else
+      G2o(:)=G2oNew
   endif
 
-  end
+  end subroutine BenOxygenDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

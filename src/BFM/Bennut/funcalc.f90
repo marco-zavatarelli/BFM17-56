@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   funcalc.f90
@@ -36,9 +36,7 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
-      FUNCTION funcalc(mode,chterm,coeff,basis,x)
+      REAL(RLEN) FUNCTION funcalc(mode,chterm,coeff,basis,x)
         USE global_mem, ONLY:RLEN
         USE bennut_type
         USE constants
@@ -50,7 +48,6 @@
         type (ty_coeff),intent(IN) ::coeff ! Specification
         REAL(RLEN),intent(IN) ::basis      ! Specification
         REAL(RLEN),intent(IN) ::x          ! Specification
-        REAL(RLEN)            ::funcalc
 
         REAL(RLEN),parameter :: pi=3.141592D+00
         REAL(RLEN) ::r
@@ -94,7 +91,7 @@
             case default
                stop 'error funcalc FIRST_ORDER_TERM'
           end select
-        case ( EXPONENTIAL_TERM,ZERO_EXPONENTIAL_TERM)
+        case (EXPONENTIAL_TERM,ZERO_EXPONENTIAL_TERM)
           r=exp(coeff%labda(1)*rx)
 
           select case (mode)
@@ -109,7 +106,7 @@
             case default
               stop 'funcalc EXPONENTIAL_TERM'
           end select 
-        case ( BESSELI_EXP_TERM)
+        case (BESSELI_EXP_TERM)
           r=exp(coeff%labda(1)*rx)
           s=r*coeff%labda(2)
 

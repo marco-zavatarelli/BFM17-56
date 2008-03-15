@@ -13,5 +13,13 @@
 %3d-diaggrp-header
 %2d-diaggrp-header
 
+#endif
 
+%if-exist-header
+
+#if defined INCLUDE_BENCO2 && !defined INCLUDE_BEN
+#undef INCLUDE_BENCO2
+#endif
+#if defined INCLUDE_BENPROFILES && !defined INCLUDE_BEN
+#undef INCLUDE_BENPROFILES
 #endif

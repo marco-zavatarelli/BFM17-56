@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -26,14 +26,14 @@
 ! !USES:
 
   ! For the following Benthic-states fluxes are defined: Y3c, Y3n, Y3p, Q6c, &
-  ! Q6n, Q6p, G2o, K4n, K1p, D6m, D7m, D8m
+  ! Q6n, Q6p, Q6s, G2o, K4n, K1p, D6m, D7m, D8m, D9m
   ! The following Benthic-states are used (NOT in fluxes): D1m
   ! The following Benthic 1-d global boxvars are modified : rrBTo, reBTn, &
   ! reBTp, jbotR6c, jbotR6n, jbotR6p, jbotR6s
-  ! The following Benthic 1-d global boxvars got a value: jPIY3c, jRIY3c, &
-  ! jRIY3n, jRIY3p, jRIY3s
-  ! The following Benthic 1-d global boxvars are used: ETW_Ben, PIc, RIc, PIn, &
-  ! PIp, PIs, RIn, RIp, RIs
+  ! The following Benthic 1-d global boxvars got a value: jPIY3c, jZIY3c, &
+  ! jRIY3c, jRIY3n, jRIY3p, jRIY3s
+  ! The following Benthic 1-d global boxvars are used: ETW_Ben, PI_Benc, RI_Fc, &
+  ! ZI_Fc, PI_Benn, PI_Benp, PI_Bens, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, RI_Fs
   ! The following 0-d global parameters are used: p_d_tot
   ! The following global constants are used: RLEN
 
@@ -41,18 +41,29 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO,ONE
+  use constants, ONLY:MW_C
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE
 #else
-  use mem, ONLY: Y3c, Y3n, Y3p, Q6c, Q6n, Q6p, G2o, K4n, K1p, D6m, D7m, D8m, &
+  use mem, ONLY: Y3c, Y3n, Y3p, Q6c, Q6n, Q6p, Q6s, G2o, K4n, K1p, D6m, D7m, D8m, D9m, &
     D1m
 #endif
-  use mem, ONLY: ppY3c, ppY3n, ppY3p, ppQ6c, ppQ6n, ppQ6p, ppG2o, ppK4n, &
-    ppK1p, ppD6m, ppD7m, ppD8m, ppD1m, rrBTo, reBTn, reBTp, jbotR6c, jbotR6n, &
-    jbotR6p, jbotR6s, jPIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, PIc, RIc, &
-    PIn, PIp, PIs, RIn, RIp, RIs, NO_BOXES_XY, iiBen, iiPel, flux_vector
-  use mem_Param,  ONLY: p_d_tot
+  use mem, ONLY: ppY3c, ppY3n, ppY3p, ppQ6c, ppQ6n, ppQ6p, ppQ6s, ppG2o, ppK4n,O2o_Ben, &
+    ppK1p, ppD6m, ppD7m, ppD8m, ppD9m, ppD1m, rrBTo, reBTn, reBTp, jbotR6c, jbotR6n, &
+    jbotR6p, jbotR6s, jPIY3c, jZIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, &
+    iiPhytoPlankton, PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPI_Ben, sediR6_Ben, & 
+    ZI_Fc, RI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, RI_Fs, ppG3c, jnetY3c, &
+    NO_BOXES_XY, Depth_ben, iiBen, iiPel, flux_vector, sourcesink_flux_vector, &
+    jbotO2o,jbotN1p,jbotN4n
+#ifdef INCLUDE_BENCO2
+  use mem, ONLY: jbotO3c
+#endif
+ use mem,  ONLY: Source_D2_vector
+
+
+!   ppPhytoPlankton,iiC,jinPIc,BoxNumberXY
+  use mem_Param,  ONLY: p_d_tot,p_pe_R1c, p_pe_R1n, p_pe_R1p,p_small
   use mem_FilterFeeder
 
 
@@ -60,21 +71,15 @@
   ! The following vector functions are used:eTq_vector, eramp_vector, &
   ! MM_vector, PartQ_vector
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use mem_globalfun,   ONLY: eTq_vector, eramp_vector, MM_vector, PartQ_vector
+  use mem_globalfun,   ONLY: eTq_vector, eramp_vector, MM_vector, MM_power_vector, insw_vector, PartQ_vector
 
-
-
-!  
 !
 ! !AUTHORS
 !   W. Ebenhoeh and C. Kohlmeier 
 !
 !
-!
 ! !REVISION_HISTORY
 !   !
-!
-!
 !
 ! COPYING
 !   
@@ -102,23 +107,34 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer,dimension(NO_BOXES_XY)  :: i
+  integer  :: i
+  real(RLEN) :: clu
+  real(RLEN),dimension(NO_BOXES_XY)  :: corr
+  real(RLEN),dimension(NO_BOXES_XY)  :: fdepth
   real(RLEN),dimension(NO_BOXES_XY)  :: clm
   real(RLEN),dimension(NO_BOXES_XY)  :: cmm
-  real(RLEN),dimension(NO_BOXES_XY)  :: cm
   real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: eo
+  real(RLEN),dimension(NO_BOXES_XY)  :: eO
+  real(RLEN),dimension(NO_BOXES_XY)  :: eNC
+  real(RLEN),dimension(NO_BOXES_XY)  :: ePC
+  real(RLEN),dimension(NO_BOXES_XY)  :: foodpm2
   real(RLEN),dimension(NO_BOXES_XY)  :: food
-  real(RLEN),dimension(NO_BOXES_XY)  :: food_src
+  real(RLEN),dimension(iiPhytoPlankton,NO_BOXES_XY)  :: food_PIc
+  real(RLEN),dimension(NO_BOXES_XY)  :: food_PT
+  real(RLEN),dimension(NO_BOXES_XY)  :: food_ZI
+  real(RLEN),dimension(NO_BOXES_XY)  :: food_RI
+  real(RLEN),dimension(NO_BOXES_XY)  :: food_Q6
   real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_c
   real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_n
   real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_p
   real(RLEN),dimension(NO_BOXES_XY)  :: eF
   real(RLEN),dimension(NO_BOXES_XY)  :: sgu
   real(RLEN),dimension(NO_BOXES_XY)  :: rgu
-  real(RLEN),dimension(NO_BOXES_XY)  :: snu
+  real(RLEN),dimension(NO_BOXES_XY)  :: snuPI
+  real(RLEN),dimension(NO_BOXES_XY)  :: snuZI
   real(RLEN),dimension(NO_BOXES_XY)  :: snuQ6
-  real(RLEN),dimension(NO_BOXES_XY)  :: se_u
+  real(RLEN),dimension(NO_BOXES_XY)  :: se_uPI
+  real(RLEN),dimension(NO_BOXES_XY)  :: se_uZI
   real(RLEN),dimension(NO_BOXES_XY)  :: se_uQ6
   real(RLEN),dimension(NO_BOXES_XY)  :: choice
   real(RLEN),dimension(NO_BOXES_XY)  :: rtY3c
@@ -137,9 +153,13 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: rePIc
   real(RLEN),dimension(NO_BOXES_XY)  :: rePIn
   real(RLEN),dimension(NO_BOXES_XY)  :: rePIp
+  real(RLEN),dimension(NO_BOXES_XY)  :: reZIc
+  real(RLEN),dimension(NO_BOXES_XY)  :: reZIn
+  real(RLEN),dimension(NO_BOXES_XY)  :: reZIp
   real(RLEN),dimension(NO_BOXES_XY)  :: reR6c
   real(RLEN),dimension(NO_BOXES_XY)  :: reR6n
   real(RLEN),dimension(NO_BOXES_XY)  :: reR6p
+  real(RLEN),dimension(NO_BOXES_XY)  :: reR6s
   real(RLEN),dimension(NO_BOXES_XY)  :: reQ6c
   real(RLEN),dimension(NO_BOXES_XY)  :: reQ6n
   real(RLEN),dimension(NO_BOXES_XY)  :: reQ6p
@@ -147,6 +167,10 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: ruPIn
   real(RLEN),dimension(NO_BOXES_XY)  :: ruPIp
   real(RLEN),dimension(NO_BOXES_XY)  :: ruPIs
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruZIc
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruZIn
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruZIp
+  real(RLEN),dimension(NO_BOXES_XY)  :: RTc
   real(RLEN),dimension(NO_BOXES_XY)  :: ruR6c
   real(RLEN),dimension(NO_BOXES_XY)  :: ruR6n
   real(RLEN),dimension(NO_BOXES_XY)  :: ruR6p
@@ -154,8 +178,12 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6c
   real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6n
   real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruK1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruK4n
+  real(RLEN),dimension(NO_BOXES_XY)  :: su
+  real(RLEN),dimension(NO_BOXES_XY)  :: r
+  real(RLEN),dimension(NO_BOXES_XY)  :: puf
+  real(RLEN),dimension(NO_BOXES_XY)  :: fsat ! filtering saturation : at high feed levels less filtering 
+                                             ! is necessairy 
+  real(RLEN),dimension(NO_BOXES_XY)  :: netto
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
@@ -165,19 +193,32 @@
 
   et  =   eTq_vector(  ETW_Ben(:),  p_q10)
 
-  eo  =   eramp_vector(  D1m(:),  0.005D+00)
-
+  eo  =   MM_power_vector(  max(p_small,O2o_Ben(:)),  p_clO2o,3)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Calculate total food
+  ! Calculate total food Cfluxes!
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  food  =   0.0D+00
+  clu=p_clu+p_small;
+  if ( sw_uptake == 1 ) clu=p_clu/p_dwat;
+  food  =   p_small
 
-  ! For other benthic organisms:
+  ! For phytoplankton:
 
-  food_src  =   PIc(:)* p_dwat
-  food  =   food+ p_PI* food_src* MM_vector(  food_src,  p_clu)
+  food_PT=ZERO
+  do i=1,iiPhytoPlankton
+     r =  PI_Benc(i,:) * MM_vector(  PI_Benc(i,:),  clu)
+     call CorrectConcNearBed(Depth_Ben(:), sediPI_Ben(i,:), p_height, & 
+                                    p_max, p_vum*et*Y3c, corr)
+     food_PIc(i,:)=r*corr*p_PI
+     food_PT(:)  =   food_PT(:)+ food_PIc(i,:)
+  enddo
+  food  =   food  + food_PT(:)
+
+  ! For microzooplankton:
+
+  food_ZI  =   p_ZI * ZI_Fc(:) * MM_vector(  ZI_Fc(:),  clu)
+  food  =   food+ food_ZI
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -185,125 +226,261 @@
   ! and add it to the total amount of food
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  food_src  =   RIc(:)* p_dwat
-  food  =   food+ p_R6* food_src* MM_vector(  food_src,  p_clu)
+  r=   RI_Fc(:)* MM_vector(  RI_Fc(:),  clu)
+  call CorrectConcNearBed(Depth_Ben(:), sediR6_Ben(:), p_height, & 
+                                    p_max, p_vum*et*Y3c, corr)
+  RTc=r*corr
+  food_RI=RTc*p_R6
+  food  =   food+ food_RI
 
-  clm  =   p_clm
-  cm  =   p_cm
-  availQ6_c  =   Q6c(:)* PartQ_vector(  D6m(:),  clm,  cm,  p_d_tot)
-  availQ6_n  =   Q6n(:)* PartQ_vector(  D7m(:),  clm,  cm,  p_d_tot)
-  availQ6_p  =   Q6p(:)* PartQ_vector(  D8m(:),  clm,  cm,  p_d_tot)
+  !
 
-  food_src  =   availQ6_c
-  food  =   food+ p_puQ6* food_src* MM_vector(  food_src,  p_clu)
+  select case (sw_uptake)
+   case(1)
+    ! This uptake procedure was developed for the one/two layer orginal ERSEM
+    ! model where the layer above the sediment could have depths upto a few
+    ! hunder meters. p_dwat is in this case the layer depth seen by the
+    ! filterfeeders. o_dwat is used as an imporatent calibration parameter.
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Correct for too much food:
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! In the orginal model the sedimentation of detritus (R6) was equal to the
+    ! the sinking rate. By doing this we implicetly assumed that this rate was
+    ! a gros seimentation rate. Therefor in the orignal setup filter took
+    ! also food from the benthic system.
 
-  eF  =   MM_vector(  food,  p_chu)
+    fdepth=p_dwat
+    foodpm2 =food*fdepth
+    clm  =   p_clm
+    cmm  =   p_cm
+    availQ6_c  =   Q6c(:)* PartQ_vector(  D6m(:),  clm,  cmm,  p_d_tot)
+    availQ6_n  =   Q6n(:)* PartQ_vector(  D7m(:),  clm,  cmm,  p_d_tot)
+    availQ6_p  =   Q6p(:)* PartQ_vector(  D8m(:),  clm,  cmm,  p_d_tot)
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Correction of growth rate for environmental factors:
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    food_Q6  =   p_puQ6* availQ6_c* MM_vector(  availQ6_c,  clu)
+    foodpm2  =   foodpm2+ food_Q6
 
-  ! Growth rate at actual amount:
+    cmm  =  ( p_clm+ p_cm)* 0.5D+00
 
-  rgu  =   p_su* Y3c(:)* et* eo* eF
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! Correct for too much food:
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+     eF  =   MM_vector(  foodpm2,  p_chu)
+
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     ! Correction of growth rate for environmental factors:
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+     ! The minimal uptake rate is equal to rest respiration.
+     ! With filtering the filterfeeder provide himself also with oxygen.
+     rgu  =max( p_su* eO* eF,p_srr)* Y3c(:)* et
+    
+     fsat=ONE;
+     rrc = max(eo * p_sra, p_srr)* Y3c(:)* et
+
+   case(2)
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     !  Alternative food uptake as in zooplankton:
+     !  using the modifed Holling response equation which tkae in account
+     !  the maximum growth rate and the volume filtered.
+     !
+     !  It is assumed that the detritus sedimentation is defined as a netto ptocess
+     !  ( p_bursel << P_sediR6). Therefor it assumed that filterfeeders do noet eat Q6.  
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     cmm = ZERO;
+
+     fdepth=Depth_Ben
+     su  =  et* eO*  p_su* MM_vector(  p_vum* food,  p_su)
+     fsat=min(ONE,su/(et*eo*p_vum*food));
+     rgu= su *Y3c;
+     rrc = max(eo * p_sra*fsat, p_srr)* Y3c(:)* et
+     foodpm2 =food*fdepth
+   case(3)
+     fdepth=Depth_Ben
+     su  =  p_su* MM_vector(  p_vum* food,  p_su)
+     netto= (ONE-(p_pueQ6*food_RI+p_puePI*food_PT +p_pueZI*food_ZI)/food ) * (ONE-p_pur);
+     su=su * insw_vector(netto * su-p_sra);
+     fsat=min(ONE,su/(p_vum*food));
+     rgu= et* eO*  su *Y3c;
+     rrc = max(eo * p_sra*fsat, p_srr)* Y3c(:)* et
+     foodpm2 =food*fdepth
+   case(4)
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     !  Alternative food uptake as in zooplankton:
+     !  using the modifed Holling response equation which tkae in account
+     !  the maximum growth rate and the volume filtered.
+     !  Further is assumed that the filterfeeder (nearly) stop filtering as soon as  
+     !  the costs for filtering  are lower than the  profit
+     !  For this we solve the next equation in which r is the unknown:
+     !    (left side == profit , right side=costs)
+     !    r* p_su* MM_vector(  p_vum* food,  r* p_su)* Y3c(:)*netto = p_sra *r 
+     !  If r > ONE : there is enough food to grow
+     !  if r < ONE : there is balance between costs and profit if  r*p_puf*sgu is larger than
+     !  the rest respiration.
+     !
+     !  It is assumed that the detritus sedimentation is defined as a netto ptocess
+     !  ( p_bursel << P_sediR6). Therefor it assumed that filterfeeders do noet eat Q6.  
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     cmm = ZERO;
+
+     fdepth=Depth_Ben
+     puf = p_sra/p_su;
+
+     netto= (ONE-(p_pueQ6*food_RI+p_puePI*food_PT +p_pueZI*food_ZI)/food ) * (ONE-p_pur);
+     r= netto /puf - p_su/(p_vum *food);
+
+     r=min(ONE,max(1.0e-6_RLEN,r));
+
+     ! Calculate relative uptake
+     su= ONE/( ONE/(p_small+ r* p_vum *food * et *eO ) + ONE/(p_small+ p_su *et *eO  ))  ;
+     ! The minimal uptake rate is equal to rest respiration.
+     ! With filtering the filterfeeder provide himself also with oxygen.
+     rgu= su *Y3c;
+
+     ! filtering saturation ( high at low , low at hight food)
+     fsat=su/(p_small+ et*eo*p_vum*food);
+     ! Calculate cost of enregy based on realized rate of uptake.
+     rrc = max(eo * p_su*puf*fsat, p_srr)* Y3c(:)* et
+     
+     foodpm2 =food*fdepth
+  end select
 
   ! Relative growth rate corrected for actual amount of food:
 
-  sgu  =   rgu/ food
+  sgu  =   rgu/ foodpm2
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Net uptake:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  snu  =   sgu*( 1.0D+00- p_pue)
-  snuQ6  =   sgu*( 1.0D+00- p_pueQ6)
+  snuPI  =   sgu*( ONE- p_puePI)
+  snuZI  =   sgu*( ONE- p_pueZI)
+  snuQ6  =   sgu*( ONE- p_pueQ6)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Execreted part:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  se_u  =   sgu- snu
+  se_uPI  =   sgu- snuPI
+  se_uZI  =   sgu- snuZI
   se_uQ6  =   sgu- snuQ6
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of uptake rate:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
+  eNC=(ONE-p_pe_R1n)/(ONE-p_pe_R1c)
+  ePC=(ONE-p_pe_R1p)/(ONE-p_pe_R1c)
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Pelagic Phytoplankton:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  choice  =   p_PI* MM_vector(  PIc(:),  p_clu)* p_dwat
+  ruPIc  =   ZERO
+  ruPIn  =   ZERO
+  ruPIp  =   ZERO
+  ruPIs  =   ZERO
 
-  ruPIc  =   PIc(:)* sgu* choice
-  ruPIn  =   PIn(:)* sgu* choice
-  ruPIp  =   PIp(:)* sgu* choice
-  ruPIs  =   PIs(:)* sgu* choice
+  rePIc  =   ZERO
+  rePIn  =   ZERO
+  rePIp  =   ZERO
+
+  do i=1,iiPhytoPlankton
+    choice=food_PIc(i,:)* fdepth/(p_small + PI_Benc(i,:))
+    jPIY3c(i,:) =       PI_Benc(i,:)* sgu* choice
+    ruPIc  = ruPIc  +   PI_Benc(i,:)* sgu* choice
+    ruPIn  = ruPIn  +   PI_Benn(i,:)* sgu* choice
+    ruPIp  = ruPIp  +   PI_Benp(i,:)* sgu* choice
+    ruPIs  = ruPIs  +   PI_Bens(i,:)* sgu* choice
+
+    rePIc  = rePIc  +   PI_Benc(i,:)* se_uPI* choice
+    rePIn  = rePIn  +   PI_Benn(i,:)* se_uPI* choice*eNC 
+    rePIp  = rePIp  +   PI_Benp(i,:)* se_uPI* choice*ePC 
+  enddo
 
   call flux_vector( iiBen, ppY3c,ppY3c, ruPIc )
   call flux_vector( iiBen, ppY3n,ppY3n, ruPIn )
   call flux_vector( iiBen, ppY3p,ppY3p, ruPIp )
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Pelagic MicroZooplankton:
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ! flux definitions from P -> Y3 are found in BentoPelCoup
-  jPIY3c(:)  =   ruPIc
+  choice  =   p_ZI* MM_vector(  ZI_Fc(:),  clu)* fdepth
 
-  rePIc  =   PIc(:)* se_u* choice
-  rePIn  =   PIn(:)* se_u* p_pudsil* choice
-  rePIp  =   PIp(:)* se_u* p_pudsil* choice
+  ruZIc  =   ZI_Fc(:)* sgu* choice
+  ruZIn  =   ZI_Fn(:)* sgu* choice
+  ruZIp  =   ZI_Fp(:)* sgu* choice
+
+  call flux_vector( iiBen, ppY3c,ppY3c, ruZIc )
+  call flux_vector( iiBen, ppY3n,ppY3n, ruZIn )
+  call flux_vector( iiBen, ppY3p,ppY3p, ruZIp )
+
+  ! flux definitions from Z -> Y3 are found in BentoPelCoup
+  jZIY3c(:)  =   ruZIc
+
+  reZIc  =   ZI_Fc(:)* se_uZI* choice
+  reZIn  =   ZI_Fn(:)* se_uZI* choice* eNC
+  reZIp  =   ZI_Fp(:)* se_uZI* choice* ePC
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Pelagic Detritus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  choice  =   p_R6* MM_vector(  RIc(:),  p_clu)* p_dwat
+  choice  =   food_RI * fdepth/(p_small+RI_Fc(:))
 
-  ruR6c  =   RIc(:)* sgu* choice
-  ruR6n  =   RIn(:)* sgu* choice
-  ruR6p  =   RIp(:)* sgu* choice
-  ruR6s  =   RIs(:)* sgu* choice
+  ruR6c  =   RI_Fc(:)* sgu* choice
+  ruR6n  =   RI_Fn(:)* sgu* choice
+  ruR6p  =   RI_Fp(:)* sgu* choice
+  ruR6s  =   RI_Fs(:)* sgu* choice
 
   call flux_vector( iiBen, ppY3c,ppY3c, ruR6c )
   call flux_vector( iiBen, ppY3n,ppY3n, ruR6n )
   call flux_vector( iiBen, ppY3p,ppY3p, ruR6p )
 
-  reR6c  =   RIc(:)* se_uQ6* choice
-  reR6n  =   RIn(:)* se_uQ6* p_pudsil* choice
-  reR6p  =   RIp(:)* se_uQ6* p_pudsil* choice
+  reR6c  =   RI_Fc(:)* se_uQ6* choice
+  reR6n  =   RI_Fn(:)* se_uQ6* choice *eNC
+  reR6p  =   RI_Fp(:)* se_uQ6* choice *ePC
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Benthic Detritus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  choice  =   p_puQ6* MM_vector(  availQ6_c,  p_clu)
+  if ( sw_uptake == 1) then
+    choice  =   p_puQ6* MM_vector(  availQ6_c,  clu)
 
-  ruQ6c  =   sgu* choice* availQ6_c
-  ruQ6n  =   sgu* choice* availQ6_n
-  ruQ6p  =   sgu* choice* availQ6_p
+    ruQ6c  =   sgu* choice* availQ6_c
+    ruQ6n  =   sgu* choice* availQ6_n
+    ruQ6p  =   sgu* choice* availQ6_p
 
-  call flux_vector( iiBen, ppQ6c,ppY3c, ruQ6c )
-  call flux_vector( iiBen, ppQ6n,ppY3n, ruQ6n )
-  call flux_vector( iiBen, ppQ6p,ppY3p, ruQ6p )
+    call flux_vector( iiBen, ppQ6c,ppY3c, ruQ6c )
+    call flux_vector( iiBen, ppQ6n,ppY3n, ruQ6n )
+    call flux_vector( iiBen, ppQ6p,ppY3p, ruQ6p )
 
-  reQ6c  =   se_uQ6* choice* availQ6_c
-  reQ6n  =   se_uQ6* p_pudsil* choice* availQ6_n
-  reQ6p  =   se_uQ6* p_pudsil* choice* availQ6_p
+    reQ6c  =   se_uQ6* availQ6_c* choice
+    reQ6n  =   se_uQ6* availQ6_n* choice *eNC
+    reQ6p  =   se_uQ6* availQ6_p* choice *ePC
+
+  else
+    reQ6c=ZERO
+    reQ6n=ZERO
+    reQ6p=ZERO
+    ruQ6c=ZERO
+    ruQ6n=ZERO
+    ruQ6p=ZERO
+  endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Book keeping
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rtY3c  =   ruPIc+ ruR6c+ ruQ6c
-  rtY3n  =   ruPIn+ ruR6n+ ruQ6n
-  rtY3p  =   ruPIp+ ruR6p+ ruQ6p
+  rtY3c  =   ruPIc+ ruZIc+ ruR6c+ ruQ6c
+  rtY3n  =   ruPIn+ ruZIn+ ruR6n+ ruQ6n
+  rtY3p  =   ruPIp+ ruZIp+ ruR6p+ ruQ6p
 
-  retR6c  =   rePIc+ reR6c
-  retR6n  =   rePIn+ reR6n
-  retR6p  =   rePIp+ reR6p
+  retR6c  =   rePIc+ reZIc+ reR6c
+  retR6n  =   rePIn+ reZIn+ reR6n
+  retR6p  =   rePIp+ reZIp+ reR6p
 
   retQ6c  =   reQ6c
   retQ6n  =   reQ6n
@@ -313,18 +490,20 @@
   ! Calculation of respiration:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rrc  =   p_sr* Y3c(:)* et+ p_pur*( food* sgu- retR6c- retQ6c)
+  rrc  =   rrc+ p_pur*( foodpm2* sgu- retR6c- retQ6c)
+  
+  jnetY3c=rtY3c- p_pur*( foodpm2* sgu- retR6c- retQ6c)-retQ6c-retR6c
 
-  call flux_vector( iiBen, ppY3c,ppY3c,-( rrc) )
-  call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ 12.0D+00))
 
-  rtY3c  =   rtY3c- rrc
+  call sourcesink_flux_vector( iiBen, ppY3c,ppG3c, rrc*(ONE-p_pePel) )
+  call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C)* ( ONE-p_pePel))
+  call flux_vector(iiBen, ppY3c,ppY3c, -rrc*p_pePel )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of mortality
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- =-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  sm  =   p_sd* et
+  sm  =   p_sd* et  +p_sd2 * Y3c(:)
 
   reQ6c  =   Y3c(:)* sm
   reQ6n  =   Y3n(:)* sm
@@ -338,21 +517,24 @@
   ! situation
   ! of startvation and very low biomass values. Check on quota in the food is &
   ! out of order
-  rtY3c  =   max(  0.0D+00,  rtY3c- retQ6c)
-  rtY3n  =   max(  0.0D+00,  rtY3n- retQ6n)
-  rtY3p  =   max(  0.0D+00,  rtY3p- retQ6p)
+
+  rtY3c  =   max(  ZERO,  rtY3c -retR6c-retQ6c-rrc)
+  rtY3n  =   max(  ZERO,  rtY3n -retR6n-retQ6n)
+  rtY3p  =   max(  ZERO,  rtY3p -retR6p-retQ6p)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of nutrient release and correction of C:N:P
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ren  =   rtY3n- rtY3c* p_qn
-  rep  =   rtY3p- rtY3c* p_qp
+  ren  =   rtY3n- rtY3c* p_qn 
+  rep  =   rtY3p- rtY3c* p_qp 
 
-  where ( ren< 0.0D+00)
+  r=ZERO
+
+  where ( ren< ZERO)
 
     reQ6c  =  - ren/ p_qn
-    retQ6c  =   retQ6c+ reQ6c
+    r      =   r + reQ6c
     rtY3c  =   rtY3c- reQ6c
 
     ren  =   rtY3n- rtY3c* p_qn
@@ -361,35 +543,43 @@
   end where
 
 
-  where ( rep< 0.0D+00)
+  where ( rep< ZERO)
 
     reQ6c  =  - rep/ p_qp
-    retQ6c  =   retQ6c+ reQ6c
+    r      =   r   + reQ6c
     rtY3c  =   rtY3c- reQ6c
 
     ren  =   rtY3n- rtY3c* p_qn
     rep  =   rtY3p- rtY3c* p_qp
 
   end where
+ 
+  retQ6c= retQ6c +r * retQ6c/(p_small + retQ6c + retR6c);
+  retR6c= retR6c +r * retR6c/(p_small + retQ6c + retR6c);
 
 
-  ren = min( max( 0.0D+00, ren), max( 0.0D+00, ren-( p_qn* Y3c(:)- &
-    Y3n(:))))
-  rep = min( max( 0.0D+00, rep), max( 0.0D+00, rep-( p_qp* Y3c(:)- &
-    Y3p(:))))
+  ren = max( ZERO, ren+ Y3n(:) -p_qn* Y3c(:))
+  rep = max( ZERO, rep+ Y3p(:) -p_qp* Y3c(:))
 
-  call flux_vector( iiBen, ppY3n,ppK4n, ren )
-  call flux_vector( iiBen, ppY3p,ppK1p, rep )
+  call flux_vector( iiBen, ppY3n,ppY3n, -ren * p_pePel)
+  call flux_vector( iiBen, ppY3p,ppY3p, -rep * p_pePel)
+  call flux_vector( iiBen, ppY3n,ppK4n,  ren * (ONE-p_pePel))
+  call flux_vector( iiBen, ppY3p,ppK1p,  rep * (ONE-p_pePel))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Add respiration and excretion to the benthic totals
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rrBTo(:)  =   rrBTo(:)+ rrc/ 12.0D+00
-  reBTn(:)  =   reBTn(:)+ ren
-  reBTp(:)  =   reBTp(:)+ rep
+  rrBTo(:)  =   rrBTo(:)+ rrc/ MW_C * ( ONE-p_pePel)
+  reBTn(:)  =   reBTn(:)+ ren * ( ONE-p_pePel)
+  reBTp(:)  =   reBTp(:)+ rep * ( ONE-p_pePel)
 
-
+#ifdef INCLUDE_BENCO2
+  jbotO3c(:)=jbotO3c(:)+rrc*p_pePel
+#endif
+  jbotO2o(:)=jbotO2o(:)-rrc/MW_C *p_pePel
+  jbotN4n(:)=jbotN4n(:)+ren *p_pePel
+  jbotN1p(:)=jbotN1p(:)+rep *p_pePel
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate total flux from Suspension feeders to Q6:
@@ -404,7 +594,6 @@
   ! state variables (Dx.m is an undetermined source)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  cmm  =  ( clm+ cm)* 0.5D+00
   call flux_vector(iiBen, ppD6m,ppD6m,( cmm- D6m(:))*( retQ6c- ruQ6c)/ Q6c(:))
   call flux_vector(iiBen, ppD7m,ppD7m,( cmm- D7m(:))*( retQ6n- ruQ6n)/ Q6n(:))
   call flux_vector(iiBen, ppD8m,ppD8m,( cmm- D8m(:))*( retQ6p- ruQ6p)/ Q6p(:))
@@ -413,41 +602,64 @@
   ! Calculate total flux from Suspension feeders to R6:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  call flux_vector( iiBen, ppY3c,ppY3c,-( retR6c) )
-  call flux_vector( iiBen, ppY3n,ppY3n,-( retR6n) )
-  call flux_vector( iiBen, ppY3p,ppY3p,-( retR6p) )
+  call flux_vector( iiBen, ppY3c,ppY3c,- retR6c )
+  call flux_vector( iiBen, ppY3n,ppY3n,- retR6n )
+  call flux_vector( iiBen, ppY3p,ppY3p,- retR6p )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate NET flux from R6 to Suspension feeders :
   ! (can be negative!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  jRIY3c(:)  =   ruR6c- retR6c
-  jRIY3n(:)  =   ruR6n- retR6n
-  jRIY3p(:)  =   ruR6p- retR6p
-  ! The ruR6s which is uptaken is directly relased back to R6: net food flux &
-  ! from Y3 to/from R6 is 0
-  jRIY3s(:)  =  - ruPIs
+  jRIY3c(:)  =   ruR6c  - retR6c
+  jRIY3n(:)  =   ruR6n  - retR6n
+  jRIY3p(:)  =   ruR6p  - retR6p
+  ! The ruR6s which is uptaken by filter feeders is directly relased back 
+  ! to R6: net food flux  from Y3 to/from R6 is 0
+  jRIY3s(:)  =  ZERO      - ruPIs
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! excretion of food orginating of Pelagic food will be sedimented and
-  ! hence is considered as added to the total Pelagic->Ben flux.
+  ! excretion of food orginating from the Pelagic realm is also a
+  ! sedimentation from from pelagic to benthic, and thus is 
+  ! added to the total benthic boundary flux
   ! jbot< 0 : flux out of the system
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  jbotR6c(:)  =   jbotR6c(:)- retR6c
-  jbotR6n(:)  =   jbotR6n(:)- retR6n
-  jbotR6p(:)  =   jbotR6p(:)- retR6p
+  jbotR6c(:)  =   jbotR6c(:)- retR6c* (ONE-p_pR6Pel)
+  jbotR6n(:)  =   jbotR6n(:)- retR6n* (ONE-p_pR6Pel)
+  jbotR6p(:)  =   jbotR6p(:)- retR6p* (ONE-p_pR6Pel)
 
   ! The silicate is directly transferred to Q6.s
   ! the ruPis which is put back in R6 is however sedimentating:
-  jbotR6s(:)  =   jbotR6s(:)- ruPIs- ruR6s
+  jbotR6s(:)  =   jbotR6s(:)- ruPIs- ruR6s -reR6s
+
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! pseudo faeces production
+  ! This production lead only to a flux to the sediment!
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  if ( sw_uptake /= 1) then
+    
+    r =  min( p_Rps * et * eo * p_vum * fsat* Y3c(:) *RTc,0.25*RI_Fc(:))
+    r =  r/(p_small + RI_Fc(:))
+ 
+
+    reR6c=  max(ZERO,r * RI_Fc(:) -ruR6c)
+    reR6n=  max(ZERO,r * RI_Fn(:) -ruR6n)
+    reR6p=  max(ZERO,r * RI_Fp(:) -ruR6p)
+    reR6s=  max(ZERO,r * RI_Fs(:) -ruR6s)
+
+    jbotR6c(:)  =   jbotR6c(:)- reR6c
+    jbotR6n(:)  =   jbotR6n(:)- reR6n
+    jbotR6p(:)  =   jbotR6p(:)- reR6p
+
+ endif
 
 
 
-
-  end
-!BOP
+  end subroutine FilterFeederDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

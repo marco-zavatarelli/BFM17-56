@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   CompleteSet
@@ -37,8 +37,6 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!
-!
       SUBROUTINE CompleteSet(NUTR,mode,option,input,xinput,value,mfac)
         USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn
         USE bennut_variables
@@ -60,6 +58,7 @@
         integer ::l
         integer ::m
         integer ::n
+        integer ::option_local
         REAL(RLEN) ::yinput
         REAL(RLEN) ::multi
         REAL(RLEN) ::r
@@ -115,6 +114,8 @@
             endif
             call calcadd(nn_boundaries,j,C,ns%nn,s*r)
             call filly(nn_boundaries,s*t,Y2)
+          case (FLAG)
+            if (option == MASS) ModeMass=.true.
           case (SET_CONTINUITY)
             if (option == FLAG) then
               if (input == MASS) ModeMass=.true.
@@ -124,25 +125,35 @@
             if (ns%equa > 1) then
               do m=2,ns%equa
                 !For the first derivative and the equation:
-                do l=EQUATION,DERIVATIVE,DERIVATIVE
-                  if (ns%lst(m-1) /= ns%lst(m)) then
-                    nn_boundaries=nn_boundaries+1
-                    !Make sum F1(x)=F2(X)
-                    do k=m-1,m
-                      t=1.D+00
-                      if (l == DERIVATIVE ) t=ns%diff(k)*ns%poro(k)
-                      s=-s
-                      call AddEquation(nn_boundaries,k,l,ns,s*t,ns%b(m))
-                    enddo
-                  endif
-                enddo
+                l=1;if ( option ==LAYERS) then
+                  if ( input.ne.m) l=0
+                endif
+                if ( l==1) then
+                  do l=EQUATION,DERIVATIVE,DERIVATIVE
+                    if (ns%lst(m-1) /= ns%lst(m)) then
+                      nn_boundaries=nn_boundaries+1
+                      !Make sum F1(x)=F2(X)
+                      do k=m-1,m
+                        t=1.D+00
+                        if (l == DERIVATIVE ) t=ns%diff(k)*ns%poro(k)
+                        s=-s
+                        call AddEquation(nn_boundaries,k,l,ns,s*t,ns%b(m))
+                      enddo
+                    endif
+                  enddo
+                endif
               enddo
             endif
           case (SET_LAYER_INTEGRAL,SET_LAYER_INTEGRAL_UNTIL )
+            option_local=option
             t=1.0D+00
             s=multi
-            nn_boundaries=nn_boundaries+1
-            do m=option,input
+            if ( option_local > 0 ) then
+               nn_boundaries=nn_boundaries+1
+            else
+              option_local=-option
+            endif
+            do m=option_local,input
               if (ModeMass) t=ns%poro(m)*(ns%ads(m)+1.D+00)
               r=ns%b(m)
               u=ns%b(m+1)
@@ -186,10 +197,6 @@
 
         return
       end
-
-
-
-
       SUBROUTINE AddEquation(nn_bound,layer,mode,nt,s, xinput)
         USE global_mem, ONLY:RLEN
         USE bennut_interface, ONLY:funcalc

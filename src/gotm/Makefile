@@ -20,7 +20,7 @@ else
 
 DOCSRC	=  bio.F90 \
 bio_var.F90 bio_template.F90 bio_npzd.F90 bio_iow.F90 \
-          bio_sed.F90 bio_fasham.F90 \
+          bio_sed.F90 bio_fasham.F90 adv_center_bfm.F90 \
           bio_save.F90
 
 OBJ   = \
@@ -35,6 +35,7 @@ ${LIB}(bio_sed.o)		\
 ${LIB}(bio_save.o)		\
 ${LIB}(mussel_deb.o)		\
 ${LIB}(mussels.o)		\
+${LIB}(adv_center_bfm.o)		\
 ${LIB}(bio.o)
 
 all: ${OBJ}

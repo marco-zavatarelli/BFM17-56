@@ -1,7 +1,7 @@
 #include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -27,8 +27,8 @@
   ! The following Benthic-states are used (NOT in fluxes): D1m, D6m, D2m
   ! The following global vars are modified: dummy
   ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY, LocalDelta
+  !    NO_BOXES_XY,   &
+  !  BoxNumberXY, LocalDelta
   ! The following Benthic 1-d global boxvars are modified : KQ1
   ! The following Benthic 1-d global boxvars are used: irrenh, ETW_Ben, &
   ! shiftD1m
@@ -52,8 +52,8 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: Q11c, Q1c, Q11n, Q1n, Q11p, Q1p, D1m, D6m, D2m, D2STATE
   use mem, ONLY: ppQ11c, ppQ1c, ppQ11n, ppQ1n, ppQ11p, ppQ1p, &
-    ppD1m, ppD6m, ppD2m, dummy, &
-    NO_BOXES_XY, BoxNumberXY, LocalDelta, KQ1, irrenh, &
+    ppD1m, ppD6m, ppD2m, dummy,    NO_BOXES_XY, &
+       BoxNumberXY, LocalDelta, KQ1, irrenh, &
     ETW_Ben, shiftD1m, ruHI, reHI, iiH1, iiH2, iiBen, iiPel, flux
   use constants, ONLY: LAYERS, LAYER1, LAYER2, &
     DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, EXPONENTIAL_TERM, &
@@ -142,7 +142,11 @@
   real(RLEN)  :: Dnew
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    do BoxNumberXY=1,NO_BOXES_XY
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do BoxNumberXY=1,NO_BOXES_XY
+
+
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Get total Net Benthic DOC (Q1.c)
       ! production/consumption in the oxic layer (m2 --> m3 porewater)
@@ -196,8 +200,7 @@
       call DefineSet( KQ1(BoxNumberXY), POROSITY, FOR_ALL_LAYERS, 0, &
         p_poro(BoxNumberXY), dummy)
 
-      call DefineSet( KQ1(BoxNumberXY), ADSORPTION, FOR_ALL_LAYERS, 0, p_p, &
-        dummy)
+      call DefineSet( KQ1(BoxNumberXY), ADSORPTION, FOR_ALL_LAYERS, 0, p_p, dummy)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -215,28 +218,20 @@
       call DefineSet( KQ1(BoxNumberXY), DEFINE, 11, EXPONENTIAL_TERM, gamma, &
         dummy)
 
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 12, EXPONENTIAL_TERM, - &
-        gamma, dummy)
-
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 12, EXPONENTIAL_TERM,  &
+        -gamma, dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
 
 
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 21, ZERO_EXPONENTIAL_TERM, - &
-        alpha, dummy)
-
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 24, LINEAR_TERM, dummy, &
-        dummy)
-
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 25, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 21, ZERO_EXPONENTIAL_TERM, &
+        -alpha, dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 24, LINEAR_TERM, dummy, dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 25, CONSTANT_TERM, dummy, dummy)
 
 
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 31, ZERO_EXPONENTIAL_TERM, - &
-        alpha, dummy)
-
-      call DefineSet( KQ1(BoxNumberXY), DEFINE, 35, CONSTANT_TERM, dummy, &
-        dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 31, ZERO_EXPONENTIAL_TERM, &
+         -alpha, dummy)
+      call DefineSet( KQ1(BoxNumberXY), DEFINE, 35, CONSTANT_TERM, dummy, dummy)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -329,11 +324,8 @@
       ! Limit for too large fluxes
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-!     r= 1.0D-80+insw(flow)* (Q11c(BoxNumberXY)-ruHI(iiH2,BoxNumberXY)+reHI(iiH2,BoxNumberXY))& 
-!               +insw(-flow)* (Q1c(BoxNumberXY)-ruHI(iiH1,BoxNumberXY)+reHI(iiH1,BoxNumberXY))
-      r= 1.0D-80+insw(flow)* (Q11c(BoxNumberXY))& 
-                +insw(-flow)* (Q1c(BoxNumberXY))
       flow=flow*p_max_shift_change/(abs(flow/r)+p_max_shift_change);
+      call LimitShift(flow,Q1c(BoxNumberXY),Q11c(boxNumberXY),p_max_shift_change)
 
       jQ1Q11c=-flow*insw(-flow)
       jQ11Q1c= flow*insw( flow)
@@ -355,10 +347,11 @@
       call flux(BoxNumberXY, iiBen, ppQ11p, ppQ1p, jQ11Q1c/ Q11c(BoxNumberXY)* &
         Q11p(BoxNumberXY) )
 
+
   end do
 
-  end
+  end subroutine BenQ1TransportDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

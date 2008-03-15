@@ -1,7 +1,7 @@
 #include "DEBUG.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -26,8 +26,8 @@
   ! For the following Benthic-states fluxes are defined: K14n, K4n, K24n, K3n
   ! The following Benthic-states are used (NOT in fluxes): D1m, D7m, D2m
   ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY, LocalDelta, dummy
+  !    NO_BOXES_XY,   &
+  !  BoxNumberXY, LocalDelta, dummy
   ! The following Benthic 1-d global boxvars are used: shiftD1m, KNH4, reATn, &
   ! shiftD2m, KNO3
   ! The following Benthic 1-d global boxpars  are used: p_poro
@@ -41,13 +41,13 @@
 
   use global_mem, ONLY:RLEN,LOGUNIT
   use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m, D2STATE
-  use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppD7m, &
-    ppD2m, NO_BOXES_XY, &
-    BoxNumberXY, LocalDelta, dummy, shiftD1m, KNH4, reATn, shiftD2m, &
+  use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppG4n, ppD7m, &
+    ppD2m,    NO_BOXES_XY,   &
+     BoxNumberXY, LocalDelta, dummy, shiftD1m, KNH4, reATn, shiftD2m, &
     KNO3, jK34K24n, jK13K3n, iiBen, iiPel, flux
   use constants,  ONLY: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
   use mem_Param,  ONLY: p_poro, p_clDxm, p_d_tot
-  use mem_BenthicNutrient3, ONLY:p_max_shift_change
+  use mem_BenthicNutrient3, ONLY:p_max_shift_change,p_max_state_change
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:CalculateFromSet
@@ -107,7 +107,10 @@
   real(RLEN)  :: r
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    do BoxNumberXY=1,NO_BOXES_XY
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do BoxNumberXY=1,NO_BOXES_XY
+
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium Fluxes at the oxic/denitrification boundary
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -121,11 +124,9 @@
       jK14K4n = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
         D1m(BoxNumberXY), 0.0D+00)+ shiftmass
 
-      r= 1.0D-80+insw(jK14K4n)* K14n(BoxNumberXY)+insw(-jK14K4n)* K4n(boxNumberXY)
-      jK14K4n=jK14K4n*p_max_shift_change/(abs(jK14K4n/r)+p_max_shift_change);
-
-      call flux(BoxNumberXY, iiBen, ppK14n, ppK4n, jK14K4n* insw( jK14K4n) )
-      call flux(BoxNumberXY, iiBen, ppK4n, ppK14n, - jK14K4n* insw( - jK14K4n) )
+      call LimitShift(jK14K4n,K4n(BoxNumberXY),K14n(boxNumberXY),p_max_shift_change)
+      call flux(BoxNumberXY, iiBen, ppK14n, ppK4n,   jK14K4n* insw(  jK14K4n) )
+      call flux(BoxNumberXY, iiBen, ppK4n, ppK14n, - jK14K4n* insw( -jK14K4n) )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! All the nutrient mineralization source term in the anoxic layer
@@ -142,8 +143,8 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       alpha  =   1.0D+00/ max(  p_clDxm,  D7m(BoxNumberXY))
-      zuD1 = max( 1.D-20, reATn(BoxNumberXY))/ p_poro(BoxNumberXY)/ IntegralExp( &
-        - alpha, p_d_tot- D1m(BoxNumberXY))
+      zuD1 = max( 1.D-20, reATn(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
+                        IntegralExp( -alpha, p_d_tot- D1m(BoxNumberXY))
       zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY)- D1m(BoxNumberXY)))
 
       jK24K14n = - zuD2* p_poro(BoxNumberXY)* IntegralExp( - alpha, &
@@ -161,15 +162,12 @@
       + CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, &
         RFLUX, D2m(BoxNumberXY), 0.0D+00)
 
-      r= 1.0D-80+insw(shiftmass)* K24n(BoxNumberXY)+insw(-shiftmass)* K14n(boxNumberXY)
-      shiftmass=shiftmass*p_max_shift_change/(abs(shiftmass/r)+p_max_shift_change);
-      
+      call LimitShift(shiftmass,K14n(BoxNumberXY),K24n(boxNumberXY),p_max_shift_change)
       jK24K14n=jK24K14n + shiftmass
        
     
       call flux(BoxNumberXY, iiBen, ppK24n, ppK14n, jK24K14n* insw( jK24K14n) )
-      call flux(BoxNumberXY, iiBen, ppK14n, ppK24n, - jK24K14n* insw( - &
-        jK24K14n) )
+      call flux(BoxNumberXY, iiBen, ppK14n, ppK24n,-jK24K14n* insw(-jK24K14n) )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Fluxes at the lower boundary
@@ -178,27 +176,25 @@
       ! Ammonium:
       jK34K24n(BoxNumberXY)  = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
         p_d_tot, 0.0D+00)
-      call flux(BoxNumberXY, iiBen, ppK24n, ppK24n, -(- jK34K24n(BoxNumberXY) ) )
+      call flux(BoxNumberXY, iiBen, ppK24n, ppK24n, jK34K24n(BoxNumberXY) )
 
-#ifdef IFORT
-      if ( isnan(jK34K24n(BoxNumberXY))) then
-        write(LOGUNIT,*) 'Nan in jK34K24n'
-      endif
-#endif
 
       ! Nitrate:
       shiftmass = CalculateFromSet( KNO3(BoxNumberXY), SHIFT, LAYER2, &
         D2m(BoxNumberXY), Dnew)/ LocalDelta
+      shiftmass=shiftmass * insw(shiftmass *shiftD2m(BoxNumberXY))
       jK13K3n(BoxNumberXY)  = CalculateFromSet( KNO3(BoxNumberXY), DERIVATIVE, RFLUX, &
         D2m(BoxNumberXY), dummy)+ shiftmass
 
-      call flux(BoxNumberXY, iiBen, ppK3n, ppK3n, -(- jK13K3n(BoxNumberXY) ) )
+
+      call LimitChange(1,jK13K3n(BoxNumberXY),K3n(BoxNumberXY),p_max_shift_change)
+      call flux(BoxNumberXY, iiBen, ppK3n, ppK3n,  jK13K3n(BoxNumberXY) ) 
 
 
-  end DO
+  end do
 
-  end
-!BOP
+  end subroutine BenNitrogenShiftingDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

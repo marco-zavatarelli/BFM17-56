@@ -23,11 +23,11 @@
   USE global_mem
   USE constants
   USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, iiMicroZooPlankton
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
   USE mem, ONLY: iiBenOrganisms, iiBenDetritus, iiBenBacteria, &
                  iiBenthicPhosphate, iiBenthicAmmonium
 #endif
-#ifdef BFM_SI
+#ifdef INCLUDE_SEAICE
   USE mem, ONLY: iiSeaiceAlgae, iiSeaiceZoo
 #endif
 !  
@@ -100,16 +100,16 @@
   logical   :: CalcMicroZooPlankton(iiMicroZooPlankton) = .TRUE.
   logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
   logical   :: CalcBacteria = .TRUE. 
-#ifdef BFM_BENTHIC
+#ifdef INCLUDE_BEN
   logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
   logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
 #endif
 
-#ifdef BFM_SI
+#ifdef INCLUDE_SEAICE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sea-ice flags
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   ::  CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
+  logical   :: CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
   logical   :: CalcSeaiceAlgae(iiSeaiceAlgae) = .TRUE.
   logical   :: CalcSeaiceZoo(iiSeaiceZoo) = .TRUE.
   logical   :: CalcSeaiceBacteria = .TRUE.
@@ -149,14 +149,20 @@
       p_eps0=0.04  ,  &  ! Background extinction (abiotic)
       p_epsESS=0.04e-3  ,  &  ! Inorg. suspended matter extinction coeff. (abiotic)
       p_InitSink=100.0  ,  &  ! parameter to Initialize BenthicSInk var.
-      p_d_tot=0.30  ,  &  ! m # Thickness of modelled benthic sediment layers
-      p_clD1D2m=0.01  ,  &  ! m # minimum distancebetween D1m and D2m
-      p_pe_R1c=0.60  ,  &  ! Fraction of excretion going to PLOC
-      p_pe_R1n=0.72  ,  &  ! Fraction of excretion going to PLOC
-      p_pe_R1p=0.832  ,  &  ! Fraction of excretion going to PLOC
-      p_pe_R1s=0.06  ,  &
-      p_epsChla=10.0e-3  ,  &  ! Chla-contribution to extinction
+      p_clD1D2m=0.01  ,    &  ! m # minimum distancebetween D1m and D2m
+      p_pe_R1c=0.60  ,     &  ! Fraction of excretion going to PLOC
+      p_pe_R1n=0.72  ,     &  ! Fraction of excretion going to PLOC
+      p_pe_R1p=0.832  ,    &  ! Fraction of excretion going to PLOC
+      p_pe_R1s=0.06  ,     &
+      p_epsChla=10.0e-3  , &  ! Chla-contribution to extinction
       p_epsR6=0.1e-3  
+  ! 0d-parameter used in benthic submodel
+  integer      :: &
+      p_sedlevels=20        ! - # Number of sigma levels for benthic nutrient
+  real(RLEN)   :: &
+      p_d_tot=0.30  ,    &  ! m # Thickness of modelled benthic sediment layers
+      p_d_tot_2=0.35  ,  &  ! m # maximal Thickness of D2m
+      p_sedsigma=2.0        ! - # Parameter for sigma level distribution 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -168,19 +174,19 @@
   subroutine InitParam()
   use mem
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,      &
+  namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,        &
     p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
-    CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,            &
-    CalcPelChemistry,CalcMesoZooPlankton, CalcBacteria, &
-    AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag, &
-    p_PAR, ChlLightFlag, LightForcingFlag, LightLocationFlag,               &
-    p_qchlc, p_poro0, p_eps0, p_epsESS,                                      &
-    p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s, &
-#ifdef BFM_BENTHIC
-    CalcBenOrganisms,CalcBenBacteria,  & 
+    CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
+    CalcPelChemistry,CalcMesoZooPlankton, CalcBacteria,                       &
+    AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
+    p_PAR, ChlLightFlag, LightForcingFlag, LightLocationFlag,                 &
+    p_qchlc, p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,   &
+    p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
+#ifdef INCLUDE_BEN
+    CalcBenOrganisms,CalcBenBacteria,                                         & 
 #endif
-#ifdef BFM_SI
-    CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,        &
+#ifdef INCLUDE_SEAICE
+    CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
 #endif
     p_epsChla, p_epsR6,check_fixed_quota
    integer :: i

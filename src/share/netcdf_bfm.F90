@@ -176,7 +176,6 @@
    end if
    iret = nf_def_var(ncid_bfm,'lat',NF_REAL,ndims,dims,lat_id)
    call check_err(iret)
-
    dims(1) = depth_dim
    iret = nf_def_var(ncid_bfm,'z',NF_REAL,1,dims,depth_id)
    call check_err(iret)
@@ -341,7 +340,15 @@
       dims(1) = ocepoint_dim
       dims(2) = time_dim
       do n=stPelStateS,stPelFluxE
-         if ( var_ids(n) /= 0 )  then
+         j=0
+#ifdef INCLUDE_BENPROFILES
+         ! this is a special part for the variable with
+         ! alternative dimensions (eg benthic profiles)
+         if ( var_ids(n) /= 0 )  &
+            j=special_dims(2,ncid_bfm,NO_BOXES_Z,var_names(n),var_long(n),  &
+                           var_units(n),time_dim,var_ids(n))
+#endif
+         if ( j.eq.0 .and. var_ids(n) /= 0 )  then
             iret = new_nc_variable(ncid_bfm,var_names(n),NF_REAL, &
                                  2,dims,var_ids(n))
             iret = set_attributes(ncid_bfm,var_ids(n),            &
@@ -903,6 +910,103 @@
    end function store_data
 !EOC
 
+#ifdef INCLUDE_BENPROFILES
+!-----------------------------------------------------------------------
+!BOP
+! !ROUTINE: Definine extra dimension variables
+!
+! !INTERFACE:
+   integer function special_dims(mode,ncid,nlev,name,extname,units, &
+                                 time_dim,vars_id)
+!
+! !DESCRIPTION:
+! This is a spcialized routine for the storage of diagnostic variables 
+! with  alternative dimensions.
+! The typical example are the benthic profiles, which have a sigma
+! layer grid with nlev levels.
+! 2 additional dimension variables, one with the sigma levels and 
+! one for the data points, which is a compressed coordinate
+!
+! !USES:
+   use mem, only: seddepth
+   IMPLICIT NONE
+#include "netcdf.inc"
+!
+! !INPUT PARAMETERS:
+   integer, intent(in)                 :: mode
+   integer, intent(in)                 :: ncid
+   integer, intent(in)                 :: nlev
+   character(*), intent(in)            :: name
+   character(*), intent(in)            :: extname
+   character(*), intent(in)            :: units
+   integer, intent(inout)              :: vars_id
+   integer, intent(in)                 :: time_dim
+!
+! !REVISION HISTORY:
+!  Original author(s): Piet Ruardij
+!  Generic BFM version: Marcello Vichi
+!
+! !LOCAL VARIABLES:
+   REALTYPE                  :: zz,r,s
+   integer                   :: i,j,n,status,altZ_id,dim_altZ
+   integer                   :: benprofpoint_dim,benprofpoint_id
+   REALTYPE                  :: arr(0:nlev)
+   character(len=30)         :: altZ,altZ_longname
+   character(len=6)          :: dum,alt_unit
+   integer                   :: dims(4)
+!EOP
+       if ( index(extname,'__Z' ) ==1 ) then
+          j=index(extname,':')-1
+          read(extname(1:j),*) dum,altZ, zz,alt_unit, altZ_longname
+          ! check is done on the compressed dimension
+          status = nf_inq_dimid(ncid, 'benprofpoint', benprofpoint_dim)
+          if (status.ne.NF_NOERR) then
+            ! define additional dimensions
+            status=nf_def_dim(ncid,altZ,nlev,dim_altZ)
+            if (status.eq.NF_NOERR) then
+               dims(1)=dim_altZ
+               status = nf_def_var(ncid,altZ,NF_REAL,1,dims,altZ_id)
+               if (status.eq.NF_NOERR) then
+                  i=len_trim(altZ_longname);
+                  i=index(extname(1:j),altZ_longname(1:i))
+                  status= set_attributes(ncid,altZ_id,long_name=extname(i:j))
+                  status= set_attributes(ncid,altZ_id,units=alt_unit)
+                  status = nf_enddef(ncid)
+                  status = store_data(ncid,altZ_id,Z_SHAPE,nlev,array=seddepth)
+                  status = nf_redef(ncid)
+               endif
+            endif
+            ! define coordinate dimension for benthic profile data
+            status=nf_def_dim(ncid,'benprofpoint',NO_BOXES,benprofpoint_dim)
+            if (status.eq.NF_NOERR) then
+               dims(1) = benprofpoint_dim
+               status = nf_def_var(ncid,'benprofpoint',NF_INT,1,dims, &
+                                   benprofpoint_id)
+               if (status.eq.NF_NOERR) then
+                  status = set_attributes(ncid,benprofpoint_id, &
+                                          formula_term='alternative sigma point')
+                  status = set_attributes(ncid,benprofpoint_id, &
+                                          compress='x y ' // altZ)
+                  status = nf_enddef(ncid)
+                  !MAV this should be improved
+                  status = store_data(ncid,benprofpoint_id,G_SHAPE,NO_BOXES, &
+                                      iarray=(/(i,i=1,NO_BOXES)/))
+                  status = nf_redef(ncid)
+               endif
+            endif
+          endif
+          if ( mode.eq.1) return
+          dims(1) = benprofpoint_dim
+          dims(2) = time_dim
+          status = nf_def_var(ncid,name,NF_REAL,2,dims,vars_id)
+          status= set_attributes(ncid,vars_id,long_name=trim(extname(j+2:)))
+          status= set_attributes(ncid,vars_id,units=units)
+          special_dims=1
+       else
+          special_dims=0
+       endif
+   end function special_dims
+#endif
 
 !-----------------------------------------------------------------------
 

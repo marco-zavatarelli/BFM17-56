@@ -1,8 +1,8 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
+#define DEBUG
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -51,13 +51,13 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D3STATE
 #else
-  use mem, ONLY: D3STATE, R1c, R6c, O2o, O3c, R2c, &
+  use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, &
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
 #endif
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, SUNQ, ThereIsLight, flP1R6s, ETW, EIR, xEPS, &
     Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, iiP1, iiP4, NO_BOXES, &
-    iiBen, iiPel, flux_vector, runPIn
+    iiBen, iiPel, flux_vector, sourcesink_flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag, p_qchlc, &
                         LightLocationFlag
@@ -210,7 +210,6 @@
   if ( ppphytos > 0 )  phytos = D3STATE(ppphytos,:)
 
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitation (intracellular) N, P
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -360,12 +359,12 @@
      flPIR2c  =   seo*phytoc
   end if
 
-  call flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
+  call sourcesink_flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
   call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )
   call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )
 
 
-  call flux_vector( iiPel, ppphytoc,ppO3c, rrc )
+  call sourcesink_flux_vector( iiPel, ppphytoc,ppO3c, rrc )
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
   call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
 
@@ -431,7 +430,6 @@
   misn  =   sadap*( p_xqn(phyto)* p_qnRc(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
   rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
   runn  =   min(  rumn,  rupn+ misn)  ! actual uptake of NI
-  runPIn(phyto,:)  =   runn
 
   r  =   insw_vector(  runn)
   runn3  =   r* runn* rumn3/( p_small+ rumn)  ! actual uptake of Nn
@@ -540,5 +538,5 @@
   end
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

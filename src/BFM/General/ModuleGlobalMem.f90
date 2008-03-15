@@ -67,7 +67,7 @@
   real(RLEN), parameter ::ONE=1.0_RLEN
   real(RLEN), parameter ::PI=3.14159265359_RLEN
   real(RLEN), parameter ::BASETEMP= 10.0_RLEN
-  real(RLEN), parameter ::ZERO_KELVIN=-273.3_RLEN
+  real(RLEN), parameter ::ZERO_KELVIN=-273.15_RLEN
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Next parameters are defined to define differnt types of State variables. &
   ! There are four different types defined:

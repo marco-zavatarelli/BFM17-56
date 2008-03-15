@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   calculateset.f90
@@ -58,8 +58,10 @@
         real(RLEN),dimension(NCOEFF*NCOEFF):: C2
         real(RLEN),dimension(NCOEFF*NCOEFF):: C3
         integer,dimension(NCOEFF) ::iindx
+        integer, external  :: PrintSet
    
         REAL(RLEN) ::xh
+        INTEGER    ::ok
 
         if (NUTR /= nutr_seq) stop 'error: wrong use of routine'
 
@@ -77,7 +79,8 @@
           call CompleteSet(NUTR,ADD,0,0,0.0D+00,value=yinput)
           ns%factor(1:nn_boundaries)=Y2(1:nn_boundaries)
           if (ns%imethod == 0) then
-            call ludcmp(nn_boundaries,C,iindx,xh)
+            call ludcmp(nn_boundaries,C,iindx,xh,ok)
+            if ( ok.eq.0 ) goto 100
             call lubksb(nn_boundaries,C,iindx,ns%factor)
           else
             call svdcmp(C,nn_boundaries,nn_boundaries,ns%nn,   &
@@ -92,7 +95,8 @@
           call re_Store(nn_boundaries,C,C2,ns%nn,ns%nn)
           ns%factor(1:nn_boundaries)=Y2(1:nn_boundaries)
           if (ns%imethod == 0) then
-            call ludcmp(nn_boundaries,C2,iindx,xh)
+            call ludcmp(nn_boundaries,C2,iindx,xh,ok)
+            if ( ok.eq.0 ) goto 100
             call lubksb(nn_boundaries,C2,iindx,ns%factor)
           else
             call svdcmp(C2,nn_boundaries,nn_boundaries,ns%nn,ns%nn,Y3,C3)
@@ -116,6 +120,9 @@
           endif
           return
         endif
+        return
+  100   ok= PrintSet( NUTR,"Singular matrix in ludcmp")
+        stop
       end
 
       FUNCTION CalculateFromCondition (irow,C,Y,nn)

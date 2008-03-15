@@ -20,10 +20,12 @@
    public init_bio_bfm, pointers_gotm_bfm,            &
           var_info_bfm, envforcing_bfm, do_bio_bfm,   &
           allocate_memory_bfm,reset_diagonal,         &
-          test_on_negative_states, end_bio_bfm
+          test_on_negative_states, end_bio_bfm,       &
+          do_bfm_river_loads, settling_vel_bfm
+!
 !
 ! !PRIVATE DATA MEMBERS:
-   REALTYPE,dimension(:),allocatable :: cdepth
+   REALTYPE,dimension(:),allocatable :: cdepth,wx
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi
@@ -93,6 +95,13 @@
                  NO_D2_BOX_STATES * NO_BOXES_XY
    !LOGUNIT = out_unit
 
+   ! assign the indices of the surface and bottom grid-points
+   ! GOTM vertical index is from the bottom to the surface
+   allocate(SRFindices(NO_BOXES_XY))
+   allocate(BOTindices(NO_BOXES_XY))
+   SRFindices(:) = nlev
+   BOTindices(:) = 1
+
    LEVEL3 'pelagic variables =',numc
    LEVEL3 'pelagic transported variables =',numcc
    LEVEL3 'benthic variables =',numbc
@@ -106,9 +115,10 @@
    LEVEL3 'NO_STATES=',NO_STATES
    LEVEL3 'Step 1 of GOTM <-> BFM initialisation done ...'
 
-   sfl=_ZERO_
-   sfl_read=_ZERO_
+!  sfl=_ZERO_
+!  sfl_read=_ZERO_
    allocate(cdepth(1:NO_BOXES),stat=rc)
+   allocate(wx(1:NO_BOXES),stat=rc)
    return
 
    end subroutine init_bio_bfm
@@ -218,9 +228,14 @@ use constants, ONLY: E2W
 use mem_Param, ONLY: p_eps0, p_epsESS, p_PAR,p_small
 use mem,       ONLY: NO_BOXES, R6c, PhytoPlankton, xEPS, ESS, ERHO, &
                      iiPhytoPlankton, iiL, Chla, ETW, ESW, &
-                     Depth, EIR, ABIO_eps, EWIND
+                     Depth, EIR, ABIO_eps, EWIND, ETAUB
+#ifdef INCLUDE_SILT
+use mem,       ONLY: R9x
+#endif
 use mem_Param,  ONLY: p_eps0, p_epsESS,p_poro
-use bio_var,    ONLY: wind_gotm => wind
+use global_interface,   ONLY: eTq
+use bio_var,    ONLY: wind_gotm => wind, u_taub
+
 IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -240,25 +255,32 @@ IMPLICIT NONE
 !-----------------------------------------------------------------------
 !BOC
 
-!   LEVEL2 'calculating environmental forcings for the BFM'
+#ifdef DEBUG
+   LEVEL2 'calculating environmental forcings for the BFM'
+#endif
 
    !---------------------------------------------
    ! Assign depths of layers
-   ! temperature and salinity
+   ! and other physical variables to the BFM
    !---------------------------------------------
    Depth(:) = h(1:nlev)
-    cdepth(NO_BOXES) =depth(NO_BOXES)
-    ! MAV: Piet, I've been forced to use EWIND because gotm now has a variable
-    ! wind
-    EWIND(1)=wind_gotm
+   ! cdepth is cumulative depth
+   cdepth(NO_BOXES) = Depth(NO_BOXES)
     do n=NO_BOXES-1,1,-1
        cdepth(n)=depth(n)+ cdepth(n+1)
     enddo
+   EWIND(1)=wind_gotm
+   ETAUB(1) = u_taub
    ETW(:) = t(1:nlev)
    ESW(:) = s(1:nlev)
    ERHO(:) = rho(1:nlev)
    psilt=(p_poro(1) - 0.38662 )/ 0.00415
-   ESS(:) = 10000.0 * min(1.0,20.0/cdepth(1))* max(0.5,psilt)/7.0
+#ifdef INCLUDE_SILT
+   ESS(:) = R9x(:)
+#else
+   ESS(:) = 0.0
+#endif
+   p_eps0=1.17692307692-0.0307692307692*ESW(1)
             
    !---------------------------------------------
    ! Compute extinction coefficient
@@ -313,7 +335,8 @@ IMPLICIT NONE
                   ppO2o,ppN1p,ppN3n,ppN4n,ppN5s,ppN6r,  &
                   NO_D3_BOX_STATES, Depth,              &
                   ppPhytoPlankton,iiPhytoPlankton, &
-                  PELBOTTOM, PELSURFACE
+                  PELBOTTOM, PELSURFACE, &
+                  jK3G4n,jK13K3n
    use mem, only: N1p, N3n, N4n, N5s
    use constants,  only: SEC_PER_DAY
    use gotm_error_msg, only:gotm_error
@@ -321,8 +344,8 @@ IMPLICIT NONE
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   logical                             :: first
-   integer, intent(in)                 :: nlev
+   logical, intent(in)         :: first
+   integer, intent(in)         :: nlev
 !
 ! !OUTPUT PARAMETERS:
 
@@ -337,6 +360,7 @@ IMPLICIT NONE
    integer                     :: n,k,i,j,l
    REALTYPE                    :: nudg_vel ! nudging velocity
    REALTYPE                    :: RelaxTime = 30.0 ! days
+   REALTYPE                    :: topm3psec,corr,Nloss
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -349,51 +373,12 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Compute BFM terms
    !---------------------------------------------
+!RUA new routine
+   call SiltDynamics
    call EcologyDynamics
 
-   !---------------------------------------------
-   ! Transfer sinking velocities (m/d -> m/s)
-   !---------------------------------------------
-   if ( bio_setup ==2 ) return
-   do i=1,iiPhytoPlankton
-     ll_larger=(maxval(sediPI(i,1:NO_BOXES_Z))> 0.0)
-     l=ppPhytoPlankton(i,iiC)
-     ws(l,1:NO_BOXES_Z) = -sediPI(i,1:NO_BOXES_Z)/SEC_PER_DAY
-     llws(l)=ll_larger
-     ws(l,0)= ws(l,1)
-
-     k=ppPhytoPlankton(i,iiN)
-     ws(k,0:NO_BOXES_Z) =ws(l,0:NO_BOXES_Z)
-     llws(k)=ll_larger
-     k=ppPhytoPlankton(i,iiP)
-     ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
-     llws(k)=ll_larger
-     k=ppPhytoPlankton(i,iiL)
-     ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
-     llws(k)=ll_larger
-     k=ppPhytoPlankton(i,iiS)
-     if ( i==1  ) then 
-          ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
-          llws(k)=ll_larger
-     endif
-   enddo
-
-   ws(ppR2c,1:NO_BOXES_Z) = -sediR2/SEC_PER_DAY
-   ws(ppR2c,0) = ws(ppR2c,1)
-   llws(ppR2c)=.TRUE.
-
-   ws(ppR6c,1:NO_BOXES_Z) = -sediR6/SEC_PER_DAY
-   ws(ppR6c,0) = ws(ppR6c,1)
-
-   ws(ppR6n,0:NO_BOXES_Z) =ws(ppR6c,0:NO_BOXES_Z)
-   ws(ppR6p,0:NO_BOXES_Z) =ws(ppR6c,0:NO_BOXES_Z)
-   ws(ppR6s,0:NO_BOXES_Z) =ws(ppR6c,0:NO_BOXES_Z)
-
-   llws(ppR6c)=.TRUE.
-   llws(ppR6n)=.TRUE.
-   llws(ppR6p)=.TRUE.
-   llws(ppR6s)=.TRUE.
-
+!RUA specific to North Sea
+   Nloss=jK3G4n(1)-jK13K3n(1);
    !---------------------------------------------
    ! Surface fluxes (mmol/m2/day)
    !---------------------------------------------
@@ -406,6 +391,10 @@ IMPLICIT NONE
            PELSURFACE(ppN3n,1) = 0.01
            PELSURFACE(ppN4n,1) = 0.01
            PELSURFACE(ppN5s,1) = 0.01
+!RUA
+!           sfl(ppN3n) =   0.12  *topm3psec
+!           sfl(ppN4n) =   0.09  *topm3psec
+!           sfl(ppN1p) =   0.0  !0.0
         case (0) ! nudging
            PELSURFACE(ppN1p,1) = max(_ZERO_,1.0-N1p(NO_BOXES_Z))*nudg_vel
            PELSURFACE(ppN3n,1) = max(_ZERO_,7.0-N3n(NO_BOXES_Z))*nudg_vel
@@ -418,6 +407,9 @@ IMPLICIT NONE
            sfl(ppN1p) =0.0
 !          sfl(ppN1p) =   1.0*sfl_read(3)/SEC_PER_DAY
         case (3) ! sfl array filled externally - for 3D models
+!RUA
+           sfl(ppN3n)= Nloss *0.12/0.21 * topm3psec
+           sfl(ppN3n)= Nloss *0.09/0.21 * topm3psec
         case default
      end select
      ! assign surface fluxes to gotm surface flux array (sfl)
@@ -463,14 +455,190 @@ IMPLICIT NONE
         k=ppPhytoPlankton(i,iiS)
         if ( k > 0 ) bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
       enddo
-
    endif
+   end subroutine do_bio_bfm
+!EOC
+!-----------------------------------------------------------------------
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:  settling_vel_bfm
+!
+! !INTERFACE
+   subroutine settling_vel_bfm
+!
+! !DESCRIPTION
+!  This subroutine assign the sinking velocities of BFM variables
+!
+! !USES
+   use mem, only: sediPI, sediR6, sediR2,iiC,iiN,iiP,iiS,iiL, &
+                  sediMeZ,sediMiZ, &
+                  ppR2c, ppR6c, ppR6n, ppR6p, ppR6s, NO_BOXES_Z,   &
+                  ppR1c, ppR1n, ppR1p,   &
+                  NO_D3_BOX_STATES, Depth,              &
+                  ppPhytoPlankton,iiPhytoPlankton, &
+                  ppMesoZooPlankton,iiMesoZooPlankton, &
+                  ppMicroZooPlankton,iiMicroZooPlankton, &
+                  PELBOTTOM, PELSURFACE
+   use constants,  only: SEC_PER_DAY
+   use gotm_error_msg, only:gotm_error
+
+   IMPLICIT NONE
+!
+!  Local variables
+   logical                     :: ll_larger
+   integer                     :: n,k,i,j,l
+   REALTYPE                    :: topm3psec,corr2
+   REALTYPE                    :: corr(NO_BOXES_Z)        
+   REALTYPE                    :: c1dimz(NO_BOXES_Z)        
+
+   !---------------------------------------------
+   ! Transfer sinking velocities (m/d -> m/s)
+   !---------------------------------------------
+   if ( bio_setup ==2 ) return
+   do i=1,iiPhytoPlankton
+     ll_larger=(maxval(sediPI(i,1:NO_BOXES_Z))> _ZERO_)
+     l=ppPhytoPlankton(i,iiC)
+     c1dimz(NO_BOXES_Z)= _ZERO_
+     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediPI(i,1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediPI(i,2:NO_BOXES_Z))/ &
+                                (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
+     corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
+
+
+     ws(l,1:NO_BOXES_Z) = -c1dimz(1:NO_BOXES_Z)/SEC_PER_DAY*corr
+     llws(l)=ll_larger
+     ws(l,0)= ws(l,1)
+
+     k=ppPhytoPlankton(i,iiN)
+     ws(k,0:NO_BOXES_Z) =ws(l,0:NO_BOXES_Z)
+     llws(k)=ll_larger
+     k=ppPhytoPlankton(i,iiP)
+     ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
+     llws(k)=ll_larger
+     k=ppPhytoPlankton(i,iiL)
+     ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
+     llws(k)=ll_larger
+     k=ppPhytoPlankton(i,iiS)
+     if ( i==1  ) then 
+          ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
+          llws(k)=ll_larger
+     endif
+   enddo
+   do i=1,iiMesoZooPlankton
+     ll_larger=(maxval(abs(sediMeZ(i,1:NO_BOXES_Z)))> 0.001)
+     l=ppMesoZooPlankton(i,iiC)
+     c1dimz(NO_BOXES_Z)=0.0;
+     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediMeZ(i,1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediMeZ(i,2:NO_BOXES_Z))/ &
+                                (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
+
+     corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
+
+     ws(l,1:NO_BOXES_Z) = -c1dimz(1:NO_BOXES_Z)/SEC_PER_DAY*corr
+     llws(l)=ll_larger
+     ws(l,0)= ws(l,1)
+
+     k=ppMesoZooPlankton(i,iiN)
+     if ( k>0 ) then
+       ws(k,0:NO_BOXES_Z) =ws(l,0:NO_BOXES_Z)
+       llws(k)=ll_larger
+       k=ppMesoZooPlankton(i,iiP)
+       ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
+       llws(k)=ll_larger
+     endif
+   enddo
+   do i=1,iiMicroZooPlankton
+     ll_larger=(maxval(abs(sediMiZ(i,1:NO_BOXES_Z)))> 0.001)
+     l=ppMesoZooPlankton(i,iiC)
+     c1dimz(NO_BOXES_Z)=0.0;
+     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediMiZ(i,1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediMiZ(i,2:NO_BOXES_Z))/ &
+                                (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
+     corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
+
+
+     ws(l,1:NO_BOXES_Z) = -c1dimz(1:NO_BOXES_Z)/SEC_PER_DAY*corr
+     llws(l)=ll_larger
+     ws(l,0)= ws(l,1)
+
+     k=ppMicroZooPlankton(i,iiN)
+     if ( k>0 ) then
+       ws(k,0:NO_BOXES_Z) =ws(l,0:NO_BOXES_Z)
+       llws(k)=ll_larger
+       k=ppMesoZooPlankton(i,iiP)
+       ws(k,0:NO_BOXES_Z) = ws(l,0:NO_BOXES_Z)
+       llws(k)=ll_larger
+     endif
+   enddo
+
+   c1dimz(NO_BOXES_Z)=0.0;
+   c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediR2(1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediR2(2:NO_BOXES_Z))/ &
+                                (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
+   corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
+   ws(ppR2c,1:NO_BOXES_Z) = -c1dimz/SEC_PER_DAY*corr
+   ws(ppR2c,0) = ws(ppR2c,1)
+   llws(ppR2c)=.TRUE.
+
+   ws(ppR6c,NO_BOXES_Z)=0.0
+   corr=min(cdepth(1)*rel_max_sedi_rate,abs(sediR6))/(1.0D-80+abs(sediR6))
+   c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediR6(1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediR6(2:NO_BOXES_Z))/ &
+                                (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
+   ws(ppR6c,1:NO_BOXES_Z) = -c1dimz/SEC_PER_DAY*corr
+   ws(ppR6c,0) = ws(ppR6c,1)
+
+   ws(ppR6n,0:NO_BOXES_Z) =ws(ppR6c,0:NO_BOXES_Z)
+   ws(ppR6p,0:NO_BOXES_Z) =ws(ppR6c,0:NO_BOXES_Z)
+   ws(ppR6s,0:NO_BOXES_Z) =ws(ppR6c,0:NO_BOXES_Z)
+
+   llws(ppR6c)=.TRUE.
+   llws(ppR6n)=.TRUE.
+   llws(ppR6p)=.TRUE.
+   llws(ppR6s)=.TRUE.
 
    return
 
-   end subroutine do_bio_bfm
+   end subroutine settling_vel_bfm
 !EOC
+
+
+
 !-------------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: 
+!
+! !INTERFACE
+   subroutine do_bfm_river_loads(action ,n,var)
+!
+! !DESCRIPTION
+!  Get info on riverloads and move values to BFM array 
+!  in order to make them available for output
+
+! !USES
+   use mem, only: PELRIVER
+   use constants,  only: SEC_PER_DAY
+
+! !INPUT PARAMETERS:
+   IMPLICIT NONE
+   integer,intent(IN)        ::action
+   integer,intent(IN)        ::n
+   REALTYPE,intent(IN)       ::var(1:n)
+   
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+     if ( action >=1 ) then 
+       PELRIVER(1:n,1)=var(1:n) *SEC_PER_DAY
+     else
+       PELRIVER(1:n,1)=0.0D+00;
+     endif
+   end subroutine do_bfm_river_loads
+!EOC
+
 
 !-----------------------------------------------------------------------
 !BOP
@@ -487,7 +655,7 @@ IMPLICIT NONE
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   integer,  intent(in)                    :: n
+   integer, intent(in)                    :: n
    REALTYPE,dimension(:,:,:),intent(inout) :: pp
 !
 ! !REVISION HISTORY:
@@ -588,7 +756,7 @@ IMPLICIT NONE
 ! !IROUTINE: Test negative concentrations
 !
 ! !INTERFACE:
-       subroutine test_on_negative_states ( statenr,lldeep, c1dim, &
+       subroutine test_on_negative_states ( statenr,lldeep, c1dimz, &
                                             h, nlev, after, error )
 !
 ! !DESCRIPTION:
@@ -610,14 +778,15 @@ IMPLICIT NONE
 ! !OUTPUT PARAMETERS:
        integer,intent(OUT)                     :: error
 !      Array cldim is modified if necessary
-       REALTYPE,intent(INOUT)                  :: c1dim(0:nlev)
+       REALTYPE,intent(INOUT)                  :: c1dimz(0:nlev)
 !
 ! !LOCAL VARAIBELS:
         integer              ::k
-        integer              ::i
+        integer              ::i,n
         REALTYPE             ::r
+        REALTYPE             ::sumbefore,sumafter
         character(len=160)   ::msg
-        character(len=22)    ::onem
+        character(len=20)    ::onem
 !
 ! !BUGS:
 !
@@ -636,54 +805,71 @@ IMPLICIT NONE
 !-------------------------------------------------------------------------
 !BOC
        error=0
-       ! in this way NaNs are directly found!
-       if (minval(c1dim(1:nlev)) .ge. 0.00D+00) then
+       ! in this way NaN are directly found!
+       if (minval(c1dimz(1:nlev)) .ge. 0.00D+00) then           !BFM
           continue
        else
-          STDERR "statenr=",statenr," name=",trim(var_names(statenr))
-          STDERR "Negative value after call to ",after
           if ( .not.lldeep ) then
-              error=1
-              r=max(0.0D+00,sum(h(1:nlev)* c1dim(1:nlev))/sum(h(1:nlev)))
-              c1dim(1:nlev)=r;
-              STDERR "Averaging over the vertical value:",r
-              call set_warning_for_getm()
+              r=max(0.0D+00,sum(h(1:nlev)* c1dimz(1:nlev))/sum(h(1:nlev)))
+              if ( r > 1.0D-10) then
+                error=1
+                write(msg,'(''statenr:'',I4,'' Negative value after call to '',A)') & 
+                      statenr, after
+                i=len_trim(msg)
+                STDERR msg(1:i)
+                STDERR "Averaging over the vertical value:",r
+                call set_warning_for_getm()
+             endif
+             c1dimz(1:nlev)=r;
           else
-            msg=""
-            k=0
-            do i = 1,nlev     
-              if ( c1dim(i).lt.0.0D+00) then
-                  write(onem,'(''Lev. '',I2,'':'',F10.3,''/  '')') i,c1dim(i) 
-                  msg(len_trim(msg)+1:)=onem
-                  k=-i
-                  call set_warning_for_getm()
+            k=0                                                !BFM
+            n=0
+            sumbefore=sum(c1dimz(1:nlev)*h(1:nlev))
+            do i = 1,nlev                                      !BFM
+              if ( c1dimz(i).lt.0.0D+00) then                   !BFM
+                  write(onem,'(I2,'':'',F10.3,''/'')') i,c1dimz(i) 
+                  if (index(onem,'-')>0 )n=n+1
+                  k=-i                                          !BFM
                   if ( i == 1 ) then
-                     if ( c1dim(i+1) > 0.0 )  then
-                       c1dim(i)=0.5* c1dim(i+1)
+                     if ( c1dimz(i+1) > 0.0 )  then
+                       c1dimz(i)=0.1* c1dimz(i+1)
                        k=i
                      else
-                       c1dim(i)=0.0
+                       c1dimz(i)=0.0
+                       k=i
                      endif
                   elseif ( i == nlev ) then
-                     if ( c1dim(i-1) > 0.0 )  then
-                       c1dim(i)=0.5* c1dim(i-1)
+                     if ( c1dimz(i-1) > 0.0 )  then
+                       c1dimz(i)=0.1* c1dimz(i-1)
+                       k=i
+                     else
+                       c1dimz(i)=0.0
                        k=i
                      endif
-                  else if ( (c1dim(i-1) > 0.0) .and. ( c1dim(i+1)>0.0 ) ) then
+                  else if ( (c1dimz(i-1) > 0.0) .and. ( c1dimz(i+1)>0.0 ) ) then
                      k=i
-                     c1dim(i)=(c1dim(i-1)+c1dim(i+1)) * 0.5
-                  else if ( c1dim(i-1) > 0.0 ) then
-                       c1dim(i)=0.5* c1dim(i-1)
+                     c1dimz(i)=(c1dimz(i-1)+c1dimz(i+1)) * 0.1
+                  else if ( c1dimz(i-1) >= 0.0 ) then
+                       c1dimz(i)=0.1* c1dimz(i-1)
                        k=i
-                  else if ( c1dim(i+1) > 0.0 ) then
-                       c1dim(i)=0.5* c1dim(i+1)
+                  else if ( c1dimz(i+1) >= 0.0 ) then
+                       c1dimz(i)=0.1* c1dimz(i+1)
                        k=i
                   endif
                endif
                if ( error.ge.0) error=k
-            end do
-            i=len_trim(msg)
-            STDERR "Values:",msg(1:i)
+            end do                                    !BFM
+            sumafter=1.0D-80+sum(c1dimz(1:nlev)*h(1:nlev))
+            r=sumbefore/sumafter
+            c1dimz=c1dimz*min(1.0,max(0.0,r))
+            if ( n > 0 ) then
+              call set_warning_for_getm()
+              write(msg,'(''statenr='',I3,'' Negative values after '' &
+                    ,A,'' n='',I2,'' shift='',F10.3,''%'')') &
+                    statenr,after,n,100.0D+00*(1.0-r) 
+              i=len_trim(msg)
+              STDERR msg(1:i)
+            endif
          endif
        endif
 

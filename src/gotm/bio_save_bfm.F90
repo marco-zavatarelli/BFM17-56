@@ -29,6 +29,7 @@
    logical, save             :: first=.true.
    integer                   :: iret
    integer                   :: i,j,n
+   REALTYPE                  :: c1dim(0:nlev)
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -134,6 +135,81 @@
    end subroutine bio_save_bfm
 !EOC
 
+!-----------------------------------------------------------------------
+!BOP
+! !ROUTINE: Definine extra dimension variables
+!
+! !INTERFACE:
+   integer function special_dims(mode,ncid,nlev,name,extname,units, &
+                    lon_dim,lat_dim,time_dim,vars_id)
+!
+! !DESCRIPTION:
+! This is a spcialized routine for the storage of diagnostic variables 
+! with  alternative dimensions.
+! The typical example are the benthic profiles, which have a sigma
+! layer grid with the same numner of level as NO_BOXES_Z
+!
+! !USES:
+   use ncdfout, only: set_attributes,store_data
+   IMPLICIT NONE
+#include "netcdf.inc"
+!
+! !INPUT PARAMETERS:
+   integer, intent(in)                 :: mode
+   integer, intent(in)                 :: ncid
+   integer, intent(in)                 :: nlev
+   character(*), intent(in)            :: name
+   character(*), intent(in)            :: extname
+   character(*), intent(in)            :: units
+   integer, intent(in)                 :: lon_dim
+   integer, intent(in)                 :: lat_dim
+   integer, intent(in)                 :: time_dim
+   integer, intent(inout)              :: vars_id
+!
+! !REVISION HISTORY:
+!  Original author(s): Piet Ruardij
+!
+! !LOCAL VARIABLES:
+   REALTYPE,parameter        :: ddu=2.0
+   REALTYPE                  :: zz,r,s
+   integer                   :: dims(4)
+   integer                   :: i,j,n,status,altZ_id,dim_altZ
+   REALTYPE                   :: arr(0:nlev)
+   character(len=30)         :: altZ,altZ_longname
+   character(len=6)          :: dum,alt_unit
+!EOP
+       if ( index(extname,'__Z' ) ==1 ) then
+          j=index(extname,':')-1
+          read(extname(1:j),*) dum,altZ, zz,alt_unit, altZ_longname
+          status = nf_inq_dimid(ncid, altZ, dim_altZ)
+          if (status.ne.NF_NOERR) then
+            status=nf_def_dim(ncid,altZ,nlev,dim_altZ)
+            if (status.eq.NF_NOERR) then
+               dims(1)=dim_altZ
+               status = nf_def_var(ncid,altZ,NF_REAL,1,dims,altZ_id)
+               if (status.eq.NF_NOERR) then
+                  i=len_trim(altZ_longname);
+                  i=index(extname(1:j),altZ_longname(1:i))
+                  status= set_attributes(ncid,altZ_id,long_name=extname(i:j))
+                  status= set_attributes(ncid,altZ_id,units=alt_unit)
+                  call calc_sigma_depth(nlev,ddu,zz,arr(1:nlev))
+                  status = nf_enddef(ncid)
+                  status = store_data(ncid,altZ_id,Z_SHAPE,nlev,array=arr)
+                  status = nf_redef(ncid)
+               endif
+            endif
+          endif
+          if ( mode.eq.1) return
+          dims(1)=lon_dim;dims(2)=lat_dim
+          dims(3)=dim_altZ;dims(4)=time_dim
+          status = nf_def_var(ncid,name,NF_REAL,4,dims,vars_id)
+          status= set_attributes(ncid,vars_id,long_name=trim(extname(j+2:)))
+          status= set_attributes(ncid,vars_id,units=units)
+          special_dims=1
+       else
+          special_dims=0
+       endif
+   end function special_dims
 !-----------------------------------------------------------------------
 ! Copyright by the GOTM-team and BFM-team under the GNU Public License 
 ! www.gnu.org

@@ -57,7 +57,7 @@
             real(RLEN)::  diff(NLAYER)
             real(RLEN)::  poro(NLAYER)
             real(RLEN)::  ads(NLAYER)
-            real(RLEN):: b(NLAYER)
+            real(RLEN):: b(NLAYER+1)
             integer:: lfi(NLAYER)       
             integer:: lst(NLAYER)       
             real(RLEN):: other(NLAYER)

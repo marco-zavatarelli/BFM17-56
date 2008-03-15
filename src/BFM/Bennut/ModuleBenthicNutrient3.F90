@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -7,7 +7,7 @@
 !
 ! DESCRIPTION
 !   This file holds all alternative parameter values for parameters
-!	defined in the process BenthicNutrient3.p.
+!	defined in the process BenthicNutrient3
 !
 !
 
@@ -60,13 +60,15 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! BenthicNutrient3 PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer   :: bennut_messages=0
-  real(RLEN)  ::p_max_shift_change=0.25
-  real(RLEN)  ::p_max_state_change=0.25
+  integer   :: bennut_messages=0        !0: suppress messages of the bennut-utility routines
+                                        !1: give messages if PinrtSet is called.
+  real(RLEN) ::p_max_shift_change=0.25  ! Set the maximum allowed decrease  due to shifting of layers
+  real(RLEN) ::p_max_state_change=0.25  ! Set the maximum allowed change in a layer.
+  integer    :: p_InitCondition=1       ! Define how to initialize the benthic system:
+                                        ! 1 Assume at start loss processes == input processes
+                                        ! 2 Assume 0 flux at the water column at t=0
+  integer    :: p_N                     ! Number of reinitialization of BenthicNutrient Model
  
-  !  limited to half of its value
-  !  this parameter inhibits too
-  !  thick oxic layers.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -77,7 +79,9 @@
   subroutine InitBenthicNutrient3
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /BenthicNutrient3_parameters/ bennut_messages,p_max_shift_change,p_max_state_change
+  namelist /BenthicNutrient3_parameters/ bennut_messages,p_max_shift_change, &
+                                         p_max_state_change,                 &
+                                         p_InitCondition, p_N
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -86,13 +90,14 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+   p_N=400
    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
    write(LOGUNIT,*) "#  Reading BenthicNutrient3 parameters.."
    open(NMLUNIT,file='BenthicNutrient3.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=BenthicNutrient3_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=BenthicNutrient3_parameters)
+   read(NMLUNIT,nml=BenthicNutrient3_parameters,err=101)
+   close(NMLUNIT)
+   write(LOGUNIT,*) "#  Namelist is:"
+   write(LOGUNIT,nml=BenthicNutrient3_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -107,5 +112,5 @@
   end module mem_BenthicNutrient3
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

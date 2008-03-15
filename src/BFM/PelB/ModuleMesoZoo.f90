@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -80,6 +80,7 @@
   real(RLEN)  :: p_puPI(iiMesoZooPlankton,4)
   real(RLEN)  :: p_puMIZ(iiMesoZooPlankton,2)
   real(RLEN)  :: p_puMEZ(iiMesoZooPlankton,2)
+  real(RLEN)  :: p_clO2o(iiMesoZooPlankton)  ! Low oxygen
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -91,7 +92,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /MesoZoo_parameters/ p_q10, p_srs, p_puPI, p_puMIZ, p_puMEZ, p_sd, &
-    p_sum, p_vum, p_puI_u, p_peI_R6, p_sdo, p_sds, p_qpc, p_qnc
+    p_sum, p_vum, p_puI_u, p_peI_R6, p_sdo, p_sds, p_qpc, p_qnc, p_clO2o
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -121,5 +122,5 @@ open(NMLUNIT,file='MesoZoo.nml',status='old',action='read',err=100)
   end module mem_MesoZoo
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model 
 !
 ! SUBROUTINE
 !   set_max_sing.f90
@@ -64,7 +64,8 @@
           endif
         enddo
         if (nutrnr.gt.0.and.j.gt.0) then
-          write(0,'(''Calculateset 1:ill conditioned set BoxNumberX='' ,I4,''BoxNumberY='',I4,''SetNr='',I4)') &
+          write(0,'(''Calculateset 1:ill conditioned set BoxNumberX='' &
+                               ,I4,''BoxNumberY='',I4,''SetNr='',I4)') &
             BoxNumberX, BoxNUmberY,NUTRNR
         endif
 

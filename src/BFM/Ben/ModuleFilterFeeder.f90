@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -16,7 +16,7 @@
 !   F90 code generator written by P. Ruardij.
 !   structure of the code based on ideas of M. Vichi.
 !
-! !INTERFACE
+!INTERFACE#
   module mem_FilterFeeder
 !
 ! !USES:
@@ -62,24 +62,35 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! FilterFeeder PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  integer     :: sw_uptake ! 1=ERSEM 2=Modified ..Uptake 3= Mode-FIOed Uptake with filterlimitmit.
   real(RLEN)  :: p_dwat  ! Food layer in the water
+  real(RLEN)  :: p_chu  ! Upper limit of total food
+  real(RLEN)  :: p_clu  ! Lower limit of availability of a food source
   real(RLEN)  :: p_su  ! Growth rate
   real(RLEN)  :: p_q10  ! q10
+  real(RLEN)  :: p_Rps  ! pseudefaxes production
   real(RLEN)  :: p_R6  ! Food matrix detritus on pelagic det. (R6)
-  real(RLEN)  :: p_clu  ! Lower limit of availability of a food source
-  real(RLEN)  :: p_chu  ! Upper limit of total food
-  real(RLEN)  :: p_pue  ! Excreted fraction of uptake
-  real(RLEN)  :: p_pueQ6  ! Excreted fraction of uptake
-  real(RLEN)  :: p_pudsil  ! Selectvity for nutrients
-  real(RLEN)  :: p_sr  ! Relative respiration rate
-  real(RLEN)  :: p_pur  ! Part of uptake which is used for respiration
+  real(RLEN)  :: p_puePI  ! Excreted fraction of phytoplankton uptake
+  real(RLEN)  :: p_pueZI  ! Excreted fraction of microzooplankton uptake
+  real(RLEN)  :: p_pueQ6  ! Excreted fraction of detritus uptake
+  real(RLEN)  :: p_srr  ! Relative respiration rate
+  real(RLEN)  :: p_sra  ! respired Part of uptake  used for filtering
+  real(RLEN)  :: p_pur  ! respired Part of uptake  used for digesting
   real(RLEN)  :: p_sd  ! Specific Mortality
+  real(RLEN)  :: p_sd2  ! Specific Density Dependent Mortality (mort. o1 0.1 at 25000)
   real(RLEN)  :: p_qn  ! Fixed nutrient quotum N:C
   real(RLEN)  :: p_qp  ! Fixed nutrient quotum P:C
   real(RLEN)  :: p_clm  ! Upper depth of accessed sediment layer
   real(RLEN)  :: p_cm  ! Lower  depth of accessed sediment layer
   real(RLEN)  :: p_puQ6  ! Food matrix detritus on the sediment (Q6)
-  real(RLEN)  :: p_PI  ! Food matrix Y3 on diatoms
+  real(RLEN)  :: p_PI  ! Food parameter Y3 on phytoplankton
+  real(RLEN)  :: p_ZI  ! Food parameter Y3 on microzooplankton
+  real(RLEN)  :: p_vum  ! Volume filtered by 1mgC Y3 
+  real(RLEN)  :: p_clO2o  ! oxygen con. at which activity is lowered to half 
+  real(RLEN)  :: p_height ! height of the layer from which is filtered
+  real(RLEN)  :: p_max ! proportion of sedimentation entering gridlayer which can be used for food uptake.
+  real(RLEN)  :: p_pePel =0.0 ! part of excretion and respiration which is coupled to pelagic 
+  real(RLEN)  :: p_pR6Pel =0.0 ! part of produced R6 which is excreted to the pelagic 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -90,9 +101,9 @@
   subroutine InitFilterFeeder()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /FilterFeeder_parameters/ p_dwat, p_su, p_q10, p_R6, p_clu, p_chu, &
-    p_pue, p_pueQ6, p_pudsil, p_sr, p_pur, p_sd, p_qn, p_qp, p_clm, p_cm, p_puQ6, &
-    p_PI
+  namelist /FilterFeeder_parameters/ sw_uptake, p_dwat, p_su, p_q10, p_Rps, p_R6, p_clu, p_chu, &
+    p_puePI, p_pueZI, p_pueQ6, p_srr, p_sra, p_pur, p_sd, p_sd2, p_qn, p_qp, p_clm, p_cm, p_puQ6, &
+    p_PI,p_ZI,p_vum,p_clO2o,p_height,p_max,p_pePel,p_pR6Pel
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -106,6 +117,33 @@ write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
 open(NMLUNIT,file='FilterFeeder.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=FilterFeeder_parameters,err=101)
     close(NMLUNIT)
+    select case (sw_uptake)
+     case(1)
+         write(LOGUNIT,*) "Uptake according original ERSEM"
+         if  ( p_chu ==0.0 .or. p_dwat ==0.0 .or. p_Rps > 0.0 ) then
+         write(LOGUNIT,*) "w_uptake==1 and p_chu==0.0 or p_dwat ==0 : wrong combination"
+         write(LOGUNIT,*) "w_uptake==1 and p_Rps>0.0"
+         goto 101
+        endif
+     case(2) 
+        write(LOGUNIT,*) "Uptake according Holling modified response"
+        if  ( p_vum ==0.0 ) then
+           write(LOGUNIT,*) "w_uptake=2 and p_vum==0 : wrong combination"
+           goto 101
+        endif
+     case(3) 
+        write(LOGUNIT,*) "Uptake according Holling modified response"
+        write(LOGUNIT,*) "Lower Threhold in food uptake is set by comparing energy gain with loss"
+        if  ( p_vum ==0.0.or.p_sra==0.0.or.p_clu >0.0) then
+          write(LOGUNIT,*) "w_uptake=3 and p_vum==0 or p_sra==0.0: wrong combination"
+          if ( p_clu > 0.0 ) then
+             write(LOGUNIT,*)"p_sra is indirectly used as a threshold instead p_chu"
+             write(LOGUNIT,*)"Error: p_clu > 0.0 !"
+          endif
+          goto 101
+        endif
+     end select
+         
     write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=FilterFeeder_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -122,5 +160,5 @@ open(NMLUNIT,file='FilterFeeder.nml',status='old',action='read',err=100)
   end module mem_FilterFeeder
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

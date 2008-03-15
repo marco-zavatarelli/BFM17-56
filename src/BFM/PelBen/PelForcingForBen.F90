@@ -1,7 +1,8 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -19,36 +20,32 @@
   subroutine PelForcingForBenDynamics
 !
 ! !USES:
-  ! The following Pelagic-states are used (NOT in fluxes): R6c, R6n, R6p, R6s, &
-  ! N1p, N3n, N4n, N5s, N6r, O2o
-  ! The following box states are used (NOT in fluxes): PhytoPlankton
-  ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY
-  ! The following Pelagic 1-d global boxvars  are used: ETW, Depth
-  ! The following Benthic 1-d global boxvars are modified : PIc, PIn, PIp, PIs
-  ! The following Benthic 1-d global boxvars got a value: RIc, &
-  ! RIn, RIp, RIs, N1p_Ben, N3n_Ben, N4n_Ben, N5s_Ben, N6r_Ben, O2o_Ben, &
-  ! ETW_Ben, Depth_Ben
-  ! The following groupmember vars  are used: iiPhytoPlankton, iiP1
-  ! The following constituent constants  are used: iiC, iiN, iiP, iiS
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,LOGUNIT,ZERO
   use mem, ONLY: R6c, R6n, R6p, R6s, N1p, N3n, N4n, N5s, N6r, O2o, &
-    ppPhytoPlankton, PhytoPlankton, D2STATE
+    iiPhytoPlankton, ppPhytoPlankton, PhytoPlankton, D2STATE, &
+    iiMicroZooPlankton, ppMicroZooPlankton, MicroZooPlankton
   use mem, ONLY: ppR6c, ppR6n, ppR6p, ppR6s, ppN1p, ppN3n, &
-    ppN4n, ppN5s, ppN6r, ppO2o, ppPhytoPlankton, BoxNumberZ, NO_BOXES_Z, &
-    BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, BoxNumber, BoxNumberXY, ETW, &
-    Depth, PIc, PIn, PIp, PIs, RIc, RIn, RIp, RIs, N1p_Ben, N3n_Ben, &
-    N4n_Ben, N5s_Ben, N6r_Ben, O2o_Ben, ETW_Ben, Depth_Ben, iiPhytoPlankton, iiP1, &
-    iiC, iiN, iiP, iiS, iiBen, iiPel, flux
-
-
+    ppN4n, ppN5s, ppN6r, ppO2o, &
+    ETW, ESW, ERHO, ETW_Ben, ESW_Ben, ERHO_Ben, &
+    PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPI_Ben,sediR6_Ben, sediPI, sediR6, &
+    Depth, RI_Fc, ZI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, &
+    RI_Fs, N1p_Ben, N3n_Ben, N4n_Ben, N5s_Ben, N6r_Ben, O2o_Ben, ETW_Ben, &
+    Depth_Ben, iiP1, iiC, iiN, iiP, iiS, iiBen, iiPel, flux
+#ifdef INCLUDE_BENCO2
+    use mem, ONLY: O3c_Ben,O3c,O3h_Ben,O3h
+#endif
+  use mem_MicroZoo, ONLY:p_qn_mz,p_qp_mz
+  use mem_Param,  ONLY: p_small
+#ifdef BFM_GOTM
+  use bio_var, ONLY: BOTindices
+#else
+  use api_bfm, ONLY: BOTindices
+#endif
 
 !  
 !
@@ -64,7 +61,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -89,6 +86,7 @@
   ! Local Vectors used  of group vectors
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN), dimension(:), pointer  ::lcl_PhytoPlankton
+  real(RLEN), dimension(:), pointer  ::lcl_MicroZooPlankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -96,82 +94,96 @@
   integer  :: j
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! user defined external functions
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer, external  :: D3toD1
-  integer, external  :: D2toD1
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  BoxNumberZ = 1
-  DO BoxNumberY=1,NO_BOXES_Y
-    DO BoxNumberX=1,NO_BOXES_X
-      BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-      BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Compute total phytoplankton conc. used as food for filtereeders
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      PIc(BoxNumberXY)  =   0.0D+00
-      PIn(BoxNumberXY)  =   0.0D+00
-      PIp(BoxNumberXY)  =   0.0D+00
-      PIs(BoxNumberXY)  =   0.0D+00
-
       do i = 1 , ( iiPhytoPlankton)
-
         lcl_PhytoPlankton => PhytoPlankton(i,iiC)
-        PIc(BoxNumberXY)  =   PIc(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
+        PI_Benc(i,:)  =   lcl_PhytoPlankton(BOTindices)
         lcl_PhytoPlankton => PhytoPlankton(i,iiN)
-        PIn(BoxNumberXY)  =   PIn(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
+        PI_Benn(i,:)  =   lcl_PhytoPlankton(BOTindices)
         lcl_PhytoPlankton => PhytoPlankton(i,iiP)
-        PIp(BoxNumberXY)  =   PIp(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
+        PI_Benp(i,:)  =   lcl_PhytoPlankton(BOTindices)
         j=ppPhytoPlankton(i,iiS)
         if ( j > 0 ) then
           lcl_PhytoPlankton => PhytoPlankton(i,iiS)
-          PIs(BoxNumberXY)  =   PIs(BoxNumberXY)+ lcl_PhytoPlankton(BoxNumber)
+          PI_Bens(i,:)  =   lcl_PhytoPlankton(BOTindices)
+        else
+          PI_Bens(i,:)  =   0.0
         end if
-
       end do
+      sediPI_Ben(:,:)  =  sediPI(:,BOTindices)    
 
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      ! Compute total microzooplankton conc. used as food for filtereeders
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+      ZI_Fc(:)  =   ZERO
+      ZI_Fn(:)  =   ZERO
+      ZI_Fp(:)  =   ZERO
+
+      do i = 1 , ( iiMicroZooPlankton)
+        lcl_MicroZooPlankton => MicroZooPlankton(i,iiC)
+        ZI_Fc(:)  =   ZI_Fc(:)+ lcl_MicroZooPlankton(BOTindices)
+        j = ppMicroZooPlankton(i,iiN)
+        if ( j> 0) then
+           lcl_MicroZooPlankton => MicroZooPlankton(i,iiN)
+           ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)
+        else
+           ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)*p_qn_mz(i)
+        endif
+        j = ppMicroZooPlankton(i,iiP)
+        if ( j> 0) then
+          lcl_MicroZooPlankton => MicroZooPlankton(i,iiP)
+          ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)
+        else
+          ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)*p_qp_mz(i)
+        endif
+      enddo
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Compute total detritus conc. used as food for filtereeders
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      RIc(BoxNumberXY)  =   R6c(BoxNumber)
-      RIn(BoxNumberXY)  =   R6n(BoxNumber)
-      RIp(BoxNumberXY)  =   R6p(BoxNumber)
-      RIs(BoxNumberXY)  =   R6s(BoxNumber)
+      RI_Fc(:)  =   R6c(BOTindices)
+      RI_Fn(:)  =   R6n(BOTindices)
+      RI_Fp(:)  =   R6p(BOTindices)
+      RI_Fs(:)  =   R6s(BOTindices)
+      sediR6_Ben(:)  =   sediR6(BOTindices)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Derive Forcing for benthos
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       !Nutrient Forcing:
-      N1p_Ben(BoxNumberXY)  =   N1p(BoxNumber)
-      N3n_Ben(BoxNumberXY)  =   N3n(BoxNumber)
-      N4n_Ben(BoxNumberXY)  =   N4n(BoxNumber)
-      N5s_Ben(BoxNumberXY)  =   N5s(BoxNumber)
-      N6r_Ben(BoxNumberXY)  =   N6r(BoxNumber)
+      N1p_Ben(:)  =   max(p_small,N1p(BOTindices))
+      N3n_Ben(:)  =   max(p_small,N3n(BOTindices))
+      N4n_Ben(:)  =   max(p_small,N4n(BOTindices))
+      N5s_Ben(:)  =   max(p_small,N5s(BOTindices))
+      N6r_Ben(:)  =   max(p_small,N6r(BOTindices))
 
       !Oxygen Forcing:
-      O2o_Ben(BoxNumberXY)  =   O2o(BoxNumber)
+      O2o_Ben(:)  =   max(p_small,O2o(BOTindices))
 
-      ! Temperature in the benthos is made equal tothe temperature of the
+      ! Physical environment in the benthos is equal to the one in the
       ! adjacent level (layer) of the pelagic
-      ETW_Ben(BoxNumberXY)  =   ETW(BoxNumber)
+      ETW_Ben(:)  =   ETW(BOTindices)
+      ESW_Ben(:)  =   ESW(BOTindices)
+      ERHO_Ben(:) =   ERHO(BOTindices)
 
-      ! depth of the level aboce the sediment
-      Depth_Ben(BoxNumberXY)  =   Depth(BoxNumber)
+#ifdef INCLUDE_BENCO2
+      O3c_Ben(:)  =   O3c(BOTindices)
+      O3h_Ben(:)  =   O3h(BOTindices)
+#endif
 
-    end DO
+      ! depth of the level above the sediment
+      Depth_Ben(:)  =   Depth(BOTindices)
 
 
-
-  end DO
-
-  end
-!BOP
+  end subroutine PelForcingForBenDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

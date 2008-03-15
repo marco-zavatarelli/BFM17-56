@@ -38,7 +38,7 @@
 
 #ifdef BFM_GOTM
    use bfm_solver
-   use bio_bfm, only : init_bio_bfm,var_info_bfm
+   use bio_bfm, only : init_bio_bfm,var_info_bfm,settling_vel_bfm
    use bio_bfm, only : envforcing_bfm
    use bio_bfm, only : reset_diagonal, allocate_memory_bfm, &
                        test_on_negative_states
@@ -321,7 +321,7 @@
 !
 ! !INTERFACE: 
    subroutine set_env_bio(nlev,h_,t_,s_,rho_,nuh_,rad_,wind_,I_0_, &
-                          w_,w_adv_ctr_)
+                          w_,w_adv_ctr_,u_taub_)
 !
 ! !DESCRIPTION:
 !
@@ -340,6 +340,7 @@
    REALTYPE, intent(in)                :: I_0_
    REALTYPE, optional, intent(in)      :: w_(0:nlev)
    integer, optional, intent(in)       :: w_adv_ctr_
+   REALTYPE, optional, intent(in)      :: u_taub_
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard & Karsten Bolding
@@ -359,6 +360,7 @@
    I_0       = I_0_
    if (present(w_)) w = w_
    if (present(w_adv_ctr_)) w_adv_ctr = w_adv_ctr_
+   if (present(u_taub_)) u_taub = u_taub
 
    return
    end subroutine set_env_bio
@@ -455,6 +457,7 @@
    integer                   :: kt=0
    logical                   :: parallel
    logical                   :: llsumh=.TRUE.
+   REALTYPE                  :: c1dim(0:nlev)
 #endif
 !EOP
 !-----------------------------------------------------------------------
@@ -487,22 +490,26 @@
       if (parallel .and.bio_eulerian.and.bio_model==6) then
         ! Sometimes it happens that a concentration becomes negative
         ! after calculations of the 3d-transport
-        ! this check is only done when bottom depth is greater than 4 m
-        ! MAV: move this constant out from the code asap!
-        llsumh=(sum(h(1:nlev)) .gt. 4.0D+00) 
-        if ( llsumh ) then
+        ! this check is only done when bottom depth is greater than a certain depth
+!MAV: move this constant out from the code asap!
+        llsumh=(sum(h(1:nlev)) .gt. 5.0D+00) 
           do j=1,numcc
             if (bio_setup /= 2 ) then
               if (pelvar_type(j)>=ALLTRANSPORT) then
-                call test_on_negative_states( j,llsumh,cc(j,:),h,nlev, "GETM advection", kt )
+                c1dim = cc(j,:)
+                call test_on_negative_states( j,llsumh,c1dim,h,nlev, "GETM advection", kt )
+                if ( kt.gt.0) cc(j,:) = c1dim
               endif
             endif
           enddo
-        endif
       endif
 #endif
 
      if (bio_eulerian) then
+#ifdef BFM_GOTM
+        ! transfer the particle settling velocities to the BFM
+        call settling_vel_bfm
+#endif
         do j=1,numcc
 #ifdef BFM_GOTM
           if (bio_setup /= 2 ) then
@@ -518,8 +525,8 @@
 #  ifdef BFM_GETM
 !           do advection step due to settling or rising
 !           NOTE: in BFM_GETM this is done only when depth is greater than a
-!           certain value
-            if ( llsumh .and. llws(j)) then
+!           certain value and if there is settling
+            if ( llsumh and. llws(j)) then
                call adv_center(nlev,dt,h,h,ws(j,:),flux,           &
                     flux,_ZERO_,_ZERO_,w_adv_discr,adv_mode_1,cc(j,:))
             end if
@@ -621,13 +628,17 @@
                call ode_solver(ode_method,numc,nlev,dt_eff,cc,do_bio_mab)
 #ifdef BFM_GOTM
             case (6)
-               call envforcing_bfm(nlev,bioshade_feedback)
-               call ode_solver_bfm(ode_method,nlev,dt_eff)
-               ! accumulate BFM output variables
-               ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
-               call prepare_bio_output(10,nlev,_ZERO_)
-               call prepare_bio_output(11,nlev,_ZERO_)
-               call prepare_bio_output(12,nlev,_ZERO_)
+	       ! this flag is only used with GETM
+	       ! it is always true for GOTM
+               if ( llsumh ) then
+                  call envforcing_bfm(nlev,bioshade_feedback)
+                  call ode_solver_bfm(ode_method,nlev,dt_eff)
+                  ! accumulate BFM output variables
+                  ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
+                  call prepare_bio_output(10,nlev,_ZERO_)
+                  call prepare_bio_output(11,nlev,_ZERO_)
+                  call prepare_bio_output(12,nlev,_ZERO_)
+	       end if
 #endif
          end select
 
@@ -720,7 +731,6 @@
 
 #ifdef BFM_GOTM 
    if (allocated(llws))           deallocate(llws)
-   if (allocated(c1dim))          deallocate(c1dim)
    if (allocated(pp))             deallocate(pp)
    if (allocated(dd))             deallocate(dd)
    if (allocated(ccb))            deallocate(ccb)
@@ -795,10 +805,6 @@
    allocate(llws(1:numc),stat=rc)
    if (rc /= 0) STOP 'init_bio: Error allocating (llws)'
    llws=.false.
-
-   allocate(c1dim(0:nlev),stat=rc)
-   if (rc /= 0) STOP 'init_bio: Error allocating (c1dim)'
-   c1dim=_ZERO_
 
    numsave = numc
    allocate(pp(1:numc,1:numc,0:nlev),stat=rc)

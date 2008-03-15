@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -26,7 +26,7 @@
 !  
 !
 ! !AUTHORS
-!   EGM Embsen and P Ruardij
+!   P Ruardij
 !
 !
 !
@@ -66,7 +66,7 @@
   ! BenDenitriDepth PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN)  :: p_xdamping  !		# damping parameter
-  real(RLEN)  :: p_pmM3n  !		# fraction of concentration nitrate at
+  real(RLEN)  :: p_jlK3G4n  !		# fraction of concentration nitrate at
   real(RLEN)  :: p_clM3n_D2  !		# minimum concentration below which no
   real(RLEN)  :: p_cmD2m
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -79,7 +79,7 @@
   subroutine InitBenDenitriDepth()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /BenDenitriDepth_parameters/ p_xdamping, p_pmM3n, p_clM3n_D2, p_cmD2m
+  namelist /BenDenitriDepth_parameters/ p_xdamping, p_jlK3G4n, p_clM3n_D2, p_cmD2m
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -109,5 +109,5 @@ open(NMLUNIT,file='BenDenitriDepth.nml',status='old',action='read',err=100)
   end module mem_BenDenitriDepth
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

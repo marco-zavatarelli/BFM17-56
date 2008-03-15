@@ -50,37 +50,37 @@
    LEVEL2 'Calendar day:',yy,mm,dd
 #endif
 
-#ifdef pippo
-   if (init_forcing_vars) then
-     data_jul2=0
-     data_secs2=0
-     obs2(:)=ZERO
-   end if
-   !  This part initialise and read in new values if necesecary.
-   if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .lt. 0) then
-      do
-         data_jul1 = data_jul2
-         data_secs1 = data_secs2
-         obs1 = obs2
-         call read_obs(unit_forcing,yy,mm,dd,hh,min,sec,NOBS,obs2,rc)
-         call julian_day(yy,mm,dd,data_jul2)
-         data_secs2 = hh*3600 + min*60 + sec
-         if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
-      end do
-      dt = time_diff(data_jul2,data_secs2,data_jul1,data_secs1)
-   end if
+   if (use_external_data) then
+      if (init_forcing_vars) then
+        data_jul2=0
+        data_secs2=0
+        obs2(:)=ZERO
+      end if
+      !  This part initialise and read in new values if necesecary.
+      if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .lt. 0) then
+         do
+            data_jul1 = data_jul2
+            data_secs1 = data_secs2
+            obs1 = obs2
+            call read_obs(unit_data,yy,mm,dd,hh,min,sec,NOBS,obs2,rc)
+            call julian_day(yy,mm,dd,data_jul2)
+            data_secs2 = hh*3600 + min*60 + sec
+            if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
+         end do
+         dt = time_diff(data_jul2,data_secs2,data_jul1,data_secs1)
+      end if
 
-   !  Do the time interpolation
-   t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
-   alpha = (obs2(1)-obs1(1))/dt
-   N1p = obs1(1) + t*alpha
-   alpha = (obs2(2)-obs1(2))/dt
-   N3n = obs1(2) + t*alpha
-   alpha = (obs2(3)-obs1(3))/dt
-   N4n = obs1(3) + t*alpha
-   alpha = (obs2(4)-obs1(4))/dt
-   N4n = obs1(4) + t*alpha
-#endif
+      !  Do the time interpolation
+      t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
+      alpha = (obs2(1)-obs1(1))/dt
+      N1p = obs1(1) + t*alpha
+      alpha = (obs2(2)-obs1(2))/dt
+      N3n = obs1(2) + t*alpha
+      alpha = (obs2(3)-obs1(3))/dt
+      N4n = obs1(3) + t*alpha
+      alpha = (obs2(4)-obs1(4))/dt
+      N4n = obs1(4) + t*alpha
+   end if
 
    ! Bottom deposition (must be negative)
    ! (mg C m^-2 d^-1 or mmol NUT m^-2 d^-1)
@@ -95,12 +95,6 @@
 #ifdef DEBUG
    LEVEL2 'day of year: ',dyear,dfrac
    LEVEL2 'botdep_c',botdep_c
-#endif
-
-#ifdef DEBUG
-   LEVEL2 'jbotR6c',jbotR6c
-   LEVEL2 'jbotR6n',jbotR6n
-   LEVEL2 'N1p',N1p
 #endif
 
   return
