@@ -47,6 +47,8 @@
     case (3) ! interactive air-sea fluxes
 !      call do_air_sea(timesec,startime)
     end select
+    ! Assign external event data
+    call event_data
   end subroutine envforcing_bfm
 !EOC
 !-----------------------------------------------------------------------

@@ -12,55 +12,56 @@
 !  of biogeochemical variables
 !
 ! !USES:
+   use global_mem, only: RLEN,ZERO
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-    REALTYPE,dimension(:),intent(in)        :: c
-    REALTYPE,intent(in),optional            :: nc,pc,sc,lc
+    real(RLEN),dimension(:),intent(in)        :: c
+    real(RLEN),intent(in),optional            :: nc,pc,sc,lc
 !
 ! !OUTPUT PARAMETERS:
-    REALTYPE,dimension(:),intent(inout),optional :: n,p,s,l
+    real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi
 !
 !LOCAL VARIABLES:
-    REALTYPE                     :: nc_ratio,pc_ratio,sc_ratio, &
+    real(RLEN)                   :: nc_ratio,pc_ratio,sc_ratio, &
                                     lc_ratio
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
-    nc_ratio = 0.0126 ! Redfield
-    if ((present(nc)).AND.(nc>_ZERO_)) nc_ratio = nc
+    nc_ratio = 0.0126_RLEN ! Redfield
+    if ((present(nc)).AND.(nc>ZERO)) nc_ratio = nc
 
-    pc_ratio = 0.7862e-3 ! Redfield
-    if ((present(pc)).AND.(pc>_ZERO_)) pc_ratio = pc
+    pc_ratio = 0.7862e-3_RLEN ! Redfield
+    if ((present(pc)).AND.(pc>ZERO)) pc_ratio = pc
 
-    sc_ratio = 0.0145 ! Redfield
-    if ((present(sc)).AND.(sc>_ZERO_)) sc_ratio = sc
+    sc_ratio = 0.0145_RLEN ! Redfield
+    if ((present(sc)).AND.(sc>ZERO)) sc_ratio = sc
 
-    lc_ratio = 0.03 ! standard diatom value
-    if ((present(lc)).AND.(lc>_ZERO_)) lc_ratio = lc
+    lc_ratio = 0.03_RLEN ! standard diatom value
+    if ((present(lc)).AND.(lc>ZERO)) lc_ratio = lc
 
     if (present(n)) then
-       where (n==_ZERO_) 
+       where (n==ZERO) 
           n = nc_ratio*c
        end where
     end if
     if (present(p)) then
-       where (p==_ZERO_) 
+       where (p==ZERO) 
           p = pc_ratio*c
        end where
     end if
     if (present(s)) then
-       where (s==_ZERO_) 
+       where (s==ZERO) 
           s = sc_ratio*c
        end where
     end if
     if (present(l)) then
-       where (l==_ZERO_) 
+       where (l==ZERO) 
           l = sc_ratio*c
        end where
     end if

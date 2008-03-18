@@ -169,6 +169,7 @@ STDALONE_MOD = \
 	${LIB}(./standalone/analytical_forcing.o)	\
 	${LIB}(./standalone/external_forcing.o)		\
 	${LIB}(./standalone/external_data.o)		\
+	${LIB}(./standalone/event_data.o)		\
 	${LIB}(./standalone/integration-efw.o)		\
 	${LIB}(./standalone/integration-lf.o)		\
 	${LIB}(./standalone/integration-RK2.o)		\

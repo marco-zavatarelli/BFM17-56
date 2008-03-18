@@ -79,7 +79,7 @@
       alpha = (obs2(3)-obs1(3))/dt
       N4n = obs1(3) + t*alpha
       alpha = (obs2(4)-obs1(4))/dt
-      N4n = obs1(4) + t*alpha
+      N5s = obs1(4) + t*alpha
    end if
 
    ! Bottom deposition (must be negative)
