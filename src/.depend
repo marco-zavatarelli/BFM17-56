@@ -76,13 +76,25 @@
 ./BFM/Bennut/svbksb.o : ./BFM/Bennut/svbksb.f90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Bennut/svdcmp.o : ./BFM/Bennut/svdcmp.f90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Bennut/transfer.o : ./BFM/Bennut/transfer.f90 ./BFM/General/ModuleConstants.o ./BFM/Bennut/ModuleBenNutType.o ./BFM/Bennut/ModuleBenNutConstants.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/Alkalinity.o : ./BFM/CO2.new/Alkalinity.F90 
+./BFM/CO2.new/BenAlkalinity.o : ./BFM/CO2.new/BenAlkalinity.F90 
+./BFM/CO2.new/BenCO2Profiles.o : ./BFM/CO2.new/BenCO2Profiles.F90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/BenCO2Transport.o : ./BFM/CO2.new/BenCO2Transport.F90 
+./BFM/CO2.new/BenpH.o : ./BFM/CO2.new/BenpH.F90 
+./BFM/CO2.new/CO2Flux.o : ./BFM/CO2.new/CO2Flux.F90 ./BFM/General/ModuleConstants.o 
+./BFM/CO2.new/CalcCO2SatInField.o : ./BFM/CO2.new/CalcCO2SatInField.F90 ./BFM/CO2.piet/ModulePelCO2.o ./BFM/CO2/ModuleCO2System.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/ModuleBenAlkalinity.o : ./BFM/CO2.new/ModuleBenAlkalinity.f90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/ModuleBenCO2Transport.o : ./BFM/CO2.new/ModuleBenCO2Transport.f90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/ModuleCO2.o : ./BFM/CO2.new/ModuleCO2.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/ModuleCO2System.o : ./BFM/CO2.new/ModuleCO2System.F90 ./BFM/CO2/ModuleCO2.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.new/PelCO2.o : ./BFM/CO2.new/PelCO2.F90 
 ./BFM/CO2.piet/Alkalinity.o : ./BFM/CO2.piet/Alkalinity.F90 
 ./BFM/CO2.piet/BenAlkalinity.o : ./BFM/CO2.piet/BenAlkalinity.F90 
 ./BFM/CO2.piet/BenCO2Profiles.o : ./BFM/CO2.piet/BenCO2Profiles.F90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/CO2.piet/BenCO2Transport.o : ./BFM/CO2.piet/BenCO2Transport.F90 
 ./BFM/CO2.piet/BenpH.o : ./BFM/CO2.piet/BenpH.F90 
-./BFM/CO2.piet/CO2System.o : ./BFM/CO2.piet/CO2System.F90 ./BFM/General/ModuleGlobFun.o ./BFM/General/ModuleGlobalMem.o 
-./BFM/CO2.piet/CalcCO2SatInField.o : ./BFM/CO2.piet/CalcCO2SatInField.F90 ./BFM/CO2.piet/ModulePelCO2.o ./BFM/CO2.piet/CO2System.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.piet/CO2System.o : ./BFM/CO2.piet/CO2System.F90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.piet/CalcCO2SatInField.o : ./BFM/CO2.piet/CalcCO2SatInField.F90 ./BFM/CO2.piet/ModulePelCO2.o ./BFM/CO2/ModuleCO2System.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/CO2.piet/CalcHplus.o : ./BFM/CO2.piet/CalcHplus.F90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/CO2.piet/CalcSchmidtNumberCO2.o : ./BFM/CO2.piet/CalcSchmidtNumberCO2.F90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/CO2.piet/ModuleBenAlkalinity.o : ./BFM/CO2.piet/ModuleBenAlkalinity.f90 ./BFM/General/ModuleGlobalMem.o 
@@ -91,11 +103,19 @@
 ./BFM/CO2.piet/ModuleSurfaceCO2Processes.o : ./BFM/CO2.piet/ModuleSurfaceCO2Processes.f90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/CO2.piet/PelCO2.o : ./BFM/CO2.piet/PelCO2.F90 
 ./BFM/CO2.piet/SurfaceCO2Processes.o : ./BFM/CO2.piet/SurfaceCO2Processes.F90 ./BFM/General/ModuleGlobalMem.o 
-./BFM/CO2/CO2Calc.o : ./BFM/CO2/CO2Calc.F90 ./share/api_bfm.o ./BFM/CO2/ModuleCO2.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2.piet/rtsafe.o : ./BFM/CO2.piet/rtsafe.F90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2/Alkalinity.o : ./BFM/CO2/Alkalinity.F90 
+./BFM/CO2/BenAlkalinity.o : ./BFM/CO2/BenAlkalinity.F90 
+./BFM/CO2/BenCO2Profiles.o : ./BFM/CO2/BenCO2Profiles.F90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2/BenCO2Transport.o : ./BFM/CO2/BenCO2Transport.F90 
+./BFM/CO2/BenpH.o : ./BFM/CO2/BenpH.F90 
 ./BFM/CO2/CO2Flux.o : ./BFM/CO2/CO2Flux.F90 ./BFM/General/ModuleConstants.o 
-./BFM/CO2/Drtsafe.o : ./BFM/CO2/Drtsafe.F90 ./BFM/General/ModuleGlobalMem.o ./BFM/CO2/ModuleCO2.o 
+./BFM/CO2/CalcCO2SatInField.o : ./BFM/CO2/CalcCO2SatInField.F90 ./BFM/CO2.piet/ModulePelCO2.o ./BFM/CO2/ModuleCO2System.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2/ModuleBenAlkalinity.o : ./BFM/CO2/ModuleBenAlkalinity.f90 ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2/ModuleBenCO2Transport.o : ./BFM/CO2/ModuleBenCO2Transport.f90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/CO2/ModuleCO2.o : ./BFM/CO2/ModuleCO2.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
-./BFM/CO2/Ta_Iter_1.o : ./BFM/CO2/Ta_Iter_1.F90 ./BFM/CO2/ModuleCO2.o 
+./BFM/CO2/ModuleCO2System.o : ./BFM/CO2/ModuleCO2System.F90 ./BFM/CO2/ModuleCO2.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/CO2/PelCO2.o : ./BFM/CO2/PelCO2.F90 
 ./BFM/Forcing/BoxAbove.o : ./BFM/Forcing/BoxAbove.F90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Forcing/BoxBeneath.o : ./BFM/Forcing/BoxBeneath.F90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/General/AllocateMem.o : ./BFM/General/AllocateMem.F90 ./BFM/General/ModuleParam.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
@@ -120,7 +140,7 @@
 ./BFM/Light/ModuleLightAdaptation.o : ./BFM/Light/ModuleLightAdaptation.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Light/ModulePhotoAvailableRadiation.o : ./BFM/Light/ModulePhotoAvailableRadiation.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Light/PhotoAvailableRadiation.o : ./BFM/Light/PhotoAvailableRadiation.F90 ./BFM/General/ModuleGlobFun.o ./BFM/Light/ModulePhotoAvailableRadiation.o ./BFM/General/ModuleParam.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
-./BFM/Oxygen/CalcOxygenSaturation_3.o : ./BFM/Oxygen/CalcOxygenSaturation_3.F90 ./BFM/General/ModuleParam.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
+./BFM/Oxygen/CalcOxygenSaturation_3.o : ./BFM/Oxygen/CalcOxygenSaturation_3.F90 ./BFM/General/ModuleParam.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Oxygen/CalcSchmidtNumberOx.o : ./BFM/Oxygen/CalcSchmidtNumberOx.F90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Oxygen/ModuleWindOxReaeration_3.o : ./BFM/Oxygen/ModuleWindOxReaeration_3.f90 ./BFM/General/ModuleGlobalMem.o 
 ./BFM/Oxygen/WindOxReaeration_3.o : ./BFM/Oxygen/WindOxReaeration_3.F90 ./BFM/General/ModuleInterface.o ./BFM/Oxygen/ModuleWindOxReaeration_3.o ./BFM/General/ModuleParam.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
@@ -159,11 +179,12 @@
 ./share/api_bfm.o : ./share/api_bfm.F90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./share/calcmean_bfm.o : ./share/calcmean_bfm.F90 ./BFM/General/ModuleMem.o ./share/api_bfm.o 
 ./share/init_benthic_bfm.o : ./share/init_benthic_bfm.F90 ./share/string_functions.o ./BFM/General/ModuleParam.o ./BFM/Ben/ModuleBenBac.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o ./share/api_bfm.o 
-./share/init_cnps.o : ./share/init_cnps.F90 
+./share/init_cnps.o : ./share/init_cnps.F90 ./BFM/General/ModuleGlobalMem.o 
 ./share/init_var_bfm.o : ./share/init_var_bfm.F90 ./share/string_functions.o ./BFM/General/ModuleParam.o ./BFM/General/ModuleConstants.o ./BFM/PelB/ModulePhyto.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o ./share/api_bfm.o 
 ./share/make_flux_output.o : ./share/make_flux_output.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o 
 ./share/netcdf_bfm.o : ./share/netcdf_bfm.F90 ./BFM/General/ModuleMem.o ./share/api_bfm.o 
 ./share/string_functions.o : ./share/string_functions.F90 
+./standalone/BentoPelCoup_standalone.o : ./standalone/BentoPelCoup_standalone.F90 ./BFM/General/ModuleParam.o ./BFM/General/ModuleConstants.o ./share/api_bfm.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./standalone/D2toD1.o : ./standalone/D2toD1.f90 ./BFM/General/ModuleMem.o 
 ./standalone/D3toD1.o : ./standalone/D3toD1.f90 ./BFM/General/ModuleMem.o 
 ./standalone/GetDelta.o : ./standalone/GetDelta.f90 ./standalone/time.o ./BFM/General/ModuleConstants.o 
@@ -171,6 +192,7 @@
 ./standalone/end_envforcing_bfm.o : ./standalone/end_envforcing_bfm.F90 ./standalone/envforcing.o 
 ./standalone/envforcing.o : ./standalone/envforcing.F90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
 ./standalone/envforcing_bfm.o : ./standalone/envforcing_bfm.F90 ./standalone/envforcing.o ./BFM/General/ModuleGlobalMem.o 
+./standalone/event_data.o : ./standalone/event_data.F90 ./share/api_bfm.o ./standalone/envforcing.o ./standalone/time.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
 ./standalone/external_data.o : ./standalone/external_data.F90 ./share/api_bfm.o ./standalone/envforcing.o ./standalone/time.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleGlobalMem.o 
 ./standalone/external_forcing.o : ./standalone/external_forcing.F90 ./standalone/standalone.o ./standalone/envforcing.o ./standalone/time.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleParam.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 
 ./standalone/external_seaice.o : ./standalone/external_seaice.F90 ./standalone/standalone.o ./standalone/envforcing.o ./standalone/time.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o ./BFM/General/ModuleParam.o ./BFM/General/ModuleGlobalMem.o 

@@ -175,7 +175,7 @@
 
       diff = p_diff* irrenh(BoxNumberXY)* p_poro(BoxNumberXY)* &
         eTq( ETW_Ben(BoxNumberXY), p_q10diff)
-      sK3G4  =   p_sK3G4* eTq(  ETW_Ben(BoxNumberXY),  p_q10)* zATo/ p_zATo
+      sK3G4  =   p_sK3G4* zATo/ p_zATo
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Technical correction when K6.r is nearly zero. This denitrification

@@ -33,9 +33,9 @@
   use mem,  ONLY: ppD1m,ppG2o, ppD2m,reBTn, reBTp, reATn, reATp,ppG3c,rrATo,rrBTo
   use mem,  ONLY: jbotO2o,rrBTo,jG2K3o,jG2K7o,shiftD1m,shiftD2m,ETW_Ben
   use mem,  ONLY:    NO_BOXES_XY, NO_BOXES_XY, &
-                     BoxNumberXY
+                     BoxNumberXY, ERHO_Ben
 #ifdef INCLUDE_BENCO2
-  use mem,  ONLY:KCO2,G3c,G13c,G23c,Khplus,G3h,G13h,G23h
+  use mem,  ONLY:KCO2,G3c,G13c,G23c,KALK,G3h,G13h,G23h
 #endif
   
   use bennut_interface, ONLY: CalculateFromSet
@@ -216,11 +216,13 @@
                                        D1m(BoxNumberXY),D2m(boxNUmberXY))
             G23c(BoxNumberXY)=CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &
                                        D2m(BoxNumberXY),p_d_tot)
-            G3h(BoxNumberXY)=O3h_Ben(BoxNumberXY) *D1m(BoxNumberXY)*p_poro(BoxNUmberXY)
-            G13h(BoxNumberXY)=O3h_Ben(BoxNumberXY) *(D2m(BoxNumberXY)-D1m(BoxNumberXY)) &
-                                                               *p_poro(BoxNumberXY)
-            G23h(BoxNumberXY)=O3h_Ben(BoxNumberXY) *(p_d_tot_2-D2m(BoxNumberXY)) &
-                                                               *p_poro(BoxNumberXY)
+            ! convert alkalinity from pelagic units (umol/kg) to sediment units (mmol/m2)
+            G3h(BoxNumberXY)=O3h_Ben(BoxNumberXY)*D1m(BoxNumberXY) &
+                             *p_poro(BoxNumberXY)*ERHO_Ben(BoxNumberXY)/1000._RLEN
+            G13h(BoxNumberXY)=O3h_Ben(BoxNumberXY)*(D2m(BoxNumberXY)-D1m(BoxNumberXY)) &
+                              *p_poro(BoxNumberXY)*ERHO_Ben(BoxNumberXY)/1000._RLEN
+            G23h(BoxNumberXY)=O3h_Ben(BoxNumberXY)*(p_d_tot_2-D2m(BoxNumberXY)) &
+                              *p_poro(BoxNumberXY)*ERHO_Ben(BoxNumberXY)/1000._RLEN
       enddo
 #endif
   end subroutine InitBenthicNutrient3Dynamics

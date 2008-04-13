@@ -90,17 +90,16 @@
   call BenQ1TransportDynamics
 
 #ifdef INCLUDE_BENCO2
-  ! ppG3c > 0 : BenCO2 dynamics is active....
-  if ( ppG3c > 0 ) call BenCO2TransportDynamics
-  if ( ppG3h > 0 ) call BenAlkalinityDynamics
-  if ( ppG3c > 0 .and. ppG3h> 0 ) call BenpHDynamics
+  call BenCO2TransportDynamics
+  call BenAlkalinityDynamics
+  call BenpHDynamics
 #endif
 
 #ifdef INCLUDE_BENPROFILES 
   call BenProfiles
 #endif
 #if defined INCLUDE_BENPROFILES && defined INCLUDE_BENCO2
-  if ( ppG3c > 0 .and. ppG3h> 0 ) call BenCO2Profiles
+  call BenCO2Profiles
 #endif
 
   end subroutine BenthicNutrient3Dynamics

@@ -270,7 +270,7 @@
    !---------------------------------------------
    call calcmean_bfm(INIT)
    call calcmean_bfm(ACCUMULATE)
-   call init_netcdf_bfm(out_title,'01-01-0000',0,  &
+   call init_netcdf_bfm(out_title,start,0,  &
              lat=latitude,lon=longitude,z=Depth,   &
              oceanpoint=(/(i,i=1,NO_BOXES)/),      &
              surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &

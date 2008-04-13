@@ -21,7 +21,8 @@
 ! !USES:
 
   use global_mem
-  use mem,  ONLY: iiMicroZooPlankton, iiZ5, iiZ6
+  use mem,  ONLY: iiMicroZooPlankton, iiZ5, iiZ6, &
+                  iiMesoZooPlankton, iiPhytoPlankton
 
 !  
 !
@@ -76,18 +77,18 @@
   real(RLEN)  :: p_srs(iiMicroZooPlankton)  ! Respiration rate at 10 degrees Celsius
   real(RLEN)  :: p_sum(iiMicroZooPlankton)  ! Max. rel daily uptake as a fraction of biomass
   real(RLEN)  :: p_sdo(iiMicroZooPlankton)  ! Mortality due to oxygen limitation
-  real(RLEN)  :: p_sd(iiMicroZooPlankton)  ! Temperature independent mortality
+  real(RLEN)  :: p_sd(iiMicroZooPlankton)   ! Temperature independent mortality
   real(RLEN)  :: p_pu_ra(iiMicroZooPlankton)  ! Activity respiration
   real(RLEN)  :: p_pu_ea(iiMicroZooPlankton)  ! Activity excretion
   real(RLEN)  :: p_chro(iiMicroZooPlankton)  ! Oxygen saturation where respiration is 0.5
   real(RLEN)  :: p_chuc(iiMicroZooPlankton)  ! Food concentration where total uptake rate is 0.5
   real(RLEN)  :: p_minfood(iiMicroZooPlankton)  ! Concentration below which feeding on a particular
-  !  foodsource is depressed
+                                                !  foodsource is depressed
   real(RLEN)  :: p_suB1(iiMicroZooPlankton)  ! /day   #relative B1 uptake by zoo
   real(RLEN)  :: p_qn_mz(iiMicroZooPlankton)  ! Maximum quotum P
   real(RLEN)  :: p_qp_mz(iiMicroZooPlankton)  ! Maximum quotum N
-  real(RLEN)  :: p_suPI(iiMicroZooPlankton,4)  ! /day   #relative P1 uptake by zoo
-  real(RLEN)  :: p_suZI(iiMicroZooPlankton,2)  ! /day   #relative Z5 uptake by zoo
+  real(RLEN)  :: p_suPI(iiMicroZooPlankton,iiPhytoPlankton)    ! /day   #relative P uptake by zoo
+  real(RLEN)  :: p_suZI(iiMicroZooPlankton,iiMicroZooPlankton) ! /day   #relative Z uptake by zoo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 

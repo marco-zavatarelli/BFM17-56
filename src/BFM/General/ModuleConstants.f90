@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -62,6 +62,7 @@
   real(RLEN),   parameter :: MIN_VAL_EXPFUN=log(DBL_MIN)
   integer,      parameter :: ECOLOGY=1  ! Base temperature for Q10
   integer,      parameter :: TRANSPORT=2
+  real(RLEN),   parameter :: ZERO_KELVIN=-273.15_RLEN
   real(RLEN),   parameter :: MW_C=12.0_RLEN  ! Molecular weight Carbon
   real(RLEN),   parameter :: MW_N=14.0_RLEN  ! Molecular weight Nitrogen
   real(RLEN),   parameter :: MW_P=31.0_RLEN  ! Molecular weight Phosphorus
@@ -142,5 +143,5 @@
   end module
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

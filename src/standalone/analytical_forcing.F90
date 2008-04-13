@@ -11,7 +11,7 @@
 !
 ! !USES
    use api_bfm
-   use global_mem, only: RLEN
+   use global_mem, only: RLEN,ONE
    use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND,  &
                          EICE,jbotR6c,jbotR6n,jbotR6p,jbotR6s, &
                          R6c,R6n,R6p,R6s,O2o,ERHO,Depth

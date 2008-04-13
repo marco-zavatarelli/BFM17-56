@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -52,7 +52,6 @@
 #endif
 #ifdef INCLUDE_PELCO2
   use mem_CO2
-  use mem_PelCO2
 #endif
 #ifdef INCLUDE_BENCO2
   use mem_BenCO2Transport
@@ -135,7 +134,6 @@
 #endif
 #ifdef INCLUDE_PELCO2
       call InitCO2
-      call InitPelCO2
 #endif
 #ifdef INCLUDE_BENCO2
       call InitBenCO2Transport
@@ -163,11 +161,8 @@
          if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qp_mz(i) 
          if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qn_mz(i)
        end do
-               
-
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       ! Compute nutrient quota in omnivorous and herbivorous mesozooplankton
-       ! in case of fixed quota qp_mz and qn_mz are one time calculated in the Initialize.F90
+       ! Nutrient quota in omnivorous and herbivorous mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
          if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMc(i)
@@ -178,5 +173,5 @@
     END SUBROUTINE Initialize
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

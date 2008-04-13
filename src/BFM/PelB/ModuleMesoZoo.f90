@@ -21,7 +21,8 @@
 ! !USES:
 
   use global_mem
-  use mem,  ONLY: iiMesoZooPlankton, iiZ3, iiZ4
+  use mem,  ONLY: iiMesoZooPlankton, iiZ3, iiZ4, &
+                  iiPhytoPlankton, iiMicroZooplankton
 
 !  
 !
@@ -77,9 +78,9 @@
   real(RLEN)  :: p_sds(iiMesoZooPlankton)  ! Exponent of density-dependent mortality
   real(RLEN)  :: p_qpc(iiMesoZooPlankton)  ! Quotum phosphate
   real(RLEN)  :: p_qnc(iiMesoZooPlankton)  ! Quotum nitrate
-  real(RLEN)  :: p_puPI(iiMesoZooPlankton,4)
-  real(RLEN)  :: p_puMIZ(iiMesoZooPlankton,2)
-  real(RLEN)  :: p_puMEZ(iiMesoZooPlankton,2)
+  real(RLEN)  :: p_puPI(iiMesoZooPlankton,iiPhytoPlankton)
+  real(RLEN)  :: p_puMIZ(iiMesoZooPlankton,iiMesoZooPlankton)
+  real(RLEN)  :: p_puMEZ(iiMesoZooPlankton,iiMicroZooPlankton)
   real(RLEN)  :: p_clO2o(iiMesoZooPlankton)  ! Low oxygen
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
