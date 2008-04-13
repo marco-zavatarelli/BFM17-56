@@ -45,14 +45,15 @@
                 H1c0, H1n0, H1p0, H2c0, H2n0, H2p0, K1p0, K11p0, K21p0,     &
                 K4n0, k14n0, k24n0, K6r0,K5s0,      &
                 D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, &
-                G2o0, p_qpQIc,p_qnQIc,p_qsQIc
+                G2o0, p_qpQIc,p_qnQIc,p_qsQIc, G3c0, G13c0, G23c0, G3h0, G13h0, G23h0
   namelist /bfm_ben_init_nml/  calc_init_bennut_states,    &
                            p_qpQIc,p_qnQIc,p_qsQIc,          &
                            Y1c0, Y1n0, Y1p0, Y2c0, Y2n0, Y2p0, Y3c0, Y3n0, Y3p0, Y4c0, Y4n0, Y4p0, Y5c0,     &
                            Y5n0, Y5p0, Q1c0, Q1n0, Q1p0, Q11c0, Q11n0, Q11p0, Q6c0, Q6n0, Q6p0, Q6s0, K3n0, G4n0,    &
                            H1c0, H1n0, H1p0, H2c0, H2n0, H2p0, K1p0, K11p0, K21p0,   &
                            K4n0, k14n0, k24n0, K6r0,K5s0,    &
-                           D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, G2o0
+                           D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, G2o0, &
+                           G3c0, G13c0, G23c0, G3h0, G13h0, G23h0
    interface
       subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
          use global_mem, only: RLEN
@@ -132,6 +133,12 @@
    D8m0  = _ONE_
    D9m0  = _ONE_
    G2o0  = _ONE_
+   G3c0  = _ONE_
+   G13c0  = _ONE_
+   G23c0  = _ONE_
+   G3h0  = _ONE_
+   G13h0  = _ONE_
+   G23h0  = _ONE_
    p_qpQIc = -_ZERO_
    p_qnQIc = -_ZERO_
    p_qsQIc = -_ZERO_
@@ -247,6 +254,14 @@
    D8m  = D8m0
    D9m  = D9m0
    G2o  = G2o0
+#ifdef INCLUDE_BENCO2
+   G3c  = G3c0
+   G13c = G13c0
+   G23c = G23c0
+   G3h  = G3h0
+   G13h = G13h0
+   G23h = G23h0
+#endif
 
    !---------------------------------------------
    ! Initialise organisms' internal components

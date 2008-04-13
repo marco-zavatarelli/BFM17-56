@@ -32,7 +32,7 @@
     MicroZooPlankton, ppMicroZooPlankton,iiMicroZooPlankton,  D2STATE
   use mem, ONLY: ppR6c, ppR6n, ppR6p, ppR6s, ppO2o, ppN1p, &
     ppN3n, ppN4n, ppN5s, ppN6r, ppR1c, ppR1n, ppR1p, &
-    NO_BOXES_XY, &
+    NO_BOXES_XY, ERHO,&
     BoxNumberXY, Depth, jPIY3c, jZIY3c, ZI_Fc, jRIY3c, jRIY3n, jRIY3p, &
     jRIY3s, jbotO2o, jbotN1p, jbotN3n, jbotN4n, jbotN5s, jbotN6r, jbotR6c, jbotR6n, &
     jbotR6p, jbotR6s, jbotR1c, jbotR1n, jbotR1p, PELBOTTOM, &
@@ -211,8 +211,9 @@
 #if defined INCLUDE_PELCO2 && defined INCLUDE_BENCO2
         call flux(BoxNumberXY, iiPel, ppO3c, ppO3c, jbotO3c(BoxNumberXY)/ &
           Depth(kbot) )
+        ! convert the units from mmol/m3/d to umol/kg/d
         call flux(BoxNumberXY, iiPel, ppO3h, ppO3h, jbotO3h(BoxNumberXY)/&
-          Depth(kbot) )
+          Depth(kbot)/ERHO(kbot)*1000.0_RLEN)
 #endif
 
         ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

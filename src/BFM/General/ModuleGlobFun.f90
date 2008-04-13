@@ -1,5 +1,5 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -147,91 +147,9 @@ FUNCTION INSW(input)
         if (input > 0.0D+00 ) INSW=1.0D+00 
 
         end function INSW
-!#RTSAFE.FOR 
-      function rtsafe(funcd,x1,x2,xacc,xout)
-      
-      IMPLICIT NONE
-      real(RLEN),intent(IN) ::X1
-      real(RLEN),intent(IN) ::X2
-      real(RLEN),intent(IN) ::XACC
-      real(RLEN),intent(OUT)::XOUT
-      real(RLEN)            ::rtsafe 
-
-
-      INTERFACE                           ! Specification
-        SUBROUTINE FUNCD(X,F,DF )         ! Specification
-          USE global_mem, ONLY:RLEN
-          REAL(RLEN),INTENT(IN)   ::X     ! Specification
-          REAL(RLEN),INTENT(OUT)  ::F     ! Specification
-          REAL(RLEN),INTENT(OUT)  ::DF    ! Specification
-        END SUBROUTINE FUNCD                ! Specification
-      END INTERFACE                       ! Specification    
-      
-
-      real(RLEN),PARAMETER        ::MAXIT=100
-      real(RLEN)                  :: F,FL,DF,FH
-      real(RLEN)                  :: XL,XH,TEMP
-      real(RLEN)                  :: DXOLD,DX
-      integer                     :: j
-      logical                     :: ready
-
-      CALL FUNCD(X1,FL,DF)
-      CALL FUNCD(X2,FH,DF)
-      IF(FL*FH.GE.0.) then
-        rtsafe=1;return
-      ELSEIF(FL.LT.0.)THEN
-        XL=X1
-        XH=X2
-      ELSE
-        XH=X1
-        XL=X2
-        TEMP=FL
-        FL=FH
-        FH=TEMP
-      ENDIF
-      XOUT=.5*(X1+X2)
-      DXOLD=ABS(X2-X1)
-      DX=DXOLD
-      CALL FUNCD(XOUT,F,DF)
-!     DO J=1,MAXIT
-      j=0;
-      ready=.FALSE.
-      do while ( .not.ready .and. J<MAXIT)
-        J=J+1
-        IF(((XOUT-XH)*DF-F)*((XOUT-XL)*DF-F).GE.0. &
-            .OR. ABS(2.*F).GT.ABS(DXOLD*DF) ) THEN
-          DXOLD=DX
-          DX=0.5*(XH-XL)
-          XOUT=XL+DX
-          ready=(XL.EQ.XOUT)
-        ELSE
-          DXOLD=DX
-          DX=F/DF
-          TEMP=XOUT
-          XOUT=XOUT-DX
-          ready= (TEMP.EQ.XOUT)
-        ENDIF
-        ready=(ABS(DX).LT.XACC) 
-        if ( .not.ready) then
-          CALL FUNCD(XOUT,F,DF)
-          IF(F.LT.0.) THEN
-            XL=XOUT
-            FL=F
-          ELSE
-            XH=XOUT
-            FH=F
-          ENDIF
-        endif
-     enddo
-     if ( j.ge.MAXIT) then
-       rtsafe=2;RETURN
-     else
-       rtsafe=0;return
-     ENDIF
-     end function rtsafe
 
   end module
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -71,42 +71,43 @@ end
     pCO2       : Oceanic pCO2 : uatm
     HCO3       : Bicarbonate :  umol/kg
     CO3        : Carbonate : umol/kg
-    Ac         : Carbonate alkalinity : mol/kg
+    Ac         : Carbonate alkalinity : umol/kg
     pH         : pH : -
 end
 
 3d-state -if-exist INCLUDE_PELCO2
-  group Inorganic[ch]: mgC /m3 : mmol H/m3
-     O3: Dissolved Inorganic carbon: alkalinity 
+  group Inorganic[ch]: mgC /m3 : umol eq/kg
+     O3: Dissolved Inorganic Carbon: Alkalinity 
   end
 end
 
 2d-state  -if-exist INCLUDE_BENCO2
-    group BenthicCO2[ch]:mgC/m2
-          G3  : CO2 in aerobic layer  : alkalinity in aerobic layer 
-          G13 : CO2 in denitrification layer: alkalinity in denitrification layer  
-          G23 : CO2 in anaerobic layer: alkalinity in anaerobic layer  
+    group BenthicCO2[ch]:mgC/m2:mmol/m2
+          G3  : TCO2 in aerobic layer  : alkalinity in aerobic layer 
+          G13 : TCO2 in denitrification layer: alkalinity in denitrification layer  
+          G23 : TCO2 in anaerobic layer: alkalinity in anaerobic layer  
     end
 end
 
 2d-variable -if-exist INCLUDE_BENCO2
-      jCO2AirSea:  flux between air and sea : mol/kg/d 
-      DICae : concentration in aerobic sediment : mol/kg
-      DICan :  concentration in anaerobic sediment : mol/kg
-      jG3O3c : flux DIC between sediment and water: mgC /m3/d
-      O3c_Ben    : inorg. C conc. in the pelagica :mg C/m3
-      O3h_Ben    : inorg. C conc. in the pelagica :mg C/m3
-      Acae : concentration in aerobic sediment : mol/kg
-      Acan :  concentration in anaerobic sediment : mol/kg
+      DICae :DIC in aerobic sediment (pore-waters)pore-waters: mg C/m3
+      DICan :concentration in anaerobic sediment (pore-waters): mg C/m3
+      O3c_Ben    : DIC at the pelagic-benthic interface :mg C/m3
+      O3h_Ben    : alkalinity at the pelagic-benthic interface :mmol eq/m3
+      Acae : Alkalinity in aerobic sediment : umol eq/kg
+      Acan :  Alkalinity in anaerobic sediment : umol eq/kg
       pHae : pH in aerobic layer : -
       pHan : pH in anaerobic layer : -
-      pCO2ae : pH in aerobic layer : -
-      pCO2an : pH in anaerobic layer : -
+      pCO2ae : CO2 partial pressure in aerobic layer : uatm
+      pCO2an : CO2 partial pressure in anaerobic layer : uatm
 end
 
 2d-intvar -if-exist INCLUDE_BENCO2
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Profile sequence numbers needed in benthic model
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       KCO2
-      KHPLUS
+      KALK
 end
 
 3d-state
@@ -339,15 +340,15 @@ end
   # of the macro nutr. in the porewater of the different layers. 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    M1p		: phosphate in oxic layer :mmol P/m3
-    M11p	: phosphate in denitrification layer :mmol P/m3
-    M21p	: phosphate in anoxic layer :mmol P/m3
-    M4n		: ammonium in oxic layer :mmol N/m3
-    M14n	: ammonium in denitrification layer :mmol N/m3
-    M24n	: ammonium in anoxic layer  :mmol N/m3
-    M3n		: nitrate in porewater :mmol N/m3
-    M5s		: silicate in oxic_denitrification layer :mmol Si/m3
-    M6r		: reduction equivalent in porewater :mmol S--/m3
+    M1p		: phosphate in oxic layer (pore-waters):mmol P/m3
+    M11p	: phosphate in denitrification layer (pore-waters):mmol P/m3
+    M21p	: phosphate in anoxic layer (pore-waters):mmol P/m3
+    M4n		: ammonium in oxic layer (pore-waters):mmol N/m3
+    M14n	: ammonium in denitrification layer (pore-waters):mmol N/m3
+    M24n	: ammonium in anoxic layer (pore-waters) :mmol N/m3
+    M3n		: nitrate in porewater (pore-waters):mmol N/m3
+    M5s		: silicate in oxic_denitrification layer (pore-waters):mmol Si/m3
+    M6r		: reduction equivalent in porewater (pore-waters):mmol S--/m3
     
 end
 
@@ -430,12 +431,12 @@ end
     PrM4n : NH4+ in sediment: mmol/m3 pw 
     PrM5s : SiO3-- in sediment: mmol/m3 pw 
     PrM6r : S-- in sediment: mmol/m3 pw 
-    PrQ1c : Dissolved Org.Carbon: mgC/m3/pw
+    PrQ1c : Dissolved Org.Carbon: mgC/m3 pw
 end
 
 3d-variable -if-exist INCLUDE_BENCO2 INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
     PrDIC : DIC in sediment: mgC/m3 pw 
-    PrAc : H+ in sediment: mmolH+/m3 pw 
+    PrAc : Alkalinity in sediment: umol/kg pw 
     PrpH : Ph in sediment: -
 end
 
