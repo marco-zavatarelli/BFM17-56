@@ -1,0 +1,147 @@
+#include "cppdefs.h"
+#include "DEBUG.h"
+#include "INCLUDE.h"
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model 
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!BOP
+!
+! !ROUTINE: PelCO2Dynamics
+!
+! DESCRIPTION
+!   !
+!
+! !INTERFACE
+  subroutine PelCO2Dynamics()
+
+#ifdef INCLUDE_PELCO2
+!
+! !USES:
+
+  use global_mem, ONLY:RLEN,ONE,ZERO
+  use constants, ONLY:MW_C
+  use mem_Param, ONLY:  AssignAirPelFluxesInBFMFlag
+  use mem, ONLY: iiPel, O3h, O3c, D3STATE, jsurO3c, CO2airflux, &
+                 Depth, flux_vector, DIC, EPCO2air
+  use mem, ONLY: ppO3h, ppO3c, NO_BOXES, NO_BOXES_XY, BoxNumber, &
+    N1p,N5s,CO2, HCO3, CO3, pCO2, pH, ETW, ESW, ERHO, EWIND, EICE
+  use CO2System, ONLY: CalcCO2System,CalcK0
+  use mem_CO2    
+  use BFM_ERROR_MSG, ONLY: BFM_ERROR
+#ifdef BFM_GOTM
+  use bio_var, ONLY: SRFindices
+#else
+  use api_bfm, ONLY: SRFindices
+#endif
+  IMPLICIT NONE
+
+!  
+!
+! !AUTHORS
+!   M. Vichi, H. Thomas and P. Ruardij
+!
+! !REVISION_HISTORY
+
+! !LOCAL VARIABLES:
+  integer            ::error=0
+  real(RLEN)             :: tmpflux(NO_BOXES)
+  real(RLEN)             :: K0_1d(NO_BOXES)
+!
+! COPYING
+!   
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
+!EOP
+!-------------------------------------------------------------------------!
+!BOC
+!
+!
+
+  do BoxNumber=1,NO_BOXES
+#ifdef DEBUG
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ERHO',ERHO(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW',ESW(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'N1p',N1p(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'N5s',N5s(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'DIC',O3c(BoxNumber)/ERHO(BoxNumber)/12.0*1000.
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'Ac',O3h(BoxNumber)
+            write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') BoxNumber,pH(BoxNumber)
+#endif
+     error= CalcCO2System(MethodCalcCO2,ESW(BoxNumber),    &
+              ETW(BoxNumber),ERHO(BoxNumber),  &
+              N1p(BoxNumber),N5s(BoxNumber),O3h(BoxNumber),&
+              CO2(BoxNumber),HCO3(BoxNumber),CO3(BoxNumber),pH(BoxNumber),&
+              DIC_in=O3c(BoxNumber),pCO2_out=pCO2(BoxNumber),DIC_out=DIC(BoxNumber))
+     if ( error > 0 ) then
+#ifdef DEBUG
+            write(LOGUNIT,*)" Ph outside range"
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ERHO',ERHO(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW',ESW(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'N1p',N1p(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'N5s',N5s(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'DIC',DIC(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'Ac',O3h(BoxNumber)
+            write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') BoxNumber,pH(BoxNumber)
+            call BFM_ERROR("PelCO2Dynamics","pH outside range 2-11")
+#endif
+            pH(BoxNUmber)=-1.0;
+            CO2(BoxNUmber)=-1.0;
+            HCO3(BoxNUmber)=-1.0;
+            CO3(BoxNUmber)=-1.0;
+            pCO2(BoxNUmber)=-1.0;
+     endif
+     ! Compute the Henry constant to be used below
+     K0_1d(BoxNumber) = CalcK0(ESW(BoxNumber),ETW(BoxNumber))
+  end do
+
+  !---------------------------------------------------------------
+  ! Computes air-sea flux (only at surface points)
+  ! Output array CO2airflux is in mmol/m2/d
+  !---------------------------------------------------------------
+  call CO2flux(EWIND,ETW(SRFindices),ERHO(SRFindices),EPCO2air, &
+               pco2(SRFindices),K0_1d(SRFindices),                &
+               NO_BOXES_XY,CO2airflux)
+#ifdef DEBUG
+  LEVEL3 'pco2air',EPCO2air
+  LEVEL3 'co2airflux',CO2airflux
+#endif
+
+  !---------------------------------------------------------------
+  ! flux is positive downward. 
+  ! Conversion from mmolC/m2/d to mgC/m3/d.
+  ! The fraction of ice-free water is also considered
+  ! Boundary variable first assigned, then the source term is 
+  ! added to the Source/Sink arrays if the Flag is TRUE
+  ! In the water, the flux is subtracted from
+  ! (or added to) the diagonal element of O3c (i.e. infinite source)
+  !---------------------------------------------------------------
+  jsurO3c =  (ONE-EIce)*CO2airflux * MW_C
+  tmpflux(SRFindices) = jsurO3c / Depth(SRFindices)
+  if ( AssignAirPelFluxesInBFMFlag) then
+     call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
+  end if
+
+#ifdef DEBUG
+  write(*,*) 'tmpflux',minval(tmpflux),maxval(tmpflux)
+  write(*,"(4A11)") "dic","ta","pH","K Henry"
+  write(*,"(4G12.6)") DIC(1),O3h(1),pH(1),K0_1d(1)
+  write(*,"(4A11)") "pco2","co2","co3","hco3"
+  write(*,"(4G12.6)") pco2(1),co2(1),co3(1),hco3(1)
+#endif
+
+#endif
+
+  end subroutine PelCO2Dynamics
+!EOC
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model 
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -61,6 +61,17 @@ BFM_PELOBJ = \
 	${LIB}(${BFMSRC}/PelBen/Settling.o)				\
 	${LIB}(${BFMSRC}/PelBen/RecalcPenetrationDepth.o)
 
+
+ifeq ($(INCLUDE_PELCO2),true)
+BFM_PELCO2MOD = \
+	${LIB}(${BFMSRC}/CO2/ModuleCO2.o)			\
+	${LIB}(${BFMSRC}/CO2/ModuleCO2System.o)
+BFM_PELCO2OBJ = \
+	${LIB}(${BFMSRC}/CO2/PelCO2.o)			\
+	${LIB}(${BFMSRC}/CO2/Alkalinity.o)		\
+	${LIB}(${BFMSRC}/CO2/CO2Flux.o)	
+endif
+
 ifeq ($(INCLUDE_BEN),true)
 BFM_BENMOD = \
 	${LIB}(${BFMSRC}/PelBen/ModuleControlBennutBuffers.o)		\
@@ -145,6 +156,16 @@ BFM_BENOBJ = \
 	${LIB}(${BFMSRC}/Bennut/svbksb.o) 				\
 	${LIB}(${BFMSRC}/Bennut/svdcmp.o) 				\
 	${LIB}(${BFMSRC}/Bennut/transfer.o)
+ifeq ($(INCLUDE_BENCO2),true)
+BFM_BENCO2MOD = \
+	${LIB}(${BFMSRC}/CO2/ModuleBenAlkalinity.o)			\
+	${LIB}(${BFMSRC}/CO2/ModuleBenCO2Transport.o)
+BFM_BENCO2OBJ = \
+	${LIB}(${BFMSRC}/CO2/BenCO2Transport.o)				\
+	${LIB}(${BFMSRC}/CO2/BenAlkalinity.o)				\
+	${LIB}(${BFMSRC}/CO2/BenCO2Profiles.o)				\
+	${LIB}(${BFMSRC}/CO2/BenpH.o)	
+endif
 endif
 
 APIBFM_MOD = \
@@ -187,8 +208,9 @@ BFM_SIOBJ = \
 	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)
 endif
 
-all: ${BFM_MOD} ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_SIMOD} ${APIBFM_MOD} ${STDALONE_MOD} \
-	 ${BFM_PELOBJ} ${BFM_BENOBJ} ${BFM_SIOBJ} ${EXE}
+all: ${BFM_MOD} ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_PELCO2MOD} ${BFM_BENCO2MOD} ${BFM_SIMOD} \
+	${APIBFM_MOD} ${STDALONE_MOD} \
+	${BFM_PELOBJ} ${BFM_BENOBJ} ${BFM_PELCO2OBJ} ${BFM_BENCO2OBJ} ${BFM_SIOBJ} ${EXE}
 	$(MOVE_MODULES_COMMAND)
 
 $(EXE): $(MAINOBJ) 

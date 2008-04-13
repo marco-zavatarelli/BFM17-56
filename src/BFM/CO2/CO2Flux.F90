@@ -89,16 +89,16 @@ IMPLICIT NONE
     ! gas transfer velocity at a Schmidt number of 660
     ! Temperature dependent
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    !k660 = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2) 
+    k660 = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2) 
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! Calculate wind dependency
     ! including conversion cm/hr => m/day :
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    !kex = (k660 + 0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
+    kex = (k660 + 0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
     !      CM2M*HOURS_PER_DAY
     !Alternative way 
-     kex = (0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
+    !kex = (0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
           CM2M*HOURS_PER_DAY
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

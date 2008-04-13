@@ -1,26 +1,33 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: CO2
+! !ROUTINE: BenCO2Transport
 !
 ! DESCRIPTION
 !   List of parameters values
+
+!   This file is generated directly from OpenSesame model code, using a code 
+!   generator which transposes from the sesame meta language into F90.
+!   F90 code generator written by P. Ruardij.
+!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-! parameter values for mem_CO2 filled by InitCO2
+! parameter values for mem_BenCO2Transport filled by InitBenCO2Transport
 !
+
+!  
 !
 ! !AUTHORS
-!   BFM team
+!   Piet Ruardij and Marcello Vichi
 !
 ! !REVISION_HISTORY
 !   ---
 !
 ! COPYING
 !   
-!   Copyright (C) 2007 P. Ruardij, M. Vichi
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -34,33 +41,20 @@
 !EOP
 !-------------------------------------------------------------------------!
 !BOC
+!
+!
+!        :  	 All parameter were copied from the .p-file:
+!  p_p:  	 adsorption distribution coefficeint
 
-&CO2_parameters
-
-! Initial Partial pressure in the air
-pco2air=365.0D0,
-
-! Choice of the acidity constants parameterization
-! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale
-! K1K2==2 Default
-!         Mehrbach et al (1973) refit by Dickson & Millero (1987)
-!         OCMIP STANDARD; pH on Sea Water Scale
-! K1K2==3 Mehrbach et al (1973) refit by Lueker et al. (2000)
-!         pH on total scale
-! K1K2==4 Hansson (1973b) data as refitted by Dickson and 
-!         Millero (1987); pH on Sea Water Scale
-K1K2=2,
-
-
-! Choice of [H+] numerical computation
-! MethodCalcCO2=1 Approximate static solution
-! MethodCalcCO2=2 Default. Standard OCMIP iteration
-! MethodCalcCO2=3 Follows et al., Ocean Modelling 2006
-MethodCalcCO2=2,
-
+&BenCO2Transport_parameters
+p_diff = 2.07e-05,
+p_p = 0.0
 /
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!END namelist
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-!EOC
+!BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
