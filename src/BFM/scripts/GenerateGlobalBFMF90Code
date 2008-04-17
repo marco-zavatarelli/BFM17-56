@@ -281,7 +281,10 @@ if { [ set with_brackets [ regsub -all {\[|\]} $def " " tmp ] ] == 2 } {
 }
 if { $neglect == -1 } return
 if  { $nr_of_defs ==0 && $mode < 2 } {
-   if { $type =="flux" } {
+   if { $neglect } {
+       if { $type== "state" } { lappend VARS($dim,$type,excluded) $name }
+       return 0
+   } elseif { $type =="flux" } {
      set option normal
      if { [ info exists VARS(option) ] } {
        set j [ regexp d2 $dim ]
@@ -1426,7 +1429,7 @@ global VARS
       set ll [ split $ll \; ]; set chr "\;"
     }
     while { [ set i [ string length $ll ] ] > $l && \
-       					[ set j [ llength $ll ] ] > 2 } {
+       					[ set j [ llength $ll ] ] >= 2 } {
       set mm [ join [ lrange $ll 0 [ set m [ expr int( $l.0 /$i * $j -1) ] ] ] $chr ]
       while { [ set i [ string length $mm ] ] > $l && \
        					[ set j [ llength $mm ] ] > 2 } {
@@ -1434,7 +1437,7 @@ global VARS
       }
       if { $chr=="\;" } { eval $k [ list $blank$mm ] } { eval $k [ list $blank$mm$cont ] }
       if { ![ regexp -- {-print|-num} $mode ] } { puts $VARS(file) "" }
-      set ll $comm[ join [ lrange $ll [incr m ] end ] ]	
+      set ll $comm[string trim [ join [ lrange $ll [incr m ] end ] ] ]	
       if { $mode != "-cprint" && $chr == " " } {
 	set blank [ string repeat " " [ expr $lbl +1 ] ]
       }

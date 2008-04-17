@@ -40,8 +40,8 @@ end
   ETAUB  : 2D Bottom Stress : N m/s
 end
 
-3d-state  -if-exist INCLUDE_SILT
-  R9x : Suspended sediment : mg/m3
+3d-state -if-exist INCLUDE_SILT
+    R9x : Suspended sediment : mg/m3
 end	
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -60,7 +60,7 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CO2 and Carbonate system variables
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-2d-variable
+2d-variable -if-exist INCLUDE_PELCO2
   EPCO2air : atmospheric CO2 partial pressure : uatm
   CO2airflux : atm-ocean CO2 fluxes : mmol/m2/d
 end
@@ -144,8 +144,8 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
    group MesoZooPlankton[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3
-		Z3[-np] 	: Carnivorous mesozooplankton
-		Z4[-np] 	: Omnivorous mesozooplankton
+		Z3 	: Carnivorous mesozooplankton
+		Z4 	: Omnivorous mesozooplankton
    end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -153,8 +153,8 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  
    group MicroZooPlankton[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3
-		Z5[-np]	: Microzooplankton
-		Z6[-np]	: Heterotrophic nanoflagellates (HNAN)
+		Z5	: Microzooplankton
+		Z6	: Heterotrophic nanoflagellates (HNAN)
    end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -242,7 +242,7 @@ end
                           # in the sediment models (GOTM/GETM)
 end
  
-2d-state
+2d-state -if-exist INCLUDE_BEN
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Benthic State Vars
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -300,7 +300,7 @@ end
 end
 
 
-2d-variable
+2d-variable -if-exist INCLUDE_BEN
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables to check totmass of C N P Si in benthic
@@ -352,7 +352,7 @@ end
     
 end
 
-2d-intvar
+2d-intvar -if-exist INCLUDE_BEN
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Profile sequence numbers needed in benthic nutrient model
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -366,7 +366,7 @@ end
       KQ1
 end
 
-2d-variable
+2d-variable -if-exist INCLUDE_BEN
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables for  exchange of info between Pelagic and benthic on
@@ -409,6 +409,9 @@ end
   jK15K5s :  flux of silicate at lower benthic boundary : mmol/m2/d 
   jK36K26r :  flux of read. equivalent at lower benthic boundary : mmol S--/m2/d 
 
+end
+
+2d-variable 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables to be used in budget calculations to check hidden sinks from 
   # state vars
@@ -476,4 +479,24 @@ end
   resPPm2=(P.c->*) : respiration phytoplankton :mg C/m2/d
 end
 
-
+############################################################################
+# NOTE: the following part is only needed for compliance with the 
+# code generator. DO NOT MODIFY
+############################################################################
+2d-state
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Dummy Benthic State Vars
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    group BenDummy[cnp] :mg C/m2:mmol N/m2:mmol P/m2
+                W1      : Dummy benthos
+    end
+end
+2d-variable
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Dummy Benthic Var
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  bendummyvar(BenDummy) : dummy : -
+end
+2d-intvar
+      DUM
+end

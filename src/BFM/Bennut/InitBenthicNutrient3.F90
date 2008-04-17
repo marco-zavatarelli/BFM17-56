@@ -26,7 +26,7 @@
 
   use bfm_error_msg, ONLY: set_warning_for_getm
   use global_mem, ONLY:RLEN,LOGUNIT
-  use mem,  ONLY: LocalDelta, iiBen, iiPel, iiReset,flux,O3h_Ben
+  use mem,  ONLY: LocalDelta, iiBen, iiPel, iiReset,flux
   use mem,  ONLY: K4n,K14n,K24n,K3n,K1p,K11p,K21p,K6r,K16r,K26r,K5s,D1m,D2m,D6m,D7m,G2o;
   use mem,  ONLY: H1c, H2c,H1n,H2n,H1p,H2p,Q1c,Q1n,Q1p,Q11c,Q11n,Q11p,N3n_Ben,N4n_Ben
   use mem,  ONLY: KNH4,KNO3,KRED,KPO4,KSIO3
@@ -35,7 +35,7 @@
   use mem,  ONLY:    NO_BOXES_XY, NO_BOXES_XY, &
                      BoxNumberXY, ERHO_Ben
 #ifdef INCLUDE_BENCO2
-  use mem,  ONLY:KCO2,G3c,G13c,G23c,KALK,G3h,G13h,G23h
+  use mem,  ONLY:KCO2,G3c,G13c,G23c,KALK,G3h,G13h,G23h,O3h_Ben
 #endif
   
   use bennut_interface, ONLY: CalculateFromSet

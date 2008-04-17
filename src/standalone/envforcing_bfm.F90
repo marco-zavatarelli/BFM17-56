@@ -39,16 +39,16 @@
       call analytical_forcing
     case (2) ! input data
       call external_forcing
-#ifdef INCLUDE_SEAICE
-      call external_seaice
-#endif
       call external_data
-      if (init_forcing_vars) init_forcing_vars=.false.
     case (3) ! interactive air-sea fluxes
 !      call do_air_sea(timesec,startime)
     end select
     ! Assign external event data
     call event_data
+#ifdef INCLUDE_SEAICE
+    call external_seaice
+#endif
+    if (init_forcing_vars) init_forcing_vars=.false.
   end subroutine envforcing_bfm
 !EOC
 !-----------------------------------------------------------------------

@@ -25,7 +25,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
+#ifdef INCLUDE_BEN
   use global_mem, ONLY:RLEN,ZERO,ONE
   use mem, ONLY: R6c, R6n, R6p, R6s, O2o, N1p, N3n, N4n, N5s, N6r, &
     R1c, R1n, R1p, PhytoPlankton, ppPhytoPlankton,iiPhytoPlankton,  &
@@ -280,6 +280,7 @@
       end do ! loop over NO_BOXES_XY
    end if ! AssignPelBenFluxesInBFMFlag
 
+#endif
   end subroutine  BentoPelCoupDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -57,22 +57,24 @@ endif
 
 INCDIRS	+= -I/usr/local/include -I$(BFMDIR)/include -I$(MODDIR)
 
-## BFM configuration 
+## -------------------------------------------------------------------------
+## BFM CONFIGURATION 
+## -------------------------------------------------------------------------
 # BFM include files and the library
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 INCDIRS		+= -I$(BFMINCDIR)
 ## DEFINES += -DBFM_NOPOINTERS -DNOT_STANDALONE
 ## DEFINES += -DNOT_STANDALONE
 
-# Pelagic CO2 flags (activates compilation and macros, true by default)
-INCLUDE_PELCO2=true
+# Pelagic CO2 flags (activates compilation and macros, false by default)
+INCLUDE_PELCO2=false
 ifeq ($(INCLUDE_PELCO2),true)
   DEFINES += -DINCLUDE_PELCO2
 endif
 # Benthic ecosystem flags (activates compilation and macros, true by default)
 INCLUDE_BEN = true
-INCLUDE_BENCO2=true
-INCLUDE_BENPROFILES=true
+INCLUDE_BENCO2=false
+INCLUDE_BENPROFILES=false
 ifeq ($(INCLUDE_BEN),true)
   DEFINES += -DINCLUDE_BEN
   ifeq ($(INCLUDE_BENCO2),true)
@@ -86,12 +88,17 @@ endif
 # Sea-ice ecosystem (activates compilation and macros, false by default)
 INCLUDE_SEAICE = false
 ifeq ($(INCLUDE_SEAICE),true)
+  # the benthic system must be activated because the sea-ice model is 
+  # defined as a benthic layer. If the user wants to remove the 
+  # benthic variables for memory reasons, it is suggested to use
+  # the GlobalDefsBFM.model.seaice file in BFM/General/Configurations
+  DEFINES += -DINCLUDE_BEN
   DEFINES += -DINCLUDE_SEAICE
 endif
 
-##
+## -------------------------------------------------------------------------
 ## Normally no changes below this line
-## -----------------------------------
+## -------------------------------------------------------------------------
 
 ## The Fortran compiler is determined from the EV FORTRAN_COMPILER - options 
 ## so far: Intel ifort, gfortran, NEC SXF90

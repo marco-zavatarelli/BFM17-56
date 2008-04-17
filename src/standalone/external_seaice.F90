@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#define DEBUG
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -15,11 +16,11 @@
    use mem_Param,  only: p_PAR
    use constants,  only: E2W
    ! seaice forcings
-   use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
+   use mem,        only: EICE,EVB,ETB,ESB,EIB,EHB,ESI
    use time, only: julianday, secondsofday, time_diff, &
                    julian_day,calendar_date
    use envforcing, only: init_forcing_vars, daylength, density, &
-                         unit_forcing, read_obs
+                         unit_seaice, read_obs
    use standalone, only: latitude
    IMPLICIT NONE
 !
@@ -33,12 +34,13 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
+   integer,parameter         :: NSI=7
    integer                   :: yy,mm,dd,hh,min,ss
    real(RLEN)                :: t,alpha
    real(RLEN), save          :: dt
    integer, save             :: data_jul1,data_secs1
    integer, save             :: data_jul2=0,data_secs2=0
-   real(RLEN), save          :: obs1(4),obs2(4)=0.
+   real(RLEN), save          :: obs1(NSI),obs2(NSI)=0.
    integer                   :: rc
 !-----------------------------------------------------------------------
 !BOC
@@ -61,7 +63,7 @@
          data_jul1 = data_jul2
          data_secs1 = data_secs2
          obs1 = obs2
-         call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,4,obs2,rc)
+         call read_obs(unit_seaice,yy,mm,dd,hh,min,ss,NSI,obs2,rc)
          call julian_day(yy,mm,dd,data_jul2)
          data_secs2 = hh*3600 + min*60 + ss
          if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
@@ -72,29 +74,31 @@
 !  Do the time interpolation
    t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
    alpha = (obs2(1)-obs1(1))/dt
-   ETW = obs1(1) + t*alpha
+   EICE = obs1(1) + t*alpha
    alpha = (obs2(2)-obs1(2))/dt
-   ESW = obs1(2) + t*alpha
+   EHB = obs1(2) + t*alpha
    alpha = (obs2(3)-obs1(3))/dt
-   ! convert from irradiance (W/m2) to PAR in uE/m2/s
-   EIR = (obs1(3) + t*alpha)*p_PAR/E2W
+   EVB = obs1(3) + t*alpha
    alpha = (obs2(4)-obs1(4))/dt
-   EWIND = obs1(4) + t*alpha
-
-! sea-ice environmental forcings
-  EICE(:) = obs(1)
-  EVB(:) = obs(2)
-  ETB(:) = obs(3
-  ESB(:) = obs(4)
-  ! convert from irradiance to PAR in uE/m2/s
-  EIB(:) = obs(5)/E2W
-  EHB(:) = obs(6)
-  ESI(:) = obs(7)
+   ETB = obs1(4) + t*alpha
+   alpha = (obs2(5)-obs1(5))/dt
+   ESB = obs1(5) + t*alpha
+   ! convert from irradiance (W/m2) to PAR in uE/m2/s
+   alpha = (obs2(6)-obs1(6))/dt
+   EIB = (obs1(6) + t*alpha)*p_PAR/E2W
+   alpha = (obs2(7)-obs1(7))/dt
+   ESI = obs1(7) + t*alpha
 
 #ifdef DEBUG
    LEVEL2 'EICE=',EICE
+   LEVEL2 'EHB=',EHB
+   LEVEL2 'EVB=',EVB
+   LEVEL2 'ETB=',ETB
+   LEVEL2 'ESB=',ESB
+   LEVEL2 'EIB=',EIB
+   LEVEL2 'ESI=',ESI
 #endif
   return
-   end subroutine external_forcing
+   end subroutine external_seaice
 !EOC
 

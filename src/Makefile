@@ -202,6 +202,7 @@ ifeq ($(INCLUDE_SEAICE),true)
 BFM_SIMOD = \
 	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceAlgae.o)
 BFM_SIOBJ = \
+	${LIB}(./standalone/external_seaice.o)				\
 	${LIB}(${BFMSRC}/Seaice/init_seaice_bfm.o)			\
 	${LIB}(${BFMSRC}/Seaice/SeaiceSystem.o)				\
 	${LIB}(${BFMSRC}/Seaice/SeaiceGlobal.o)				\
