@@ -11,22 +11,19 @@
 ! DESCRIPTION
 !       Calculate CO2 equilibrium in seawater starting from 
 !       total alkalinity and total CO2 (DIC) at
-!       a given temperature and salinity 
+!       a given temperature, salinity and other species
 !       Routines are wrapped in a module in order to be used for pelagic
 !       and benthic computations
 !
 !       INPUTS (BFM variables)
-!       O3c     = total dissolved inorganic carbon (mgC/m3) 
-!       O3h     = alkalinity (umol/kg)
-!       N1p     = inorganic phosphate (mmol/m^3) 
-!       N5s     = inorganic silicate (mmol/m^3) 
+!       DIC_in (O3c) = total dissolved inorganic carbon (umol C/kg) 
+!       alk    (O3h) = alkalinity (umol eq/kg)
+!       N1p     = inorganic phosphate (mmol/m3) 
+!       N5s     = inorganic silicate (mmol/m3) 
 !       ETW     = temperature (degrees C)
 !       ESW     = salinity (PSU)
 !       ERHO    = density (kg/m3)
 !       EPCO2air        = atmospheric CO2 partial pressure (ppm) 
-!
-!       phlo    = lower limit of pH range
-!       phhi    = upper limit of pH range
 !
 !       diagnostic OUTPUTS
 !       co2  = CO2*(aq) (umol/kg)
@@ -175,14 +172,14 @@
   pt = n1p/rho*PERMIL
   sit = n5s/rho*PERMIL
   if (present(DIC_in)) then
-     ! convert state variable O3c from mg/m3 to standard DIC units mol/kg 
-     ldic = DIC_in/MW_C/rho*PERMIL
+     ! convert from umol/kg to standard DIC units mol/kg 
+     ldic = DIC_in*PERMEG
      way = 1 
   elseif (present(pCO2_in)) then
      lpCO2  = pCO2_in
      way = 2 
   endif
-  ! convert state variable alkalinity O3h from umol/kg to mol/kg 
+  ! convert input variable alkalinity from umol/kg to mol/kg 
   ta = alk*PERMEG
 
   ! ---------------------------------------------------------------------

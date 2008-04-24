@@ -57,7 +57,7 @@
   use global_mem, ONLY:RLEN
   use mem,  ONLY: G23h,G13h, G3h, D1m, Q1c, D6m, D2m, D2STATE
   use mem, ONLY: ppG23h, ppG13h, ppG3h, ppD1m, ppQ1c, ppD6m, ppD2m,Acae, Acan, &
-    dummy,    NO_BOXES_XY,  ERHO_ben, &
+    dummy,    NO_BOXES_XY, ERHO_Ben,  &
      BoxNumberXY, InitializeModel, LocalDelta, KALK, jbotO3h, &
     irrenh, ETW_Ben, jK4K3n,jG2K7o,rrATo, O3h_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
@@ -149,13 +149,13 @@
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore water Alkalinity
-      ! from mmol/m2 --> umol/kg
+      ! from mmol eq/m2 --> umol eq/kg
       ! Diagnostic variable used to compute pH
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       Acae(BoxNumberXY) = G3h(BoxNumberXY)/ p_poro(BoxNumberXY)/( &
-        p_p+ ONE)/( D1m(BoxNumberXY))/ERHO_ben(BoxNumberXY)*1000._RLEN
+        p_p+ ONE)/( D1m(BoxNumberXY))/ERHO_Ben(BoxNumberXY)*1000._RLEN
       Acan(BoxNumberXY) = (G23h(boxNumberXY)+G13h(BoxNumberXY))/ p_poro(BoxNumberXY)/( &
-        p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY))/ERHO_ben(BoxNumberXY)*1000._RLEN
+        p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY))/ERHO_Ben(BoxNumberXY)*1000._RLEN
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! H+-loss  due to nitrification and deoxidation of OH-

@@ -119,8 +119,9 @@
    N6r0 = _ONE_
    O2o0 = 280.0_RLEN
 #ifdef INCLUDE_PELCO2
+   ! give reasonable initial conditions
    O3c0 = 24785.0_RLEN ! conversion from GLODAP 2303 umol/kg to mg/m3
-   O3h0 = 2303.0_RLEN  ! GLODAP surface average (umol/kg)
+   O3h0 = 2360.0_RLEN  ! GLODAP surface average (umol/kg) to mmol eq/m3
 #endif
    O4n0 = _ONE_
    P1c0 = _ZERO_

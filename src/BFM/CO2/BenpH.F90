@@ -1,6 +1,6 @@
 #include "INCLUDE.h"
 #include "DEBUG.h"
-
+#define DEBUG
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -134,6 +134,20 @@
             pHan(BoxNumberXY)=-1
 !           call BFM_ERROR("BenpHDynamics","pHan outside range 2-11")
        endif
+#ifdef DEBUG
+            write(LOGUNIT,*) "in BenpH:"
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW_Ben',ESW_Ben(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ETW_Ben',ETW_Ben(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'ERHO_Ben',ERHO_Ben(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'M1p',M1p(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'M5s',M5s(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'DICae', DICae(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'Acae',  Acae(BoxNumberXY)
+            write(LOGUNIT,'('' pHae='',G12.6)') pHae(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'DICan',DICan(BoxNumberXY)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'Acan',Acan(BoxNumberXY)
+            write(LOGUNIT,'('' pHan='',G12.6)') pHan(BoxNumberXY)
+#endif
   end do
 #endif
 

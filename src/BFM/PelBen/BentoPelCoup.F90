@@ -174,14 +174,14 @@
       ! Net detritus Fluxes to Benthic from Pelagic by Y3
       ! net flux= uptake - excretion of food : flux may be negative!
       ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      call flux(BoxNumberXY, iiPel, ppR6c, ppR6c, -( jRIY3c(BoxNumberXY)/ &
-         Depth(BoxNumberXY)) )
-      call flux(BoxNumberXY, iiPel, ppR6n, ppR6n, -( jRIY3n(BoxNumberXY)/ &
-         Depth(BoxNumberXY)) )
-      call flux(BoxNumberXY, iiPel, ppR6p, ppR6p, -( jRIY3p(BoxNumberXY)/ &
-         Depth(BoxNumberXY)) )
-      call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, -( jRIY3s(BoxNumberXY)/ &
-         Depth(BoxNumberXY)) )
+      call flux(kbot, iiPel, ppR6c, ppR6c, -( jRIY3c(BoxNumberXY)/ &
+         Depth(kbot)) )
+      call flux(kbot, iiPel, ppR6n, ppR6n, -( jRIY3n(BoxNumberXY)/ &
+         Depth(kbot)) )
+      call flux(kbot, iiPel, ppR6p, ppR6p, -( jRIY3p(BoxNumberXY)/ &
+         Depth(kbot)) )
+      call flux(kbot, iiPel, ppR6s, ppR6s, -( jRIY3s(BoxNumberXY)/ &
+         Depth(kbot)) )
    end do ! loop over NO_BOXES_XY
   end if ! benthic model includes benthos
 #endif
@@ -196,24 +196,24 @@
         ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Nutrient Fluxes to Benthic from Pelagic
         ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        call flux(BoxNumberXY, iiPel, ppO2o, ppO2o, jbotO2o(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppO2o, ppO2o, jbotO2o(BoxNumberXY)/ &
           Depth(kbot) )
-        call flux(BoxNumberXY, iiPel, ppN1p, ppN1p, jbotN1p(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppN1p, ppN1p, jbotN1p(BoxNumberXY)/ &
           Depth(kbot) )
-        call flux(BoxNumberXY, iiPel, ppN3n, ppN3n, jbotN3n(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppN3n, ppN3n, jbotN3n(BoxNumberXY)/ &
           Depth(kbot) )
-        call flux(BoxNumberXY, iiPel, ppN4n, ppN4n, jbotN4n(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppN4n, ppN4n, jbotN4n(BoxNumberXY)/ &
           Depth(kbot) )
-        call flux(BoxNumberXY, iiPel, ppN5s, ppN5s, jbotN5s(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppN5s, ppN5s, jbotN5s(BoxNumberXY)/ &
           Depth(kbot) )
-        call flux(BoxNumberXY, iiPel, ppN6r, ppN6r, jbotN6r(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppN6r, ppN6r, jbotN6r(BoxNumberXY)/ &
           Depth(kbot) )
 #if defined INCLUDE_PELCO2 && defined INCLUDE_BENCO2
-        call flux(BoxNumberXY, iiPel, ppO3c, ppO3c, jbotO3c(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppO3c, ppO3c, jbotO3c(BoxNumberXY)/ &
           Depth(kbot) )
         ! convert the units from mmol/m3/d to umol/kg/d
-        call flux(BoxNumberXY, iiPel, ppO3h, ppO3h, jbotO3h(BoxNumberXY)/&
-          Depth(kbot)/ERHO(kbot)*1000.0_RLEN)
+        call flux(kbot, iiPel, ppO3h, ppO3h, jbotO3h(BoxNumberXY)/&
+          Depth(kbot))
 #endif
 
         ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -221,37 +221,37 @@
         ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         do i = 1 , ( iiPhytoPlankton)
               j = ppPhytoPlankton(i,iiC)
-              call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+              call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                 Depth(kbot) )
               j = ppPhytoPlankton(i,iiN)
-              call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+              call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                 Depth(kbot) )
               j = ppPhytoPlankton(i,iiP)
-              call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+              call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                 Depth(kbot) )
               j = ppPhytoPlankton(i,iiL)
-              call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+              call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                 Depth(kbot) )
               if ( i== iiP1) then
                 !No Y3.s defined, all silicate uptaken is moved into sink
                 j = ppPhytoPlankton(i,iiS)
-                call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+                call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                   Depth(kbot) )
               end if
         end do
 
         do i = 1 , ( iiMicroZooPlankton)
               j = ppMicroZooPlankton(i,iiC)
-              call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+              call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                 Depth(kbot) )
               j = ppMicroZooPlankton(i,iiN)
               if ( j> 0) then
-                call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+                call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                   Depth(kbot) )
               endif
               j = ppMicroZooPlankton(i,iiP)
               if ( j> 0) then
-                call flux(BoxNumberXY, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+                call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                   Depth(kbot) )
               endif
         end do
@@ -263,19 +263,19 @@
         ! variables)
         ! !!!!!!! ALL DETRITUS FLUXES TO THE SEDIMENT ARE DIRECTED VIA R6 TO Q6 !!!!!!!!
         ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        call flux(BoxNumberXY, iiPel, ppR6c, ppR6c, ( jbotR6c(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR6c, ppR6c, ( jbotR6c(BoxNumberXY)/ &
           Depth(kbot)) )
-        call flux(BoxNumberXY, iiPel, ppR6n, ppR6n, ( jbotR6n(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR6n, ppR6n, ( jbotR6n(BoxNumberXY)/ &
           Depth(kbot)) )
-        call flux(BoxNumberXY, iiPel, ppR6p, ppR6p, ( jbotR6p(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR6p, ppR6p, ( jbotR6p(BoxNumberXY)/ &
           Depth(kbot)) )
-        call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, ( jbotR6s(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR6s, ppR6s, ( jbotR6s(BoxNumberXY)/ &
           Depth(kbot)) )
-        call flux(BoxNumberXY, iiPel, ppR1c, ppR1c, ( jbotR1c(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR1c, ppR1c, ( jbotR1c(BoxNumberXY)/ &
           Depth(kbot)) )
-        call flux(BoxNumberXY, iiPel, ppR1n, ppR1n, ( jbotR1n(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR1n, ppR1n, ( jbotR1n(BoxNumberXY)/ &
           Depth(kbot)) )
-        call flux(BoxNumberXY, iiPel, ppR1p, ppR1p, ( jbotR1p(BoxNumberXY)/ &
+        call flux(kbot, iiPel, ppR1p, ppR1p, ( jbotR1p(BoxNumberXY)/ &
           Depth(kbot)) )
       end do ! loop over NO_BOXES_XY
    end if ! AssignPelBenFluxesInBFMFlag

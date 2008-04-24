@@ -88,14 +88,10 @@
              BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
  
              r=abs(seddepth(BoxNumber))
-             ! convert from mg/m3 to mmol/m3
              if (llDIC) PrDIC(BoxNumber)= CalculateFromSet &
-                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/MW_C
-             if (llAc)  then
-                  dummy = CalculateFromSet(KALK(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
-                  ! convert from mmol/m3 to umol/kg (input to CalcCO2System)
-                  PrAc(BoxNumber)= dummy/ERHO_ben(BoxNumberXY)*1000._RLEN
-             end if
+                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
+             if (llAc)  PrAc(BoxNumber)= CalculateFromSet &
+                  (KALK(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
              if (llpH) then
                error= CalcCO2System(MethodCalcCO2,ESW_Ben(BoxNumberXY), &
                    ETW_Ben(BoxNumberXY),ERHO_Ben(BoxNumberXY),&

@@ -1,6 +1,7 @@
 #include "cppdefs.h"
 #include "DEBUG.h"
 #include "INCLUDE.h"
+#define DEBUG
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -22,7 +23,7 @@
   use constants, ONLY:MW_C
   use mem_Param, ONLY:  AssignAirPelFluxesInBFMFlag
   use mem, ONLY: iiPel, O3h, O3c, D3STATE, jsurO3c, CO2airflux, &
-                 Depth, flux_vector, DIC, EPCO2air
+                 Depth, flux_vector, DIC, EPCO2air, Ac, DIC
   use mem, ONLY: ppO3h, ppO3c, NO_BOXES, NO_BOXES_XY, BoxNumber, &
     N1p,N5s,CO2, HCO3, CO3, pCO2, pH, ETW, ESW, ERHO, EWIND, EICE
   use CO2System, ONLY: CalcCO2System,CalcK0
@@ -67,20 +68,26 @@
 !
 
   do BoxNumber=1,NO_BOXES
+     ! convert DIC and alkalinity from model units to diagnostic output
+     ! mg C/m3 --> umol/kg
+     ! mmol eq/m3 --> umol/kg
+     DIC(BoxNumber) = O3c(BoxNumber)/MW_C/ERHO(BoxNumber)*1000.0_RLEN
+     Ac(BoxNumber) = O3h(BoxNumber)/ERHO(BoxNumber)*1000.0_RLEN
+     error= CalcCO2System(MethodCalcCO2,ESW(BoxNumber),    &
+              ETW(BoxNumber),ERHO(BoxNumber),  &
+              N1p(BoxNumber),N5s(BoxNumber),Ac(BoxNumber),&
+              CO2(BoxNumber),HCO3(BoxNumber),CO3(BoxNumber),pH(BoxNumber),&
+              DIC_in=DIC(BoxNumber),pCO2_out=pCO2(BoxNumber))
 #ifdef DEBUG
+            write(LOGUNIT,*) "in PelCO2:"
             write(LOGUNIT,'(A,'' ='',G12.6)') 'ERHO',ERHO(BoxNumber)
             write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW',ESW(BoxNumber)
             write(LOGUNIT,'(A,'' ='',G12.6)') 'N1p',N1p(BoxNumber)
             write(LOGUNIT,'(A,'' ='',G12.6)') 'N5s',N5s(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'DIC',O3c(BoxNumber)/ERHO(BoxNumber)/12.0*1000.
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'Ac',O3h(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'DIC',DIC(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',G12.6)') 'Ac',Ac(BoxNumber)
             write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') BoxNumber,pH(BoxNumber)
 #endif
-     error= CalcCO2System(MethodCalcCO2,ESW(BoxNumber),    &
-              ETW(BoxNumber),ERHO(BoxNumber),  &
-              N1p(BoxNumber),N5s(BoxNumber),O3h(BoxNumber),&
-              CO2(BoxNumber),HCO3(BoxNumber),CO3(BoxNumber),pH(BoxNumber),&
-              DIC_in=O3c(BoxNumber),pCO2_out=pCO2(BoxNumber),DIC_out=DIC(BoxNumber))
      if ( error > 0 ) then
 #ifdef DEBUG
             write(LOGUNIT,*)" Ph outside range"
@@ -125,6 +132,10 @@
   ! (or added to) the diagonal element of O3c (i.e. infinite source)
   !---------------------------------------------------------------
   jsurO3c =  (ONE-EIce)*CO2airflux * MW_C
+#ifdef DEBUG
+  LEVEL3 'jsurO3c',jsurO3c
+#endif
+  tmpflux(:) = ZERO
   tmpflux(SRFindices) = jsurO3c / Depth(SRFindices)
   if ( AssignAirPelFluxesInBFMFlag) then
      call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
@@ -133,7 +144,7 @@
 #ifdef DEBUG
   write(*,*) 'tmpflux',minval(tmpflux),maxval(tmpflux)
   write(*,"(4A11)") "dic","ta","pH","K Henry"
-  write(*,"(4G12.6)") DIC(1),O3h(1),pH(1),K0_1d(1)
+  write(*,"(4G12.6)") DIC(1),Ac(1),pH(1),K0_1d(1)
   write(*,"(4A11)") "pco2","co2","co3","hco3"
   write(*,"(4G12.6)") pco2(1),co2(1),co3(1),hco3(1)
 #endif

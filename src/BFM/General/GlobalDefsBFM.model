@@ -71,18 +71,18 @@ end
     pCO2       : Oceanic pCO2 : uatm
     HCO3       : Bicarbonate :  umol/kg
     CO3        : Carbonate : umol/kg
-    Ac         : Carbonate alkalinity : umol/kg
+    Ac         : Alkalinity : umol eq/kg
     pH         : pH : -
 end
 
 3d-state -if-exist INCLUDE_PELCO2
-  group Inorganic[ch]: mgC /m3 : umol eq/kg
+  group Inorganic[ch]: mgC /m3 : mmol eq/m3
      O3: Dissolved Inorganic Carbon: Alkalinity 
   end
 end
 
 2d-state  -if-exist INCLUDE_BENCO2
-    group BenthicCO2[ch]:mgC/m2:mmol/m2
+    group BenthicCO2[ch]:mgC/m2:mmol eq/m2
           G3  : TCO2 in aerobic layer  : alkalinity in aerobic layer 
           G13 : TCO2 in denitrification layer: alkalinity in denitrification layer  
           G23 : TCO2 in anaerobic layer: alkalinity in anaerobic layer  
@@ -90,8 +90,8 @@ end
 end
 
 2d-variable -if-exist INCLUDE_BENCO2
-      DICae :DIC in aerobic sediment (pore-waters)pore-waters: mg C/m3
-      DICan :concentration in anaerobic sediment (pore-waters): mg C/m3
+      DICae :DIC in aerobic sediment (pore-waters)pore-waters: umol/kg
+      DICan :concentration in anaerobic sediment (pore-waters): umol/kg
       O3c_Ben    : DIC at the pelagic-benthic interface :mg C/m3
       O3h_Ben    : alkalinity at the pelagic-benthic interface :mmol eq/m3
       Acae : Alkalinity in aerobic sediment : umol eq/kg
@@ -439,7 +439,7 @@ end
 
 3d-variable -if-exist INCLUDE_BENCO2 INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
     PrDIC : DIC in sediment: mgC/m3 pw 
-    PrAc : Alkalinity in sediment: umol/kg pw 
+    PrAc : Alkalinity in sediment: mmol/m3 pw 
     PrpH : Ph in sediment: -
 end
 
@@ -479,24 +479,3 @@ end
   resPPm2=(P.c->*) : respiration phytoplankton :mg C/m2/d
 end
 
-############################################################################
-# NOTE: the following part is only needed for compliance with the 
-# code generator. DO NOT MODIFY
-############################################################################
-2d-state
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  # Dummy Benthic State Vars
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    group BenDummy[cnp] :mg C/m2:mmol N/m2:mmol P/m2
-                W1      : Dummy benthos
-    end
-end
-2d-variable
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  # Dummy Benthic Var
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  bendummyvar(BenDummy) : dummy : -
-end
-2d-intvar
-      DUM
-end

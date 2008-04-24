@@ -557,28 +557,31 @@ switch -- $mode {
    2d-diagnos-desc -
    3d-state-desc -
    2d-state-desc {
-     set tmp [ format "! %10s %60s %15s" "$dim name" "description" "unit" ]
-     PrintLine -block $tmp; PrintLine -print ""
-     set tmp "! [string repeat - 10 ] [string repeat - 60 ] [ string repeat - 15 ]"
-     PrintLine -block $tmp; PrintLine -print ""
-     foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) unit $VARS($dim,$type,unit) {
-       set tmp [ string range $extname [ expr [string first ":" $extname ] +1] end ]
-       set tmp [ format "! %10s %60s %15s" $name $tmp $unit ]
-       PrintLine -block "$tmp";PrintLine -print ""
+     if { [ info exists VARS($dim,$type,name) ] } {
+        set tmp [ format "! %10s %60s %15s" "$dim name" "description" "unit" ]
+        PrintLine -block $tmp; PrintLine -print ""
+        set tmp "! [string repeat - 10 ] [string repeat - 60 ] [ string repeat - 15 ]"
+        PrintLine -block $tmp; PrintLine -print ""
+        foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) unit $VARS($dim,$type,unit) {
+          set tmp [ string range $extname [ expr [string first ":" $extname ] +1] end ]
+          set tmp [ format "! %10s %60s %15s" $name $tmp $unit ]
+          PrintLine -block "$tmp";PrintLine -print ""
+        }
      }
-
    }
    3d-diaggrp-desc -
    2d-diaggrp-desc {
-     foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) unit $VARS($dim,$type,unit) {
-       regsub -all {\(|\)} $name " " tmp
-       set grpname [ lindex $tmp 1 ];set root [ lindex $tmp 0 ]
-       set memberlist [ searchforgroup $dim $grpname ]
-       regsub $grpname $extname "\%(&)" sext
-       foreach member $memberlist {
-	 regsub % $sext $member tmp
-	 set tmp [ format "! %10s %60s %15s" ${root}(ii$member) $tmp $unit ]
-	 PrintLine -block "$tmp";PrintLine -print ""
+     if { [ info exists VARS($dim,$type,name) ] } {
+       foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) unit $VARS($dim,$type,unit) {
+         regsub -all {\(|\)} $name " " tmp
+         set grpname [ lindex $tmp 1 ];set root [ lindex $tmp 0 ]
+         set memberlist [ searchforgroup $dim $grpname ]
+         regsub $grpname $extname "\%(&)" sext
+         foreach member $memberlist {
+	   regsub % $sext $member tmp
+	   set tmp [ format "! %10s %60s %15s" ${root}(ii$member) $tmp $unit ]
+	   PrintLine -block "$tmp";PrintLine -print ""
+         }
        }
      }
    }
@@ -591,10 +594,12 @@ switch -- $mode {
      if { [ info exists VARS($dim,$type,name) ] } {
 	if { $type == "diagnos" } {
 	  set l [ llength $VARS($dim,$type,name) ]
-	  foreach name $VARS($dim,diaggrp,name) {
-	     regsub -all {\(|\)} $name " " tmp; set grpname [ lindex $tmp 1 ]
-	     incr l [ llength [ searchforgroup $dim $grpname ] ]
-	  }
+          if { [ info exists VARS($dim,diaggrp,name) ] } {
+	     foreach name $VARS($dim,diaggrp,name) {
+	        regsub -all {\(|\)} $name " " tmp; set grpname [ lindex $tmp 1 ]
+	        incr l [ llength [ searchforgroup $dim $grpname ] ]
+	     }
+          }
 	  if { [ info exists VARS(ex_$type,$dim,index) ] } {
 	     set i 0
 	     foreach item $VARS(ex_$type,$dim,index) {
@@ -648,11 +653,12 @@ switch -- $mode {
 
    3d-diaggrp-pp -
    2d-diaggrp-pp {
-     regsub -all {^| } $VARS($dim,$type,name) "&pp" tmp
-     regsub -all {\(} $tmp "(ii" tmp
-     PrintLine -print "integer,public      :: [join $tmp {, } ]"
+     if { [ info exists VARS($dim,$type,name) ] } {
+       regsub -all {^| } $VARS($dim,$type,name) "&pp" tmp
+       regsub -all {\(} $tmp "(ii" tmp
+       PrintLine -print "integer,public      :: [join $tmp {, } ]"
+     }
    }
-
    3d-diagnos-pp -
    2d-diagnos-pp -
    3d-state-pp -
@@ -669,10 +675,12 @@ switch -- $mode {
    }
    3d-diaggrp-pointer -
    2d-diaggrp-pointer {
-     foreach name $VARS($dim,$type,name) {
-       regsub -all {\(|\)} $name " " tmp; lappend pplist [ lindex $tmp 0 ]
+     if { [ info exists VARS($dim,$type,name) ] } {
+       foreach name $VARS($dim,$type,name) {
+         regsub -all {\(|\)} $name " " tmp; lappend pplist [ lindex $tmp 0 ]
+       }
+       PrintLine -print "real(RLEN),public,dimension(:,:),pointer  :: [join $pplist {, } ]"
      }
-     PrintLine -print "real(RLEN),public,dimension(:,:),pointer  :: [join $pplist {, } ]"
    }
    3d-diagnos-pointer -
    2d-diagnos-pointer -
@@ -706,28 +714,32 @@ switch -- $mode {
    }
    3d-diaggrp-assign-pp -
    2d-diaggrp-assign-pp {
-     set i [ llength $VARS($dim,diagnos,name) ]
-     foreach name $VARS($dim,$type,name) {
-       regsub -all {\(|\)} $name " " tmp
-       set grpname [ lindex $tmp 1 ];set root [ lindex $tmp 0 ]
-       set memberlist [ searchforgroup $dim $grpname ]
-       foreach member $memberlist {
-	  PrintLine -print "pp${root}(ii$member)=[ incr i ]"
+     if { [ info exists VARS($dim,$type,name) ] } {
+       set i [ llength $VARS($dim,diagnos,name) ]
+       foreach name $VARS($dim,$type,name) {
+         regsub -all {\(|\)} $name " " tmp
+         set grpname [ lindex $tmp 1 ];set root [ lindex $tmp 0 ]
+         set memberlist [ searchforgroup $dim $grpname ]
+         foreach member $memberlist {
+	    PrintLine -print "pp${root}(ii$member)=[ incr i ]"
+         }
        }
      }
    }
    3d-diaggrp-alloc-pointer -
    2d-diaggrp-alloc-pointer {
-      regsub d $dim "" i
-      set TYPE DIAGNOS
-      foreach name $VARS($dim,diaggrp,name) {
+     if { [ info exists VARS($dim,$type,name) ] } {
+        regsub d $dim "" i
+        set TYPE DIAGNOS
+        foreach name $VARS($dim,diaggrp,name) {
 	  regsub -all {\(|\)} $name " " tmp
 	  set root [ lindex $tmp 0 ]; set grpname [ lindex $tmp 1 ]
 	  set memberlist [ searchforgroup $dim $grpname ]
 	  PrintLine -print "$root => D$i${TYPE}(pp${root}(ii[ lindex $memberlist 0 ]):\
 						pp${root}(ii[ lindex $memberlist end ]),:)"
 	  PrintLine -print "$root=ZERO"
-      }
+        }
+     }
    }
    3d-diagnos-alloc-pointer -
    2d-diagnos-alloc-pointer -
@@ -762,15 +774,17 @@ switch -- $mode {
 
    3d-diaggrp-header -
    2d-diaggrp-header {
+     if { [ info exists VARS($dim,$type,name) ] } {
       regsub d $dim "" i
-      set TYPE DIAGNOS
-      foreach name $VARS($dim,diaggrp,name) {
+       set TYPE DIAGNOS
+       foreach name $VARS($dim,diaggrp,name) {
 	  regsub -all {\(|\)} $name " " tmp
 	  set root [ lindex $tmp 0 ]; set grpname [ lindex $tmp 1 ]
 	  set memberlist [ searchforgroup $dim $grpname ]
 	  PrintLine -block "#define ${root}(A,B) D$i${TYPE}(pp${root}(A),B)"
 	  PrintLine -print ""
-      }
+       }
+     }
    }
    3d-diagnos-header -
    2d-diagnos-header -
@@ -825,33 +839,35 @@ switch -- $mode {
    }
    3d-diaggrp-string -
    2d-diaggrp-string {
-      set type_nr [ llength $VARS(string,index) ]
-      set i [ expr 1 + 3* [ lsearch {3d 2d} $dim ] + 2 ]
-      if { $type_nr != $i } {
-	puts stdout "error with sequence"
-	return 201
-      }
-      set var var_names
-      set extvar var_long
-      set unitv var_units
-      set i [ lindex $VARS(string,index) end ]
-      foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) \
+     if { [ info exists VARS($dim,$type,name) ] } {
+        set type_nr [ llength $VARS(string,index) ]
+        set i [ expr 1 + 3* [ lsearch {3d 2d} $dim ] + 2 ]
+        if { $type_nr != $i } {
+  	  puts stdout "error with sequence"
+	  return 201
+        }
+        set var var_names
+        set extvar var_long
+        set unitv var_units
+        set i [ lindex $VARS(string,index) end ]
+        foreach name $VARS($dim,$type,name) extname $VARS($dim,$type,extname) \
 				    unit $VARS($dim,$type,unit) {
-	regsub -all {\(|\)} $name " " tmp
-	set grpname [ lindex $tmp 1 ];set root [ lindex $tmp 0 ]
-	set memberlist [ searchforgroup $dim $grpname ]
-	regsub $grpname $extname "\%(&)" sext
-	foreach member $memberlist {
-	  regsub % $sext $member tmp
-	  incr i
-	  PrintLine -print "${var}($i)=\"${root}(ii$member)\""
-	  PrintLine -print "${extvar}($i)=\"$tmp\""
-	  PrintLine -print "${unitv}($i)=\"$unit\""
-	}
-      }
-      if { $i > 0 } {
-	lset VARS(string,index) end $i
-      }
+	  regsub -all {\(|\)} $name " " tmp
+	  set grpname [ lindex $tmp 1 ];set root [ lindex $tmp 0 ]
+	  set memberlist [ searchforgroup $dim $grpname ]
+	  regsub $grpname $extname "\%(&)" sext
+	  foreach member $memberlist {
+	    regsub % $sext $member tmp
+	    incr i
+	    PrintLine -print "${var}($i)=\"${root}(ii$member)\""
+	    PrintLine -print "${extvar}($i)=\"$tmp\""
+	    PrintLine -print "${unitv}($i)=\"$unit\""
+	  }
+        }
+        if { $i > 0 } {
+  	  lset VARS(string,index) end $i
+        }
+     }
    }
    3d-flux-string -
    2d-flux-string -
@@ -907,11 +923,15 @@ switch -- $mode {
 	incr i
 	PrintLine -print "${var}($i)=\"j$spec$name\""
 	PrintLine -print "${extvar}($i)=\"flux of $extname at $SPEC\""
-	if { ![ regexp {/[A-Za-z]+[0-9]+} $unit lenunit ] } {
+	set j [ regexp {/[A-Za-z]+[0-9]+} $unit lenunit ]  
+	if { ![ regexp {/[A-Za-z]+} $unit ] } {
 	  puts stdout "no length unit in unit ($unit) for $name"
 	  puts stdout "adaptation of unit from mass to flux impossible"
 	  puts stdout "replace \"???\" by proper units in General\/set_var_info_bfm.f90"
 	  set unit "???/day"
+	} elseif  { $j ==0 } {
+           regsub / $unit " m/" unit
+	   append unit /day
 	} else {
 	  regexp {[0-9]+} $lenunit lenpower
 	  incr lenpower -1

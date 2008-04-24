@@ -147,14 +147,14 @@
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations 
-      ! from mgC/m2 --> mgC/m3
+      ! from mgC/m2 --> umol/kg
       ! Diagnostic variable used to compute pH
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       DICae(BoxNumberXY) = G3c(BoxNumberXY)/ p_poro(BoxNumberXY)/( &
-        p_p+ ONE)/( D1m(BoxNumberXY))
+        p_p+ ONE)/( D1m(BoxNumberXY))/MW_C/ERHO_Ben(BoxNumberXY)*1000._RLEN
       DICan(BoxNumberXY) = (G13c(BoxNumberXY)+G23c(BoxNumberXY)) &
-                                   / p_poro(BoxNumberXY)/( &
-        p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY))
+                                   / p_poro(BoxNumberXY)/(p_p+ ONE)/ &
+        (p_d_tot- D1m(BoxNumberXY))/MW_C/ERHO_Ben(BoxNumberXY)*1000._RLEN
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Recalculate Mineralization mmo/m2 --> mgC/m3 porewater
