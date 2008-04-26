@@ -89,9 +89,11 @@
  
              r=abs(seddepth(BoxNumber))
              if (llDIC) PrDIC(BoxNumber)= CalculateFromSet &
-                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
+                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/
+                  MW_C/ERHO_Ben(BoxNumberXY)*1000._RLEN
              if (llAc)  PrAc(BoxNumber)= CalculateFromSet &
-                  (KALK(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
+                  (KALK(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/
+                  ERHO_Ben(BoxNumberXY)*1000._RLEN
              if (llpH) then
                error= CalcCO2System(MethodCalcCO2,ESW_Ben(BoxNumberXY), &
                    ETW_Ben(BoxNumberXY),ERHO_Ben(BoxNumberXY),&
@@ -99,13 +101,13 @@
                    dumCO2,dumHCO3,dumCO3,PrpH(BoxNumber),&
                    DIC_in=PrDIC(BoxNumber),pCO2_out=dumpCO2)
                if ( error > 0 ) then
-!                 write(LOGUNIT,*)"Warning: Ph outside range"
-!                 write(LOGUNIT,'(A,'' ='',G12.6)') 'Prn1p',PrM1p(BoxNumber)
-!                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PrN5s',PrM5s(BoxNumber)
-!                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PrDIC',PrDIC(BoxNumber)
-!                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PRAc',PrAc(BoxNumber)
-!                 write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') &
-!                          BoxNumberXY,PrpH(BoxNumber)
+                 write(LOGUNIT,*)"Warning: Ph outside range"
+                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PrM1p',PrM1p(BoxNumber)
+                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PrM5s',PrM5s(BoxNumber)
+                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PrDIC',PrDIC(BoxNumber)
+                 write(LOGUNIT,'(A,'' ='',G12.6)') 'PrAc',PrAc(BoxNumber)
+                 write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') &
+                          BoxNumberXY,PrpH(BoxNumber)
                   Prph(BoxNumber)=-1.0
 !                 call BFM_ERROR("BenCO2Profiles",&
 !                          "pH outside range 2-11")

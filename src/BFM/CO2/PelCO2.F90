@@ -1,7 +1,6 @@
 #include "cppdefs.h"
 #include "DEBUG.h"
 #include "INCLUDE.h"
-#define DEBUG
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
