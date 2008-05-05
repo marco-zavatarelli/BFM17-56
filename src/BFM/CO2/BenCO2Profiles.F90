@@ -89,10 +89,10 @@
  
              r=abs(seddepth(BoxNumber))
              if (llDIC) PrDIC(BoxNumber)= CalculateFromSet &
-                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/
+                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/ &
                   MW_C/ERHO_Ben(BoxNumberXY)*1000._RLEN
              if (llAc)  PrAc(BoxNumber)= CalculateFromSet &
-                  (KALK(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/
+                  (KALK(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/ &
                   ERHO_Ben(BoxNumberXY)*1000._RLEN
              if (llpH) then
                error= CalcCO2System(MethodCalcCO2,ESW_Ben(BoxNumberXY), &
