@@ -21,11 +21,12 @@
           var_info_bfm, envforcing_bfm, do_bio_bfm,   &
           allocate_memory_bfm,reset_diagonal,         &
           test_on_negative_states, end_bio_bfm,       &
-          do_bfm_river_loads, settling_vel_bfm
+          do_bfm_river_loads, settling_vel_bfm,       &
+          CalcVertFluxAtLev
 !
 !
 ! !PRIVATE DATA MEMBERS:
-   REALTYPE,dimension(:),allocatable :: cdepth,wx
+   REALTYPE,public,dimension(:),allocatable :: cdepth,wx
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi
@@ -64,7 +65,7 @@
    integer,          intent(in)   :: nlev
    integer,          intent(in)   :: out_unit
 !
-   integer :: i,rc
+   integer :: i,rc,n
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi
 !  from a template by Hans Burchard & Karsten Bolding
@@ -117,8 +118,8 @@
 
 !  sfl=_ZERO_
 !  sfl_read=_ZERO_
-   allocate(cdepth(1:NO_BOXES),stat=rc)
    allocate(wx(1:NO_BOXES),stat=rc)
+   allocate(cdepth(1:NO_BOXES),stat=rc)
    return
 
    end subroutine init_bio_bfm
@@ -159,6 +160,9 @@
    D3SOURCE => pp(:,:,1:NO_BOXES)
    D3SINK   => dd(:,:,1:NO_BOXES)
    D3STATETYPE => pelvar_type
+   !---------------------------------------------
+   ! 3D diagnostics
+   !---------------------------------------------
    if (numc_diag > 0) D3DIAGNOS => diag(:,1:NO_BOXES)
 
    !---------------------------------------------
@@ -169,16 +173,18 @@
       D2SOURCE => ppb(:,:,1:NO_BOXES_XY)
       D2SINK   => ddb(:,:,1:NO_BOXES_XY)
       D2STATETYPE => benvar_type
-      if (numbc_diag>0) D2DIAGNOS => diagb(:,1:NO_BOXES_XY)
    else
       ! allocate memory anyhow to avoid problems with BFM allocation
       allocate(D2STATE(1:NO_D2_BOX_STATES,1:NO_BOXES_XY))
       allocate(D2SOURCE(1:NO_D2_BOX_STATES,1:NO_D2_BOX_STATES,1:NO_BOXES_XY))
       allocate(D2SINK(1:NO_D2_BOX_STATES,1:NO_D2_BOX_STATES,1:NO_BOXES_XY))
       allocate(D2STATETYPE(1:NO_D2_BOX_STATES ))
-      if (numbc_diag>0)  &
-         allocate(D2DIAGNOS(1:NO_D2_BOX_DIAGNOSS,1:NO_BOXES_XY))
    end if
+
+   !---------------------------------------------
+   ! allocate 2D diagnostics (not only benthic)
+   !---------------------------------------------
+   if (numbc_diag>0) D2DIAGNOS => diagb(:,1:NO_BOXES_XY)
 
    end subroutine pointers_gotm_bfm
 !EOC
@@ -218,7 +224,7 @@
 ! !IROUTINE: Light and other environmental forcing used in the BFM
 !
 ! !INTERFACE
-   subroutine envforcing_bfm(nlev, bioshade_feedback)
+   subroutine envforcing_bfm(nlev, bioshade_feedback, h)
 !
 ! !DESCRIPTION
 !
@@ -239,8 +245,9 @@ use bio_var,    ONLY: wind_gotm => wind, u_taub
 IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   integer                              :: nlev
+   integer,intent(in)                   :: nlev
    logical, intent(in)                  :: bioshade_feedback
+   REALTYPE,intent(in)                  :: h(0:nlev)
 !
 ! !OUTPUT PARAMETERS:
 
@@ -258,10 +265,8 @@ IMPLICIT NONE
 #ifdef DEBUG
    LEVEL2 'calculating environmental forcings for the BFM'
 #endif
-
    !---------------------------------------------
-   ! Assign depths of layers
-   ! and other physical variables to the BFM
+   ! Update the depths of layers
    !---------------------------------------------
    Depth(:) = h(1:nlev)
    ! cdepth is cumulative depth
@@ -269,8 +274,11 @@ IMPLICIT NONE
     do n=NO_BOXES-1,1,-1
        cdepth(n)=depth(n)+ cdepth(n+1)
     enddo
-   EWIND(1)=wind_gotm
-   ETAUB(1) = u_taub
+   !---------------------------------------------
+   ! Assign physical variables to the BFM
+   !---------------------------------------------
+   EWIND = wind_gotm
+   ETAUB = u_taub
    ETW(:) = t(1:nlev)
    ESW(:) = s(1:nlev)
    ERHO(:) = rho(1:nlev)
@@ -278,9 +286,10 @@ IMPLICIT NONE
 #ifdef INCLUDE_SILT
    ESS(:) = R9x(:)
 #else
-   ESS(:) = 0.0
+   ESS(:) = ZERO
 #endif
-   p_eps0=1.17692307692-0.0307692307692*ESW(1)
+!MAV: this cannot be generic for all GOTM applications
+!   p_eps0=1.17692307692-0.0307692307692*ESW(1)
             
    !---------------------------------------------
    ! Compute extinction coefficient
@@ -295,7 +304,7 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Notice that irradiance in the BFM is in
    ! uE/m2/s and is defined at the top of each
-   ! layer (the derivation of the middle-layer
+   ! layer (the derivation of the average
    ! EIR for production is done in the
    ! Phytoplankton routines)
    !---------------------------------------------
@@ -311,6 +320,13 @@ IMPLICIT NONE
    if (bioshade_feedback) &
      bioshade_(1:nlev) =  EIR(:)*exp(-xEPS(:)*Depth(:)*0.5)/ EIR(nlev)
 
+#ifdef DEBUG
+   LEVEL3 'ETW',ETW(nlev)
+   LEVEL3 'ESW',ESW(nlev)
+   LEVEL3 'EIR',EIR(nlev)
+   LEVEL3 'EWIND',EWIND
+   LEVEL3 'ETAUB',ETAUB
+#endif
    end subroutine envforcing_bfm
 !EOC
 !-----------------------------------------------------------------------
@@ -373,8 +389,9 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Compute BFM terms
    !---------------------------------------------
-!RUA new routine
+#ifdef INCLUDE_SILT
    call SiltDynamics
+#endif
    call EcologyDynamics
 
 !RUA specific to North Sea
@@ -423,7 +440,7 @@ IMPLICIT NONE
    endif
 
    !---------------------------------------------
-   ! Bottom fluxes (mmol/m2/day)
+   ! Collect Bottom fluxes (mmol/m2/day)
    !---------------------------------------------
    if ((bio_setup == 3 ) .and. ( .NOT.AssignPelBenFluxesInBFMFlag)) then
 
@@ -604,7 +621,30 @@ IMPLICIT NONE
    end subroutine settling_vel_bfm
 !EOC
 
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:  Compute the vertical flux at a certain level
+!
+! !INTERFACE
+   subroutine CalcVertFluxAtLev(statenr,lev,nlev,Depth,dt,out)
+!
+! !DESCRIPTION
+! !USES
+   IMPLICIT NONE
+!
+   integer,intent(IN)          :: statenr
+   integer,intent(IN)          :: lev
+   integer,intent(IN)          :: nlev
+   REALTYPE,intent(IN)         :: Depth(1:nlev)
+   REALTYPE,intent(IN)         :: dt
+   REALTYPE,intent(OUT)        :: out
 
+   out= sum((cc_before_transport(statenr,lev+1:nlev) &
+               -cc(statenr,lev+1:nlev))*Depth(lev+1:nlev))/dt
+   return
+   end subroutine CalcVertFluxAtLev
+!EOC
 
 !-------------------------------------------------------------------------
 !BOP
@@ -711,40 +751,35 @@ IMPLICIT NONE
    if ( numc_diag > 0 ) then
      allocate(diag(1:numc_diag,0:nlev),stat=rc)
      if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (cc)'
-
-
-     diag=_ZERO_                                                     !BFM
+     diag=_ZERO_
    endif
+   ! temporary array variable for the computation of vertical fluxes
+   allocate(cc_before_transport(1:numc,0:nlev),stat=rc)
+   if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (cc_before_transport)'
+   cc_before_transport=_ZERO_
 
-
-   if (bio_setup >= 2) then                                         !BFM
-     ! allocate benthic state variables                             !BFM
-     allocate(ccb(1:numbc,0:1),stat=rc)                             !BFM
-     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (ccb)'           !BFM
-     allocate(ppb(1:numbc,1:numbc,0:1),stat=rc)                     !BFM
-     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (ppb)'           !BFM
-     allocate(ddb(1:numbc,1:numbc,0:1),stat=rc)                     !BFM
-     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (ppb)'           !BFM
-
-     ccb=_ZERO_                                                     !BFM
-     ppb=_ZERO_                                                     !BFM
-     ddb=_ZERO_                                                     !BFM
-
-     ! allocate variable holding type and save attributes           !BFM
-     allocate(benvar_type(1:numbc),stat=rc)                         !BFM
-     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (benvar_type)'   !BFM
+   if (bio_setup >= 2) then
+     ! allocate benthic state variables
+     allocate(ccb(1:numbc,1),stat=rc)
+     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (ccb)'
+     allocate(ppb(1:numbc,1:numbc,1),stat=rc)
+     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (ppb)'
+     allocate(ddb(1:numbc,1:numbc,1),stat=rc)
+     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (ppb)'
+     ccb=_ZERO_
+     ppb=_ZERO_
+     ddb=_ZERO_
+     ! allocate variable holding type and save attributes
+     allocate(benvar_type(1:numbc),stat=rc)
+     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (benvar_type)'
      benvar_type = 0
-
-     if ( numbc_diag > 0 ) then
-       allocate(diagb(1:numbc_diag,0:1),stat=rc)
-       if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (cc)'
-
-       diagb=_ZERO_                                                     !BFM
-     endif
-
    end if
 
-
+   if ( numbc_diag > 0 ) then
+     allocate(diagb(1:numbc_diag,1),stat=rc)
+     if (rc /= 0) STOP 'allocate_memory_bfm: Error allocating (cc)'
+     diagb=_ZERO_
+   endif
 
  end subroutine allocate_memory_bfm
 !EOC

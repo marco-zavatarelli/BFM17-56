@@ -105,6 +105,7 @@
    REALTYPE, dimension(:,:,:), allocatable, target :: ddb,ppb
 
    !diagnostic output arrays  (pelagic and benthic)
+   REALTYPE, dimension(:,:),   allocatable         :: cc_before_transport
    REALTYPE, dimension(:,:),   allocatable, target :: diag
    REALTYPE, dimension(:,:),   allocatable, target :: diagb
 
@@ -120,7 +121,7 @@
 
    ! indices of bottom and surface points
    integer,allocatable,dimension(:),public  :: BOTindices,SRFindices
-#endif !BFM
+#endif 
 
 !
 ! !REVISION HISTORY:

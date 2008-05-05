@@ -33,103 +33,120 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-            ! compute average values
-            ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
-            call prepare_bio_output(1,nlev,_ZERO_)
 
-            if(first) then
-               first = .false.
-               iret = define_mode(ncid,.true.)
-               if (bio_setup/=2) then 
-               dims(1) = lon_dim
-               dims(2) = lat_dim
-               dims(3) = z_dim
-               dims(4) = time_dim
-               do n=stPelStateS,stPelFluxE
-                  if ( var_ids(n) /= 0 )  then 
-                     iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
-                                            4,dims,var_ids(n))
-                     iret = set_attributes(ncid,var_ids(n),       &
-                                           units=var_units(n),    &
-                                           long_name=var_long(n))
-                  end if
-               end do
-            end if !first
-            if (bio_setup>1) then ! define benthic variables
-               dims(1) = lon_dim
-               dims(2) = lat_dim
-               dims(3) = time_dim
-               do n=stBenStateS,stBenFluxE
-                  if ( var_ids(n) /= 0 )  then 
-                     iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
-                                       3,dims,var_ids(n))
-                     iret = set_attributes(ncid,var_ids(n),       &
-                                      units=var_units(n),    &
-                                      long_name=var_long(n))
-                  endif
-               end do
-            end if   
-            iret = define_mode(ncid,.false.)
+   ! compute average values
+   ! MAV: to be upgraded soon to standard BFM function calcmean_bfm
+   call prepare_bio_output(1,nlev,_ZERO_)
+   if (first) then
+      first = .false.
+      iret = define_mode(ncid,.true.)
+      dims(1) = lon_dim
+      dims(2) = lat_dim
+      dims(3) = z_dim
+      dims(4) = time_dim
+      do n=stPelStateS,stPelFluxE
+         if ( var_ids(n) /= 0 )  then 
+          iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
+                            4,dims,var_ids(n))
+          iret = set_attributes(ncid,var_ids(n),       &
+                           units=var_units(n),    &
+                           long_name=var_long(n))
          end if
+      end do
+      dims(1) = lon_dim
+      dims(2) = lat_dim
+      dims(3) = time_dim
+      do n=stBenStateS,stBenFluxE
+         if ( var_ids(n) /= 0 )  then 
+            iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
+                                   3,dims,var_ids(n))
+            iret = set_attributes(ncid,var_ids(n),       &
+                                  units=var_units(n),    &
+                                  long_name=var_long(n))
+         endif
+      end do
+      iret = define_mode(ncid,.false.)
+   end if ! first
+   !---------------------------------------------
+   ! Store snapshot of pelagic variables
+   !---------------------------------------------
+   do n=stPelStateS,stPelStateE
+      if (var_ids(n) > 0)  &
+         iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc(n,:))
+   end do
+   !---------------------------------------------
+   ! Store snapshot of pelagic diagnostics
+   !---------------------------------------------
+   i=0
+   do n=stPelDiagS,stPelDiagE
+      i=i+1
+      if (var_ids(n) > 0) & 
+         iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=diag(i,:))
+   end do
+   !---------------------------------------------
+   ! Store snapshot of pelagic fluxes
+   !---------------------------------------------
+   i=0
+   do n=stPelFluxS,stPelFluxE
+      i=i+1
+      if (var_ids(n) > 0) then
+         call make_flux_output(1,i,nlev, h, c1dim)
+         iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=c1dim)
+      end if
+   end do
+   !---------------------------------------------
+   ! Store mean values of (any) pelagic entity
+   !---------------------------------------------
+   j=0
+   do n=stPelStateS,stPelFluxE
+      if ( (var_ids(n) > 0) .and.var_ave(n) ) then
+         j=j+1
+         iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc_ave(j,:))
+      endif
+   end do
 
-         do n=stPelStateS,stPelStateE
-            if ( (var_ids(n) > 0) .and. (.not.var_ave(n) )) &
-              iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc(n,:))
-         end do
-         i=0
-         do n=stPelDiagS,stPelDiagE
-            i=i+1
-            if ( (var_ids(n) > 0).and. (.not.var_ave(n) ) ) & 
-               iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=diag(i,:))
-         end do
-
-         i=0
-         do n=stPelFluxS,stPelFluxE
-            i=i+1
-            if ( (var_ids(n) > 0)  .and. (.not.var_ave(n))) then
-               call make_flux_output(1,i,nlev, h, c1dim)
-               iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=c1dim)
-            end if
-         end do
-         j=0
-         do n=stPelStateS,stPelFluxE
-            if ( (var_ids(n) > 0) .and.var_ave(n) ) then
-              j=j+1
-              iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=cc_ave(j,:))
-            endif
-         end do
-
-! storage of benthic variables
-! stored as scalar: to be modified if benvar are arrays
-         if (bio_setup>1) then
-           i=0
-           do n=stBenStateS,stBenStateE
-              i=i+1
-              if ( (var_ids(n) > 0)  .and. (.not.var_ave(n))) &
-               iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=ccb(i,1))
-           end do
-           i=0
-           do n=stBenDiagS,stBenDiagE
-             i=i+1
-             if ( (var_ids(n) > 0)  .and. (.not.var_ave(n))) &
-               iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=diagb(i,1))
-           end do
-           i=0
-           do n=stBenFluxS,stBenFluxE
-             i=i+1
-             if ( (var_ids(n) > 0)  .and. (.not.var_ave(n))) then
-               call make_flux_output(2,i,nlev, h, c1dim)
-               iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=c1dim(1))
-             endif
-           end do 
-           j=0
-           do n=stBenStateS,stBenFluxE
-              if ( (var_ids(n) > 0) .and. var_ave(n)) then
-                 j=j+1
-                 iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=ccb_ave(j,1))
-              endif
-           end do
-         end if                
+! MAV: we need to solve the storage of 2D diagnostics
+!      going through all these loops is probably too expensive
+!   if (bio_setup>1) then
+      !---------------------------------------------
+      ! Store snapshot of benthic variables
+      !---------------------------------------------
+      i=0
+      do n=stBenStateS,stBenStateE
+         i=i+1
+         if (var_ids(n) > 0) &
+            iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=ccb(i,1))
+      end do
+      !---------------------------------------------
+      ! Store snapshot of 2D diagnostics
+      !---------------------------------------------
+      i=0
+      do n=stBenDiagS,stBenDiagE
+         i=i+1
+         if (var_ids(n) > 0)   &
+            iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=diagb(i,1))
+      end do
+      !---------------------------------------------
+      ! Store mean values of (any) benthic entity
+      !---------------------------------------------
+      j=0
+      do n=stBenStateS,stBenFluxE
+         if ( (var_ids(n) > 0) .and. var_ave(n)) then
+            j=j+1
+            iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=ccb_ave(j,1))
+         endif
+      end do
+      !---------------------------------------------
+      ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
+      !---------------------------------------------
+      i=0
+      do n=stBenFluxS,stBenFluxE
+         i=i+1
+         if (var_ids(n) > 0) then
+            call make_flux_output(2,i,nlev, h, c1dim)
+            iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=c1dim(1))
+         endif
+      end do 
 
    return
    end subroutine bio_save_bfm
@@ -147,7 +164,7 @@
 ! This is a spcialized routine for the storage of diagnostic variables 
 ! with  alternative dimensions.
 ! The typical example are the benthic profiles, which have a sigma
-! layer grid with the same numner of level as NO_BOXES_Z
+! layer grid with the same numbner of levels as NO_BOXES_Z
 !
 ! !USES:
    use ncdfout, only: set_attributes,store_data
