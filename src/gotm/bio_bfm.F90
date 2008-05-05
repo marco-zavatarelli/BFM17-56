@@ -58,7 +58,6 @@
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
                   NO_D2_BOX_FLUX, NO_D3_BOX_FLUX,&
                   NO_STATES
-
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -102,7 +101,7 @@
    allocate(BOTindices(NO_BOXES_XY))
    SRFindices(:) = nlev
    BOTindices(:) = 1
-
+   
    LEVEL3 'pelagic variables =',numc
    LEVEL3 'pelagic transported variables =',numcc
    LEVEL3 'benthic variables =',numbc
@@ -235,12 +234,14 @@ use mem_Param, ONLY: p_eps0, p_epsESS, p_PAR,p_small
 use mem,       ONLY: NO_BOXES, R6c, PhytoPlankton, xEPS, ESS, ERHO, &
                      iiPhytoPlankton, iiL, Chla, ETW, ESW, &
                      Depth, EIR, ABIO_eps, EWIND, ETAUB
+use mem,       ONLY: Volume, Area, Area2D
 #ifdef INCLUDE_SILT
 use mem,       ONLY: R9x
 #endif
 use mem_Param,  ONLY: p_eps0, p_epsESS,p_poro
 use global_interface,   ONLY: eTq
 use bio_var,    ONLY: wind_gotm => wind, u_taub
+use global_mem, only: ONE
 
 IMPLICIT NONE
 !
@@ -266,9 +267,15 @@ IMPLICIT NONE
    LEVEL2 'calculating environmental forcings for the BFM'
 #endif
    !---------------------------------------------
-   ! Update the depths of layers
+   ! Update the depths and volume of layers
    !---------------------------------------------
+   ! Assign a virtual value for the grid-point area
+   ! In the future, the actual value from GETM might be used
+   ! (put here in case of adaptive grids)
+   Area(:)   = ONE
+   Area2D(:) = ONE
    Depth(:) = h(1:nlev)
+   Volume(:) = Depth(:)*Area(:)
    ! cdepth is cumulative depth
    cdepth(NO_BOXES) = Depth(NO_BOXES)
     do n=NO_BOXES-1,1,-1

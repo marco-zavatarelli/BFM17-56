@@ -30,6 +30,8 @@
    integer                   :: iret
    integer                   :: i,j,n
    REALTYPE                  :: c1dim(0:nlev)
+
+   integer,external          :: special_dims
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -45,7 +47,15 @@
       dims(3) = z_dim
       dims(4) = time_dim
       do n=stPelStateS,stPelFluxE
-         if ( var_ids(n) /= 0 )  then 
+         j=0
+#ifdef INCLUDE_BENPROFILES
+         ! this is a special part for the variables with
+         ! alternative dimensions (eg benthic profiles)
+         if ( var_ids(n) /= 0 )  &
+            j=special_dims(2,ncid,nlev,var_names(n),var_long(n),var_units(n), &
+                           lon_dim,lat_dim,time_dim,var_ids(n))
+#endif
+         if ( j.eq.0 .and. var_ids(n) /= 0 )  then
           iret = new_nc_variable(ncid,var_names(n),NF_REAL, &
                             4,dims,var_ids(n))
           iret = set_attributes(ncid,var_ids(n),       &
@@ -152,6 +162,7 @@
    end subroutine bio_save_bfm
 !EOC
 
+#ifdef INCLUDE_BENPROFILES
 !-----------------------------------------------------------------------
 !BOP
 ! !ROUTINE: Definine extra dimension variables
@@ -164,9 +175,10 @@
 ! This is a spcialized routine for the storage of diagnostic variables 
 ! with  alternative dimensions.
 ! The typical example are the benthic profiles, which have a sigma
-! layer grid with the same numbner of levels as NO_BOXES_Z
+! layer grid with the same number of levels as NO_BOXES_Z
 !
 ! !USES:
+   use mem, only: seddepth
    use ncdfout, only: set_attributes,store_data
    IMPLICIT NONE
 #include "netcdf.inc"
@@ -195,6 +207,8 @@
    character(len=30)         :: altZ,altZ_longname
    character(len=6)          :: dum,alt_unit
 !EOP
+!-----------------------------------------------------------------------
+!BOC
        if ( index(extname,'__Z' ) ==1 ) then
           j=index(extname,':')-1
           read(extname(1:j),*) dum,altZ, zz,alt_unit, altZ_longname
@@ -209,9 +223,9 @@
                   i=index(extname(1:j),altZ_longname(1:i))
                   status= set_attributes(ncid,altZ_id,long_name=extname(i:j))
                   status= set_attributes(ncid,altZ_id,units=alt_unit)
-                  call calc_sigma_depth(nlev,ddu,zz,arr(1:nlev))
                   status = nf_enddef(ncid)
-                  status = store_data(ncid,altZ_id,Z_SHAPE,nlev,array=arr)
+                  ! seddepth is computed in init_benthic_bfm
+                  status = store_data(ncid,altZ_id,Z_SHAPE,nlev,array=seddepth)
                   status = nf_redef(ncid)
                endif
             endif
@@ -227,7 +241,5 @@
           special_dims=0
        endif
    end function special_dims
-!-----------------------------------------------------------------------
-! Copyright by the GOTM-team and BFM-team under the GNU Public License 
-! www.gnu.org
-!-----------------------------------------------------------------------
+!EOC
+#endif
