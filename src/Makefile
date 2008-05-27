@@ -209,7 +209,7 @@ BFM_SIOBJ = \
 	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)
 endif
 
-all: ${BFM_MOD} ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_PELCO2MOD} ${BFM_BENCO2MOD} ${BFM_SIMOD} \
+all: ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_PELCO2MOD} ${BFM_BENCO2MOD} ${BFM_SIMOD} \
 	${APIBFM_MOD} ${STDALONE_MOD} \
 	${BFM_PELOBJ} ${BFM_BENOBJ} ${BFM_PELCO2OBJ} ${BFM_BENCO2OBJ} ${BFM_SIOBJ} ${EXE}
 	$(MOVE_MODULES_COMMAND)
@@ -217,12 +217,12 @@ all: ${BFM_MOD} ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_PELCO2MOD} ${BFM_BENCO2MOD} ${
 $(EXE): $(MAINOBJ) 
 	$(FC) $(FFLAGS) -o ../bin/$@ $(MAINOBJ) $(LIB) -L$(NETCDFLIBDIR) -lnetcdf
 
-${BFM_MOD} : $(BFMSRC)/General/ModuleMem.F90
+${BFM_PELMOD} : $(BFMSRC)/General/ModuleMem.F90
+${BFM_BENMOD} : $(BFMSRC)/General/ModuleMem.F90
 
 $(BFMSRC)/General/ModuleMem.o : $(BFMSRC)/General/ModuleMem.F90
 
-${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model
-	echo 'Script should start now'
+${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model Rules.make
 	$(BFMSRC)/scripts/GenerateGlobalBFMF90Code  $(DEFINES) \
 		-read $(BFMSRC)/General/GlobalDefsBFM.model \
 		-from $(BFMSRC)/proto -to $(BFMSRC)/General \
