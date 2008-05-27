@@ -60,8 +60,10 @@
                 do i=1,size(flux)
                   if (flux(i)< 0.0D+00) then
                     if ( iiSub== iiBen) then
+#ifdef INCLUDE_BEN
                       write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
                       write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
+#endif
                     else
                       write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
                       write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
@@ -74,9 +76,11 @@
                 case (iiPel)
                   D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
                   D3SOURCE(destination,origin,:)=  flux/SEC_PER_DAY
+#ifdef INCLUDE_BEN
                 case (iiBen)
                   D2SINK(origin,destination,:) =  flux/SEC_PER_DAY
                   D2SOURCE(destination,origin,:)   = flux/SEC_PER_DAY
+#endif
               end select
             else
               select case ( iiSub )
@@ -88,6 +92,7 @@
                     D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
                       flux/SEC_PER_DAY
                   end where
+#ifdef INCLUDE_BEN
                 case (iiBen)
                   where (flux > 0.0D+00 )
                     D2SOURCE(destination,origin,:) =D2SOURCE(destination,origin,:) &
@@ -96,6 +101,7 @@
                     D2SINK(origin,destination,:) =D2SINK(origin,destination,:) - &
                       flux/SEC_PER_DAY
                   end where
+#endif
               end select
             endif !origin <> destination
 
@@ -137,8 +143,10 @@
               write(LOGUNIT,*) "origin,destination:", origin,destination
               write(LOGUNIT,*) flow
               if ( iiSub == iiBen)  then
+#ifdef INCLUDE_BEN
                  write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
                  write(LOGUNIT,*) "state value destination:",D2STATE(destination,grid_nr)
+#endif
               else 
                  write(LOGUNIT,*) "state value origin:",D3STATE(origin,grid_nr)
                  write(LOGUNIT,*) "state value destination:",D3STATE(destination,grid_nr)
@@ -151,9 +159,11 @@
               case (iiPel)
                 D3SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
                 D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+#ifdef INCLUDE_BEN
               case (iiBen)
                 D2SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
                 D2SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+#endif
             end select
           else
             select case ( iiSub )
@@ -165,6 +175,7 @@
                   D3SINK(origin,destination,grid_nr)=    &
                          D3SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
                 endif
+#ifdef INCLUDE_BEN
               case (iiBen)
                 if (flow > 0.0 ) then
                   D2SOURCE(destination,origin,grid_nr)=  &
@@ -173,6 +184,7 @@
                   D2SINK(origin,destination,grid_nr)=    &
                          D2SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
                 endif
+#endif
             end select
           endif
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -221,6 +233,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#ifdef INCLUDE_BEN
         function Source_D2_vector(iistate)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! vector function to get actual rate of change in the benthic
@@ -233,6 +246,7 @@
           Source_D2_vector=(sum(D2SOURCE(iistate,:,:),DIM=1)- &
                            sum(D2SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
         end function Source_D2_vector
+#endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -250,8 +264,10 @@
             Source = (sum(D3SOURCE(iistate,:,iibox))- &
               sum(D3SINK(iistate,:,iibox)))*SEC_PER_DAY
           elseif ( iiSub == iiBen )  then
+#ifdef INCLUDE_BEN
             Source = (sum(D2SOURCE(iistate,:,iibox))- &
               sum(D2SINK(iistate,:,iibox)))*SEC_PER_DAY
+#endif
           endif
         end function source
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -282,6 +298,7 @@
               else
                 tot=D3SINK(origin,destination,grid_nr)
               endif
+#ifdef INCLUDE_BEN
             case (iiBen)
               type="D2"
               if ( grid_nr <=0  ) then
@@ -289,9 +306,12 @@
               else
                 tot=D2SINK(origin,destination,grid_nr)
               endif
+#endif
             case (iiReset)
               D3SINK(:,:,:)=0.0D+00
+#ifdef INCLUDE_BEN
               D2SINK(:,:,:)=0.0D+00
+#endif
               return
           end select
           if ( tot > 0.0D+00  ) then
@@ -379,8 +399,10 @@
                 write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') &
                   origin,destination
                 if ( iiSub== iiBen) then
+#ifdef INCLUDE_BEN
                     write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
                     write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
+#endif
                 else
                     write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
                     write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
@@ -406,8 +428,10 @@
                write(LOGUNIT,*) 'Nan value in scalar flux'
                write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') origin,destination
                if ( iiSub == iiBen)  then
+#ifdef INCLUDE_BEN
                     write(LOGUNIT,*) "Benthic state value origin:",D2STATE(origin,grid_nr)
                     write(LOGUNIT,*) "Benthic state value destination:",D2STATE(destination,grid_nr)
+#endif
                  else 
                     write(LOGUNIT,*) "Pelagic state value origin:",D3STATE(origin,grid_nr)
                     write(LOGUNIT,*) "Pelagic state value destination:",D3STATE(destination,grid_nr)

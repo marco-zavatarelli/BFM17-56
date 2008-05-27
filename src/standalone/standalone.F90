@@ -95,14 +95,14 @@
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_D2_BOX_STATES, NO_BOXES_XY,       &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth, D3STATE, D2STATE
+                  NO_STATES,Depth, D3STATE
    use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use time
 #ifdef INCLUDE_BEN
-   use mem, only: Depth_ben
+   use mem, only: D2STATE, Depth_ben
 #endif
 
    IMPLICIT NONE
@@ -289,9 +289,11 @@
    ! Initialize prior time step for leap-frog:
    if (method == 3) then
       bbccc3d = D3STATE
-      bbccc2d = D2STATE
       ccc_tmp3D = D3STATE
+#ifdef INCLUDE_BEN
+      bbccc2d = D2STATE
       ccc_tmp2D = D2STATE
+#endif
    end if
 
 #ifdef DEBUG

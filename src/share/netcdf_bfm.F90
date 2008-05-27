@@ -1,4 +1,5 @@
 #include"cppdefs.h"
+#define REAL_4B real(4)
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -19,6 +20,7 @@
    use api_bfm, only: bio_setup,var_ids,var_names,var_long,var_units,c1dim
    use api_bfm, only: D3ave,D2ave,var_ave,ave_count
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
+   use global_mem, only: RLEN
    implicit none
 
    include 'netcdf.inc'
@@ -87,12 +89,12 @@
 ! !INPUT/OUTPUT PARAMETERS:
    character(len=*), intent(in)                 :: title,start_time
    integer, intent(in)                          :: time_unit
-   REALTYPE, intent(in),optional                :: lat,lon
-   REALTYPE, intent(in),dimension(:,:),optional :: lat2d,lon2d
-   REALTYPE, intent(in),dimension(:),optional   :: z,dz
+   real(RLEN), intent(in),optional                :: lat,lon
+   real(RLEN), intent(in),dimension(:,:),optional :: lat2d,lon2d
+   real(RLEN), intent(in),dimension(:),optional   :: z,dz
    integer, intent(in),dimension(:),optional    :: oceanpoint
    integer, intent(in),dimension(:),optional    :: surfacepoint,bottompoint
-   REALTYPE,intent(in),dimension(:,:,:),optional:: mask3d
+   real(RLEN),intent(in),dimension(:,:,:),optional:: mask3d
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -323,7 +325,7 @@
    integer, save             :: nn       ! number pel.var to be saved 
    integer, save             :: nnb      ! number ben.var to be saved 
    integer                   :: iret,rc
-   REALTYPE                  :: ltime
+   real(RLEN)                  :: ltime
    integer                   :: out_unit=67
    integer                   :: i,j,n
 !EOP
@@ -397,15 +399,18 @@
 ! output of BFM variables 
 !
 ! !USES:
-   use mem, only: D3STATE,D3DIAGNOS,D2STATE,D2DIAGNOS
+   use mem, only: D3STATE,D3DIAGNOS,D2DIAGNOS
+#ifdef INCLUDE_BEN
+   use mem, only: D2STATE
+#endif
    implicit none
 !
 ! !INPUT PARAMETERS:
-   REALTYPE,intent(in)     :: time
+   real(RLEN),intent(in)     :: time
 ! !LOCAL VARIABLES:
    integer                   :: iret
    integer                   :: i,j,k,n
-   REALTYPE                  :: temp_time
+   real(RLEN)                  :: temp_time
 
 #ifdef DEBUG
    LEVEL1 'save_bfm',time
@@ -479,6 +484,7 @@
 ! MAV: we need to solve the storage of 2D diagnostics
 !      going through all these loops is probably too expensive
 !   if (bio_setup>1) then
+#ifdef INCLUDE_BEN
       !---------------------------------------------
       ! Store snapshot of benthic variables
       !---------------------------------------------
@@ -488,6 +494,7 @@
          if ( var_ids(n) > 0 ) &
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
       end do
+#endif
       !---------------------------------------------
       ! Store snapshot of benthic diagnostics
       !---------------------------------------------
@@ -497,6 +504,7 @@
          if ( var_ids(n) > 0 ) &
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
       end do
+#ifdef INCLUDE_BEN
       !---------------------------------------------
       ! Store mean values of (any) benthic entity
       !---------------------------------------------
@@ -507,7 +515,9 @@
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
          endif
       end do 
+#endif
 !   end if
+#ifdef INCLUDE_BEN
    !---------------------------------------------
    ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
    !---------------------------------------------
@@ -519,6 +529,7 @@
           iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim)
       endif
    end do
+#endif
 
 
    iret = nf_sync(ncid_bfm)
@@ -669,10 +680,10 @@
 ! !INPUT PARAMETERS:
    integer, intent(in)                 :: ncid,id
    character(len=*), optional          :: units,long_name
-   REALTYPE, optional                  :: valid_min,valid_max
-   REALTYPE, optional                  :: valid_range(2)
-   REALTYPE, optional                  :: scale_factor,add_offset
-   REALTYPE, optional                  :: FillValue,missing_value
+   real(RLEN), optional                  :: valid_min,valid_max
+   real(RLEN), optional                  :: valid_range(2)
+   real(RLEN), optional                  :: scale_factor,add_offset
+   real(RLEN), optional                  :: FillValue,missing_value
    character(len=*), optional          :: C_format,FORTRAN_format
    character(len=*), optional          :: compress,formula_term
 !
@@ -780,11 +791,11 @@
    integer, intent(in)                 :: ncid,id,var_shape,nbox
    integer, optional                   :: iscalar
    integer, optional                   :: iarray(1:nbox)
-   REALTYPE, optional                  :: scalar
-   REALTYPE, optional                  :: array(1:nbox)
-   REALTYPE, optional                  :: garray(1:nbox)
-   REALTYPE, optional                  :: array2d(:,:)
-   REALTYPE, optional                  :: array3d(:,:,:)
+   real(RLEN), optional                  :: scalar
+   real(RLEN), optional                  :: array(1:nbox)
+   real(RLEN), optional                  :: garray(1:nbox)
+   real(RLEN), optional                  :: array2d(:,:)
+   real(RLEN), optional                  :: array3d(:,:,:)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -947,10 +958,10 @@
 !  Generic BFM version: Marcello Vichi
 !
 ! !LOCAL VARIABLES:
-   REALTYPE                  :: zz,r,s
+   real(RLEN)                  :: zz,r,s
    integer                   :: i,j,n,status,altZ_id,dim_altZ
    integer                   :: benprofpoint_dim,benprofpoint_id
-   REALTYPE                  :: arr(0:nlev)
+   real(RLEN)                  :: arr(0:nlev)
    character(len=30)         :: altZ,altZ_longname
    character(len=6)          :: dum,alt_unit
    integer                   :: dims(4)

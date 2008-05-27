@@ -27,7 +27,10 @@
       use mem, only: iiBen
       use mem, only: flx_calc_nr,flx_CalcIn,flx_t,flx_states, &
               flx_ostates,flx_SS,flx_cal_ben_start,flx_option
-      use mem, only: D2SINK,D3SINK,D2SOURCE,D3SOURCE,D2STATE,D3STATE
+      use mem, only: D3SINK,D3SOURCE,D3STATE
+#ifdef INCLUDE_BEN
+      use mem, only: D2SINK,D2SOURCE,D2STATE
+#endif
       use mem, only: PELBOTTOM,PELSURFACE,Depth
 
 
@@ -68,6 +71,7 @@
       klev=NO_BOXES ; if ( flx_CalcIn(nr) == iiBen)  klev=NO_BOXES_XY 
       hulp(:)=0.0
       if ( flx_CalcIn(nr) == iiBen) then
+#ifdef INCLUDE_BEN
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
           if (flx_SS(i) ==1 ) then
              hulp(1:klev)= hulp(1:klev) &
@@ -77,6 +81,7 @@
                    + flx_t(i) * D2SOURCE(flx_states(i),flx_ostates(i),:)
           endif
         enddo
+#endif
       else
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
           if (flx_SS(i) ==1 ) then
@@ -113,12 +118,14 @@
           out(1:klev)=1.0D-80
           k=0
           if ( flx_CalcIn(nr) == iiBen) then
+#ifdef INCLUDE_BEN
              do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
                if ( k.ne. flx_states(i) ) then
                   k=flx_states(i)
                   out(1:klev)=out(1:klev) + D2STATE(k,:)
                endif
               enddo
+#endif
           else 
              do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
                if ( k.ne. flx_states(i) ) then

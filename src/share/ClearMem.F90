@@ -31,12 +31,14 @@ subroutine ClearMem
      deallocate(D3SOURCE)
      deallocate(D3SINK)
      deallocate(D3STATETYPE)
+     deallocate(D3DIAGNOS)
+     deallocate(D2DIAGNOS)
+#ifdef INCLUDE_BEN
      deallocate(D2STATE)
      deallocate(D2SOURCE)
      deallocate(D2SINK)
      deallocate(D2STATETYPE)
-     deallocate(D3DIAGNOS)
-     deallocate(D2DIAGNOS)
+#endif
 
 #endif
 

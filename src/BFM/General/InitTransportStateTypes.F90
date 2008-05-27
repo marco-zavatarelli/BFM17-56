@@ -65,12 +65,15 @@
      j = ppMesoZooPlankton(i,iiP)
      if ( i == 0 ) D3STATETYPE(i)=NOTRANSPORT
   end do
+#ifdef INCLUDE_BEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Setting of type for transport/integration  Benthic state variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   D2STATETYPE(:)=NOTRANSPORT
-  end subroutine
-!BOP
+#endif
+
+  end subroutine InitTransportStateTypes
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

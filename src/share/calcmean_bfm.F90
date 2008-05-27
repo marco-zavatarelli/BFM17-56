@@ -15,7 +15,10 @@
 !
 ! !USES:
    use api_bfm
-   use mem, only: D3STATE,D2STATE,D3DIAGNOS,D2DIAGNOS
+   use mem, only: D3STATE,D3DIAGNOS,D2DIAGNOS
+#ifdef INCLUDE_BEN
+   use mem, only: D2STATE
+#endif
    use mem, only: NO_BOXES,NO_BOXES_XY
    implicit none
 !
@@ -117,6 +120,7 @@
             !---------------------------------------------
             k=0
             j=0
+#ifdef INCLUDE_BEN
             do i=stBenStateS,stBenStateE
                j=j+1
                if ( var_ave(i) ) then
@@ -128,6 +132,7 @@
                   end if
                end if
             end do
+#endif
             j=0
             do i=stBenDiagS,stBenDiagE
                j=j+1

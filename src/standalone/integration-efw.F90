@@ -11,9 +11,12 @@
 !  Euler-forward integration with time step adjustment
 ! !USES
    use global_mem, ONLY:RLEN
-   use mem, ONLY:NO_D3_BOX_STATES, NO_D2_BOX_STATES, &
-         NO_BOXES,D3SOURCE,D3STATE,D2SOURCE,D2STATE,NO_BOXES_XY, &
-         D3STATETYPE,D2STATETYPE,D3SINK,D2SINK
+   use mem, ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
+                  D3STATETYPE,D3SINK
+#ifdef INCLUDE_BEN
+   use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
+                  D2STATETYPE,D2SINK
+#endif
    use standalone
    use api_bfm
    use time, only: update_time
@@ -38,7 +41,9 @@
    LEVEL1 'integration efw: starting delt = ',delt
 #endif
    bbccc3D=D3STATE
+#ifdef INCLUDE_BEN
    bbccc2D=D2STATE
+#endif
    TLOOP : DO
    ! Integration step:
       DO j=1,NO_D3_BOX_STATES
@@ -46,6 +51,7 @@
             D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
          END IF
       END DO
+#ifdef INCLUDE_BEN
       if (bio_setup>=2) then
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
@@ -53,29 +59,39 @@
             END IF
          END DO
       end if
+#endif
       nmin=nmin+nstep 
    !  Check for negative concentrations
       min3D=minval(D3STATE)
+#ifdef INCLUDE_BEN
       min2D=minval(D2STATE)
       IF(min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
+#else
+      IF(min3D.lt.eps) THEN ! cut timestep
+#endif
          IF (nstep.eq.1) THEN
             LEVEL1 'Necessary Time Step too small! Exiting...'
             blccc(:,1)=minloc(D3STATE)
-            blccc(:,2)=minloc(D2STATE)
-            LEVEL1 blccc
             LEVEL1 'Pelagic Variable:',trim(var_names(stPelStateS+blccc(1,1)-1))
             LEVEL1 'Value: ',D3STATE(blccc(1,1),blccc(2,1)),' Rate: ', &
                         bbccc3D(blccc(1,1),blccc(2,1))
-            LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
-            LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &
-                        bbccc2D(blccc(1,2),blccc(2,2))
-            LEVEL1 'EXIT at  time ',timesec
+#ifdef INCLUDE_BEN
+            blccc(:,2)=minloc(D2STATE)
+            if (bio_setup>=2) then
+               LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
+               LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &
+                           bbccc2D(blccc(1,2),blccc(2,2))
+               LEVEL1 'EXIT at  time ',timesec
+            end if
+#endif
             STOP 'integration-efw'
          END IF
          nstep=nstep/2
          nmin=0
          D3STATE=bbccc3D
+#ifdef INCLUDE_BEN
          D2STATE=bbccc2D
+#endif
          dtm1=delt
          delt=nstep*mindelt
          timesec=ntime*maxdelt

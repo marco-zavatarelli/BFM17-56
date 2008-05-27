@@ -39,10 +39,11 @@
       call analytical_forcing
     case (2) ! input data
       call external_forcing
-      call external_data
     case (3) ! interactive air-sea fluxes
 !      call do_air_sea(timesec,startime)
     end select
+    ! Assign external data
+    call external_data
     ! Assign external event data
     call event_data
 #ifdef INCLUDE_SEAICE

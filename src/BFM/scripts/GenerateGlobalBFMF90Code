@@ -663,15 +663,17 @@ switch -- $mode {
    2d-diagnos-pp -
    3d-state-pp -
    2d-state-pp {
-     regsub -all {^| } $VARS($dim,$type,name) "&pp" tmp
-     set i 0; set n [ llength $VARS($dim,$type,name) ]
-     while { $i <$n } { lset tmp $i "[lindex $tmp $i]=[ incr i ]" }
-     if { [ info exists VARS($dim,$type,excluded) ] } {
-	regsub -all {^| } $VARS($dim,$type,excluded) "&pp" excl
-	regsub -all { |$} $excl "=0&" excl
-	eval lappend tmp $excl
+     if { [ info exists VARS($dim,$type,name) ] } {
+        regsub -all {^| } $VARS($dim,$type,name) "&pp" tmp
+        set i 0; set n [ llength $VARS($dim,$type,name) ]
+        while { $i <$n } { lset tmp $i "[lindex $tmp $i]=[ incr i ]" }
+        if { [ info exists VARS($dim,$type,excluded) ] } {
+           regsub -all {^| } $VARS($dim,$type,excluded) "&pp" excl
+           regsub -all { |$} $excl "=0&" excl
+           eval lappend tmp $excl
+        }
+        PrintLine -print "integer,parameter,public      :: [join $tmp {, } ]"
      }
-     PrintLine -print "integer,parameter,public      :: [join $tmp {, } ]"
    }
    3d-diaggrp-pointer -
    2d-diaggrp-pointer {
@@ -686,8 +688,10 @@ switch -- $mode {
    2d-diagnos-pointer -
    3d-state-pointer -
    2d-state-pointer {
-     set tmp $VARS($dim,$type,name)
-     PrintLine -print "real(RLEN),public,dimension(:),pointer  :: [join $tmp {, } ]"
+     if { [ info exists VARS($dim,$type,name) ] } {
+        set tmp $VARS($dim,$type,name)
+        PrintLine -print "real(RLEN),public,dimension(:),pointer  :: [join $tmp {, } ]"
+     }
    }
    3d-Z-pointer {
      set tmp ""
@@ -745,10 +749,12 @@ switch -- $mode {
    2d-diagnos-alloc-pointer -
    3d-state-alloc-pointer -
    2d-state-alloc-pointer {
-      regsub d $dim "" i
-      set TYPE [ string toupper $type ]
-      foreach name $VARS($dim,$type,name) {
-	 PrintLine -print "$name => D$i${TYPE}(pp$name,:); $name=ZERO"
+      if { [ info exists VARS($dim,$type,name) ] } {
+         regsub d $dim "" i
+         set TYPE [ string toupper $type ]
+         foreach name $VARS($dim,$type,name) {
+            PrintLine -print "$name => D$i${TYPE}(pp$name,:); $name=ZERO"
+         }
       }
    }
    3d-state-field-alloc-pointer {
@@ -790,11 +796,13 @@ switch -- $mode {
    2d-diagnos-header -
    3d-state-header -
    2d-state-header {
-      regsub d $dim "" i
-      set TYPE [ string toupper $type ]
-      foreach name $VARS($dim,$type,name) {
-	 PrintLine -block "#define ${name}(A) D$i${TYPE}(pp${name},A)"
-	 PrintLine -print ""
+     if { [ info exists VARS($dim,$type,name) ] } {
+        regsub d $dim "" i
+        set TYPE [ string toupper $type ]
+        foreach name $VARS($dim,$type,name) {
+           PrintLine -block "#define ${name}(A) D$i${TYPE}(pp${name},A)"
+           PrintLine -print ""
+        }
       }
    }
    3d-state-field-header {
@@ -974,12 +982,6 @@ switch -- $mode {
 	   PrintLine -print ""
 	   PrintLine -print "allocate(${i}(1:NO_BOXES_Z),stat=status)"
 	   PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"$i\")"
-#	   PrintLine -print
-#           PrintLine -print "call calc_sigma_depth(NO_BOXES_Z,2.0D+00,0.3D+00,${i})"
-#   PrintLine -print "${i}(1)=real([ lindex $item 2 ])/real(NO_BOXES_Z-1)"
-#   PrintLine -print "do status=2,NO_BOXES_Z"
-#   PrintLine -print "${i}(status)=${i}(status-1)+real([ lindex $item 2 ])/real(NO_BOXES_Z-1)"
-#   PrintLine -print "enddo"
 	   PrintLine -crepeat "-="
 	 }
        }
@@ -1022,27 +1024,29 @@ switch -- $mode {
    2d-variable-alloc -
    1d-variable-alloc {
       set i ""; if { $dim =="2d" } { set i "_XY" }
-      foreach name $VARS($dim,$type,name) {
-	 set m [ expr [ regsub -all {\(|\)} $name " " tmp ]/2 + 2* [ regexp 2|3 $dim ] ]
-	 if { $m > 0 } {
-	    set base [ lindex $tmp 0 ]
-	    set indexname [ lindex $tmp 1 ]
-	    if { [ set l [ lsearch $VARS(2d,group) $indexname ]] <0 } {
-		set l [ lsearch $VARS(3d,group) $indexname ]
-	    }
-	    if { $l >=0 } { set l ii } { set l "" }
-	 }
-	 switch -- $m {
-	    3 { PrintLine -print "allocate(${base}(1:$l$indexname,\
-				 1:NO_BOXES$i),stat=status); ${base} = ZERO"
-	    }
-	    2 { PrintLine -print "allocate(${name}(1:NO_BOXES$i),\
-				      stat=status); $name = ZERO"
-	    }
-	    1 { PrintLine -print "allocate(${base}(1:$l$indexname\
-			       ),stat=status); ${base} = ZERO"
-	    }
-	 }
+      if { [ info exists VARS($dim,$type,name) ] } {
+         foreach name $VARS($dim,$type,name) {
+            set m [ expr [ regsub -all {\(|\)} $name " " tmp ]/2 + 2* [ regexp 2|3 $dim ] ]
+            if { $m > 0 } {
+               set base [ lindex $tmp 0 ]
+               set indexname [ lindex $tmp 1 ]
+               if { [ set l [ lsearch $VARS(2d,group) $indexname ]] <0 } {
+           	set l [ lsearch $VARS(3d,group) $indexname ]
+               }
+               if { $l >=0 } { set l ii } { set l "" }
+            }
+            switch -- $m {
+               3 { PrintLine -print "allocate(${base}(1:$l$indexname,\
+           			 1:NO_BOXES$i),stat=status); ${base} = ZERO"
+               }
+               2 { PrintLine -print "allocate(${name}(1:NO_BOXES$i),\
+           			      stat=status); $name = ZERO"
+               }
+               1 { PrintLine -print "allocate(${base}(1:$l$indexname\
+           		       ),stat=status); ${base} = ZERO"
+               }
+            }
+         }
       }
    }
    dd-flux-alloc {
@@ -1135,31 +1139,33 @@ switch -- $mode {
    3d-variable -
    2d-variable {
      set m -1
-     set j 0;  set n [ llength $VARS($dim,$type,name) ]
-     foreach item $VARS($dim,$type,name) jtem $VARS($dim,$type,extname) ktem $VARS($dim,$type,unit) {
-       set mold $m
-       set m [ expr [ regexp {\(} $item ] + [ regexp 2|3 $dim ] ]
-       if { $m != $mold } {
-	   if {$mold>=0} {
-	      PrintLine -block "      \!$keepextname"
-	      PrintLine -print ""
-	      Section -decr
-	   }
-	   set tmp "real(RLEN)"; if { [regexp intvar $type ] } { set tmp integer }
-	   switch -- $m {
-	      0 { PrintLine -print "$tmp,public                                    :: &" }
-	      1 { PrintLine -print "$tmp,public,dimension(:),allocatable           :: &" }
-	      2 { PrintLine -print "$tmp,public,dimension(:,:),allocatable         :: &" }
-	   }
-	   Section -incr
-       } else {
-	  PrintLine -print ",& \!$keepextname"
-       }
-       incr j
-       regexp {[0-9A-Za-z_]+} $item tmp
-       PrintLine -nonewline $tmp
-       set keepextname $jtem
-       if { $ktem !="" } { append keepextname " ($ktem)" }
+     if { [ info exists VARS($dim,$type,name) ] } {
+        set j 0;  set n [ llength $VARS($dim,$type,name) ]
+        foreach item $VARS($dim,$type,name) jtem $VARS($dim,$type,extname) ktem $VARS($dim,$type,unit) {
+          set mold $m
+          set m [ expr [ regexp {\(} $item ] + [ regexp 2|3 $dim ] ]
+          if { $m != $mold } {
+              if {$mold>=0} {
+                 PrintLine -block "      \!$keepextname"
+                 PrintLine -print ""
+                 Section -decr
+              }
+              set tmp "real(RLEN)"; if { [regexp intvar $type ] } { set tmp integer }
+              switch -- $m {
+                 0 { PrintLine -print "$tmp,public                                    :: &" }
+                 1 { PrintLine -print "$tmp,public,dimension(:),allocatable           :: &" }
+                 2 { PrintLine -print "$tmp,public,dimension(:,:),allocatable         :: &" }
+              }
+              Section -incr
+          } else {
+             PrintLine -print ",& \!$keepextname"
+          }
+          incr j
+          regexp {[0-9A-Za-z_]+} $item tmp
+          PrintLine -nonewline $tmp
+          set keepextname $jtem
+          if { $ktem !="" } { append keepextname " ($ktem)" }
+        }
      }
      if {$m>=0} {
 	 PrintLine -block "      \!$keepextname"
@@ -1199,73 +1205,75 @@ global VARS
 #-------------------------------------------------------------------------
 #BOC
 
-foreach groupname $VARS($dim,group) members $VARS($dim,member) constituents $VARS($dim,constituents) {
-  set mis_components "[ lindex $members 0 ][string range $constituents 0 0 ]"
-  set representative [lindex $members 0 ]
-  set components [ lfind -glob -all $VARS($dim,state,name) \
-					$representative\[$VARS(maxcon)\] ]
-  if { $components == "" } { set components $mis_components }
-  regsub $representative [ lindex $components 0 ] "" firstc
-  PrintLine -print ""
-  PrintLine -print "function $pre${groupname}(n,constituent)"
-  Section -incr body
-  PrintLine -print ""
-  PrintLine -crepeat "-="
-  PrintLine -print " ! Implicit typing is never allowed"
-  PrintLine -crepeat "-="
-  PrintLine -print "IMPLICIT NONE"
-  PrintLine -print ""
-  if { $pre == "pp" } {
-    PrintLine -print "integer ::$pre$groupname"
-   } else {
-    PrintLine -print "real(RLEN),dimension(:),pointer ::$pre$groupname"
-   }
-  PrintLine -print "integer, intent(IN) ::n"
-  PrintLine -print "integer, intent(IN) ::constituent"
-  PrintLine -print ""
-  if { $pre == "pp" } {
-    catch { unset k }; set l 0
-    regsub -all {^| } $members &pp tmp
-    regsub -all { |$} $tmp $firstc& tmp
-    PrintLine -print "integer,dimension([llength $members])  :: referto=(/[join $tmp , ]/)"
-    unset tmp
-    foreach member $members {
-       set components [ lfind -glob -all $VARS($dim,state,name) \
- 				$member\[$VARS(maxcon)\] ]
-       if { $components == "" && ![info exists tmp] } { set components $mis_components }
-       regexp {[a-z]+$} $components j					
-       set l [ expr [ string first $j $VARS(maxcon) ] +1 ]
-       lappend tmp $l
-    }
-    PrintLine -print "integer,dimension([llength $members]) :: const_max=(/[join $tmp , ]/)"
-    unset tmp
-    set k [ string length $VARS(maxcon) ]
-    regsub -all . $VARS(maxcon) "0 " tmp
-    set i 0
-    regsub -all . $constituents "& " split_constituents
-    foreach constituent $split_constituents {
-      lset tmp [ set j [ string first $constituent $VARS(maxcon) ] ] $i
-      if { $j >0 } { set l $i }
-      incr i
-    }
-    PrintLine -print "integer,dimension($k) :: constituent_add=(/[join $tmp , ]/)"
+if { [ info exists VARS($dim,state,name) ] } {
+  foreach groupname $VARS($dim,group) members $VARS($dim,member) constituents $VARS($dim,constituents) {
+    set mis_components "[ lindex $members 0 ][string range $constituents 0 0 ]"
+    set representative [lindex $members 0 ]
+    set components [ lfind -glob -all $VARS($dim,state,name) \
+  					$representative\[$VARS(maxcon)\] ]
+    if { $components == "" } { set components $mis_components }
+    regsub $representative [ lindex $components 0 ] "" firstc
     PrintLine -print ""
-    PrintLine -print "if ( constituent <=const_max(n) ) then"
+    PrintLine -print "function $pre${groupname}(n,constituent)"
     Section -incr body
-    PrintLine -print "$pre$groupname=referto(n)+ constituent_add(constituent)"
+    PrintLine -print ""
+    PrintLine -crepeat "-="
+    PrintLine -print " ! Implicit typing is never allowed"
+    PrintLine -crepeat "-="
+    PrintLine -print "IMPLICIT NONE"
+    PrintLine -print ""
+    if { $pre == "pp" } {
+      PrintLine -print "integer ::$pre$groupname"
+     } else {
+      PrintLine -print "real(RLEN),dimension(:),pointer ::$pre$groupname"
+     }
+    PrintLine -print "integer, intent(IN) ::n"
+    PrintLine -print "integer, intent(IN) ::constituent"
+    PrintLine -print ""
+    if { $pre == "pp" } {
+      catch { unset k }; set l 0
+      regsub -all {^| } $members &pp tmp
+      regsub -all { |$} $tmp $firstc& tmp
+      PrintLine -print "integer,dimension([llength $members])  :: referto=(/[join $tmp , ]/)"
+      unset tmp
+      foreach member $members {
+         set components [ lfind -glob -all $VARS($dim,state,name) \
+   				$member\[$VARS(maxcon)\] ]
+         if { $components == "" && ![info exists tmp] } { set components $mis_components }
+         regexp {[a-z]+$} $components j					
+         set l [ expr [ string first $j $VARS(maxcon) ] +1 ]
+         lappend tmp $l
+      }
+      PrintLine -print "integer,dimension([llength $members]) :: const_max=(/[join $tmp , ]/)"
+      unset tmp
+      set k [ string length $VARS(maxcon) ]
+      regsub -all . $VARS(maxcon) "0 " tmp
+      set i 0
+      regsub -all . $constituents "& " split_constituents
+      foreach constituent $split_constituents {
+        lset tmp [ set j [ string first $constituent $VARS(maxcon) ] ] $i
+        if { $j >0 } { set l $i }
+        incr i
+      }
+      PrintLine -print "integer,dimension($k) :: constituent_add=(/[join $tmp , ]/)"
+      PrintLine -print ""
+      PrintLine -print "if ( constituent <=const_max(n) ) then"
+      Section -incr body
+      PrintLine -print "$pre$groupname=referto(n)+ constituent_add(constituent)"
+      Section -decr body
+      PrintLine -print "else"
+      Section -incr body
+      PrintLine -print "$pre$groupname=0"
+      Section -decr body
+      PrintLine -print "endif"
+    } else {
+      regsub d $dim "" dim2
+      PrintLine -print "$pre$groupname => D${dim2}STATE(pp${groupname}(n,constituent),:)"
+    }
+    PrintLine -print ""
     Section -decr body
-    PrintLine -print "else"
-    Section -incr body
-    PrintLine -print "$pre$groupname=0"
-    Section -decr body
-    PrintLine -print "endif"
-  } else {
-    regsub d $dim "" dim2
-    PrintLine -print "$pre$groupname => D${dim2}STATE(pp${groupname}(n,constituent),:)"
+    PrintLine -print "END function"
   }
-  PrintLine -print ""
-  Section -decr body
-  PrintLine -print "END function"
 }
 
 }
