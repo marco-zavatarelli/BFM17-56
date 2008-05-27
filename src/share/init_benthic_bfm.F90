@@ -20,6 +20,7 @@
 #ifdef BFM_GOTM
    use bio_var
    use bio_bfm
+   use global_mem, ONLY: RLEN,ZERO,ONE
 #endif
    use mem
    use mem_BenBac, ONLY: p_qnc,p_qpc

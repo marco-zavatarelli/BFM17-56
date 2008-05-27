@@ -401,8 +401,8 @@
                     flux,_ZERO_,_ZERO_,w_adv_ctr,adv_mode_0,cc(j,:))
             end if
             
-!           do diffusion step
-            call diff_center(nlev,dt,cnpar,posconc(j),h,Neumann,Neumann,&
+!           do diffusion step (with appropriate boundary conditions)
+            call diff_center(nlev,dt,cnpar,posconc(j),h,pelvar_sbc(j),pelvar_bbc(j),&
                 sfl(j),bfl(j),nuh,Lsour,Qsour,RelaxTau,cc(j,:),cc(j,:))
             ! MAV: this part could be put behind a flag: stop_on_negative
             call test_on_negative_states(j,llsumh,cc(j,:),h,nlev,"GOTM physics",kt)
@@ -531,6 +531,8 @@
    if (allocated(ppb))            deallocate(ppb)
    if (allocated(ddb))            deallocate(ddb)
    if (allocated(pelvar_type))    deallocate(pelvar_type)
+   if (allocated(pelvar_sbc))      deallocate(pelvar_sbc)
+   if (allocated(pelvar_bbc))      deallocate(pelvar_bbc)
 
    init_saved_vars=.true.
 
@@ -605,10 +607,17 @@
    if (rc /= 0) STOP 'init_bio: Error allocating (dd)'
    dd=_ZERO_
 
-   ! allocate variable holding type and save attributes
+   ! allocate variable holding type, type of BCs and save attributes
    allocate(pelvar_type(1:numc),stat=rc)
    if (rc /= 0) STOP 'init_bio: Error allocating (pelvar_type)'
    pelvar_type = 0
+
+   allocate(pelvar_sbc(1:numc),stat=rc)
+   if (rc /= 0) STOP 'init_bio: Error allocating (pelvar_sbc)'
+   pelvar_sbc(:) = Neumann
+   allocate(pelvar_bbc(1:numc),stat=rc)
+   if (rc /= 0) STOP 'init_bio: Error allocating (pelvar_bbc)'
+   pelvar_bbc(:) = Neumann
 
    numsave=numc+numc_diag+numc_flux+numbc+numbc_diag+numbc_flux
 

@@ -24,7 +24,7 @@
 #ifdef BFM_GOTM
    REALTYPE, dimension(:,:), allocatable,target :: cc,ws
    logical, dimension(:),allocatable     :: llws
-   integer                                      :: calc_init_bennut_states
+   integer                               :: calc_init_bennut_states
    REALTYPE                              :: rel_max_sedi_rate=1.0
    REALTYPE                              :: sfl_N3n=0.0,sfl_N4n=0.0
 #else
@@ -32,6 +32,7 @@
 #endif
    integer                               :: surface_flux_method=-1
    integer                               :: n_surface_fluxes=-1
+   integer                               :: bottom_flux_method=0
    REALTYPE, dimension(:), allocatable   :: sfl_read
    REALTYPE, dimension(:), allocatable   :: sfl,bfl
    integer, dimension(:), allocatable    :: posconc
@@ -112,6 +113,10 @@
    ! type and save attributes of pelagic and benthic variables
    integer, dimension(:),      allocatable, target :: pelvar_type
    integer, dimension(:),      allocatable, target :: benvar_type
+
+   ! attributes of pelagic surface and bottom boundary conditions
+   integer, dimension(:),    allocatable, public :: pelvar_sbc
+   integer, dimension(:),    allocatable, public :: pelvar_bbc
 
    ! store arrays for average computations (pelagic and benthic)
    logical , dimension(:)  ,   allocatable           :: var_ave

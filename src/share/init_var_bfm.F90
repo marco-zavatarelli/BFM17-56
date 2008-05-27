@@ -52,7 +52,7 @@
    integer,parameter    :: NSAVE=100  ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    character(len=64),dimension(NSAVE):: ave_save
-   REALTYPE  :: N1p0,N3n0,N4n0,N5s0,N6r0,  &
+   real(RLEN)  :: N1p0,N3n0,N4n0,N5s0,N6r0,  &
                 P1c0,P2c0,P3c0,P4c0,Z3c0,  &
                 Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
                 R2c0,R6c0,R7c0,O2o0,O4n0,  &
@@ -64,6 +64,7 @@
                 P1p0,P2p0,P3p0,P4p0,P1s0
 
    namelist /bfm_init_nml/ surface_flux_method,       &
+                           bottom_flux_method,        &
                            n_surface_fluxes,          &
                            N1p0,N3n0,N4n0,N5s0,N6r0,  &
                            P1c0,P2c0,P3c0,P4c0,Z3c0,  &
@@ -80,9 +81,10 @@
 
    interface
       subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
-         REALTYPE,dimension(:),intent(in)             :: c
-         REALTYPE,intent(in),optional                 :: nc,pc,sc,lc
-         REALTYPE,dimension(:),intent(inout),optional :: n,p,s,l
+         use global_mem, only: RLEN
+         real(RLEN),dimension(:),intent(in)             :: c
+         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc
+         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
       end subroutine init_cnps
    end interface
 ! COPYING
@@ -107,6 +109,7 @@
    ! Overwritten by namelist parameters
    !---------------------------------------------
    surface_flux_method = -1
+   bottom_flux_method = 0
    n_surface_fluxes = 1
 
    !---------------------------------------------

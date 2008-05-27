@@ -28,6 +28,7 @@
    logical                            :: bio_calc,bioshade_feedback
    integer                            :: bio_setup  =1
    integer                            :: surface_flux_method=-1
+   integer                            :: bottom_flux_method=-1
    integer                            :: n_surface_fluxes=-1
    integer                            :: calc_init_bennut_states
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title

@@ -242,6 +242,8 @@ use mem_Param,  ONLY: p_eps0, p_epsESS,p_poro
 use global_interface,   ONLY: eTq
 use bio_var,    ONLY: wind_gotm => wind, u_taub
 use global_mem, only: ONE
+! GOTM module for light extinction
+use observations, only: A,g1,g2
 
 IMPLICIT NONE
 !
@@ -295,21 +297,30 @@ IMPLICIT NONE
 #else
    ESS(:) = ZERO
 #endif
-!MAV: this cannot be generic for all GOTM applications
-!   p_eps0=1.17692307692-0.0307692307692*ESW(1)
             
    !---------------------------------------------
-   ! Compute extinction coefficient
+   ! Compute biological extinction coefficient
+   ! The same abiotic extinction coefficients of 
+   ! GOTM are used for the visible part
    !---------------------------------------------
+   p_PAR = (_ONE_ - A)
+   p_eps0 = _ONE_/g2
+!MAV: this cannot be generic for all GOTM applications
+! If we want to use this kind of parameterization, it has
+! to be the same also in GOTM
+!   p_eps0=1.17692307692-0.0307692307692*ESW(1)
 
-   if (p_eps0 ==0.0 ) then
+   ! This part assumes that ISM extinction
+   ! is an external forcing
+   if (abioshade_(nlev) /= _ZERO_ ) then
      ABIO_eps(:) = abioshade_(1:nlev)
+     p_eps0 = _ZERO_
    end if
 
    call  CalcVerticalExtinction( )
 
    !---------------------------------------------
-   ! Notice that irradiance in the BFM is in
+   ! Note that irradiance in the BFM is in
    ! uE/m2/s and is defined at the top of each
    ! layer (the derivation of the average
    ! EIR for production is done in the
@@ -323,9 +334,12 @@ IMPLICIT NONE
    !---------------------------------------------
    ! bioshade is instead derived in the
    ! middle of the layer and it's non-dimensional
+   ! (p_eps0 must be removed again because GOTM
+   ! already considers it)
    !---------------------------------------------
    if (bioshade_feedback) &
-     bioshade_(1:nlev) =  EIR(:)*exp(-xEPS(:)*Depth(:)*0.5)/ EIR(nlev)
+     bioshade_(1:nlev) =  EIR(:)*exp(-(xEPS(:)-p_eps0)* &
+                          Depth(:)*0.5)/ EIR(nlev)
 
 #ifdef DEBUG
    LEVEL3 'ETW',ETW(nlev)
@@ -358,11 +372,13 @@ IMPLICIT NONE
                   ppO2o,ppN1p,ppN3n,ppN4n,ppN5s,ppN6r,  &
                   NO_D3_BOX_STATES, Depth,              &
                   ppPhytoPlankton,iiPhytoPlankton, &
-                  PELBOTTOM, PELSURFACE, &
+                  PELBOTTOM, PELSURFACE, D3STATE, &
                   jK3G4n,jK13K3n
    use mem, only: N1p, N3n, N4n, N5s
-   use constants,  only: SEC_PER_DAY
+   use mem_PelGlobal, only: p_rR6m
+   use constants,  only: RLEN,SEC_PER_DAY
    use gotm_error_msg, only:gotm_error
+   use util,          only  : Dirichlet, Neumann
 
    IMPLICIT NONE
 !
@@ -449,36 +465,55 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Collect Bottom fluxes (mmol/m2/day)
    !---------------------------------------------
-   if ((bio_setup == 3 ) .and. ( .NOT.AssignPelBenFluxesInBFMFlag)) then
-
-      bfl(ppR6c) = PELBOTTOM(ppR6c,1)/SEC_PER_DAY
-      bfl(ppR6n) = PELBOTTOM(ppR6n,1)/SEC_PER_DAY
-      bfl(ppR6p) = PELBOTTOM(ppR6p,1)/SEC_PER_DAY
-      bfl(ppR6s) = PELBOTTOM(ppR6s,1)/SEC_PER_DAY
-
-      bfl(ppR1c) =  PELBOTTOM(ppR1c,1)/SEC_PER_DAY
-      bfl(ppR1n) =  PELBOTTOM(ppR1n,1)/SEC_PER_DAY
-      bfl(ppR1p) =  PELBOTTOM(ppR1p,1)/SEC_PER_DAY
-
-      bfl(ppO2o) = PELBOTTOM(ppO2o,1)/SEC_PER_DAY
-      bfl(ppN1p) = PELBOTTOM(ppN1p,1)/SEC_PER_DAY
-      bfl(ppN3n) = PELBOTTOM(ppN3n,1)/SEC_PER_DAY
-      bfl(ppN4n) = PELBOTTOM(ppN4n,1)/SEC_PER_DAY
-      bfl(ppN5s) = PELBOTTOM(ppN5s,1)/SEC_PER_DAY
-      bfl(ppN6r) = PELBOTTOM(ppN6r,1)/SEC_PER_DAY
-
-      do i=1,iiPhytoPlankton
-        k=ppPhytoPlankton(i,iiC) 
-        bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
-        k=ppPhytoPlankton(i,iiN) 
-        bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
-        k=ppPhytoPlankton(i,iiP) 
-        bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
-        k=ppPhytoPlankton(i,iiL) 
-        bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
-        k=ppPhytoPlankton(i,iiS)
-        if ( k > 0 ) bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
-      enddo
+   if ( .NOT.AssignPelBenFluxesInBFMFlag ) then
+     select case (bottom_flux_method)
+        case (-1)! absolutely nothing
+        case (0) ! default BFM with benthic model
+           bfl(ppR6c) = PELBOTTOM(ppR6c,1)/SEC_PER_DAY
+           bfl(ppR6n) = PELBOTTOM(ppR6n,1)/SEC_PER_DAY
+           bfl(ppR6p) = PELBOTTOM(ppR6p,1)/SEC_PER_DAY
+           bfl(ppR6s) = PELBOTTOM(ppR6s,1)/SEC_PER_DAY
+     
+           bfl(ppR1c) =  PELBOTTOM(ppR1c,1)/SEC_PER_DAY
+           bfl(ppR1n) =  PELBOTTOM(ppR1n,1)/SEC_PER_DAY
+           bfl(ppR1p) =  PELBOTTOM(ppR1p,1)/SEC_PER_DAY
+     
+           bfl(ppO2o) = PELBOTTOM(ppO2o,1)/SEC_PER_DAY
+           bfl(ppN1p) = PELBOTTOM(ppN1p,1)/SEC_PER_DAY
+           bfl(ppN3n) = PELBOTTOM(ppN3n,1)/SEC_PER_DAY
+           bfl(ppN4n) = PELBOTTOM(ppN4n,1)/SEC_PER_DAY
+           bfl(ppN5s) = PELBOTTOM(ppN5s,1)/SEC_PER_DAY
+           bfl(ppN6r) = PELBOTTOM(ppN6r,1)/SEC_PER_DAY
+     
+           do i=1,iiPhytoPlankton
+             k=ppPhytoPlankton(i,iiC) 
+             bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
+             k=ppPhytoPlankton(i,iiN) 
+             bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
+             k=ppPhytoPlankton(i,iiP) 
+             bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
+             k=ppPhytoPlankton(i,iiL) 
+             bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
+             k=ppPhytoPlankton(i,iiS)
+             if ( k > 0 ) bfl(k) = PELBOTTOM(k,1)/SEC_PER_DAY
+           enddo
+        case (1) ! prescribed boundary fluxes (user)
+           pelvar_bbc(ppN1p) = Dirichlet
+           bfl(ppN1p) = 0.2_RLEN
+           pelvar_bbc(ppN3n) = Dirichlet
+           bfl(ppN3n) = 4.0_RLEN
+           pelvar_bbc(ppN5s) = Dirichlet
+           bfl(ppN5s) = 5.0_RLEN
+           ! detritus flux at the bottom
+           PELBOTTOM(ppR6c,1) = -p_rR6m*D3STATE(ppR6c,1)
+           PELBOTTOM(ppR6n,1) = -p_rR6m*D3STATE(ppR6n,1)
+           PELBOTTOM(ppR6p,1) = -p_rR6m*D3STATE(ppR6p,1)
+           PELBOTTOM(ppR6s,1) = -p_rR6m*D3STATE(ppR6s,1)
+           bfl(ppR6c) = PELBOTTOM(ppR6c,1)/SEC_PER_DAY
+           bfl(ppR6n) = PELBOTTOM(ppR6n,1)/SEC_PER_DAY
+           bfl(ppR6p) = PELBOTTOM(ppR6p,1)/SEC_PER_DAY
+           bfl(ppR6s) = PELBOTTOM(ppR6s,1)/SEC_PER_DAY
+      end select
    endif
    end subroutine do_bio_bfm
 !EOC
