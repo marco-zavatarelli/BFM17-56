@@ -47,16 +47,16 @@
 
   use global_mem, ONLY:RLEN, ONE, ZERO
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem, ONLY: D3STATE, O2o, N1p, N4n, R6c, R6p, R2c, &
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
-#endif
   use mem, ONLY: ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6p, Depth, &
     ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
     qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, jnetMeZc, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiP1, iiC, iiN, iiP, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#endif
   use mem_Param,  ONLY: p_small,check_fixed_quota
   use constants,ONLY: MIN_VAL_EXPFUN, MW_C
   use mem_MesoZoo
@@ -114,7 +114,6 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
-  integer  :: j
   integer,dimension(NO_BOXES)  :: nut_lim
   real(RLEN),dimension(NO_BOXES)  :: put_u
   real(RLEN),dimension(NO_BOXES)  :: temp_p
@@ -167,8 +166,6 @@
   real(RLEN),dimension(NO_BOXES)  :: tfluxn
   real(RLEN),dimension(NO_BOXES)  :: tfluxp
   real(RLEN),dimension(NO_BOXES)  :: net
-  real(RLEN),dimension(NO_BOXES)  :: optR2c
-  real(RLEN),dimension(NO_BOXES)  :: hr
   real(RLEN),dimension(NO_BOXES)  :: r
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

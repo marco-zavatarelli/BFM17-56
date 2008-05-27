@@ -60,6 +60,15 @@ INCDIRS	+= -I/usr/local/include -I$(BFMDIR)/include -I$(MODDIR)
 ## -------------------------------------------------------------------------
 ## BFM CONFIGURATION 
 ## -------------------------------------------------------------------------
+# BFM source directories
+BFMSRCDIR =$(BFMDIR)/src/BFM/General 
+BFMSRCDIR +=$(BFMDIR)/src/BFM/PelB
+BFMSRCDIR +=$(BFMDIR)/src/BFM/Oxygen
+BFMSRCDIR +=$(BFMDIR)/src/BFM/Light
+BFMSRCDIR +=$(BFMDIR)/src/BFM/Forcing
+BFMSRCDIR +=$(BFMDIR)/src/BFM/PelBen
+BFMSRCDIR +=$(BFMDIR)/src/share
+
 # BFM include files and the library
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 INCDIRS		+= -I$(BFMINCDIR)
@@ -70,6 +79,7 @@ INCDIRS		+= -I$(BFMINCDIR)
 INCLUDE_PELCO2=false
 ifeq ($(INCLUDE_PELCO2),true)
   DEFINES += -DINCLUDE_PELCO2
+  BFMSRCDIR += $(BFMDIR)/src/BFM/CO2
 endif
 # Benthic ecosystem flags (activates compilation and macros, true by default)
 INCLUDE_BEN = true
@@ -80,6 +90,7 @@ ifeq ($(INCLUDE_BEN),true)
   ifeq ($(INCLUDE_BENCO2),true)
     DEFINES += -DINCLUDE_BENCO2
     DEFINES += -DINCLUDE_PELCO2
+    BFMSRCDIR += $(BFMDIR)/src/BFM/CO2
   endif
   ifeq ($(INCLUDE_BENPROFILES),true)
     DEFINES += -DINCLUDE_BENPROFILES
@@ -94,6 +105,13 @@ ifeq ($(INCLUDE_SEAICE),true)
   # the GlobalDefsBFM.model.seaice file in BFM/General/Configurations
   DEFINES += -DINCLUDE_BEN
   DEFINES += -DINCLUDE_SEAICE
+  BFMSRCDIR += $(BFMDIR)/src/BFM/Seaice
+endif
+# Silt submodel (only for GOTM)
+INCLUDE_SILT = false
+ifeq ($(INCLUDE_SILT),true)
+  DEFINES += -DINCLUDE_SILT
+  BFMSRCDIR += $(BFMDIR)/src/BFM/Silt
 endif
 
 ## -------------------------------------------------------------------------

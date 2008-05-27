@@ -29,6 +29,10 @@ F_O += -I$(NEMOLIBDIR)/oce
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
 P_P += -DBFM_NEMO  $(DEFINES)
+## specific options for NEC-SX
+ifeq ($(FORTRAN_COMPILER),NECSX6)
+P_P += -DBFM_NOPOINTERS -R2
+endif
 
 BFM_PELMOD = \
 	${BFMLIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
@@ -111,16 +115,14 @@ endif
 .PHONY: all depend clean
 
 # Include the dependency-list created by makedepf90 below
-include .depend
+#include .depend
 
 all: $(BFM_PELMOD) $(BFM_PELCO2MOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) \
 	$(BFM_PELCO2OBJ) depend 
-#all : $(BFM_PELMOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) 
 
 $(BFM_PELMOD) : $(BFMSRC)/General/ModuleMem.F90
 
 ${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model
-	echo 'Script should start now'
 	$(BFMSRC)/scripts/GenerateGlobalBFMF90Code  $(DEFINES) \
 		-read $(BFMSRC)/General/GlobalDefsBFM.model \
 		-from $(BFMSRC)/proto -to $(BFMSRC)/General \
@@ -160,19 +162,19 @@ clean:
 %.o: %.f90
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
-		-@#$(A_C) $(BFMLIB) $*.o  > /dev/null
-		-@#$(RM) $*.[of]
-		-@if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
-		-@#if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
-		-@if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
+		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
+		$(RM) $*.[of]
+		if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
+		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
+		if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
 %.o: %.F90
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
-		-@#$(A_C) $(BFMLIB) $*.o  > /dev/null
-		-@#$(RM) $*.[of]
-		-@if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
-		-@#if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
-		-@if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
+		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
+		$(RM) $*.[of]
+		if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
+		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
+		if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
 
 
 

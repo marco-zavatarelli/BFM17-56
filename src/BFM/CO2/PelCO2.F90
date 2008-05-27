@@ -21,10 +21,14 @@
   use global_mem, ONLY:RLEN,ONE,ZERO
   use constants, ONLY:MW_C
   use mem_Param, ONLY:  AssignAirPelFluxesInBFMFlag
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem, ONLY: iiPel, O3h, O3c, D3STATE, jsurO3c, CO2airflux, &
                  Depth, flux_vector, DIC, EPCO2air, Ac, DIC
   use mem, ONLY: ppO3h, ppO3c, NO_BOXES, NO_BOXES_XY, BoxNumber, &
     N1p,N5s,CO2, HCO3, CO3, pCO2, pH, ETW, ESW, ERHO, EWIND, EICE
+#endif
   use CO2System, ONLY: CalcCO2System,CalcK0
   use mem_CO2    
   use BFM_ERROR_MSG, ONLY: BFM_ERROR
@@ -113,9 +117,10 @@
   ! Computes air-sea flux (only at surface points)
   ! Output array CO2airflux is in mmol/m2/d
   !---------------------------------------------------------------
-  call CO2flux(EWIND,ETW(SRFindices),ERHO(SRFindices),EPCO2air, &
-               pco2(SRFindices),K0_1d(SRFindices),                &
-               NO_BOXES_XY,CO2airflux)
+  call CO2flux(EWIND(:),ETW(SRFindices),ERHO(SRFindices), &
+               EPCO2air(:), pco2(SRFindices),             &
+               K0_1d(SRFindices),                         &
+               NO_BOXES_XY,CO2airflux(:))
 #ifdef DEBUG
   LEVEL3 'pco2air',EPCO2air
   LEVEL3 'co2airflux',CO2airflux
@@ -130,7 +135,7 @@
   ! In the water, the flux is subtracted from
   ! (or added to) the diagonal element of O3c (i.e. infinite source)
   !---------------------------------------------------------------
-  jsurO3c =  (ONE-EIce)*CO2airflux * MW_C
+  jsurO3c =  (ONE-EICE(:))*CO2airflux(:) * MW_C
 #ifdef DEBUG
   LEVEL3 'jsurO3c',jsurO3c
 #endif

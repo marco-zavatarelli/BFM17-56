@@ -1,12 +1,21 @@
 # Set options for the NECSX6 Fortran compiler.
+# This file is specific for compilation at CMCC-INGV SX6
 ifeq ($(FORTRAN_COMPILER),NECSX6)
+SX_BASE_F90 = /SX/opt/sxf90/rev316
+F90 = $(SX_BASE_F90)/bin/sxf90
+SXF90 = $(SX_BASE_F90)/bin/sxf90
 FC=${SXF90}
+AR=${SXAR}
+SEP=-I
+EXPIN := $(BFMSRCDIR:%=$(SEP)%)
 DEFINES += -DNECSX
 can_do_F90=true
 MODULES=-I $(MODDIR)
 EXTRAS	= 
-DEBUG_FLAGS = -g 
+DEBUG_FLAGS = -g -ftrace -R2 
 PROF_FLAGS  = -p -ftrace
-PROD_FLAGS  = -R2 -EP -Pstack -sx6 -Chopt -Wf,-P nh -Wf,-pvctl noassume loopcnt=200000 vworksz=4M -Wf,-A idbl4 -Wf,-msg o -Wf,-pvctl fullmsg -Wf,-L fmtlist transform map summary noinclist
+INLINE = -pi expin=./BFM/General,./share exp=sourcesink_flux_vector,flux_vector,flux nest=2
+PROD_FLAGS  = -R2 -EP -sx6 -Cvopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist
 REAL_4B	= real\(4\)
+DIRCLEAN += ./i.* ./*.mod
 endif

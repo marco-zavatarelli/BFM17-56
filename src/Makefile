@@ -3,12 +3,15 @@
 ## uses makedepf90 to build dependencies "on the fly"
 ## http://www.helsinki.fi/~eedelman/makedepf90.html
 
+DIRCLEAN =
+
 include ./Rules.make
 
 EXE	= bfm_standalone$(buildtype)
 MAINOBJ	= ./standalone/standalone_main.o 
 LIB	= $(LIBDIR)/libbfm$(buildtype).a
 BFMSRC = ./BFM
+BFMSRCDIR += ./standalone
 
 BFM_PELMOD = \
 	${LIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
@@ -239,7 +242,7 @@ clean:
 	$(RM) ${BFMSRC}/*/*.o
 
 distclean:
-	$(RM) ../modules/*/*.{m,mod}
+	$(RM) ../modules/*/*.{m,mod} $(DIRCLEAN)
 	$(RM) ../lib/*/lib*.a
 	$(RM) ./share/*.o
 	$(RM) ./standalone/*.o

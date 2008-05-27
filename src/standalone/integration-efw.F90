@@ -72,11 +72,13 @@
          IF (nstep.eq.1) THEN
             LEVEL1 'Necessary Time Step too small! Exiting...'
             blccc(:,1)=minloc(D3STATE)
+            bbccc3D = sum(D3SOURCE(:,:,:)-D3SINK(:,:,:),2)
             LEVEL1 'Pelagic Variable:',trim(var_names(stPelStateS+blccc(1,1)-1))
             LEVEL1 'Value: ',D3STATE(blccc(1,1),blccc(2,1)),' Rate: ', &
                         bbccc3D(blccc(1,1),blccc(2,1))
 #ifdef INCLUDE_BEN
             blccc(:,2)=minloc(D2STATE)
+            bbccc2D = sum(D2SOURCE(:,:,:)-D2SINK(:,:,:),2)
             if (bio_setup>=2) then
                LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
                LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &

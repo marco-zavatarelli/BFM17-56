@@ -40,12 +40,12 @@
   use global_mem, ONLY:RLEN
   use constants, ONLY:ZERO_KELVIN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem,  ONLY: O2o
-#endif
   use mem, ONLY: ppO2o, cxoO2, eO2mO2, ETW, ESW, NO_BOXES, iiBen, iiPel, &
     flux_vector
+#endif
   use mem_Param,  ONLY: p_small
   IMPLICIT NONE
 !  

@@ -17,8 +17,11 @@
    use global_mem, only: RLEN
    use constants,  only: SEC_PER_DAY
    use mem, only: D3STATE,D3SOURCE,D3SINK,NO_D3_BOX_STATES, &
-                  D2STATE,D2SOURCE,D2SINK,NO_D2_BOX_STATES, &
-                  D3STATETYPE,D2STATETYPE
+                  D3STATETYPE,NO_BOXES
+#ifdef INCLUDE_BEN
+   use mem, only: D2STATE,D2SOURCE,D2SINK,NO_D2_BOX_STATES, &
+                  D2STATETYPE
+#endif
    use mem_param, only: CalcTransportFlag, CalcBenthicFlag, &
                         CalcPelagicFlag
    ! NEMO
@@ -39,15 +42,17 @@
 ! !LOCAL VARIABLES:
    integer               :: j
    real(RLEN)            :: delt
+   real(RLEN)            :: tmp(NO_D3_BOX_STATES,NO_BOXES)
+   real(RLEN)            :: tmp2(NO_BOXES)
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
    !---------------------------------------------
-   ! Biological timestep (in days)
+   ! Biological timestep 
    !---------------------------------------------
-   delt  = rdt*FLOAT(ndttrc)/SEC_PER_DAY
+   delt  = rdt*FLOAT(ndttrc)
 
    !---------------------------------------------
    ! Compute external forcing functions
@@ -69,12 +74,14 @@
             D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
       end do
    end if
+#ifdef INCLUDE_BEN
    if (CalcBenthicFlag /= 0) then
       do j=1,NO_D2_BOX_STATES
          if (D2STATETYPE(j).ge.0) &
             D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
       end do
    end if
+#endif
 
    return
    end subroutine trcbfm

@@ -28,7 +28,7 @@
   use global_mem, ONLY:RLEN,ZERO
   use constants, ONLY: MW_P, MW_N, MW_SI
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE,D3STATE
+  use mem
 #else
   use mem, ONLY: B1c, B1p, B1n, N1p, N3n, N4n, N5s, O4n
 # ifdef INCLUDE_PELCO2
@@ -42,7 +42,6 @@
   use mem, ONLY: G3c
 #  endif
 # endif
-#endif
   use mem, ONLY: ppB1c,ppB1p,ppB1n, &
      ppN1p, ppN3n, ppN4n, ppO4n, ppN5s, ppO3c, &
     Depth, Volume, Area, Area2d
@@ -51,16 +50,20 @@
     iiPel, flux_vector,ppMicroZooplankton,ppMesoZooPlankton,MicroZooplankton,MesoZooPlankton, &
     iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,iiC,iiN,iiP,iiS,&
     PhytoPlankton,iiPhytoPlankton,ppPhytoPlankton,PelDetritus,iiPelDetritus,ppPelDetritus
-  use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
-  use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
 #ifdef INCLUDE_BEN
   use mem, ONLY: ppQ1c, ppQ6c, ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
     ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
     ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
     ppG4n, ppK3n, ppK24n, ppK5s, totbenc, totbenp, totbenn, totbens, NO_BOXES_XY, iiBen
+#endif
+#endif
+
+  use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
+  use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
+  use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
+#ifdef INCLUDE_BEN
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
 #endif
-  use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
 
 !  
 !
@@ -103,77 +106,80 @@
   real(RLEN),dimension(NO_BOXES)  :: s
   integer                         ::i,j
   
-  totpelc=ZERO
-  totpelp=ZERO
-  totpeln=ZERO
-  totpels=ZERO
+  totpelc(:)=ZERO
+  totpelp(:)=ZERO
+  totpeln(:)=ZERO
+  totpels(:)=ZERO
   do i=1, iiPhytoPlankton
      s=PhytoPlankton(i,iiC)
-     totpelc=totpelc + s
+     totpelc(:)=totpelc(:) + s
      s=PhytoPlankton(i,iiN)
-     totpeln=totpeln + s
+     totpeln(:)=totpeln(:) + s
      s=PhytoPlankton(i,iiP)
-     totpelp=totpelp + s
+     totpelp(:)=totpelp(:) + s
      j=ppPhytoPlankton(i,iiS)
      if ( j/=0) then
         s=PhytoPlankton(i,iiS)
-        totpels=totpels + s
+        totpels(:)=totpels(:) + s
      end if
   end do
   do i=1, iiMicroZooplankton
      j=max(1,ppMicroZooPlankton(i,iiN))
      s=MicroZooplankton(i,j)
      if ( j==1) s=s*p_qn_mz(i)
-     totpeln=totpeln + s
+     totpeln(:)=totpeln(:) + s
      j=max(1,ppMicroZooPlankton(i,iiP))
      s=MicroZooplankton(i,j)
      if ( j==1) s=s*p_qp_mz(i)
-     totpelp=totpelp + s
+     totpelp(:)=totpelp(:) + s
   end do
   do i=1, iiMesoZooplankton
      j=max(1,ppMesoZooPlankton(i,iiN))
      s=MesoZooplankton(i,j)
      if ( j==1) s=s*p_qnMc(i)
-     totpeln=totpeln + s
+     totpeln(:)=totpeln(:) + s
      j=max(1,ppMesoZooPlankton(i,iiP))
      s=MesoZooplankton(i,j)
      if ( j==1) s=s*p_qpMc(i)
-     totpelp=totpelp + s
+     totpelp(:)=totpelp(:) + s
    end do
   do i=1, iiPelDetritus
      if ( ppPelDetritus(i,iiC)/=0) then
         s=PelDetritus(i,iiC)
-        totpelc=totpelc + s
+        totpelc(:)=totpelc(:) + s
      end if
      if ( ppPelDetritus(i,iiN)/=0) then
         s=PelDetritus(i,iiN)
-        totpeln=totpeln + s
+        totpeln(:)=totpeln(:) + s
      end if
      if ( ppPelDetritus(i,iiP)/=0) then
         s=PelDetritus(i,iiP)
-        totpelp=totpelp + s
+        totpelp(:)=totpelp(:) + s
      end if
      if ( ppPelDetritus(i,iiS)/=0) then
         s=PelDetritus(i,iiS)
-        totpels=totpels + s
+        totpels(:)=totpels(:) + s
      end if
   end do
 
-  totpelc = totpelc+ B1c
+  totpelc(:) = totpelc(:)+ B1c(:)
 #ifdef INCLUDE_PELCO2
-  totpelc = totpelc+ O3c
+  totpelc(:) = totpelc(:)+ O3c(:)
 #endif
   ! Convert from default units to g and multiply for the water volume
-  totpelc = totpelc*Volume/1000.0_RLEN
+  totpelc(:) = totpelc(:)*Volume(:)/1000.0_RLEN
   ! Convert from default units to g and multiply for the water volume
-  totpeln = (totpeln+ ( B1n + N3n + N4n + O4n))*Volume*MW_N/1000.0_RLEN
-  totpelp = (totpelp+ ( B1p + N1p))*Volume*MW_P/1000.0_RLEN
-  totpels = (totpels+ ( N5s ))*Volume*MW_SI/1000.0_RLEN
+  totpeln(:) = (totpeln(:)+ ( B1n(:) + N3n(:) + N4n(:) + O4n(:))) &
+               *Volume(:)*MW_N/1000.0_RLEN
+  totpelp(:) = (totpelp(:)+ ( B1p(:) + N1p(:))) &
+               *Volume(:)*MW_P/1000.0_RLEN
+  totpels(:) = (totpels(:)+ ( N5s(:) )) &
+               *Volume(:)*MW_SI/1000.0_RLEN
 
-  totsysc = sum(totpelc(:))
-  totsysn = sum(totpeln(:))
-  totsysp = sum(totpelp(:))
-  totsyss = sum(totpels(:))
+  totsysc(:) = sum(totpelc(:))
+  totsysn(:) = sum(totpeln(:))
+  totsysp(:) = sum(totpelp(:))
+  totsyss(:) = sum(totpels(:))
 
 #ifdef INCLUDE_BEN
   ! Mass conservation variables
@@ -210,22 +216,22 @@
   end select
 
 #ifdef INCLUDE_BENCO2
-  totbenc = totbenc(:)+G3c(:)
+  totbenc(:) = totbenc(:)+G3c(:)
 #endif
   ! Convert from default units to g and multiply for the sediment volume
-  totbenc = totbenc(:)/1000.0_RLEN*Area2d*p_d_tot
-  totbenn = totbenn(:)*MW_N/1000.0_RLEN*Area2d*p_d_tot
-  totbenp = totbenp(:)*MW_P/1000.0_RLEN*Area2d*p_d_tot
-  totbens = totbens(:)*MW_Si/1000.0_RLEN*Area2d*p_d_tot
+  totbenc(:) = totbenc(:)/1000.0_RLEN*Area2d(:)*p_d_tot
+  totbenn(:) = totbenn(:)*MW_N/1000.0_RLEN*Area2d(:)*p_d_tot
+  totbenp(:) = totbenp(:)*MW_P/1000.0_RLEN*Area2d(:)*p_d_tot
+  totbens(:) = totbens(:)*MW_Si/1000.0_RLEN*Area2d(:)*p_d_tot
 
   ! Add benthic mass to the total
-  totsysc = totsysc+sum(totbenc(:))
-  totsysn = totsysn+sum(totbenn(:))
-  totsysp = totsysp+sum(totbenp(:))
-  totsyss = totsyss+sum(totbens(:))
+  totsysc(:) = totsysc(:)+sum(totbenc(:))
+  totsysn(:) = totsysn(:)+sum(totbenn(:))
+  totsysp(:) = totsysp(:)+sum(totbenp(:))
+  totsyss(:) = totsyss(:)+sum(totbens(:))
 #endif
 
-  end
+  end subroutine CheckMassConservationDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

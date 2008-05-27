@@ -56,12 +56,12 @@
 
   use global_mem, ONLY:RLEN,NOTRANSPORT
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem,  ONLY: D3STATE, PhytoPlankton
-#endif
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, EIR, xEPS, Depth, EPLi, eiPI, &
     iiL, NO_BOXES, iiBen, iiPel, flux_vector
+#endif
   use mem_Param,  ONLY: LightForcingFlag
   use mem_PhotoAvailableRadiation
 

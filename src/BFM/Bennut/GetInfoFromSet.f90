@@ -76,7 +76,11 @@
           layer=termnr/10
           bC=sets(NUTR)%b(layer)
           s=sets(NUTR)%factor(seqnr)
-          j=-2* (input == PARAMETER) 
+          if (input == PARAMETER)  then
+            j = -2
+          else
+            j = 0
+          end if
           if ( s/=0.0 ) then
             r= funcalc(option,j,sets(NUTR)%coeffs(seqnr),bC,at_x)
             !calculate the result at the upper border and subtract it from the

@@ -24,31 +24,21 @@
 !
 ! !USES:
 
-  ! For the following Pelagic-states fluxes are defined: B1c, R6c, B1n, R6n, &
-  ! B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, N4n, N1p, N3n, R7c
-  ! The following Pelagic 1-d global boxvars are modified : flPTN6r
-  ! The following Pelagic 1-d global boxvars are used: ETW, qnB1c, qpB1c, &
-  ! eO2mO2, qpR6c, qnR6c
-  ! The following 0-d global parameters are used: p_pe_R1c, p_pe_R1n, &
-  ! p_pe_R1p, p_qro
-  ! The following global constants are used: RLEN
-  ! The following constants are used: MW_C, ONE_PER_DAY
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem, ONLY: B1c, R6c, B1n, R6n, B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
     N4n, N1p, N3n, R7c
-#endif
   use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, ppO3c, jnetB1c, &
     ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR7c, flPTN6r, Depth,&
     ETW, qnB1c, qpB1c, eO2mO2, qpR6c, qnR6c, NO_BOXES, iiBen, iiPel, flux_vector, &
     sourcesink_flux_vector
+#endif
   use constants,  ONLY: MW_C, ONE_PER_DAY
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, p_small
   use mem_PelBac

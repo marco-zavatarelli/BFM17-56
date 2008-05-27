@@ -1,6 +1,5 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-#define DEBUG
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -13,34 +12,11 @@
 !    groups in the ERSEM model. The differences in behaviour
 !    are expressed by differences in parameter-values only.
 !    
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine PhytoDynamics(phyto, ppphytoc, ppphyton, ppphytop, ppphytos, &
     ppphytol)
 !
 ! !USES:
-
-  ! For the following Pelagic-states fluxes are defined: R1c, R6c, O2o, R2c, &
-  ! N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
-  ! The following global scalar vars are used: SUNQ, ThereIsLight
-  ! The following Pelagic 1-d global boxvars are modified : flP1R6s
-  ! The following Pelagic 1-d global boxvars  are used: ETW, EIR, xEPS, Depth
-  ! The following Pelagic 2-d global boxvars are modified : eiPI, sediPI
-  ! The following Pelagic 2-d global boxvars got a value: sunPI
-  ! The following Pelagic 2-d global boxvars  are used: qpPc, qnPc, qsPc, qlPc
-  ! The following groupmember vars  are used: iiP1, iiP4
-  ! The following 0-d global parameters are used: p_small, &
-  ! ChlLightFlag, LightForcingFlag
-  ! The following 1-d global parameter vars are used: p_qchlc
-  ! The following global constants are used: RLEN
-  ! The following constants are used: SEC_PER_DAY, E2W, HOURS_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -49,15 +25,15 @@
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants, ONLY: MW_C
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, &
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
-#endif
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, SUNQ, ThereIsLight, flP1R6s, ETW, EIR, xEPS, &
     Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, iiP1, iiP4, NO_BOXES, &
     iiBen, iiPel, flux_vector, sourcesink_flux_vector
+#endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag, p_qchlc, &
                         LightLocationFlag
@@ -125,8 +101,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer                         :: silica_control
-  integer,dimension(NO_BOXES)     :: i
-  real(RLEN),dimension(NO_BOXES)  :: r
+  real(RLEN),dimension(NO_BOXES)  :: r,tmp
   real(RLEN),dimension(NO_BOXES)  :: et
   real(RLEN),dimension(NO_BOXES)  :: sum
   real(RLEN),dimension(NO_BOXES)  :: sadap
@@ -173,7 +148,6 @@
   real(RLEN),dimension(NO_BOXES)  :: Irr
   real(RLEN),dimension(NO_BOXES)  :: rho_Chl
   real(RLEN),dimension(NO_BOXES)  :: rate_Chl
-  real(RLEN),dimension(NO_BOXES)  :: Photo_max
   real(RLEN),dimension(NO_BOXES)  :: flPIR2c
 
   real(RLEN),dimension(NO_BOXES)  :: seo
@@ -209,15 +183,13 @@
   phytol = D3STATE(ppphytol,:)
   if ( ppphytos > 0 )  phytos = D3STATE(ppphytos,:)
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitation (intracellular) N, P
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  iN1p = min( ONE, max( p_small, ( qpPc(phyto, &
-    :)- p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
-  iNIn = min( ONE, max( p_small, ( qnPc(phyto, &
-    :)- p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
-
+  iN1p = min( ONE, max( p_small, ( qpPc(phyto,:) &
+         - p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
+  iNIn = min( ONE, max( p_small, ( qnPc(phyto,:) &
+         - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Phytoplankton growth is limited by nitrogen and phosphorus
@@ -226,20 +198,16 @@
     case ( 0 )
       iN  =   (iN1p* iNIn)**(0.5D+00)  ! geometric mean
 
-
     case ( 1 )
       iN  =   min(  iN1p,  iNIn)  ! Liebig rule
-
 
     case ( 2 )
       iN  =   2.0D+00/( ONE/ iN1p+ ONE/ iNIn)  ! combined
 
-
   end select
 
-
   ! tN controls sedimentation of phytoplankton
-  tN= iN;
+  tN= iN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitation due to intra- extracellular silicate.
@@ -249,7 +217,7 @@
   if ( silica_control > 0 ) then
     select case (silica_control) 
       case(1)
-        eN5s = min( ONE,N5s/(N5s + p_chPs(phyto)));
+        eN5s = min( ONE,N5s(:)/(N5s(:) + p_chPs(phyto)));
         tN=min(iN,eN5s);
       case(2)
         eN5s=ONE
@@ -261,15 +229,15 @@
     eN5s  =   ONE
   endif
 
-
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature response of Phytoplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   et  =   eTq_vector(  ETW(:),  p_q10(phyto))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Photosynthesis (Irradiance EIR is in uE m-2 s-1, Irr is mid-layer EIR)
+  ! Photosynthesis 
+  ! Irradiance EIR is in uE m-2 s-1, 
+  ! Irr is top, middle or average irradiance in uE m-2 day-1
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   if ( ChlLightFlag== 2) then
@@ -277,18 +245,20 @@
     select case ( LightLocationFlag)
        case ( 1 )
           ! Light at the top of the cell
-          Irr =  max(p_small, EIR(:))*SEC_PER_DAY;
+          Irr =  max(p_small,EIR(:))*SEC_PER_DAY;
        case ( 2 )
           ! Light in the middle of the cell
-          Irr = max(p_small, EIR(:))*exp(-xEPS* 0.5 * Depth)*SEC_PER_DAY;
+          Irr = max(p_small,EIR(:))*exp(-xEPS(:)*0.5_RLEN*Depth(:)) &
+                *SEC_PER_DAY
        case ( 3 ) ! default
           ! Average Light in the cell
-          Irr = max( p_small, EIR(:)/ xEPS(:)/ Depth(:)*( ONE- exp( &
-            - xEPS(:)* Depth(:)))* SEC_PER_DAY)
+          r = xEPS(:)* Depth(:)
+          r = EIR(:)/xEPS(:)/Depth(:)*(ONE-exp(-r))
+          Irr = max(p_small,r*SEC_PER_DAY)
     end select
 
-    eiPI(phyto,:) = ( ONE- exp( - qlPc(phyto, :)* p_alpha_chl(phyto)/ &
-      p_sum(phyto)* Irr))
+    r(:) = qlPc(phyto, :)* p_alpha_chl(phyto)/p_sum(phyto)* Irr
+    eiPI(phyto,:) = ( ONE- exp( - r))
 
   end if
 
@@ -312,7 +282,6 @@
   ! extra lysis for high-density
   sdo  =   sdo+ p_seo(phyto)* MM_vector(  phytoc,  100.0_RLEN)
 
-
   sea  =   sum* p_pu_ea(phyto)  ! activity excretion
 
   if (p_netgrowth(phyto)) then
@@ -330,8 +299,8 @@
   ! at least a fraction equal to the minimum quota is released as POM.
   ! Therefore, nutrients (and C) in the structural part go to R6.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  pe_R6 = min( p_qplc(phyto)/( qpPc(phyto, :)+ p_small), p_qnlc(phyto)/( &
-    qnPc(phyto, :)+ p_small))
+  pe_R6 = min( p_qplc(phyto)/( qpPc(phyto, :)+ p_small), p_qnlc(phyto)/ &
+          ( qnPc(phyto, :)+ p_small))
   pe_R6  =   min(  ONE,  pe_R6)
   rr6c  =   pe_R6* sdo* phytoc
   rr1c  =  ( ONE- pe_R6)* sdo* phytoc
@@ -436,7 +405,8 @@
   runn4  =   r* runn* rumn4/( p_small+ rumn)  ! actual uptake of Nn
   call flux_vector( iiPel, ppN3n,ppphyton, runn3 )  ! source/sink.n
   call flux_vector( iiPel, ppN4n,ppphyton, runn4 )  ! source/sink.n
-  call flux_vector(iiPel, ppphyton,ppN4n,- runn*( ONE- r))  ! source/sink.n
+  tmp = - runn*( ONE- r)
+  call flux_vector(iiPel, ppphyton,ppN4n,tmp)  ! source/sink.n
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
@@ -446,8 +416,10 @@
   runp  =   min(  rump,  rupp+ misp)  ! actual uptake
 
   r  =   insw_vector(  runp)
-  call flux_vector( iiPel, ppN1p,ppphytop, runp* r )  ! source/sink.p
-  call flux_vector(iiPel, ppphytop,ppN1p,- runp*( ONE- r))  ! source/sink.p
+  tmp = runp*r
+  call flux_vector( iiPel, ppN1p,ppphytop, tmp )  ! source/sink.p
+  tmp = - runp*( ONE- r)
+  call flux_vector(iiPel, ppphytop,ppN1p, tmp)  ! source/sink.p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP

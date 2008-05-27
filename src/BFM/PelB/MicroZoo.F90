@@ -44,16 +44,16 @@
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants,  ONLY:MW_C
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem, ONLY: D3STATE, B1c, B1n, B1p, O2o, R1c, R6c, R1n, R6n, &
     R2c,R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton
-#endif
   use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppO3c, ppR1c, ppR6c, Depth,&
     ppR1n, ppR6n, ppR1p, ppR6p, ppN4n, ppN1p, ppPhytoPlankton, ppMicroZooPlankton, &
     flP1R6s, ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, jnetMiZc, &
     qlPc, qsPc, iiPhytoPlankton, iiMicroZooPlankton, iiP1, iiC, iiN, iiP, iiL, &
     NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#endif
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
   use mem_MicroZoo
 

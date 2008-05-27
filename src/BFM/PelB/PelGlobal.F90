@@ -11,52 +11,17 @@
 ! DESCRIPTION
 !   !
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine PelGlobalDynamics
 !
 ! !USES:
-  ! The following Pelagic-states are used (NOT in fluxes): R6p, R6c, R6n, R6s, &
-  ! P1s, P1c, B1p, B1c, B1n
-  ! The following box states are used (NOT in fluxes): &
-  ! MicroZooPlankton, MesoZooPlankton, PhytoPlankton
-  ! The following Pelagic 1-d global boxvars got a value: flP1R6s, flPTN6r, &
-  ! qpR6c, qnR6c, qsR6c, qpB1c, qnB1c, sediR6
-  ! The following Pelagic 2-d global boxvars got a value: qp_mz, qn_mz, qpZc, &
-  ! qnZc, qpPc, qnPc, qlPc, qsPc, sediPI
-  ! The following groupmember vars are used: iiMicroZooPlankton, &
-  ! iiMesoZooPlankton, iiPhytoPlankton, iiP1
-  ! The following constituent constants  are used: iiP, iiC, iiN, iiL
-  ! The following 0-d global parameters are used: p_small
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
-#ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
-#else
-  use mem, ONLY: R6p, R6c, R6n, R6s, P1s, P1c, B1p, &
-    B1c, B1n, MicroZooPlankton, MesoZooPlankton, PhytoPlankton
-#endif
-  use mem, ONLY: ppR6p, ppR6c, ppR6n, ppR6s, ppP1s, ppP1c, &
-    ppB1p, ppB1c, ppB1n, ppMicroZooPlankton, ppMesoZooPlankton, ppPhytoPlankton, &
-    flP1R6s, flPTN6r, qpR6c, qnR6c, qsR6c, qpB1c, qnB1c, sediR2, sediR6, qp_mz, &
-    qn_mz, qpZc, qnZc, qpPc, qnPc, qlPc, qsPc, sediPI, iiMicroZooPlankton, &
-    iiMesoZooPlankton, iiPhytoPlankton, iiP1, iiP, iiC, iiN, iiL, NO_BOXES, &
-    iiBen, iiPel, flux_vector
   use mem_Param,  ONLY: p_small
   use mem_PelGlobal
-
-
-
+  use mem
 !  
 !
 ! !AUTHORS
@@ -155,20 +120,14 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute sedimentation velocities
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  sediR2     = 0.0;
+  sediR2(:)     = ZERO
   sediR6(:)  =   p_rR6m
   do i = 1 , ( iiPhytoPlankton)
-
     sediPI(i,:)  =   p_rPIm( i)
   end do
 
-
-
-
-
-
-  end
-!BOP
+  end subroutine PelGlobalDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

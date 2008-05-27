@@ -21,10 +21,6 @@
 !
 ! !USES:
 
-  ! For the following Pelagic-states fluxes are defined: O3h, N3n
-  ! The following 0-d global parameters are used: p_ntoc
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -32,16 +28,14 @@
 #ifdef INCLUDE_PELCO2
 use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem,  ONLY: O3h, N3n
-#endif
   use mem, ONLY: ppO3h, ppN3n, ppN6r, Source_D3_vector, NO_BOXES, iiBen, iiPel, &
     flux_vector
+#endif
   use constants,  ONLY: p_ntoc
   use mem_param,  ONLY: p_qro
-
-
 
 !  
 !
@@ -79,8 +73,6 @@ use global_mem, ONLY:RLEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
 
   !
   ! correction of the alkalinity
@@ -90,8 +82,8 @@ use global_mem, ONLY:RLEN
 
 #endif
 
-  end
-!BOP
+  end subroutine AlkalinityDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

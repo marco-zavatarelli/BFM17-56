@@ -59,12 +59,12 @@
 
   use global_mem, ONLY:RLEN,NOTRANSPORT
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem,  ONLY: D3STATE, PhytoPlankton
-#endif
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, Depth, xEPS, EIR, EPLi, &
     iiL, iiC, Source_D3_vector, NO_BOXES, iiBen, iiPel, flux_vector
+#endif
   use mem_LightAdaptation
 
 
@@ -195,6 +195,6 @@
   end subroutine LightAdaptationDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #endif

@@ -28,27 +28,19 @@
 !
 ! !USES:
 
-  ! For the following Pelagic-states fluxes are defined: N4n, N3n, O2o, O4n, &
-  ! N6r, R6s, N5s, P1s
-  ! The following Pelagic 1-d global boxvars are modified : flN3O4n
-  ! The following Pelagic 1-d global boxvars  are used: ETW, flPTN6r, flP1R6s
-  ! The following 0-d global parameters are used: p_qon_nitri, p_qro, &
-  ! p_qon_dentri
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN,ZERO
 #ifdef NOPOINTERS
-  use mem,  ONLY: D3STATE
+  use mem
 #else
   use mem,  ONLY: N4n, N3n, O2o, O4n, N6r, R6s, N5s, P1s
-#endif
   use mem, ONLY: ppN4n, ppN3n, ppO2o, ppO3c, ppO4n, ppN6r, ppR6s, ppN5s,    &
     ppP1s, flN3O4n, ETW, flPTN6r, flP1R6s, NO_BOXES, iiBen, iiPel, flN4N3n, &
     flux_vector
+#endif
   use mem_Param,  ONLY: p_qon_nitri, p_qro, p_qon_dentri, p_small
   use mem_PelChem
 

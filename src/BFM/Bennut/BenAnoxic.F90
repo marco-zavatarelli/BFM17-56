@@ -394,7 +394,7 @@
                RFLUX, 0.0D+00, dummy)
 
            call LimitChange(jbotN6r(BoxNumberXY),N6r_Ben(BoxNumberXY)*Depth_Ben(BoxNumberXY) ,&
-                                                         ,p_max_state_change)
+                                                         p_max_state_change)
 
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
            ! Reoxidation Flux from (S2-, Fe3+, Mg3+ to SO4-, FE2+, Mg2+

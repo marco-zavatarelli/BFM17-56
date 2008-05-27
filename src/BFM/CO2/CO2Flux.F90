@@ -9,6 +9,7 @@
 !
 ! FILE
 !
+! /*
 ! DESCRIPTION
 !   This function computes the CO2 flux at the air-sea interface
 !   as forced by temperature, wind and chemical enhancement
@@ -24,7 +25,7 @@
 !   [1.e-6atm * cm/hr * 1.e-6mol/(l * 1.e-6atm)] = [cm/hr * 1.e-6mol / l]
 !   - Temperature in degrees C	
 !   test parameter  (DIC=2133, AC=2260, pco2=341), O7.c = AC-2210,
-!
+!*/
 ! AUTHORS
 !   H. Thomas (NIOZ) adapted from the OCMIP standard files
 ! 
