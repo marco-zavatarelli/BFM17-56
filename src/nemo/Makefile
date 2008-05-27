@@ -14,16 +14,21 @@ BFMSRC 	   = $(BFMDIR)/src/BFM
 BFMNEMOSRC = $(BFMDIR)/src/nemo
 BFMSHARE   = $(BFMDIR)/src/share
 
-# compilation macros (compiler dependent, DO SOMETHING)
-REAL_4B = real\(4\)
+## -------------------------------------------------------------------------
+## BFM CONFIGURATION 
+## -------------------------------------------------------------------------
+# Pelagic CO2 flags (activates compilation and macros, true by default)
+INCLUDE_PELCO2=true
+ifeq ($(INCLUDE_PELCO2),true)
+  DEFINES += -DINCLUDE_PELCO2
+endif
 
 ## NEMO modules (with absolute path)
 F_O += -I$(NEMOLIBDIR)/oce
 ## BFM include files and pp macros
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
-P_P += -DBFM_NEMO  -DREAL_4B=$(REAL_4B) -fPIC -shared-intel -mcmodel=large
-
+P_P += -DBFM_NEMO  $(DEFINES)
 
 BFM_PELMOD = \
 	${BFMLIB}(${BFMSRC}/General/ModuleGlobalMem.o)			\
@@ -42,8 +47,7 @@ BFM_PELMOD = \
 	${BFMLIB}(${BFMSRC}/PelB/ModulePelChem.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
-	${BFMLIB}(${BFMSRC}/PelBen/ModuleSettling.o)			\
-	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2.o)
+	${BFMLIB}(${BFMSRC}/PelBen/ModuleSettling.o)
 
 
 BFMNEMO_OBJ   = \
@@ -92,28 +96,40 @@ BFM_PELOBJ = \
 	${BFMLIB}(${BFMSRC}/PelB/PelagicSystem.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/Phyto.o)				\
 	${BFMLIB}(${BFMSRC}/PelBen/BentoPelCoup.o)			\
-	${BFMLIB}(${BFMSRC}/PelBen/Settling.o)				\
-	${BFMLIB}(${BFMSRC}/CO2/CO2Calc.o)				\
-	${BFMLIB}(${BFMSRC}/CO2/CO2Flux.o)				\
-	${BFMLIB}(${BFMSRC}/CO2/Drtsafe.o)				\
-	${BFMLIB}(${BFMSRC}/CO2/Ta_Iter_1.o)
+	${BFMLIB}(${BFMSRC}/PelBen/Settling.o)
 
+ifeq ($(INCLUDE_PELCO2),true)
+BFM_PELCO2MOD = \
+	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2.o)			\
+	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2System.o)
+BFM_PELCO2OBJ = \
+	${BFMLIB}(${BFMSRC}/CO2/PelCO2.o)			\
+	${BFMLIB}(${BFMSRC}/CO2/Alkalinity.o)		\
+	${BFMLIB}(${BFMSRC}/CO2/CO2Flux.o)	
+endif
 
 .PHONY: all depend clean
 
 # Include the dependency-list created by makedepf90 below
 include .depend
 
-all .depend: depend $(BFM_PELMOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) 
+all: $(BFM_PELMOD) $(BFM_PELCO2MOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) \
+	$(BFM_PELCO2OBJ) depend 
 #all : $(BFM_PELMOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) 
 
-$(BFM_MOD) : $(BFMSRC)/General/ModuleMem.F90
+$(BFM_PELMOD) : $(BFMSRC)/General/ModuleMem.F90
 
-${BFMSRC}/General/ModuleMem.F90 : $(BFMSRC)/General/GlobalDefsBFM.model
-	${BFMSRC}/scripts/GenerateGlobalBFMF90Code  -read ${BFMSRC}/General/GlobalDefsBFM.model \
-                -from ${BFMSRC}/proto -to ${BFMSRC}/General -actions statemem allocmem netcdfmem \
-                -to ${BFMSRC}/include -actions headermem
-depend:
+${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model
+	echo 'Script should start now'
+	$(BFMSRC)/scripts/GenerateGlobalBFMF90Code  $(DEFINES) \
+		-read $(BFMSRC)/General/GlobalDefsBFM.model \
+		-from $(BFMSRC)/proto -to $(BFMSRC)/General \
+		-actions statemem allocmem netcdfmem \
+                -to $(BFMSRC)/include -actions headermem
+${BFMSRC}/General/AllocateMem.F90: $(BFMSRC)/General/ModuleMem.F90
+${BFMSRC}/General/set_var_info_bfm.F90: $(BFMSRC)/General/ModuleMem.F90
+
+depend .depend:
 	makedepf90 ${BFMSRC}/General/*.?90 \
 		${BFMSRC}/PelB/*.?90 \
 		${BFMSRC}/CO2/*.?90 \
