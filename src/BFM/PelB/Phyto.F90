@@ -473,8 +473,12 @@
 
     case (1)
 
-     runs = max(ZERO, p_qsRc(phyto) * run );          ! net uptake
-     call flux_vector( iiPel, ppN5s,ppphytos, runs)  ! source/sink.c
+     ! Net uptake of silicate
+     runs = max(ZERO, p_qsRc(phyto) * run )
+     call flux_vector( iiPel, ppN5s,ppphytos, runs)
+     ! The fixed loss rate for basal respiration is maintained to have 
+     ! constant Si:C quota in the absence of production
+     flP1R6s(:)  =   flP1R6s(:)+ srs*phytos
 
     case (2)
 
@@ -491,9 +495,9 @@
     end select
               
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    ! Losses of Si
+    ! Losses of Si (lysis)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    rr6s  =   sdo* phytos  ! Lysis, particulate
+    rr6s  =   (sdo+srs) * phytos  ! Lysis, particulate
 
     ! Collect first all fluxes of P-->silica
     flP1R6s(:)  =   flP1R6s(:)+ rr6s
@@ -504,17 +508,13 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rho_Chl = p_qchlc( phyto)* p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
-          p_alpha_chl(phyto)*( phytol+ p_small)* Irr)
-! total synthesis, only when there is net production (run > 0)
-!       rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
-!         ZERO, sum- slc+ sdo)* max( ZERO, phytol- p_qchlc( phyto)* phytoc)
-        rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
-          -p_sdchl(phyto), sum- slc+ sdo)* max( ZERO, phytol- p_qchlc( phyto)* phytoc)
-!     rate_Chl = rho_Chl*( max(srs,sum-slc) )* phytoc- sdo* phytol+ min( &
-!         -srs -p_sdchl, sum- slc+ sdo)* max( ZERO, phytol- p_qchlc( phyto)* phytoc)
-
-        rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN))
+    rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
+          p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
+    ! total synthesis, only when there is net production (run > 0)
+    ! The fixed loss rate due to basal respiration is introduced to have 
+    ! mortality in the absence of light (< 1 uE/m2/s)
+    rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
+                  -srs * phytol * ONE/(Irr+ONE)
 
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
   end if
