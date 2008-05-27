@@ -98,6 +98,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do BoxNumberXY=1,NO_BOXES_XY
      ksur = SRFindices(BoxNumberXY)
+
       !
       ! Reference Schimdt number for CO2 (=reference) of 660.0
       !
@@ -108,7 +109,7 @@
       !`
       reacon  =   k* (EWIND(BoxNumberXY))**(2.0D+00)/ sqrt(  p_schmidt)
 
-      jsurO2o(BoxNumberXY)  =   reacon*( cxoO2(BoxNumberXY)- O2o(BoxNumberXY))
+      jsurO2o(BoxNumberXY)  =   reacon*( cxoO2(ksur)- O2o(ksur))
 
       if ( AssignAirPelFluxesInBFMFlag) then
         call flux(ksur, iiPel, ppO2o, ppO2o, jsurO2o(BoxNumberXY)/ &
