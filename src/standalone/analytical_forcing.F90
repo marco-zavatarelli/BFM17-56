@@ -1,33 +1,42 @@
 #include "cppdefs.h"
+#include "INCLUDE.h"
 !-----------------------------------------------------------------------
 !BOP
 !
-! !IROUTINE: Light and other environmental forcings used in the BFM
+! !ROUTINE: analytical_forcing
 !
 ! !INTERFACE
-   subroutine analytical_forcing
+subroutine analytical_forcing
 !
 ! !DESCRIPTION
-!
+!   Define analytical forcings used in the BFM
 ! !USES
    use api_bfm
    use global_mem, only: RLEN,ONE
+#ifdef NOPOINTERS
+   use mem
+#else
    use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND,  &
                          EICE,jbotR6c,jbotR6n,jbotR6p,jbotR6s, &
                          R6c,R6n,R6p,R6s,O2o,ERHO,Depth
    use mem,        only: iiC,iiN,iiP,iiS
-   use mem_Param,  only: LightForcingFlag,p_PAR
-   use constants,  only: E2W, SEC_PER_DAY
-   use standalone, only: timesec,latitude
-   use envforcing
 #ifdef INCLUDE_PELCO2
    use mem,        only: EPCO2air
-   use mem_CO2,    only: pco2air
 #endif
 #ifdef INCLUDE_SEAICE
    ! seaice forcings
    use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
 #endif
+#endif
+   use mem_Param,  only: LightForcingFlag,p_PAR
+   use constants,  only: E2W, SEC_PER_DAY
+   use standalone, only: timesec,latitude
+   use envforcing
+#ifdef INCLUDE_PELCO2
+   use mem_CO2,    only: pco2air
+#endif
+   use time, only: julianday, secondsofday, timefmt, &
+                   julian_day,calendar_date,dayofyear
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -35,7 +44,7 @@
 ! !OUTPUT PARAMETERS:
 !
 ! !REVISION HISTORY:
-!  Original author(s): Momme Butenschoen (UNIBO)
+!  Original author(s): Momme Butenschoen (UNIBO), M. Vichi (CMCC)
 !
 ! !LOCAL VARIABLES:
    real(RLEN)          :: dfrac,wlight,dtime
@@ -53,9 +62,14 @@
    ! Computes all the forcings
    !---------------------------------------------
    dtime = timesec/SEC_PER_DAY
-   SUNQ=daylength(dtime,latitude)
-   dfrac=(dtime-floor(dtime)) ! fraction of the day
-   dyear=mod(dtime,360._RLEN) ! Day of the year
+   SUNQ(:)=daylength(dtime,latitude)
+   if (timefmt==2) then
+      call dayofyear(julianday,dyear)
+      dfrac = secondsofday/SEC_PER_DAY
+   else
+      dfrac=(dtime-floor(dtime)) ! fraction of the day
+      dyear=mod(dtime,360._RLEN) ! Day of the year
+   end if
    wlight=light(dyear,dfrac)
    select case(LightForcingFlag)
     case (3) ! light on/off distribution for daylight average
@@ -65,26 +79,27 @@
       wlight=instLight(wlight,sunq,dfrac)
     case default ! light constant during the day
    end select
-   ETW = temperature(dyear,dfrac)
-   ESW = salinity(dyear,dfrac)
-   ERHO = density(ETW,ESW,Depth/2.0_RLEN)
+   ETW(:) = temperature(dyear,dfrac)
+   ESW(:) = salinity(dyear,dfrac)
+   ! compute density at the middle of the layer
+   ERHO(:) = density(ETW(:),ESW(:),Depth/2.0_RLEN)
    ! convert from irradiance to PAR in uE/m2/s
-   EIR = wlight*p_PAR/E2W
+   EIR(:) = wlight*p_PAR/E2W
    ! analytical wind velocity 
-   EWIND = wind(dyear,dfrac)
+   EWIND(:) = wind(dyear,dfrac)
    ! constant sea-ice fraction 
-   EICE = 0.0_RLEN
+   EICE(:) = 0.0_RLEN
 #ifdef INCLUDE_PELCO2
    ! 1% increase of pCO2 in the air 
-   EPCO2air = pco2air*(ONE+0.01_RLEN/360._RLEN*dtime)
+   EPCO2air(:) = pco2air*(ONE+0.01_RLEN/360._RLEN*dtime)
 #endif
 #ifdef DEBUG
-   LEVEL2 'ETW=',ETW
-   LEVEL2 'ESW=',ESW
-   LEVEL2 'EIR=',EIR
-   LEVEL2 'ERHO=',ERHO
-   LEVEL2 'EWIND=',EWIND
-   LEVEL2 'EICE=',EICE
+   LEVEL2 'ETW=',ETW(:)
+   LEVEL2 'ESW=',ESW(:)
+   LEVEL2 'EIR=',EIR(:)
+   LEVEL2 'ERHO=',ERHO(:)
+   LEVEL2 'EWIND=',EWIND(:)
+   LEVEL2 'EICE=',EICE(:)
 #endif
 
    ! Bottom deposition (must be negative)
@@ -98,17 +113,17 @@
 
 #ifdef INCLUDE_SEAICE
 ! sea-ice environmental forcings
-! Reading from file to be added
-  EVB = ONE
-  ETB = ONE
-  ESB = ONE
+! overwritten by the seaice data file, if present
+  EVB(:) = ONE
+  ETB(:) = ONE
+  ESB(:) = ONE
   ! convert from irradiance to PAR in uE/m2/s
-  EIB = ONE/E2W
-  EHB = ONE
-  ESI = ONE
+  EIB(:) = ONE/E2W
+  EHB(:) = ONE
+  ESI(:) = ONE
 #endif
 
-   end subroutine analytical_forcing
+end subroutine analytical_forcing
 !EOC
 !-----------------------------------------------------------------------
 

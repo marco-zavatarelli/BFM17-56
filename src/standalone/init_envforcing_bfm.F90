@@ -74,11 +74,6 @@
        LEVEL2 'Reading forcing data from:'
        LEVEL3 trim(forcing_file)
        open(unit_forcing,file=forcing_file,action='read',status='old',err=106)
-       if (use_external_data) then
-          LEVEL2 'Reading forcing data from:'
-          LEVEL3 trim(forcing_file)
-          open(unit_data,file=data_file,action='read',status='old',err=107)
-       end if
     case (3) ! interactive air-sea fluxes
       !call init_air_sea(data_file,latitude, longitude)
     end select
@@ -87,6 +82,12 @@
     LEVEL3 trim(seaice_file)
     open(unit_seaice,file=seaice_file,action='read',status='old',err=108)
 #endif
+    ! Read external data (if activated)
+    if (use_external_data) then
+       LEVEL2 'Reading forcing data from:'
+       LEVEL3 trim(forcing_file)
+       open(unit_data,file=data_file,action='read',status='old',err=107)
+    end if
     ! Read event data (if activated)
     if (use_event_data) then
        LEVEL2 'Reading event data from:'

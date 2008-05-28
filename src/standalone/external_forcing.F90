@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#include "INCLUDE.h"
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -12,12 +13,18 @@
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO
-   use mem,        only: ETW,ESW,EIR,SUNQ,EWIND,  &
-                         EICE,ERHO,Depth
    use mem_Param,  only: p_PAR
    use constants,  only: E2W
+#ifdef NOPOINTERS
+   use mem
+#else
+   use mem,        only: ETW,ESW,EIR,SUNQ,EWIND,  &
+                         EICE,ERHO,Depth
 #ifdef INCLUDE_PELCO2
    use mem,        only: EPCO2air
+#endif
+#endif
+#ifdef INCLUDE_PELCO2
    use mem_CO2,    only: pco2air
 #endif
    use time, only: julianday, secondsofday, time_diff, &
@@ -52,7 +59,7 @@
    LEVEL2 'Calendar day:',yy,mm,dd
 #endif
    ! constant sea-ice fraction (changed below if Sea-ice model is used)
-   EICE = ZERO
+   EICE(:) = ZERO
 
    if (init_forcing_vars) then
      data_jul2=0
@@ -76,26 +83,26 @@
    !  Do the time interpolation
    t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
    alpha = (obs2(1)-obs1(1))/dt
-   ETW = obs1(1) + t*alpha
+   ETW(:) = obs1(1) + t*alpha
    alpha = (obs2(2)-obs1(2))/dt
-   ESW = obs1(2) + t*alpha
+   ESW(:) = obs1(2) + t*alpha
    alpha = (obs2(3)-obs1(3))/dt
    ! convert from irradiance (W/m2) to PAR in uE/m2/s
-   EIR = (obs1(3) + t*alpha)*p_PAR/E2W
+   EIR(:) = (obs1(3) + t*alpha)*p_PAR/E2W
    alpha = (obs2(4)-obs1(4))/dt
-   EWIND = obs1(4) + t*alpha
+   EWIND(:) = obs1(4) + t*alpha
 
    ! leap years not considered (small error)
-   SUNQ=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
-   ERHO = density(ETW,ESW,Depth/2.0_RLEN)
+   SUNQ(:)=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
+   ERHO(:) = density(ETW,ESW,Depth/2.0_RLEN)
 #ifdef DEBUG
-   LEVEL2 'ETW=',ETW
-   LEVEL2 'ESW=',ESW
-   LEVEL2 'EIR=',EIR
-   LEVEL2 'ERHO=',ERHO
-   LEVEL2 'EWIND=',EWIND
-   LEVEL2 'EICE=',EICE
-   LEVEL2 'SUNQ=',ETW
+   LEVEL2 'ETW=',ETW(:)
+   LEVEL2 'ESW=',ESW(:)
+   LEVEL2 'EIR=',EIR(:)
+   LEVEL2 'ERHO=',ERHO(:)
+   LEVEL2 'EWIND=',EWIND(:)
+   LEVEL2 'EICE=',EICE(:)
+   LEVEL2 'SUNQ=',ETW(:)
 #endif
   return
    end subroutine external_forcing

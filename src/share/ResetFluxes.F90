@@ -15,7 +15,7 @@ subroutine ResetFluxes
    use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, D3SINK, &
          PELBOTTOM, PELSURFACE
 #ifdef INCLUDE_BEN
-   use mem, ONLY: NO_D2_BOX_STATE, D2SINK, D2SOURCE
+   use mem, ONLY: NO_D2_BOX_STATES, D2SINK, D2SOURCE
 #endif
    implicit none
 !
