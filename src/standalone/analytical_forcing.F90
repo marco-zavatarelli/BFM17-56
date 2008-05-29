@@ -62,7 +62,7 @@ subroutine analytical_forcing
    ! Computes all the forcings
    !---------------------------------------------
    dtime = timesec/SEC_PER_DAY
-   SUNQ(:)=daylength(dtime,latitude)
+   SUNQ=daylength(dtime,latitude)
    if (timefmt==2) then
       call dayofyear(julianday,dyear)
       dfrac = secondsofday/SEC_PER_DAY
