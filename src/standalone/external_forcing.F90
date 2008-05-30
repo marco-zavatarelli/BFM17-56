@@ -93,7 +93,7 @@
    EWIND(:) = obs1(4) + t*alpha
 
    ! leap years not considered (small error)
-   SUNQ(:)=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
+   SUNQ=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
    ERHO(:) = density(ETW,ESW,Depth/2.0_RLEN)
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW(:)
