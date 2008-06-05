@@ -82,7 +82,7 @@ subroutine analytical_forcing
    ETW(:) = temperature(dyear,dfrac)
    ESW(:) = salinity(dyear,dfrac)
    ! compute density at the middle of the layer
-   ERHO(:) = density(ETW(:),ESW(:),Depth/2.0_RLEN)
+   ERHO(:) = density(ETW(:),ESW(:),Depth(:)/2.0_RLEN)
    ! convert from irradiance to PAR in uE/m2/s
    EIR(:) = wlight*p_PAR/E2W
    ! analytical wind velocity 

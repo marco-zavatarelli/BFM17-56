@@ -459,6 +459,7 @@
       if ( var_ids(n) > 0 .and. (.not.var_ave(n))) & 
          iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3DIAGNOS(i,:))
    end do
+#ifndef NECSX
    !---------------------------------------------
    ! Store snapshot of pelagic fluxes
    !---------------------------------------------
@@ -470,6 +471,7 @@
          iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)
       end if
    end do
+#endif
    !---------------------------------------------
    ! Store mean values of (any) pelagic entity
    !---------------------------------------------
@@ -518,6 +520,7 @@
 #endif
 !   end if
 #ifdef INCLUDE_BEN
+#ifndef NECSX
    !---------------------------------------------
    ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
    !---------------------------------------------
@@ -529,6 +532,7 @@
           iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim)
       endif
    end do
+#endif
 #endif
 
 

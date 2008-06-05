@@ -1,4 +1,5 @@
 #include "cppdefs.h"
+#include "INCLUDE.h"
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -35,17 +36,18 @@ subroutine ResetFluxes
    ! Reset source term arrays 
    ! only the diagonal
    do i=1,NO_D3_BOX_STATES
-      D3SOURCE(i,i,:) = 0.0
-      D3SINK(i,i,:) = 0.0
+      D3SOURCE(i,i,:) = ZERO
+      D3SINK(i,i,:) = ZERO
    end do
 #ifdef INCLUDE_BEN
    do i=1,NO_D2_BOX_STATES
-      D2SOURCE(i,i,:) = 0.0
-      D2SINK(i,i,:) = 0.0
+      D2SOURCE(i,i,:) = ZERO
+      D2SINK(i,i,:) = ZERO
    end do
 #endif
-   PELBOTTOM = ZERO
-   PELSURFACE = ZERO
+
+   PELBOTTOM(:,:) = ZERO
+   PELSURFACE(:,:) = ZERO
 
 end subroutine ResetFluxes
 !EOC

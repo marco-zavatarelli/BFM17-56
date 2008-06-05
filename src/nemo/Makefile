@@ -31,7 +31,10 @@ F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEM
 P_P += -DBFM_NEMO  $(DEFINES)
 ## specific options for NEC-SX
 ifeq ($(FORTRAN_COMPILER),NECSX6)
-P_P += -DBFM_NOPOINTERS -R2
+AR=${SXAR}
+P_P += -DBFM_NOPOINTERS -DNECSX
+INLINE = -pi auto line=200 expin=$(BFMDIR)/src/BFM/General,$(BFMDIR)/src/share,$(BFMDIR)/src/BFM/PelB,$(BFMDIR)/src/BFM/CO2 exp=sourcesink_flux_vector,flux_vector,flux,fixed_quota_flux_vector,Source_D3_vector nest=10 rexp=PhytoDynamics,MicroZooDynamics,MesoZooDynamics,fixed_quota_flux_vector,flux_vector,Source_D3_vector,calcco2system
+P_P += -R2 -EP -sx6 -Cvopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl expand=5 noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist 
 endif
 
 BFM_PELMOD = \
@@ -104,12 +107,13 @@ BFM_PELOBJ = \
 
 ifeq ($(INCLUDE_PELCO2),true)
 BFM_PELCO2MOD = \
-	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2.o)			\
+	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2.o)		\
 	${BFMLIB}(${BFMSRC}/CO2/ModuleCO2System.o)
 BFM_PELCO2OBJ = \
-	${BFMLIB}(${BFMSRC}/CO2/PelCO2.o)			\
+	${BFMLIB}(${BFMSRC}/CO2/PelCO2.o)		\
 	${BFMLIB}(${BFMSRC}/CO2/Alkalinity.o)		\
-	${BFMLIB}(${BFMSRC}/CO2/CO2Flux.o)	
+	${BFMLIB}(${BFMSRC}/CO2/CO2Flux.o)		\
+	${BFMLIB}(${BFMSRC}/CO2/CO2System_vector.o)	
 endif
 
 .PHONY: all depend clean

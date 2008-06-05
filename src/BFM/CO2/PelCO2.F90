@@ -48,8 +48,6 @@
 
 ! !LOCAL VARIABLES:
   integer            ::error=0
-  real(RLEN)             :: tmpflux(NO_BOXES)
-  real(RLEN)             :: K0_1d(NO_BOXES)
 !
 ! COPYING
 !   
@@ -69,7 +67,11 @@
 !BOC
 !
 !
-
+#ifdef NECSX
+  ! use a vectorized version of the code
+  call CalcCO2System_vector(MethodCalcCO2)
+#else
+  ! use a scalar version of the code
   do BoxNumber=1,NO_BOXES
      ! convert DIC and alkalinity from model units to diagnostic output
      ! mg C/m3 --> umol/kg
@@ -109,44 +111,15 @@
             CO3(BoxNUmber)=-1.0;
             pCO2(BoxNUmber)=-1.0;
      endif
-     ! Compute the Henry constant to be used below
-     K0_1d(BoxNumber) = CalcK0(ESW(BoxNumber),ETW(BoxNumber))
   end do
+#endif
 
   !---------------------------------------------------------------
   ! Computes air-sea flux (only at surface points)
-  ! Output array CO2airflux is in mmol/m2/d
   !---------------------------------------------------------------
-  call CO2flux(EWIND(:),ETW(SRFindices),ERHO(SRFindices), &
-               EPCO2air(:), pco2(SRFindices),             &
-               K0_1d(SRFindices),                         &
-               NO_BOXES_XY,CO2airflux(:))
-#ifdef DEBUG
-  LEVEL3 'pco2air',EPCO2air
-  LEVEL3 'co2airflux',CO2airflux
-#endif
-
-  !---------------------------------------------------------------
-  ! flux is positive downward. 
-  ! Conversion from mmolC/m2/d to mgC/m3/d.
-  ! The fraction of ice-free water is also considered
-  ! Boundary variable first assigned, then the source term is 
-  ! added to the Source/Sink arrays if the Flag is TRUE
-  ! In the water, the flux is subtracted from
-  ! (or added to) the diagonal element of O3c (i.e. infinite source)
-  !---------------------------------------------------------------
-  jsurO3c =  (ONE-EICE(:))*CO2airflux(:) * MW_C
-#ifdef DEBUG
-  LEVEL3 'jsurO3c',jsurO3c
-#endif
-  tmpflux(:) = ZERO
-  tmpflux(SRFindices) = jsurO3c / Depth(SRFindices)
-  if ( AssignAirPelFluxesInBFMFlag) then
-     call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
-  end if
+  call CO2flux()
 
 #ifdef DEBUG
-  write(*,*) 'tmpflux',minval(tmpflux),maxval(tmpflux)
   write(*,"(4A11)") "dic","ta","pH","K Henry"
   write(*,"(4G12.6)") DIC(1),Ac(1),pH(1),K0_1d(1)
   write(*,"(4A11)") "pco2","co2","co3","hco3"

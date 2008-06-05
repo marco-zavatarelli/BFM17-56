@@ -100,6 +100,7 @@
                   end if
                end if
             end do
+#ifndef NECSX
             j=0
             do i=stPelFluxS,stPelFluxE
                j=j+1
@@ -113,6 +114,7 @@
                   end if
                end if
             end do
+#endif
          endif
          if (stBenStateE /= 0 .and. do_2ave) then
             !---------------------------------------------
@@ -145,6 +147,7 @@
                   end if
                end if
             end do
+#ifndef NECSX
             j=0
             do i=stBenFluxS,stBenFluxE
                j=j+1
@@ -158,6 +161,7 @@
                   end if
                end if
             end do
+#endif
          end if
    end select
 

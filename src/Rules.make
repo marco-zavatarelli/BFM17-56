@@ -76,13 +76,13 @@ INCDIRS		+= -I$(BFMINCDIR)
 ## DEFINES += -DNOT_STANDALONE
 
 # Pelagic CO2 flags (activates compilation and macros, false by default)
-INCLUDE_PELCO2=false
+INCLUDE_PELCO2=true
 ifeq ($(INCLUDE_PELCO2),true)
   DEFINES += -DINCLUDE_PELCO2
   BFMSRCDIR += $(BFMDIR)/src/BFM/CO2
 endif
 # Benthic ecosystem flags (activates compilation and macros, true by default)
-INCLUDE_BEN = true
+INCLUDE_BEN = false
 INCLUDE_BENCO2=false
 INCLUDE_BENPROFILES=false
 ifeq ($(INCLUDE_BEN),true)

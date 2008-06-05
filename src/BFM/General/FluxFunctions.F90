@@ -47,6 +47,7 @@
 #endif
 
             if ( origin /= destination )  then
+#ifndef NECSX
               if ( minval(flux) < ZERO) then
                 do i=1,size(flux)
                   if (flux(i)< 0.0D+00) write(LOGUNIT,'(''at level:'',I4)') i
@@ -72,6 +73,7 @@
                 enddo
                 call BFM_ERROR("flux_vector","negative flux")
               endif ! minval<0
+#endif
               select case ( iiSub )
                 case (iiPel)
                   D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
@@ -134,6 +136,7 @@
 #endif
 
           if ( origin /= destination ) then
+#ifndef NECSX
             if ( flow < ZERO) then
               D23="Pelagic"
               if ( iiSub == iiBen) D23="Benthic"
@@ -155,6 +158,7 @@
               call BFM_ERROR("flux","negative flux")
               if ( present(error)) error=1
             endif ! flow<0
+#endif
             select case ( iiSub )
               case (iiPel)
                 D3SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY

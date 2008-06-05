@@ -73,12 +73,15 @@ use global_mem, ONLY:RLEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  real(RLEN),dimension(NO_BOXES) :: rateN3n,rateN6r
 
   !
   ! correction of the alkalinity
   !
-  call flux_vector( iiPel, ppO3h,ppO3h,- Source_D3_vector(ppN3n)* p_ntoc  &
-                                       + Source_D3_vector(ppN6r)/ p_qro )
+  rateN3n(:) = Source_D3_vector(ppN3n)
+  rateN6r(:) = Source_D3_vector(ppN6r)
+  call flux_vector( iiPel, ppO3h,ppO3h,- rateN3n* p_ntoc  &
+                                       + rateN6r/ p_qro )
 
 #endif
 

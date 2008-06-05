@@ -27,6 +27,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 #ifdef INCLUDE_BEN
   use global_mem, ONLY:RLEN,ZERO,ONE
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem, ONLY: R6c, R6n, R6p, R6s, O2o, N1p, N3n, N4n, N5s, N6r, &
     R1c, R1n, R1p, PhytoPlankton, ppPhytoPlankton,iiPhytoPlankton,  &
     MicroZooPlankton, ppMicroZooPlankton,iiMicroZooPlankton,  D2STATE
@@ -39,6 +42,10 @@
     iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, flux
  use mem,  ONLY: Source_D2_vector
  use mem, ONLY: ppY3p,ppP1p,ppP2p,ppP3p,ppP4p,ppZ5c,ppZ6c,iiZ5,iiZ6,qp_mz
+#if defined INCLUDE_PELCO2 && defined INCLUDE_BENCO2
+  use mem, ONLY: ppO3h, ppO3c,jbotO3c,jbotO3h
+#endif
+#endif
 #ifdef BFM_GOTM
  use bio_var, ONLY: BOTindices
 #else
@@ -46,9 +53,6 @@
 #endif
  use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
  use mem_Param,  ONLY: CalcBenthicFlag
-#if defined INCLUDE_PELCO2 && defined INCLUDE_BENCO2
-  use mem, ONLY: ppO3h, ppO3c,jbotO3c,jbotO3h
-#endif
   use mem_Param,  ONLY: AssignPelBenFluxesInBFMFlag, p_small
 
 !  

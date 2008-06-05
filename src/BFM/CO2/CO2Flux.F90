@@ -43,27 +43,43 @@
 !   GNU General Public License for more details. 
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  subroutine CO2Flux(wind,temp,rho,pco2air,pco2sea,k0,ncomp,flux)
+  subroutine CO2Flux()
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! Modules (use of ONLY is strongly encouraged!)
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-use constants, ONLY: RLEN,HOURS_PER_DAY
+  use constants, ONLY: RLEN,HOURS_PER_DAY,ZERO_KELVIN,MW_C
+  use global_mem, ONLY: RLEN,ZERO,ONE
+#ifdef NOPOINTERS
+  use mem
+#else
+  use mem, ONLY: EWIND,ETW,ERHO,EPCO2air,pCO2,  &
+                 NO_BOXES,NO_BOXES_XY,CO2airflux,EICE
+  use mem, ONLY: iiPel, ppO3c, D3STATE, jsurO3c, CO2airflux, &
+                 Depth, flux_vector
+#endif
+   use mem_Param, ONLY:  AssignAirPelFluxesInBFMFlag
+#ifdef BFM_GOTM
+  use bio_var, ONLY: SRFindices
+#else
+  use api_bfm, ONLY: SRFindices
+#endif
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! Implicit typing is never allowed
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 IMPLICIT NONE
 
-    integer   ,intent(IN) :: ncomp
-    real(RLEN),intent(IN) :: wind(ncomp)  ! m/s
-    real(RLEN),intent(IN) :: temp(ncomp)  ! deg C
-    real(RLEN),intent(IN) :: rho(ncomp)   ! kg/m3
-    real(RLEN),intent(IN) :: pco2air(ncomp) ! uatm
-    real(RLEN),intent(IN) :: pco2sea(ncomp) ! uatm
-    real(RLEN),intent(IN) :: k0(ncomp)    ! 1.e-6 mol / (l * 1.e-6 atm)
-    real(RLEN),intent(OUT):: flux(ncomp)
+    real(RLEN) :: k0(NO_BOXES_XY)    ! 1.e-6 mol / (l * 1.e-6 atm)
+    real(RLEN) :: wind(NO_BOXES_XY)  ! m/s
+    real(RLEN) :: ice(NO_BOXES_XY)   ! fraction
+    real(RLEN) :: temp(NO_BOXES_XY)  ! deg C
+    real(RLEN) :: salt(NO_BOXES_XY)  ! -
+    real(RLEN) :: rho(NO_BOXES_XY)   ! kg/m3
+    real(RLEN) :: pco2air(NO_BOXES_XY) ! uatm
+    real(RLEN) :: pco2sea(NO_BOXES_XY) ! uatm
+    real(RLEN) :: tmpflux(NO_BOXES)
 
     real(RLEN),parameter  :: C1=2073.1_RLEN
     real(RLEN),parameter  :: C2=125.62_RLEN
@@ -72,12 +88,20 @@ IMPLICIT NONE
     real(RLEN),parameter  :: CO2SCHMIDT=660._RLEN
     real(RLEN),parameter  :: CM2M=0.01_RLEN
 
-    real(RLEN),dimension(size(wind,1)) :: pschmidt,reacon,temp2, &
-                                          k660,kex
+    real(RLEN),dimension(NO_BOXES_XY) :: pschmidt,reacon,temp2, &
+                                         k660,kex,tk,tk100,tk1002
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BEGIN compute
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    temp = ETW(SRFindices)
+    salt = ESW(SRFindices)
+    wind = EWIND(:)
+    ice = EICE(:)
+    rho = ERHO(SRFindices)
+    pco2air = EPCO2air(:)
+    pco2sea = pCO2(SRFindices)
+
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Calculate Schmidt number,
     ! ratio between the kinematic viscosity and the molecular 
@@ -97,10 +121,20 @@ IMPLICIT NONE
     ! including conversion cm/hr => m/day :
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     kex = (k660 + 0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
-    !      CM2M*HOURS_PER_DAY
+          CM2M*HOURS_PER_DAY
     !Alternative way 
     !kex = (0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
-          CM2M*HOURS_PER_DAY
+    !      CM2M*HOURS_PER_DAY
+
+    ! ---------------------------------------------------------------------
+    ! K0, solubility of co2 in the water (K Henry)
+    ! from Weiss 1974; K0 = [co2]/pco2 [mol kg-1 atm-1]
+    ! ---------------------------------------------------------------------
+    tk = temp - ZERO_KELVIN
+    tk100 = tk/100.0_RLEN
+    tk1002 = tk100*tk100
+    k0 = exp(93.4517_RLEN/tk100 - 60.2409_RLEN + 23.3585_RLEN * dlog(tk100) +   &
+       salt * (.023517_RLEN - 0.023656_RLEN * tk100 + 0.0047036_RLEN * tk1002))
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! flux co2 in mmol/m2/day   
@@ -108,12 +142,23 @@ IMPLICIT NONE
     ! (m * d-1) * uatm * (mol * kg-1 * atm-1) * (kg * m-3)
     !     d-1   1.e-6      mol   m-2
     !     umol m-2 d-1 / 1000 = mmol/m2/d
-    flux = kex * (pco2air - pco2sea) * k0 * rho / 1000.0_RLEN
+    CO2airflux(:) = kex * (pco2air - pco2sea) * k0 * rho / 1000.0_RLEN
 
-#ifdef DEBUG
-     write(0,*) 'co2air-co2sea',pco2air - pco2sea
-#endif
-
+  !---------------------------------------------------------------
+  ! flux is positive downward. 
+  ! Conversion from mmolC/m2/d to mgC/m3/d.
+  ! The fraction of ice-free water is also considered
+  ! Boundary variable first assigned, then the source term is 
+  ! added to the Source/Sink arrays if the Flag is TRUE
+  ! In the water, the flux is subtracted from
+  ! (or added to) the diagonal element of O3c (i.e. infinite source)
+  !---------------------------------------------------------------
+  jsurO3c =  (ONE-ice(:))*CO2airflux(:) * MW_C
+  tmpflux(:) = ZERO
+  tmpflux(SRFindices) = jsurO3c / Depth(SRFindices)
+  if ( AssignAirPelFluxesInBFMFlag) then
+     call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
+  end if
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   return
 

@@ -47,7 +47,9 @@ SUBROUTINE trc_trp_bfm( kt )
    !! * BFM Modules used
    USE constants, ONLY: SEC_PER_DAY
    USE global_mem
-   USE mem,       ONLY: NO_D3_BOX_STATES,D3STATETYPE,D3SOURCE,D3STATE,D3SINK
+   USE mem,       ONLY: NO_D3_BOX_STATES,D3STATETYPE, &
+                        D3SOURCE,D3STATE,D3SINK,NO_BOXES
+   use mem, only: ppO3c
    USE mem_param, ONLY: CalcTransportFlag, CalcConservationFlag
    USE api_bfm
 
@@ -59,8 +61,8 @@ SUBROUTINE trc_trp_bfm( kt )
    !! * Arguments
       INTEGER, INTENT( in ) ::  kt  ! ocean time-step index
    !! ---------------------------------------------------------------------
-      INTEGER               :: m
-      integer :: k
+      integer :: m,k
+      real(RLEN) :: dummy(NO_BOXES)
 
    !
    ! Exit if transport is not computed. Time integration is carried out 
@@ -85,7 +87,12 @@ SUBROUTINE trc_trp_bfm( kt )
                trb(:,:,:,1) = unpack(D3STATE(m,:),SEAmask,ZEROS)
                trn = trb
             END IF
-            tra(:,:,:,1) = unpack(sum(D3SOURCE(m,:,:)-D3SINK(m,:,:),1),SEAmask,ZEROS)
+            ! sum all the rates (loop is faster than intrinsic sum)
+            dummy = ZERO
+            do k=1,NO_D3_BOX_STATES
+               dummy = dummy + D3SOURCE(m,k,:)-D3SINK(m,k,:)
+            end do
+            tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
 
             IF (.NOT.CalcConservationFlag) &
                CALL trc_sbc( kt )         ! surface boundary condition (only dilution here, 

@@ -17,9 +17,12 @@
 ! !USES:
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,       &
-                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth,Depth_ben, D3STATE, D2STATE
+                  NO_BOXES_XY, NO_D3_BOX_DIAGNOSS,     &
+                  NO_STATES,Depth,D3STATE
+#ifdef INCLUDE_BEN
+   use mem, only: NO_D2_BOX_STATES, NO_D2_BOX_DIAGNOSS, &
+                  D2STATE
+#endif
    use mem, only: Volume, Area, Area2d
    use global_mem, only:RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
@@ -98,8 +101,10 @@
    NO_BOXES_Z  = jpk
    NO_BOXES    = count(SEAmask)
    NO_BOXES_XY = count(SRFmask)
-   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES +   &
-                 NO_D2_BOX_STATES * NO_BOXES_XY
+   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES 
+#ifdef INCLUDE_BEN
+   NO_STATES = NOSTATES + NO_BOXES_XY*NO_D2_BOX_STATES
+#endif
 
    !-------------------------------------------------------
    ! Compressed coordinates for netcdf output
@@ -189,15 +194,15 @@
       !---------------------------------------------
       ! Allocate and initialise additional 
       ! integration arrays
-      !---------------------------------------------
-      allocate(D3STATEB(NO_D3_BOX_STATES,NO_BOXES))
-      allocate(D2STATEB(NO_D2_BOX_STATES,NO_BOXES))
-
-      !---------------------------------------------
       ! Initialise prior time step for leap-frog 
       !---------------------------------------------
+      allocate(D3STATEB(NO_D3_BOX_STATES,NO_BOXES))
       D3STATEB = D3STATE
+#ifdef INCLUDE_BEN
+      allocate(D2STATEB(NO_D2_BOX_STATES,NO_BOXES))
       D2STATEB = D2STATE
+#endif
+
    end if
 
    return
