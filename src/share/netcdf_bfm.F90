@@ -120,7 +120,7 @@
    ! Prepare the netcdf file
    !---------------------------------------------
    ext = 'nc'
-   fname = TRIM(out_dir) //'/'// TRIM(out_fname) // '.' // ext
+   fname = TRIM(out_dir) //'/'// TRIM(title) // '.' // ext
    LEVEL2 'Output in NetCDF (time unit is set to seconds):'
    LEVEL2 TRIM(fname)
    iret = nf_create(fname,NF_CLOBBER,ncid_bfm)

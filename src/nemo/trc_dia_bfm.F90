@@ -51,10 +51,11 @@
    !---------------------------------------------
    ! Write diagnostic output
    !---------------------------------------------
-   !   if ( lwp .AND. MOD( kt, nwritetrc ) == 0 ) then
-   if ( lwp .AND. MOD( kt, out_delta ) == 0 ) then
-      write(numout,*) 'trc_dia_bfm : write NetCDF passive tracer concentrations at ', kt, 'time-step'
-      write(numout,*) '~~~~~~ '
+   if ( MOD( kt, out_delta ) == 0 ) then
+      if ( lwp ) then
+         write(numout,*) 'trc_dia_bfm : write NetCDF passive tracer concentrations at ', kt, 'time-step'
+         write(numout,*) '~~~~~~ '
+      end if
       call calcmean_bfm(MEAN)
       call save_bfm(localtime)
    end if

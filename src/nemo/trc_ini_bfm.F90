@@ -45,10 +45,12 @@
 #include "domzgr_substitute.h90"
 
    integer    :: i,j,k
-   integer    :: status
+   integer    :: status,narea1
    integer,parameter    :: namlst=10,unit=11
    integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:)
    logical,allocatable  :: mask1d(:)
+   character(LEN=15)    :: out_title_dom
+   character(LEN=4)     :: str
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -178,11 +180,15 @@
    deallocate(rtmp3Da)
    deallocate(rtmp3Db)
 
-   !---------------------------------------------
+   !-------------------------------------------------------
    ! initialise netcdf output
-   !---------------------------------------------
+   !-------------------------------------------------------
    call calcmean_bfm(INIT)
-   call init_netcdf_bfm(out_title,'01-01-0000',0,  &
+   ! define the name of the output file for each subdomain
+   narea1=narea-1
+   WRITE(str,'(I4.4)') narea1
+   out_title_dom= trim(out_fname)//'_'//str
+   call init_netcdf_bfm(out_title_dom,'01-01-0000',0,  &
              lat2d=gphit,lon2d=glamt,z=gdept_0,    &
              oceanpoint=ocepoint,                  &
              surfacepoint=surfpoint,               &
