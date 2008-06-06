@@ -36,10 +36,9 @@
 
   use global_mem, ONLY:RLEN,ZERO
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem,  ONLY: D6m, D7m, D8m, D9m, Y2c, Y5c, Y1c, Y4c
-#endif
   use mem, ONLY: ppD6m, ppD7m, ppD8m, ppD9m, ppY2c, ppY5c, ppY1c, &
     ppY4c, turenh, irrenh, rrBTo, rrATo, reBTn, reBTp, reATn, reATp, &
     jbotO2o,jbotN1p,jbotN3n,jbotN4n,jbotN5s, jbotN6r, &
@@ -47,7 +46,7 @@
 #ifdef INCLUDE_BENCO2
   use mem, ONLY:  jbotO3h,jbotO3c
 #endif
-
+#endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following vector functions are used:MM_vector

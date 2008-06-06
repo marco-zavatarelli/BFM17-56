@@ -353,7 +353,7 @@
 
 #ifdef BFM_GETM
       call get_parallel_flag_from_getm(parallel)
-      if (parallel .and.bio_eulerian.and.bio_model==6) then
+      if (parallel .and. bio_eulerian) then
         ! Sometimes it happens that a concentration becomes negative
         ! after calculations of the 3d-transport
         ! this check is only done when bottom depth is greater than a certain depth

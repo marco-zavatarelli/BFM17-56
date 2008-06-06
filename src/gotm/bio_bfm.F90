@@ -842,6 +842,7 @@ IMPLICIT NONE
 !   grid points. A warning is given.
 !
 ! !USES:
+       use mem_Param, ONLY: p_small
        use gotm_error_msg, only:set_warning_for_getm
        IMPLICIT NONE
 !
@@ -912,7 +913,7 @@ IMPLICIT NONE
                        c1dimz(i)=0.1* c1dimz(i+1)
                        k=i
                      else
-                       c1dimz(i)=0.0
+                       c1dimz(i)=p_small
                        k=i
                      endif
                   elseif ( i == nlev ) then
@@ -920,7 +921,7 @@ IMPLICIT NONE
                        c1dimz(i)=0.1* c1dimz(i-1)
                        k=i
                      else
-                       c1dimz(i)=0.0
+                       c1dimz(i)=p_small
                        k=i
                      endif
                   else if ( (c1dimz(i-1) > 0.0) .and. ( c1dimz(i+1)>0.0 ) ) then

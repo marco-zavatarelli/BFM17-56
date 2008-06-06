@@ -55,12 +55,16 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN,ZERO,ONE
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: G23c,G13c, G3c, D1m, Q1c, D6m, D2m, D2STATE
   use mem, ONLY: ppG23c, ppG13c, ppG3c, ppD1m, ppQ1c, ppD6m, ppD2m, &
     dummy,    NO_BOXES_XY,  ERHO_ben, &
      BoxNumberXY, InitializeModel, LocalDelta, KCO2, jbotO3c, DICae, &
     DICan, rrBTo, irrenh, ETW_Ben, rrATo, O3c_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
+#endif
   use constants, ONLY: MW_C, GET, LABDA_1, COEFFICIENT, &
     LAYERS, LAYER1, LAYER2, DIFFUSION, FOR_ALL_LAYERS, POROSITY, &
     ADSORPTION, DOUBLE_DEFINE, ZERO_EXPONENTIAL_TERM, DEFINE, QUADRATIC_TERM, &

@@ -43,15 +43,15 @@
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem, ONLY: D2STATE, Q6c, Q6n, Q6p, G2o, K4n, K1p, D6m, D7m, &
     D8m, D1m, BenOrganisms, BenBacteria
-#endif
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c, ppG2o, ppK4n, ppK1p,O2o_Ben, &
     ppD6m, ppD7m, ppD8m, ppD1m, ppBenOrganisms, ppBenBacteria, rrBTo, reBTn, &
     reBTp, ETW_Ben, iiBenOrganisms, iiBenBacteria, iiY1, iiY2, iiY4, iiY5, iiC, &
     iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, sourcesink_flux_vector
+#endif
   use mem_Param,  ONLY: p_d_tot,p_small
   use mem_BenOrganism
 

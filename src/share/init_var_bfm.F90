@@ -28,7 +28,7 @@
    use constants, ONLY: HOURS_PER_DAY
    use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc, &
                         CalcPhytoPlankton,CalcMicroZooPlankton,          &
-                        CalcMesoZooPlankton,CalcPelChemistry
+                        CalcMesoZooPlankton,CalcPelChemistry,CalcBacteria
 #ifdef INCLUDE_BEN
    use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria, CalcBacteria
    use mem_BenBac, ONLY: p_qnc,p_qpc
@@ -343,6 +343,12 @@
    !---------------------------------------------
    ! Zeroing of the switched off state variables
    !---------------------------------------------
+   if (.NOT.CalcBacteria) then
+      D3STATE(ppB1c,:) = p_small
+      D3STATE(ppB1n,:) = p_small
+      D3STATE(ppB1p,:) = p_small
+      D3STATETYPE(ppB1c) = NOTRANSPORT
+   end if
    do j = 1,iiPhytoPlankton
       iiLastElement = iiL
       if (.NOT.CalcPhytoPlankton(j)) then

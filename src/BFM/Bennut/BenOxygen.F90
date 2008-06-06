@@ -40,13 +40,13 @@
 
   use global_mem, ONLY:RLEN,LOGUNIT
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem,  ONLY: D1m, G2o, D2m
-#endif
   use mem, ONLY: ppD1m, ppG2o, ppD2m, InitializeModel, LocalDelta, shiftD1m, &
     jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
     iiPel, flux_vector,KNO3,M3n,dummy, BoxNumberXY
+#endif
   use constants,  ONLY: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO,STANDARD,EQUATION
   use mem_Param,  ONLY: p_poro, p_small, p_d_tot, CalcBenthicFlag
   use mem_BenOxygen

@@ -47,16 +47,16 @@
   use global_mem, ONLY:RLEN, ZERO, ONE
   use constants, ONLY: MW_C
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem, ONLY: D2STATE, Q6c, Q6n, Q6p, G2o, K16r, D6m, &
     D7m, D8m, D1m, D2m, BenDetritus, BenthicAmmonium, BenthicPhosphate
-#endif
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c,ppG13c, ppG2o, ppK16r, ppD6m, &
     ppD7m, ppD8m, ppD1m, ppD2m, ppBenDetritus, ppBenthicAmmonium, &
     ppBenthicPhosphate, rrBTo, reBTn, reBTp, rrATo, reATn, reATp, ETW_Ben, ruHI, &
     iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, reHI, &
     sourcesink_flux_vector
+#endif
   use mem_Param,  ONLY: p_d_tot, p_small, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, &
                         p_clD1D2m
   use mem_BenBac

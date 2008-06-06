@@ -38,18 +38,15 @@
 
   use global_mem, ONLY:RLEN,ZERO,ONE
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem,  ONLY: G2o, K6r, K1p, K11p, K4n, K14n, Q6s, D1m, D2m
-#endif
   use mem, ONLY: ppG2o, ppK6r, ppK1p, ppK11p, ppK4n, ppK14n, ppQ6s, &
     ppD1m, ppD2m, jbotN3n, jbotN4n, jG2K7o, jbotN1p, jbotN5s, NO_BOXES_XY, iiBen, &
     iiPel, flux_vector
+#endif
   use mem_Param,  ONLY: p_qro, p_d_tot
   use mem_BenthicReturn2
-
-
-
 !  
 !
 ! !AUTHORS

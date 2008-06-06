@@ -200,17 +200,26 @@
 
     case ( BENTHIC_BIO )  ! Intermediate benthic return
       ! Mass conservation variables
-      totbenp(:) = ( Y1p(:)+ Y2p(:)+ Y3p(:)+ Y4p(:)+ Y5p(:)+ H1p(:)+ &
-        H2p(:)+ Q1p(:)+ Q6p(:)+ Q11p(:)+ K1p(:)+ K11p(:))
-      totbenn(:) = ( Y1n(:)+ Y2n(:)+ Y3n(:)+ Y4n(:)+ Y5n(:)+ H1n(:)+ &
-        H2n(:)+ Q1n(:)+ Q6n(:)+ Q11n(:)+ K4n(:)+ K14n(:))
+      totbenp(:) = ( Y1p(:)+ Y2p(:)+ Y3p(:)+ &
+        Y4p(:)+ Y5p(:)+ H1p(:)+ &
+        H2p(:)+ Q1p(:)+ Q6p(:)+ &
+        Q11p(:)+ K1p(:)+ K11p(:))
+      totbenn(:) = ( Y1n(:)+ Y2n(:)+ Y3n(:)+ &
+        Y4n(:)+ Y5n(:)+ H1n(:)+ &
+        H2n(:)+ Q1n(:)+ Q6n(:)+ &
+        Q11n(:)+ K4n(:)+ K14n(:))
       totbens(:)  =  ( Q6s(:))
 
     case ( BENTHIC_FULL )  ! Full benthic nutrients
-      totbenp(:) = ( Y1p(:)+ Y2p(:)+ Y3p(:)+ Y4p(:)+ Y5p(:)+ H1p(:)+ &
-        H2p(:)+ Q1p(:)+ Q6p(:)+ Q11p(:)+ K1p(:)+ K11p(:)+ K21p(:))
-      totbenn(:) = ( Y1n(:)+ Y2n(:)+ Y3n(:)+ Y4n(:)+ Y5n(:)+ H1n(:)+ &
-        H2n(:)+ Q1n(:)+ Q6n(:)+ Q11n(:)+ G4n(:)+ K3n(:)+ K4n(:)+ K14n(:)+ K24n(:))
+      totbenp(:) = ( Y1p(:)+ Y2p(:)+ Y3p(:)+ &
+        Y4p(:)+ Y5p(:)+ H1p(:)+ &
+        H2p(:)+ Q1p(:)+ Q6p(:)+ &
+        Q11p(:)+ K1p(:)+ K11p(:)+ K21p(:))
+      totbenn(:) = ( Y1n(:)+ Y2n(:)+ Y3n(:)+ &
+        Y4n(:)+ Y5n(:)+ H1n(:)+ &
+        H2n(:)+ Q1n(:)+ Q6n(:)+ &
+        Q11n(:)+ G4n(:)+ K3n(:)+&
+         K4n(:)+ K14n(:)+ K24n(:))
       totbens(:)  =   K5s(:)+ Q6s(:)
 
   end select

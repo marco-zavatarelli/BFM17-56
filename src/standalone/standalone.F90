@@ -353,8 +353,21 @@ integer :: i
 #ifdef DEBUG
       LEVEL2 'ntime=',ntime
 #endif
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Compute environmental forcing functions
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call envforcing_bfm
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Compute extinction coefficient
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      call CalcVerticalExtinction( )
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Compute reaction terms
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call EcologyDynamics
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Integrate forward in time
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       select case (method)
          case (2)
             call integrationRK2
@@ -363,12 +376,18 @@ integer :: i
          case default
             call integrationEfw
       end select
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Compute means and store results
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call calcmean_bfm(ACCUMULATE)
       if (mod(ntime,out_delta).eq.0) then
          LEVEL1 'OUTPUT' , timesec/SEC_PER_DAY
          call calcmean_bfm(MEAN)
          call save_bfm(timesec)
       end if
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Reset source-sink arrays, update time
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call ResetFluxes
       call update_time(ntime)
 #ifdef DEBUG

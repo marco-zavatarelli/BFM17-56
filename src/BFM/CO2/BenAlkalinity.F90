@@ -23,44 +23,21 @@
 !
 
 #ifdef INCLUDE_BENCO2
-
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: G13h, G3h
-  ! The following Benthic-states are used (NOT in fluxes): D1m, Q1c, D6m, D2m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,  &
-  !   BoxNumberXY, InitializeModel, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : KALK, jbotO3h
-  ! The following Benthic 1-d global boxvars got a value: Acae, Acan
-  ! The following Benthic 1-d global boxvars are used: rrBTo, KQ1, &
-  ! irrenh, ETW_Ben, rrATo, O3h_Ben, shiftD1m
-  ! The following Benthic 2-d global boxvars  are used: ruHI
-  ! The following groupmember vars  are used: iiH1
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_d_tot, p_q10diff
-  ! The following global constants are used: RLEN
-  ! The following constants are used: GET, &
-  ! LABDA_1, COEFFICIENT, LAYERS, LAYER1, LAYER2,LAYER3,  LAYER5, &
-  ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DOUBLE_DEFINE, &
-  ! ZERO_EXPONENTIAL_TERM, DEFINE, QUADRATIC_TERM, LINEAR_TERM, CONSTANT_TERM, &
-  ! SET_CONTINUITY, FLAG, MASS, SET_BOUNDARY, EQUATION, &
-  ! INPUT_TERM, PARAMETER, START_ADD_TERM, INPUT_ADD_TERM, &
-  ! SET_LAYER_INTEGRAL_UNTIL, SET_LAYER_INTEGRAL, ADD, DERIVATIVE, &
-  ! RFLUX, SHIFT, ONE_PER_DAY
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: G23h,G13h, G3h, D1m, Q1c, D6m, D2m, D2STATE
   use mem, ONLY: ppG23h, ppG13h, ppG3h, ppD1m, ppQ1c, ppD6m, ppD2m,Acae, Acan, &
     dummy,    NO_BOXES_XY, ERHO_Ben,  &
      BoxNumberXY, InitializeModel, LocalDelta, KALK, jbotO3h, &
     irrenh, ETW_Ben, jK4K3n,jG2K7o,rrATo, O3h_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
+#endif
   use constants, ONLY: GET, LABDA_1, DIFFUSION, COEFFICIENT, &
     LAYERS, LAYER1, LAYER2, LAYER3,LAYER4,LAYER5, FOR_ALL_LAYERS, POROSITY, &
     ADSORPTION, DOUBLE_DEFINE, EXPONENTIAL_TERM, DEFINE, QUADRATIC_TERM, &
@@ -72,7 +49,6 @@
   use mem_BenAlkalinity
   use mem_BenthicNutrient3, ONLY:p_max_shift_change,p_max_state_change
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:GetInfoFromSet, &
   ! InitializeSet, DefineSet, CompleteSet, CalculateSet, CalculateTau, &
@@ -80,7 +56,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use bennut_interface, ONLY: GetInfoFromSet, InitializeSet, DefineSet, &
     CompleteSet, CalculateSet, CalculateTau, CalculateFromSet
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following global functions are used:eTq

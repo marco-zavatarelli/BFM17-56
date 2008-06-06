@@ -457,14 +457,16 @@ end
 3d-flux 
   ruPTc=P.c <- *:gross primary production:mg C/m3/d
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
-  ruPTP=P.p <- N1p : net phosphate uptake : mmol P /m3/d
+  ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
   netPP=(P.c<- *)-(P.c -> *)-(P.c->R1c+R2c+R6c): net primary production :mg C/m3/d
   exPP=(P.c->R1c+R2c+R6c): excretion phytoplankton :mg C/m3/d
   resPP=(P.c->*) : respiration phytoplankton :mg C/m3/d
-  ruZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): gross secondary production:mg C/m3/d
+  resZT=(Z.c->*) : respiration zooplankton :mg C/m3/d
+  ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
+  netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
   rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
-# rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
-# rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
+  rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
+  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
   fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
   fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
 end

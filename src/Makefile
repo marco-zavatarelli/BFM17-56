@@ -67,12 +67,13 @@ BFM_PELOBJ = \
 
 ifeq ($(INCLUDE_PELCO2),true)
 BFM_PELCO2MOD = \
-	${LIB}(${BFMSRC}/CO2/ModuleCO2.o)			\
+	${LIB}(${BFMSRC}/CO2/ModuleCO2.o)		\
 	${LIB}(${BFMSRC}/CO2/ModuleCO2System.o)
 BFM_PELCO2OBJ = \
 	${LIB}(${BFMSRC}/CO2/PelCO2.o)			\
 	${LIB}(${BFMSRC}/CO2/Alkalinity.o)		\
-	${LIB}(${BFMSRC}/CO2/CO2Flux.o)	
+	${LIB}(${BFMSRC}/CO2/CO2Flux.o)			\
+	${LIB}(${BFMSRC}/CO2/CO2System_vector.o)
 endif
 
 ifeq ($(INCLUDE_BEN),true)

@@ -54,7 +54,7 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: EWIND,ETW,ERHO,EPCO2air,pCO2,  &
+  use mem, ONLY: EWIND,ETW,ESW,ERHO,EPCO2air,pCO2,  &
                  NO_BOXES,NO_BOXES_XY,CO2airflux,EICE
   use mem, ONLY: iiPel, ppO3c, D3STATE, jsurO3c, CO2airflux, &
                  Depth, flux_vector

@@ -39,13 +39,13 @@
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem,  ONLY: D6m, D7m, D8m, D9m, Y2c, Y5c, Y1c, Y3c, Y4c
-#endif
   use mem, ONLY: ppD6m, ppD7m, ppD8m, ppD9m, ppY2c, ppY5c, ppY1c, &
     ppY4c, turenh, irrenh, &
     ETW_Ben, NO_BOXES_XY, iiBen, iiPel, flux_vector
+#endif
   use mem_Bioturbation
 
 

@@ -44,11 +44,10 @@
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants, ONLY:MW_C
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem
 #else
   use mem, ONLY: Y3c, Y3n, Y3p, Q6c, Q6n, Q6p, Q6s, G2o, K4n, K1p, D6m, D7m, D8m, D9m, &
     D1m
-#endif
   use mem, ONLY: ppY3c, ppY3n, ppY3p, ppQ6c, ppQ6n, ppQ6p, ppQ6s, ppG2o, ppK4n,O2o_Ben, &
     ppK1p, ppD6m, ppD7m, ppD8m, ppD9m, ppD1m, rrBTo, reBTn, reBTp, jbotR6c, jbotR6n, &
     jbotR6p, jbotR6s, jPIY3c, jZIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, &
@@ -60,9 +59,7 @@
   use mem, ONLY: jbotO3c
 #endif
  use mem,  ONLY: Source_D2_vector
-
-
-!   ppPhytoPlankton,iiC,jinPIc,BoxNumberXY
+#endif
   use mem_Param,  ONLY: p_d_tot,p_pe_R1c, p_pe_R1n, p_pe_R1p,p_small
   use mem_FilterFeeder
 

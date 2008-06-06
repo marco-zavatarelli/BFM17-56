@@ -21,20 +21,22 @@
 !   Piet Ruardij   
 !
 ! !USES:
-        USE global_mem,      ONLY:RLEN,LOGUNIT,ZERO
+        use global_mem,      ONLY:RLEN,LOGUNIT,ZERO
 #ifdef INCLUDE_BENPROFILES
 #ifdef INCLUDE_BENCO2
-        USE mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
+#ifdef NOPOINTERS
+        use mem
+#else
+        use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
            BoxNumberY,NO_BOXES_Y,BoxNumber,BoxNumberXY, seddepth
         use mem,ONLY:PrDIC,PrAc,KALK,KCO2,PrM1p,PrM5s,PrpH, &
            ESW_Ben,ETW_Ben,ERHO_Ben
-        USE constants, ONLY: INTEGRAL,STANDARD,MW_C
+#endif
+        use constants, ONLY: INTEGRAL,STANDARD,MW_C
         use bennut_interface, ONLY:CalculateFromSet
         use CO2System,ONLY: CalcCO2System
         use mem_CO2,ONLY: MethodCalcCO2
-        USE BFM_ERROR_MSG, ONLY: BFM_ERROR
-
-        
+        use bfm_error_msg, ONLY: bfm_error
 !
 ! CHANGE_LOG
 !   
@@ -58,7 +60,7 @@
 
         IMPLICIT  NONE
         integer    ::error
-        REAL(RLEN)    ::r,s,dumCO2,dumHCO3,dumCO3,dumpCO2,dummy
+        REAL(RLEN)    ::r,s,dumCO2,dumHCO3,dumCO3,dumpCO2
         logical,save :: start=.TRUE.
         logical,save :: llDIC,llAc,llpH
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -67,7 +69,6 @@
         integer, external  :: D3toD1
         integer, external  :: D2toD1
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
 
         if ( start) then
           start=.FALSE.

@@ -26,6 +26,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN,LOGUNIT,ZERO
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem, ONLY: R6c, R6n, R6p, R6s, N1p, N3n, N4n, N5s, N6r, O2o, &
     iiPhytoPlankton, ppPhytoPlankton, PhytoPlankton, D2STATE, &
     iiMicroZooPlankton, ppMicroZooPlankton, MicroZooPlankton
@@ -38,6 +41,7 @@
     Depth_Ben, iiP1, iiC, iiN, iiP, iiS, iiBen, iiPel, flux
 #ifdef INCLUDE_BENCO2
     use mem, ONLY: O3c_Ben,O3c,O3h_Ben,O3h
+#endif
 #endif
   use mem_MicroZoo, ONLY:p_qn_mz,p_qp_mz
   use mem_Param,  ONLY: p_small

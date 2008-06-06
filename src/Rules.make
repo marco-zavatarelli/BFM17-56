@@ -72,7 +72,12 @@ BFMSRCDIR +=$(BFMDIR)/src/share
 # BFM include files and the library
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 INCDIRS		+= -I$(BFMINCDIR)
-## DEFINES += -DBFM_NOPOINTERS -DNOT_STANDALONE
+
+# Option to compile without pointers (default with NECSX)
+ifeq ($(FORTRAN_COMPILER),NECSX6)
+  DEFINES += -DBFM_NOPOINTERS 
+endif
+# Option to compile without allocatable memory (default with GOTM)
 ## DEFINES += -DNOT_STANDALONE
 
 # Pelagic CO2 flags (activates compilation and macros, false by default)

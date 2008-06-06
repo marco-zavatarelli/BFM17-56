@@ -61,7 +61,7 @@
   real(RLEN),   parameter :: DBL_MIN=2.2250738585072014e-308_RLEN
   ! This initialization has to be done in ModuleParam because some compilers 
   ! do not allow the initialization of constants with intrinsic functions
-  real(RLEN)              :: MIN_VAL_EXPFUN
+  real(RLEN)              :: MIN_VAL_EXPFUN=ZERO
   integer,      parameter :: ECOLOGY=1  ! Base temperature for Q10
   integer,      parameter :: TRANSPORT=2
   real(RLEN),   parameter :: ZERO_KELVIN=-273.15_RLEN
