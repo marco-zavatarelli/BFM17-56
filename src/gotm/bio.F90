@@ -377,7 +377,9 @@
       do j=1,numcc
          if (bio_setup /= 2 ) then
            if (pelvar_type(j)>=ALLTRANSPORT) then
-            call test_on_negative_states(j,.TRUE.,cc(j,:),h,nlev,"biology",kt)
+            c1dim = cc(j,:)
+            call test_on_negative_states(j,.TRUE.,c1dim,h,nlev,"biology",kt)
+            if ( kt.gt.0) cc(j,:) = c1dim
             ! MAV: this part could be put behind a flag: stop_on_negative
             if ( kt.lt.0) then
                call bio_save(nlev,_ZERO_)

@@ -1,0 +1,114 @@
+Index: src/Rules.make
+===================================================================
+RCS file: /public/cvs/gotm/src/Rules.make,v
+retrieving revision 1.19
+diff -u -r1.19 Rules.make
+--- src/Rules.make	18 Jan 2008 08:46:51 -0000	1.19
++++ src/Rules.make	8 Jun 2008 13:48:07 -0000
+@@ -19,9 +20,9 @@
+ SEDIMENT=false
+ #SEDIMENT=true
+ SEAGRASS=false
+-SEAGRASS=true
+-BIO=false
++#SEAGRASS=true
+ BIO=true
++#BIO=false
+ 
+ FEATURES	=
+ FEATURE_LIBS	=
+@@ -146,6 +147,8 @@
+ ifeq  ($(can_do_F90),true)
+ %.o: %.F90
+ 	$(FC) $(F90FLAGS) $(EXTRA_FFLAGS) -c $< -o $@
++%.o: %.f90
++	$(FC) $(F90FLAGS) $(EXTRA_FFLAGS) -c $< -o $@
+ else
+ %.f90: %.F90
+ #	$(CPP) $(CPPFLAGS) $< -o $@
+Index: src/extras/bio/Makefile
+===================================================================
+RCS file: /public/cvs/gotm/src/extras/bio/Makefile,v
+retrieving revision 1.20
+diff -u -r1.20 Makefile
+--- src/extras/bio/Makefile	26 Mar 2008 09:09:24 -0000	1.20
++++ src/extras/bio/Makefile	8 Jun 2008 13:48:07 -0000
+@@ -20,14 +20,15 @@
+ OBJ2   = \
+ ${LIB}(bio.o)
+ 
+-#BIO_TEMPLATE=false
+-#BIO_NPZD=false
+-#BIO_IOW=false
+-#BIO_SED=false
+-#BIO_FASHAM=false
++BIO_TEMPLATE=false
++BIO_NPZD=false
++BIO_IOW=false
++BIO_SED=false
++BIO_FASHAM=false
+ BIO_MAB=false
+-#BIO_ROLM=false
+-#BIO_NPZD_FE=false
++BIO_ROLM=false
++BIO_NPZD_FE=false
++BIO_BFM=true
+ 
+ ifneq ($(BIO_TEMPLATE),false)
+ SUBDIRS += template
+@@ -69,6 +70,18 @@
+ DEFINES += -DBIO_NPZD_FE
+ endif
+ 
++ifneq ($(BIO_BFM),false)
++ifndef BFMDIR
++  $(error The environment variable BFMDIR is not defined!)
++endif
++DEFINES += -DNOT_STANDALONE -DBFM_GOTM
++INCDIRS += -I$(BFMDIR)/src/BFM/include
++SUBDIRS = 
++OBJ1    = 
++OBJ2    = 
++include $(BFMDIR)/src/gotm/BFM.make
++endif
++
+ all: $(OBJ1) OBJS $(OBJ2)
+ 	$(MOVE_MODULES_COMMAND)
+ 
+@@ -84,10 +97,10 @@
+ clean:
+ 	$(RM) ${LIB} doc
+ 
+-realclean: clean
++realclean: clean bfmclean
+ 	$(RM) *.o *~
+ 
+-distclean: realclean
++distclean: realclean bfmrealclean
+ 
+ #-----------------------------------------------------------------------
+ # Copyright (C) 2008 - Hans Burchard and Karsten Bolding (BBH)         !
+Index: src/gotm/gotm.F90
+===================================================================
+RCS file: /public/cvs/gotm/src/gotm/gotm.F90,v
+retrieving revision 1.37
+diff -u -r1.37 gotm.F90
+--- src/gotm/gotm.F90	9 Apr 2008 11:56:28 -0000	1.37
++++ src/gotm/gotm.F90	8 Jun 2008 13:48:07 -0000
+@@ -322,6 +322,7 @@
+    t = tprof
+    u = uprof
+    v = vprof
++
+ #ifdef BIO
+    if ( bio_prof_method .eq. 2 ) then
+       cc = bioprofs
+@@ -460,7 +461,7 @@
+ #ifdef BIO
+       if (bio_calc) then
+          call set_env_bio(nlev,h,t,s,rho,nuh,rad,wind,I_0, &
+-                          w,w_adv_discr)
++                          w,w_adv_discr,u_taub)
+          call do_bio_fluxes(julianday,secondsofday)
+          call do_bio(nlev,dt)
+          call get_bio_updates(nlev,bioshade)

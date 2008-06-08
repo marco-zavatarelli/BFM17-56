@@ -1,11 +1,4 @@
 The GOTM source code needs to be patched to use the BFM model.
-
-Only 4 files are actually changed:
-compilers/compiler.IFORT
-src/Rules.make
-src/extras/bio/Makefile
-src/gotm/gotm.F90
-
 To apply the patch execute the following command:
 
 cd $GOTMDIR

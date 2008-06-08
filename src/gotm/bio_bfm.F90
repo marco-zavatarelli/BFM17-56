@@ -913,7 +913,7 @@ IMPLICIT NONE
                        c1dimz(i)=0.1* c1dimz(i+1)
                        k=i
                      else
-                       c1dimz(i)=p_small
+                       c1dimz(i)=0.0
                        k=i
                      endif
                   elseif ( i == nlev ) then
@@ -921,7 +921,7 @@ IMPLICIT NONE
                        c1dimz(i)=0.1* c1dimz(i-1)
                        k=i
                      else
-                       c1dimz(i)=p_small
+                       c1dimz(i)=0.0
                        k=i
                      endif
                   else if ( (c1dimz(i-1) > 0.0) .and. ( c1dimz(i+1)>0.0 ) ) then
@@ -937,7 +937,7 @@ IMPLICIT NONE
                endif
                if ( error.ge.0) error=k
             end do                                    !BFM
-            sumafter=1.0D-80+sum(c1dimz(1:nlev)*h(1:nlev))
+            sumafter=p_small+sum(c1dimz(1:nlev)*h(1:nlev))
             r=sumbefore/sumafter
             c1dimz=c1dimz*min(1.0,max(0.0,r))
             if ( n > 0 ) then
