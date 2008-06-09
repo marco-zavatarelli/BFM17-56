@@ -156,6 +156,11 @@ depend .depend:
 clean:
 	rm -rf ${BFMSRC}/*/*.o ${BFMNEMOSRC}/*.o ${BFMSHARE}/*.o
 	rm -rf ${BFMNEMOSRC}/*.mod
+	rm -rf ${BFMSRC}/General/ModuleMem.F90
+	rm -rf ${BFMSRC}/General/AllocateMem.F90
+	rm -rf ${BFMSRC}/General/set_var_info_bfm.F90
+	rm -rf ${BFMSRC}/include/INCLUDE.h
+
 
 .SUFFIXES: 
 .SUFFIXES: .f90 .F90
@@ -166,18 +171,22 @@ clean:
 %.o: %.f90
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
-		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
+ifeq ($(FORTRAN_COMPILER),NECSX6)
+		$(A_X) $(BFMLIB) $*.o  > /dev/null
 		$(RM) $*.[of]
-		if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
 		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
+endif
+		if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
 		if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
 %.o: %.F90
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
-		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
+ifeq ($(FORTRAN_COMPILER),NECSX6)
+		$(A_X) $(BFMLIB) $*.o  > /dev/null
 		$(RM) $*.[of]
-		if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
 		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
+endif
+		if [ -f $*.mod ] ; then mv $*.mod $(NEMOLIBDIR)/oce ; fi
 		if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi
 
 
