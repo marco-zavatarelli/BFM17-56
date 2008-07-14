@@ -62,7 +62,7 @@
     end if
     if (present(l)) then
        where (l==ZERO) 
-          l = sc_ratio*c
+          l = lc_ratio*c
        end where
     end if
 
