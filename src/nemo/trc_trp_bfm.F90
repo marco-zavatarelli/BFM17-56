@@ -28,7 +28,7 @@ SUBROUTINE trc_trp_bfm( kt )
    USE trcldf_lap      ! lateral mixing                  (trc_ldf_lap routine)
 
    USE trcnxt          ! time-stepping                       (trc_nxt routine)
-   USE trcrad          ! positivity                          (trc_rad routine)
+   USE trcrad_bfm      ! positivity                      (trc_rad_bfm routine)
 
    USE trcadv_cen2     ! 2nd order centered advection   (trc_adv_cen2 routine)
    USE trcadv_muscl    ! MUSCL advection               (trc_adv_muscl routine)
@@ -63,6 +63,10 @@ SUBROUTINE trc_trp_bfm( kt )
    !! ---------------------------------------------------------------------
       integer :: m,k
       real(RLEN) :: dummy(NO_BOXES)
+      ! local variables for clipping
+      integer :: nneg(NO_D3_BOX_STATES)
+      real(RLEN) :: total(NO_D3_BOX_STATES),mass
+      real(RLEN),parameter :: P_ZERO=1.0D-30
 
    !
    ! Exit if transport is not computed. Time integration is carried out 
@@ -141,8 +145,7 @@ SUBROUTINE trc_trp_bfm( kt )
 
             CALL trc_nxt( kt )            ! tracer fields at next time step
 
-!            CALL trc_rad( kt )            ! Correct artificial negative concentrations for isopycnal scheme            
-                                           ! Nothing is done for the BFM yet
+            !CALL trc_rad_bfm( kt )        ! Correct artificial negative concentrations for isopycnal scheme            
 
             IF( ln_zps .AND. .NOT. lk_trccfg_1d ) &
                &                     CALL zps_hde_trc( kt, trb, gtru, gtrv )  ! Partial steps: now horizontal gradient
@@ -156,6 +159,24 @@ SUBROUTINE trc_trp_bfm( kt )
                D3STATEB(m,:) = pack(trb(:,:,:,1),SEAmask)        ! Leap-frog scheme (only in explicit case)
          END IF ! transported
       END DO ! over state vars
+
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Clip negative concentrations (FIX!)
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+       total = ZERO
+       do m = 1,NO_D3_BOX_STATES
+         nneg(m) = 0
+         do k = 1,NO_BOXES
+           if (D3STATE(m,k)<ZERO) then
+             mass = D3STATE(m,k) - P_ZERO
+             total(m) = total(m) + mass
+             D3STATE(m,k) = P_ZERO
+             nneg(m) = nneg(m)+1
+           end if
+         end do
+         nneg(m) = min(nneg(m),NO_BOXES-1)
+       end do
+
 
 END SUBROUTINE trc_trp_bfm
 
