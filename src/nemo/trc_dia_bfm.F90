@@ -13,6 +13,7 @@
    use oce_trc
    use global_mem, only:RLEN
    use netcdf_bfm, only: save_bfm, close_ncdf, ncid_bfm
+   use netcdf_bfm, only: save_rst_bfm, ncid_rst
    use mem
    use api_bfm, only: out_delta
 
@@ -64,6 +65,9 @@
    ! Close the file (MAV: are we saving the last step?)
    !---------------------------------------------
    if ( kt == nitend ) then
+      ! save and close the restart file
+      call save_rst_bfm
+      call close_ncdf(ncid_rst)
       call close_ncdf(ncid_bfm)
    endif
 

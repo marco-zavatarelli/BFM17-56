@@ -32,7 +32,7 @@ P_P += -DBFM_NEMO  $(DEFINES)
 ## specific options for NEC-SX
 ifeq ($(FORTRAN_COMPILER),NECSX6)
 AR=${SXAR}
-P_P += -DBFM_NOPOINTERS -DNECSX
+P_P += -DBFM_NOPOINTERS -DNECSX -DBFM_PARALLEL
 INLINE = -pi auto line=200 expin=$(BFMDIR)/src/BFM/General,$(BFMDIR)/src/share,$(BFMDIR)/src/BFM/PelB,$(BFMDIR)/src/BFM/CO2 exp=sourcesink_flux_vector,flux_vector,flux,fixed_quota_flux_vector,Source_D3_vector nest=10 rexp=PhytoDynamics,MicroZooDynamics,MesoZooDynamics,fixed_quota_flux_vector,flux_vector,Source_D3_vector,calcco2system
 P_P += -R2 -EP -sx6 -Cvopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl expand=5 noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist 
 endif
@@ -173,7 +173,7 @@ clean:
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
 ifeq ($(FORTRAN_COMPILER),NECSX6)
-		$(A_X) $(BFMLIB) $*.o  > /dev/null
+		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
 		$(RM) $*.[of]
 		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
 endif
@@ -183,7 +183,7 @@ endif
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
 ifeq ($(FORTRAN_COMPILER),NECSX6)
-		$(A_X) $(BFMLIB) $*.o  > /dev/null
+		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
 		$(RM) $*.[of]
 		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
 endif

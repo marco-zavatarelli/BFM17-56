@@ -13,12 +13,7 @@
 !  NetCDF format.
 !
 ! !USES:
-   use api_bfm, only: out_dir,out_fname,out_title,out_units,out_delta,out_secs
-   use api_bfm, only: stPelStateS,stPelDiagS,stPelFluxS,stBenStateS,stBenDiagS,stBenFluxS
-   use api_bfm, only: stPelStateE,stPelDiagE,stPelFluxE,stBenStateE,stBenDiagE,stBenFluxE
-   use api_bfm, only: lon_len,lat_len,ocepoint_len,surfpoint_len,botpoint_len,depth_len
-   use api_bfm, only: bio_setup,var_ids,var_names,var_long,var_units,c1dim
-   use api_bfm, only: D3ave,D2ave,var_ave,ave_count
+   use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
    use global_mem, only: RLEN
    implicit none
@@ -54,11 +49,20 @@
    integer          :: lon_id,lat_id,z_id,z1_id,time_id
    integer          :: zeta_id, mask_id
    integer          :: depth_id,ocepoint_id,surfpoint_id,botpoint_id
+   !---------------------------------------------
+   ! Restart file ids
+   !---------------------------------------------
+   integer,public                :: ncid_rst
+   integer                       :: ncid_rst_in
+   integer                       :: ocepoint_rdim
+   integer                       :: surfpoint_rdim,botpoint_rdim
+   integer                       :: d3vars_rdim,d3state_rid
+   integer                       :: d2vars_rdim,d2state_rid
 
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
-!  Modifications: Marcello Vichi
+!  Modifications and BFM additions: Marcello Vichi
 !
 !EOP
 !
@@ -303,6 +307,240 @@
 
 !-----------------------------------------------------------------------
 !BOP
+!
+! !IROUTINE: Initialize the netcdf restart
+!
+! !INTERFACE:
+   subroutine init_netcdf_rst_bfm(title)
+!
+! !DESCRIPTION:
+!  Prepare the netcdf restart file for the BFM
+!
+! !USES:
+   use mem, only: NO_D3_BOX_STATES, NO_BOXES,    &
+                  NO_BOXES_XY, NO_D2_BOX_STATES
+   implicit none
+!
+! !INPUT/OUTPUT PARAMETERS:
+   character(len=*), intent(in)                 :: title
+!
+! !REVISION HISTORY:
+!  Original author(s): Karsten Bolding & Hans Burchard
+!  Modifications: Marcello Vichi
+!
+!EOP
+!
+! !LOCAL VARIABLES:
+   character(len=PATH_MAX)   :: ext,fname
+   integer                   :: iret,ndims
+!!
+!-------------------------------------------------------------------------
+!BOC
+   !---------------------------------------------
+   ! Prepare the netcdf file
+   !---------------------------------------------
+   ext = 'nc'
+   fname = './out_'// TRIM(title) // '.' // ext
+   LEVEL2 'Restart file in NetCDF'
+   LEVEL2 TRIM(fname)
+   iret = nf_create(fname,NF_CLOBBER,ncid_rst)
+   call check_err(iret)
+
+   !---------------------------------------------
+   ! define 3D dimensions and variables
+   !---------------------------------------------
+   iret = nf_def_dim(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim)
+   call check_err(iret)
+   iret = nf_def_dim(ncid_rst, 'oceanpoint', NO_BOXES, ocepoint_rdim)
+   call check_err(iret)
+   iret = nf_def_dim(ncid_rst, 'surfacepoint', NO_BOXES_XY, surfpoint_rdim)
+   call check_err(iret)
+   dims(1) = d3vars_rdim
+   dims(2) = ocepoint_rdim
+   ndims = 2
+   iret = nf_def_var(ncid_rst,'D3STATE',NF_DOUBLE,ndims,dims,d3state_rid)
+   call check_err(iret)
+
+#ifdef INCLUDE_BEN
+   !---------------------------------------------
+   ! define 2D dimensions and variables
+   !---------------------------------------------
+   iret = nf_def_dim(ncid_rst, 'd2vars', NO_D2_BOX_STATES, d2vars_rdim)
+   call check_err(iret)
+   iret = nf_def_dim(ncid_rst, 'bottompoint', NO_BOXES_XY, botpoint_rdim)
+   call check_err(iret)
+   dims(1) = d2vars_rdim
+   dims(2) = botpoint_rdim
+   ndims = 2
+   iret = nf_def_var(ncid_rst,'D2STATE',NF_DOUBLE,ndims,dims,d2state_rid)
+   call check_err(iret)
+#endif
+
+   !---------------------------------------------
+   ! leave define mode
+   !---------------------------------------------
+   iret = nf_enddef(ncid_rst)
+   call check_err(iret)
+
+end subroutine init_netcdf_rst_bfm
+!EOC
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: Store the restart file
+!
+! !INTERFACE:
+  subroutine save_rst_bfm()
+!
+! !DESCRIPTION:
+! output restart file of BFM variables 
+!
+! !USES:
+   use mem, only: D3STATE, NO_D3_BOX_STATES, NO_BOXES
+#ifdef INCLUDE_BEN
+   use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
+#endif
+   implicit none
+!
+! !INPUT PARAMETERS:
+
+! !LOCAL VARIABLES:
+   integer                   :: iret
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi (INGV) 
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+     start(1) = 1;   edges(1) = NO_D3_BOX_STATES
+     start(2) = 1;   edges(2) = NO_BOXES
+     iret = nf_put_vara_double(ncid_rst,d3state_rid,start,edges,D3STATE(:,:))
+     call check_err(iret)
+#ifdef INCLUDE_BEN
+     start(1) = 1;   edges(1) = NO_D2_BOX_STATES
+     start(2) = 1;   edges(2) = NO_BOXES_XY
+     iret = nf_put_vara_double(ncid_rst,d2state_rid,start,edges,D2STATE(:,:))
+     call check_err(iret)
+#endif
+     LEVEL1 'Restart has been written in NetCDF'
+     ! the file is closed in the main (in case of more restart files)
+     !iret = nf_close(ncid_rst)
+     !call check_err(iret)
+
+  end subroutine save_rst_bfm 
+!EOC
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: Read the restart file
+!
+! !INTERFACE:
+  subroutine read_rst_bfm(title)
+!
+! !DESCRIPTION:
+! Read restart file of BFM variables 
+!
+! !USES:
+   use mem, only: D3STATE, NO_D3_BOX_STATES, NO_BOXES
+#ifdef INCLUDE_BEN
+   use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
+#endif
+   implicit none
+!
+! !INPUT PARAMETERS:
+   character(len=*), intent(in)                 :: title
+! !LOCAL VARIABLES:
+   character(len=PATH_MAX)   :: ext,fname
+   integer                   :: iret
+   integer                   :: nstate_id,nstate_len
+   integer                   :: ncomp_id,ncomp_len
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi (INGV) 
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+   !---------------------------------------------
+   ! open the netcdf restart file
+   !---------------------------------------------
+   ext = 'nc'
+   fname = './in_'// TRIM(title) // '.' // ext
+   LEVEL2 'Reading Restart file in NetCDF'
+   LEVEL2 TRIM(fname)
+   iret = nf_open(fname,NF_NOWRITE,ncid_rst_in)
+   call check_err(iret)
+   !---------------------------------------------
+   ! Check 3D dimensions 
+   !---------------------------------------------
+   iret = nf_inq_dimid(ncid_rst_in,"d3vars",nstate_id)
+   call check_err(iret)
+   iret = nf_inq_dimlen(ncid_rst_in,nstate_id,nstate_len)
+   call check_err(iret)
+   iret = nf_inq_dimid(ncid_rst_in,"oceanpoint",ncomp_id)
+   call check_err(iret)
+   iret = nf_inq_dimlen(ncid_rst_in,ncomp_id,ncomp_len)
+   call check_err(iret)
+   if (nstate_len/=NO_D3_BOX_STATES .OR. ncomp_len/=NO_BOXES) then
+      LEVEL1 "3D Dimension mismatch in restart file:"
+      LEVEL2 TRIM(fname)
+      LEVEL3 "NO_D3_BOX_STATES in model:", NO_D3_BOX_STATES
+      LEVEL3 "NO_D3_BOX_STATES in file:", nstate_len
+      LEVEL3 "NO_BOXES in model:", NO_BOXES
+      LEVEL3 "NO_BOXES in file:", ncomp_len
+      stop "STOP in read_rst_bfm contained in netcdf_bfm.F90"
+   end if
+   !---------------------------------------------
+   ! Initialize 3D variable
+   !---------------------------------------------
+   iret = nf_inq_varid(ncid_rst_in,"D3STATE",nstate_id)
+   call check_err(iret)
+   iret = nf_get_var_double(ncid_rst_in,nstate_id,D3STATE(:,:))
+   call check_err(iret)
+
+#ifdef INCLUDE_BEN
+   !---------------------------------------------
+   ! Check 2D dimensions 
+   !---------------------------------------------
+   iret = nf_inq_dimid(ncid_rst_in,"d2vars",nstate_id)
+   call check_err(iret)
+   iret = nf_inq_dimlen(ncid_rst_in,nstate_id,nstate_len)
+   call check_err(iret)
+   iret = nf_inq_dimid(ncid_rst_in,"bottompoint",ncomp_id)
+   call check_err(iret)
+   iret = nf_inq_dimlen(ncid_rst_in,ncomp_id,ncomp_len)
+   call check_err(iret)
+   if (nstate_len/=NO_D2_BOX_STATES .OR. ncomp_len/=NO_BOXES_XY) then
+      LEVEL1 '2D Dimension mismatch in restart file:'
+      LEVEL2 TRIM(fname)
+      LEVEL3 "NO_D2_BOX_STATES in model:", NO_D2_BOX_STATES
+      LEVEL3 "NO_D2_BOX_STATES in file:", nstate_len
+      LEVEL3 "NO_BOXES_XY in model:", NO_BOXES_XY
+      LEVEL3 "NO_BOXES_XY in file:", ncomp_len
+      stop 'STOP in read_rst_bfm contained in netcdf_bfm.F90'
+   end if
+   !---------------------------------------------
+   ! Initialize 2D variable
+   !---------------------------------------------
+   iret = nf_inq_varid(ncid_rst_in,"D2STATE",nstate_id)
+   call check_err(iret)
+   iret = nf_get_var_double(ncid_rst_in,nstate_id,D2STATE(:,:))
+   call check_err(iret)
+#endif
+
+   LEVEL1 'Finished reading Restart file'
+   LEVEL2 TRIM(fname)
+   iret = nf_close(ncid_rst_in)
+   call check_err(iret)
+
+  end subroutine read_rst_bfm
+!EOC
+
+!-----------------------------------------------------------------------
+!BOP
 ! !IROUTINE: Intialise the storage of results in NetCDF
 !
 ! !INTERFACE:
@@ -325,7 +563,7 @@
    integer, save             :: nn       ! number pel.var to be saved 
    integer, save             :: nnb      ! number ben.var to be saved 
    integer                   :: iret,rc
-   real(RLEN)                  :: ltime
+   real(RLEN)                :: ltime
    integer                   :: out_unit=67
    integer                   :: i,j,n
 !EOP
@@ -411,21 +649,18 @@
    integer                   :: iret
    integer                   :: i,j,k,n
    real(RLEN)                  :: temp_time
+!
+! !REVISION HISTORY:
+!  Original author(s): Hans Burchard & Karsten Bolding
+!  Adapted to BFM: Marcello Vichi (INGV) & Piet Ruardij (NIOZ)
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
 
 #ifdef DEBUG
    LEVEL1 'save_bfm',time
 #endif
-!   if ( first ) then
-!      iret = store_data(ncid_bfm,z_id,Z_SHAPE,nlev,array=z)
-!      if( .not. GrADS ) then
-!         dum(1) = -depth0 + h(1)
-!         do i=2,nlev
-!            dum(i)=dum(i-1)+h(i)
-!         end do
-!         iret = store_data(ncid_bfm,z1_id,Z_SHAPE,nlev,array=dum)
-!      end if
-!      first = .false.
-!   end if
 
 ! increase the time record number
    recnum = recnum + 1
@@ -569,7 +804,6 @@
 !
 !-------------------------------------------------------------------------
 !BOC
-   LEVEL1 'Output has been written in NetCDF'
 
    iret = nf_close(ncid)
    call check_err(iret)

@@ -62,7 +62,8 @@
   ! REALS are double precision
   integer,    parameter ::RLEN=kind(1D0)
   integer,    parameter ::NMLUNIT=310
-  integer,    parameter ::LOGUNIT=0
+  ! the unit of the LOG file is not a parameter to allow parallel writing
+  integer               ::LOGUNIT=0
   real(RLEN), parameter ::ZERO=0.0_RLEN
   real(RLEN), parameter ::ONE=1.0_RLEN
   real(RLEN), parameter ::PI=3.14159265359_RLEN

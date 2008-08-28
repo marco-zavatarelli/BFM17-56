@@ -27,6 +27,7 @@
    use global_mem, only:RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
+   use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm
    ! NEMO modules
    USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd    
    use oce_trc
@@ -45,12 +46,10 @@
 #include "domzgr_substitute.h90"
 
    integer    :: i,j,k
-   integer    :: status,narea1
+   integer    :: status
    integer,parameter    :: namlst=10,unit=11
    integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:)
    logical,allocatable  :: mask1d(:)
-   character(LEN=15)    :: out_title_dom
-   character(LEN=4)     :: str
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -152,7 +151,14 @@
    etot3 = ZERO
    
    !---------------------------------------------
+   ! Assign the rank of the process 
+   ! (meaningful only with key_mpp)
+   !---------------------------------------------
+   parallel_rank = narea-1
+
+   !---------------------------------------------
    ! Initialise ancillary arrays for output
+   ! (also parallel initialisation is done here)
    !---------------------------------------------
    call init_bfm(namlst)
 
@@ -184,17 +190,20 @@
    ! initialise netcdf output
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
-   ! define the name of the output file for each subdomain
-   narea1=narea-1
-   WRITE(str,'(I4.4)') narea1
-   out_title_dom= trim(out_fname)//'_'//str
-   call init_netcdf_bfm(out_title_dom,'01-01-0000',0,  &
+   call init_netcdf_bfm(out_fname,'01-01-0000',0,  &
              lat2d=gphit,lon2d=glamt,z=gdept_0,    &
              oceanpoint=ocepoint,                  &
              surfacepoint=surfpoint,               &
              bottompoint=botpoint,                 &
              mask3d=tmask)
    call init_save_bfm
+
+   !-------------------------------------------------------
+   ! initialise (new) and read (previous) restart file
+   ! (override any previous initialisation)
+   !-------------------------------------------------------
+   call init_netcdf_rst_bfm(rst_fname)
+   if (bfm_init == 1) call read_rst_bfm(rst_fname)
 
    if ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) then
       !---------------------------------------------

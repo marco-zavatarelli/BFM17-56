@@ -27,6 +27,7 @@
 ! !PUBLIC DATA MEMBERS:
    logical                            :: bio_calc,bioshade_feedback
    integer                            :: bio_setup  =1
+   integer                            :: bfm_init  =0
    integer                            :: surface_flux_method=-1
    integer                            :: bottom_flux_method=-1
    integer                            :: n_surface_fluxes=-1
@@ -34,6 +35,18 @@
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
    integer                            :: out_delta,out_secs
+   character(len=PATH_MAX)            :: rst_fname
+
+   !---------------------------------------------
+   ! parameters for massive parallel computation
+   ! the following are the default values if the 
+   ! macro BFM_PARALLEL is not defined
+   !---------------------------------------------
+   logical                            :: parallel = .FALSE.
+   logical                            :: parallel_log = .FALSE.
+   logical                            :: lwp = .TRUE.
+   integer                            :: parallel_rank = 0
+   character(LEN=4)                   :: str
 
    !---------------------------------------------
    ! Dimension lengths for output
@@ -181,24 +194,49 @@ contains
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
                   NO_STATES, Depth, NO_D3_BOX_FLUX,      &
                   NO_D2_BOX_FLUX
+   use global_mem, only: LOGUNIT
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
    integer, intent(in)                 :: namlst
 !
 ! !REVISION HISTORY:
-!  Original author(s): Hans Burchard & Karsten Bolding
-!  Adapted to BFM by Marcello Vichi
+!  Original author(s): Marcello Vichi
+!  Adapted from GOTM code by Hans Burchard & Karsten Bolding
 !
 ! !LOCAL VARIABLES:
    integer                   :: rc,i,j,n
-   namelist /bfm_nml/ bio_calc,bio_setup,                  &
+   character(len=PATH_MAX)   :: logfname
+   namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,         &
                       out_fname,out_dir,out_units,         &
                       out_title,out_delta,out_secs,        &
-                      bioshade_feedback
+                      bioshade_feedback,parallel_log
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
+#ifdef BFM_PARALLEL
+   parallel = .TRUE.
+   ! variable parallel_rank must have been assigned previously
+   ! in the coupling with the ocean model using the 
+   ! specific parallelization method (e.g. MPI)
+   LOGUNIT = 1069 + parallel_rank
+   ! provide a different log file name for each process 
+   write(str,'(I4.4)') parallel_rank
+   logfname = 'bfm_'//str//'.log'
+   open(LOGUNIT,file=logfname,action='write',  &
+        form='formatted',status='new',err=100)
+  ! check if logs have to be produced for each process
+   if (parallel_log) then
+      lwp = (parallel_rank == 0)
+   else 
+      lwp = .TRUE.
+   end if
+   LEVEL1 "BFM is running in Parallel"
+   LEVEL2 "Producing log for process rank:",parallel_rank
+#else
+   LOGUNIT = 6
+#endif
 
    LEVEL1 'init_bfm'
 
@@ -207,7 +245,9 @@ contains
    !---------------------------------------------
    bio_calc=.TRUE.
    bio_setup=1
+   bfm_init = 0
    out_fname='bfm'
+   rst_fname='bfm_restart'
    out_dir='.'
    out_title='Another great BFM simulation!'
    out_units=0
@@ -222,6 +262,12 @@ contains
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
+#ifdef BFM_PARALLEL
+   ! provide different file names for each process domain
+   write(str,'(I4.4)') parallel_rank
+   out_fname = trim(out_fname)//'_'//str
+   rst_fname = trim(rst_fname)//'_'//str
+#endif
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
    LEVEL3 "Output frequency every ",out_delta,"time-steps"
 
@@ -295,6 +341,8 @@ contains
 99 LEVEL2 'I could not open bfm.nml'
    LEVEL2 'Simulation starting without the BFM'
    bio_calc = .false.
+100 FATAL 'Cannot create log file: ',trim(logfname)
+   stop 'init_bfm'
 
   end subroutine init_bfm
 !EOC
