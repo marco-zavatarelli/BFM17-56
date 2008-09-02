@@ -10,6 +10,13 @@
 ! Handy for writing
 #define STDOUT write(stdout,*)
 #define STDERR write(stderr,*)
+
+! Standard output for parallel computation
+#ifdef BFM_PARALLEL
+#undef STDOUT
+#define STDOUT if (lwp) write(LOGUNIT,*)
+#endif
+
 #define LEVEL0 STDERR
 #define LEVEL1 STDERR '   ',
 #define LEVEL2 STDERR '       ',
@@ -56,7 +63,6 @@
 #define _ZERO_ 0.0d0
 #define _ONE_  1.0d0
 #endif
-
 
 
 
