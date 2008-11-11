@@ -15,9 +15,12 @@
    use global_mem, only:RLEN,ZERO
    use mem_param,  only: p_PAR, p_small
    use mem,        only: xEPS, ESS, ETW, ESW, EWIND,    &
-                        Depth, EIR, ERHO, EICE, EPCO2air
+                        Depth, EIR, ERHO, EICE
    use api_bfm
+#ifdef INCLUDE_PELCO2
+   use mem,        only: EPCO2air
    use mem_CO2,    only: pco2air
+#endif
 ! OPA modules
    use oce_trc
    use trc_oce, only: etot3
@@ -62,11 +65,13 @@ IMPLICIT NONE
    !---------------------------------------------
       EICE = pack(freeze,SRFmask(:,:,1) )
 
+#ifdef INCLUDE_PELCO2
    !---------------------------------------------
    ! Assign atmospheric pCO2
    !---------------------------------------------
       EPCO2air = pco2air !costant
       !EPCO2air = pack(,SRFmask(:,:,1) )
+#endif
 
    !---------------------------------------------
    ! Temporary 3D array for the storage of the 
