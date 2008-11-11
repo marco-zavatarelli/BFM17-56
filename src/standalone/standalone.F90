@@ -99,7 +99,8 @@
    use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
-   use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
+   use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm,&
+                         init_netcdf_rst_bfm,read_rst_bfm
    use time
 #ifdef INCLUDE_BEN
    use mem, only: D2STATE, Depth_ben
@@ -260,6 +261,12 @@
 #endif
 
    !---------------------------------------------
+   ! Read restart file (if flag)
+   ! Overwrite previous initialization
+   !---------------------------------------------
+   if (bfm_init == 1) call read_rst_bfm(rst_fname)
+
+   !---------------------------------------------
    ! Initialise the diagnostic variables
    !---------------------------------------------
    call CalcVerticalExtinction( )
@@ -270,13 +277,18 @@
    !---------------------------------------------
    call calcmean_bfm(INIT)
    call calcmean_bfm(ACCUMULATE)
-   call init_netcdf_bfm(out_title,start,0,  &
+   call init_netcdf_bfm(out_fname,start,0,  &
              lat=latitude,lon=longitude,z=Depth,   &
              oceanpoint=(/(i,i=1,NO_BOXES)/),      &
              surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
              bottompoint=(/(i,i=1,NO_BOXES_XY)/))
    call init_save_bfm
    call calcmean_bfm(RESET)
+   !---------------------------------------------
+   ! Initialise netcdf restart file
+   !---------------------------------------------
+   call init_netcdf_rst_bfm(rst_fname)
+
    !---------------------------------------------
    ! allocate and initialise integration arrays
    !---------------------------------------------
@@ -412,6 +424,7 @@ integer :: i
 !
 ! !USES:
    use time
+   use netcdf_bfm, only: close_ncdf, ncid_bfm, save_rst_bfm, ncid_rst
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
 ! !INPUT/OUTPUT PARAMETERS:
@@ -426,6 +439,10 @@ integer :: i
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+   ! save and close the restart file
+   call save_rst_bfm
+   call close_ncdf(ncid_rst)
+   call close_ncdf(ncid_bfm)
    call end_envforcing_bfm
    call ClearMem
    call Date_And_Time(datestr,timestr)
