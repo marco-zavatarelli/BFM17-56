@@ -227,6 +227,8 @@
 
 #ifdef BFM_ROMS
 #include "FluxFunctions.h"
+#elif defined D1SOURCE
+#include "FluxFunctionsD1Source.F90"
 #else
 #include "FluxFunctions.F90"
 #endif

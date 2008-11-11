@@ -48,7 +48,10 @@ SUBROUTINE trc_trp_bfm( kt )
    USE constants, ONLY: SEC_PER_DAY
    USE global_mem
    USE mem,       ONLY: NO_D3_BOX_STATES,D3STATETYPE, &
-                        D3SOURCE,D3STATE,D3SINK,NO_BOXES
+                        D3SOURCE,D3STATE,NO_BOXES
+#ifndef ONESOURCE
+   USE mem,       ONLY: D3SINK
+#endif
    use mem, only: ppO3c
    USE mem_param, ONLY: CalcTransportFlag, CalcConservationFlag
    USE api_bfm
@@ -61,7 +64,7 @@ SUBROUTINE trc_trp_bfm( kt )
    !! * Arguments
       INTEGER, INTENT( in ) ::  kt  ! ocean time-step index
    !! ---------------------------------------------------------------------
-      integer :: m,k
+      integer :: m,k,n
       real(RLEN) :: dummy(NO_BOXES)
       ! local variables for clipping
       integer :: nneg(NO_D3_BOX_STATES)
@@ -92,9 +95,14 @@ SUBROUTINE trc_trp_bfm( kt )
                trn = trb
             END IF
             ! sum all the rates (loop is faster than intrinsic sum)
-            dummy = ZERO
+            dummy(:) = ZERO
             do k=1,NO_D3_BOX_STATES
-               dummy = dummy + D3SOURCE(m,k,:)-D3SINK(m,k,:)
+               do n=1,NO_BOXES
+                  dummy(n) = dummy(n) + D3SOURCE(m,k,n)
+#ifndef ONESOURCE
+                  dummy(n) = dummy(n) - D3SINK(m,k,n)
+#endif
+               end do
             end do
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
 

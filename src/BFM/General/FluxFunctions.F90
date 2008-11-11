@@ -76,33 +76,51 @@
 #endif
               select case ( iiSub )
                 case (iiPel)
+#ifdef ONESOURCE
+                  D3SOURCE(origin,destination,:)=  -flux/SEC_PER_DAY
+#else
                   D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
+#endif
                   D3SOURCE(destination,origin,:)=  flux/SEC_PER_DAY
 #ifdef INCLUDE_BEN
                 case (iiBen)
+#ifdef ONESOURCE
+                  D2SOURCE(origin,destination,:) = -flux/SEC_PER_DAY
+#else
                   D2SINK(origin,destination,:) =  flux/SEC_PER_DAY
+#endif
                   D2SOURCE(destination,origin,:)   = flux/SEC_PER_DAY
 #endif
               end select
             else
               select case ( iiSub )
                 case (iiPel)
-                  where (flux > 0.0D+00 )
+#ifdef ONESOURCE
+                  D3SOURCE(destination,origin,:) =D3SOURCE(destination,origin,:) + &
+                      flux/SEC_PER_DAY
+#else
+                  where (flux > ZERO )
                     D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) &
                       + flux/SEC_PER_DAY
                   elsewhere
                     D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
                       flux/SEC_PER_DAY
                   end where
+#endif
 #ifdef INCLUDE_BEN
                 case (iiBen)
-                  where (flux > 0.0D+00 )
+#ifdef ONESOURCE
+                  D2SOURCE(origin,destination,:) =D2SOURCE(origin,destination,:) + &
+                      flux/SEC_PER_DAY
+#else
+                  where (flux > ZERO )
                     D2SOURCE(destination,origin,:) =D2SOURCE(destination,origin,:) &
                       + flux/SEC_PER_DAY
                   elsewhere
                     D2SINK(origin,destination,:) =D2SINK(origin,destination,:) - &
                       flux/SEC_PER_DAY
                   end where
+#endif
 #endif
               end select
             endif !origin <> destination
@@ -161,33 +179,51 @@
 #endif
             select case ( iiSub )
               case (iiPel)
+#ifdef ONESOURCE
+                D3SOURCE(origin,destination,grid_nr)=  -flow/SEC_PER_DAY
+#else
                 D3SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
+#endif
                 D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
 #ifdef INCLUDE_BEN
               case (iiBen)
+#ifdef ONESOURCE
+                D2SOURCE(origin,destination,grid_nr)=  -flow/SEC_PER_DAY
+#else
                 D2SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
+#endif
                 D2SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
 #endif
             end select
           else
             select case ( iiSub )
               case (iiPel)
-                if (flow > 0.0 ) then
+#ifdef ONESOURCE
+                D3SOURCE(origin,destination,grid_nr)=    &
+                         D3SOURCE(origin,destination,grid_nr)+flow/SEC_PER_DAY
+#else
+                if (flow > ZERO ) then
                   D3SOURCE(destination,origin,grid_nr)=  &
                            D3SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
                 else
                   D3SINK(origin,destination,grid_nr)=    &
                          D3SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
                 endif
+#endif
 #ifdef INCLUDE_BEN
               case (iiBen)
-                if (flow > 0.0 ) then
+#ifdef ONESOURCE
+                D2SOURCE(origin,destination,grid_nr)=    &
+                         D2SOURCE(origin,destination,grid_nr)+flow/SEC_PER_DAY
+#else
+                if (flow > ZERO ) then
                   D2SOURCE(destination,origin,grid_nr)=  &
                            D2SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
                 else
                   D2SINK(origin,destination,grid_nr)=    &
                          D2SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
                 endif
+#endif
 #endif
             end select
           endif
@@ -231,8 +267,17 @@
           implicit none
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=3))
-          ! Array in sum is by sum seen as 2D-array: DIM=1 and NOT 2
-          Source_D3_vector=(sum(D3SOURCE(iistate,:,:),DIM=1)- sum(D3SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
+          integer :: i
+          Source_D3_vector = ZERO
+          do i = 1, NO_D3_BOX_STATES 
+               Source_D3_vector(:)=Source_D3_vector(:) + &
+                                    D3SOURCE(iistate,i,:)
+#ifndef ONESOURCE
+               Source_D3_vector(:)=Source_D3_vector(:) - &
+                                     D3SINK(iistate,i,:)
+#endif
+          end do
+          Source_D3_vector(:)=Source_D3_vector(:)*SEC_PER_DAY
         end function Source_D3_vector
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -246,9 +291,17 @@
           implicit none
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D2_vector(size(D2SOURCE,DIM=3))
-          ! Array in sum is by sum seen as 2D-array: DIM=1 and NOT 2
-          Source_D2_vector=(sum(D2SOURCE(iistate,:,:),DIM=1)- &
-                           sum(D2SINK(iistate,:,:),DIM=1))*SEC_PER_DAY
+          integer :: i
+          Source_D2_vector = ZERO
+          do i = 1,NO_D2_BOX_STATES 
+               Source_D2_vector(:)=Source_D2_vector(:) + &
+                                   D2SOURCE(iistate,i,:) 
+#ifndef ONESOURCE
+               Source_D2_vector(:)=Source_D2_vector(:) - &
+                                    D2SINK(iistate,i,:)
+#endif
+          end do
+          Source_D2_vector(:)=Source_D2_vector(:)*SEC_PER_DAY
         end function Source_D2_vector
 #endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -264,13 +317,25 @@
           integer, intent(IN)  ::iiSub
           integer, intent(IN)  ::iibox
           integer, intent(IN)  ::iistate
+          integer :: i
+          Source = ZERO
           if ( iiSub == iiPel )  then
-            Source = (sum(D3SOURCE(iistate,:,iibox))- &
-              sum(D3SINK(iistate,:,iibox)))*SEC_PER_DAY
+             do i = 1, NO_D3_BOX_STATES
+                Source=Source+D3SOURCE(iistate,i,iibox)
+#ifndef ONESOURCE
+                Source=Source-D3SINK(iistate,i,iibox)
+#endif
+             end do
+             Source=Source*SEC_PER_DAY
           elseif ( iiSub == iiBen )  then
 #ifdef INCLUDE_BEN
-            Source = (sum(D2SOURCE(iistate,:,iibox))- &
-              sum(D2SINK(iistate,:,iibox)))*SEC_PER_DAY
+             do i = 1, NO_D2_BOX_STATES
+                Source=Source+D2SOURCE(iistate,i,iibox)
+#ifndef ONESOURCE
+                Source=Source-D2SINK(iistate,i,iibox)
+#endif
+             end do
+             Source=Source*SEC_PER_DAY
 #endif
           endif
         end function source
@@ -280,7 +345,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         subroutine unicflux(grid_nr,iiSub,origin,destination)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          use constants, only: RLEN
+          use constants, only: RLEN, ZERO
           use global_mem, only: LOGUNIT
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           ! Implicit typing is never allowed
@@ -294,6 +359,7 @@
           character(len=20):: type
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           !BEGIN compute
+#ifndef ONESOURCE
           select case ( iiSub )
             case (iiPel)
               type="D3"
@@ -326,6 +392,7 @@
               stop 1006
             endif
           endif
+#endif
         !END compute
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         return

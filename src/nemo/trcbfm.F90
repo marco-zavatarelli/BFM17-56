@@ -16,11 +16,17 @@
 ! !USES:
    use global_mem, only: RLEN
    use constants,  only: SEC_PER_DAY
-   use mem, only: D3STATE,D3SOURCE,D3SINK,NO_D3_BOX_STATES, &
+   use mem, only: D3STATE,D3SOURCE,NO_D3_BOX_STATES, &
                   D3STATETYPE,NO_BOXES
+#ifndef ONESOURCE
+   use mem, only: D3SINK
+#endif 
 #ifdef INCLUDE_BEN
-   use mem, only: D2STATE,D2SOURCE,D2SINK,NO_D2_BOX_STATES, &
+   use mem, only: D2STATE,D2SOURCE,NO_D2_BOX_STATES, &
                   D2STATETYPE
+#ifndef ONESOURCE
+   use mem, only: D2SINK
+#endif 
 #endif
    use mem_param, only: CalcTransportFlag, CalcBenthicFlag, &
                         CalcPelagicFlag
@@ -70,15 +76,25 @@
    !---------------------------------------------
    if (CalcPelagicFlag .AND. .NOT.CalcTransportFlag) then
       do j=1,NO_D3_BOX_STATES
-         if (D3STATETYPE(j).ge.0) &
-            D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
+         if (D3STATETYPE(j).ge.0) then
+#ifdef ONESOURCE
+            D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:),1)
+#else
+            D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
+#endif
+         end if
       end do
    end if
 #ifdef INCLUDE_BEN
    if (CalcBenthicFlag /= 0) then
       do j=1,NO_D2_BOX_STATES
-         if (D2STATETYPE(j).ge.0) &
+         if (D2STATETYPE(j).ge.0) then
+#ifdef ONESOURCE
+            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:),1)
+#else
             D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
+#endif
+         end if
       end do
    end if
 #endif

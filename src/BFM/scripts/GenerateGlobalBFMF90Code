@@ -429,7 +429,7 @@ global DEFINE
 #		mode = statemem    MoeuleMem.F90 is setupped
 #		mode = allocmem    AllocateMem.f90 is setupped
 #		mode = netcdfmem   set_var_info_bfm.F90 is setupped
-#		mode = headerm     INLUCDE.h is setupped
+#		mode = headerm     INCLUDE.h is setupped
 # !DESCRIPTION:
 #      function to combine info from .proto file with info derived from global definition file
 #      into files of the BFM-tree.
@@ -1002,13 +1002,19 @@ switch -- $mode {
        PrintLine -print "D$i${TYPE} = ZERO"
        if { $type == "state" } {
 	 set tmp SOURCE
+         puts $VARS(file) "#ifdef D1SOURCE"
+	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_STATES,1:NO_BOXES$j),stat=status)"
+         puts $VARS(file) "#else"
 	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_STATES,1:NO_D${i}_BOX_STATES,1:NO_BOXES$j),stat=status)"
 	 PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D$i$tmp\")"
 	 PrintLine -print "D$i$tmp = ZERO"
 	 set tmp SINK
+         puts $VARS(file) "#ifndef ONESOURCE"
 	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_STATES,1:NO_D${i}_BOX_STATES,1:NO_BOXES$j) ,stat=status)"
 	 PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D$i$tmp\")"
 	 PrintLine -print "D$i$tmp = ZERO"
+         puts $VARS(file) "#endif"
+         puts $VARS(file) "#endif"
 	 set tmp STATETYPE
 	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_${TYPE}S ),stat=status)"
 	 PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D$i$tmp\")"

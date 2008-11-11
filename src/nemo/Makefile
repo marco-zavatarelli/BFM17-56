@@ -17,6 +17,7 @@ BFMSHARE   = $(BFMDIR)/src/share
 ## -------------------------------------------------------------------------
 ## BFM CONFIGURATION 
 ## -------------------------------------------------------------------------
+DEFINES += -DDUMMY
 # Pelagic CO2 flags (activates compilation and macros, true by default)
 INCLUDE_PELCO2=true
 ifeq ($(INCLUDE_PELCO2),true)
@@ -32,7 +33,7 @@ P_P += -DBFM_NEMO  $(DEFINES)
 ## specific options for NEC-SX
 ifeq ($(FORTRAN_COMPILER),NECSX6)
 AR=${SXAR}
-P_P += -DBFM_NOPOINTERS -DNECSX -DBFM_PARALLEL
+P_P += -DBFM_NOPOINTERS -DNECSX -DBFM_PARALLEL 
 INLINE = -pi auto line=200 expin=$(BFMDIR)/src/BFM/General,$(BFMDIR)/src/share,$(BFMDIR)/src/BFM/PelB,$(BFMDIR)/src/BFM/CO2 exp=sourcesink_flux_vector,flux_vector,flux,fixed_quota_flux_vector,Source_D3_vector nest=10 rexp=PhytoDynamics,MicroZooDynamics,MesoZooDynamics,fixed_quota_flux_vector,flux_vector,Source_D3_vector,calcco2system
 P_P += -R2 -EP -sx6 -Cvopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl expand=5 noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist 
 endif
@@ -120,6 +121,7 @@ endif
 .PHONY: all depend clean
 
 # Include the dependency-list created by makedepf90 below
+# This part is still experimental and does not work yet
 #include .depend
 
 all: $(BFM_PELMOD) $(BFM_PELCO2MOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) \
@@ -127,7 +129,8 @@ all: $(BFM_PELMOD) $(BFM_PELCO2MOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) \
 
 $(BFM_PELMOD) : $(BFMSRC)/General/ModuleMem.F90
 
-${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model
+${BFMSRC}/General/ModuleMem.F90 : ${BFMSRC}/General/GlobalDefsBFM.model \
+				${BFMSRC}/General/FluxFunctions.F90
 	$(BFMSRC)/scripts/GenerateGlobalBFMF90Code  $(DEFINES) \
 		-read $(BFMSRC)/General/GlobalDefsBFM.model \
 		-from $(BFMSRC)/proto -to $(BFMSRC)/General \
@@ -173,7 +176,7 @@ clean:
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
 ifeq ($(FORTRAN_COMPILER),NECSX6)
-		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
+		$(A_X) $(BFMLIB) $*.o  > /dev/null
 		$(RM) $*.[of]
 		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
 endif
@@ -183,7 +186,7 @@ endif
 		$(F_C) $(P_P) $(F_O) -c $< -o $@\
 		|| { if [ -f $(PREF)$*.L ] ; then mv $(PREF)$*.L $(NEMOTMPDIR) ; fi ; false ; exit ; }
 ifeq ($(FORTRAN_COMPILER),NECSX6)
-		$(A_X) -rv $(BFMLIB) $*.o  > /dev/null
+		$(A_X) $(BFMLIB) $*.o  > /dev/null
 		$(RM) $*.[of]
 		if [ -f $*.o ] ; then mv $*.o $(NEMOLIBDIR)/oce ; fi
 endif

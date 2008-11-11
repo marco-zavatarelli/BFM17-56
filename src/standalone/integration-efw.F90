@@ -12,10 +12,16 @@
 ! !USES
    use global_mem, ONLY:RLEN
    use mem, ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
-                  D3STATETYPE,D3SINK
+                  D3STATETYPE
+#ifndef ONESOURCE
+   use mem, ONLY: D3SINK
+#endif
 #ifdef INCLUDE_BEN
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
-                  D2STATETYPE,D2SINK
+                  D2STATETYPE
+#ifndef ONESOURCE
+   use mem, ONLY: D2SINK
+#endif
 #endif
    use standalone
    use api_bfm
@@ -48,14 +54,22 @@
    ! Integration step:
       DO j=1,NO_D3_BOX_STATES
          IF (D3STATETYPE(j).ge.0) THEN
+#ifdef ONESOURCE
+            D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:),1)
+#else
             D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
+#endif
          END IF
       END DO
 #ifdef INCLUDE_BEN
       if (bio_setup>=2) then
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
+#ifdef ONESOURCE
+               D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:),1)
+#else
                D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
+#endif
             END IF
          END DO
       end if
