@@ -56,8 +56,8 @@
    integer                       :: ncid_rst_in
    integer                       :: ocepoint_rdim
    integer                       :: surfpoint_rdim,botpoint_rdim
-   integer                       :: d3vars_rdim,d3state_rid
-   integer                       :: d2vars_rdim,d2state_rid
+   integer                       :: d3vars_rdim,d3state_rid,d3stateb_rid
+   integer                       :: d2vars_rdim,d2state_rid,d2stateb_rid
 
 !
 ! !REVISION HISTORY:
@@ -360,6 +360,10 @@
    ndims = 2
    iret = nf_def_var(ncid_rst,'D3STATE',NF_DOUBLE,ndims,dims,d3state_rid)
    call check_err(iret)
+#ifdef BFM_POM
+   iret = nf_def_var(ncid_rst,'D3STATEB',NF_DOUBLE,ndims,dims,d3stateb_rid)
+   call check_err(iret)
+#endif
 
 #ifdef INCLUDE_BEN
    !---------------------------------------------
@@ -374,6 +378,10 @@
    ndims = 2
    iret = nf_def_var(ncid_rst,'D2STATE',NF_DOUBLE,ndims,dims,d2state_rid)
    call check_err(iret)
+#ifdef BFM_POM
+   iret = nf_def_var(ncid_rst,'D2STATEB',NF_DOUBLE,ndims,dims,d2stateb_rid)
+   call check_err(iret)
+#endif
 #endif
 
    !---------------------------------------------
@@ -398,8 +406,14 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !USES:
    use mem, only: D3STATE, NO_D3_BOX_STATES, NO_BOXES
+#ifdef BFM_POM
+   use api_bfm, only: D3STATEB
+#endif
 #ifdef INCLUDE_BEN
    use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
+#ifdef BFM_POM
+   use api_bfm, only: D2STATEB
+#endif
 #endif
    implicit none
 !
@@ -418,11 +432,19 @@ end subroutine init_netcdf_rst_bfm
      start(2) = 1;   edges(2) = NO_BOXES
      iret = nf_put_vara_double(ncid_rst,d3state_rid,start,edges,D3STATE(:,:))
      call check_err(iret)
+#ifdef BFM_POM
+     iret = nf_put_vara_double(ncid_rst,d3stateb_rid,start,edges,D3STATEB(:,:))
+     call check_err(iret)
+#endif
 #ifdef INCLUDE_BEN
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES_XY
      iret = nf_put_vara_double(ncid_rst,d2state_rid,start,edges,D2STATE(:,:))
      call check_err(iret)
+#ifdef BFM_POM
+     iret = nf_put_vara_double(ncid_rst,d2state_rid,start,edges,D2STATEB(:,:))
+     call check_err(iret)
+#endif
 #endif
      LEVEL1 'Restart has been written in NetCDF'
      ! the file is closed in the main (in case of more restart files)
@@ -445,8 +467,14 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !USES:
    use mem, only: D3STATE, NO_D3_BOX_STATES, NO_BOXES
+#ifdef BFM_POM
+   use api_bfm, only: D3STATEB
+#endif
 #ifdef INCLUDE_BEN
    use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
+#ifdef BFM_POM
+   use api_bfm, only: D2STATEB
+#endif
 #endif
    implicit none
 !
@@ -500,6 +528,12 @@ end subroutine init_netcdf_rst_bfm
    call check_err(iret)
    iret = nf_get_var_double(ncid_rst_in,nstate_id,D3STATE(:,:))
    call check_err(iret)
+#ifdef BFM_POM
+   iret = nf_inq_varid(ncid_rst_in,"D3STATEB",nstate_id)
+   call check_err(iret)
+   iret = nf_get_var_double(ncid_rst_in,nstate_id,D3STATEB(:,:))
+   call check_err(iret)
+#endif
 
 #ifdef INCLUDE_BEN
    !---------------------------------------------
@@ -529,6 +563,12 @@ end subroutine init_netcdf_rst_bfm
    call check_err(iret)
    iret = nf_get_var_double(ncid_rst_in,nstate_id,D2STATE(:,:))
    call check_err(iret)
+#ifdef BFM_POM
+   iret = nf_inq_varid(ncid_rst_in,"D2STATEB",nstate_id)
+   call check_err(iret)
+   iret = nf_get_var_double(ncid_rst_in,nstate_id,D2STATEB(:,:))
+   call check_err(iret)
+#endif
 #endif
 
    LEVEL1 'Finished reading Restart file'
