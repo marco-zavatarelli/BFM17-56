@@ -8,7 +8,7 @@
 ! !ROUTINE: BenpH
 !
 ! DESCRIPTION
-!   Computation of pH in sediments according to the carbonate system 
+!   Computation of ph in sediments according to the carbonate system 
 !   equations (see ModuleCO2_System.F90)
 !
 ! !INTERFACE

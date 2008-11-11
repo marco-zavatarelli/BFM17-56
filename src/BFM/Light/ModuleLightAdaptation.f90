@@ -27,7 +27,7 @@
 ! !USES:
 
   use global_mem
-  use mem,  ONLY: iiPhytoPlankton, iiP1, iiP2, iiP3, iiP4
+  use mem, ONLY: iiPhytoPlankton
 
 !  
 !

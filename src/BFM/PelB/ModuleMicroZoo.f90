@@ -21,7 +21,7 @@
 ! !USES:
 
   use global_mem
-  use mem,  ONLY: iiMicroZooPlankton, iiZ5, iiZ6, &
+  use mem,  ONLY: iiMicroZooPlankton, &
                   iiMesoZooPlankton, iiPhytoPlankton
 
 !  

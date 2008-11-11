@@ -23,19 +23,6 @@
 ! !INTERFACE
   subroutine FilterFeederDynamics
 !
-! !USES:
-
-  ! For the following Benthic-states fluxes are defined: Y3c, Y3n, Y3p, Q6c, &
-  ! Q6n, Q6p, Q6s, G2o, K4n, K1p, D6m, D7m, D8m, D9m
-  ! The following Benthic-states are used (NOT in fluxes): D1m
-  ! The following Benthic 1-d global boxvars are modified : rrBTo, reBTn, &
-  ! reBTp, jbotR6c, jbotR6n, jbotR6p, jbotR6s
-  ! The following Benthic 1-d global boxvars got a value: jPIY3c, jZIY3c, &
-  ! jRIY3c, jRIY3n, jRIY3p, jRIY3s
-  ! The following Benthic 1-d global boxvars are used: ETW_Ben, PI_Benc, RI_Fc, &
-  ! ZI_Fc, PI_Benn, PI_Benp, PI_Bens, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, RI_Fs
-  ! The following 0-d global parameters are used: p_d_tot
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -206,7 +193,7 @@
   do i=1,iiPhytoPlankton
      r =  PI_Benc(i,:) * MM_vector(  PI_Benc(i,:),  clu)
      call CorrectConcNearBed(Depth_Ben(:), sediPI_Ben(i,:), p_height, & 
-                                    p_max, p_vum*et*Y3c, corr)
+                                    p_max, p_vum*et*Y3c(:), corr)
      food_PIc(i,:)=r*corr*p_PI
      food_PT(:)  =   food_PT(:)+ food_PIc(i,:)
   enddo
@@ -225,7 +212,7 @@
 
   r=   RI_Fc(:)* MM_vector(  RI_Fc(:),  clu)
   call CorrectConcNearBed(Depth_Ben(:), sediR6_Ben(:), p_height, & 
-                                    p_max, p_vum*et*Y3c, corr)
+                                    p_max, p_vum*et*Y3c(:), corr)
   RTc=r*corr
   food_RI=RTc*p_R6
   food  =   food+ food_RI
@@ -285,19 +272,19 @@
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      cmm = ZERO;
 
-     fdepth=Depth_Ben
+     fdepth=Depth_Ben(:)
      su  =  et* eO*  p_su* MM_vector(  p_vum* food,  p_su)
-     fsat=min(ONE,su/(et*eo*p_vum*food));
-     rgu= su *Y3c;
+     fsat=min(ONE,su/(et*eo*p_vum*food))
+     rgu= su *Y3c(:)
      rrc = max(eo * p_sra*fsat, p_srr)* Y3c(:)* et
      foodpm2 =food*fdepth
    case(3)
-     fdepth=Depth_Ben
+     fdepth=Depth_Ben(:)
      su  =  p_su* MM_vector(  p_vum* food,  p_su)
      netto= (ONE-(p_pueQ6*food_RI+p_puePI*food_PT +p_pueZI*food_ZI)/food ) * (ONE-p_pur);
      su=su * insw_vector(netto * su-p_sra);
      fsat=min(ONE,su/(p_vum*food));
-     rgu= et* eO*  su *Y3c;
+     rgu= et* eO*  su *Y3c(:)
      rrc = max(eo * p_sra*fsat, p_srr)* Y3c(:)* et
      foodpm2 =food*fdepth
    case(4)
@@ -319,7 +306,7 @@
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      cmm = ZERO;
 
-     fdepth=Depth_Ben
+     fdepth=Depth_Ben(:)
      puf = p_sra/p_su;
 
      netto= (ONE-(p_pueQ6*food_RI+p_puePI*food_PT +p_pueZI*food_ZI)/food ) * (ONE-p_pur);
@@ -331,7 +318,7 @@
      su= ONE/( ONE/(p_small+ r* p_vum *food * et *eO ) + ONE/(p_small+ p_su *et *eO  ))  ;
      ! The minimal uptake rate is equal to rest respiration.
      ! With filtering the filterfeeder provide himself also with oxygen.
-     rgu= su *Y3c;
+     rgu= su *Y3c(:)
 
      ! filtering saturation ( high at low , low at hight food)
      fsat=su/(p_small+ et*eo*p_vum*food);
@@ -489,7 +476,7 @@
 
   rrc  =   rrc+ p_pur*( foodpm2* sgu- retR6c- retQ6c)
   
-  jnetY3c=rtY3c- p_pur*( foodpm2* sgu- retR6c- retQ6c)-retQ6c-retR6c
+  jnetY3c(:)=rtY3c(:)- p_pur*( foodpm2* sgu- retR6c- retQ6c)-retQ6c-retR6c
 
 
   call sourcesink_flux_vector( iiBen, ppY3c,ppG3c, rrc*(ONE-p_pePel) )

@@ -162,7 +162,7 @@
       ! Recalculate Mineralization m2 --> m3 porewater
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      ! anoxidation rate at interface D1m 
+      ! anoxidation rate at interface D1
 
       zuD1 = p_qoh * rrATo(BoxNumberXY)/ p_poro(BoxNumberXY)/ IntegralExp( & 
                                           -alpha, p_d_tot- D1m(BoxNumberXY))
