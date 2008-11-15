@@ -120,10 +120,10 @@ IMPLICIT NONE
     ! Calculate wind dependency
     ! including conversion cm/hr => m/day :
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    kex = (k660 + 0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
+    kex = (k660 + 0.3_RLEN*wind*wind)*sqrt(CO2SCHMIDT/pschmidt)* &
           CM2M*HOURS_PER_DAY
     !Alternative way 
-    !kex = (0.3_RLEN*wind*wind)*sqrt(pschmidt/CO2SCHMIDT)* &
+    !kex = (0.3_RLEN*wind*wind)*sqrt(CO2SCHMIDT/pschmidt)* &
     !      CM2M*HOURS_PER_DAY
 
     ! ---------------------------------------------------------------------
