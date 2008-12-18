@@ -77,19 +77,25 @@
               select case ( iiSub )
                 case (iiPel)
 #ifdef ONESOURCE
-                  D3SOURCE(origin,destination,:)=  -flux/SEC_PER_DAY
+                 D3SOURCE(origin,destination,:)=  D3SOURCE(origin,destination,:)- &
+                               flux/SEC_PER_DAY
+                 D3SOURCE(destination,origin,:)= D3SOURCE(destination,origin,:)+ &
+                               flux/SEC_PER_DAY
 #else
-                  D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
+                D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
+                D3SOURCE(destination,origin,:)=  flux/SEC_PER_DAY
 #endif
-                  D3SOURCE(destination,origin,:)=  flux/SEC_PER_DAY
 #ifdef INCLUDE_BEN
                 case (iiBen)
 #ifdef ONESOURCE
-                  D2SOURCE(origin,destination,:) = -flux/SEC_PER_DAY
+                 D2SOURCE(origin,destination,:) =  D2SOURCE(origin,destination,:)- & 
+                              flux/SEC_PER_DAY 
+                 D2SOURCE(destination,origin,:) = D2SOURCE(destination,origin,:)+ &
+                             flux/SEC_PER_DAY
 #else
-                  D2SINK(origin,destination,:) =  flux/SEC_PER_DAY
+                D2SINK(origin,destination,:) =  flux/SEC_PER_DAY
+                D2SOURCE(destination,origin,:)   = flux/SEC_PER_DAY
 #endif
-                  D2SOURCE(destination,origin,:)   = flux/SEC_PER_DAY
 #endif
               end select
             else
@@ -102,10 +108,10 @@
                   where (flux > ZERO )
                     D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) &
                       + flux/SEC_PER_DAY
-                  elsewhere
-                    D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
+                where (flux > ZERO )
+                 D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) + &
                       flux/SEC_PER_DAY
-                  end where
+                end where
 #endif
 #ifdef INCLUDE_BEN
                 case (iiBen)
@@ -123,6 +129,7 @@
 #endif
 #endif
               end select
+
             endif !origin <> destination
 
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -180,19 +187,29 @@
             select case ( iiSub )
               case (iiPel)
 #ifdef ONESOURCE
-                D3SOURCE(origin,destination,grid_nr)=  -flow/SEC_PER_DAY
+                 D3SOURCE(origin,destination,grid_nr)=              &
+                       D3SOURCE(origin,destination,grid_nr)-        &
+                       flow/SEC_PER_DAY
+                 D3SOURCE(destination,origin,grid_nr)=              & 
+                       D3SOURCE(destination,origin,grid_nr)+        &
+                       flow/SEC_PER_DAY
 #else
                 D3SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
-#endif
                 D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+#endif
 #ifdef INCLUDE_BEN
               case (iiBen)
 #ifdef ONESOURCE
-                D2SOURCE(origin,destination,grid_nr)=  -flow/SEC_PER_DAY
+                 D2SOURCE(origin,destination,grid_nr)=              &
+                      D2SOURCE(origin,destination,grid_nr)-         &
+                      flow/SEC_PER_DAY
+                 D2SOURCE(destination,origin,grid_nr)=              &
+                      D2SOURCE(destination,origin,grid_nr)+         &
+                      flow/SEC_PER_DAY
 #else
                 D2SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
-#endif
                 D2SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+#endif
 #endif
             end select
           else

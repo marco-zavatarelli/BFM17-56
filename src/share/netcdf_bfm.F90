@@ -734,7 +734,7 @@ end subroutine init_netcdf_rst_bfm
       if ( var_ids(n) > 0 .and. (.not.var_ave(n))) & 
          iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3DIAGNOS(i,:))
    end do
-#ifndef NECSX
+#ifndef D1SOURCE
    !---------------------------------------------
    ! Store snapshot of pelagic fluxes
    !---------------------------------------------
@@ -795,7 +795,7 @@ end subroutine init_netcdf_rst_bfm
 #endif
 !   end if
 #ifdef INCLUDE_BEN
-#ifndef NECSX
+#ifndef D1SOURCE
    !---------------------------------------------
    ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
    !---------------------------------------------

@@ -100,7 +100,7 @@
                   end if
                end if
             end do
-#ifndef NECSX
+#ifndef D1SOURCE
             j=0
             do i=stPelFluxS,stPelFluxE
                j=j+1
@@ -147,7 +147,7 @@
                   end if
                end if
             end do
-#ifndef NECSX
+#ifndef D1SOURCE
             j=0
             do i=stBenFluxS,stBenFluxE
                j=j+1

@@ -20,18 +20,29 @@
 !     other coupled models at 1.
 !
 ! !USES:
-      use constants, only: RLEN, SEC_PER_DAY
+      use constants, only: RLEN, ZERO, SEC_PER_DAY
       use mem, only: NO_BOXES_XY,NO_BOXES,NO_BOXES_X,NO_BOXES_Y, &
             NO_BOXES_Z,BoxNumberX,BoxNumberY,BoxNumberZ,BoxNumberXY , &
             BoxNumber
       use mem, only: iiBen
       use mem, only: flx_calc_nr,flx_CalcIn,flx_t,flx_states, &
               flx_ostates,flx_SS,flx_cal_ben_start,flx_option
-      use mem, only: D3SINK,D3SOURCE,D3STATE
+      use mem, only: D3SOURCE,D3STATE
+#ifndef ONESOURCE
+      use mem, only: D3SINK
+#endif
 #ifdef INCLUDE_BEN
-      use mem, only: D2SINK,D2SOURCE,D2STATE
+      use mem, only: D2SOURCE,D2STATE
+#ifndef ONESOURCE
+      use mem, only: D2SINK
+#endif
 #endif
       use mem, only: PELBOTTOM,PELSURFACE,Depth
+#ifdef BFM_GOTM
+      use bio_var, ONLY: SRFindices,BOTindices
+#else
+      use api_bfm, ONLY: SRFindices,BOTindices
+#endif
 
 
 !
@@ -41,11 +52,15 @@
       integer,intent(IN)                  ::nr0
       integer,intent(IN)                  ::zlev
       integer,intent(IN)                  ::nlev
-      real(RLEN),intent(OUT),dimension(zlev:nlev)  :: out
+#ifdef BFM_GOTM
+      real(RLEN),intent(OUT),dimension(0:nlev)  :: out
+#else
+      real(RLEN),intent(OUT),dimension(nlev)    :: out
+#endif
 
 !
 ! !REVISION HISTORY:
-!  Original author(s): Piet Ruardij (NIOZ)
+!  Original author(s): Piet Ruardij (NIOZ), Marcello Vichi (INGV)
 !
 
 !
@@ -54,7 +69,11 @@
       integer      ::i
       integer      ::k
       integer      ::klev
-      real(RLEN),dimension(zlev:NO_BOXES):: hulp
+#ifdef BFM_GOTM
+      real(RLEN),dimension(0:NO_BOXES) :: hulp
+#else
+      real(RLEN),dimension(NO_BOXES)   :: hulp
+#endif
       real(RLEN)   :: r
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -69,13 +88,20 @@
 
       nr=nr0;if ( mode == 2 ) nr=nr0+flx_cal_ben_start
       klev=NO_BOXES ; if ( flx_CalcIn(nr) == iiBen)  klev=NO_BOXES_XY 
-      hulp(:)=0.0
+      hulp(:)=ZERO
       if ( flx_CalcIn(nr) == iiBen) then
 #ifdef INCLUDE_BEN
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
           if (flx_SS(i) ==1 ) then
+#ifdef ONESOURCE
+             ! notice that the negative sign is already included in FluxFunctions.F90
+             ! (l. 80) thus there is a further change of sign here
+             hulp(1:klev)= hulp(1:klev) &
+                    - flx_t(i) * D2SOURCE(flx_ostates(i),flx_states(i),:)
+#else
              hulp(1:klev)= hulp(1:klev) &
                     + flx_t(i) * D2SINK(flx_states(i),flx_ostates(i),:)
+#endif
           else
              hulp(1:klev)= hulp(1:klev) &
                    + flx_t(i) * D2SOURCE(flx_states(i),flx_ostates(i),:)
@@ -85,14 +111,21 @@
       else
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
           if (flx_SS(i) ==1 ) then
+#ifdef ONESOURCE
+             ! notice that the negative sign is already included in FluxFunctions.F90
+             ! (l. 80) thus there is a further change of sign here
+             hulp(1:klev)= hulp(1:klev) &
+                    - flx_t(i) * D3SOURCE(flx_ostates(i),flx_states(i),:)
+#else
              hulp(1:klev)= hulp(1:klev) &
                     + flx_t(i) * D3SINK(flx_states(i),flx_ostates(i),:)
+#endif
              ! correcting for fluxes  to other systems
              if ( flx_states(i) ==flx_ostates(i)) then
-                hulp(1)=hulp(1)+flx_t(i) *min(0.0D+00,&
-                       PELBOTTOM(flx_states(i),1))/Depth(1)/SEC_PER_DAY
-                hulp(klev)=hulp(klev)+flx_t(i) *min(0.0D+00,&
-                    PELSURFACE(flx_states(i),1))/Depth(klev)/SEC_PER_DAY
+                hulp(BOTindices)=hulp(BOTindices)+flx_t(i) *min(ZERO,&
+                       PELBOTTOM(flx_states(i),:))/Depth(BOTindices)/SEC_PER_DAY
+                hulp(SRFindices)=hulp(SRFindices)+flx_t(i) *min(ZERO,&
+                    PELSURFACE(flx_states(i),:))/Depth(SRFindices)/SEC_PER_DAY
              endif
 
           else
@@ -100,10 +133,10 @@
                   + flx_t(i) * D3SOURCE(flx_states(i),flx_ostates(i),:)
              ! correcting for fluxes  to other systems
              if ( flx_states(i) ==flx_ostates(i)) then
-                hulp(1)=hulp(1)-flx_t(i) *max(0.0D+00,&
-                       PELBOTTOM(flx_states(i),1))/Depth(1)/SEC_PER_DAY
-                hulp(nlev)=hulp(nlev)-flx_t(i) *max(0.0D+00, &
-                    PELSURFACE(flx_states(i),1))/Depth(nlev)/SEC_PER_DAY
+                hulp(BOTindices)=hulp(BOTindices)-flx_t(i) *max(ZERO,&
+                       PELBOTTOM(flx_states(i),:))/Depth(BOTindices)/SEC_PER_DAY
+                hulp(SRFindices)=hulp(SRFindices)-flx_t(i) *max(ZERO, &
+                    PELSURFACE(flx_states(i),:))/Depth(SRFindices)/SEC_PER_DAY
              endif
           endif
         enddo
@@ -112,11 +145,12 @@
       hulp(1:klev)=hulp(1:klev)*SEC_PER_DAY        
 
       select case ( flx_option(nr) )
-        case(0) !Specific rate
+        case(0) !Raw rate
           out(1:klev)=hulp(1:klev);
         case(1) !Specific rate
           out(1:klev)=1.0D-80
           k=0
+          ! Sum the total mass
           if ( flx_CalcIn(nr) == iiBen) then
 #ifdef INCLUDE_BEN
              do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
@@ -134,7 +168,10 @@
                endif
              enddo
           endif
+          ! Compute specific rate
           out(1:klev)=hulp(1:klev)/out(1:klev)
+#ifdef BFM_GOTM
+        ! This part was only tested with GOTM
         case(2) ! summing the column :perm2
           ! d3 -->d2 var.
           hulp(1:klev)=hulp(1:klev) *Depth(1:klev)
@@ -153,13 +190,10 @@
               enddo
             enddo
           endif
+#else
       end select
 
       return
       end subroutine make_flux_output
 !EOC
 !-----------------------------------------------------------------------
-
-
-
-
