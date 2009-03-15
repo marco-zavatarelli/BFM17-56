@@ -482,11 +482,15 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
           p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
+    if (p_netgrowth(phyto)) then
     ! total synthesis, only when there is net production (run > 0)
     ! The fixed loss rate due to basal respiration is introduced to have 
     ! mortality in the absence of light (< 1 uE/m2/s)
-    rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
+       rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
                   -srs * phytol * ONE/(Irr+ONE)
+    else
+       rate_Chl = rho_Chl*(sum - sea + seo) * phytoc - (srt+ sdo)*phytol
+    end if
 
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
   end if
