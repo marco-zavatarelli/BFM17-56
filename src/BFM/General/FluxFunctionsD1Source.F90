@@ -65,6 +65,7 @@
                   D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
 #endif
+              end select
             end if
 
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -86,6 +87,7 @@
           integer,intent(IN)                 :: origin
           integer,intent(IN)                 :: destination
           real(RLEN),intent(IN)              :: flow
+          integer,intent(INOUT),optional     :: error
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           !BEGIN compute
           if ( origin /= destination ) then
@@ -155,7 +157,7 @@
           use constants, only: RLEN, ZERO, SEC_PER_DAY
           implicit none
           integer, intent(IN) ::iistate
-          real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=3))
+          real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=2))
           integer :: i
           Source_D3_vector(:) = D3SOURCE(iistate,:)*SEC_PER_DAY
         end function Source_D3_vector

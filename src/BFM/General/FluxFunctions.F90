@@ -47,7 +47,7 @@
 #endif
 
             if ( origin /= destination )  then
-#ifndef NECSX
+#ifdef DEBUG
               if ( minval(flux) < ZERO) then
                 do i=1,size(flux)
                   if (flux(i)< 0.0D+00) write(LOGUNIT,'(''at level:'',I4)') i
@@ -98,7 +98,7 @@
 #endif
 #endif
               end select
-            else
+            else ! origin==destination
               select case ( iiSub )
                 case (iiPel)
 #ifdef ONESOURCE
@@ -108,10 +108,10 @@
                   where (flux > ZERO )
                     D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) &
                       + flux/SEC_PER_DAY
-                where (flux > ZERO )
-                 D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) + &
+                  elsewhere
+                    D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
                       flux/SEC_PER_DAY
-                end where
+                  end where
 #endif
 #ifdef INCLUDE_BEN
                 case (iiBen)
@@ -161,7 +161,7 @@
 #endif
 
           if ( origin /= destination ) then
-#ifndef NECSX
+#ifndef DEBUG
             if ( flow < ZERO) then
               D23="Pelagic"
               if ( iiSub == iiBen) D23="Benthic"

@@ -532,7 +532,7 @@ proc make_output { input { what "" }  } {
 
 # !INTERFACE:
 #
-global VARS
+global VARS DEFINE
 
 # !INPUT PARAMETERS:
 #	input= command which describe which code have to be generated
@@ -628,9 +628,13 @@ switch -- $mode {
 	PrintLine -print "real(RLEN),public,pointer,dimension(:,:) :: D${i}${TYPE}"
 	if { $type == "state" } {
 	  set tmp SOURCE
+	  puts $VARS(file) "#ifdef D1SOURCE"
+	  PrintLine -print "real(RLEN),public,pointer,dimension(:,:) :: D${i}${tmp}"
+	  puts $VARS(file)  "#else"
 	  PrintLine -print "real(RLEN),public,pointer,dimension(:,:,:) :: D${i}${tmp}"
 	  set tmp SINK
 	  PrintLine -print "real(RLEN),public,pointer,dimension(:,:,:) :: D${i}${tmp}"
+	  puts $VARS(file) "#endif"
 	  set tmp STATETYPE
 	  PrintLine -print "integer,public,pointer,dimension(:) :: D${i}${tmp}"
 	}
@@ -1080,6 +1084,11 @@ switch -- $mode {
    3d-flux-fill -
    2d-flux-fill {
 
+# MAV: Needs to be done better!
+#    First check if D1SOURCE is defined, and stop
+#    fluxes cannot be stored with this option
+      if { [ lsearch -exact $DEFINE "D1SOURCE" ] >=0 } \
+         { puts stdout "error: Cannot use the keyword 3d-flux or 2d-flux with D1SOURCE";return 401 }
 #    Important:
 #    In the AllocMem.proto file first 3d-flux-fill have to be called!
 #

@@ -1,3 +1,4 @@
+#include"cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -85,6 +86,8 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+! This subroutine is compiled only if sources are stored
+#ifndef D1SOURCE
 
       nr=nr0;if ( mode == 2 ) nr=nr0+flx_cal_ben_start
       klev=NO_BOXES ; if ( flx_CalcIn(nr) == iiBen)  klev=NO_BOXES_XY 
@@ -129,8 +132,15 @@
              endif
 
           else
+#ifdef ONESOURCE
+             ! notice that the negative sign is already included in FluxFunctions.F90
+             ! (l. 80) thus there is a further change of sign here
+             hulp(1:klev)= hulp(1:klev) &
+                    - flx_t(i) * D3SOURCE(flx_ostates(i),flx_states(i),:)
+#else
              hulp(1:klev)= hulp(1:klev) &
                   + flx_t(i) * D3SOURCE(flx_states(i),flx_ostates(i),:)
+#endif
              ! correcting for fluxes  to other systems
              if ( flx_states(i) ==flx_ostates(i)) then
                 hulp(BOTindices)=hulp(BOTindices)-flx_t(i) *max(ZERO,&
@@ -190,9 +200,10 @@
               enddo
             enddo
           endif
-#else
+#endif
       end select
 
+#endif
       return
       end subroutine make_flux_output
 !EOC
