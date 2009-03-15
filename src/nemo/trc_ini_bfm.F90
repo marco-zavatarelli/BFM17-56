@@ -45,7 +45,7 @@
    !! * Substitutions
 #include "domzgr_substitute.h90"
 
-   integer    :: i,j,k
+   integer    :: i,j,k,ll
    integer    :: status
    integer,parameter    :: namlst=10,unit=11
    integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:)
@@ -106,6 +106,27 @@
 #ifdef INCLUDE_BEN
    NO_STATES = NOSTATES + NO_BOXES_XY*NO_D2_BOX_STATES
 #endif
+
+   !-------------------------------------------------------
+   ! Allocate and build the indices of ocean points in 
+   ! the 3D nemo arrays
+   !-------------------------------------------------------
+   allocate (iwet(NO_BOXES))
+   allocate (jwet(NO_BOXES))
+   allocate (kwet(NO_BOXES))
+   ll=0
+   do k = 1, jpk
+      do j = 1, jpj
+         do i = 1, jpi
+            if (SEAmask(i,j,k)) then
+               ll=ll+1
+               iwet(ll)=i
+               jwet(ll)=j
+               kwet(ll)=k
+            endif
+         enddo
+      enddo
+    enddo
 
    !-------------------------------------------------------
    ! Compressed coordinates for netcdf output

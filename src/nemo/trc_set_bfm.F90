@@ -40,7 +40,7 @@
 !
 ! !LOCAL VARIABLES:
    ! 3D sinking velocity field
-   integer               :: ji, jj, jk
+   integer               :: ji, jj, jk,n
    real(RLEN),parameter  :: depth_factor = 2000.0_RLEN
    real(RLEN)            :: zfact,timestep,wsmax
    real(RLEN)            ::  wbio(jpi,jpj,jpk)   
@@ -60,7 +60,13 @@
    !---------------------------------------------
    select case (m)
       case (ppP1c,ppP1n,ppP1p,ppP1s,ppP1l)
+#ifdef USEPACK
          wbio = -unpack(sediPI(iiP1,:),SEAmask,ZEROS)
+#else
+         DO n = 1,NO_BOXES
+            wbio(iwet(n),jwet(n),kwet(n)) = -sediPI(iiP1,n)
+         END DO
+#endif
          !CALL trc_sink_muscl_bfm(wbio)       ! vertical sinking
          CALL trc_sink_bfm(wbio)       ! vertical sinking
       case (ppR6c,ppR6n,ppR6p,ppR6s)

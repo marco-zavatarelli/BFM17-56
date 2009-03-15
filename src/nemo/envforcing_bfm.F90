@@ -37,7 +37,7 @@ IMPLICIT NONE
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
-   integer             :: i,j,k
+   integer             :: i,j,k,n
 
 !EOP
 !-----------------------------------------------------------------------
@@ -46,10 +46,10 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign temperature, salinity and density
    !---------------------------------------------
+#ifdef USEPACK
       ETW = pack(tn,SEAmask)
       ESW = pack(sn,SEAmask)
       ERHO = pack(rhop,SEAmask)
-
 #if defined key_flx_bulk_monthly || defined key_flx_bulk_daily
    !---------------------------------------------
    ! Assign wind speed
@@ -59,11 +59,36 @@ IMPLICIT NONE
       !MAV: this must be temporary! 
       EWIND = 5.0_RLEN
 #endif
-
    !---------------------------------------------
    ! Assign Sea-ice cover
    !---------------------------------------------
       EICE = pack(freeze,SRFmask(:,:,1) )
+#else
+      DO n = 1,NO_BOXES
+         ETW(n) = tn(iwet(n),jwet(n),kwet(n))
+         ESW(n) = sn(iwet(n),jwet(n),kwet(n))
+         ERHO(n) = rhop(iwet(n),jwet(n),kwet(n))
+      END DO
+
+      DO n = 1,NO_BOXES_XY
+         !---------------------------------------------
+         ! Assign wind speed
+         !---------------------------------------------
+#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily
+         EWIND(n) = vatm(iwet(n),jwet(n))
+#else
+         !MAV: this must be temporary! 
+         EWIND(n) = 5.0_RLEN
+#endif
+         !---------------------------------------------
+         ! Assign Sea-ice cover
+         !---------------------------------------------
+         EICE(n) = freeze(iwet(n),jwet(n))
+      END DO
+
+#endif
+
+
 
 #ifdef INCLUDE_PELCO2
    !---------------------------------------------
@@ -94,7 +119,13 @@ IMPLICIT NONE
    ! Then compute the light climate and repack
    !---------------------------------------------
       allocate(rtmp3Db(jpi,jpj,jpk))
+#ifdef USEPACK
       rtmp3Db = unpack(xEPS,SEAmask,ZEROS)
+#else
+      DO n = 1,NO_BOXES
+         rtmp3Db(iwet(n),jwet(n),kwet(n)) = xEPS(n)
+      END DO
+#endif
       do k = 1,jpk-1
          do j = 1,jpj
             do i = 1,jpi
@@ -103,7 +134,13 @@ IMPLICIT NONE
             end do 
          end do 
       end do 
+#ifdef USEPACK
       EIR = pack(rtmp3Da,SEAmask)
+#else
+      DO n = 1,NO_BOXES
+         EIR(n) = rtmp3Da(iwet(n),jwet(n),kwet(n))
+      END DO
+#endif
 
    !---------------------------------------------
    ! bioshading is stored to be passed to OPA

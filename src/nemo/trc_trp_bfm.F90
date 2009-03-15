@@ -86,6 +86,7 @@ SUBROUTINE trc_trp_bfm( kt )
       DO m = 1,NO_D3_BOX_STATES
          IF (D3STATETYPE(m)>=ALLTRANSPORT) THEN
             ! remap the biological states and trends to 3D arrays
+#ifdef USEPACK
             IF ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) THEN
                ! Leap-frog scheme (only in explicit case)
                trb(:,:,:,1) = unpack(D3STATEB(m,:),SEAmask,ZEROS)
@@ -94,17 +95,42 @@ SUBROUTINE trc_trp_bfm( kt )
                trb(:,:,:,1) = unpack(D3STATE(m,:),SEAmask,ZEROS)
                trn = trb
             END IF
+#else
+            IF ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) THEN
+               DO n = 1,NO_BOXES
+                  ! Leap-frog scheme (only in explicit case)
+                  trb(iwet(n),jwet(n),kwet(n),1) = D3STATEB(m,n)
+                  trn(iwet(n),jwet(n),kwet(n),1) = D3STATE(m,n)
+               END DO
+            ELSE
+               DO n = 1,NO_BOXES
+                  trb(iwet(n),jwet(n),kwet(n),1) = D3STATE(m,n)
+                  trn = trb
+               END DO
+            END IF
+#endif
             ! sum all the rates (loop is faster than intrinsic sum)
             dummy(:) = ZERO
             do k=1,NO_D3_BOX_STATES
                do n=1,NO_BOXES
+#ifdef D1SOURCE && ONESOURCE
+                  dummy(n) = dummy(n) + D3SOURCE(k,n)
+#elif defined D1SOURCE
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n)
-#ifndef ONESOURCE
-                  dummy(n) = dummy(n) - D3SINK(m,k,n)
+#else
+                  dummy(n) = dummy(n) + D3SOURCE(m,k,n) - D3SINK(m,k,n)
+#endif
 #endif
                end do
             end do
+
+#ifdef USEPACK
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
+#else
+            DO n = 1,NO_BOXES
+               tra(iwet(n),jwet(n),kwet(n),1) = dummy(n)
+            END DO
+#endif
 
             IF (.NOT.CalcConservationFlag) &
                CALL trc_sbc( kt )         ! surface boundary condition (only dilution here, 
@@ -162,9 +188,20 @@ SUBROUTINE trc_trp_bfm( kt )
             ! Remap the biochemical variables from 3D
             ! to 1D (apply land-sea mask)
             ! Values have been updated in trcnxt
+#ifdef USEPACK
             D3STATE(m,:) = pack(trn(:,:,:,1),SEAmask)
             IF ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) &
                D3STATEB(m,:) = pack(trb(:,:,:,1),SEAmask)        ! Leap-frog scheme (only in explicit case)
+#else
+            DO n = 1,NO_BOXES
+               D3STATE(m,n) = trn(iwet(n),jwet(n),kwet(n),1)
+            END DO
+            IF ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) then
+              DO n = 1,NO_BOXES
+                 D3STATEB(m,n) = trb(iwet(n),jwet(n),kwet(n),1)
+              END DO
+            END IF
+#endif
          END IF ! transported
       END DO ! over state vars
 

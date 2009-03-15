@@ -48,12 +48,24 @@
 ! !LOCAL VARIABLES:
    integer               :: j
    real(RLEN)            :: delt
-   real(RLEN)            :: tmp(NO_D3_BOX_STATES,NO_BOXES)
-   real(RLEN)            :: tmp2(NO_BOXES)
+   real(RLEN), allocatable,dimension(:,:) :: tmp
+   real(RLEN), allocatable, dimension(:) :: tmp2
+   integer               :: AllocStatus,DeAllocStatus
+
+
+
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
+   !---------------------------------------------
+   ! Allocate temporary arrays
+   !---------------------------------------------
+   allocate(tmp2(NO_BOXES),stat=AllocStatus)
+   if (AllocStatus  /= 0) stop "error allocating tmp2"
+   allocate(tmp(NO_D3_BOX_STATES,NO_BOXES),stat=AllocStatus)
+   if (AllocStatus  /= 0) stop "error allocating tmp"
 
    !---------------------------------------------
    ! Biological timestep 
@@ -77,8 +89,11 @@
    if (CalcPelagicFlag .AND. .NOT.CalcTransportFlag) then
       do j=1,NO_D3_BOX_STATES
          if (D3STATETYPE(j).ge.0) then
-#ifdef ONESOURCE
+#ifdef ONESOURCE && D1SOURCE
+            D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:),1)
+#ifndef D1SOURCE
             D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:),1)
+#endif            
 #else
             D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
 #endif
@@ -98,6 +113,13 @@
       end do
    end if
 #endif
+   !---------------------------------------------
+   ! Allocate temporary arrays
+   !---------------------------------------------
+   deallocate(tmp2,stat=DeAllocStatus)
+   if (AllocStatus  /= 0) stop "error allocating tmp2"
+   deallocate(tmp,stat=AllocStatus)
+   if (DeallocStatus  /= 0) stop "error allocating tmp"
 
    return
    end subroutine trcbfm

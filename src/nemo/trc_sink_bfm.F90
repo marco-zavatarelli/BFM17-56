@@ -103,9 +103,9 @@
       ws(:,:,jk+1) = ws_in(:,:,jk)/rjjss*tmask(:,:,jk+1)
    end do
 
-   do jj = 1, jpj      
-      do ji = 1, jpi    
-         do jk = 2, jpkm1
+   do jk = 2, jpkm1
+      do jj = 1, jpj      
+         do ji = 1, jpi    
             !-------------------------------
             ! Check the velocity direction
             !-------------------------------
@@ -181,9 +181,9 @@
 !write(*,*) 'jk, cu(jk+1), cu(jk)' 
 Yc=0.0_wp
 Yd=0.0_wp
-   do jj = 1, jpj      
-      do ji = 1, jpi    
-         do jk = 1, jpkm1
+   do jk = 1, jpkm1
+      do jj = 1, jpj      
+         do ji = 1, jpi    
             dt    = rdttra(jk) * float(ndttrc)
             trn(ji,jj,jk,1) = trn(ji,jj,jk,1) + &
                  dt*(cu(ji,jj,jk+1)-cu(ji,jj,jk))/fse3t(ji,jj,jk)

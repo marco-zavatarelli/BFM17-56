@@ -107,6 +107,11 @@
    logical,allocatable,dimension(:,:,:),public     :: SRFmask
 
    !---------------------------------------------
+   ! 3D Indices of the wet points
+   !---------------------------------------------
+   integer,allocatable,dimension(:),public         :: iwet,jwet,kwet
+
+   !---------------------------------------------
    ! Additional integration arrays
    ! for leapfrog scheme
    !---------------------------------------------
@@ -139,6 +144,11 @@
    logical,allocatable,dimension(:,:,:),public     :: BOTmask
    ! 3D boolean mask of the surface points
    logical,allocatable,dimension(:,:,:),public     :: SRFmask
+
+   !---------------------------------------------
+   ! 3D Indices of the wet points
+   !---------------------------------------------
+   integer,allocatable,dimension(:),public         :: iwet,jwet,kwet
 
    !---------------------------------------------
    ! Additional integration arrays
