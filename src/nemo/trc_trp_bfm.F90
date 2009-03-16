@@ -113,13 +113,12 @@ SUBROUTINE trc_trp_bfm( kt )
             dummy(:) = ZERO
             do k=1,NO_D3_BOX_STATES
                do n=1,NO_BOXES
-#ifdef D1SOURCE && ONESOURCE
+#if defined D1SOURCE && ONESOURCE
                   dummy(n) = dummy(n) + D3SOURCE(k,n)
 #elif defined D1SOURCE
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n)
 #else
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n) - D3SINK(m,k,n)
-#endif
 #endif
                end do
             end do

@@ -12,10 +12,11 @@
 ! !USES
 ! BFM modules
    use constants,  only: E2W
-   use global_mem, only:RLEN,ZERO
+   use global_mem, only: RLEN,ZERO
    use mem_param,  only: p_PAR, p_small
    use mem,        only: xEPS, ESS, ETW, ESW, EWIND,    &
-                        Depth, EIR, ERHO, EICE
+                         Depth, EIR, ERHO, EICE,        &
+                         NO_BOXES, NO_BOXES_XY
    use api_bfm
 #ifdef INCLUDE_PELCO2
    use mem,        only: EPCO2air
