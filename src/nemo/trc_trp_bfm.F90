@@ -109,19 +109,22 @@ SUBROUTINE trc_trp_bfm( kt )
                END DO
             END IF
 #endif
+
+#if defined D1SOURCE
+            dummy(:) = D3SOURCE(m,:)
+#else
             ! sum all the rates (loop is faster than intrinsic sum)
             dummy(:) = ZERO
             do k=1,NO_D3_BOX_STATES
                do n=1,NO_BOXES
-#if defined D1SOURCE && ONESOURCE
-                  dummy(n) = dummy(n) + D3SOURCE(k,n)
-#elif defined D1SOURCE
+#if defined ONESOURCE
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n)
 #else
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n) - D3SINK(m,k,n)
 #endif
                end do
             end do
+#endif
 
 #ifdef USEPACK
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
