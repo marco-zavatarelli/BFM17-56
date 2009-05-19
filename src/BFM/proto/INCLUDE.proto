@@ -8,8 +8,8 @@
 %2d-group-header
 %3d-diagnos-header
 %2d-diagnos-header
-%3d-state-surface-header
-%3d-state-bottom-header
+%3d-state-field-header surface
+%3d-state-field-header bottom
 %3d-diaggrp-header
 %2d-diaggrp-header
 
