@@ -1,7 +1,8 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model version 2.3
+!	   BFM - Biogeochemical Flux Model
 !
 ! FUNCTION
 !   BenProfiles.f90
@@ -11,7 +12,7 @@
 !
 ! DESCRIPTION
 !   This routine computes the vertical profiles of benthic nutrients
-!   in the pore waters over the assigned sigma grid..
+!   in the pore waters over the assigned sigma grid.
 !  
 ! !INTERFACE
         subroutine BenProfiles
@@ -22,11 +23,14 @@
 ! !USES:
         use global_mem,      ONLY:RLEN,ZERO,ONE
 #ifdef INCLUDE_BENPROFILES
+#ifdef NOPOINTERS
+        use mem
+#else
         use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
            BoxNumberY,NO_BOXES_Y,BoxNumber,BoxNumberXY,seddepth,ETW_Ben,   &
            PrQ1c,PrM1p,PrM3n,PrM4n,PrM5s,PrM6r,KQ1,KPO4,KNO3,KNH4,KSiO3,KRED, &
            Pr2M1p,KPO4_2
-        
+#endif
         use constants, ONLY: INTEGRAL,STANDARD
         use bennut_interface, ONLY:CalculateFromSet
         use mem_BenSilica, ONLY: p_chM5s, p_cvM5s,p_q10
@@ -43,8 +47,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2007 P. Ruardij
-!   (rua@nioz.nl, vichi@bo.ingv.it)
+!   Copyright (C) 2007 P. Ruardij  (rua@nioz.nl)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by

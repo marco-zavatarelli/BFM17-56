@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -19,33 +20,22 @@
   subroutine BenDenitriDepthDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: D2m
-  ! The following Benthic-states are used (NOT in fluxes): K3n,K4n,D1m
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,   &
-  !  BoxNumberXY, dummy, InitializeModel
-  ! The following Benthic 1-d global boxvars are modified : shiftD1m,shiftD2m
-  ! The following Benthic 1-d global boxvars  are used: KNO3, KNH4
-  ! The following 0-d global parameters are used: p_d_tot, p_clD1D2m
-  ! The following global constants are used: RLEN
-  ! The following constants are used: EQUATION, STANDARD, GET, LABDA_1, LABDA_2,&
-  ! ONE_PER_DAY
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: D2m, D1m, D2STATE
   use mem, ONLY: K3n,K4n,K6r,ppD2m, ppD1m,    &
     NO_BOXES_XY,    BoxNumberXY, dummy, &
     InitializeModel, shiftD1m, shiftD2m, KNO3, KNH4, iiBen, iiPel, flux
   use mem,ONLY: jbotN3n,jbotN4n,N3n_Ben,N4n_Ben,K14n,K24n,D6m,D7m
+#endif
   use constants,  ONLY: EQUATION, STANDARD, GET, LABDA_1, ONE_PER_DAY,MASS,INTEGRAL,LABDA_2
   use mem_Param,  ONLY: p_d_tot, p_clD1D2m
   use mem_BenDenitriDepth
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:CalculateFromSet, GetInfoFromSet
@@ -55,8 +45,6 @@
 !
 ! !AUTHORS
 !   Original version by  P. Ruardij
-!
-!
 !
 ! !REVISION_HISTORY
 !   !

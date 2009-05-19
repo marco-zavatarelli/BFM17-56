@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -13,51 +14,24 @@
 !       the equilibrium and transient profiles can be found in
 !       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenAnoxicDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: K16r, K6r, G2o
-  ! The following Benthic-states are used (NOT in fluxes): D6m, D1m,D2m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,  &
-  !   BoxNumberXY, LocalDelta, InitializeModel
-  ! The following Benthic 1-d global boxvars are modified : M6r, KRED, jbotN6r, &
-  ! jG2K7o,jK26K16r
-  ! The following Benthic 1-d global boxvars are used: rrATo, rrBTo, irrenh, &
-  ! ETW_Ben, KNO3, N6r_Ben
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_d_tot, p_clDxm, &
-  ! p_qro, p_q10diff, p_qon_dentri
-  ! The following global constants are used: RLEN
-  ! The following constants are used: GET, &
-  ! LABDA_1, LABDA_2, COEFFICIENT, LAYERS, LAYER1, &
-  ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, &
-  ! EXPONENTIAL_TERM, ZERO_EXPONENTIAL_TERM, DOUBLE_DEFINE, CONSTANT_TERM, &
-  ! SET_CONTINUITY, FLAG, MASS, SET_BOUNDARY, EQUATION, INPUT_TERM, &
-  ! PARAMETER, SET_LAYER_INTEGRAL_UNTIL, LAYER2, ADD, DERIVATIVE, RFLUX, &
-  ! INTEGRAL, ONE_PER_DAY,START_ADD_TERM,INPUT_ADD_TERM,LAYER3
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: K26r, K16r, K6r, G2o, D6m, D1m, D2m, D2STATE
   use mem, ONLY: ppK26r, ppK16r, ppK6r, ppG2o, ppD6m, ppD1m, dummy,  &
       NO_BOXES_XY,    &
     BoxNumberXY, LocalDelta, InitializeModel, M6r, KRED, jbotN6r, jG2K7o, rrATo, &
     rrBTo, jK36K26r, irrenh, ETW_Ben, KNO3, N6r_Ben,Depth_Ben, &
     shiftD1m, shiftD2m,iiBen, iiPel, flux,jK3G4n
+#endif
   use constants, ONLY: GET, LABDA_1, LABDA_2, COEFFICIENT, SET_LAYER_INTEGRAL, &
     LAYERS, LAYER1, DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, LAYER5, STANDARD, &
     DEFINE, EXPONENTIAL_TERM, ZERO_EXPONENTIAL_TERM, DOUBLE_DEFINE,LINEAR_TERM, &

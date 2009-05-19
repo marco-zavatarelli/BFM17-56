@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -17,7 +18,11 @@
 #ifdef BFM_GOTM
      use turbulence,  ONLY: kappa
 #endif
+#ifdef NOPOINTERS
+     use mem
+#else
      use mem,         ONLY: ETAUB,NO_BOXES_XY
+#endif
 
      IMPLICIT NONE
 ! !INPUT PARAMETERS:

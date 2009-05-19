@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -22,29 +23,19 @@
   subroutine BenNitrogenShiftingDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: K14n, K4n, K24n, K3n
-  ! The following Benthic-states are used (NOT in fluxes): D1m, D7m, D2m
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,   &
-  !  BoxNumberXY, LocalDelta, dummy
-  ! The following Benthic 1-d global boxvars are used: shiftD1m, KNH4, reATn, &
-  ! shiftD2m, KNO3
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_clDxm, p_d_tot
-  ! The following global constants are used: RLEN
-  ! The following constants are used: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN,LOGUNIT
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m, D2STATE
   use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppG4n, ppD7m, &
     ppD2m,    NO_BOXES_XY,   &
      BoxNumberXY, LocalDelta, dummy, shiftD1m, KNH4, reATn, shiftD2m, &
     KNO3, jK34K24n, jK13K3n, iiBen, iiPel, flux
+#endif
   use constants,  ONLY: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
   use mem_Param,  ONLY: p_poro, p_clDxm, p_d_tot
   use mem_BenthicNutrient3, ONLY:p_max_shift_change,p_max_state_change
@@ -73,7 +64,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify

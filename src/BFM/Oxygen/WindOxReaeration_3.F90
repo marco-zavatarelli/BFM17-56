@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -16,34 +17,24 @@
 !		exchange over the oecean
 !               J. GeoPhys. Res. 97, 7373-7382
 !
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine OxygenReaerationDynamics
 !
 ! !USES:
-
-  ! For the following Pelagic-states fluxes are defined: O2o
-  ! The following global scalar vars are used: BoxNumberZ, &
-  ! BoxNumberY, NO_BOXES_Y, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumber, &
-  ! BoxNumberXY, Wind
-  ! The following Pelagic 1-d global boxvars  are used: ETW, cxoO2, Depth
-  ! The following Benthic 1-d global boxvars are modified : jsurO2o
-  ! The following 0-d global parameters are used: AssignAirPelFluxesInBFMFlag
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: O2o, D3STATE
   use mem, ONLY: ppO2o, NO_BOXES_XY, &
     BoxNumberXY, EWIND, ETW, cxoO2, Depth, &
     jsurO2o, iiBen, iiPel, flux
+#endif
   use mem_Param,  ONLY: AssignAirPelFluxesInBFMFlag
   use mem_WindOxReaeration_3
 #ifdef BFM_GOTM
@@ -51,11 +42,6 @@
 #else
   use api_bfm, ONLY: SRFindices
 #endif
-
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following global functions are used:CalcSchmidtNumberOx
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use global_interface,   ONLY: CalcSchmidtNumberOx
 
 !

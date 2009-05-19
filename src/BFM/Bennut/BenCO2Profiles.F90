@@ -25,10 +25,14 @@
         USE global_mem,      ONLY:RLEN,LOGUNIT
 #ifdef INCLUDE_BENPROFILES
 #ifdef INCLUDE_BENCO2
+#ifdef NOPOINTERS
+        use mem
+#else
         USE mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
            BoxNumberY,NO_BOXES_Y,BoxNumber,BoxNumberXY, seddepth
         use mem,ONLY:PrDIC,PrAc,KHplus,KCO2,PrM1p,PrM5s,PrpH, &
            ESW_Ben,ETW_Ben,ERHO_Ben
+#endif
         USE constants, ONLY: INTEGRAL,STANDARD
         use bennut_interface, ONLY:CalculateFromSet
         use CO2System,ONLY: CalcCO2System
@@ -43,7 +47,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2004 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -119,5 +123,5 @@
         return
 #endif
 #endif
-      end
+      end subroutine BenCO2Profiles
 

@@ -10,51 +10,23 @@
 ! DESCRIPTION
 !   Description of the DOM dynamics in the sediments
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenQ1TransportDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: Q11c, Q1c, Q11n, Q1n, &
-  ! Q11p, Q1p
-  ! The following Benthic-states are used (NOT in fluxes): D1m, D6m, D2m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,   &
-  !  BoxNumberXY, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : KQ1
-  ! The following Benthic 1-d global boxvars are used: irrenh, ETW_Ben, &
-  ! shiftD1m
-  ! The following Benthic 2-d global boxvars  are used: ruHI, reHI
-  ! The following groupmember vars  are used: iiH1, iiH2
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_q10diff, p_clDxm, p_d_tot
-  ! The following global constants are used: RLEN
-  ! The following constants are used: &
-  ! LAYERS, LAYER1, LAYER2, DIFFUSION, FOR_ALL_LAYERS, &
-  ! POROSITY, ADSORPTION, DEFINE, EXPONENTIAL_TERM, CONSTANT_TERM, &
-  ! ZERO_EXPONENTIAL_TERM, LINEAR_TERM, SET_CONTINUITY, FLAG, MASS, &
-  ! SET_BOUNDARY, DERIVATIVE, SET_LAYER_INTEGRAL, LAYER3, INPUT_TERM, &
-  ! STANDARD, START_ADD_TERM, SET_LAYER_INTEGRAL_UNTIL, INPUT_ADD_TERM,&
-  ! ADD, SHIFT, RFLUX, ONE_PER_DAY
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: Q11c, Q1c, Q11n, Q1n, Q11p, Q1p, D1m, D6m, D2m, D2STATE
   use mem, ONLY: ppQ11c, ppQ1c, ppQ11n, ppQ1n, ppQ11p, ppQ1p, &
     ppD1m, ppD6m, ppD2m, dummy,    NO_BOXES_XY, &
-       BoxNumberXY, LocalDelta, KQ1, irrenh, &
+    BoxNumberXY, LocalDelta, KQ1, irrenh, &
     ETW_Ben, shiftD1m, ruHI, reHI, iiH1, iiH2, iiBen, iiPel, flux
+#endif
   use constants, ONLY: LAYERS, LAYER1, LAYER2, &
     DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, EXPONENTIAL_TERM, &
     CONSTANT_TERM, ZERO_EXPONENTIAL_TERM, LINEAR_TERM, SET_CONTINUITY, FLAG, &
@@ -64,9 +36,6 @@
   use mem_Param,  ONLY: p_poro, p_q10diff, p_clDxm, p_d_tot
   use mem_BenQ1Transport
   use mem_BenthicNutrient3, ONLY:p_max_shift_change
-
-
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:InitializeSet, &
@@ -83,7 +52,7 @@
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following sesame functions are used:IntegralExp, insw
+  ! The following functions are used:IntegralExp, insw
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp, insw
 !  
@@ -100,7 +69,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify

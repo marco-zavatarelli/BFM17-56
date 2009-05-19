@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -13,29 +14,22 @@
 !       in a specified sequence according to the calculation flags.
 !
 !
-
-!   This file is generated directly from OpenSesame model code, using a code
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenthicSystemDynamics
 !
 ! !USES:
-  ! The following Benthic-states are used (NOT in fluxes): Y1c, Y1n, Y1p, Y2c, &
-  ! Y2n, Y2p, Y4c, Y4n, Y4p, Y5c, Y5n, Y5p, H1c, H1n, H1p, H2c, H2n, H2p
-  ! The following groupmember vars  are used: iiY1, iiY2, iiY4, iiY5, iiH1, iiH2
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem, ONLY: ppY1c, ppY1n, ppY1p, ppY2c, ppY2n, ppY2p, ppY4c, ppY4n, &
     ppY4p, ppY5c, ppY5n, ppY5p, ppH1c, ppH1n, ppH1p, ppH2c, ppH2n, ppH2p, iiY1, &
     iiY2, iiY3, iiY4, iiY5, iiH1, iiH2, iiBen, iiPel, flux
+#endif
   use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -43,21 +37,17 @@
   use global_interface, ONLY: BenOrganismDynamics, BenBacDynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-
-
 !
 !
 ! !AUTHORS
-!   ERSEM group
+!   P. Ruardij and M. Vichi
 !       
-!
-!
 ! !REVISION_HISTORY
 !   !
 !
 ! COPYING
 !
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -120,7 +110,7 @@
   end if
 
   end
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

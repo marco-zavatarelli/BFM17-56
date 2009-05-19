@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -13,49 +14,24 @@
 !       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483
 !
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenPhosphateDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: K1p, K11p, K21p
-  ! The following Benthic-states are used (NOT in fluxes): D1m, D2m, D8m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,  &
-  !   BoxNumberXY, InitializeModel, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : M1p, M11p, M21p, &
-  ! KPO4, jbotN1p
-  ! The following Benthic 1-d global boxvars are used: reBTp, &
-  ! reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m
-  ! The following Benthic 1-d global boxpars  are used: p_poro, p_p_ae
-  ! The following 0-d global parameters are used: p_d_tot_2, p_clDxm, p_q10diff
-  ! The following global constants are used: RLEN
-  ! The following constants are used: QUADRATIC_TERM, &
-  ! ZERO_EXPONENTIAL_TERM, LAYERS, LAYER1, LAYER2, LAYER3, &
-  ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, LAYER4, &
-  ! DEFINE, LINEAR_TERM, CONSTANT_TERM, SET_CONTINUITY, FLAG, &
-  ! MASS, SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, SET_LAYER_INTEGRAL_UNTIL, &
-  ! INPUT_TERM, INPUT_ADD__TERM,PARAMETER, START_ADD_TERM, STANDARD, ADD, &
-  ! DERIVATIVE, RFLUX, SHIFT, ONE_PER_DAY
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN,ZERO,ONE
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: K1p, K11p, K21p, D1m, D2m, D8m, D2STATE
   use mem, ONLY: ppK1p, ppK11p, ppK21p, ppD1m, ppD2m, ppD8m, &
     dummy,    NO_BOXES_XY,   &
      BoxNumberXY, InitializeModel, LocalDelta, M1p, M11p, M21p, KPO4,KPO4_2, &
     jbotN1p, reBTp, reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m, &
     jK31K21p, iiBen, iiPel, flux
+#endif
   use constants, ONLY: QUADRATIC_TERM, ZERO_EXPONENTIAL_TERM, LAYERS, &
     LAYER1, LAYER2, LAYER3 ,DIFFUSION, FOR_ALL_LAYERS, POROSITY, &
     ADSORPTION, LAYER4, DEFINE, LINEAR_TERM, CONSTANT_TERM, SET_CONTINUITY, &
@@ -388,13 +364,6 @@
               p_shift,m_shift,layer_shift,dn, diff, alpha,zuBT,zuD1,zuD2)
 !
 ! !USES:
-
-  ! ZERO_EXPONENTIAL_TERM, LAYERS, LAYER1, LAYER2, LAYER3, &
-  ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, LAYER4, &
-  ! DEFINE, LINEAR_TERM, CONSTANT_TERM, SET_CONTINUITY, FLAG, &
-  ! MASS, SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, SET_LAYER_INTEGRAL_UNTIL, &
-  ! INPUT_TERM, INPUT_ADD__TERM,PARAMETER, START_ADD_TERM, STANDARD, ADD, &
-  ! DERIVATIVE, RFLUX, SHIFT, ONE_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)

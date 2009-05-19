@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -24,41 +25,20 @@
   subroutine BenAmmoniumDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: K4n, K3n, G2o
-  ! The following Benthic-states are used (NOT in fluxes): D1m, K14n, D2m, K24n, &
-  ! D7m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,  &
-  !   BoxNumberXY, InitializeModel, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : M4n, KNH4, jG2K3o, &
-  ! jbotN4n
-  ! The following Benthic 1-d global boxvars got a value: M14n, M24n
-  ! The following Benthic 1-d global boxvars are used: reBTn, reATn, &
-  ! irrenh, ETW_Ben, N4n_Ben, Depth_Ben
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global box parametes are used: p_d_tot, p_clDxm, &
-  ! p_q10diff, p_qon_nitri
-  ! The following global constants are used: RLEN
-  ! The following constants are used: LAYERS, &
-  ! LAYER1, LAYER2, DIFFUSION, FOR_ALL_LAYERS, POROSITY, &
-  ! ADSORPTION, DOUBLE_DEFINE, EXPONENTIAL_TERM, DEFINE, CONSTANT_TERM, &
-  ! ZERO_EXPONENTIAL_TERM, LINEAR_TERM, SET_CONTINUITY, FLAG, MASS, &
-  ! SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, SET_LAYER_INTEGRAL_UNTIL, &
-  ! LAYER3, INPUT_TERM, PARAMETER, STANDARD, ADD, INTEGRAL, RFLUX, DERIVATIVE
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: K4n, K3n, G2o, D1m, K14n, D2m, K24n, D7m, D2STATE
   use mem, ONLY: ppK4n, ppK3n, ppG2o, ppD1m, ppK14n, ppD2m, &
     ppK24n, ppD7m, dummy,    NO_BOXES_XY, &
        BoxNumberXY, InitializeModel, LocalDelta, &
     M4n, KNH4, jG2K3o, jbotN4n, M14n, M24n, reBTn, reATn, irrenh, ETW_Ben, &
     jK4K3n, N4n_Ben, Depth_Ben, iiBen, iiPel, flux
+#endif
   use constants, ONLY: LAYERS, LAYER1, LAYER2, &
     DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DOUBLE_DEFINE, &
     EXPONENTIAL_TERM, DEFINE, CONSTANT_TERM, ZERO_EXPONENTIAL_TERM, LINEAR_TERM, &

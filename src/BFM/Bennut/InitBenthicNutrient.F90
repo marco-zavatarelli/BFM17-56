@@ -12,26 +12,13 @@
 !   !   If the option=FULL_BENTHIC_MODEL initialization takes place.
 !
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine InitBenthicNutrientDynamics
 !
 ! !USES:
-  ! The following 0-d global parametes are used: CalcPelagicFlag, &
-  ! CalcBenthicFlag
-  ! The following 0-d global variables are used: InitialModel
-  ! The following global constants are used: RLEN
-  ! The following constants are used: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
   use mem,  ONLY: iiBen, iiPel, iiReset,InitializeModel, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
