@@ -1,4 +1,5 @@
 #include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -14,48 +15,23 @@
 !       Ruardij et al., 1995. Neth. J. Sea Res. 33(3/4):453-483
 !
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenSilicaDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: K5s, Q6s, D9m
-  ! The following Benthic-states are used (NOT in fluxes): D1m, D2m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,   &
-  !  BoxNumberXY, idummy, InitializeModel, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : M5s, KSIO3, KSIO3E, &
-  ! jK15K5s, jbotN5s
-  ! The following Benthic 1-d global boxvars are used: irrenh, ETW_Ben, &
-  ! N5s_Ben, shiftD2m
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_clD1D2m, p_q10diff, &
-  ! p_clDxm, p_d_tot
-  ! The following global constants are used: RLEN
-  ! The following constants are used: LAYERS, &
-  ! LAYER1, DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, &
-  ! DEFINE, QUADRATIC_TERM, LINEAR_TERM, CONSTANT_TERM, PARAMETER_DEFINE, &
-  ! BESSELI_EXP_TERM, SET_CONTINUITY, STANDARD, SET_BOUNDARY, EQUATION, &
-  ! INPUT_TERM, PARAMETER, SET_LAYER_INTEGRAL_UNTIL, LAYER2, ADD, INTEGRAL, &
-  ! DERIVATIVE, RFLUX, MASS, EXPONENTIAL_INTEGRAL
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN,ZERO,ONE
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,  ONLY: K5s, Q6s, D9m, D1m, D2m, D2STATE
   use mem, ONLY: ppK5s, ppQ6s, ppD9m, ppD1m, ppD2m, &
     dummy,    NO_BOXES_XY,   &
-     BoxNumberXY, idummy, InitializeModel, LocalDelta, M5s, KSIO3, Depth_Ben, &
+    BoxNumberXY, idummy, InitializeModel, LocalDelta, M5s, KSIO3, Depth_Ben, &
     KSIO3E, jbotN5s, jK15K5s, irrenh, ETW_Ben, N5s_Ben, shiftD2m, iiBen, iiPel, flux
+#endif
   use constants, ONLY: LAYERS, LAYER1, DIFFUSION, &
     FOR_ALL_LAYERS, POROSITY, ADSORPTION, DEFINE, QUADRATIC_TERM, LINEAR_TERM, &
     CONSTANT_TERM, PARAMETER_DEFINE, BESSELI_EXP_TERM, SET_CONTINUITY, STANDARD, &
@@ -82,7 +58,7 @@
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following sesame functions are used:IntegralExp, insw
+  ! The following functions are used:IntegralExp, insw
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp, insw
 !  
