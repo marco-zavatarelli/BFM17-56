@@ -204,9 +204,10 @@
    close(NMLUNIT)
    write(LOGUNIT,*) "#  Namelist is:"
    write(LOGUNIT,nml=Param_parameters)
-   ! This initialization has to be done here because some compilers do not
+   ! These initializations are done here because some compilers do not
    ! allow the initialization of constants with intrinsic functions
    MIN_VAL_EXPFUN=log(DBL_MIN)  
+   DAY_PER_SEC=ONE/SEC_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute

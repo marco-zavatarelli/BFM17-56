@@ -71,6 +71,7 @@
   real(RLEN),   parameter :: MW_SI=28.0_RLEN  ! Molecular weight Silica
   real(RLEN),   parameter :: E2W=0.217_RLEN  ! Conversion factor Einstein->W
   real(RLEN),   parameter :: SEC_PER_DAY=86400.0_RLEN  ! Seconds in day
+  real(RLEN)              :: DAY_PER_SEC=ZERO  ! Inverse of Seconds in day
   real(RLEN),   parameter :: ONE_PER_DAY=1.0_RLEN  ! rate which is used in cases where implicitly assumed
   real(RLEN),   parameter :: p_ntoc=1.0_RLEN  ! proportion between H+ production/NH4-->NO3 in nitrification
   integer,      parameter :: NO_BENTHOS=0
