@@ -13,10 +13,14 @@ subroutine ResetFluxes
 !
 ! !USES
    use global_mem, only:ZERO
+#ifdef NOPOINTERS
+  use mem
+#else
    use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, D3SINK, &
          PELBOTTOM, PELSURFACE
 #ifdef INCLUDE_BEN
    use mem, ONLY: NO_D2_BOX_STATES, D2SINK, D2SOURCE
+#endif
 #endif
    implicit none
 !
@@ -33,25 +37,39 @@ subroutine ResetFluxes
 !-----------------------------------------------------------------------
 !BOC
 !
-   ! Reset source term arrays 
+#ifdef D1SOURCE
+   ! Reset the 1-dimensional source term arrays 
+   D3SOURCE(:,:) = ZERO
+#  ifdef INCLUDE_BEN
+   D2SOURCE(:,:) = ZERO
+#  endif
+#else
+#  ifdef  ONESOURCE
+   ! Reset the whole source term array 
+   D3SOURCE(:,:,:) = ZERO
+#     ifdef INCLUDE_BEN
+   D2SOURCE(:,:,:) = ZERO
+#     endif
+#  else
+   ! Reset source and sink term arrays 
    ! only the diagonal
    do i=1,NO_D3_BOX_STATES
       D3SOURCE(i,i,:) = ZERO
-#ifndef ONESOURCE
       D3SINK(i,i,:) = ZERO
-#endif
    end do
-#ifdef INCLUDE_BEN
+#    ifdef INCLUDE_BEN
    do i=1,NO_D2_BOX_STATES
       D2SOURCE(i,i,:) = ZERO
-#ifndef ONESOURCE
       D2SINK(i,i,:) = ZERO
-#endif
    end do
+#    endif
+#  endif
 #endif
-
-   PELBOTTOM(:,:) = ZERO
-   PELSURFACE(:,:) = ZERO
+   ! reset surface and bottom fluxes
+   do i=1,NO_D3_BOX_STATES
+       PELBOTTOM(i,:) = ZERO
+       PELSURFACE(i,:) = ZERO 
+   end do
 
 end subroutine ResetFluxes
 !EOC

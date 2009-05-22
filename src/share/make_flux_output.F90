@@ -22,6 +22,9 @@
 !
 ! !USES:
       use constants, only: RLEN, ZERO, SEC_PER_DAY
+#ifdef NOPOINTERS
+      use mem
+#else
       use mem, only: NO_BOXES_XY,NO_BOXES,NO_BOXES_X,NO_BOXES_Y, &
             NO_BOXES_Z,BoxNumberX,BoxNumberY,BoxNumberZ,BoxNumberXY , &
             BoxNumber
@@ -39,6 +42,8 @@
 #endif
 #endif
       use mem, only: PELBOTTOM,PELSURFACE,Depth
+#endif
+
 #ifdef BFM_GOTM
       use bio_var, ONLY: SRFindices,BOTindices
 #else
