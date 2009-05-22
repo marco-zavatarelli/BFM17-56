@@ -40,6 +40,9 @@ ${LIB}(bio.o)
 
 all: ${OBJ}
 	$(MOVE_MODULES_COMMAND)
+
+realclean: clean
+	$(RM) *.o *~
 endif
 
 doc:    $(DOCSRC)
@@ -48,9 +51,6 @@ doc:    $(DOCSRC)
 
 clean:
 	$(RM) ${LIB} doc
-
-realclean: clean
-	$(RM) *.o *~
 
 distclean: realclean
 

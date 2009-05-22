@@ -253,6 +253,8 @@ bfmrealclean: bfmclean
 	$(RM) $(BFMSRC)/General/set_var_info_bfm.F90
 	$(RM) $(BFMSRC)/include/INCLUDE.h
 
+realclean: bfmrealclean clean
+	$(RM) *.o *~
 
 #-----------------------------------------------------------------------
 # Copyright (C) 2008 - the GOTM-team and the BFM-team
