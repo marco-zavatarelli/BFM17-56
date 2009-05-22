@@ -23,13 +23,13 @@ subroutine prepare_bio_output(mode, nlev, h)
           if  (i > 0)  then
             allocate(cc_ave(1:i,0:nlev),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating cc_ave)'
-             cc_ave=0;
+             cc_ave=0.0;
           endif
           i=count(var_ave(stBenStateS:stBenFluxE))
           if  ( i > 0)  then
-            allocate(ccb_ave(1:i,0:1),stat=rc)
+            allocate(ccb_ave(1:i,1),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating cc_ave)'
-            ccb_ave=0;
+            ccb_ave=0.0;
           endif
            ave_count=0.0
         case(1)    ! prepare for printing
@@ -87,9 +87,9 @@ subroutine prepare_bio_output(mode, nlev, h)
              if ( var_ave(i) ) then
                 k=k+1
                 if ( ave_count < 1.5 ) then
-                   ccb_ave(k,0:1)=ccb(j,0:1)
+                   ccb_ave(k,1)=ccb(j,1)
                 else
-                   ccb_ave(k,0:1)=ccb_ave(k,0:1)+ccb(j,0:1)
+                   ccb_ave(k,1)=ccb_ave(k,1)+ccb(j,1)
                 endif
               endif
            enddo
@@ -99,9 +99,9 @@ subroutine prepare_bio_output(mode, nlev, h)
              if ( var_ave(i) ) then
                 k=k+1
                 if ( ave_count < 1.5 ) then
-                   ccb_ave(k,0:1)=diagb(j,0:1)
+                   ccb_ave(k,1)=diagb(j,1)
                 else
-                   ccb_ave(k,0:1)=ccb_ave(k,0:1)+diagb(j,0:1)
+                   ccb_ave(k,1)=ccb_ave(k,1)+diagb(j,1)
                 endif
               endif
            enddo
@@ -112,9 +112,9 @@ subroutine prepare_bio_output(mode, nlev, h)
                 k=k+1
                 call make_flux_output(2,j,0,nlev,c1dim)
                 if ( ave_count < 1.5 ) then
-                   ccb_ave(k,0:1)=c1dim(0:1)
+                   ccb_ave(k,1)=c1dim(1)
                 else
-                   ccb_ave(k,:)=ccb_ave(k,:)+c1dim(0:1)
+                   ccb_ave(k,1)=ccb_ave(k,1)+c1dim(1)
                 endif
               endif
            enddo
