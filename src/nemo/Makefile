@@ -72,6 +72,7 @@ BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMNEMOSRC}/envforcing_bfm.o)	\
 	${BFMLIB}(${BFMNEMOSRC}/trcrad_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_trp_bfm.o)		\
+	${BFMLIB}(${BFMNEMOSRC}/trc_sbc_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_set_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_sink_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_sink_muscl_bfm.o)	\

@@ -135,11 +135,11 @@ SUBROUTINE trc_trp_bfm( kt )
 #endif
 
             IF (.NOT.CalcConservationFlag) &
-               CALL trc_sbc( kt )         ! surface boundary condition (only dilution here, 
+               CALL trc_sbc_bfm( kt, m )  ! surface boundary condition (E-P and river)
                                           ! NOTE: does not conserve mass,
                                           ! because non-dynamical volume is
                                           ! used; thus, excluded for mass conservation
-                                          ! checkings)
+                                          ! checkings
             CALL trc_set_bfm( kt, m)      ! set other boundary conditions and compute sinking
 
 # if defined key_trcbbc
