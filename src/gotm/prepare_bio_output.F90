@@ -11,7 +11,7 @@ subroutine prepare_bio_output(mode, nlev, h)
     integer,intent(IN)                     ::nlev
     REALTYPE,dimension(nlev),intent(IN)  ::h
 
-    REALTYPE,dimension(nlev)    ::c1dim
+    REALTYPE,dimension(0:nlev)    ::c1dim
     integer                     ::i
     integer                     ::j
     integer                     ::k

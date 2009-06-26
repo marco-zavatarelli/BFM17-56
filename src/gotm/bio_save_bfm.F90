@@ -100,7 +100,7 @@
    do n=stPelFluxS,stPelFluxE
       i=i+1
       if (var_ids(n) > 0) then
-         call make_flux_output(1,i,nlev, h, c1dim)
+         call make_flux_output(1,i,0,nlev, c1dim)
          iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=c1dim)
       end if
    end do
