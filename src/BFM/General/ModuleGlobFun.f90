@@ -73,8 +73,13 @@ FUNCTION MM_POWER_VECTOR(vector,param,pow)
         integer               ::pow
         real(RLEN)            ::vector(:)
         real(RLEN)            ::MM_POWER_VECTOR(size(vector))
+        real(RLEN)            ::dummy(size(vector))
 
-        MM_POWER_VECTOR= VECTOR**pow / ( VECTOR**pow+  PARAM**pow)
+        dummy = 1.0D+00
+        do i = 1,pow
+           dummy = dummy*vector
+        end do
+        MM_POWER_VECTOR= dummy / ( dummy +  PARAM**pow)
 
         end function MM_POWER_VECTOR
 FUNCTION eramp_VECTOR(x, m)
