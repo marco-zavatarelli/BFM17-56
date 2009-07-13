@@ -44,7 +44,6 @@
   ! LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
   use global_interface, ONLY: PhotoAvailableRadiationDynamics, &
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
-use mem
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 !  
