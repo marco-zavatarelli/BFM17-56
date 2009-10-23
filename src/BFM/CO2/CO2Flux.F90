@@ -87,13 +87,33 @@ IMPLICIT NONE
     real(RLEN),parameter  :: C4=0.043219_RLEN
     real(RLEN),parameter  :: CO2SCHMIDT=660._RLEN
     real(RLEN),parameter  :: CM2M=0.01_RLEN
-
-    real(RLEN),dimension(NO_BOXES_XY) :: pschmidt,reacon,temp2, &
+    integer, save :: first=0
+    real(RLEN),allocatable,save,dimension(:) :: pschmidt,reacon,temp2, &
                                          k660,kex,tk,tk100,tk1002
-
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BEGIN compute
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  integer :: AllocStatus, DeallocStatus
+   if (first==0) then
+      first=1
+      allocate(pschmidt(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating pschmidt"
+      allocate(reacon(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating reacon"
+      allocate(temp2(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating temp2"
+      allocate(k660(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating k660"
+      allocate(kex(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating kex"
+      allocate(tk(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating tk"
+      allocate(tk100(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating tk100"
+      allocate(tk1002(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating tk1002"
+   end if
+
     temp = ETW(SRFindices)
     salt = ESW(SRFindices)
     wind = EWIND(:)

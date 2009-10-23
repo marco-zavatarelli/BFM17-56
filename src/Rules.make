@@ -80,13 +80,13 @@ endif
 # Option to compile without allocatable memory (default with GOTM)
 ## DEFINES += -DNOT_STANDALONE
 
-# Pelagic CO2 flags (activates compilation and macros, false by default)
+# Pelagic CO2 flags (activates compilation and macros)
 INCLUDE_PELCO2=true
 ifeq ($(INCLUDE_PELCO2),true)
   DEFINES += -DINCLUDE_PELCO2
   BFMSRCDIR += $(BFMDIR)/src/BFM/CO2
 endif
-# Benthic ecosystem flags (activates compilation and macros, true by default)
+# Benthic ecosystem flags (activates compilation and macros)
 INCLUDE_BEN = false
 INCLUDE_BENCO2=false
 INCLUDE_BENPROFILES=false
@@ -118,6 +118,9 @@ ifeq ($(INCLUDE_SILT),true)
   DEFINES += -DINCLUDE_SILT
   BFMSRCDIR += $(BFMDIR)/src/BFM/Silt
 endif
+# Diagnostics (activates the flux diagnostics defined in GlobalDefsBFM.model)
+DEFINES += -DINCLUDE_DIAG3D
+#DEFINES += -DINCLUDE_DIAG2D
 
 ## -------------------------------------------------------------------------
 ## Normally no changes below this line

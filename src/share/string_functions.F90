@@ -76,11 +76,11 @@
 !
 ! !INPUT PARAMETERS:
      implicit none
-     character(len=*),dimension(n) :: name
-     character(len=*)              :: string
-     integer                       :: n
-     logical                       :: exact
-     integer,optional              :: start
+     integer,intent(IN)                       :: n
+     character(len=*),dimension(n),intent(IN) :: name
+     character(len=*),intent(IN)              :: string
+     logical,intent(IN)                       :: exact
+     integer,intent(IN),optional              :: start
 !
 !EOP
 !

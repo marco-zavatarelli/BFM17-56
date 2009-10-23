@@ -1,31 +1,8 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
 
-#ifdef GFORTRAN
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-! This routine creates an internal compiler error with gfortran
-! Therefore it cannot be used and generates an error that 
-! stops the simulation
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  subroutine LightAdaptationDynamics(phyto, ppphytoc, ppphyton, ppphytop, &
-    ppphytos, ppphytol)
-
-  IMPLICIT NONE
-  integer,intent(IN)  :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
-
-  stop 'Irropt Photoadaptation does not work with GFORTRAN compiler'
-
-  end subroutine LightAdaptationDynamics
-
-#else
-
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -197,4 +174,3 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-#endif

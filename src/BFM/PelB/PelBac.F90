@@ -57,6 +57,7 @@
 !   Original version by J.W. Baretta 
 !    Giovanni Coppini (UNIBO), Hanneke Baretta-Bekker, Marcello Vichi (INGV) 
 !    Piet Ruardij (NIOZ) 
+!    Dynamical allocation by G, Mattia (UNIBO)
 !
 !
 !
@@ -65,7 +66,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -89,51 +90,112 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES)  :: runn
-  real(RLEN),dimension(NO_BOXES)  :: runp
-  real(RLEN),dimension(NO_BOXES)  :: et
-  real(RLEN),dimension(NO_BOXES)  :: eO2
-  real(RLEN),dimension(NO_BOXES)  :: r
-  real(RLEN),dimension(NO_BOXES)  :: flB1N6r
-  real(RLEN),dimension(NO_BOXES)  :: rrc
-  real(RLEN),dimension(NO_BOXES)  :: rd
-  real(RLEN),dimension(NO_BOXES)  :: ruR1c
-  real(RLEN),dimension(NO_BOXES)  :: ruR1n
-  real(RLEN),dimension(NO_BOXES)  :: ruR1p
-  real(RLEN),dimension(NO_BOXES)  :: ruR2c
-  real(RLEN),dimension(NO_BOXES)  :: ruR6c
-  real(RLEN),dimension(NO_BOXES)  :: ruR6p
-  real(RLEN),dimension(NO_BOXES)  :: ruR6n
-  real(RLEN),dimension(NO_BOXES)  :: cqun3
-  real(RLEN),dimension(NO_BOXES)  :: rump
-  real(RLEN),dimension(NO_BOXES)  :: rumn
-  real(RLEN),dimension(NO_BOXES)  :: rumn3
-  real(RLEN),dimension(NO_BOXES)  :: rumn4
-  real(RLEN),dimension(NO_BOXES)  :: misp
-  real(RLEN),dimension(NO_BOXES)  :: misn
-  real(RLEN),dimension(NO_BOXES)  :: rupp
-  real(RLEN),dimension(NO_BOXES)  :: rupn
-  real(RLEN),dimension(NO_BOXES)  :: ren
-  real(RLEN),dimension(NO_BOXES)  :: rep
-  real(RLEN),dimension(NO_BOXES)  :: reR2c
-  real(RLEN),dimension(NO_BOXES)  :: reR7c
-  real(RLEN),dimension(NO_BOXES)  :: rut
-  real(RLEN),dimension(NO_BOXES)  :: rum
-  real(RLEN),dimension(NO_BOXES)  :: run
-  real(RLEN),dimension(NO_BOXES)  :: sun
-  real(RLEN),dimension(NO_BOXES)  :: rug
-  real(RLEN),dimension(NO_BOXES)  :: suR1
-  real(RLEN),dimension(NO_BOXES)  :: suR1n
-  real(RLEN),dimension(NO_BOXES)  :: suR1p
-  real(RLEN),dimension(NO_BOXES)  :: suR2
-  real(RLEN),dimension(NO_BOXES)  :: cuR6
-  real(RLEN),dimension(NO_BOXES)  :: cuR1
-  real(RLEN),dimension(NO_BOXES)  :: iN1p
-  real(RLEN),dimension(NO_BOXES)  :: iNIn
-  real(RLEN),dimension(NO_BOXES)  :: iN
-  real(RLEN),dimension(NO_BOXES)  :: qpR1c
-  real(RLEN),dimension(NO_BOXES)  :: qnR1c
+  integer, save :: first =0
+  real(RLEN),allocatable,save,dimension(:) :: runn,runp,et,eO2,r,flB1N6r,rrc,  &
+                                          rd,ruR1c,ruR1n,ruR1p,ruR2c,  &
+                                          ruR6c,ruR6p,ruR6n,cqun3,rump,  &
+                                          rumn,rumn3,rumn4,ren,rep,reR2c, &
+                                          reR7c,rut,rum,run,sun,rug,suR1, &
+                                          suR1n,suR1p,suR2,cuR6,cuR1,iN1p, &
+                                          iNIn,iN,qpR1c,qnR1c
+  real(RLEN),allocatable,save,dimension(:) ::  misn,misp,rupp,rupn
+  integer :: AllocStatus, DeallocStatus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Local memory allocation
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  if (first==0) then
+     first=1
+     allocate(misn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating misn"
+     allocate(misp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating misp"
+     allocate(rupp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rupp"
+     allocate(rupn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rupn"
+     allocate(runn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runn"
+     allocate(runp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runp"
+     allocate(et(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating et"
+     allocate(eO2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eO2"
+     allocate(r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating r"
+     allocate(flB1N6r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating flB1N6r"
+     allocate(rrc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrc"
+     allocate(rd(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rd"
+     allocate(ruR1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR1c"
+     allocate(ruR1n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR1n"
+     allocate(ruR1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR1p"
+     allocate(ruR2c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR2c"
+     allocate(ruR6c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR6c"
+     allocate(ruR6p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR6p"
+     allocate(ruR6n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR6n"
+     allocate(cqun3(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating cqun3"
+     allocate(rump(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rump"
+     allocate(rumn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn"
+     allocate(rumn3(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn3"
+     allocate(rumn4(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn4"
+     allocate(ren(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ren"
+     allocate(rep(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rep"
+     allocate(reR2c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating reR2c"
+     allocate(reR7c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating reR7c"
+     allocate(rut(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rut"
+     allocate(rum(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rum"
+     allocate(run(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating run"
+     allocate(sun(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sun"
+     allocate(rug(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rug"
+     allocate(suR1(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating suR1"
+     allocate(suR1n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating suR1n"
+     allocate(suR1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating suR1p"
+     allocate(suR2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating suR2"
+     allocate(cuR6(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating cuR6"
+     allocate(cuR1(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating cuR1"
+     allocate(iN1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iN1p"
+     allocate(iNIn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iNIn"
+     allocate(iN(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iN"
+     allocate(qpR1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating qpR1c"
+     allocate(qnR1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating qnR1c"
+  end if
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect on pelagic bacteria:
@@ -443,8 +505,6 @@
   jnetB1c(1)=jnetB1c(1)+sum(Depth(:)*r)
 
   ! Compute section of PelagicBacteria
-
-
 
   end subroutine PelBacDynamics
 

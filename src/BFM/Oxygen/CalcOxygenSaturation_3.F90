@@ -17,22 +17,11 @@
 !	units of ln(ml(STP)/l)
 !
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   SUBROUTINE CalcOxygenSaturation()
 !
 ! !USES:
-  ! The following Pelagic-states are used (NOT in fluxes): O2o
-  ! The following Pelagic 1-d global boxvars are modified : cxoO2
-  ! The following Pelagic 1-d global boxvars got a value: eO2mO2
-  ! The following Pelagic 1-d global boxvars  are used: ETW, ESW
-  ! The following global constants are used: RLEN,ZERO_KELVIN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -58,8 +47,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
-!   (rua@nioz.nl, vichi@bo.ingv.it)
+!   Copyright (C) 2006 P. Ruardij  (rua@nioz.nl)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -69,11 +57,19 @@
 !   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 !   GNU General Public License for more details.
 !
-  real(RLEN),dimension(NO_BOXES)  :: h
-  real(RLEN),dimension(NO_BOXES)  :: abt
+     integer,save ::first=0
+     real(RLEN),allocatable,save,dimension(:) :: h,abt
+     integer :: AllocStatus, DeallocStatus
 !EOP
 !-------------------------------------------------------------------------!
 !BOC
+  if (first==0) then
+     first=1
+     allocate(h(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating h"
+     allocate(abt(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating abt"
+  endif
 
   ! calc absolute temperature divided by 100.0;
   ! input for the next empirical equation.

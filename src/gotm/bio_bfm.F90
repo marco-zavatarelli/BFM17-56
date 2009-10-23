@@ -14,7 +14,7 @@
 ! !USES:
 !  default: all is private.
    use bio_var
-   private
+   use mem, only: NO_D3_BOX_STATES
 !
 ! !PUBLIC MEMBER FUNCTIONS:
    public init_bio_bfm, pointers_gotm_bfm,            &
@@ -25,8 +25,34 @@
           CalcVertFluxAtLev
 !
 !
-! !PRIVATE DATA MEMBERS:
    REALTYPE,public,dimension(:),allocatable :: cdepth,wx
+   !---------------------------------------------
+   ! BFM variable information for input
+   ! integer flag: select the initialization
+   !               0 = homogeneous
+   !               1 = analytical
+   !               2 = from file
+   ! options for flag==1
+   ! real anv1: value in the surface layer
+   ! real anz1: depth of the surface layer
+   ! real anv2: value in the bottom layer
+   ! real anz2: depth of the bottom layer
+   ! options for flag==2
+   ! char filename: name of the input file
+   ! char  varname: name of the var in input file
+   !---------------------------------------------
+   public
+   type InputInfo
+      integer           :: flag
+      character(LEN=40) :: filename
+      character(LEN=40) :: varname
+      REALTYPE        :: anz1
+      REALTYPE        :: anv1
+      REALTYPE        :: anz2
+      REALTYPE        :: anv2
+   end type InputInfo
+   type(InputInfo),public,dimension(NO_D3_BOX_STATES) :: InitVar
+
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi

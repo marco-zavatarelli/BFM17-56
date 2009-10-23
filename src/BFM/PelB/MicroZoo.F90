@@ -10,37 +10,14 @@
 !
 ! DESCRIPTION
 !   !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine MicroZooDynamics(zoo,  ppzooc, ppzoon, ppzoop)
 !
 ! !USES:
-
-  ! For the following Pelagic-states fluxes are defined: B1c, B1n, B1p, O2o, &
-  ! R1c, R6c, R1n, R6n, R1p, R6p, N4n, N1p
-  ! For the following Pelagic-group-states fluxes are defined: &
-  ! PhytoPlankton, MicroZooPlankton
-  ! The following Pelagic 1-d global boxvars are modified : flP1R6s
-  ! The following Pelagic 1-d global boxvars are used: ETW, eO2mO2, qnB1c, &
-  ! qpB1c
-  ! The following Pelagic 2-d global boxvars are used: qnPc, qpPc, qn_mz, qp_mz, &
-  ! qlPc, qsPc
-  ! The following groupmember vars are used: iiPhytoPlankton, &
-  ! iiMicroZooPlankton, iiP1
-  ! The following constituent constants  are used: iiC, iiN, iiP, iiL
-  ! The following 0-d global parameters are used: p_pe_R1c, p_pe_R1n, &
-  ! p_pe_R1p, p_small
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants,  ONLY:MW_C
 #ifdef NOPOINTERS
@@ -62,38 +39,26 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: eTq_vector, MM_vector,MM_power_vector
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
-
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: zoo
   integer,intent(IN) :: ppzooc
   integer,intent(IN) :: ppzoon
   integer,intent(IN) :: ppzoop
-
 !  
 !
 ! !AUTHORS
 !   ERSEM group, Hanneke Baretta-Bekker
 !
-!
-!
 ! !REVISION_HISTORY
-!   by Piet Ruardij at Thu Mar 16 08:34:04 CET 2006
-!       s: BFMI
-!       d: 
-!	
-
-!
-!
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -110,63 +75,114 @@
 !
 !
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Set up Local Variable for copy of state var. object
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES) :: zooc
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer  :: i
-  real(RLEN),dimension(NO_BOXES)  :: CORROX
-  real(RLEN),dimension(NO_BOXES)  :: put_u
-  real(RLEN),dimension(NO_BOXES)  :: et
-  real(RLEN),dimension(NO_BOXES)  :: eO2
-  real(RLEN),dimension(NO_BOXES)  :: rumc
-  real(RLEN),dimension(NO_BOXES)  :: rumn
-  real(RLEN),dimension(NO_BOXES)  :: rump
-  real(RLEN),dimension(NO_BOXES)  :: rugc
-  real(RLEN),dimension(NO_BOXES)  :: rugn
-  real(RLEN),dimension(NO_BOXES)  :: rugp
-  real(RLEN),dimension(NO_BOXES)  :: runc
-  real(RLEN),dimension(NO_BOXES)  :: runn
-  real(RLEN),dimension(NO_BOXES)  :: runp
-  real(RLEN),dimension(NO_BOXES)  :: efood
-  real(RLEN),dimension(NO_BOXES)  :: rrsc
-  real(RLEN),dimension(NO_BOXES)  :: rrac
-  real(RLEN),dimension(NO_BOXES)  :: reac
-  real(RLEN),dimension(NO_BOXES)  :: rdc
-  real(RLEN),dimension(NO_BOXES)  :: rrtc
-  real(RLEN),dimension(NO_BOXES)  :: ruB1c
-  real(RLEN),dimension(NO_BOXES)  :: ruPIc
-  real(RLEN),dimension(NO_BOXES)  :: ruZIc
-  real(RLEN),dimension(NO_BOXES)  :: rumB1c
-  real(RLEN),dimension(NO_BOXES)  :: rric
-  real(RLEN),dimension(NO_BOXES)  :: rr1c
-  real(RLEN),dimension(NO_BOXES)  :: rr6c
-  real(RLEN),dimension(NO_BOXES)  :: rr1p
-  real(RLEN),dimension(NO_BOXES)  :: rr1n
-  real(RLEN),dimension(NO_BOXES)  :: rrip
-  real(RLEN),dimension(NO_BOXES)  :: rr6p
-  real(RLEN),dimension(NO_BOXES)  :: rep
-  real(RLEN),dimension(NO_BOXES)  :: rrin
-  real(RLEN),dimension(NO_BOXES)  :: rr6n
-  real(RLEN),dimension(NO_BOXES)  :: ren
-  real(RLEN),dimension(NO_BOXES)  :: pu_ra
-  real(RLEN),dimension(NO_BOXES)  :: r
-  real(RLEN),dimension(NO_BOXES)  :: tfluxc
-  real(RLEN),dimension(NO_BOXES)  :: tfluxn
-  real(RLEN),dimension(NO_BOXES)  :: tfluxp
-  real(RLEN),dimension(NO_BOXES,iiPhytoPlankton)  :: rumPIc
-  real(RLEN),dimension(NO_BOXES,iiMicroZooPlankton)  :: rumZIc
+  integer       :: i
+  integer, save :: first =0
+  integer       :: AllocStatus, DeallocStatus
+  real(RLEN),allocatable,save,dimension(:) :: put_u,et,eO2,rumc,rumn,rump,  &
+                                         rugc,rugn,rugp,runc,runn,runp,efood, &
+                                         rrsc,rrac,reac,rdc,rrtc,ruB1c,ruPIc,  &
+                                         ruZIc,rumB1c,rric,rr1c,rr6c,rr1p,rr1n, &
+                                         rrip,rr6p,rep,rrin,zooc
+  real(RLEN),allocatable,save,dimension(:)    :: rr6n,ren,pu_ra,r,tfluxc,tfluxn,tfluxp
+  real(RLEN),allocatable,save,dimension(:,:)  :: rumPIc,rumZIc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   
+  if (first==0) then
+     first=1
+     allocate(rumPIc(NO_BOXES,iiPhytoPlankton),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumPIc"
+     allocate(rumZIc(NO_BOXES,iiMicroZooPlankton),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumZIc"
+     allocate(put_u(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating put_u,"
+     allocate(et(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating et"
+     allocate(eO2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eO2"
+     allocate(rumc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumc"
+     allocate(rumn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn"
+     allocate(rump(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rump"
+     allocate(rugc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rugc"
+     allocate(rugn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rugn"
+     allocate(rugp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rugp"
+     allocate(runc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runc"
+     allocate(runn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runn"
+     allocate(runp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runp"
+     allocate(efood(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating efood"
+     allocate(rrsc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrsc"
+     allocate(rrac(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrac"
+     allocate(reac(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating reac"
+     allocate(rdc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rdc"
+     allocate(rrtc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrtc"
+     allocate(ruB1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruB1c"
+     allocate(ruPIc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruPIc"
+     allocate(ruZIc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruZIc"
+     allocate(rumB1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumB1c"
+     allocate(rric(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rric"
+     allocate(rr1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1c"
+     allocate(rr6c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6c"
+     allocate(rr1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1p"
+     allocate(rr1n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1n"
+     allocate(zooc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating zooc"
+     allocate(rrip(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrip"
+     allocate(rr6p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6p"
+     allocate(rep(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rep"
+     allocate(rrin(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrin"
+     allocate(rr6n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6n"
+     allocate(ren(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ren"
+     allocate(pu_ra(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pu_ra"
+     allocate(r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating r"
+     allocate(tfluxc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tfluxc"
+     allocate(tfluxn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tfluxn"
+     allocate(tfluxp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tfluxp"
+  end if
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   zooc = D3STATE(ppzooc,:)
 
-  tfluxc=0.0;
-  tfluxn=0.0;
-  tfluxp=0.0;
+  tfluxc=ZERO
+  tfluxn=ZERO
+  tfluxp=ZERO
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -73,7 +73,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -90,67 +90,137 @@
 !
 !
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Set up Local Variable for copy of state var. object
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES) :: phytoc
-  real(RLEN),dimension(NO_BOXES) :: phyton
-  real(RLEN),dimension(NO_BOXES) :: phytop
-  real(RLEN),dimension(NO_BOXES) :: phytos
-  real(RLEN),dimension(NO_BOXES) :: phytol
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer                         :: silica_control
-  real(RLEN),dimension(NO_BOXES)  :: r,tmp
-  real(RLEN),dimension(NO_BOXES)  :: et
-  real(RLEN),dimension(NO_BOXES)  :: sum
-  real(RLEN),dimension(NO_BOXES)  :: sadap
-  real(RLEN),dimension(NO_BOXES)  :: sea
-  real(RLEN),dimension(NO_BOXES)  :: sdo
-  real(RLEN),dimension(NO_BOXES)  :: rugc
-  real(RLEN),dimension(NO_BOXES)  :: sra
-  real(RLEN),dimension(NO_BOXES)  :: srs
-  real(RLEN),dimension(NO_BOXES)  :: srt
-  real(RLEN),dimension(NO_BOXES)  :: slc
-  real(RLEN),dimension(NO_BOXES)  :: run
-  real(RLEN),dimension(NO_BOXES)  :: pe_R6
-  real(RLEN),dimension(NO_BOXES)  :: rupp
-  real(RLEN),dimension(NO_BOXES)  :: rump
-  real(RLEN),dimension(NO_BOXES)  :: misp
-  real(RLEN),dimension(NO_BOXES)  :: rupn
-  real(RLEN),dimension(NO_BOXES)  :: rumn3
-  real(RLEN),dimension(NO_BOXES)  :: rumn4
-  real(RLEN),dimension(NO_BOXES)  :: rumn
-  real(RLEN),dimension(NO_BOXES)  :: netgrowth
-  real(RLEN),dimension(NO_BOXES)  :: misn
-  real(RLEN),dimension(NO_BOXES)  :: cqun3
-  real(RLEN),dimension(NO_BOXES)  :: rums
-  real(RLEN),dimension(NO_BOXES)  :: rups
-  real(RLEN),dimension(NO_BOXES)  :: miss
-  real(RLEN),dimension(NO_BOXES)  :: tN
-  real(RLEN),dimension(NO_BOXES)  :: iN
-  real(RLEN),dimension(NO_BOXES)  :: iN1p
-  real(RLEN),dimension(NO_BOXES)  :: iNIn
-  real(RLEN),dimension(NO_BOXES)  :: eN5s
-  real(RLEN),dimension(NO_BOXES)  :: rrc
-  real(RLEN),dimension(NO_BOXES)  :: rr1c
-  real(RLEN),dimension(NO_BOXES)  :: rr1n
-  real(RLEN),dimension(NO_BOXES)  :: rr1p
-  real(RLEN),dimension(NO_BOXES)  :: rr6c
-  real(RLEN),dimension(NO_BOXES)  :: rr6n
-  real(RLEN),dimension(NO_BOXES)  :: rr6p
-  real(RLEN),dimension(NO_BOXES)  :: rr6s
-  real(RLEN),dimension(NO_BOXES)  :: runn
-  real(RLEN),dimension(NO_BOXES)  :: runn3
-  real(RLEN),dimension(NO_BOXES)  :: runn4
-  real(RLEN),dimension(NO_BOXES)  :: runp
-  real(RLEN),dimension(NO_BOXES)  :: runs
-  real(RLEN),dimension(NO_BOXES)  :: Irr
-  real(RLEN),dimension(NO_BOXES)  :: rho_Chl
-  real(RLEN),dimension(NO_BOXES)  :: rate_Chl
-  real(RLEN),dimension(NO_BOXES)  :: flPIR2c
+  integer, save :: first=0
+  real(RLEN),allocatable,save,dimension(:) :: phytoc,phyton,phytop,phytos,phytol
+                                                                                                                                                             
+  real(RLEN),allocatable,save,dimension(:) :: r,tmp,et,sum,sadap,sea,sdo,rugc,sra,srs, &
+                                       srt,slc,run,pe_R6,rupp,rump,misp,rupn, &
+                                       rumn3,rumn4,rumn,netgrowth,misn,cqun3
+  real(RLEN),allocatable,save,dimension(:) :: rums,rups,miss,tN,iNN,iN,iN1p,iNIn,eN5s,rrc,rr1c, &
+                                       rr1n,rr1p,rr6c,rr6n,rr6p,rr6s,runn,runn3, &
+                                       runn4,runp,runs,Irr,rho_Chl,rate_Chl,seo,flPIR2c
+  integer :: AllocStatus, DeallocStatus
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  real(RLEN),dimension(NO_BOXES)  :: seo
+  if (first==0) then
+     first=1
+     allocate(phytoc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating phytoc"
+     allocate(phyton(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating phyton"
+     allocate(phytop(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating phytop"
+     allocate(phytos(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating phytos"
+     allocate(phytol(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating phytol"
+     allocate(r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating r"
+     allocate(tmp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tmp"
+     allocate(et(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating et"
+     allocate(sum(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sum"
+     allocate(sadap(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sadap"
+     allocate(sea(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sea"
+     allocate(sdo(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sdo"
+     allocate(rugc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rugc"
+     allocate(sra(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sra"
+     allocate(srs(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating srs"
+     allocate(srt(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating srt"
+     allocate(slc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating slc"
+     allocate(run(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating run"
+     allocate(pe_R6(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pe_R6"
+     allocate(rupp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rupp"
+     allocate(rump(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rump"
+     allocate(misp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating misp"
+     allocate(rupn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rupn"
+     allocate(rumn3(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn3"
+     allocate(rumn4(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn4"
+     allocate(rumn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumn"
+     allocate(netgrowth(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating netgrowth"
+     allocate(misn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating misn"
+     allocate(cqun3(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating cqun3"
+     allocate(rums(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rums"
+     allocate(rups(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rups"
+     allocate(miss(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating miss"
+     allocate(tN(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tN"
+     allocate(iNN(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iNN"
+     allocate(iN(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iN"
+     allocate(iN1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iN1p"
+     allocate(iNIn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iNIn"
+     allocate(eN5s(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eN5s"
+     allocate(rrc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrc"
+     allocate(rr1c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1c"
+     allocate(rr1n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1n"
+     allocate(rr1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1p"
+     allocate(rr6c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6c"
+     allocate(rr6n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6n"
+     allocate(rr6p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6p"
+     allocate(rr6s(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6s"
+     allocate(runn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runn"
+     allocate(runn3(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runn3"
+     allocate(runn4(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runn4"
+     allocate(runp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runp"
+     allocate(runs(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runs"
+     allocate(Irr(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Irr"
+     allocate(rho_Chl(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rho_Chl"
+     allocate(rate_Chl(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rate_Chl"
+     allocate(flPIR2c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating flPIR2c"
+     allocate(seo(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating seo"
+  end if
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  silica_control =0 : no silica component present in cell
   !  silica_control =1 : external regulation of silica limitation & limitation of
@@ -162,8 +232,6 @@
   !                      G.Sarthou, K.R. Timmermans, S. Blain, & P. Treguer
   !                      JSR 53 (2005) 25-42
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
    silica_control=0
    if ( p_qus(phyto) > 0.0 )  then
       silica_control=2
@@ -495,8 +563,6 @@
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
   end if
 
-
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sedimentation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -508,11 +574,8 @@
 
   ! End of computation section for process PhytoDynamics
 
-
-
-
-  end
-!BOP
+  end subroutine PhytoDynamics
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

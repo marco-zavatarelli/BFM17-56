@@ -31,6 +31,8 @@
    ! NEMO modules
    USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd    
    use oce_trc
+   use iom_def,    only:jpdom_data
+   use iom
    ! shared variables for bioshading
    use trc_oce, only: lk_qsr_sms,etot3
 
@@ -45,11 +47,12 @@
    !! * Substitutions
 #include "domzgr_substitute.h90"
 
-   integer    :: i,j,k,ll
+   integer    :: i,j,k,ll,m
    integer    :: status
    integer,parameter    :: namlst=10,unit=11
    integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:)
    logical,allocatable  :: mask1d(:)
+   integer              :: nc_id ! logical unit for data initialization
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -111,6 +114,7 @@
    ! Allocate and build the indices of ocean points in 
    ! the 3D nemo arrays
    !-------------------------------------------------------
+#ifndef USEPACK
    allocate (iwet(NO_BOXES))
    allocate (jwet(NO_BOXES))
    allocate (kwet(NO_BOXES))
@@ -127,6 +131,7 @@
          enddo
       enddo
     enddo
+#endif
 
    !-------------------------------------------------------
    ! Compressed coordinates for netcdf output
@@ -188,9 +193,9 @@
    !---------------------------------------------
    call set_var_info_bfm
 
-   !---------------------------------------------
-   ! Allocate memory and give initial values
-   !---------------------------------------------
+   !-------------------------------------------------------
+   ! Allocate memory and give homogeneous initial values
+   !-------------------------------------------------------
    ! the argument list is mandatory with BFM
    call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
 
@@ -204,6 +209,36 @@
    Volume = pack(rtmp3Da*rtmp3Db,SEAmask)
    !thickness at each sea gridpoint (Depth(NO_BOXES))
    Depth  = pack(rtmp3Da,SEAmask)
+
+   !-------------------------------------------------------
+   ! Initialization from analytical profiles or data
+   ! Done if restart is not used
+   !-------------------------------------------------------
+   if (bfm_init /= 1) then
+      do m = 1,NO_D3_BOX_STATES
+         select case (InitVar(m) % flag) 
+         case (1) ! Analytical profile
+            rtmp3Da = ZERO
+            ! fsdept contains the model depth
+            do j = 1,jpj
+               do i = 1,jpi
+                  call analytical_profile(jpk,fsdept(i,j,:),InitVar(m) % anz1, &
+                    InitVar(m) % anv1,InitVar(m) % anz2,InitVar(m) % anv2,rtmp3Da(i,j,:))
+               end do
+            end do
+            D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
+         case (2) ! from file
+            rtmp3Db = ZERO
+            if (lwp) write(LOGUNIT,*) 'Initializing BFM variable ',trim(var_names(stPelStateS+m-1))
+            if (lwp) write(LOGUNIT,*) 'from file ',trim(InitVar(m) % filename)
+            call iom_open ( InitVar(m) % filename, nc_id )
+            call iom_get (nc_id,jpdom_data,InitVar(m) % varname,rtmp3Db(:,:,:),1)
+            D3STATE(m,:)  = pack(rtmp3Db,SEAmask)
+            call iom_close(nc_id)
+         end select
+      end do
+   end if
+
    deallocate(rtmp3Da)
    deallocate(rtmp3Db)
 

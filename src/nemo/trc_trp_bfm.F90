@@ -1,3 +1,4 @@
+#include"cppdefs.h"
 SUBROUTINE trc_trp_bfm( kt )
 !!----------------------------------------------------------------------
 !!                     ***  ROUTINE trc_trp_bfm  ***
@@ -27,7 +28,6 @@ SUBROUTINE trc_trp_bfm( kt )
    USE trcldf_iso_zps  ! lateral mixing              (trc_ldf_iso_zps routine)
    USE trcldf_lap      ! lateral mixing                  (trc_ldf_lap routine)
 
-   USE trcnxt          ! time-stepping                       (trc_nxt routine)
    USE trcrad_bfm      ! positivity                      (trc_rad_bfm routine)
 
    USE trcadv_cen2     ! 2nd order centered advection   (trc_adv_cen2 routine)
@@ -41,7 +41,7 @@ SUBROUTINE trc_trp_bfm( kt )
    USE trczdf_iso      ! vertical diffusion              (trc_zdf_exp routine)
    USE trczdf_iso_vopt ! vertical diffusion              (trc_zdf_exp routine)
    USE trcsbc          ! surface boundary condition          (trc_sbc routine)
-
+   USE trcnxtbfm
    USE zpshde_trc      ! partial step: hor. derivative   (zps_hde_trc routine)
 
    !! * BFM Modules used
@@ -82,7 +82,11 @@ SUBROUTINE trc_trp_bfm( kt )
    ! BFM tracers, loop over number of state variables
    !<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
    !-----------------------------------------------------------------------
-
+!#ifndef USEPACK
+!      trb=ZERO
+!      trn=ZERO
+!      tra=ZERO
+!#endif     
       DO m = 1,NO_D3_BOX_STATES
          IF (D3STATETYPE(m)>=ALLTRANSPORT) THEN
             ! remap the biological states and trends to 3D arrays
@@ -179,7 +183,7 @@ SUBROUTINE trc_trp_bfm( kt )
             IF( l_trczdf_iso     )   CALL trc_zdf_iso( kt )                ! isopycnal
             IF( l_trczdf_iso_vo  )   CALL trc_zdf_iso_vopt( kt )           ! vector opt. isopycnal
 
-            CALL trc_nxt( kt )            ! tracer fields at next time step
+            CALL trc_nxt_bfm( kt,m )            ! tracer fields at next time step
 
             !CALL trc_rad_bfm( kt )        ! Correct artificial negative concentrations for isopycnal scheme            
 

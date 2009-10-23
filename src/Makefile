@@ -7,7 +7,7 @@ DIRCLEAN =
 
 include ./Rules.make
 
-EXE	= bfm_standalone$(buildtype)
+EXE	= bfm_standalone$(buildtype)_$(FORTRAN_COMPILER)
 MAINOBJ	= ./standalone/standalone_main.o 
 LIB	= $(LIBDIR)/libbfm$(buildtype).a
 BFMSRC = ./BFM

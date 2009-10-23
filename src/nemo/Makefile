@@ -23,19 +23,40 @@ INCLUDE_PELCO2=true
 ifeq ($(INCLUDE_PELCO2),true)
   DEFINES += -DINCLUDE_PELCO2
 endif
-
+ONESOURCE=false
+ifeq ($(ONESOURCE),true)
+DEFINES += -DONESOURCE
+endif
+D1SOURCE=false
+ifeq ($(D1SOURCE),true)
+DEFINES += -DD1SOURCE
+endif
+BFM_PARALLEL=false
+ifeq ($(BFM_PARALLEL),true)
+DEFINES += -DBFM_PARALLEL
+endif
+BFM_NOPOINTERS=false
+ifeq ($(BFM_NOPOINTERS),true)
+DEFINES += -DBFM_NOPOINTERS
+endif
+##Default usepack
+USEPACK=true
+ifeq ($(USEPACK),true)
+DEFINES += -DUSEPACK
+endif
 ## NEMO modules (with absolute path)
 F_O += -I$(NEMOLIBDIR)/oce
 ## BFM include files and pp macros
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
 P_P += -DBFM_NEMO  $(DEFINES)
+
 ## specific options for NEC-SX
 ifeq ($(FORTRAN_COMPILER),NECSX6)
 AR=${SXAR}
-P_P += -DBFM_NOPOINTERS -DNECSX -DBFM_PARALLEL 
+P_P += -DBFM_NOPOINTERS -DNECSX 
 INLINE = -pi auto line=200 expin=$(BFMDIR)/src/BFM/General,$(BFMDIR)/src/share,$(BFMDIR)/src/BFM/PelB,$(BFMDIR)/src/BFM/CO2 exp=sourcesink_flux_vector,flux_vector,flux,fixed_quota_flux_vector,Source_D3_vector nest=10 rexp=PhytoDynamics,MicroZooDynamics,MesoZooDynamics,fixed_quota_flux_vector,flux_vector,Source_D3_vector,calcco2system
-P_P += -R2 -EP -sx6 -Cvopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl expand=5 noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist 
+P_P += -R2 -EP -sx8r -Chopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl expand=5 noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist 
 endif
 
 BFM_PELMOD = \
@@ -64,6 +85,7 @@ BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMSHARE}/ResetFluxes.o)		\
 	${BFMLIB}(${BFMSHARE}/calcmean_bfm.o)		\
 	${BFMLIB}(${BFMSHARE}/string_functions.o)	\
+	${BFMLIB}(${BFMSHARE}/analytical_profile.o)	\
 	${BFMLIB}(${BFMSHARE}/init_cnps.o)		\
 	${BFMLIB}(${BFMSHARE}/init_var_bfm.o)		\
 	${BFMLIB}(${BFMSHARE}/make_flux_output.o)	\
@@ -71,6 +93,9 @@ BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMNEMOSRC}/trcbfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/envforcing_bfm.o)	\
 	${BFMLIB}(${BFMNEMOSRC}/trcrad_bfm.o)		\
+	${BFMLIB}(${BFMNEMOSRC}/trcobcdta_bfm.o)	\
+	${BFMLIB}(${BFMNEMOSRC}/trcnxt_bfm.o)    	\
+	${BFMLIB}(${BFMNEMOSRC}/obctrc_bfm.o)    	\
 	${BFMLIB}(${BFMNEMOSRC}/trc_trp_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_sbc_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_set_bfm.o)		\

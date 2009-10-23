@@ -313,9 +313,11 @@
    do i=1,NO_D3_BOX_STATES
      LEVEL1 trim(var_names(stPelStateS+i-1)),D3STATE(i,1)
    end do
+#ifdef INCLUDE_BEN
    do i=1,NO_D2_BOX_STATES
      LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE(i,1)
    end do
+#endif
 #endif
 
    return

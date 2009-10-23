@@ -12,7 +12,7 @@
 ! !USES
 ! BFM modules
    use constants,  only: E2W
-   use global_mem, only: RLEN,ZERO
+   use global_mem, only:RLEN,ZERO,LOGUNIT
    use mem_param,  only: p_PAR, p_small
    use mem,        only: xEPS, ESS, ETW, ESW, EWIND,    &
                          Depth, EIR, ERHO, EICE,        &
@@ -48,14 +48,14 @@ IMPLICIT NONE
    ! Assign temperature, salinity and density
    !---------------------------------------------
 #ifdef USEPACK
-      ETW = pack(tn,SEAmask)
-      ESW = pack(sn,SEAmask)
-      ERHO = pack(rhop,SEAmask)
-#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily
+      ETW = pack(tn_io,SEAmask)
+      ESW = pack(sn_io,SEAmask)
+      ERHO = pack(rhop_io,SEAmask)
+#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily || defined key_flx_ecmwf_mfs
    !---------------------------------------------
    ! Assign wind speed
    !---------------------------------------------
-      EWIND = pack(vatm,SRFmask(:,:,1) )
+      EWIND = pack(vatm_io,SRFmask(:,:,1) )
 #else
       !MAV: this must be temporary! 
       EWIND = 5.0_RLEN
@@ -63,20 +63,21 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign Sea-ice cover
    !---------------------------------------------
-      EICE = pack(freeze,SRFmask(:,:,1) )
+      EICE = pack(freeze_io,SRFmask(:,:,1) )
 #else
       DO n = 1,NO_BOXES
-         ETW(n) = tn(iwet(n),jwet(n),kwet(n))
-         ESW(n) = sn(iwet(n),jwet(n),kwet(n))
-         ERHO(n) = rhop(iwet(n),jwet(n),kwet(n))
+         ETW(n) = tn_io(iwet(n),jwet(n),kwet(n))
+         ESW(n) = sn_io(iwet(n),jwet(n),kwet(n))
+         ERHO(n) = rhop_io(iwet(n),jwet(n),kwet(n))
       END DO
 
       DO n = 1,NO_BOXES_XY
          !---------------------------------------------
          ! Assign wind speed
          !---------------------------------------------
-#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily
-         EWIND(n) = vatm(iwet(n),jwet(n))
+#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily || defined key_flx_ecmwf_mfs
+         EWIND(n) = vatm_io(iwet(n),jwet(n))
+
 #else
          !MAV: this must be temporary! 
          EWIND(n) = 5.0_RLEN
@@ -84,7 +85,7 @@ IMPLICIT NONE
          !---------------------------------------------
          ! Assign Sea-ice cover
          !---------------------------------------------
-         EICE(n) = freeze(iwet(n),jwet(n))
+         EICE(n) = freeze_io(iwet(n),jwet(n))
       END DO
 
 #endif

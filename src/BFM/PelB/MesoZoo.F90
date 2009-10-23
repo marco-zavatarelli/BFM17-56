@@ -107,67 +107,138 @@
 !
 !
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Set up Local Variable for copy of state var. object
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES) :: zooc
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
   integer,dimension(NO_BOXES)  :: nut_lim
-  real(RLEN),dimension(NO_BOXES)  :: put_u
-  real(RLEN),dimension(NO_BOXES)  :: temp_p
-  real(RLEN),dimension(NO_BOXES)  :: temp_n
-  real(RLEN),dimension(NO_BOXES)  :: rumc
-  real(RLEN),dimension(NO_BOXES)  :: rugc
-  real(RLEN),dimension(NO_BOXES)  :: eo
-  real(RLEN),dimension(NO_BOXES)  :: et
-  real(RLEN),dimension(NO_BOXES)  :: rrs_c
-  real(RLEN),dimension(NO_BOXES)  :: rrs_n
-  real(RLEN),dimension(NO_BOXES)  :: rrs_p
-  real(RLEN),dimension(NO_BOXES)  :: rra_c
-  real(RLEN),dimension(NO_BOXES)  :: rra_n
-  real(RLEN),dimension(NO_BOXES)  :: rra_p
-  real(RLEN),dimension(NO_BOXES)  :: rut_c
-  real(RLEN),dimension(NO_BOXES)  :: rut_n
-  real(RLEN),dimension(NO_BOXES)  :: rut_p
-  real(RLEN),dimension(NO_BOXES)  :: rd_c
-  real(RLEN),dimension(NO_BOXES)  :: rd_n
-  real(RLEN),dimension(NO_BOXES)  :: rd_p
-  real(RLEN),dimension(NO_BOXES)  :: sdo
-  real(RLEN),dimension(NO_BOXES)  :: rdo_c
-  real(RLEN),dimension(NO_BOXES)  :: rdo_n
-  real(RLEN),dimension(NO_BOXES)  :: rdo_p
-  real(RLEN),dimension(NO_BOXES)  :: ret_c
-  real(RLEN),dimension(NO_BOXES)  :: ret_n
-  real(RLEN),dimension(NO_BOXES)  :: ret_p
-  real(RLEN),dimension(NO_BOXES)  :: ru_c
-  real(RLEN),dimension(NO_BOXES)  :: ru_n
-  real(RLEN),dimension(NO_BOXES)  :: ru_p
-  real(RLEN),dimension(NO_BOXES)  :: pu_e_n
-  real(RLEN),dimension(NO_BOXES)  :: pu_e_p
-  real(RLEN),dimension(NO_BOXES)  :: prI_R6
-  real(RLEN),dimension(NO_BOXES)  :: pe_R6c
-  real(RLEN),dimension(NO_BOXES)  :: pe_N1p
-  real(RLEN),dimension(NO_BOXES)  :: pe_N4n
-  real(RLEN),dimension(NO_BOXES,4)  :: rumPIc
-  real(RLEN),dimension(NO_BOXES,2)  :: rumMIZc
-  real(RLEN),dimension(NO_BOXES,2)  :: rumMEZc
-  real(RLEN),dimension(NO_BOXES)  :: ruPIc
-  real(RLEN),dimension(NO_BOXES)  :: ruMIZc
-  real(RLEN),dimension(NO_BOXES)  :: ruMEZc
-  real(RLEN),dimension(NO_BOXES)  :: rq6c
-  real(RLEN),dimension(NO_BOXES)  :: rq6n
-  real(RLEN),dimension(NO_BOXES)  :: rq6p
-  real(RLEN),dimension(NO_BOXES)  :: rrc
-  real(RLEN),dimension(NO_BOXES)  :: ren
-  real(RLEN),dimension(NO_BOXES)  :: rep
-  real(RLEN),dimension(NO_BOXES)  :: tfluxc
-  real(RLEN),dimension(NO_BOXES)  :: tfluxn
-  real(RLEN),dimension(NO_BOXES)  :: tfluxp
-  real(RLEN),dimension(NO_BOXES)  :: net
-  real(RLEN),dimension(NO_BOXES)  :: r
+  integer, save :: first =0
+  real(RLEN),allocatable,save,dimension(:) :: put_u,temp_p,temp_n,rumc,rugc,eo,  &
+                                       et,rrs_c,rrs_n,rrs_p,rra_c,rra_n,rra_p,rut_c, &
+                                       rut_n,rut_p,rd_c,rd_n,rd_p,sdo,rdo_c,  &
+                                       rdo_n,rdo_p,ret_c,ret_n,ret_p,ru_c, &
+                                       ru_n,ru_p,pu_e_n,pu_e_p,prI_R6,pe_R6c
+
+  real(RLEN),allocatable,save,dimension(:) :: pe_N1p,pe_N4n,ruPIc,ruMIZc,ruMEZc,rq6c, &
+                                       rq6n,rq6p,rrc,ren,rep,tfluxc,tfluxn,    &
+                                       tfluxp,zooc
+  real(RLEN),allocatable,save,dimension(:,:) :: rumPIc,rumMIZc,rumMEZc
+  real(RLEN),allocatable,save,dimension(:) :: net,r
+  integer :: AllocStatus, DeallocStatus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Allocate local memory
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  if (first==0) then
+     first=1
+     allocate(eo(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eo"
+     allocate(rumPIc(NO_BOXES,4),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumPIc"
+       allocate(rumMIZc(NO_BOXES,2),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumMIZc"
+       allocate(rumMEZc(NO_BOXES,2),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumMEZc"
+       allocate(zooc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating zooc"
+     allocate(tfluxp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tfluxp"
+     allocate(tfluxn(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tfluxn"
+     allocate(tfluxc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tfluxc"
+     allocate(rep(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rep"
+     allocate(ren(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ren"
+     allocate(rrc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrc"
+     allocate(rq6p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rq6p"
+     allocate(rq6n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rq6n"
+     allocate(rq6c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rq6c"
+     allocate(ruMEZc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruMEZc"
+     allocate(ruMIZc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruMIZc"
+     allocate(ruPIc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruPIc"
+     allocate(pe_N4n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pe_N4n"
+     allocate(pe_N1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pe_N1p"
+     allocate(pe_R6c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pe_R6c"
+     allocate(prI_R6(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating prI_R6"
+     allocate(pu_e_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pu_e_p"
+     allocate(pu_e_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pu_e_n"
+     allocate(ru_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ru_p"
+     allocate(ru_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ru_n"
+     allocate(ru_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ru_c"
+     allocate(ret_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ret_p"
+     allocate(ret_n(NO_BOXES),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating ret_n"
+     allocate(ret_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ret_c"
+     allocate(rdo_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rdo_p"
+     allocate(rdo_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rdo_n"
+     allocate(rdo_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rdo_c"
+     allocate(sdo(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sdo"
+     allocate(rd_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rd_p"
+     allocate(rd_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rd_n"
+     allocate(rd_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rd_c"
+     allocate(rut_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rut_p"
+     allocate(rut_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rut_n"
+     allocate(rut_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rut_c"
+     allocate(rra_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rra_p"
+     allocate(rra_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rra_n"
+     allocate(rra_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rra_c"
+     allocate(rrs_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrs_p"
+     allocate(rrs_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrs_n"
+     allocate(rrs_c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rrs_c"
+     allocate(et(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating et"
+     allocate(put_u(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating put_u"
+     allocate(temp_p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating temp_p"
+     allocate(temp_n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating temp_n"
+     allocate(rumc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumc"
+     allocate(rugc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rugc"
+     allocate(net(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating net"
+     allocate(r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating r"
+  endif
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

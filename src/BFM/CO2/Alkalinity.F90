@@ -73,8 +73,18 @@ use global_mem, ONLY:RLEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES) :: rateN3n,rateN6r
-
+  integer,save ::first=0 
+  real(RLEN),allocatable,save,dimension(:) :: rateN3n,rateN6r
+  integer :: AllocStatus, DeallocStatus
+                                                                                                                                                          
+  if (first==0) then
+     first=1
+     allocate(rateN3n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rateN3n"
+     allocate(rateN6r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rateN6r"
+  end if
+ 
   !
   ! correction of the alkalinity
   !

@@ -97,15 +97,16 @@
 ! Set first level velocity to 0
 ! and shift array downward
 ! Conversion m/d -> m/s
+! rjjss:   number of seconds in one day
 !-------------------------------
    ws(:,:,:) = 0.0_wp
    do jk=1,jpk-1
       ws(:,:,jk+1) = ws_in(:,:,jk)/rjjss*tmask(:,:,jk+1)
    end do
 
-   do jk = 2, jpkm1
-      do jj = 1, jpj      
-         do ji = 1, jpi    
+   do jj = 1, jpj      
+      do ji = 1, jpi    
+         do jk = 2, jpkm1
             !-------------------------------
             ! Check the velocity direction
             !-------------------------------
@@ -181,9 +182,9 @@
 !write(*,*) 'jk, cu(jk+1), cu(jk)' 
 Yc=0.0_wp
 Yd=0.0_wp
-   do jk = 1, jpkm1
-      do jj = 1, jpj      
-         do ji = 1, jpi    
+   do jj = 1, jpj      
+      do ji = 1, jpi    
+         do jk = 1, jpkm1
             dt    = rdttra(jk) * float(ndttrc)
             trn(ji,jj,jk,1) = trn(ji,jj,jk,1) + &
                  dt*(cu(ji,jj,jk+1)-cu(ji,jj,jk))/fse3t(ji,jj,jk)

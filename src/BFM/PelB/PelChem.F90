@@ -9,19 +9,12 @@
 ! !ROUTINE: PelChem
 !
 ! DESCRIPTION
-!   !    This process describes the additional dynamics of dissolved
+!       This process describes the additional dynamics of dissolved
 !       compounds in the watercolumn. Parameterized processes are:
 !       - nitrification
 !       - denitrification
 !       - reoxidation of reduction equivalents
 !        - dissolution of biogenic silica
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine PelChemDynamics
@@ -64,7 +57,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -88,15 +81,29 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES)  :: fN4N3n
-  real(RLEN),dimension(NO_BOXES)  :: fN6O2r
-  real(RLEN),dimension(NO_BOXES)  :: eo
-  real(RLEN),dimension(NO_BOXES)  :: er
-  real(RLEN),dimension(NO_BOXES)  :: osat
-  real(RLEN),dimension(NO_BOXES)  :: rPAo
-  real(RLEN),dimension(NO_BOXES)  :: fR6N5s
+  integer, save :: first =0
+  integer       :: AllocStatus, DeallocStatus
+  real(RLEN),allocatable,save,dimension(:) :: fN4N3n,fN6O2r,eo,     &
+                                              er,osat,rPAo,fR6N5s
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+  if (first==0) then
+     first=1
+     allocate(fN6O2r(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating fN6O2r"
+     allocate(eo(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eo"
+     allocate(er(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating er"
+     allocate(rPAo(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rPAo"
+     allocate(fR6N5s(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating fR6N5s"
+     allocate(osat(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating osat"
+     allocate(fN4N3n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating fN4N3n"
+  end if
 
 #ifdef INCLUDE_PELCO2
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

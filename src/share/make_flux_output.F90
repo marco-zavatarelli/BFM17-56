@@ -74,6 +74,7 @@
       integer      ::nr
       integer      ::i
       integer      ::k
+      integer      ::dummy
       integer      ::klev
 #ifdef BFM_GOTM
       real(RLEN),dimension(0:NO_BOXES) :: hulp
@@ -100,36 +101,51 @@
       if ( flx_CalcIn(nr) == iiBen) then
 #ifdef INCLUDE_BEN
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
+          ! check if the variable is defined (e.g. in case of O3c)
+          ! if not, the flux becomes diagonal
+          dummy = flx_ostates(i)
+          if (dummy == 0) dummy=flx_states(i)
           if (flx_SS(i) ==1 ) then
 #ifdef ONESOURCE
              ! notice that the negative sign is already included in FluxFunctions.F90
              ! (l. 80) thus there is a further change of sign here
              hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D2SOURCE(flx_ostates(i),flx_states(i),:)
+                    - flx_t(i) * D2SOURCE(dummy,flx_states(i),:)
 #else
              hulp(1:klev)= hulp(1:klev) &
-                    + flx_t(i) * D2SINK(flx_states(i),flx_ostates(i),:)
+                    + flx_t(i) * D2SINK(flx_states(i),dummy,:)
 #endif
           else
+#ifdef ONESOURCE
+             ! notice that the negative sign is already included in FluxFunctions.F90
+             ! (l. 80) thus there is a further change of sign here
              hulp(1:klev)= hulp(1:klev) &
-                   + flx_t(i) * D2SOURCE(flx_states(i),flx_ostates(i),:)
+                    - flx_t(i) * D2SOURCE(dummy,flx_states(i),:)
+#else
+             hulp(1:klev)= hulp(1:klev) &
+                   + flx_t(i) * D2SOURCE(flx_states(i),dummy,:)
+#endif
           endif
         enddo
 #endif
       else
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
+          ! check if the variable is defined (e.g. in case of O3c)
+          ! if not, the flux becomes diagonal
+          dummy = flx_ostates(i)
+          if (dummy == 0) dummy=flx_states(i)
           if (flx_SS(i) ==1 ) then
 #ifdef ONESOURCE
              ! notice that the negative sign is already included in FluxFunctions.F90
              ! (l. 80) thus there is a further change of sign here
              hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D3SOURCE(flx_ostates(i),flx_states(i),:)
+                    - flx_t(i) * D3SOURCE(dummy,flx_states(i),:)
 #else
              hulp(1:klev)= hulp(1:klev) &
-                    + flx_t(i) * D3SINK(flx_states(i),flx_ostates(i),:)
+                    + flx_t(i) * D3SINK(flx_states(i),dummy,:)
 #endif
              ! correcting for fluxes  to other systems
-             if ( flx_states(i) ==flx_ostates(i)) then
+             if ( flx_states(i) == dummy) then
                 hulp(BOTindices)=hulp(BOTindices)+flx_t(i) *min(ZERO,&
                        PELBOTTOM(flx_states(i),:))/Depth(BOTindices)/SEC_PER_DAY
                 hulp(SRFindices)=hulp(SRFindices)+flx_t(i) *min(ZERO,&
@@ -141,13 +157,13 @@
              ! notice that the negative sign is already included in FluxFunctions.F90
              ! (l. 80) thus there is a further change of sign here
              hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D3SOURCE(flx_ostates(i),flx_states(i),:)
+                    - flx_t(i) * D3SOURCE(dummy,flx_states(i),:)
 #else
              hulp(1:klev)= hulp(1:klev) &
-                  + flx_t(i) * D3SOURCE(flx_states(i),flx_ostates(i),:)
+                  + flx_t(i) * D3SOURCE(flx_states(i),dummy,:)
 #endif
              ! correcting for fluxes  to other systems
-             if ( flx_states(i) ==flx_ostates(i)) then
+             if ( flx_states(i) ==dummy) then
                 hulp(BOTindices)=hulp(BOTindices)-flx_t(i) *max(ZERO,&
                        PELBOTTOM(flx_states(i),:))/Depth(BOTindices)/SEC_PER_DAY
                 hulp(SRFindices)=hulp(SRFindices)-flx_t(i) *max(ZERO, &

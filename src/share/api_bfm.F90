@@ -18,6 +18,7 @@
 !
 ! !USE:
    use global_mem, only:RLEN,ZERO
+   use mem,        only:NO_D3_BOX_STATES
    implicit none
 
 !
@@ -44,7 +45,7 @@
    !---------------------------------------------
    logical                            :: parallel = .FALSE.
    logical                            :: parallel_log = .FALSE.
-   logical                            :: lwp = .TRUE.
+   logical                            :: bfm_lwp = .TRUE.
    integer                            :: parallel_rank = 0
    character(LEN=4)                   :: str
 
@@ -87,6 +88,32 @@
    ! Additional output variables
    !---------------------------------------------
    real(RLEN), dimension(:), allocatable   :: c1dim
+
+   !---------------------------------------------
+   ! BFM variable information for input
+   ! integer flag: select the initialization
+   !               0 = homogeneous
+   !               1 = analytical
+   !               2 = from file
+   ! options for flag==1
+   ! real anv1: value in the surface layer
+   ! real anz1: depth of the surface layer
+   ! real anv2: value in the bottom layer
+   ! real anz2: depth of the bottom layer
+   ! options for flag==2
+   ! char filename: name of the input file
+   ! char  varname: name of the var in input file
+   !---------------------------------------------
+   type InputInfo
+      integer           :: flag
+      character(LEN=40) :: filename
+      character(LEN=40) :: varname
+      real(RLEN)        :: anz1
+      real(RLEN)        :: anv1
+      real(RLEN)        :: anz2
+      real(RLEN)        :: anv2
+   end type InputInfo
+   type(InputInfo),dimension(NO_D3_BOX_STATES) :: InitVar
 
    !---------------------------------------------
    ! Additional 1D arrays
@@ -211,6 +238,9 @@ contains
                   NO_STATES, Depth, NO_D3_BOX_FLUX,      &
                   NO_D2_BOX_FLUX
    use global_mem, only: LOGUNIT
+#if defined BFM_NEMO && defined key_obc
+   use global_mem, only: LOGUNITOBC
+#endif
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -223,6 +253,9 @@ contains
 ! !LOCAL VARIABLES:
    integer                   :: rc,i,j,n
    character(len=PATH_MAX)   :: logfname
+#if defined BFM_NEMO && defined key_obc
+   character(len=PATH_MAX)   :: logfnameobc
+#endif
    namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,         &
                       out_fname,out_dir,out_units,         &
                       out_title,out_delta,out_secs,        &
@@ -237,21 +270,34 @@ contains
    ! in the coupling with the ocean model using the 
    ! specific parallelization method (e.g. MPI)
    LOGUNIT = 1069 + parallel_rank
+#if defined BFM_NEMO && defined key_obc
+   LOGUNITOBC = 3069 + parallel_rank
+#endif
    ! provide a different log file name for each process 
    write(str,'(I4.4)') parallel_rank
    logfname = 'bfm_'//str//'.log'
+#if defined BFM_NEMO && defined key_obc
+   logfnameobc = 'OBCBFM_'//str//'.log'
+#endif
    open(LOGUNIT,file=logfname,action='write',  &
         form='formatted',status='new',err=100)
+#if defined BFM_NEMO && defined key_obc
+   open(LOGUNITOBC,file=logfnameobc,action='write',  &
+        form='formatted',status='new',err=100)
+#endif
   ! check if logs have to be produced for each process
    if (parallel_log) then
-      lwp = (parallel_rank == 0)
+      bfm_lwp = (parallel_rank == 0)
    else 
-      lwp = .TRUE.
+      bfm_lwp = .TRUE.
    end if
    LEVEL1 "BFM is running in Parallel"
    LEVEL2 "Producing log for process rank:",parallel_rank
 #else
    LOGUNIT = 6
+#if defined BFM_NEMO && defined key_obc
+   LOGUNITOBC = 6
+#endif
 #endif
 
    LEVEL1 'init_bfm'

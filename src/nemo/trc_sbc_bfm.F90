@@ -34,10 +34,11 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    USE oce_trc             ! ocean dynamics and active tracers variables
    USE trc                 ! ocean  passive tracers variables
    USE prtctl_trc          ! Print control for debbuging
-   use flx_rnf, only: sriver ! gridpoints with rivers
+   USE flxrnf, ONLY: runoff ! gridpoints with rivers
    ! BFM
    use api_bfm
    use mem
+   use global_mem,only:LOGUNIT
    ! substitutions
 #  include "passivetrc_substitute.h90"
 
@@ -49,13 +50,15 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    INTEGER  ::   ji, jj, jn           ! dummy loop indices
    REAL(wp) ::   ztra, zsrau, zse3t   ! temporary scalars
    CHARACTER (len=22) :: charout
+   INTEGER :: AllocStatus
    !!----------------------------------------------------------------------
 
-   if ( kt == nittrc000 ) .AND. ( m == 1 ) THEN
-      if (lwp) WRITE(numout,*)
-      if (lwp) WRITE(numout,*) 'trc_set_bfm : BFM tracers surface boundary condition'
-      if (lwp) WRITE(numout,*) '            : Initialise river mask and concentrations'
-      if (lwp) WRITE(numout,*) '~~~~~~~ '
+   if ( kt == nit000 .AND.  m == 1 ) THEN
+      if (bfm_lwp) WRITE(LOGUNIT,*)
+      if (bfm_lwp) WRITE(LOGUNIT,*) 'trc_set_bfm : BFM tracers surface boundary condition'
+      if (bfm_lwp) WRITE(LOGUNIT,*) '            : Initialise river mask and concentrations'
+      if (bfm_lwp) WRITE(LOGUNIT,*) '~~~~~~~ '
+      CALL flush(LOGUNIT)
 #ifdef FLUXES
 ! MAV: to be completed
       !-------------------------------------------------------
@@ -90,7 +93,8 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
       ! In the future it might be used the initial value close 
       ! to the river
       !-------------------------------------------------------
-      allocate(RIVconcentration(NO_BOX_STATES)) 
+      allocate(RIVconcentration(NO_D3_BOX_STATES),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating RIVconcentration"
       RIVconcentration(:) = ZERO
       RIVconcentration(ppO2o) = D3STATE(ppO2o,1)
       RIVconcentration(ppN1p) = D3STATE(ppN1p,1)

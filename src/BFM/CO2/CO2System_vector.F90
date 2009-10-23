@@ -80,40 +80,132 @@
 ! !INPUT PARAMETERS:
   integer,intent(IN)               :: mode
 ! !LOCAL VARIABLES:
-  real(RLEN),dimension(NO_BOXES)  ::  K0 ! solubility : [Co2]=k0Ac Pco2
-  real(RLEN),dimension(NO_BOXES)  ::  K1 ! carbonate equilibrium I
-  real(RLEN),dimension(NO_BOXES)  ::  K2 ! carbonate equilibrium II
-  real(RLEN),dimension(NO_BOXES)  ::  Kw ! water dissociation
-  real(RLEN),dimension(NO_BOXES)  ::  Kb ! constant for Boron equilibrium
-  real(RLEN),dimension(NO_BOXES)  ::  Ks ! constant for bisulphate equilibrium
-  real(RLEN),dimension(NO_BOXES)  ::  Kf ! constant for hidrogen fluoride equilibirum
-  real(RLEN),dimension(3,NO_BOXES)  ::  Kp ! constants for phosphate equilibirum
-  real(RLEN),dimension(NO_BOXES)  ::  Ksi ! constant for silicic acid eqilbrium
-  real(RLEN),dimension(NO_BOXES)  :: ldic  ! local dic in mol/kg 
-  real(RLEN),dimension(NO_BOXES)  :: lpco2 ! local pco2
-  real(RLEN),dimension(NO_BOXES)  :: scl   ! chlorinity
-  real(RLEN),dimension(NO_BOXES)  :: ta    ! total Alkalinity
-
-  real(RLEN),dimension(NO_BOXES)         :: lnK,bt,ft,st,pt,sit
-
+  integer,save :: first=0
+  integer :: AllocStatus, DeallocStatus
+  real(RLEN),allocatable,save,dimension(:)  ::  K0 ! solubility : [Co2]=k0Ac Pco2
+  real(RLEN),allocatable,save,dimension(:)  ::  K1 ! carbonate equilibrium I
+  real(RLEN),allocatable,save,dimension(:)  ::  K2 ! carbonate equilibrium II
+  real(RLEN),allocatable,save,dimension(:)  ::  Kw ! water dissociation
+  real(RLEN),allocatable,save,dimension(:)  ::  Kb ! constant for Boron equilibrium
+  real(RLEN),allocatable,save,dimension(:)  ::  Ks ! constant for bisulphate equilibrium
+  real(RLEN),allocatable,save,dimension(:)  ::  Kf ! constant for hidrogen fluoride equilibirum
+  real(RLEN),allocatable,save,dimension(:,:)::  Kp ! constants for phosphate equilibirum
+  real(RLEN),allocatable,save,dimension(:)  ::  Ksi ! constant for silicic acid eqilbrium
+  real(RLEN),allocatable,save,dimension(:)  :: ldic  ! local dic in mol/kg 
+  real(RLEN),allocatable,save,dimension(:)  :: lpco2 ! local pco2
+  real(RLEN),allocatable,save,dimension(:)  :: scl   ! chlorinity
+  real(RLEN),allocatable,save,dimension(:)  :: ta    ! total Alkalinity
+  real(RLEN),allocatable,save,dimension(:)  :: lnK,bt,ft,st,pt,sit
   real(RLEN),parameter             :: MEG=1.D6,XACC=1.D-20,  &
                                       PERMIL=ONE/1000.0_RLEN,&
                                       PERMEG=ONE/MEG
-
   integer     :: i, l, error
-  real(RLEN),dimension(NO_BOXES)  :: Hplus, Hplus2
-  real(RLEN),dimension(NO_BOXES)  :: tmp1, tmp2
+  real(RLEN),allocatable,save,dimension(:)  :: Hplus, Hplus2
+  real(RLEN),allocatable,save,dimension(:)  :: tmp1, tmp2
   real(RLEN)                      :: intercept
-  real(RLEN),dimension(NO_BOXES)  :: tk,tk100,tk1002,    &
+  real(RLEN),allocatable,save,dimension(:)  :: tk,tk100,tk1002,    &
                                      invtk,is,is2,       &
                                      dlogtk,dsqrtis,s,s2,&
                                      dsqrts,s15
   ! Local variables for Follows' parameterization
-  real(RLEN),dimension(NO_BOXES) :: xx,xx2,xx3,k11,k12,k12p,k123p,a,c
-  real(RLEN),dimension(NO_BOXES) :: cag,ldummy,gamm
+  real(RLEN),allocatable,save,dimension(:) :: xx,xx2,xx3,k11,k12,k12p,k123p,a,c
+  real(RLEN),allocatable,save,dimension(:) :: cag,ldummy,gamm
 !EOP
 !-------------------------------------------------------------------------!
 !BOC
+  if (first==0) then 
+     first=1
+     allocate(K0(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating K0"
+     allocate(K1(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating K1"
+     allocate(Kw(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Kw"
+     allocate(Kb(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Kb"
+     allocate(Ks(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Ks"
+     allocate(Kf(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Kf"
+     allocate(Kp(3,NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Kp"
+     allocate(Ksi(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Ksi"
+     allocate(ldic(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ldic"
+     allocate(lpco2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating lpco2"
+     allocate(scl(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating scl"
+     allocate(ta(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ta"
+     allocate(lnK(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating lNK"
+     allocate(bt(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating bt"
+     allocate(st(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating st"
+     allocate(pt(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating pt"
+     allocate(sit(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sit"
+     allocate(Hplus(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Hplus"
+     allocate(Hplus2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating Hplus2"
+     allocate(tmp1(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tmp1"
+     allocate(tmp2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tmp2"
+     allocate(tk(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tk"
+     allocate(tk100(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tk100"
+     allocate(tk1002(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating tk1002"
+     allocate(invtk(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating invtk"
+     allocate(is(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating is"
+     allocate(is2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating is2"
+     allocate(dlogtk(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating dlogtk"
+     allocate(dsqrtis(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating dsqrtis"
+     allocate(s(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating s"
+     allocate(s2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating s2"
+     allocate(dsqrts(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating dsqrts"
+     allocate(s15(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating s15"
+     allocate(xx(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating xx"
+     allocate(xx2(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating xx2"
+     allocate(xx3(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating xx3"
+     allocate(k11(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating k11"
+     allocate(k12(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating k12"
+     allocate(k12p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating k12p"
+     allocate(k123p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating k123p"
+     allocate(a(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating a"
+     allocate(c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating c"
+     allocate(cag(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating cag"
+     allocate(ldummy(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ldummy"
+     allocate(gamm(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating gamm"
+   end  if
 
   !---------------------------------------------------------------------
   ! convert DIC and alkalinity from BFM units to diagnostic output

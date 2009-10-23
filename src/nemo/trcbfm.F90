@@ -47,9 +47,10 @@
 !
 ! !LOCAL VARIABLES:
    integer               :: j
+   integer,save          :: first=0
    real(RLEN)            :: delt
-   real(RLEN), allocatable,dimension(:,:) :: tmp
-   real(RLEN), allocatable, dimension(:) :: tmp2
+   real(RLEN), allocatable,save,dimension(:,:) :: tmp
+   real(RLEN), allocatable,save, dimension(:)  :: tmp2
    integer               :: AllocStatus,DeAllocStatus
 
 
@@ -62,10 +63,13 @@
    !---------------------------------------------
    ! Allocate temporary arrays
    !---------------------------------------------
-   allocate(tmp2(NO_BOXES),stat=AllocStatus)
-   if (AllocStatus  /= 0) stop "error allocating tmp2"
-   allocate(tmp(NO_D3_BOX_STATES,NO_BOXES),stat=AllocStatus)
-   if (AllocStatus  /= 0) stop "error allocating tmp"
+   if (first==0) then
+      first=1
+      allocate(tmp2(NO_BOXES),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating tmp2"
+      allocate(tmp(NO_D3_BOX_STATES,NO_BOXES),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating tmp"
+   endif
 
    !---------------------------------------------
    ! Biological timestep 
@@ -116,10 +120,6 @@
    !---------------------------------------------
    ! Allocate temporary arrays
    !---------------------------------------------
-   deallocate(tmp2,stat=DeAllocStatus)
-   if (AllocStatus  /= 0) stop "error allocating tmp2"
-   deallocate(tmp,stat=AllocStatus)
-   if (DeallocStatus  /= 0) stop "error allocating tmp"
 
    return
    end subroutine trcbfm

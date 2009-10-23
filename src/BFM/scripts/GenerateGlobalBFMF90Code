@@ -637,6 +637,10 @@ switch -- $mode {
 	  puts $VARS(file) "#endif"
 	  set tmp STATETYPE
 	  PrintLine -print "integer,public,pointer,dimension(:) :: D${i}${tmp}"
+	  puts $VARS(file) "#ifdef BFM_NEMO"
+	  set tmp STATEOBC
+	  PrintLine -print "integer,public,pointer,dimension(:) :: D${i}${tmp}"
+	  puts $VARS(file) "#endif"
 	}
       }
    }
@@ -1023,6 +1027,12 @@ switch -- $mode {
 	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_${TYPE}S ),stat=status)"
 	 PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D$i$tmp\")"
 	 PrintLine -print "D$i$tmp = ZERO"
+	 puts $VARS(file) "#ifdef BFM_NEMO"
+	 set tmp STATEOBC
+	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_STATES),stat=status)"
+	 PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D$i$tmp\")"
+	 PrintLine -print "D$i$tmp = ZERO"
+         puts $VARS(file) "#endif"
        }
        Section -decr
      }

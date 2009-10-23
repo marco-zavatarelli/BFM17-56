@@ -75,7 +75,8 @@
 #endif
                            P1l0,P2l0,P3l0,P4l0,       &
                            P1n0,P2n0,P3n0,P4n0,       &
-                           P1p0,P2p0,P3p0,P4p0,P1s0
+                           P1p0,P2p0,P3p0,P4p0,P1s0,  &
+                           InitVar
 
    namelist /bfm_save_nml/ var_save, ave_save
 
@@ -153,6 +154,14 @@
    R2c0 = _ZERO_
    R6c0 = _ZERO_
    R7c0 = _ZERO_
+
+   !---------------------------------------------
+   ! Initialize the structured array that 
+   ! defines if a variable is initialized with 
+   ! data. The namelist values override the
+   ! assignment
+   !---------------------------------------------
+   InitVar = InputInfo(0,"dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO)
 
    !---------------------------------------------
    ! Open and read the namelist
@@ -340,6 +349,15 @@
       end do
    endif
 
+#if defined BFM_NEMO && defined key_obc
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! All variables are inizialized on obc default
+  ! D3STATEOBC(:)=OBCSTATES
+  ! Put D3STATEOBC(..)=NOOBCSTATES to exclude
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    D3STATEOBC(:)=OBCSTATES
+#endif
+
    !---------------------------------------------
    ! Zeroing of the switched off state variables
    !---------------------------------------------
@@ -348,6 +366,9 @@
       D3STATE(ppB1n,:) = p_small
       D3STATE(ppB1p,:) = p_small
       D3STATETYPE(ppB1c) = NOTRANSPORT
+#if defined BFM_NEMO && defined key_obc
+      D3STATEOBC(ppB1c) = NOOBCSTATES
+#endif
    end if
    do j = 1,iiPhytoPlankton
       iiLastElement = iiL
@@ -356,6 +377,9 @@
          do i = iiC,iiLastElement
             D3STATE(ppPhytoPlankton(j,i),:) = p_small
             D3STATETYPE(ppPhytoPlankton(j,i)) = NOTRANSPORT
+#if defined BFM_NEMO && defined key_obc
+            D3STATEOBC(ppPhytoPlankton(j,i)) = NOOBCSTATES
+#endif
          end do
       end if
    end do
@@ -370,6 +394,9 @@
          do i = iiC,iiLastElement
             D3STATE(ppMesoZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMesoZooPlankton(j,i)) = NOTRANSPORT
+#if defined BFM_NEMO && defined key_obc
+            D3STATEOBC(ppMesoZooPlankton(j,i)) = NOOBCSTATES
+#endif
          end do
       end if
    end do
@@ -384,6 +411,9 @@
          do i = iiC,iiLastElement
             D3STATE(ppMicroZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMicroZooPlankton(j,i)) = NOTRANSPORT
+#if defined BFM_NEMO && defined key_obc
+            D3STATEOBC(ppMicroZooPlankton(j,i)) = NOOBCSTATES
+#endif
          end do
       end if
    end do
@@ -409,6 +439,11 @@
       D3STATETYPE(ppB1c) = NOTRANSPORT
       D3STATETYPE(ppB1n) = NOTRANSPORT
       D3STATETYPE(ppB1p) = NOTRANSPORT
+#if defined BFM_NEMO && defined key_obc
+      D3STATEOBC(ppB1c) = NOOBCSTATES
+      D3STATEOBC(ppB1n) = NOOBCSTATES
+      D3STATEOBC(ppB1p) = NOOBCSTATES
+#endif
    end if
 #endif
 
