@@ -2,8 +2,8 @@
 ## Makefile for making a new distribution release
 ##-----------------------------------------------------------------------
 
-BFM_RELEASE="2.5e"
-SYSTEM_RELEASE="2.2"
+BFM_RELEASE="4.0"
+SYSTEM_RELEASE=""
 
 all: distclean 
 

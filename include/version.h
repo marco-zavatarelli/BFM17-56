@@ -1,1 +1,1 @@
-#define RELEASE "2.5e (floundering cod)"
+#define RELEASE "4.x"
