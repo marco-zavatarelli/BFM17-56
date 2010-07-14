@@ -39,30 +39,26 @@
    USE trc
    USE daymod,ONLY     :nday,nmonth
    USE par_kind,ONLY   :wp
+
       !! * Arguments
       INTEGER, INTENT( in ) ::   kt,m
       INTEGER ::   ji, jj, jk
       !!----------------------------------------------------------------------
-!GELSOMINA
-!      !! * Local declarations
-!      INTEGER ::   ii, ij   ! dummy loop indices
+      !! * Local declarations
       INTEGER ::   itimo, iman, imois
       INTEGER ::   i15
-!      INTEGER ::   m,n
       REAL(wp) ::   zxy
       INTEGER ::   &
       nlecto,   &  ! switch for the first read
       ntobc1,   &  ! first record used
       ntobc2,   &  ! second record used
       ntobc        ! number of time steps in OBC files 
-
-   REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
-!GELSOMINA
+      REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
 
 
       ! 0. Local constant initialization
 
-      IF( kt == nit000 .OR. ln_rstart) THEN
+      IF( kt == nittrc000 .OR. ln_rstart) THEN
          ! ... Boundary restoring coefficient
          rtaue = 2. * rdt / rdpeob
          rtauw = 2. * rdt / rdpwob
@@ -163,10 +159,8 @@
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE trcobcini,ONLY:ltrcfbceast
       USE daymod,ONLY     :nday,nmonth
       use global_mem, only:LOGUNIT
-!      USE obctrc
       USE par_kind,ONLY   :wp
       !! * Arguments
       INTEGER, INTENT( in ) ::   kt,m
@@ -312,11 +306,10 @@
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE trcobcini,ONLY:ltrcfbcwest
       USE obctrc
       USE daymod,ONLY     :nday,nmonth
       USE par_kind,ONLY   :wp
-      use global_mem, only:LOGUNIT,LOGUNITOBC
+      use global_mem, only:LOGUNIT
 
       INTEGER, INTENT( in ) ::   kt,m
 
@@ -457,11 +450,10 @@
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE trcobcini,ONLY:ltrcfbcnorth
       USE obctrc
       USE daymod,ONLY     :nday,nmonth
       USE par_kind,ONLY   :wp
-      use global_mem, only:LOGUNIT,LOGUNITOBC
+      use global_mem, only:LOGUNIT
 
       !! * Arguments
       INTEGER, INTENT( in ) ::   kt,m
@@ -501,27 +493,10 @@
             DO ji = nin0p1, nin1m1
                ii = ji -1 + nimpp
                   trfon(ji,jk) = trndta(ii,jk,1,m) * tnmsk(ji,jk)
-                      IF((m.eq.1.and. jk.eq.1).and.(kt.le.16)) THEN
-                            WRITE(LOGUNITOBC,*) 'VARIABLE m=',m
-                            WRITE(LOGUNITOBC,*) 'ii=' ,ii,'ji=',ji,'kt=',kt
-                            WRITE(LOGUNITOBC,*) 'trndta(1:12,jk,1,m)=', trndta(ii,jk,1,m)
-                            WRITE(LOGUNITOBC,*) 'trfon(ji,jk)=', trfon(ji,jk)
-                            WRITE(LOGUNITOBC,*) 'tnmsk(ji,jk)=', tnmsk(ji,jk)
-                            WRITE(LOGUNITOBC,*) 'PRIMO STEP'
-                            CALL flush(LOGUNITOBC)
-                      ENDIF
-                    
             END DO
          END DO
     
          ELSE 
-!         DO jk = 1, jpkm1
-!            DO ji = nin0p1, nin1m1
-!               ii = ji -1 + nimpp
-!               trfon(ji,jk) =  ( zxy * trndta(ii,jk,2,m) + &
-!                  &           (1.-zxy) * trndta(ii,jk,1,m) ) * tnmsk(ji,jk)
-!            END DO
-!         END DO
      ENDIF
 
       IF( (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. lp_obc_north ) THEN
@@ -529,30 +504,12 @@
          DO jj = fs_njn0+1, fs_njn1+1  ! Vector opt.
             DO jk = 1, jpkm1
                DO ji = 1, jpi
-!xche' il ciclo non e' questo ????          DO ji = nin0p1, nin1m1                         
-                      IF((m.eq.1.and. jk.eq.1).and.(kt.le.16)) THEN
-                            WRITE(LOGUNITOBC,*) 'VARIABLE m=',m
-                            WRITE(LOGUNITOBC,*) 'ji=',ji,'kt=',kt,'jj=',jj
-                            WRITE(LOGUNITOBC,*) 'tra(ji,jj,jk,1)=',tra(ji,jj,jk,1) 
-                            WRITE(LOGUNITOBC,*) 'trfon(1:12,jk)=', trfon(ji,jk)
-                            WRITE(LOGUNITOBC,*) 'OBCTRCtnmsk(ji,jk)=', tnmsk(ji,jk)
-                            CALL flush(LOGUNITOBC)
-                          ENDIF
-                              
-!!!GELSOMINA  DA CAMBIARE 
-!INDICILOCALI CASO 128              IF(ji.eq.5.or.ji.eq.8) tra(ji,jj,jk,1)=tra(ji-1,jj,jk,1)
-!tra x gli indici globali ji=29 ji=138 >>NaN 
-!!!GELSOMINA  DA CAMBIARE 
                    
               IF(ji.eq.2) tra(ji,jj,jk,1)=tra(ji+1,jj,jk,1)
               IF(ji.ge.4.and.ji.le.6) tra(ji,jj,jk,1)=tra(ji-1,jj,jk,1)
 
                   tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tnmsk(ji,jk)) + &
                                 tnmsk(ji,jk) * trfon(ji,jk)
-                      IF((m.eq.1.and. jk.eq.1).and.(kt.le.16)) THEN
-                             WRITE(LOGUNITOBC,*) 'ji=',ji,'kt=',kt,'jj=',jj
-                             WRITE(LOGUNITOBC,*) 'aftertra(ji,jj,jk,1)=',tra(ji,jj,jk,1)
-                      ENDIF
                END DO
             END DO
          END DO
@@ -639,11 +596,10 @@
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE trcobcini,ONLY:ltrcfbcsouth
       USE obctrc
       USE daymod,ONLY     :nday,nmonth
       USE par_kind,ONLY   :wp
-      use global_mem, only:LOGUNIT,LOGUNITOBC
+      use global_mem, only:LOGUNIT
 
 
       !! * Arguments
@@ -684,22 +640,9 @@
            DO ji = nis0p1, nis1m1
               ii = ji -1 + nimpp
                  trfos(ji,jk) =   trsdta(ii,jk,1,m) * tsmsk(ji,jk)
-         
-!                      IF((m.eq.1.and. jk.eq.1).and.(kt.le.16)) THEN
-!                            WRITE(LOGUNITOBC,*) 'TRSDTAVARIABLE m=',m
-!                            WRITE(LOGUNITOBC,*) 'ii=' ,ii,'ji=',ji,'kt=',kt,'nimpp=',nimpp
-!                            CALL flush(LOGUNITOBC)
-!                      ENDIF
            END DO
          END DO
          ELSE
-!         DO jk = 1, jpkm1
-!           DO ji = nis0p1, nis1m1
-!              ii = ji -1 + nimpp
-!              trfos(ji,jk) = ( zxy * trsdta(ii,jk,2,m) + &
-!                 &          (1.-zxy) * trsdta(ii,jk,1,m) ) * tsmsk(ji,jk)
-!           END DO
-!         END DO
         ENDIF
 
       IF(  (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. lp_obc_south) THEN
@@ -709,11 +652,6 @@
                DO ji = 1, jpi
                   tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tsmsk(ji,jk)) + &
                                 tsmsk(ji,jk) * trfos(ji,jk)
-!                      IF((m.eq.1.and. jk.eq.1).and.(kt.le.16)) THEN
-!                            WRITE(LOGUNITOBC,*) 'TRSDTAVARIABLE m=',m
-!                            WRITE(LOGUNITOBC,*) 'ii=' ,ii,'ji=',ji,'kt=',kt,'nimpp=',nimpp
-!                            CALL flush(LOGUNITOBC)
-!                      ENDIF
                END DO
             END DO
          END DO
@@ -768,12 +706,6 @@
          END DO
 
       END IF   
-!     END IF   
-!    END DO
    END SUBROUTINE obc_trc_bfm_south
-#else
-   SUBROUTINE obctrc_bfm( kt,m )
-   ! empty routine when OBC are not defined
-   INTEGER, INTENT( in ) ::   kt,m
-   END SUBROUTINE obctrc_bfm
+
 #endif

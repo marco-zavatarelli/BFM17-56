@@ -17,7 +17,7 @@
   MODULE mem_globalfun
 !
 ! !USES:
-  USE global_mem, ONLY:RLEN, ZERO, BASETEMP
+  USE global_mem, ONLY:RLEN, ZERO, ONE, BASETEMP
 
 !  
 !
@@ -56,8 +56,8 @@ FUNCTION INSW_VECTOR(input)
         real(RLEN),intent(IN) ::input(:)
         real(RLEN) ::INSW_VECTOR(size(input))
 
-        INSW_VECTOR =0.0D+00
-        where (input > 0.0D+00 ) INSW_VECTOR=1.0D+00 
+        INSW_VECTOR = ZERO
+        where (input > ZERO ) INSW_VECTOR=ONE 
 
         end function INSW_VECTOR
 FUNCTION MM_VECTOR(vector,param)
@@ -73,13 +73,8 @@ FUNCTION MM_POWER_VECTOR(vector,param,pow)
         integer               ::pow
         real(RLEN)            ::vector(:)
         real(RLEN)            ::MM_POWER_VECTOR(size(vector))
-        real(RLEN)            ::dummy(size(vector))
 
-        dummy = 1.0D+00
-        do i = 1,pow
-           dummy = dummy*vector
-        end do
-        MM_POWER_VECTOR= dummy / ( dummy +  PARAM**pow)
+        MM_POWER_VECTOR= VECTOR**pow / ( VECTOR**pow+  PARAM**pow)
 
         end function MM_POWER_VECTOR
 FUNCTION eramp_VECTOR(x, m)
@@ -87,9 +82,9 @@ FUNCTION eramp_VECTOR(x, m)
         real(RLEN),intent(IN) ::m
         real(RLEN)            ::eramp_VECTOR(size(x))
 
-        eramp_VECTOR =0.0D+00
-        where (x > 0 ) 
-           eramp_VECTOR=1.0D+00 
+        eramp_VECTOR =ZERO
+        where (x > ZERO ) 
+           eramp_VECTOR=ONE 
            where (X< M) eramp_VECTOR=X/M;
         endwhere
 
@@ -113,14 +108,14 @@ FUNCTION PartQ_vector(p, d_a, d_b, d_m)
         ALLOCATE(norm(size(p)))
         ALLOCATE(r(size(p)))
 
-        c1 = min(p * (-1.0 * log(1.0D-20)), d_m);
+        c1 = min(p * (-ONE * log(1.0E-20_RLEN)), d_m);
         b1 = min(d_b, c1);
         a1 = min(d_a, b1);
-        r=0.0D+00
-        where ( d_a ==0.0 ) r=1.0D+00
+        r=ZERO
+        where ( d_a ==ZERO ) r=ONE
 
-        where (c1 > 0.0D+0 .and. p /= 0.0D+00)
-           norm = 1.0D+00 - exp((- c1) / p);
+        where (c1 > ZERO .and. p /= ZERO)
+           norm = ONE - exp((- c1) / p);
            PartQ_vector= (exp( -a1 / p) - exp(- b1 / p)) / norm;
         elsewhere 
            PartQ_VECTOR =r
@@ -142,19 +137,19 @@ function IntegralExp(alfa,x)
         real(RLEN),intent(IN)       :: x
         real(RLEN)                 :: IntegralExp
         
-        IntegralExp=(exp(alfa * x) -1.0D+00)/alfa
+        IntegralExp=(exp(alfa * x) -ONE)/alfa
         end function IntegralExp
 FUNCTION INSW(input)
         real(RLEN),intent(IN) ::input
         real(RLEN) ::INSW
 
-        INSW =0.0D+00
-        if (input > 0.0D+00 ) INSW=1.0D+00 
+        INSW =ZERO
+        if (input > ZERO ) INSW=ONE 
 
         end function INSW
 
-  end module
-!BOP
+  end module mem_globalfun
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

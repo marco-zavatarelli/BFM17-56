@@ -43,7 +43,7 @@ IMPLICIT NONE
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-
+ 
    !---------------------------------------------
    ! Assign temperature, salinity and density
    !---------------------------------------------
@@ -51,19 +51,14 @@ IMPLICIT NONE
       ETW = pack(tn_io,SEAmask)
       ESW = pack(sn_io,SEAmask)
       ERHO = pack(rhop_io,SEAmask)
-#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily || defined key_flx_ecmwf_mfs
    !---------------------------------------------
    ! Assign wind speed
    !---------------------------------------------
-      EWIND = pack(vatm_io,SRFmask(:,:,1) )
-#else
-      !MAV: this must be temporary! 
-      EWIND = 5.0_RLEN
-#endif
+      EWIND = pack(wndm_io,SRFmask(:,:,1) )
    !---------------------------------------------
    ! Assign Sea-ice cover
    !---------------------------------------------
-      EICE = pack(freeze_io,SRFmask(:,:,1) )
+      EICE = pack(fr_i_io,SRFmask(:,:,1) )
 #else
       DO n = 1,NO_BOXES
          ETW(n) = tn_io(iwet(n),jwet(n),kwet(n))
@@ -75,17 +70,11 @@ IMPLICIT NONE
          !---------------------------------------------
          ! Assign wind speed
          !---------------------------------------------
-#if defined key_flx_bulk_monthly || defined key_flx_bulk_daily || defined key_flx_ecmwf_mfs
-         EWIND(n) = vatm_io(iwet(n),jwet(n))
-
-#else
-         !MAV: this must be temporary! 
-         EWIND(n) = 5.0_RLEN
-#endif
+         EWIND(n) = wndm_io(iwet(n),jwet(n))
          !---------------------------------------------
          ! Assign Sea-ice cover
          !---------------------------------------------
-         EICE(n) = freeze_io(iwet(n),jwet(n))
+         EICE(n) = fr_i_io(iwet(n),jwet(n))
       END DO
 
 #endif
@@ -106,9 +95,11 @@ IMPLICIT NONE
    ! Assign surface irradiance to the first layer.
    ! (converted to PAR and uE,
    ! add parametric zero for nighttime)
+   ! Initialise the bioshading array if ln_qsr_bio
    !---------------------------------------------
       allocate(rtmp3Da(jpi,jpj,jpk)); rtmp3Da = ZERO
-      rtmp3Da(:,:,1) = p_PAR*(qsr(:,:)+p_small)/E2W 
+      rtmp3Da(:,:,1) = p_PAR*(qsr_io(:,:)+p_small)/E2W 
+      if (ln_qsr_bio) etot3(:,:,1) = qsr_io(:,:)
 
    !---------------------------------------------
    ! Compute extinction coefficient
@@ -118,7 +109,6 @@ IMPLICIT NONE
    !---------------------------------------------
    ! temporarely unpack it from the 1D array 
    ! to 3D grid (apply land-sea mask)
-   ! Then compute the light climate and repack
    !---------------------------------------------
       allocate(rtmp3Db(jpi,jpj,jpk))
 #ifdef USEPACK
@@ -128,11 +118,29 @@ IMPLICIT NONE
          rtmp3Db(iwet(n),jwet(n),kwet(n)) = xEPS(n)
       END DO
 #endif
-      do k = 1,jpk-1
+
+   !---------------------------------------------
+   ! Compute the light climate and repack
+   ! Note that in BFM light is defined at the
+   ! top of each level (W grid in OPA)
+   !---------------------------------------------
+   ! Bioshading is also stored if ln_qsr_bio 
+   ! is true in namelist and passed to OPA
+   ! (converted back to W m-2 and on the T grid)
+   ! The dynamics of active tracers is 
+   ! computed after the BFM call.
+   ! It already includes the abiotic part, so that
+   ! the BFM extinction coefficients are used
+   ! and not the OPA ones
+   !---------------------------------------------
+      do k = 1,jpkm1
          do j = 1,jpj
             do i = 1,jpi
-               rtmp3Da(i,j,k+1) = rtmp3Da(i,j,k)* &
-                       exp(-rtmp3Db(i,j,k)*fse3t(i,j,k))
+               rtmp3Da(i,j,k+1) = rtmp3Da(i,j,k)*               &
+                                  exp(-rtmp3Db(i,j,k)*fse3w(i,j,k))
+               if (ln_qsr_bio) & 
+			       etot3(i,j,k+1) = etot3(i,j,k)*    &
+                                  exp(-rtmp3Db(i,j,k)*fse3t(i,j,k))
             end do 
          end do 
       end do 
@@ -145,22 +153,25 @@ IMPLICIT NONE
 #endif
 
    !---------------------------------------------
-   ! bioshading is stored to be passed to OPA
-   ! (converted back to W m-2)
-   ! The dynamics of active tracers is indeed
-   ! computed after the BFM.
-   ! It already includes the abiotic part, so that
-   ! the BFM extinction coefficients are used
-   ! and not the OPA ones
-   !---------------------------------------------
-      etot3(:,:,:) = rtmp3Da(:,:,:)*E2W/p_PAR
-
-   !---------------------------------------------
    ! Deallocate temporary arrays
    !---------------------------------------------
       deallocate(rtmp3Da)
       deallocate(rtmp3Db)
-
+	  
+   !---------------------------------------------
+   ! Reset cumulative arrays
+   !---------------------------------------------
+      tn_io(:,:,:)=ZERO
+      sn_io(:,:,:)=ZERO
+      wn_io(:,:,:)=ZERO
+      un_io(:,:,:)=ZERO
+      vn_io(:,:,:)=ZERO
+      avt_io(:,:,:)=ZERO
+      qsr_io(:,:)=ZERO
+      wndm_io(:,:)=ZERO
+      fr_i_io(:,:)=ZERO
+      rhop_io(:,:,:)=ZERO
+		 
    end subroutine envforcing_bfm
 !EOC
 !-----------------------------------------------------------------------

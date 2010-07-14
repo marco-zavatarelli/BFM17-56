@@ -18,24 +18,30 @@
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_BOXES_XY, NO_D3_BOX_DIAGNOSS,     &
-                  NO_STATES,Depth,D3STATE
+                  NO_STATES,Depth,D3STATE,PELRIVER
 #ifdef INCLUDE_BEN
    use mem, only: NO_D2_BOX_STATES, NO_D2_BOX_DIAGNOSS, &
                   D2STATE
 #endif
    use mem, only: Volume, Area, Area2d
-   use global_mem, only:RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
+   use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s
+#ifdef INCLUDE_PELCO2
+   use mem, only: ppO3c,ppO3h
+#endif
+   use global_mem, only:RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
+                        error_msg_prn,ONE
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm
    ! NEMO modules
    USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd    
+   use trc
    use oce_trc
    use iom_def,    only:jpdom_data
    use iom
-   ! shared variables for bioshading
-   use trc_oce, only: lk_qsr_sms,etot3
-
+   use sbc_oce, only: ln_rnf
+   use trc_oce, only: etot3
+   
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -56,6 +62,10 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
+   !-------------------------------------------------------
+   ! Initial allocations
+   !-------------------------------------------------------   
    allocate(SEAmask(jpi,jpj,jpk))  ! allocate  masks for
    allocate(BOTmask(jpi,jpj,jpk))  ! array packing
    allocate(SRFmask(jpi,jpj,jpk))
@@ -168,14 +178,21 @@
    SRFindices = find(btmp1D,NO_BOXES_XY)
    deallocate(btmp1D)
 
-   !---------------------------------------------
-   ! Initialise the OPA array to store biological 
-   ! light extinction. Used in traqsr.F90 and passed
-   ! via oce_trc.F90
-   !---------------------------------------------
-   lk_qsr_sms = .TRUE.
-   etot3 = ZERO
-   
+   !-------------------------------------------------------
+   ! Prepares the array containing the 1D mask with
+   ! 1.0 in the location of the river grid points and
+   ! 0.0 elsewhere
+   !-------------------------------------------------------
+   allocate(RIVmask(NO_BOXES_XY)) 
+   allocate(rtmp1D(NO_BOXES_XY))
+   rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
+   where (btmp1d>ZERO)
+     RIVmask = ONE
+   elsewhere
+     RIVmask = ZERO
+   end where
+   deallocate(rtmp1D)
+	     
    !---------------------------------------------
    ! Assign the rank of the process 
    ! (meaningful only with key_mpp)
@@ -273,8 +290,30 @@
       allocate(D2STATEB(NO_D2_BOX_STATES,NO_BOXES))
       D2STATEB = D2STATE
 #endif
-
    end if
+
+   if (ln_rnf) then
+      !-------------------------------------------------------
+      ! Fill-in the initial river concentration
+      ! MAV: the strategy is to assign the initial values for 
+      ! selected variables. Since the mask is zero elsewhere,
+	  ! the initial concentration close to the mouth is used
+      !-------------------------------------------------------
+      PELRIVER(ppO2o,:) = RIVmask(:)*D3STATE(ppO2o,SRFindices)
+      PELRIVER(ppN1p,:) = RIVmask(:)*D3STATE(ppN1p,SRFindices)
+      PELRIVER(ppN3n,:) = RIVmask(:)*D3STATE(ppN3n,SRFindices) 
+      PELRIVER(ppN4n,:) = RIVmask(:)*D3STATE(ppN4n,SRFindices)
+      PELRIVER(ppN5s,:) = RIVmask(:)*D3STATE(ppN5s,SRFindices)
+#ifdef INCLUDE_PELCO2
+      PELRIVER(ppO3c,:) = D3STATE(ppO3c,SRFindices)
+      PELRIVER(ppO3h,:) = D3STATE(ppO3h,SRFindices)
+#endif
+   end if
+
+   !-------------------------------------------------------
+   ! Initialise the array containing light bioshading
+   !-------------------------------------------------------
+   if ( ln_qsr_bio ) etot3(:,:,:) = ZERO
 
    return
 

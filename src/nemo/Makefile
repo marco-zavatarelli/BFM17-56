@@ -5,7 +5,6 @@
 # $NEMOLIBDIR is obtained from the parent Makefile via export
 #
 BFMLIB     = $(NEMOLIBDIR)/oce/libopa.a
-
 # BFMDIR path is an environmental variable
 ifndef BFMDIR
   $(error The environment variable BFMDIR is not defined!)
@@ -13,48 +12,58 @@ endif
 BFMSRC 	   = $(BFMDIR)/src/BFM
 BFMNEMOSRC = $(BFMDIR)/src/nemo
 BFMSHARE   = $(BFMDIR)/src/share
-
+space :=
+space +=
+comma := ,
 ## -------------------------------------------------------------------------
 ## BFM CONFIGURATION 
 ## -------------------------------------------------------------------------
-DEFINES += -DDUMMY
+DEFINES +=-DDUMMY
 # Pelagic CO2 flags (activates compilation and macros, true by default)
 INCLUDE_PELCO2=true
 ifeq ($(INCLUDE_PELCO2),true)
-  DEFINES += -DINCLUDE_PELCO2
+DEFINES +=-DINCLUDE_PELCO2
 endif
-ONESOURCE=false
-ifeq ($(ONESOURCE),true)
-DEFINES += -DONESOURCE
-endif
-D1SOURCE=false
+###GELSOMINA
+##ONESOURCE=true
+##ifeq ($(ONESOURCE),true)
+##DEFINES +=-DONESOURCE
+##endif
+D1SOURCE=true
 ifeq ($(D1SOURCE),true)
-DEFINES += -DD1SOURCE
+DEFINES +=-DD1SOURCE
 endif
-BFM_PARALLEL=false
+BFM_PARALLEL=true
 ifeq ($(BFM_PARALLEL),true)
-DEFINES += -DBFM_PARALLEL
+DEFINES +=-DBFM_PARALLEL
 endif
-BFM_NOPOINTERS=false
+BFM_NOPOINTERS=true
 ifeq ($(BFM_NOPOINTERS),true)
-DEFINES += -DBFM_NOPOINTERS
+DEFINES +=-DBFM_NOPOINTERS
 endif
 ##Default usepack
 USEPACK=true
 ifeq ($(USEPACK),true)
-DEFINES += -DUSEPACK
+DEFINES +=-DUSEPACK
 endif
+##rates 
+STORERATES_NEMO=true
+ifeq ($(STORERATES_NEMO),true)
+DEFINES +=-DSTORERATES_NEMO
+endif
+
 ## NEMO modules (with absolute path)
 F_O += -I$(NEMOLIBDIR)/oce
 ## BFM include files and pp macros
 BFMINCDIR = $(BFMDIR)/src/BFM/include
 F_O += -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
-P_P += -DBFM_NEMO  $(DEFINES)
-
+####F_O += -O3 -qrealsize=8 -q64 -qarch=pwr6 -qtune=pwr6 -I$(BFMINCDIR) -I$(BFMDIR)/include -I$(NCDF_INC) -I$(NEMOWORKDIR) -I$(NEMOLIBDIR)/oce
+P_P +=-DBFM_NEMO,$(DEFINES)
+P_P :=$(subst $(space),$(comma),$(P_P))
 ## specific options for NEC-SX
 ifeq ($(FORTRAN_COMPILER),NECSX6)
 AR=${SXAR}
-P_P += -DBFM_NOPOINTERS -DNECSX 
+P_P += -DBFM_NOPOINTERS -DNECSX -DBFM_PARALLEL -DONESOURCE
 INLINE = -pi auto line=200 expin=$(BFMDIR)/src/BFM/General,$(BFMDIR)/src/share,$(BFMDIR)/src/BFM/PelB,$(BFMDIR)/src/BFM/CO2 exp=sourcesink_flux_vector,flux_vector,flux,fixed_quota_flux_vector,Source_D3_vector nest=10 rexp=PhytoDynamics,MicroZooDynamics,MesoZooDynamics,fixed_quota_flux_vector,flux_vector,Source_D3_vector,calcco2system
 P_P += -R2 -EP -sx8r -Chopt $(INLINE) -Wf,-P nh -Wf,-A idbl4 -Wf,-pvctl expand=5 noassume loopcnt=500000 fullmsg -Wf,-L fmtlist transform map summary noinclist 
 endif
@@ -76,7 +85,7 @@ BFM_PELMOD = \
 	${BFMLIB}(${BFMSRC}/PelB/ModulePelChem.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/ModulePelGlobal.o)			\
 	${BFMLIB}(${BFMSRC}/PelB/ModulePhyto.o)				\
-	${BFMLIB}(${BFMSRC}/PelBen/ModuleSettling.o)
+	${BFMLIB}(${BFMSRC}/PelBen/ModuleSettling.o)                    
 
 
 BFMNEMO_OBJ   = \
@@ -96,15 +105,17 @@ BFMNEMO_OBJ   = \
 	${BFMLIB}(${BFMNEMOSRC}/trcobcdta_bfm.o)	\
 	${BFMLIB}(${BFMNEMOSRC}/trcnxt_bfm.o)    	\
 	${BFMLIB}(${BFMNEMOSRC}/obctrc_bfm.o)    	\
+        ${BFMLIB}(${BFMNEMOSRC}/trcriver.o)             \
 	${BFMLIB}(${BFMNEMOSRC}/trc_trp_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_sbc_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_set_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_sink_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/trc_sink_muscl_bfm.o)	\
+	${BFMLIB}(${BFMNEMOSRC}/ModuleAlternativeRates.o)	\
 	${BFMLIB}(${BFMNEMOSRC}/trc_dia_bfm.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/GetDelta.o)		\
 	${BFMLIB}(${BFMNEMOSRC}/D3toD1.o)		\
-	${BFMLIB}(${BFMNEMOSRC}/D2toD1.o)
+	${BFMLIB}(${BFMNEMOSRC}/D2toD1.o)               
 
 BFM_PELOBJ = \
 	${BFMLIB}(${BFMSRC}/General/set_var_info_bfm.o)			\
@@ -151,7 +162,7 @@ endif
 #include .depend
 
 all: $(BFM_PELMOD) $(BFM_PELCO2MOD) $(BFMNEMO_OBJ) $(BFM_PELOBJ) \
-	$(BFM_PELCO2OBJ) depend 
+	$(BFM_PELCO2OBJ) 
 
 $(BFM_PELMOD) : $(BFMSRC)/General/ModuleMem.F90
 

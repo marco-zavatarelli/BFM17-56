@@ -70,7 +70,8 @@
 ! ==================
    use oce_trc          ! ocean dynamics and active tracers variables
    use trc              ! ocean passive tracers variables
-
+   use constants, ONLY: DAY_PER_SEC
+   
       IMPLICIT NONE
 #include "domzgr_substitute.h90"
 !
@@ -97,11 +98,10 @@
 ! Set first level velocity to 0
 ! and shift array downward
 ! Conversion m/d -> m/s
-! rjjss:   number of seconds in one day
 !-------------------------------
    ws(:,:,:) = 0.0_wp
    do jk=1,jpk-1
-      ws(:,:,jk+1) = ws_in(:,:,jk)/rjjss*tmask(:,:,jk+1)
+      ws(:,:,jk+1) = ws_in(:,:,jk)*DAY_PER_SEC*tmask(:,:,jk+1)
    end do
 
    do jj = 1, jpj      

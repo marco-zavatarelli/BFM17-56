@@ -11,21 +11,16 @@
 !   This is the coupling interface between benthic and pelagic systems.
 !   This routine is called after the computation of benthic processes
 !   and assign boundary fluxes
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine BentoPelCoupDynamics
 !
+#ifdef INCLUDE_BEN
 ! !USES:
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#ifdef INCLUDE_BEN
   use global_mem, ONLY:RLEN,ZERO,ONE
 #ifdef NOPOINTERS
   use mem

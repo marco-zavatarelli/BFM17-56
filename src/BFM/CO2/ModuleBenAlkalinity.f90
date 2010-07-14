@@ -6,19 +6,11 @@
 ! !ROUTINE: BenCO2Transport
 !
 ! DESCRIPTION
-!   This file holds all alternative parameter values for parameters
-!	defined in the process BenCO2Transport.p.
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   module mem_BenAlkalinity
 !
+#ifdef INCLUDE_BENCO2
 ! !USES:
 
   use global_mem
@@ -86,9 +78,9 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading BenAlkalinity parameters.."
-open(NMLUNIT,file='BenAlkalinity.nml',status='old',action='read',err=100)
+    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+    write(LOGUNIT,*) "#  Reading BenAlkalinity parameters.."
+    open(NMLUNIT,file='BenAlkalinity.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=BenAlkalinity,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -104,8 +96,9 @@ open(NMLUNIT,file='BenAlkalinity.nml',status='old',action='read',err=100)
 101 call error_msg_prn(NML_READ,"InitBenAlkalinity.f90","BenAlkalinity")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitBenAlkalinity
+#endif
   end module mem_BenAlkalinity
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

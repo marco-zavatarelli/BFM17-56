@@ -13,7 +13,6 @@
 !
 ! !USES:
   use global_mem
-  use constants, ONLY: RLEN,ZERO
   IMPLICIT NONE
 !  
 !
@@ -90,7 +89,8 @@
   subroutine InitCO2()
 
   use mem, ONLY: EPCO2air,pH
-
+  use global_mem
+  
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     namelist /CO2_parameters/ pco2air,K1K2,MethodCalcCO2,phscale,phstart
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

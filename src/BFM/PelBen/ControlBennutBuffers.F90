@@ -30,28 +30,11 @@
 !       different nutrients are calculated according to Redfield
 !       The user decides which nutrients should be handled
 !          
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine ControlBennutBuffersDynamics
 !
+#ifdef INCLUDE_BEN
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: Q6n, D9m, D7m, Q6p, &
-  ! D8m, Q6s
-  ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, BoxNumberY, NO_BOXES_Y, &
-  ! BoxNumber, BoxNumberXY
-  ! The following Benthic 1-d global boxvars are modified : jbotN4n, jbotN1p, &
-  ! jbotN5s
-  ! The following Benthic 1-d global boxvars are used: N4n_Ben, &
-  ! Depth_Ben, jbotR6n, N1p_Ben, jbotR6p, N5s_Ben, jbotR6s
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -154,6 +137,7 @@
 
   end do
 
+#endif
   end subroutine ControlBennutBuffersDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

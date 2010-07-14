@@ -9,16 +9,11 @@
 ! !ROUTINE: PelForcingForBen
 !
 ! DESCRIPTION
-!   !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine PelForcingForBenDynamics
 !
+#ifdef INCLUDE_BEN
 ! !USES:
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -185,7 +180,7 @@
       ! depth of the level above the sediment
       Depth_Ben(:)  =   Depth(BOTindices)
 
-
+#endif
   end subroutine PelForcingForBenDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

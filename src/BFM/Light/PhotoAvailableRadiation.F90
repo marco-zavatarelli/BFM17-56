@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -30,31 +30,17 @@
 !     with y = irradiance/optimal
 ! 
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
-  subroutine PhotoAvailableRadiationDynamics(phyto, ppphytoc, ppphyton, &
+  subroutine PhotoAvailableRadiation(phyto, ppphytoc, ppphyton, &
     ppphytop, ppphytos, ppphytol)
 !
 ! !USES:
-  ! The following box states are used (NOT in fluxes): PhytoPlankton
-  ! The following Pelagic 1-d global vars are used: D3STATETYPE
-  ! The following Pelagic 1-d global boxvars  are used: EIR, xEPS, Depth
-  ! The following Pelagic 2-d global boxvars are modified : EPLi
-  ! The following Pelagic 2-d global boxvars got a value: eiPI
-  ! The following constituent constants  are used: iiL
-  ! The following 0-d global parameters are used: LightForcingFlag
-  ! The following global constants are used: RLEN,NOTRANSPORT
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN,NOTRANSPORT
+  use global_mem, ONLY:RLEN,ZERO,ONE,NOTRANSPORT
 #ifdef NOPOINTERS
   use mem
 #else
@@ -186,8 +172,8 @@
 
 
 
-  noon_light  =   EIR(:)* 1.7596D+00  ! magic number = 2 * 2PI/(4+PI)
-  afternoon_light  =   EIR(:)* 1.0620D+00  ! magic number = (sqrt(2)+1)/2* 2PI/(4+PI)
+  noon_light  =   EIR(:)* 1.7596E+00_RLEN  ! magic number = 2 * 2PI/(4+PI)
+  afternoon_light  =   EIR(:)* 1.0620E+00_RLEN  ! magic number = (sqrt(2)+1)/2* 2PI/(4+PI)
 
   xd  =   xEPS(:)* Depth(:)
   exfac  =   exp( - xd)
@@ -205,20 +191,20 @@
 
     case ( 0 )
       ! Steele - Di Toro
-      f_0_mean  =   exp(  1.0D+00- pIRR0)
-      f_z_mean  =   exp(  1.0D+00- pIRRZ)
+      f_0_mean  =   exp(  ONE- pIRR0)
+      f_z_mean  =   exp(  ONE- pIRRZ)
       corr_mean  =  ( f_z_mean- f_0_mean)/ xd
-      corr_irra  =  ( f_z_mean- f_0_mean)/ xd* 6.0D+00
-      corr_irrb  =   0.0D+00
+      corr_irra  =  ( f_z_mean- f_0_mean)/ xd* 6.0E+00_RLEN
+      corr_irrb  =   ZERO
 
 
 
     case ( 1 )
       ! Steele
-      f_0_noon  =   exp(  1.0D+00- pirr0_noon)
-      f_z_noon  =   exp(  1.0D+00- pirrz_noon)
-      f_0_afternoon  =   exp(  1.0D+00- pirr0_afternoon)
-      f_z_afternoon  =   exp(  1.0D+00- pirrz_afternoon)
+      f_0_noon  =   exp(  ONE- pirr0_noon)
+      f_z_noon  =   exp(  ONE- pirrz_noon)
+      f_0_afternoon  =   exp(  ONE- pirr0_afternoon)
+      f_z_afternoon  =   exp(  ONE- pirrz_afternoon)
       corr_irra  =  -( f_0_noon- f_z_noon)/ xd
       corr_irrb  =  -( f_0_afternoon- f_z_afternoon)/ xd
 
@@ -230,22 +216,22 @@
       f_z_noon  =   atan(pirrz_noon)
       f_0_afternoon  =   atan(pirr0_afternoon)
       f_z_afternoon  =   atan(pirrz_afternoon)
-      corr_irra  =   2.0D+00*( f_0_noon- f_z_noon)/ xd
-      corr_irrb  =   2.0D+00*( f_0_afternoon- f_z_afternoon)/ xd
+      corr_irra  =   2.0E+00_RLEN*( f_0_noon- f_z_noon)/ xd
+      corr_irrb  =   2.0E+00_RLEN*( f_0_afternoon- f_z_afternoon)/ xd
 
 
 
     case ( 3 )
-      rampcontrol  =   2* int(insw_vector(  pirrz_noon- 1.0D+00))
+      rampcontrol  =   2* int(insw_vector(  pirrz_noon- ONE))
       rampcontrol = min( 2, rampcontrol+ int(insw_vector( pirr0_noon- &
-        1.0D+00)))
+        ONE)))
 
         WHERE (( rampcontrol)==2)
           corr_irra  =  ( log(  pirr0_noon)- log(  pirrz_noon))/ xd
 
 
         ELSEWHERE (( rampcontrol)==1)
-          corr_irra  =  ( 1.0D+00+ log(  pirr0_noon)- pirrz_noon)/ xd
+          corr_irra  =  ( ONE+ log(  pirr0_noon)- pirrz_noon)/ xd
 
 
         ELSEWHERE (( rampcontrol)==0)
@@ -255,17 +241,17 @@
       END WHERE
 
 
-      rampcontrol  =   2* int(insw_vector(  pirrz_afternoon- 1.0D+00))
+      rampcontrol  =   2* int(insw_vector(  pirrz_afternoon- ONE))
       rampcontrol = min( 2, rampcontrol+ int(insw_vector( pirr0_afternoon- &
-        1.0D+00)))
+        ONE)))
 
 
         WHERE (( rampcontrol)==2)
-          corr_irrb  =   1.0D+00
+          corr_irrb  =   ONE
 
 
         ELSEWHERE (( rampcontrol)==1)
-          corr_irrb  =  ( 1.0D+00+ log(  pirr0_afternoon)- pirrz_afternoon)/ xd
+          corr_irrb  =  ( ONE+ log(  pirr0_afternoon)- pirrz_afternoon)/ xd
 
 
         ELSEWHERE (( rampcontrol)==0)
@@ -282,33 +268,33 @@
       !Step
       lx0  =   log(  pirr0_noon)
       lxz  =   log(  pirr0_afternoon)
-      corr_irra  =  ( max(  0.0D+00,  lx0)- max(  0.0D+00,  lx0- xd))/ xd
-      corr_irrb  =  ( max(  0.0D+00,  lxz)- max(  0.0D+00,  lxz- xd))/ xd
+      corr_irra  =  ( max(  ZERO,  lx0)- max(  ZERO,  lx0- xd))/ xd
+      corr_irrb  =  ( max(  ZERO,  lxz)- max(  ZERO,  lxz- xd))/ xd
 
 
 
     case ( 5 )
       !Smith:
-      f_0_mean = log( 1.0D+00+ sqrt( (1.0D+00/( 1.D-80+ pIRR0* &
-        exp( 1.0D+00)))**(2.0D+00)+ 1.0D+00))
-      f_z_mean = log( exfac+ sqrt( (1.0D+00/( 1.D-80+ pIRR0* &
-        exp( 1.0D+00)))**(2.0D+00)+ exfac* exfac))
+      f_0_mean = log( ONE+ sqrt( (ONE/( 1.D-80+ pIRR0* &
+        exp( ONE)))**(2.0E+00_RLEN)+ ONE))
+      f_z_mean = log( exfac+ sqrt( (ONE/( 1.D-80+ pIRR0* &
+        exp( ONE)))**(2.0E+00_RLEN)+ exfac* exfac))
       corr_mean  =  ( f_0_mean- f_z_mean)/ xd
-      corr_irra  =  ( f_0_mean- f_z_mean)/ xd* 6.0D+00
-      corr_irrb  =   0.0D+00
+      corr_irra  =  ( f_0_mean- f_z_mean)/ xd* 6.0E+00_RLEN
+      corr_irrb  =   ZERO
 
 
 
     case ( 6 )
       ! Smith II
-      f_0_noon = log( 1.0D+00+ sqrt( (pirr0_noon* exp( 1.0D+00))**(- &
-        2.0D+00)+ 1.0D+00))
-      f_z_noon = log( exfac+ sqrt( (pirr0_noon* exp( 1.0D+00))**(- &
-        2.0D+00)+ exfac* exfac))
-      f_0_afternoon = log( 1.0D+00+ sqrt( (pirr0_afternoon* exp( &
-        1.0D+00))**(- 2.0D+00)+ 1.0D+00))
-      f_z_afternoon = log( exfac+ sqrt( (pirr0_afternoon* exp( 1.0D+00))**(- &
-        2.0D+00)+ exfac* exfac))
+      f_0_noon = log( ONE+ sqrt( (pirr0_noon* exp( ONE))**(- &
+        2.0E+00_RLEN)+ ONE))
+      f_z_noon = log( exfac+ sqrt( (pirr0_noon* exp( ONE))**(- &
+        2.0E+00_RLEN)+ exfac* exfac))
+      f_0_afternoon = log( ONE+ sqrt( (pirr0_afternoon* exp( &
+        ONE))**(- 2.0E+00_RLEN)+ ONE))
+      f_z_afternoon = log( exfac+ sqrt( (pirr0_afternoon* exp( ONE))**(- &
+        2.0E+00_RLEN)+ exfac* exfac))
       corr_irra  =  ( f_0_noon- f_z_noon)/ xd
       corr_irrb  =  ( f_0_afternoon- f_z_afternoon)/ xd
 
@@ -323,13 +309,13 @@
 
     case ( 1 )
       !rectangular integration:
-      eiPI(phyto,:)  =   min(  1.0D+00,  corr_mean)
+      eiPI(phyto,:)  =   min(  ONE,  corr_mean)
 
 
 
     case ( 3 )
       !   Simpson integration is used as default:
-      eiPI(phyto,:)  =  ( corr_irra+ 4.0D+00* corr_irrb)/ 6.0D+00
+      eiPI(phyto,:)  =  ( corr_irra+ 4.0E+00_RLEN* corr_irrb)/ 6.0E+00_RLEN
 
 
   end select
@@ -340,8 +326,8 @@
 
 
 
-  end
-!BOP
+  end subroutine PhotoAvailableRadiation
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

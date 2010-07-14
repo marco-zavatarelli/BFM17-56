@@ -78,12 +78,12 @@
   !   calc theoretical oxygen saturation for temp + salinity
   !   From WEISS 1970 DEEP SEA RES 17, 721-735.
   !   units of ln(ml(STP)/l)
-  h = - 173.4292_RLEN+ 249.6339_RLEN/ abt+ 143.3483_RLEN* dlog( &
-    abt)- 21.8492_RLEN* abt+ ESW(:)*(- 0.033096_RLEN+ 0.014259_RLEN* abt- &
+  h = - 173.4292_RLEN+ 249.6339_RLEN/ abt+ 143.3483_RLEN* log(abt) - &
+    21.8492_RLEN* abt+ ESW(:)*(- 0.033096_RLEN+ 0.014259_RLEN* abt- &
     0.0017_RLEN* (abt)**(2.0_RLEN))
 
   ! convert units to ml(STP)/l
-  h  =   dexp(h)
+  h  =   exp(h)
 
   ! convert to mMol/m3
   !   calc volume of an ideal gas at standard temp (25C) and

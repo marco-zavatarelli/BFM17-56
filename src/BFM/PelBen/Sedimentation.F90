@@ -13,15 +13,10 @@
 !	a, fluxes of detritus (slow degradable and labile organic detritus)
 !       b. Changes in organic matter distribution depths 
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine SedimentationDynamics
 !
+#ifdef INCLUDE_BEN
 ! !USES:
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -37,9 +32,6 @@
     ppD6m, ppD7m, ppD8m, ppD9m, jbotR6c, jbotR6n, jbotR6p, jbotR6s, jbotR1c,  &
     jbotR1n, jbotR1p, iiBen, iiPel, flux_vector
 #endif
-
-
-
 !  
 !
 ! !AUTHORS
@@ -49,8 +41,6 @@
 !
 ! !REVISION_HISTORY
 !   Created at Mon Nov 21 09:11:50 CET 2005
-!
-!
 !
 ! COPYING
 !   
@@ -111,6 +101,7 @@
    call RecalcPenetrationDepth(D1m(:), D9m(:), -jbotR6s(:)*Delta, Q6s(:),newDm(:) )
    call flux_vector(iiBen, ppD9m,ppD9m,(newDM(:)- D9m(:))/Delta)
 
+#endif
   end subroutine SedimentationDynamics
 
 !EOC

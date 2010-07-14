@@ -120,10 +120,8 @@
    !---------------------------------------------
    ! indices of bottom and surface points
    integer,allocatable,dimension(:),public     :: BOTindices,SRFindices
-   ! real mask of river points
+   ! real mask of river points at surface
    real(RLEN),allocatable,dimension(:),public  :: RIVmask
-   ! concentration at river points
-   real(RLEN),allocatable,dimension(:),public  :: RIVconcentration
 
 #ifdef BFM_NEMO
    !---------------------------------------------
@@ -136,8 +134,6 @@
    logical,allocatable,dimension(:,:,:),public     :: BOTmask
    ! 3D boolean mask of the surface points
    logical,allocatable,dimension(:,:,:),public     :: SRFmask
-   ! 2D real river mask
-   real(RLEN),allocatable,dimension(:,:),public    :: rmask
 
    !---------------------------------------------
    ! 3D Indices of the wet points

@@ -12,23 +12,11 @@
 !   This routine describes the photoadaptation of the phytoplankton to 
 !	the prevailing irradiance level at depth
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine LightAdaptationDynamics(phyto, ppphytoc, ppphyton, ppphytop, &
     ppphytos, ppphytol)
 !
 ! !USES:
-  ! For the following Pelagic-group-states fluxes are defined: PhytoPlankton
-  ! The following Pelagic 1-d global vars are used: D3STATETYPE
-  ! The following Pelagic 1-d global boxvars  are used: Depth, xEPS, EIR
-  ! The following Pelagic 2-d global boxvars  are used: EPLi
-  ! The following constituent constants  are used: iiL, iiC
-  ! The following global constants are used: RLEN,NOTRANSPORT
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -78,7 +66,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -123,7 +111,7 @@
   phytol = D3STATE(ppphytol,:)
 
 
-  ! EPLi[%phyto] has been already calculated in Irradiance_PI.p
+  ! EPLi[%phyto] has been already calculated 
 
   ! computation of the change in IRR_OPT
   ! adaptation to the light in the depth p_addepth below surface.
@@ -143,7 +131,7 @@
       new_EPLi  =   min(  new_EPLi,  p_chEPLi(phyto))
 
     case ( 2 )
-      new_EPLi = max( 2.0D+00* eir_c* p_chEPLi(phyto)/( &
+      new_EPLi = max( 2.0E+00_RLEN* eir_c* p_chEPLi(phyto)/( &
         eir_c+ p_chEPLi(phyto)), p_clEPLi(phyto))
       new_EPLi  =   min(  new_EPLi,  p_chEPLi(phyto))
 

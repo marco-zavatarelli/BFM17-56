@@ -41,6 +41,7 @@
 ! !LOCAL VARIABLES:
    ! 3D sinking velocity field
    integer               :: ji, jj, jk,n
+   integer,parameter     :: KSINK=20 ! set to jpk to exclude
    real(RLEN),parameter  :: depth_factor = 2000.0_RLEN
    real(RLEN)            :: zfact,timestep,wsmax
    real(RLEN)            ::  wbio(jpi,jpj,jpk)   
@@ -67,6 +68,12 @@
             wbio(iwet(n),jwet(n),kwet(n)) = -sediPI(iiP1,n)
          END DO
 #endif
+         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+         ! Prescribe sinking velocity below 
+         ! level KSINK (usually > 150 m)
+         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+         wbio(:,:,KSINK:jpk) = -p_rR6m
+
          !CALL trc_sink_muscl_bfm(wbio)       ! vertical sinking
          CALL trc_sink_bfm(wbio)       ! vertical sinking
       case (ppR6c,ppR6n,ppR6p,ppR6s)

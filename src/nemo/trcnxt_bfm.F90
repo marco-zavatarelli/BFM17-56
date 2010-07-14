@@ -3,7 +3,7 @@ MODULE trcnxtbfm
 !   !!                       ***  MODULE  trcnxt  ***
 !   !! Ocean passive tracers:  time stepping on passives tracers
 !   !!======================================================================
-#if defined key_passivetrc   
+#if defined key_top && defined key_bfm
 !   !!----------------------------------------------------------------------
 !   !!   trc_nxt     : time stepping on passive tracers
 !   !!----------------------------------------------------------------------
@@ -85,11 +85,11 @@ CONTAINS
 
       IF( kt == nittrc000 .AND. lwp ) THEN
          WRITE(numout,*)
-         WRITE(numout,*) 'trc_nxt_bfm : time stepping on BFM tracers'
+         WRITE(numout,*) 'trc_nxt_bfm : time stepping on BFM tracer',m
       ENDIF
 
 
-      DO jn = 1, jptra
+      jn = 1 ! BFM uses only one tracer as a working array
 
          ! 0. Lateral boundary conditions on tra (T-point, unchanged sign)
          ! ---------------------------------============
@@ -109,26 +109,8 @@ CONTAINS
          END DO
 
 #if defined key_obc
-         !                                             ! ===============
-      END DO                                           !   End of slab
-      !                                                ! ===============
-      ! Update tracers on open boundaries.
-      CALL obctrc_bfm(kt,m)
-      !                                                ! ===============
-      DO jn = 1, jptra                                 ! Horizontal slab
-         !                                             ! ===============
-
-#endif
-
-#if defined key_agrif
-         !                                             ! ===============
-      END DO                                           !   End of slab
-      !                                                ! ===============
-      ! Update tracers 
-      CALL Agrif_trc( kt )
-      !                                                ! ===============
-      DO jn = 1, jptra                                 ! Horizontal slab
-         !                                             ! ===============
+         ! Update tracers on open boundaries.
+         CALL obctrc_bfm(kt,m)
 #endif
 
          DO jk = 1, jpk  
@@ -168,8 +150,6 @@ CONTAINS
             ENDIF
             !                                             ! ===============
          END DO                                           !   End of slab
-         !                                                ! ===============
-      END DO
 
       IF(ln_ctl)   THEN  ! print mean trends (used for debugging)
          WRITE(charout, FMT="('nxt')")

@@ -1,13 +1,14 @@
 #include "cppdefs.h"
 #include "DEBUG.h"
 #include "INCLUDE.h"
+module CO2System
 !/*
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !MODULE: co2System
+! !MODULE: CO2System
 !
 ! DESCRIPTION
 !       Calculate co2 equilibrium in seawater starting from 
@@ -70,10 +71,11 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 ! !INTERFACE
-  module co2System
+
 
 ! !USES:
-   use global_mem, ONLY:RLEN
+  use global_mem, ONLY: RLEN
+  
 ! Shared variables
   implicit none
   real(RLEN),public  ::  K0 ! solubility : [Co2]=k0Ac Pco2
@@ -95,7 +97,9 @@
 
   real(RLEN)         :: bt,ft,st,pt,sit
   real(RLEN),parameter   :: T1=1.0_RLEN,T2=2.0_RLEN,T3=3.0_RLEN
-
+  
+  public CalcCO2System, CalcHplus, CalcK0, drtsafe, drtsafe2, ta_iter_1
+  
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  functions 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -103,10 +107,10 @@
 
 !-------------------------------------------------------------------------!
 !BOP
-! !IROUTINE:  Calcco2System
+! !IROUTINE:  CalcCO2System
 !
 ! !INTERFACE
-  function Calcco2System(mode,salt,temp,rho,n1p,n5s,alk,co2,hco3,co3,ph, &
+  integer function CalcCO2System(mode,salt,temp,rho,n1p,n5s,alk,co2,hco3,co3,ph, &
                          dic_in,pco2_in,dic_out,pco2_out)
 ! !DESCRIPTION
 ! See module preamble
@@ -138,12 +142,11 @@
   real(RLEN),intent(INOUT)         :: ph
   real(RLEN),intent(OUT),optional  :: dic_out
   real(RLEN),intent(OUT),optional  :: pco2_out
-  integer                          :: Calcco2System
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),parameter             :: MEG=1.D6,XACC=1.D-20,  &
+  real(RLEN),parameter             :: MEG=1.E6_RLEN,XACC=1.E-20_RLEN,  &
                                       PERMIL=ONE/1000.0_RLEN,&
                                       PERMEG=ONE/MEG
 
@@ -196,7 +199,7 @@
   ! ---------------------------------------------------------------------
   tk = temp - ZERO_KELVIN
 #ifdef DEBUG
-  LEVEL2 'Entering co2System...'
+  LEVEL2 'Entering CO2System...'
   LEVEL3 'tk',tk,'way',way,'mode',mode
   LEVEL3 'dic',ldic,'ta',ta
   LEVEL3 'pt',pt,'sit',sit
@@ -204,18 +207,18 @@
   tk100 = tk/100.0_RLEN
   tk1002 = tk100*tk100
   invtk = ONE/tk
-  dlogtk = dlog(tk)
+  dlogtk = log(tk)
   ! salinity
   s  = salt
   s2 = salt*salt
-  dsqrts = dsqrt(salt)
+  dsqrts = sqrt(salt)
   s15 = salt**1.5_RLEN
   ! chlorinity
   scl = salt/1.80655_RLEN  
   ! ionic strength
   is = 19.924_RLEN*salt/ (1000._RLEN-1.005_RLEN*salt)
   is2 = is*is
-  dsqrtis = dsqrt(is)
+  dsqrtis = sqrt(is)
 
   !------------------------------------------------------------------------
   ! Calculate concentrations for borate, sulfate, and fluoride
@@ -236,7 +239,7 @@
   ! Weiss & Price (1980, Mar. Chem., 8, 347-359; Eq 13 with table 6 values)
   ! ---------------------------------------------------------------------
   !ff = exp(-162.8301_RLEN + 218.2968_RLEN/tk100  +      &
-  !     90.9241_RLEN*dlog(tk100) - 1.47696_RLEN*tk1002 +  &
+  !     90.9241_RLEN*log(tk100) - 1.47696_RLEN*tk1002 +  &
   !     s * (.025695_RLEN - .025225_RLEN*tk100 +         &
   !     0.0049867_RLEN*tk1002))
 
@@ -261,12 +264,12 @@
      ! ---------------------------------------------------------------------
      lnK = -2307.1266_RLEN*invtk +2.83655_RLEN-1.5529413_RLEN*dlogtk +  &
           (-4.0484_RLEN*invtk - 0.20760841_RLEN) * dsqrts +            &
-          0.08468345_RLEN* s -0.00654208_RLEN * s15+dlog(ONE -0.001005_RLEN* s )
-     K1 = dexp(lnK)
+          0.08468345_RLEN* s -0.00654208_RLEN * s15+log(ONE -0.001005_RLEN* s )
+     K1 = exp(lnK)
      lnK = -3351.6106_RLEN/tk -9.226508_RLEN-0.2005743_RLEN*dlogtk+        &
           (-23.9722_RLEN/tk - 0.10690177_RLEN)*dsqrts + 0.1130822_RLEN* s - &
-          0.00846934_RLEN*s15 + dlog(ONE-0.001005_RLEN* s )
-     K2 = dexp(lnK)
+          0.00846934_RLEN*s15 + log(ONE-0.001005_RLEN* s )
+     K2 = exp(lnK)
   case (2)
      ! ---------------------------------------------------------------------
      ! Mehrbach et al. (1973) as refitted by Dickson and Millero (1987) 
@@ -308,7 +311,7 @@
   lnK = -4576.752_RLEN*invtk + 115.525_RLEN - 18.453_RLEN * dlogtk + &
        (-106.736_RLEN*invtk + 0.69171_RLEN) * dsqrts +               &
        (-0.65643_RLEN*invtk - 0.01844_RLEN) * s
-  Kp(1) = dexp(lnK)
+  Kp(1) = exp(lnK)
   ! ---------------------------------------------------------------------
   ! k2p = [H][HPO4]/[H2PO4] 
   ! ph scale: total
@@ -319,7 +322,7 @@
   lnK = -8814.715_RLEN*invtk + 172.0883_RLEN - 27.927_RLEN * dlogtk + &
        (-160.340_RLEN*invtk + 1.3566_RLEN) * dsqrts +                 &
        (0.37335_RLEN*invtk - 0.05778_RLEN) * s
-  Kp(2) = dexp(lnK)
+  Kp(2) = exp(lnK)
   !------------------------------------------------------------------------
   ! k3p = [H][PO4]/[HPO4] 
   ! ph scale: total
@@ -329,7 +332,7 @@
   lnK = -3070.75_RLEN*invtk - 18.126_RLEN + &
        (17.27039_RLEN*invtk + 2.81197_RLEN) *   &
        dsqrts + (-44.99486_RLEN*invtk - 0.09984_RLEN) * s
-  Kp(3) = dexp(lnK)
+  Kp(3) = exp(lnK)
 
   !------------------------------------------------------------------------
   ! ksi = [H][SiO(OH)3]/[Si(OH)4] ph on Sea Water Scale
@@ -341,8 +344,8 @@
        (-458.79_RLEN*invtk + 3.5913_RLEN) * dsqrtis +              &
        (188.74_RLEN*invtk - 1.5998_RLEN) * is +                   &
        (-12.1652_RLEN*invtk + 0.07871_RLEN) * is2 +               &
-       dlog(ONE-0.001005_RLEN*s)
-  Ksi = dexp(lnK)
+       log(ONE-0.001005_RLEN*s)
+  Ksi = exp(lnK)
 
   !------------------------------------------------------------------------
   ! kw = [H][OH]  ion product of water
@@ -359,7 +362,7 @@
   lnK = intercept -13847.26_RLEN*invtk - 23.6521_RLEN * dlogtk + &
        (118.67_RLEN*invtk - 5.977_RLEN + 1.0495_RLEN * dlogtk) *          &
        dsqrts - 0.01615_RLEN * s
-  Kw = dexp(lnK)
+  Kw = exp(lnK)
 
   !------------------------------------------------------------------------
   ! ks = [H][SO4]/[HSO4] 
@@ -371,8 +374,8 @@
        (-13856._RLEN*invtk + 324.57_RLEN - 47.986_RLEN*dlogtk) * dsqrtis + &
        (35474._RLEN*invtk - 771.54_RLEN + 114.723_RLEN*dlogtk) * is -     &
        2698._RLEN*invtk*is**1.5_RLEN + 1776._RLEN*invtk*is2 +              &
-       dlog(ONE - 0.001005_RLEN*s)
-  Ks = dexp(lnK)
+       log(ONE - 0.001005_RLEN*s)
+  Ks = exp(lnK)
 
   !------------------------------------------------------------------------
   ! kf = [H][F]/[HF] ph on free scale
@@ -381,8 +384,8 @@
   ! Dickson and Riley (1979)  also Dickson and Goyet (1994)
   ! ---------------------------------------------------------------------
   lnK = 1590.2_RLEN*invtk - 12.641_RLEN + 1.525_RLEN*dsqrtis + &
-        dlog(ONE - 0.001005_RLEN*s)
-  Kf = dexp(lnK)
+        log(ONE - 0.001005_RLEN*s)
+  Kf = exp(lnK)
 
   !---------------------------------------------------------------------
   ! kb = [H][BO2]/[HBO2] 
@@ -395,7 +398,7 @@
        (148.0248_RLEN + 137.1942_RLEN*dsqrts + 1.62142_RLEN*s) +  &
        (-24.4344_RLEN - 25.085_RLEN*dsqrts - 0.2474_RLEN*s) *     &
        dlogtk + 0.053105_RLEN*dsqrts*tk
-  Kb = dexp(lnK)
+  Kb = exp(lnK)
 
 
 
@@ -415,7 +418,7 @@
         !Hplus = drtsafe(h1, h2, XACC)
      end if
      if ( error >0 ) then
-        Calcco2System=error
+        CalcCO2System=error
         return
      endif 
      !---------------------------------------------------------------
@@ -436,7 +439,7 @@
      end select
      hco3  =   K1 * co2 / Hplus
      co3   =   K2 * hco3 / Hplus
-     ph    =  -dlog10(Hplus)
+     ph    =  -log10(Hplus)
 
   case (FOLLOWS)
         !--------------------------------------------------
@@ -463,7 +466,7 @@
               ta
          gamm = ldic/cag
          dummy= (ONE-gamm)*(ONE-gamm)*k11 - 4.0_RLEN*k12*(ONE-2.0_RLEN*gamm)
-         Hplus = 0.5_RLEN*((gamm-ONE)*K1 + dsqrt(dummy))
+         Hplus = 0.5_RLEN*((gamm-ONE)*K1 + sqrt(dummy))
          !---------------------------------------------------------------
          ! Derive [co2] as defined in DOE Methods Handbook 1994 Ver.2, 
          ! ORNL/CDIAC-74, Dickson and Goyet, eds. (Ch 2 p 10, Eq A.49)
@@ -482,7 +485,7 @@
          end select
          hco3  =   K1 * co2 / Hplus
          co3   =   K2 * hco3 / Hplus
-         ph    =  -dlog10(Hplus)
+         ph    =  -log10(Hplus)
 
   case ( STATIC )
         !--------------------------------------------------
@@ -499,8 +502,8 @@
         !co2:
         co2  =   K0 * pco2_out
         !ph:
-        ph = - dlog( K1* co2/(2.0_RLEN* dic_in &
-          - ta- 2.0_RLEN* co2))/ dlog( 10.0_RLEN)
+        ph = - log( K1* co2/(2.0_RLEN* dic_in &
+          - ta- 2.0_RLEN* co2))/ log( 10.0_RLEN)
         !co3:
         co3  =   ta - dic_in + co2
         !hco3:
@@ -533,9 +536,9 @@
 #endif
 
   ! return no error
-  Calcco2System = 0
+  CalcCO2System = 0
 
-  end function Calcco2System
+  end function CalcCO2System
 !EOC
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -612,7 +615,7 @@
   db =   T2*x+ K1
 
   !------------------------------------------------------------------------
-  ! This computation depends on the input of co2System above
+  ! This computation depends on the input of CO2System above
   ! ---------------------------------------------------------------------
   select case ( way ) 
     case (1)  ! dic and ALK
@@ -686,7 +689,7 @@
   tk100  =  (temp - ZERO_KELVIN)/ 100.0_RLEN
   tk1002 = tk100*tk100
 
-  CalcK0 = exp(93.4517_RLEN/tk100 - 60.2409_RLEN + 23.3585_RLEN * dlog(tk100) +   &
+  CalcK0 = exp(93.4517_RLEN/tk100 - 60.2409_RLEN + 23.3585_RLEN * log(tk100) +   &
        salt * (.023517_RLEN - 0.023656_RLEN * tk100 + 0.0047036_RLEN * tk1002))
 
   end function CalcK0
@@ -762,7 +765,7 @@ function drtsafe2(x1,x2,xacc,error)
    end if
 
    drtsafe2=0.5_RLEN*(x1+x2)
-   dxold=dabs(x2-x1)
+   dxold=abs(x2-x1)
    dx=dxold
    call CalcHplus(drtsafe2,f,df)
 
@@ -771,7 +774,7 @@ function drtsafe2(x1,x2,xacc,error)
    do while ( .NOT.ready .AND. j<MAXIT)
       j = j+1
       if (((drtsafe2-xh)*df-f)*((drtsafe2-xl)*df-f) >= ZERO .OR. &
-         dabs(2.0_RLEN*f) > dabs(dxold*df) ) then
+         abs(2.0_RLEN*f) > abs(dxold*df) ) then
          dxold=dx
          dx=0.5_RLEN*(xh-xl)
          drtsafe2=xl+dx
@@ -783,7 +786,7 @@ function drtsafe2(x1,x2,xacc,error)
          drtsafe2=drtsafe2-dx
          ready = (temp == drtsafe2)
       end if
-      ready = (dabs(dx) < xacc) 
+      ready = (abs(dx) < xacc) 
       if (.NOT.ready) then
          call CalcHplus(drtsafe2,f,df)
          if (f < ZERO) then
@@ -1004,7 +1007,7 @@ IMPLICIT NONE
 !EOC
 !EOC
 
-end module co2System
+end module CO2System
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -9,46 +9,14 @@
 ! !ROUTINE: BenCO2Transport
 !
 ! DESCRIPTION
-!   Description of the anoxic diagenitic processes in the sediment
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+!   Description of the anoxic diagenetic processes in the sediment
 !
 ! !INTERFACE
   subroutine BenCO2TransportDynamics
 !
 
 #ifdef INCLUDE_BENCO2
-
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: G13c, G3c
-  ! The following Benthic-states are used (NOT in fluxes): D1m, Q1c, D6m, D2m
-  ! The following global vars are modified: dummy
-  ! The following global scalar vars are used: &
-  !    NO_BOXES_XY,  &
-  !   BoxNumberXY, InitializeModel, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : KCO2, jbotO3c
-  ! The following Benthic 1-d global boxvars got a value: DICae, DICan
-  ! The following Benthic 1-d global boxvars are used: rrBTo, &
-  ! irrenh, ETW_Ben, rrATo, O3c_Ben, shiftD1m
-  ! The following Benthic 2-d global boxvars  are used: ruHI
-  ! The following groupmember vars  are used: iiH1
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_d_tot, p_q10diff
-  ! The following global constants are used: RLEN
-  ! The following constants are used: GET, &
-  ! LABDA_1, COEFFICIENT, LAYERS, LAYER1, LAYER2, &
-  ! DIFFUSION, FOR_ALL_LAYERS, POROSITY, ADSORPTION, DOUBLE_DEFINE, &
-  ! ZERO_EXPONENTIAL_TERM, DEFINE, QUADRATIC_TERM, LINEAR_TERM, CONSTANT_TERM, &
-  ! SET_CONTINUITY, FLAG, MASS, SET_BOUNDARY, EQUATION, &
-  ! INPUT_TERM, PARAMETER, START_ADD_TERM, INPUT_ADD_TERM, &
-  ! SET_LAYER_INTEGRAL_UNTIL, LAYER3, SET_LAYER_INTEGRAL, ADD, DERIVATIVE, &
-  ! RFLUX, SHIFT, ONE_PER_DAY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)

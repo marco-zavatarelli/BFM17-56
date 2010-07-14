@@ -417,6 +417,19 @@
          end do
       end if
    end do
+
+   if (.NOT.CalcBacteria) then
+      B1c = p_small; B1n = p_small; B1p = p_small;
+      D3STATETYPE(ppB1c) = NOTRANSPORT
+      D3STATETYPE(ppB1n) = NOTRANSPORT
+      D3STATETYPE(ppB1p) = NOTRANSPORT
+#if defined BFM_NEMO && defined key_obc
+      D3STATEOBC(ppB1c) = NOOBCSTATES
+      D3STATEOBC(ppB1n) = NOOBCSTATES
+      D3STATEOBC(ppB1p) = NOOBCSTATES
+#endif
+   end if
+
 #ifdef INCLUDE_BEN
    do j = 1,iiBenOrganisms
       iiLastElement = iiP
@@ -434,17 +447,6 @@
          end do
       end if
    end do
-   if (.NOT.CalcBacteria) then
-      B1c = p_small; B1n = p_small; B1p = p_small;
-      D3STATETYPE(ppB1c) = NOTRANSPORT
-      D3STATETYPE(ppB1n) = NOTRANSPORT
-      D3STATETYPE(ppB1p) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
-      D3STATEOBC(ppB1c) = NOOBCSTATES
-      D3STATEOBC(ppB1n) = NOOBCSTATES
-      D3STATEOBC(ppB1p) = NOOBCSTATES
-#endif
-   end if
 #endif
 
    return

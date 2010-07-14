@@ -1,4 +1,5 @@
 #include"cppdefs.h"
+#ifdef NETCDF_SINGLE
 #define REAL_4B real(4)
 !-----------------------------------------------------------------------
 !BOP
@@ -1311,7 +1312,7 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 
    end module netcdf_bfm
-
+#endif
 
 !-----------------------------------------------------------------------
 ! Copyright by the GOTM-team under the GNU Public License - www.gnu.org

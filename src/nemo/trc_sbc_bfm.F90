@@ -15,7 +15,8 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
       !!         precipitation ) given in kg/m2/s is divided
       !!         by 1000 kg/m3 (density of plain water) to obtain m/s.
       !!
-      !!         Runoff is separated
+      !!         Runoff is separated into water flux (included in emps)
+	  !!         and mass flux
       !!
       !! ** Action  : - Update the 1st level of tra with the trend associated
       !!                with the tracer surface boundary condition 
@@ -31,108 +32,50 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    !!----------------------------------------------------------------------
 
    ! NEMO
-   USE oce_trc             ! ocean dynamics and active tracers variables
-   USE trc                 ! ocean  passive tracers variables
-   USE prtctl_trc          ! Print control for debbuging
-   USE flxrnf, ONLY: runoff ! gridpoints with rivers
+   USE oce_trc              ! ocean dynamics and active tracers variables
+   USE sbcrnf               ! contains river runoff (kg/m2/s) and river mask
+   USE trc                  ! ocean  passive tracers variables
    ! BFM
    use api_bfm
    use mem
    use global_mem,only:LOGUNIT
+   use sbc_oce, only: ln_rnf
+   
    ! substitutions
-#  include "passivetrc_substitute.h90"
+#  include "top_substitute.h90"
 
    !! * Arguments
-   INTEGER, INTENT( in ) ::   kt          ! ocean time-step index
-   integer, intent(IN)     ::  m   ! BFM variable index
+   INTEGER, INTENT( in ) ::   kt      ! ocean time-step index
+   integer, intent(IN)     ::  m      ! BFM variable index
 
    !! * Local declarations
    INTEGER  ::   ji, jj, jn           ! dummy loop indices
    REAL(wp) ::   ztra, zsrau, zse3t   ! temporary scalars
-   CHARACTER (len=22) :: charout
-   INTEGER :: AllocStatus
    !!----------------------------------------------------------------------
 
-   if ( kt == nit000 .AND.  m == 1 ) THEN
-      if (bfm_lwp) WRITE(LOGUNIT,*)
-      if (bfm_lwp) WRITE(LOGUNIT,*) 'trc_set_bfm : BFM tracers surface boundary condition'
-      if (bfm_lwp) WRITE(LOGUNIT,*) '            : Initialise river mask and concentrations'
-      if (bfm_lwp) WRITE(LOGUNIT,*) '~~~~~~~ '
-      CALL flush(LOGUNIT)
-#ifdef FLUXES
-! MAV: to be completed
-      !-------------------------------------------------------
-      ! Prepares the array containing the 1D mask with
-      ! the location of the river grid points
-      ! RIVmask is not used yet in this NEMO implementation
-      ! but the OPA variables runoff and the new 
-      !-------------------------------------------------------
-      allocate(RIVmask(NO_BOXES_XY)) 
-      allocate(btmp1D(NO_BOXES_XY))
-      btmp1D = pack(runoff,SRFmask(:,:,1))
-      where (btmp1d>ZERO)
-        RIVmask = ONE
-      elsewhere
-        RIVmask = ZERO
-      end where
-      deallocate(btmp1D)
-      !-------------------------------------------------------
-      ! Prepares the array containing the 2D mask 
-      !-------------------------------------------------------
-      allocate(rmask(jpi,jpj)) 
-      where (runoff>ZERO)
-        rmask = ONE
-      elsewhere
-        rmask = ZERO
-      end where
-#endif
-      !-------------------------------------------------------
-      ! Fill-in the river concentration
-      ! MAV: the strategy is to assign the initial values for 
-      ! selected variables
-      ! In the future it might be used the initial value close 
-      ! to the river
-      !-------------------------------------------------------
-      allocate(RIVconcentration(NO_D3_BOX_STATES),stat=AllocStatus)
-      if (AllocStatus  /= 0) stop "error allocating RIVconcentration"
-      RIVconcentration(:) = ZERO
-      RIVconcentration(ppO2o) = D3STATE(ppO2o,1)
-      RIVconcentration(ppN1p) = D3STATE(ppN1p,1)
-      RIVconcentration(ppN3n) = D3STATE(ppN3n,1) 
-      RIVconcentration(ppN4n) = D3STATE(ppN4n,1)
-      RIVconcentration(ppN5s) = D3STATE(ppN5s,1)
-#ifdef INCLUDE_PELCO2
-      RIVconcentration(ppO3c) = D3STATE(ppO3c,1)
-      RIVconcentration(ppO3h) = D3STATE(ppO3h,1)
-#endif
-   end if
 
    ! 0. initialization
    zsrau = 1. / rauw
-      IF( .NOT. ln_sco )  zse3t = 1. / fse3t(1,1,1)
+   IF( .NOT. ln_sco )  zse3t = 1. / fse3t(1,1,1)
 
-      DO jn = 1, jptra
-         ! 1. Concentration dilution effect on tra
-         DO jj = 2, jpj
-            DO ji = fs_2, fs_jpim1   ! vector opt.
-               IF( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-               ! concent./dilut. effect
-               ztra = zsrau * zse3t * tmask(ji,jj,1) *  &
-                      ((emps(ji,jj)-runoff(ji,jj)) * trn(ji,jj,1,jn) + &         ! precipitation, evaporation
-                       runoff(ji,jj) * (trn(ji,jj,1,jn) - RIVconcentration(m)) ) ! river
-               
-               ! add the trend to the general tracer trend
-               tra(ji,jj,1,jn) = tra(ji,jj,1,jn) + ztra
-            END DO
-         END DO
-         
-      END DO
-
-      IF(ln_ctl)   THEN  ! print mean trends (used for debugging)
-         WRITE(charout, FMT="('sbc_bfm')")
-         CALL prt_ctl_trc_info(charout)
-         CALL prt_ctl_trc(tab4d=tra, mask=tmask, clinfo=ctrcnm,clinfo2='trd')
-      ENDIF
+    ! Concentration and dilution effect on tra
+    DO jj = 2, jpj
+       DO ji = fs_2, fs_jpim1   ! vector opt.
+           IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+           ! concent./dilut. effect
+           ztra = zsrau * zse3t * tmask(ji,jj,1) * emps(ji,jj) * trn(ji,jj,1,1) 
+           ! add the trend to the general tracer trend
+           tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
+        END DO
+    END DO
+	
+	IF (ln_rnf) THEN
+       ! Add mass from prescribed river concentration
+	   allocate(rtmp2d(jpi,jpj))
+       rtmp2d(:,:) = unpack(PELRIVER(m,:),SEAmask(:,:,1),ZEROS(:,:,1))
+       tra(:,:,1,1) = tra(:,:,1,1) - zsrau*sf_rnf(1)%fnow(:,:)*rtmp2d(:,:)/fse3t(:,:,1) 
+	   deallocate(rtmp2d)
+	END IF
 
    END SUBROUTINE trc_sbc_bfm
 

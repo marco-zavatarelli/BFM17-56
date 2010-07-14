@@ -1,6 +1,7 @@
 #include "cppdefs.h"
 #include "DEBUG.h"
 #include "INCLUDE.h"
+#ifdef NECSX
 !/*
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -96,7 +97,7 @@
   real(RLEN),allocatable,save,dimension(:)  :: scl   ! chlorinity
   real(RLEN),allocatable,save,dimension(:)  :: ta    ! total Alkalinity
   real(RLEN),allocatable,save,dimension(:)  :: lnK,bt,ft,st,pt,sit
-  real(RLEN),parameter             :: MEG=1.D6,XACC=1.D-20,  &
+  real(RLEN),parameter             :: MEG=1.E6_RLEN,XACC=1.E-20_RLEN,  &
                                       PERMIL=ONE/1000.0_RLEN,&
                                       PERMEG=ONE/MEG
   integer     :: i, l, error
@@ -242,18 +243,18 @@
   tk100 = tk/100.0_RLEN
   tk1002 = tk100*tk100
   invtk = ONE/tk
-  dlogtk = dlog(tk)
+  dlogtk = log(tk)
   ! salinity
   s  = ESW(:)
   s2 = ESW(:)*ESW(:)
-  dsqrts = dsqrt(ESW(:))
+  dsqrts = sqrt(ESW(:))
   s15 = ESW(:)**1.5_RLEN
   ! chlorinity
   scl = ESW(:)/1.80655_RLEN  
   ! ionic strength
   is = 19.924_RLEN*ESW(:)/ (1000._RLEN-1.005_RLEN*ESW(:))
   is2 = is*is
-  dsqrtis = dsqrt(is)
+  dsqrtis = sqrt(is)
 
   !------------------------------------------------------------------------
   ! Calculate concentrations for borate, sulfate, and fluoride
@@ -274,7 +275,7 @@
   ! Weiss & Price (1980, Mar. Chem., 8, 347-359; Eq 13 with table 6 values)
   ! ---------------------------------------------------------------------
   !ff = exp(-162.8301_RLEN + 218.2968_RLEN/tk100  +      &
-  !     90.9241_RLEN*dlog(tk100) - 1.47696_RLEN*tk1002 +  &
+  !     90.9241_RLEN*log(tk100) - 1.47696_RLEN*tk1002 +  &
   !     s * (.025695_RLEN - .025225_RLEN*tk100 +         &
   !     0.0049867_RLEN*tk1002))
 
@@ -282,7 +283,7 @@
   ! K0, solubility of co2 in the water (K Henry)
   ! from Weiss 1974; K0 = [co2]/pco2 [mol kg-1 atm-1]
   ! ---------------------------------------------------------------------
-  K0 = exp(93.4517_RLEN/tk100 - 60.2409_RLEN + 23.3585_RLEN * dlog(tk100) +   &
+  K0 = exp(93.4517_RLEN/tk100 - 60.2409_RLEN + 23.3585_RLEN * log(tk100) +   &
        ESW(:) * (.023517_RLEN - 0.023656_RLEN * tk100 + 0.0047036_RLEN * tk1002))
 
   ! ---------------------------------------------------------------------
@@ -300,12 +301,12 @@
      ! ---------------------------------------------------------------------
      lnK = -2307.1266_RLEN*invtk +2.83655_RLEN-1.5529413_RLEN*dlogtk +  &
           (-4.0484_RLEN*invtk - 0.20760841_RLEN) * dsqrts +            &
-          0.08468345_RLEN* s -0.00654208_RLEN * s15+dlog(ONE -0.001005_RLEN* s )
-     K1 = dexp(lnK)
+          0.08468345_RLEN* s -0.00654208_RLEN * s15+log(ONE -0.001005_RLEN* s )
+     K1 = exp(lnK)
      lnK = -3351.6106_RLEN/tk -9.226508_RLEN-0.2005743_RLEN*dlogtk+        &
           (-23.9722_RLEN/tk - 0.10690177_RLEN)*dsqrts + 0.1130822_RLEN* s - &
-          0.00846934_RLEN*s15 + dlog(ONE-0.001005_RLEN* s )
-     K2 = dexp(lnK)
+          0.00846934_RLEN*s15 + log(ONE-0.001005_RLEN* s )
+     K2 = exp(lnK)
   case (2)
      ! ---------------------------------------------------------------------
      ! Mehrbach et al. (1973) as refitted by Dickson and Millero (1987) 
@@ -347,7 +348,7 @@
   lnK = -4576.752_RLEN*invtk + 115.525_RLEN - 18.453_RLEN * dlogtk + &
        (-106.736_RLEN*invtk + 0.69171_RLEN) * dsqrts +               &
        (-0.65643_RLEN*invtk - 0.01844_RLEN) * s
-  Kp(1,:) = dexp(lnK)
+  Kp(1,:) = exp(lnK)
   ! ---------------------------------------------------------------------
   ! k2p = [H][HPO4]/[H2PO4] 
   ! ph scale: total
@@ -358,7 +359,7 @@
   lnK = -8814.715_RLEN*invtk + 172.0883_RLEN - 27.927_RLEN * dlogtk + &
        (-160.340_RLEN*invtk + 1.3566_RLEN) * dsqrts +                 &
        (0.37335_RLEN*invtk - 0.05778_RLEN) * s
-  Kp(2,:) = dexp(lnK)
+  Kp(2,:) = exp(lnK)
   !------------------------------------------------------------------------
   ! k3p = [H][PO4]/[HPO4] 
   ! ph scale: total
@@ -368,7 +369,7 @@
   lnK = -3070.75_RLEN*invtk - 18.126_RLEN + &
        (17.27039_RLEN*invtk + 2.81197_RLEN) *   &
        dsqrts + (-44.99486_RLEN*invtk - 0.09984_RLEN) * s
-  Kp(3,:) = dexp(lnK)
+  Kp(3,:) = exp(lnK)
 
   !------------------------------------------------------------------------
   ! ksi = [H][SiO(OH)3]/[Si(OH)4] ph on Sea Water Scale
@@ -380,8 +381,8 @@
        (-458.79_RLEN*invtk + 3.5913_RLEN) * dsqrtis +              &
        (188.74_RLEN*invtk - 1.5998_RLEN) * is +                   &
        (-12.1652_RLEN*invtk + 0.07871_RLEN) * is2 +               &
-       dlog(ONE-0.001005_RLEN*s)
-  Ksi = dexp(lnK)
+       log(ONE-0.001005_RLEN*s)
+  Ksi = exp(lnK)
 
   !------------------------------------------------------------------------
   ! kw = [H][OH]  ion product of water
@@ -398,7 +399,7 @@
   lnK = intercept -13847.26_RLEN*invtk - 23.6521_RLEN * dlogtk + &
        (118.67_RLEN*invtk - 5.977_RLEN + 1.0495_RLEN * dlogtk) *          &
        dsqrts - 0.01615_RLEN * s
-  Kw = dexp(lnK)
+  Kw = exp(lnK)
 
   !------------------------------------------------------------------------
   ! ks = [H][SO4]/[HSO4] 
@@ -410,8 +411,8 @@
        (-13856._RLEN*invtk + 324.57_RLEN - 47.986_RLEN*dlogtk) * dsqrtis + &
        (35474._RLEN*invtk - 771.54_RLEN + 114.723_RLEN*dlogtk) * is -     &
        2698._RLEN*invtk*is**1.5_RLEN + 1776._RLEN*invtk*is2 +              &
-       dlog(ONE - 0.001005_RLEN*s)
-  Ks = dexp(lnK)
+       log(ONE - 0.001005_RLEN*s)
+  Ks = exp(lnK)
 
   !------------------------------------------------------------------------
   ! kf = [H][F]/[HF] ph on free scale
@@ -420,8 +421,8 @@
   ! Dickson and Riley (1979)  also Dickson and Goyet (1994)
   ! ---------------------------------------------------------------------
   lnK = 1590.2_RLEN*invtk - 12.641_RLEN + 1.525_RLEN*dsqrtis + &
-        dlog(ONE - 0.001005_RLEN*s)
-  Kf = dexp(lnK)
+        log(ONE - 0.001005_RLEN*s)
+  Kf = exp(lnK)
 
   !---------------------------------------------------------------------
   ! kb = [H][BO2]/[HBO2] 
@@ -434,7 +435,7 @@
        (148.0248_RLEN + 137.1942_RLEN*dsqrts + 1.62142_RLEN*s) +  &
        (-24.4344_RLEN - 25.085_RLEN*dsqrts - 0.2474_RLEN*s) *     &
        dlogtk + 0.053105_RLEN*dsqrts*tk
-  Kb = dexp(lnK)
+  Kb = exp(lnK)
 
 
 
@@ -466,7 +467,7 @@
               ta
          gamm = ldic/cag
          ldummy= (ONE-gamm)*(ONE-gamm)*k11 - 4.0_RLEN*k12*(ONE-2.0_RLEN*gamm)
-         Hplus = 0.5_RLEN*((gamm-ONE)*K1 + dsqrt(ldummy))
+         Hplus = 0.5_RLEN*((gamm-ONE)*K1 + sqrt(ldummy))
          !---------------------------------------------------------------
          ! Derive [co2] as defined in DOE Methods Handbook 1994 Ver.2, 
          ! ORNL/CDIAC-74, Dickson and Goyet, eds. (Ch 2 p 10, Eq A.49)
@@ -478,7 +479,7 @@
          pCO2(:)  =   CO2(:)/K0
          HCO3(:)  =   K1 * CO2(:) / Hplus
          CO3(:)   =   K2 * HCO3(:) / Hplus
-         pH(:)    =  -dlog10(Hplus)
+         pH(:)    =  -log10(Hplus)
 
   case ( STATIC )
         !--------------------------------------------------
@@ -495,8 +496,8 @@
         !co2:
         CO2(:)  =   K0 * pCO2(:)
         !ph:
-        pH(:) = - dlog( K1* CO2(:)/(2.0_RLEN* ldic &
-          - ta- 2.0_RLEN* CO2(:)))/ dlog( 10.0_RLEN)
+        pH(:) = - log( K1* CO2(:)/(2.0_RLEN* ldic &
+          - ta- 2.0_RLEN* CO2(:)))/ log( 10.0_RLEN)
         !co3:
         CO3(:)  =   ta - ldic + CO2(:)
         !hco3:
@@ -514,6 +515,7 @@
   pCO2(:)  = pCO2(:) * MEG
 
 end subroutine CalcCO2System_vector
+#endif
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

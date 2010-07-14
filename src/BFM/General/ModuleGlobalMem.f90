@@ -32,7 +32,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -59,9 +59,11 @@
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Global Constants
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! REALS are double precision
-  integer,    parameter ::RLEN=kind(1D0)
-  integer,    parameter ::NMLUNIT=310
+  ! default REALS are double precision
+  integer, parameter :: sp = selected_real_kind(6, 37)  ! real 4 (6 digits)
+  integer, parameter :: dp = selected_real_kind(12,307) ! real 8 (12 digits)
+  integer, parameter :: RLEN = dp                       ! default
+  integer, parameter :: NMLUNIT=310
   ! the unit of the LOG file is not a parameter to allow parallel writing
   integer               ::LOGUNIT=0
   real(RLEN), parameter ::ZERO=0.0_RLEN
@@ -73,6 +75,8 @@
   ! There are four different types defined:
   integer,    parameter ::SINKSOURCE=-1
   integer,    parameter ::NOTRANSPORT=0
+  integer,    parameter ::NOOBCSTATES=0
+  integer,    parameter ::OBCSTATES=1
   integer,    parameter ::HORTRANSPORT=10
   integer,    parameter ::ALLTRANSPORT=20
   real(RLEN), parameter :: DONE=1._RLEN
@@ -84,7 +88,6 @@
   contains
 
   subroutine error_msg_prn(code,infile,what)
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -108,8 +111,10 @@
     end select
     write(LOGUNIT,*) "***********  RUN TIME ERROR END  ***********"
     stop "BFM error (see logfile)"
-  end subroutine
-  end module
+  end subroutine error_msg_prn
+  
+  end module global_mem
+  
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

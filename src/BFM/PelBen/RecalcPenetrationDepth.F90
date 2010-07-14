@@ -22,6 +22,7 @@
 ! !AUTHORS
 !   Piet Ruardij   
 !
+#ifdef INCLUDE_BEN
 ! !USES:
      use global_mem, ONLY:RLEN,ONE
      use mem,ONLY:NO_BOXES_XY
@@ -86,7 +87,7 @@
         end do
 
         return
-
-        end subroutine  RecalcPenetrationDepth
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=        
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=        
+#endif
+    end subroutine  RecalcPenetrationDepth
+!EOC
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=        

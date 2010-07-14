@@ -69,6 +69,8 @@
       call save_rst_bfm
       call close_ncdf(ncid_rst)
       call close_ncdf(ncid_bfm)
+	  ! clear main memory
+	  call ClearMem
    endif
 
    !---------------------------------------------

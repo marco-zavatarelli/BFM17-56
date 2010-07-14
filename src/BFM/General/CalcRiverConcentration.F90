@@ -15,10 +15,8 @@
   SUBROUTINE CalcRiverConcentration(mode,kmax,numc,ETW,cc_river)
 
 !
+#ifdef BFM_NS
 ! !USES:
-  ! The following global scalar vars are used: &
-  ! BoxNumberZ, NO_BOXES_Z, BoxNumberY, NO_BOXES_Y, BoxNumberX, NO_BOXES_X, &
-  ! BoxNumber, BoxNumberXY
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -75,8 +73,9 @@
        call CalcCO2SatInField(kmax,numc,ERHO,ETW,ESW,cc_river)
    end select
 
-  end
-!BOP
+#endif
+  end subroutine CalcRiverConcentration
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

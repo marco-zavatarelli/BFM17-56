@@ -15,8 +15,7 @@
   subroutine BenpHDynamics
 !
 
-#ifdef INCLUDE_BENCO2_
-
+#ifdef INCLUDE_BENCO2
 ! !USES:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)

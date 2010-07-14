@@ -20,10 +20,9 @@
 ! !AUTHORS
 !   Piet Ruardij   
 !
+#if defined INCLUDE_BENPROFILES && defined INCLUDE_BENCO2
 ! !USES:
         use global_mem,      ONLY:RLEN,LOGUNIT,ZERO
-#ifdef INCLUDE_BENPROFILES
-#ifdef INCLUDE_BENCO2
 #ifdef NOPOINTERS
         use mem
 #else
@@ -43,7 +42,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2004 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2004 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -120,7 +119,6 @@
         ENDDO
 
         return
-#endif
 #endif
       end
 
