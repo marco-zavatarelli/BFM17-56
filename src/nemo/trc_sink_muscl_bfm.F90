@@ -16,6 +16,7 @@
 ! ==================
    use oce_trc          ! ocean dynamics and active tracers variables
    use trc              ! ocean passive tracers variables
+   use constants, ONLY: DAY_PER_SEC
 
       IMPLICIT NONE
 #include "domzgr_substitute.h90"
@@ -56,7 +57,7 @@
 !-------------------------------
       ws(:,:,1) = 0.0_wp
       DO jk=1,jpk-1
-         ws(:,:,jk+1) = ws_in(:,:,jk)/rjjss*tmask(:,:,jk+1)
+         ws(:,:,jk+1) = ws_in(:,:,jk)*DAY_PER_SEC*tmask(:,:,jk+1)
 !#    if defined key_off_degrad
 !         ws(:,:,jk+1)=  ws(:,:,jk+1)*facvol(:,:,jk)
 !#    endif

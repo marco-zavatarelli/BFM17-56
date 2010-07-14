@@ -7,7 +7,7 @@
 ! !MODULE: netcdf_bfm_single --- Save the BFM results in NetCDF
 !
 ! !INTERFACE:
-   module netcdf_bfm
+   module netcdf_bfm_single
 !
 ! !DESCRIPTION:
 !  This module provides routines for saving the results using
@@ -1311,7 +1311,7 @@ end subroutine init_netcdf_rst_bfm
    end subroutine check_err
 !-----------------------------------------------------------------------
 
-   end module netcdf_bfm
+   end module netcdf_bfm_single
 #endif
 
 !-----------------------------------------------------------------------

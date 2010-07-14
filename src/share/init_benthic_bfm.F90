@@ -12,6 +12,7 @@
 !  Benthic nutrients are initialized either from namelist or
 !  by assuming equlibrium conditions with water column concentrations
 !
+#ifdef INCLUDE_BEN
 ! !USES:
 #ifndef NOT_STANDALONE
    use api_bfm
@@ -331,6 +332,7 @@
 101  FATAL 'I could not read bfm_ben_init_nml'
     stop 'init_benthic_bfm'
 
+#endif
    end subroutine init_benthic_bfm
 !EOC
 

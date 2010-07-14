@@ -1,4 +1,4 @@
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
@@ -7,19 +7,10 @@
 !
 ! DESCRIPTION
 !   Definition of Explicit Interfaces
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   MODULE global_interface
 
-  !
-
-  !  
-!
 ! !AUTHORS
 !   mfstep/ERSEM team, especially  Momme Butenschoen:
 !
@@ -28,7 +19,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -85,7 +76,7 @@
 
   INTERFACE
 
-  subroutine PhotoAvailableRadiationDynamics(phyto, ppphytoc, ppphyton, &
+  subroutine PhotoAvailableRadiation(phyto, ppphytoc, ppphyton, &
     ppphytop, ppphytos, ppphytol)
   use global_mem, ONLY:RLEN
   implicit none
@@ -95,7 +86,7 @@
   integer,intent(IN) :: ppphytop
   integer,intent(IN) :: ppphytos
   integer,intent(IN) :: ppphytol
-  end subroutine PhotoAvailableRadiationDynamics
+  end subroutine PhotoAvailableRadiation
   end INTERFACE
 
   INTERFACE

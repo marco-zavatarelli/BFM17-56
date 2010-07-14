@@ -31,18 +31,8 @@
                   iiC, iiN, iiP, iiS, iiL   
   use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following global functions are used:CalcChlorophylla, &
-  ! CalcOxygenSaturation
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following group processes are &
-  ! used: PhotoAvailableRadiationDynamics, PhytoDynamics, &
-  ! LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
-  use global_interface, ONLY: PhotoAvailableRadiationDynamics, &
+  use global_interface, ONLY: PhotoAvailableRadiation, &
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -100,7 +90,7 @@
   if ( ChlLightFlag== 1) then
      do i =1,iiPhytoPlankton
         if ( CalcPhytoPlankton(i)) then
-           call PhotoAvailableRadiationDynamics( i, ppPhytoPlankton(i,iiC),  &
+           call PhotoAvailableRadiation( i, ppPhytoPlankton(i,iiC),  &
                 ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),              &
                 ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
         end if
