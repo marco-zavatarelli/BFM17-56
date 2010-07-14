@@ -183,16 +183,18 @@
    ! 1.0 in the location of the river grid points and
    ! 0.0 elsewhere
    !-------------------------------------------------------
-   allocate(RIVmask(NO_BOXES_XY)) 
-   allocate(rtmp1D(NO_BOXES_XY))
-   rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
-   where (btmp1d>ZERO)
-     RIVmask = ONE
-   elsewhere
-     RIVmask = ZERO
-   end where
-   deallocate(rtmp1D)
-	     
+   if (ln_rnf) then
+      allocate(RIVmask(NO_BOXES_XY)) 
+      allocate(rtmp1D(NO_BOXES_XY))
+      rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
+      where (rtmp1d>ZERO)
+        RIVmask = ONE
+      elsewhere
+        RIVmask = ZERO
+      end where
+      deallocate(rtmp1D)
+   end if     
+
    !---------------------------------------------
    ! Assign the rank of the process 
    ! (meaningful only with key_mpp)
