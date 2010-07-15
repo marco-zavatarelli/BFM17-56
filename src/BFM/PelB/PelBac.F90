@@ -417,7 +417,7 @@
       rep  =  ( qpB1c(:)- p_qpc)* B1c(:)* ONE_PER_DAY
       call flux_vector( iiPel, ppB1p,ppN1p,  rep* insw_vector( rep) )
       call flux_vector( iiPel, ppN1p,ppB1p,- rep* insw_vector( - rep)* N1p(:)/( &
-        0.5D+00+ N1p(:)))
+        0.5E+00_RLEN+ N1p(:)))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Activity exrecetion (defined as reR7c) + stress excetion (defined as &

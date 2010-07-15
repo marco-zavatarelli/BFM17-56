@@ -264,13 +264,13 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   select case ( p_limnut(phyto))
     case ( 0 )
-      iN  =   (iN1p* iNIn)**(0.5D+00)  ! geometric mean
+      iN  =   (iN1p* iNIn)**(0.5E+00_RLEN)  ! geometric mean
 
     case ( 1 )
       iN  =   min(  iN1p,  iNIn)  ! Liebig rule
 
     case ( 2 )
-      iN  =   2.0D+00/( ONE/ iN1p+ ONE/ iNIn)  ! combined
+      iN  =   2.0E+00_RLEN/( ONE/ iN1p+ ONE/ iNIn)  ! combined
 
   end select
 
@@ -435,14 +435,14 @@
    ! Check which fraction of fixed C can be used for new biomass
    ! by comparing the potential nutrient availability
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      netgrowth = min( run, ( rumn+ max( ZERO, 0.05D+00* &
+      netgrowth = min( run, ( rumn+ max( ZERO, 0.05E+00_RLEN* &
       rugc*( qnPc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
       netgrowth = min( netgrowth, ( rump+ max( ZERO, &
-       0.05D+00* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
+       0.05E+00_RLEN* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
       if ( silica_control  ==  2) then
           rums  =   p_qus(phyto)* N5s(:)* phytoc  ! max pot uptake
           netgrowth = min( netgrowth, ( rums+ max( ZERO, &
-            1.00D+00* rugc*( qsPc(phyto, :)- p_qslc(phyto))))/ p_qslc(phyto))
+            ONE* rugc*( qsPc(phyto, :)- p_qslc(phyto))))/ p_qslc(phyto))
       endif
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Excrete C which can not be used for growth as carbo-hydrates:
