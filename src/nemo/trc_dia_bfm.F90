@@ -61,23 +61,23 @@
       call save_bfm(localtime)
    end if
 
-   !---------------------------------------------
-   ! Close the file (MAV: are we saving the last step?)
-   !---------------------------------------------
    if ( kt == nitend ) then
+   !---------------------------------------------
+   ! Close the files (MAV: are we saving the last step?)
+   !---------------------------------------------
       ! save and close the restart file
       call save_rst_bfm
       call close_ncdf(ncid_rst)
       call close_ncdf(ncid_bfm)
-	  ! clear main memory
-	  call ClearMem
+      ! clear main memory
+      call ClearMem
+   else
+   !---------------------------------------------
+   ! Reset the arrays for next step
+   !---------------------------------------------
+      call ResetFluxes
    endif
-
-   !---------------------------------------------
-   ! Reset the arrays
-   !---------------------------------------------
-   call ResetFluxes
-
+   
    return
    end subroutine trc_dia_bfm
 
