@@ -2,19 +2,13 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model 
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
 ! !ROUTINE: CheckMassConservation
 !
 ! DESCRIPTION
-!   !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine CheckMassConservationDynamics
@@ -25,38 +19,10 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN,ZERO
+  use global_mem, ONLY:RLEN,ZERO,ONE,LOGUNIT
   use constants, ONLY: MW_P, MW_N, MW_SI
-#ifdef NOPOINTERS
   use mem
-#else
-  use mem, ONLY: B1c, B1p, B1n, N1p, N3n, N4n, N5s, O4n
-# ifdef INCLUDE_PELCO2
-    use mem, ONLY: O3c
-# endif
-# ifdef INCLUDE_BEN
-  use mem, ONLY: Q1c, Q6c, Q1p, Q6p, Q1n, Q6n, Q6s, Y1p, Y2p, Y3p, Y4p, Y5p, H1p, H2p, &
-    Q11p, K1p, K11p, Y1n, Y2n, Y3n, Y4n, Y5n, H1n, H2n, Q11n, K4n, K14n, K21p, &
-    G4n, K3n, K24n, K5s
-#  ifdef INCLUDE_BENCO2
-  use mem, ONLY: G3c
-#  endif
-# endif
-  use mem, ONLY: ppB1c,ppB1p,ppB1n, &
-     ppN1p, ppN3n, ppN4n, ppO4n, ppN5s, ppO3c, &
-    Depth, Volume, Area, Area2d
-  use mem, ONLY: &
-    totpelc, totpelp, totpeln, totpels, totsysc, totsysp, totsysn, totsyss, &
-    iiPel, flux_vector,ppMicroZooplankton,ppMesoZooPlankton,MicroZooplankton,MesoZooPlankton, &
-    iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,iiC,iiN,iiP,iiS,&
-    PhytoPlankton,iiPhytoPlankton,ppPhytoPlankton,PelDetritus,iiPelDetritus,ppPelDetritus
-#ifdef INCLUDE_BEN
-  use mem, ONLY: ppQ1c, ppQ6c, ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
-    ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
-    ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
-    ppG4n, ppK3n, ppK24n, ppK5s, totbenc, totbenp, totbenn, totbens, NO_BOXES_XY, iiBen
-#endif
-#endif
+
 
   use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
   use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
@@ -65,7 +31,7 @@
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
 #endif
 
-!  
+!
 !
 ! !AUTHORS
 !   Piet Ruardij and Marcello Vichi
@@ -78,7 +44,7 @@
 !
 !
 ! COPYING
-!   
+!
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -90,10 +56,6 @@
 !   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 !   GNU General Public License for more details.
 !
-!EOP
-!-------------------------------------------------------------------------!
-!BOC
-!
 !
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Implicit typing is never allowed
@@ -104,8 +66,16 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN),dimension(NO_BOXES)  :: s
-  integer                         ::i,j
-  
+  integer         :: i,j
+  real(RLEN),save :: prevsysc,prevsysn,prevsysp,prevsyss
+  real(RLEN),save :: initialc,initialn,initialp,initials
+  integer         :: prec
+  logical,save    :: first=.TRUE.
+  logical         :: flag
+  real(RLEN),parameter :: p_prec=1.e-12_RLEN
+!EOP
+!-------------------------------------------------------------------------!
+!BOC
   totpelc(:)=ZERO
   totpelp(:)=ZERO
   totpeln(:)=ZERO
@@ -124,23 +94,39 @@
      end if
   end do
   do i=1, iiMicroZooplankton
-     j=max(1,ppMicroZooPlankton(i,iiN))
-     s=MicroZooplankton(i,j)
-     if ( j==1) s=s*p_qn_mz(i)
+     s=MicroZooplankton(i,iiC)
+     totpelc(:) = totpelc(:) + s
+     j=ppMicroZooPlankton(i,iiN)
+     if ( j /= 0) then
+        s = MicroZooplankton(i,iiN)
+     else
+        s = MicroZooplankton(i,iiC)*p_qn_mz(i)
+     end if
      totpeln(:)=totpeln(:) + s
-     j=max(1,ppMicroZooPlankton(i,iiP))
-     s=MicroZooplankton(i,j)
-     if ( j==1) s=s*p_qp_mz(i)
+     j=ppMicroZooPlankton(i,iiP)
+     if ( j /= 0) then
+        s = MicroZooplankton(i,iiP)
+     else
+        s = MicroZooplankton(i,iiC)*p_qp_mz(i)
+     end if
      totpelp(:)=totpelp(:) + s
   end do
-  do i=1, iiMesoZooplankton
-     j=max(1,ppMesoZooPlankton(i,iiN))
-     s=MesoZooplankton(i,j)
-     if ( j==1) s=s*p_qnMc(i)
+  do i=1, iiMesoZooPlankton
+     s=MesoZooPlankton(i,iiC)
+     totpelc(:)=totpelc(:) + s
+     j=ppMesoZooPlankton(i,iiN)
+     if ( j /= 0) then
+        s = MesoZooPlankton(i,iiN)
+     else
+        s = MesoZooPlankton(i,iiC)*p_qnMc(i)
+     end if
      totpeln(:)=totpeln(:) + s
-     j=max(1,ppMesoZooPlankton(i,iiP))
-     s=MesoZooplankton(i,j)
-     if ( j==1) s=s*p_qpMc(i)
+    j=ppMesoZooPlankton(i,iiP)
+     if ( j /= 0) then
+        s = MesoZooPlankton(i,iiP)
+     else
+        s = MesoZooPlankton(i,iiC)*p_qpMc(i)
+     end if
      totpelp(:)=totpelp(:) + s
    end do
   do i=1, iiPelDetritus
@@ -180,6 +166,42 @@
   totsysn(:) = sum(totpeln(:))
   totsysp(:) = sum(totpelp(:))
   totsyss(:) = sum(totpels(:))
+
+  ! Store and check previous value
+  if (first) then
+     write(LOGUNIT,*) "Initializing Mass Conservation"
+     first = .FALSE.
+     flag  = .FALSE.
+     initialc = totsysc(1)
+     initialn = totsysn(1)
+     initialp = totsysp(1)
+     initials = totsyss(1)
+  else
+     prec = precision(prevsysc)
+     write(LOGUNIT,*) "---> CheckMassConservation"
+     write(LOGUNIT,*) "---> defined precision digits: sp=6 dp=12; operational: ",prec
+     write(LOGUNIT,"(A,2D22.15)") "---> C:",totsysc(1),prevsysc
+     write(LOGUNIT,"(A,2D22.15)") "---> N:",totsysn(1),prevsysn
+     if (abs(totsysn(1)/initialn-ONE)>p_prec) then
+        flag = .TRUE.
+        write(LOGUNIT,*) "------> Change in N larger than specified precision:",p_prec,totsysn(1)/initialn-ONE
+     end if
+     write(LOGUNIT,"(A,2D22.15)") "---> P:",totsysp(1),prevsysp
+     if (abs(totsysp(1)/initialp-ONE)>p_prec) then
+        flag = .TRUE.
+        write(LOGUNIT,*) "------> Change in P larger than specified precision:",p_prec,totsysp(1)/initialp-ONE
+     end if
+     write(LOGUNIT,"(A,2D22.15)") "---> Si:",totsyss(1),prevsyss
+     if (abs(totsyss(1)/initials-ONE)>p_prec) then
+        flag = .TRUE.
+        write(LOGUNIT,*) "------> Change in Si larger than specified precision:",p_prec,totsyss(1)/initials-ONE
+     end if
+     if (flag)    stop "Mass conservation violation in BFM! Check log file."
+  end if
+  prevsysc = totsysc(1) !first element is sufficient
+  prevsysn = totsysn(1)
+  prevsysp = totsysp(1)
+  prevsyss = totsyss(1)
 
 #ifdef INCLUDE_BEN
   ! Mass conservation variables
@@ -243,5 +265,5 @@
   end subroutine CheckMassConservationDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model 
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

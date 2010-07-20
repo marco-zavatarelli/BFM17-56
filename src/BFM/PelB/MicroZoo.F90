@@ -2,7 +2,7 @@
 #include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model 
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
@@ -49,7 +49,7 @@
   integer,intent(IN) :: ppzooc
   integer,intent(IN) :: ppzoon
   integer,intent(IN) :: ppzoop
-!  
+!
 !
 ! !AUTHORS
 !   ERSEM group, Hanneke Baretta-Bekker
@@ -57,7 +57,7 @@
 ! !REVISION_HISTORY
 !
 ! COPYING
-!   
+!
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -88,7 +88,7 @@
   real(RLEN),allocatable,save,dimension(:)    :: rr6n,ren,pu_ra,r,tfluxc,tfluxn,tfluxp
   real(RLEN),allocatable,save,dimension(:,:)  :: rumPIc,rumZIc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   
+
   if (first==0) then
      first=1
      allocate(rumPIc(NO_BOXES,iiPhytoPlankton),stat=AllocStatus)
@@ -303,7 +303,7 @@
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrtc/ MW_C) )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Mortality (rdc) + Excetion (reac)
+  ! Mortality (rdc) + Excretion (reac)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   rdc  =  (( ONE- eO2)* p_sdo(zoo)+ p_sd(zoo))* zooc
@@ -328,9 +328,9 @@
   rrin  =   rugn* p_pu_ea(zoo)+ rdc* qn_mz(zoo,:)
   rr1n  =   rrin* p_pe_R1n
   rr6n  =   rrin- rr1n
-
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppR1n, rr1n ,tfluxN)
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppR6n, rr6n ,tfluxN)
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Phosphorus dynamics
@@ -356,13 +356,12 @@
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoon,ppzoon,ppN4n, ren ,tfluxN)
   call fixed_quota_flux_vector( check_fixed_quota,iiPel, ppzoop,ppzoop,ppN1p, rep ,tfluxP)
 
-
+#ifdef BFM_GOTM
   r=tfluxC*p_qn_mz(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiN,0,0,0,r,tfluxN)
   r=tfluxC*p_qp_mz(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,r,tfluxP)
 
-#ifdef BFM_GOTM
   r=rugc-rrac-reac
   jnetMiZc(1)=jnetMiZc(1)+sum(Depth(:)*r)
 #endif
@@ -370,5 +369,5 @@
   end subroutine MicroZooDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model 
+! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
