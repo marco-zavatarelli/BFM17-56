@@ -18,7 +18,7 @@ SUBROUTINE trc_trp_bfm( kt )
    USE trc             ! ocean passive tracers variables
    USE trp_trc         ! ocean passive tracers transport arrays
    USE par_trc, ONLY: lk_trc_c1d
-   
+
    USE trctrp_lec      ! passive tracers transport
 
    USE trcbbl          ! bottom boundary layer               (trc_bbl routine)
@@ -55,7 +55,7 @@ SUBROUTINE trc_trp_bfm( kt )
    USE mem,       ONLY: D3SINK
 #endif
    use mem, only: ppO3c
-   USE mem_param, ONLY: CalcTransportFlag, CalcConservationFlag
+   USE mem_param, ONLY: CalcTransportFlag, CalcConservationFlag, p_small
    USE api_bfm
 
    IMPLICIT NONE
@@ -71,12 +71,11 @@ SUBROUTINE trc_trp_bfm( kt )
       ! local variables for clipping
       integer :: nneg(NO_D3_BOX_STATES)
       real(RLEN) :: total(NO_D3_BOX_STATES),mass
-      real(RLEN),parameter :: P_ZERO=1.0E-30_RLEN
 
    !
-   ! Exit if transport is not computed. Time integration is carried out 
+   ! Exit if transport is not computed. Time integration is carried out
    ! with an ODE solver in trcbfm.F90
-   ! The same is done for benthic variables if active 
+   ! The same is done for benthic variables if active
    !
       if (.NOT.CalcTransportFlag) return
 
@@ -137,7 +136,7 @@ SUBROUTINE trc_trp_bfm( kt )
 
             IF (.NOT.CalcConservationFlag) THEN
                ! NOTE: these routines do not conserve mass,
-               ! because non-dynamical volume is used; 
+               ! because non-dynamical volume is used;
                ! thus, excluded for mass conservation checkings)
                CALL trc_sbc_bfm( kt,m )   ! surface boundary condition including rivers
             END IF
@@ -152,7 +151,7 @@ SUBROUTINE trc_trp_bfm( kt )
             IF( lk_trcbbl_adv    )   CALL trc_bbl_adv( kt )                ! advective (and/or diffusive) bottom boundary layer scheme
 
 !MAV: still no defined for BFM
-!            IF( lk_trcdmp        )   CALL trc_dmp( kt )            ! internal damping trends 
+!            IF( lk_trcdmp        )   CALL trc_dmp( kt )            ! internal damping trends
             !                                                      ! horizontal & vertical advection
             IF( ln_trcadv_cen2   )   CALL trc_adv_cen2  ( kt )             ! 2nd order centered scheme
             IF( ln_trcadv_muscl  )   CALL trc_adv_muscl ( kt )             ! MUSCL scheme
@@ -167,21 +166,21 @@ SUBROUTINE trc_trp_bfm( kt )
 
             IF( ln_zps .AND. .NOT. lk_trc_c1d ) &
                &                     CALL zps_hde_trc( kt, trb, gtru, gtrv )  ! Partial steps: now horizontal gradient
-			                                                                  ! gtru and gtrv are computed for each tracer
+                                                                              ! gtru and gtrv are computed for each tracer
             !                                                      ! lateral mixing
             IF( l_trcldf_bilapg  )   CALL trc_ldf_bilapg ( kt )            ! s-coord. horizontal bilaplacian
             IF( l_trcldf_bilap   )   CALL trc_ldf_bilap  ( kt )            ! iso-level bilaplacian
             IF( l_trcldf_iso     )   CALL trc_ldf_iso    ( kt )            ! iso-neutral laplacian
             IF( l_trcldf_iso_zps )   CALL trc_ldf_iso_zps( kt )            ! partial step iso-neutral laplacian
-            IF( l_trcldf_lap     )   CALL trc_ldf_lap    ( kt )            ! iso-level laplacian 
+            IF( l_trcldf_lap     )   CALL trc_ldf_lap    ( kt )            ! iso-level laplacian
             !                                                      ! vertical diffusion
             IF( l_trczdf_exp     )   CALL trc_zdf_exp( kt )                ! explicit time stepping (time splitting scheme)
             IF( l_trczdf_imp     )   CALL trc_zdf_imp( kt )                ! implicit time stepping (euler backward)
             IF( l_trczdf_iso     )   CALL trc_zdf_iso( kt )                ! isopycnal
             IF( l_trczdf_iso_vo  )   CALL trc_zdf_iso_vopt( kt )           ! vector opt. isopycnal
-			
+
             CALL trc_nxt_bfm( kt,m )            ! tracer fields at next time step
-            !CALL trc_rad_bfm( kt )        ! Correct artificial negative concentrations for isopycnal scheme            
+            !CALL trc_rad_bfm( kt )        ! Correct artificial negative concentrations for isopycnal scheme
             !                                                                 ! of passive tracers at the bottom ocean level
             ! Remap the biochemical variables from 3D
             ! to 1D (apply land-sea mask)
@@ -203,22 +202,24 @@ SUBROUTINE trc_trp_bfm( kt )
          END IF ! transported
       END DO ! over state vars
 
+      IF (ln_trcrad) THEN
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Clip negative concentrations (FIX!)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-       total = ZERO
-       do m = 1,NO_D3_BOX_STATES
-         nneg(m) = 0
-         do k = 1,NO_BOXES
-           if (D3STATE(m,k)<ZERO) then
-             mass = D3STATE(m,k) - P_ZERO
-             total(m) = total(m) + mass
-             D3STATE(m,k) = P_ZERO
-             nneg(m) = nneg(m)+1
-           end if
-         end do
-         nneg(m) = min(nneg(m),NO_BOXES-1)
-       end do
+         total = ZERO
+         DO m = 1,NO_D3_BOX_STATES
+            nneg(m) = 0
+            DO k = 1,NO_BOXES
+               if (D3STATE(m,k)<ZERO) THEN
+                  mass = p_small - D3STATE(m,k) ! store the mass loss
+                  total(m) = total(m) + mass
+                  D3STATE(m,k) = p_small
+                  nneg(m) = nneg(m)+1
+               END IF
+            END DO
+            nneg(m) = min(nneg(m),NO_BOXES-1)
+         END DO
+      END IF
 
 END SUBROUTINE trc_trp_bfm
 
