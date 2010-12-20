@@ -34,14 +34,14 @@
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm
    ! NEMO modules
-   USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd    
+   USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
    use trc
    use oce_trc
    use iom_def,    only:jpdom_data
    use iom
    use sbc_oce, only: ln_rnf
    use trc_oce, only: etot3
-   
+
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -65,7 +65,7 @@
 
    !-------------------------------------------------------
    ! Initial allocations
-   !-------------------------------------------------------   
+   !-------------------------------------------------------
    allocate(SEAmask(jpi,jpj,jpk))  ! allocate  masks for
    allocate(BOTmask(jpi,jpj,jpk))  ! array packing
    allocate(SRFmask(jpi,jpj,jpk))
@@ -86,7 +86,7 @@
    end where
 
    !-------------------------------------------------------
-   ! Prepares the spatial information and the masks 
+   ! Prepares the spatial information and the masks
    ! for the bottom and surface grid points.
    ! 3D boolean arrays with .T. at the first
    ! and last ocean layers only
@@ -115,13 +115,13 @@
    NO_BOXES_Z  = jpk
    NO_BOXES    = count(SEAmask)
    NO_BOXES_XY = count(SRFmask)
-   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES 
+   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES
 #ifdef INCLUDE_BEN
    NO_STATES = NOSTATES + NO_BOXES_XY*NO_D2_BOX_STATES
 #endif
 
    !-------------------------------------------------------
-   ! Allocate and build the indices of ocean points in 
+   ! Allocate and build the indices of ocean points in
    ! the 3D nemo arrays
    !-------------------------------------------------------
 #ifndef USEPACK
@@ -184,7 +184,7 @@
    ! 0.0 elsewhere
    !-------------------------------------------------------
    if (ln_rnf) then
-      allocate(RIVmask(NO_BOXES_XY)) 
+      allocate(RIVmask(NO_BOXES_XY))
       allocate(rtmp1D(NO_BOXES_XY))
       rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
       where (rtmp1d>ZERO)
@@ -193,10 +193,10 @@
         RIVmask = ZERO
       end where
       deallocate(rtmp1D)
-   end if     
+   end if
 
    !---------------------------------------------
-   ! Assign the rank of the process 
+   ! Assign the rank of the process
    ! (meaningful only with key_mpp)
    !---------------------------------------------
    parallel_rank = narea-1
@@ -219,7 +219,7 @@
    call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
 
    !-------------------------------------------------------
-   ! Prepares the BFM 1D arrays containing the 
+   ! Prepares the BFM 1D arrays containing the
    ! spatial informations (have to be done after allocation
    ! but temporary arrays allocated above)
    !-------------------------------------------------------
@@ -235,7 +235,7 @@
    !-------------------------------------------------------
    if (bfm_init /= 1) then
       do m = 1,NO_D3_BOX_STATES
-         select case (InitVar(m) % flag) 
+         select case (InitVar(m) % flag)
          case (1) ! Analytical profile
             rtmp3Da = ZERO
             ! fsdept contains the model depth
@@ -282,9 +282,9 @@
 
    if ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) then
       !---------------------------------------------
-      ! Allocate and initialise additional 
+      ! Allocate and initialise additional
       ! integration arrays
-      ! Initialise prior time step for leap-frog 
+      ! Initialise prior time step for leap-frog
       !---------------------------------------------
       allocate(D3STATEB(NO_D3_BOX_STATES,NO_BOXES))
       D3STATEB = D3STATE
@@ -297,13 +297,13 @@
    if (ln_rnf) then
       !-------------------------------------------------------
       ! Fill-in the initial river concentration
-      ! MAV: the strategy is to assign the initial values for 
+      ! MAV: the strategy is to assign the initial values for
       ! selected variables. Since the mask is zero elsewhere,
-	  ! the initial concentration close to the mouth is used
+      ! the initial concentration close to the mouth is used
       !-------------------------------------------------------
       PELRIVER(ppO2o,:) = RIVmask(:)*D3STATE(ppO2o,SRFindices)
       PELRIVER(ppN1p,:) = RIVmask(:)*D3STATE(ppN1p,SRFindices)
-      PELRIVER(ppN3n,:) = RIVmask(:)*D3STATE(ppN3n,SRFindices) 
+      PELRIVER(ppN3n,:) = RIVmask(:)*D3STATE(ppN3n,SRFindices)
       PELRIVER(ppN4n,:) = RIVmask(:)*D3STATE(ppN4n,SRFindices)
       PELRIVER(ppN5s,:) = RIVmask(:)*D3STATE(ppN5s,SRFindices)
 #ifdef INCLUDE_PELCO2
@@ -312,11 +312,16 @@
 #endif
    end if
 
-   !-------------------------------------------------------
    ! Initialise the array containing light bioshading
    !-------------------------------------------------------
    if ( ln_qsr_bio ) etot3(:,:,:) = ZERO
 
+#if defined key_obc
+   !-------------------------------------------------------
+   ! initialize obc with the BFM
+   !-------------------------------------------------------
+      CALL trcobc_init_bfm
+#endif
    return
 
    end subroutine trc_ini_bfm

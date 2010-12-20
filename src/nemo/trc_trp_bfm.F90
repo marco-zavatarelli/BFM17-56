@@ -30,8 +30,6 @@ SUBROUTINE trc_trp_bfm( kt )
    USE trcldf_iso_zps  ! lateral mixing              (trc_ldf_iso_zps routine)
    USE trcldf_lap      ! lateral mixing                  (trc_ldf_lap routine)
 
-   USE trcrad_bfm      ! positivity                      (trc_rad_bfm routine)
-
    USE trcadv_cen2     ! 2nd order centered advection   (trc_adv_cen2 routine)
    USE trcadv_muscl    ! MUSCL advection               (trc_adv_muscl routine)
    USE trcadv_muscl2   ! MUSCL2 advection             (trc_adv_muscl2 routine)
@@ -78,6 +76,14 @@ SUBROUTINE trc_trp_bfm( kt )
    ! The same is done for benthic variables if active
    !
       if (.NOT.CalcTransportFlag) return
+
+   !-----------------------------------------------------------------------
+   ! Read Open boundary conditions data (only if transport is computed)
+   !-----------------------------------------------------------------------
+
+#if defined key_obc
+      CALL trcobc_dta_bfm( kt )    ! OBC for BFM
+#endif
 
    !>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
    ! BFM tracers, loop over number of state variables

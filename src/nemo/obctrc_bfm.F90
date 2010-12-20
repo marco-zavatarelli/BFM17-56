@@ -1,22 +1,75 @@
 #include"cppdefs.h"
-#include "obc_vectopt_loop_substitute.h90"
+MODULE obctrc_bfm
+   !!=================================================================================
+   !!                       ***  MODULE  obctra  ***
+   !! Ocean tracers:   Radiation of tracers on each open boundary
+   !!=================================================================================
 
-!!---------------------------------------------------------------------------------
-!! this routine is compiled only if key_obc is defined
-!!---------------------------------------------------------------------------------
-#ifdef key_obc
-   SUBROUTINE obctrc_bfm( kt,m )
+#if defined key_obc && defined key_bfm
+   !!---------------------------------------------------------------------------------
+   !!   'key_obc'      :                                      Open Boundary Conditions
+   !!---------------------------------------------------------------------------------
+   !!   obc_trc        : call the subroutine for each open boundary
+   !!   obc_trc_east   : radiation of the east open boundary tracers
+   !!   obc_trc_west   : radiation of the west open boundary tracers
+   !!   obc_trc_north  : radiation of the north open boundary tracers
+   !!   obc_trc_south  : radiation of the south open boundary tracers
+   !!----------------------------------------------------------------------------------
+   !! * Modules used
+   USE oce             ! ocean dynamics and tracers variables
+   USE dom_oce         ! ocean space and time domain variables
+   USE phycst          ! physical constants
+   USE obc_oce         ! ocean open boundary conditions
+   USE lib_mpp         ! ???
+   USE lbclnk          ! ???
+   USE in_out_manager  ! I/O manager
+
+   USE trc
+   USE par_kind,ONLY   :wp
+   USE trcobc_oce_bfm      ! ocean open boundary conditions
+   IMPLICIT NONE
+
+   !! * Accessibility
+   PUBLIC obc_trc_bfm     ! routine called in trc_nxt_bfm.F90
+
+   !! * Module variables
+   INTEGER ::      & ! ... boundary space indices
+      nib   = 1,   & ! nib   = boundary point
+      nibm  = 2,   & ! nibm  = 1st interior point
+      nibm2 = 3,   & ! nibm2 = 2nd interior point
+                     ! ... boundary time indices
+      nit   = 1,   & ! nit    = now
+      nitm  = 2,   & ! nitm   = before
+      nitm2 = 3      ! nitm2  = before-before
+#if defined  key_mfs
+   INTEGER :: jk,jj,ji      !  loop index
+#endif
+
+   REAL(wp) ::     &
+      rtaue  , rtauw  , rtaun  , rtaus  ,  &  ! Boundary restoring coefficient
+      rtauein, rtauwin, rtaunin, rtausin      ! Boundary restoring coefficient for inflow
+
+   !! * Substitutions
+#  include "obc_vectopt_loop_substitute.h90"
+   !!---------------------------------------------------------------------------------
+   !!   OPA 9.0 , LOCEAN-IPSL (2005)
+   !! $Id: obctra.F90 1152 2008-06-26 14:11:13Z rblod $
+   !! This software is governed by the CeCILL licence see modipsl/doc/NEMO_CeCILL.txt
+   !!---------------------------------------------------------------------------------
+
+CONTAINS
+
+   SUBROUTINE obc_trc_bfm( kt,m )
       !!-------------------------------------------------------------------------------
-      !!                 ***  SUBROUTINE obc_trc  ***
-      !!                    
-      !! ** Purpose :   Compute tracer fields (t,s) along the open boundaries.
-      !!      This routine is called by the tranxt.F routine and updates ta,sa
-      !!      which are the actual temperature and salinity fields.
+      !!                 ***  SUBROUTINE obc_trc_bfm  ***
+      !!
+      !! ** Purpose :   Compute tracer fields  along the open boundaries.
+      !!      This routine is called by the trcnxt_bfm.F routine
       !!        The logical variable lp_obc_east, and/or lp_obc_west, and/or lp_obc_north,
       !!      and/or lp_obc_south allow the user to determine which boundary is an
       !!      open one (must be done in the param_obc.h90 file).
       !!
-      !! Reference : 
+      !! Reference :
       !!   Marchesiello P., 1995, these de l'universite J. Fourier, Grenoble, France.
       !!
       !!  History :
@@ -25,72 +78,37 @@
       !!   8.5  !  02-10 (C. Talandier, A-M. Treguier) F90
       !!----------------------------------------------------------------------
 
-
    !!----------------------------------------------------------------------------------
    !! * Modules used
    USE oce             ! ocean dynamics and tracers variables
-   USE dom_oce         ! ocean space and time domain variables 
+   USE dom_oce         ! ocean space and time domain variables
    USE phycst          ! physical constants
    USE obc_oce         ! ocean open boundary conditions
-   USE trcobc_oce      ! ocean open boundary conditions
    USE lib_mpp         ! ???
    USE lbclnk          ! ???
    USE in_out_manager  ! I/O manager
-   USE trc
-   USE daymod,ONLY     :nday,nmonth
-   USE par_kind,ONLY   :wp
+
 
       !! * Arguments
       INTEGER, INTENT( in ) ::   kt,m
-      INTEGER ::   ji, jj, jk
-      !!----------------------------------------------------------------------
-      !! * Local declarations
-      INTEGER ::   itimo, iman, imois
-      INTEGER ::   i15
-      REAL(wp) ::   zxy
-      INTEGER ::   &
-      nlecto,   &  ! switch for the first read
-      ntobc1,   &  ! first record used
-      ntobc2,   &  ! second record used
-      ntobc        ! number of time steps in OBC files 
-      REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
-
+      !! Local variables
+      REAL(wp)              ::   zrdt
 
       ! 0. Local constant initialization
 
-      IF( kt == nittrc000 .OR. ln_rstart) THEN
-         ! ... Boundary restoring coefficient
-         rtaue = 2. * rdt / rdpeob
-         rtauw = 2. * rdt / rdpwob
-         rtaun = 2. * rdt / rdpnob
-         rtaus = 2. * rdt / rdpsob
+      IF( kt == nit000 .OR. ln_rstart) THEN
+         ! ... Boundary restoring coefficient (NOTE, discarded the vertical dependence of rdttrc!)
+         zrdt =  rdt * FLOAT(ndttrc)
+         rtaue = 2. * zrdt / rn_trdpeob
+         rtauw = 2. * zrdt / rn_trdpwob
+         rtaun = 2. * zrdt / rn_trdpnob
+         rtaus = 2. * zrdt / rn_trdpsob
          ! ... Boundary restoring coefficient for inflow ( all boundaries)
-         rtauein = 2. * rdt / rdpein 
-         rtauwin = 2. * rdt / rdpwin
-         rtaunin = 2. * rdt / rdpnin
-         rtausin = 2. * rdt / rdpsin 
+         rtauein = 2. * rdt / rn_trdpein
+         rtauwin = 2. * rdt / rn_trdpwin
+         rtaunin = 2. * rdt / rn_trdpnin
+         rtausin = 2. * rdt / rn_trdpsin
       END IF
-!GELSOMINA
-!      IF( ntrcobc_dta == 0 )   THEN
-!         itimo = 1
-!         zxy   = 0.
-!      ELSE
-!         IF( ntobc == 1 )   THEN
-!            itimo = 1
-!         ELSE IF( ntobc == 12 )   THEN      !   BC are monthly   
-!            ! we assume we have climatology in that case
-!            iman  = 12
-!            i15   = nday / 16
-!            imois = nmonth + i15 - 1
-!            IF( imois == 0 )   imois = iman
-!            itimo = imois
-!         ELSE
-!            iman  = ntobc
-!            itimo = FLOOR( kt*rdt / (tcobc(2)-tcobc(1)) )
-!            isrel = kt*rdt
-!         ENDIF
-!      ENDIF
-!GELSOMINA
 
       IF( lp_obc_east  )   CALL obc_trc_bfm_east ( kt ,m)    ! East open boundary
 
@@ -103,26 +121,19 @@
 #if defined  key_mfs
       !-------------------------------------------------------------
       ! If MFS-MERSEA implementation 2 ocean corners (S-W ans N-W).
-      ! Temperature and salinity data in these points are replaced
-      ! using inner values (numerical!)
+      ! Values at these points are replaced with inner values (numerical!)
       !-------------------------------------------------------------
         DO jk = 1, jpkm1
-!ANTO Enrico+ 
            do jj=njs0,njs1
               do ji=niw0,niw1
-!                 if(jk==1)write(numout,*)'MFS CHECK OBC SOUTH: JI wanted=2, actual=',ji
-!                 if(jk==1)write(numout,*)'MFS CHECK: JJwanted=2, actual=',jj
                  tra(ji,jj,jk,1)     =  tra(ji+1,jj,jk,1)
-              enddo   
-           enddo   
+              enddo
+           enddo
            do jj=njn0p1,njn1p1
                  do ji=niw0,niw1
-!                 if(jk==1)write(numout,*)'MFS CHECK OBC NORTH: JI wanted=2, actual=',ji
-!                 if(jk==1)write(numout,*)'MFS CHECK: JJ wanted=252, actual=',jj
                     tra(ji,jj,jk,1) =  tra(ji+1,jj,jk,1)
                  enddo
            enddo
-!ANTO -
         END DO
 #endif
 
@@ -132,14 +143,15 @@
          END IF
          CALL lbc_lnk( tra(:,:,:,1), 'T', 1. )
       ENDIF
-  END SUBROUTINE obctrc_bfm
+
+  END SUBROUTINE obc_trc_bfm
 
    SUBROUTINE obc_trc_bfm_east ( kt ,m)
       !!------------------------------------------------------------------------------
       !!                ***  SUBROUTINE obc_trc_east  ***
-      !!                  
+      !!
       !! ** Purpose :
-      !!      Apply the radiation algorithm on east OBC tracers ta, sa using the 
+      !!      Apply the radiation algorithm on east OBC tracers ta, sa using the
       !!      phase velocities calculated in obc_rad_east subroutine in obcrad.F90 module
       !!      If the logical lfbceast is .TRUE., there is no radiation but only fixed OBC
       !!
@@ -147,14 +159,14 @@
       !!         ! 95-03 (J.-M. Molines) Original from SPEM
       !!         ! 97-07 (G. Madec, J.-M. Molines) additions
       !!         ! 97-12 (M. Imbard) Mpp adaptation
-      !!         ! 00-06 (J.-M. Molines) 
+      !!         ! 00-06 (J.-M. Molines)
       !!    8.5  ! 02-10 (C. Talandier, A-M. Treguier) F90
       !!------------------------------------------------------------------------------
       USE oce             ! ocean dynamics and tracers variables
-      USE dom_oce         ! ocean space and time domain variables 
+      USE dom_oce         ! ocean space and time domain variables
       USE phycst          ! physical constants
       USE obc_oce         ! ocean open boundary conditions
-      USE trcobc_oce      ! ocean open boundary conditions
+      USE trcobc_oce_bfm      ! ocean open boundary conditions
       USE lib_mpp         ! ???
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
@@ -172,49 +184,29 @@
       nlecto,   &  ! switch for the first read
       ntobc1,   &  ! first record used
       ntobc2,   &  ! second record used
-      ntobc        ! number of time steps in OBC files 
+      ntobc        ! number of time steps in OBC files
 
-     REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
-
-      !!------------------------------------------------------------------------------
+      ! 0. Interpolation of OBC data
+      ! --------------------------------------------------------
+      ! Time interpolation should be done here to avoid array
+      ! duplication. Not yet implemented
+      ! --------------------------------------------------------
+      IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
+         DO jk = 1, jpkm1
+            DO jj = nje0p1, nje1m1
+               ij = jj -1 + njmpp
+               trfoe(jj,jk) =  tredta(ij,jk,1,m) * temsk(jj,jk)
+             END DO
+         END DO
+      ELSE
+         CALL ctl_stop('Usage of external open boundary data not implemented with BFM',' routine obc_trc_bfm_east')
+      ENDIF
 
       ! 1. First three time steps and more if ltrfbceast is .TRUE.
       !    In that case open boundary conditions are FIXED.
       ! --------------------------------------------------------
-! Linear interpolation of BCs to current time step
-!      IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
-!         zxy = 0.
 
-!ATTENZIONE PER ORA OK MA DA CAMBIARE QUANDO SI AVRANNO I DATI SULLE OBC
-!VARIABILI NON DEFINITE ERRORE SIG FAULT.In obcdta.F90 sono definite e 'lette' nei file delle OBC!!!!
-!      IF( ntobc == 12 .OR. ntrobcdta ==1)   THEN
-!         zxy = FLOAT( nday + 15 - 30 * i15 ) / 30.
-!      ELSE 
-!         zxy = (tcobc(ntobc1)-FLOAT(isrel))/(tcobc(ntobc1)-tcobc(ntobc2))
-!      ENDIF
-
-! Per evitare la duplicazione degli array tredta
-!       DO m = 1,NO_D3_BOX_STATES
-!         IF (D3STATEOBC(m)/= 0.) THEN
-         IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
-               DO jk = 1, jpkm1
-                 DO jj = nje0p1, nje1m1
-               ij = jj -1 + njmpp
-               trfoe(jj,jk) =  tredta(ij,jk,1,m) * temsk(jj,jk)
-                END DO
-              END DO
-
-          ELSE
-!               DO jk = 1, jpkm1
-!                 DO jj = nje0p1, nje1m1
-!               ij = jj -1 + njmpp
-!               trfoe(jj,jk) =  ( zxy * tredta(ij,jk,2,m) + &
-!                  &           (1.-zxy) * tredta(ij,jk,1,m) ) * temsk(jj,jk)
-!                END DO
-!              END DO
-       ENDIF
-      
-      IF(  (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. lp_obc_east ) THEN
+      IF(  (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. ltrfbceast ) THEN
          DO ji = fs_nie0+1, fs_nie1+1 ! Vector opt.
             DO jk = 1, jpkm1
                DO jj = 1, jpj
@@ -229,7 +221,7 @@
       ! 2. Beyond the fourth time step if ltrfbceast is .FALSE.
       ! -----------------------------------------------------
 
-         ! Temperature and salinity radiation
+         ! Tracer radiation/advection
          ! ----------------------------------
          !
          !            nibm2      nibm      nib
@@ -248,24 +240,24 @@
          !           jpieob-1    jpieob     jpieob+1
          !
          ! ... radiative conditions + relaxation toward a climatology
-         !     the phase velocity is taken as the phase velocity of the tangen-
-         !     tial velocity (here vn), which have been saved in (u_cxebnd,v_cxebnd)
-         ! ... (jpjedp1, jpjefm1), jpieob+1
+         !     the phase velocity is the normal current velocity
+
          DO ji = fs_nie0+1, fs_nie1+1 ! Vector opt.
             DO jk = 1, jpkm1
                DO jj = 2, jpjm1
-         ! ... i-phase speed ratio (from averaged of v_cxebnd)
-                  z05cx = ( 0.5 * ( v_cxebnd(jj,jk) + v_cxebnd(jj-1,jk) ) ) / e1t(ji-1,jj)
+         ! ... average of the normal velocity (normalized and bounded for stability)
+                  z05cx = zrdt * ( 0.5 * ( uebnd(jj,jk,nibm,nit) +  &
+                          uebnd(jj-1,jk,nibm,nit) ) ) / e1t(ji-1,jj)
                   z05cx = min( z05cx, 1. )
-         ! ... z05cx=< 0, inflow  zin=0, ztau=1    
+         ! ... z05cx=< 0, inflow  zin=0, ztau=rtauein
          !           > 0, outflow zin=1, ztau=rtaue
                   zin = sign( 1., z05cx )
                   zin = 0.5*( zin + abs(zin) )
          ! ... for inflow rtauein is used for relaxation coefficient else rtaue
                   ztau = (1.-zin ) * rtauein  + zin * rtaue
                   z05cx = z05cx * zin
-         ! ... update ( ta, sa ) with radiative or climatological (t, s)
-                  tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1. - temsk(jj,jk)) +           & 
+         ! ... update with radiative or climatological
+                  tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1. - temsk(jj,jk)) +           &
                                  temsk(jj,jk) * ( ( 1. - z05cx - ztau )         &
                                  * trebnd(jj,jk,nib ,nitm) + 2.*z05cx              &
                                  * trebnd(jj,jk,nibm,nit ) + ztau * trfoe (jj,jk) ) &
@@ -275,38 +267,35 @@
          END DO
 
       END IF
-!     END IF
-!     END DO
+
    END SUBROUTINE obc_trc_bfm_east
 
 
    SUBROUTINE obc_trc_bfm_west ( kt ,m)
       !!------------------------------------------------------------------------------
       !!                 ***  SUBROUTINE obc_tra_west  ***
-      !!           
+      !!
       !! ** Purpose :
-      !!      Apply the radiation algorithm on west OBC tracers ta, sa using the 
-      !!      phase velocities calculated in obc_rad_west subroutine in obcrad.F90 module
+      !!      Apply the advection/radiation algorithm on west OBC tracers
       !!      If the logical lfbcwest is .TRUE., there is no radiation but only fixed OBC
       !!
       !!  History :
       !!         ! 95-03 (J.-M. Molines) Original from SPEM
       !!         ! 97-07 (G. Madec, J.-M. Molines) additions
       !!         ! 97-12 (M. Imbard) Mpp adaptation
-      !!         ! 00-06 (J.-M. Molines) 
+      !!         ! 00-06 (J.-M. Molines)
       !!    8.5  ! 02-10 (C. Talandier, A-M. Treguier) F90
       !!------------------------------------------------------------------------------
       !! * Arguments
       USE oce             ! ocean dynamics and tracers variables
-      USE dom_oce         ! ocean space and time domain variables 
+      USE dom_oce         ! ocean space and time domain variables
       USE phycst          ! physical constants
       USE obc_oce         ! ocean open boundary conditions
-      USE trcobc_oce      ! ocean open boundary conditions
+      USE trcobc_oce_bfm      ! ocean open boundary conditions
       USE lib_mpp         ! ???
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE obctrc
       USE daymod,ONLY     :nday,nmonth
       USE par_kind,ONLY   :wp
       use global_mem, only:LOGUNIT
@@ -320,47 +309,33 @@
       nlecto,   &  ! switch for the first read
       ntobc1,   &  ! first record used
       ntobc2,   &  ! second record used
-      ntobc        ! number of time steps in OBC files 
-
-       REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
+      ntobc        ! number of time steps in OBC files
 
       !!------------------------------------------------------------------------------
 
-      ! 1. First three time steps and more if ltrfbcwest is .TRUE.
-      !    In that case open boundary conditions are FIXED.
-      ! --------------------------------------------------------
-! Linear interpolation of BCs to current time step
-!      IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
-!         zxy = 0.
-!ATTENZIONE PER ORA OK MA DA CAMBIARE QUANDO SI AVRANNO I DATI SULLE OBC
-!      IF( ntobc == 12 .OR. ntrcobc_dta == 1)   THEN
-!        zxy = FLOAT( nday + 15 - 30 * i15 ) / 30.
-!      ELSE
-!         zxy = (tcobc(ntobc1)-FLOAT(isrel))/(tcobc(ntobc1)-tcobc(ntobc2))
-!      ENDIF
 
-! Per evitare la duplicazione degli array trwdta
-!       DO m = 1,NO_D3_BOX_STATES
-!         IF (D3STATEOBC(m)/= 0.) THEN
-       IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
+      ! 0. Interpolation of OBC data
+      ! --------------------------------------------------------
+      ! Time interpolation should be done here to avoid array
+      ! duplication. Not yet implemented
+      ! --------------------------------------------------------
+
+      IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
          DO jk = 1, jpkm1
             DO jj = njw0p1, njw1m1
                ij = jj -1 + njmpp
                   trfow(jj,jk) =  trwdta(ij,jk,1,m) * twmsk(jj,jk)
-            END DO
+             END DO
          END DO
-       ELSE
+      ELSE
+         CALL ctl_stop('Usage of external open boundary data not implemented with BFM',' routine obc_trc_bfm_west')
+      ENDIF
 
-!         DO jk = 1, jpkm1
-!            DO jj = njw0p1, njw1m1
-!               ij = jj -1 + njmpp
-!               trfow(jj,jk) =  ( zxy * trwdta(ij,jk,2,m) + &
-!                  &           (1.-zxy) * trwdta(ij,jk,1,m) ) * twmsk(jj,jk)
-!            END DO
-!         END DO
-       ENDIF
+      ! 1. First three time steps and more if ltrfbcwest is .TRUE.
+      !    In that case open boundary conditions are FIXED.
+      ! --------------------------------------------------------
 
-      IF( (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. lp_obc_west ) THEN
+      IF( (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. ltrfbcwest ) THEN
 
          DO ji = fs_niw0, fs_niw1 ! Vector opt.
             DO jk = 1, jpkm1
@@ -375,53 +350,50 @@
 
       ! 2. Beyond the fourth time step if ltrfbcwest is .FALSE.
       ! -----------------------------------------------------
-          
-         ! Temperature and salinity radiation
+
+         ! Tracer radiation/advection
          ! ----------------------------------
          !
          !          nib       nibm     nibm2
          !     nib///|   nibm  |  nibm2  |
-         !   ///|////|    |    |    |    |   
+         !   ///|////|    |    |    |    |
          !   ---v----f----v----f----v----f-- jj   line
-         !   ///|////|    |    |    |    |   
-         !   //   ///|         |         |   
+         !   ///|////|    |    |    |    |
+         !   //   ///|         |         |
          !   // T ///u    T    u    T    u   jj   line
-         !   //   ///|         |         |   
-         !   ///|////|    |    |    |    |   
+         !   //   ///|         |         |
+         !   ///|////|    |    |    |    |
          !   ---v----f----v----f----v----f-- jj-1 line
-         !   ///|////|    |    |    |    |   
+         !   ///|////|    |    |    |    |
          !         jpiwob    jpiwob+1    jpiwob+2
-         !      |         |         |        
+         !      |         |         |
          !    jpiwob    jpiwob+1   jpiwob+2
          !
          ! ... radiative conditions + relaxation toward a climatology
-         ! ... the phase velocity is taken as the phase velocity of the tangen-
-         ! ... tial velocity (here vn), which have been saved in (v_cxwbnd)
          DO ji = fs_niw0, fs_niw1 ! Vector opt.
             DO jk = 1, jpkm1
                DO jj = 2, jpjm1
-         ! ... i-phase speed ratio (from averaged of v_cxwbnd)
-                  z05cx = (  0.5 * ( v_cxwbnd(jj,jk) + v_cxwbnd(jj-1,jk) ) ) / e1t(ji+1,jj)
+         ! ... average of the normal velocity (normalized and bounded for stability)
+                  z05cx = zrdt * (  0.5 * ( uwbnd(jj,jk,nibm,nit) + &
+                          uwbnd(jj-1,jk,nibm,nit) ) ) / e1t(ji+1,jj)
                   z05cx = max( z05cx, -1. )
-         ! ... z05cx > 0, inflow  zin=0, ztau=1    
+         ! ... z05cx > 0, inflow  zin=0, ztau=rtauwin
          !           < 0, outflow zin=1, ztau=rtauw
                   zin = sign( 1., -1.* z05cx )
                   zin = 0.5*( zin + abs(zin) )
                   ztau = (1.-zin )*rtauwin + zin * rtauw
                   z05cx = z05cx * zin
-         ! ... update (ta,sa) with radiative or climatological (t, s)
+         ! ... update with radiative or climatological
                   tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1. - twmsk(jj,jk)) +           &
                                  twmsk(jj,jk) * ( ( 1. + z05cx - ztau )         &
-                                 * trwbnd(jj,jk,nib ,nitm) - 2.*z05cx              &
-                                 * trwbnd(jj,jk,nibm,nit ) + ztau * trfow (jj,jk) ) &
+                                 * trwbnd(jj,jk,nib ,nitm,m) - 2.*z05cx              &
+                                 * trwbnd(jj,jk,nibm,nit,m) + ztau * trfow (jj,jk) ) &
                                  / (1. - z05cx)
                END DO
             END DO
          END DO
 
       END IF
-!     END IF
-!    END DO
    END SUBROUTINE obc_trc_bfm_west
 
 
@@ -430,7 +402,7 @@
       !!                 ***  SUBROUTINE obc_trc_north  ***
       !!
       !! ** Purpose :
-      !!      Apply the radiation algorithm on north OBC tracers ta, sa using the 
+      !!      Apply the radiation algorithm on north OBC tracers ta, sa using the
       !!      phase velocities calculated in obc_rad_north subroutine in obcrad.F90 module
       !!      If the logical lfbcnorth is .TRUE., there is no radiation but only fixed OBC
       !!
@@ -438,19 +410,18 @@
       !!         ! 95-03 (J.-M. Molines) Original from SPEM
       !!         ! 97-07 (G. Madec, J.-M. Molines) additions
       !!         ! 97-12 (M. Imbard) Mpp adaptation
-      !!         ! 00-06 (J.-M. Molines) 
+      !!         ! 00-06 (J.-M. Molines)
       !!    8.5  ! 02-10 (C. Talandier, A-M. Treguier) F90
       !!------------------------------------------------------------------------------
       USE oce             ! ocean dynamics and tracers variables
-      USE dom_oce         ! ocean space and time domain variables 
+      USE dom_oce         ! ocean space and time domain variables
       USE phycst          ! physical constants
       USE obc_oce         ! ocean open boundary conditions
-      USE trcobc_oce      ! ocean open boundary conditions
+      USE trcobc_oce_bfm      ! ocean open boundary conditions
       USE lib_mpp         ! ???
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE obctrc
       USE daymod,ONLY     :nday,nmonth
       USE par_kind,ONLY   :wp
       use global_mem, only:LOGUNIT
@@ -461,9 +432,7 @@
       nlecto,   &  ! switch for the first read
       ntobc1,   &  ! first record used
       ntobc2,   &  ! second record used
-      ntobc        ! number of time steps in OBC files 
-
-   REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
+      ntobc        ! number of time steps in OBC files
 
 
       !! * Local declaration
@@ -471,22 +440,11 @@
       REAL(wp) ::   z05cx, ztau, zin
       !!------------------------------------------------------------------------------
 
-      ! 1. First three time steps and more if ltrfbcnorth is .TRUE.
-      !    In that case open boundary conditions are FIXED.
+      ! 0. Interpolation of OBC data
       ! --------------------------------------------------------
-! Linear interpolation of BCs to current time step
-!      IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
-!         zxy = 0.
-!ATTENZIONE PER ORA OK MA DA CAMBIARE QUANDO SI AVRANNO I DATI SULLE OBC
-!      IF( ntobc == 12 .OR. ntrcobc_dta == 1)   THEN
-!        zxy = FLOAT( nday + 15 - 30 * i15 ) / 30.
-!    ELSE
-!         zxy = (tcobc(ntobc1)-FLOAT(isrel))/(tcobc(ntobc1)-tcobc(ntobc2))
-!      ENDIF
-
-! Per evitare la duplicazione degli array trndta
-!       DO m = 1,NO_D3_BOX_STATES
-!         IF (D3STATEOBC(m)/= 0.) THEN
+      ! Time interpolation should be done here to avoid array
+      ! duplication. Not yet implemented
+      ! --------------------------------------------------------
 
       IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
          DO jk = 1, jpkm1
@@ -495,19 +453,19 @@
                   trfon(ji,jk) = trndta(ii,jk,1,m) * tnmsk(ji,jk)
             END DO
          END DO
-    
-         ELSE 
+     ELSE
+         CALL ctl_stop('Usage of external open boundary data not implemented with BFM',' routine obc_trc_bfm_north')
      ENDIF
 
-      IF( (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. lp_obc_north ) THEN
+      ! 1. First three time steps and more if ltrfbcnorth is .TRUE.
+      !    In that case open boundary conditions are FIXED.
+      ! --------------------------------------------------------
+
+      IF( (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. ltrfbcnorth ) THEN
 
          DO jj = fs_njn0+1, fs_njn1+1  ! Vector opt.
             DO jk = 1, jpkm1
                DO ji = 1, jpi
-                   
-              IF(ji.eq.2) tra(ji,jj,jk,1)=tra(ji+1,jj,jk,1)
-              IF(ji.ge.4.and.ji.le.6) tra(ji,jj,jk,1)=tra(ji-1,jj,jk,1)
-
                   tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tnmsk(ji,jk)) + &
                                 tnmsk(ji,jk) * trfon(ji,jk)
                END DO
@@ -518,8 +476,8 @@
 
       ! 2. Beyond the fourth time step if ltrfbcnorth is .FALSE.
       ! -------------------------------------------------------
-          
-         ! Temperature and salinity radiation
+
+         ! Tracer radiation/advection
          ! ----------------------------------
          !
          !           ji-1   ji   ji   ji +1
@@ -527,28 +485,27 @@
          !    nib //// u // T // u // T //   jpjnob + 1
          !        /////|//////////////////
          !    nib  ----f----v----f----v---   jpjnob
-         !             |         |       
+         !             |         |
          !      nibm-- u -- T -- u -- T --   jpjnob
-         !             |         |            
+         !             |         |
          !   nibm  ----f----v----f----v---  jpjnob-1
-         !             |         |      
+         !             |         |
          !     nibm2-- u -- T -- T -- T --  jpjnob-1
-         !             |         |    
+         !             |         |
          !   nibm2 ----f----v----f----v---  jpjnob-2
          !             |         |
          !
          ! ... radiative conditions + relaxation toward a climatology
-         ! ... the phase velocity is taken as the normal phase velocity of the tangen-
-         ! ... tial velocity (here un), which has been saved in (u_cynbnd)
-         ! ... jpjnob+1,(jpindp1, jpinfm1)
          DO jj = fs_njn0+1, fs_njn1+1 ! Vector opt.
             DO jk = 1, jpkm1
                DO ji = 2, jpim1
          ! ... j-phase speed ratio (from averaged of vtnbnd)
          !        (bounded by 1)
-                  z05cx = ( 0.5 * ( u_cynbnd(ji,jk) + u_cynbnd(ji-1,jk) ) ) / e2t(ji,jj-1)
+         ! ... average of the normal velocity (normalized and bounded for stability)
+                  z05cx = zrdt * (  0.5 * ( vnbnd(jj,jk,nibm,nit) + &
+                          vnbnd(jj-1,jk,nibm,nit) ) ) / e1t(ji+1,jj)
                   z05cx = min( z05cx, 1. )
-         ! ... z05cx=< 0, inflow  zin=0, ztau=1    
+         ! ... z05cx=< 0, inflow  zin=0, ztau=rtaunin
          !           > 0, outflow zin=1, ztau=rtaun
                   zin = sign( 1., z05cx )
                   zin = 0.5*( zin + abs(zin) )
@@ -558,45 +515,42 @@
          ! ... update (ta,sa) with radiative or climatological (t, s)
                   tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1.-tnmsk(ji,jk)) +             &
                                  tnmsk(ji,jk) * ( ( 1. - z05cx - ztau )         &
-                                 * trnbnd(ji,jk,nib ,nitm) + 2.*z05cx              &
-                                 * trnbnd(ji,jk,nibm,nit ) + ztau * trfon (ji,jk) ) &
+                                 * trnbnd(ji,jk,nib ,nitm,m) + 2.*z05cx              &
+                                 * trnbnd(ji,jk,nibm,nit,m) + ztau * trfon (ji,jk) ) &
                                  / (1. + z05cx)
                END DO
             END DO
          END DO
 
       END IF
-!     END IF
-!    ENDDO
+
    END SUBROUTINE obc_trc_bfm_north
 
 
    SUBROUTINE obc_trc_bfm_south ( kt ,m)
       !!------------------------------------------------------------------------------
       !!                ***  SUBROUTINE obc_tra_south  ***
-      !!     
+      !!
       !! ** Purpose :
-      !!      Apply the radiation algorithm on south OBC tracers ta, sa using the 
-      !!      phase velocities calculated in obc_rad_south subroutine in obcrad.F90 module
+      !!      Apply the /advectionradiation algorithm on south OBC tracers
       !!      If the logical lfbcsouth is .TRUE., there is no radiation but only fixed OBC
       !!
       !!  History :
       !!         ! 95-03 (J.-M. Molines) Original from SPEM
       !!         ! 97-07 (G. Madec, J.-M. Molines) additions
       !!         ! 97-12 (M. Imbard) Mpp adaptation
-      !!         ! 00-06 (J.-M. Molines) 
+      !!         ! 00-06 (J.-M. Molines)
       !!    8.5  ! 02-10 (C. Talandier, A-M Treguier) F90
       !!------------------------------------------------------------------------------
       USE oce             ! ocean dynamics and tracers variables
-      USE dom_oce         ! ocean space and time domain variables 
+      USE dom_oce         ! ocean space and time domain variables
       USE phycst          ! physical constants
       USE obc_oce         ! ocean open boundary conditions
-      USE trcobc_oce      ! ocean open boundary conditions
+      USE trcobc_oce_bfm      ! ocean open boundary conditions
       USE lib_mpp         ! ???
       USE lbclnk          ! ???
       USE in_out_manager  ! I/O manager
       USE trc
-      USE obctrc
       USE daymod,ONLY     :nday,nmonth
       USE par_kind,ONLY   :wp
       use global_mem, only:LOGUNIT
@@ -612,28 +566,16 @@
       nlecto,   &  ! switch for the first read
       ntobc1,   &  ! first record used
       ntobc2,   &  ! second record used
-      ntobc        ! number of time steps in OBC files 
-
-   REAL(wp), DIMENSION(:), ALLOCATABLE :: tcobc      ! time_counter variable of BCs
+      ntobc        ! number of time steps in OBC files
 
       !!------------------------------------------------------------------------------
 
-      ! 1. First three time steps and more if lfbcsouth is .TRUE.
-      !    In that case open boundary conditions are FIXED.
-      ! --------------------------------------------------------
-! Linear interpolation of BCs to current time step
-!      IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
-!         zxy = 0.
-!ATTENZIONE PER ORA OK MA DA CAMBIARE QUANDO SI AVRANNO I DATI SULLE OBC
-!      IF( ntobc == 12 .OR. ntrcobc_dta == 1)   THEN
-!         zxy = FLOAT( nday + 15 - 30 * i15 ) / 30.
-!      ELSE
-!         zxy = (tcobc(ntobc1)-FLOAT(isrel))/(tcobc(ntobc1)-tcobc(ntobc2))
-!      ENDIF
 
-! Per evitare la duplicazione degli array trsdta
-!       DO m = 1,NO_D3_BOX_STATES
-!         IF (D3STATEOBC(m)/= 0.) THEN
+      ! 0. Interpolation of OBC data
+      ! --------------------------------------------------------
+      ! Time interpolation should be done here to avoid array
+      ! duplication. Not yet implemented
+      ! --------------------------------------------------------
 
       IF( ntobc == 1 .OR. ntrcobc_dta == 0 )   THEN
          DO jk = 1, jpkm1
@@ -642,10 +584,15 @@
                  trfos(ji,jk) =   trsdta(ii,jk,1,m) * tsmsk(ji,jk)
            END DO
          END DO
-         ELSE
-        ENDIF
+      ELSE
+         CALL ctl_stop('Usage of external open boundary data not implemented with BFM',' routine obc_trc_bfm_north')
+      ENDIF
 
-      IF(  (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. lp_obc_south) THEN
+      ! 1. First three time steps and more if lfbcsouth is .TRUE.
+      !    In that case open boundary conditions are FIXED.
+      ! --------------------------------------------------------
+
+      IF(  (kt < nit000+3 .AND. .NOT.ln_rstart) .OR. ltrfbcsouth) THEN
 
          DO jj = fs_njs0, fs_njs1  ! Vector opt.
             DO jk = 1, jpkm1
@@ -660,52 +607,51 @@
 
       ! 2. Beyond the fourth time step if ltrfbcsouth is .FALSE.
       ! -------------------------------------------------------
-          
+
          ! Temperature and salinity radiation
          ! ----------------------------------
          !
          !           ji-1   ji   ji   ji +1
          !             |         |
          !   nibm2 ----f----v----f----v---   jpjsob+2
-         !             |         |       
+         !             |         |
          !   nibm2 --  u -- T -- u -- T --   jpjsob+2
-         !             |         |            
+         !             |         |
          !   nibm  ----f----v----f----v---   jpjsob+1
-         !             |         |      
+         !             |         |
          !    nibm --  u -- T -- T -- T --   jpjsob+1
-         !             |         |    
+         !             |         |
          !   nib  -----f----v----f----v---   jpjsob
-         !       //////|/////////|//////// 
-         !    nib //// u // T // u // T //   jpjsob 
+         !       //////|/////////|////////
+         !    nib //// u // T // u // T //   jpjsob
          !
          !... radiative conditions + relaxation toward a climatology
-         !... the phase velocity is taken as the phase velocity of the tangen-
-         !... tial velocity (here un), which has been saved in (u_cysbnd)
-         !... jpjsob,(jpisdp1, jpisfm1)
+
          DO jj = fs_njs0, fs_njs1  ! Vector opt.
             DO jk = 1, jpkm1
                DO ji = 2, jpim1
-         !... j-phase speed ratio (from averaged of u_cysbnd)
-         !       (bounded by 1)
-                  z05cx = ( 0.5 * ( u_cysbnd(ji,jk) + u_cysbnd(ji-1,jk) ) ) / e2t(ji,jj+1)
+         ! ... average of the normal velocity (normalized and bounded for stability)
+                  z05cx = ( 0.5 * ( vsbnd(ji,jk) + vsbnd(ji-1,jk) ) ) / e2t(ji,jj+1)
                   z05cx = max( z05cx, -1. )
-         !... z05cx > 0, inflow  zin=0, ztau=1
+         !... z05cx > 0, inflow  zin=0, ztau=rtausin
          !          < 0, outflow zin=1, ztau=rtaus
                   zin = sign( 1., -1.* z05cx )
                   zin = 0.5*( zin + abs(zin) )
-                  ztau = (1.-zin ) + zin * rtaus
+                  ztau = (1.-zin ) * rtausin + zin * rtaus
                   z05cx = z05cx * zin
-         !... update (ta,sa) with radiative or climatological (t, s)
+         !... update with radiative or climatological
                   tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1.-tsmsk(ji,jk)) +             &
                                  tsmsk(ji,jk) * ( ( 1. + z05cx - ztau )         &
-                                 * trsbnd(ji,jk,nib ,nitm) - 2.*z05cx              &
-                                 * trsbnd(ji,jk,nibm,nit ) + ztau * trfos (ji,jk) ) &
+                                 * trsbnd(ji,jk,nib ,nitm,m) - 2.*z05cx              &
+                                 * trsbnd(ji,jk,nibm,nit,m) + ztau * trfos (ji,jk) ) &
                                  / (1. - z05cx)
                END DO
             END DO
          END DO
 
-      END IF   
+      END IF
    END SUBROUTINE obc_trc_bfm_south
 
 #endif
+END MODULE obctrc_bfm
+

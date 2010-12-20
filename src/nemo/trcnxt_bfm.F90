@@ -21,11 +21,11 @@ MODULE trcnxtbfm
    PRIVATE
 
 !   !! * Routine accessibility
-   PUBLIC trc_nxt_bfm          
+   PUBLIC trc_nxt_bfm
    !!----------------------------------------------------------------------
-   !!   TOP 1.0 , LOCEAN-IPSL (2005) 
-   !! $Header$ 
-   !! This software is governed by the CeCILL licence see modipsl/doc/NEMO_CeCILL.txt 
+   !!   TOP 1.0 , LOCEAN-IPSL (2005)
+   !! $Header$
+   !! This software is governed by the CeCILL licence see modipsl/doc/NEMO_CeCILL.txt
    !!----------------------------------------------------------------------
 !
 CONTAINS
@@ -34,19 +34,19 @@ CONTAINS
       !!----------------------------------------------------------------------
       !!                   ***  ROUTINE trcnxt  ***
       !!
-      !! ** Purpose :   Compute the passive tracers fields at the 
+      !! ** Purpose :   Compute the passive tracers fields at the
       !!      next time-step from their temporal trends and swap the fields.
       !!      This is a modified version for the BFM to include
       !!      open boundary conditions
-      !! 
-      !! ** Method  :   Apply lateral boundary conditions on (ua,va) through 
+      !!
+      !! ** Method  :   Apply lateral boundary conditions on (ua,va) through
       !!      call to lbc_lnk routine
       !!   default:
       !!      arrays swap
       !!         (trn) = (tra) ; (tra) = (0,0)
-      !!         (trb) = (trn) 
+      !!         (trb) = (trn)
       !!
-      !!   For Arakawa or TVD Scheme : 
+      !!   For Arakawa or TVD Scheme :
       !!      A Asselin time filter applied on now tracers (trn) to avoid
       !!      the divergence of two consecutive time-steps and tr arrays
       !!      to prepare the next time_step:
@@ -59,13 +59,13 @@ CONTAINS
       !! History :
       !!   7.0  !  91-11  (G. Madec)  Original code
       !!        !  93-03  (M. Guyon)  symetrical conditions
-      !!        !  95-02  (M. Levy)   passive tracers 
+      !!        !  95-02  (M. Levy)   passive tracers
       !!        !  96-02  (G. Madec & M. Imbard)  opa release 8.0
       !!   8.0  !  96-04  (A. Weaver)  Euler forward step
       !!   8.2  !  99-02  (G. Madec, N. Grima)  semi-implicit pressure grad.
       !!   8.5  !  02-08  (G. Madec)  F90: Free form and module
       !!        !  02-11  (C. Talandier, A-M Treguier) Open boundaries
-      !!   9.0  !  04-03  (C. Ethe) passive tracers 
+      !!   9.0  !  04-03  (C. Ethe) passive tracers
       !!----------------------------------------------------------------------
       !! * Arguments
       USE oce_trc         ! ocean dynamics and tracers variables
@@ -73,6 +73,9 @@ CONTAINS
       USE lbclnk          ! ocean lateral boundary conditions (or mpp link)
       USE trctrp_lec      ! pasive tracers transport
       USE prtctl_trc      ! Print control for debbuging
+#ifdef key_obc
+      USE obctrc_bfm
+#endif
 
 !   !! * Routine accessibility
       INTEGER, INTENT( in ) ::   kt         ! ocean time-step index
@@ -93,16 +96,16 @@ CONTAINS
 
          ! 0. Lateral boundary conditions on tra (T-point, unchanged sign)
          ! ---------------------------------============
-         CALL lbc_lnk( tra(:,:,:,jn), 'T', 1. )   
-         
+         CALL lbc_lnk( tra(:,:,:,jn), 'T', 1. )
+
          !                                                ! ===============
          DO jk = 1, jpk                                   ! Horizontal slab
             !                                             ! ===============
-            ! 1. Leap-frog scheme (only in explicit case, otherwise the 
+            ! 1. Leap-frog scheme (only in explicit case, otherwise the
             ! -------------------  time stepping is already done in trczdf)
             IF( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) THEN
-               zfact = 2. * rdttra(jk) * FLOAT(ndttrc) 
-               IF( neuler == 0 .AND. kt == nittrc000 ) zfact = rdttra(jk) * FLOAT(ndttrc) 
+               zfact = 2. * rdttra(jk) * FLOAT(ndttrc)
+               IF( neuler == 0 .AND. kt == nittrc000 ) zfact = rdttra(jk) * FLOAT(ndttrc)
                tra(:,:,jk,jn) = ( trb(:,:,jk,jn) + zfact * tra(:,:,jk,jn) ) * tmask(:,:,jk)
             ENDIF
 
@@ -110,10 +113,10 @@ CONTAINS
 
 #if defined key_obc
          ! Update tracers on open boundaries.
-         CALL obctrc_bfm(kt,m)
+         CALL obc_trc_bfm(kt,m)
 #endif
 
-         DO jk = 1, jpk  
+         DO jk = 1, jpk
 
             ! 2. Time filter and swap of arrays
             ! ---------------------------------
@@ -159,7 +162,7 @@ CONTAINS
 
 #if defined key_agrif
       IF (.NOT.Agrif_Root())    CALL Agrif_Update_Trc( kt )
-#endif      
+#endif
 
 
    END SUBROUTINE trc_nxt_bfm
@@ -169,7 +172,7 @@ CONTAINS
    !!   Default option                                         Empty module
    !!----------------------------------------------------------------------
 CONTAINS
-   SUBROUTINE trc_nxt_bfm( kt,m )  
+   SUBROUTINE trc_nxt_bfm( kt,m )
       INTEGER, INTENT(in) :: kt,m
       WRITE(*,*) 'trc_nxt_bfm: You should not have seen this print! error?', kt
    END SUBROUTINE trc_nxt_bfm
