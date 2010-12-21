@@ -22,7 +22,7 @@
    use mem
    use mem_Seaicealgae, ONLY: p_qnRc,p_qpRc,p_qsRc,p_qchlcSI
    use mem_Param,  ONLY:  p_small, &
-                        CalcBenOrganisms, CalcBenBacteria, CalcSeaiceBacteria
+                          CalcSeaiceBacteria
    use mem_Param,  ONLY: CalcSeaiceAlgae, CalcSeaiceZoo
    use string_functions, ONLY: getseq_number,empty
    IMPLICIT NONE
@@ -182,8 +182,12 @@
          end if
    end do
 
-   ! Initialise bacteria components
-   call init_cnps(c=T1c,n=T1n,p=T1p)
+   ! Initialise bacteria components 
+   do i = 1,iiSeaiceBacteria
+      call init_cnps(c=SeaiceBacteria(i,iiC),  &
+                     n=D2STATE(ppSeaiceBacteria(i,iiN),:), & 
+                     p=D2STATE(ppSeaiceBacteria(i,iiP),:))
+   end do
 
    ! Initialise zooplankton components checking for fixed-quota
    do i = 1 , ( iiSeaiceZoo)
@@ -231,9 +235,14 @@
       end if
    end do
 
-   if (.NOT.CalcSeaiceBacteria) then
-      T1c = p_small; T1n = p_small; T1p = p_small
-   end if
+   do j = 1,iiSeaiceBacteria
+        iiLastElement = iiP
+        if (.NOT.CalcSeaiceBacteria(j)) then
+            do i = iiC,iiLastElement
+            D2STATE(ppSeaiceBacteria(j,i),:) = p_small
+            end do
+        end if
+    end do
 
    return
 

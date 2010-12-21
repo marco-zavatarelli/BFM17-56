@@ -32,7 +32,7 @@
                  I3n, I4n, I1p, U1n, U6n, U1p, U6p, I5s
 #endif
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
-    ppU6n, ppU1p, ppU6p, ppI5s, SUNQ, ThereIsLight, flP1R6s, ETB, EIB, &
+    ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, SUNQ, ThereIsLight, ETB, EIB, &
     EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPI, sunPI, NO_BOXES_XY, &
     iiBen, flux_vector, sourcesink_flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
@@ -145,8 +145,7 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: rho_Chl
   real(RLEN),dimension(NO_BOXES_XY)  :: rate_Chl
   real(RLEN),dimension(NO_BOXES_XY)  :: Photo_max
-  real(RLEN),dimension(NO_BOXES_XY)  :: flSIU2c
-
+  real(RLEN),dimension(NO_BOXES_XY)  :: flSIU2c,flS1U6s
   real(RLEN),dimension(NO_BOXES_XY)  :: seo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  silica_control =0 : no silica component present in cell
@@ -159,14 +158,13 @@
   !                      G.Sarthou, K.R. Timmermans, S. Blain, & P. Treguer
   !                      JSR 53 (2005) 25-42
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
    silica_control=0
    if ( p_qus(phyto) > 0.0 )  then
       silica_control=2
    elseif ( p_chPs(phyto) > 0.0 ) then
       silica_control=1
    endif
+   flS1U6s = ZERO
   
    ! force external regulation with nutrient-stress excretion
    if ( (.not.p_netgrowth(phyto)).and.(ppphytos > 0))  silica_control=1
@@ -203,7 +201,7 @@
   end select
 
 
-  ! tI controls sedimentation of phytoplankton
+  ! tI controls sedimentation of sea ice algae
   tI= iI;
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -214,7 +212,7 @@
   if ( silica_control > 0 ) then
     select case (silica_control) 
       case(1)
-        eI5s = min( ONE,I5s/(I5s + p_chPs(phyto)));
+        eI5s = min( ONE,I5s/(I5s + p_chPs(phyto))); ! Michaelis-Menten quota
         tI=min(iI,eI5s);
       case(2)
         eI5s=ONE
@@ -234,12 +232,10 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Photosynthesis (Irradiance EIB is in uE m-2 s-1)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    ! Light is already at the middle of the cell
-    Irr =  max(p_small, EIB(:))*SEC_PER_DAY;
-    eiSI(phyto,:) = ( ONE- exp( - qlSc(phyto, :)* p_alpha_chl(phyto)/ &
+  ! Light is already at the middle of the cell in the BAL
+  Irr =  max(p_small, EIB(:))*SEC_PER_DAY;
+  eiSI(phyto,:) = ( ONE- exp( - qlSc(phyto, :)* p_alpha_chl(phyto)/ &
       p_sum(phyto)* Irr))
-
-!  end if
 
   select case ( LightForcingFlag)
     case ( 1 )
@@ -293,21 +289,20 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rugc  =   sum* phytoc  ! gross production
   slc  =   sea + seo + srt+ sdo  ! specific loss terms
-!   if (p_netgrowth(phyto)) then
-!      ! Activity excretion is assigned to R2
-!      flPIR2c  =   sea* phytoc
-!   else
-!      ! Activity excretion is assigned to R1
-!      rr1c = rr1c + sea*phytoc
-!      ! Nutrient-stress excretion is assigned to R2
-!      flPIR2c  =   seo*phytoc
-!   end if
+  if (p_netgrowth(phyto)) then
+      ! Activity excretion is assigned to R2
+      flSIU2c  =   sea* phytoc
+   else
+      ! Activity excretion is assigned to R1
+      rr1c = rr1c + sea*phytoc
+      ! Nutrient-stress excretion is assigned to R2
+      flSIU2c  =   seo*phytoc
+   end if
 
   !call flux_vector( iiBen, ppphytoc,ppphytoc, rugc )
   call sourcesink_flux_vector( iiBen,ppF3c,ppphytoc,rugc )
-  call flux_vector( iiBen, ppphytoc,ppU1c, rr1c )
   call flux_vector( iiBen, ppphytoc,ppU6c, rr6c )
-
+  call flux_vector( iiBen, ppphytoc,ppU1c, rr1c )
 
   !call flux_vector( iiBen, ppphytoc,ppphytoc, rrc )
   call sourcesink_flux_vector( iiBen, ppphytoc,ppF3c,rrc )
@@ -358,11 +353,17 @@
    ! Correct net C-uptake
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       netgrowth  =   max(  netgrowth,  ZERO)
-!       flPIR2c  =   flPIR2c+ run- netgrowth
+      flSIU2c  =   flSIU2c+ run- netgrowth
       run  =   netgrowth
   end if
 
-!   call flux_vector( iiBen, ppphytoc, ppU2c, flPIR2c )
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! fluxes to dissolved organic carbon
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Polysaccharides U2 are not defined in sea ice yet
+  ! hence both rr1c and flSIU2c are assigned to U1
+  !call flux_vector( iiBen, ppphytoc, ppU2c, flSIU2c )
+  call flux_vector( iiBen, ppphytoc,ppU1c, rr1c+flSIU2c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
@@ -415,7 +416,9 @@
 
      runs = max(ZERO, p_qsRc(phyto) * run );          ! net uptake
      call flux_vector( iiBen, ppI5s,ppphytos, runs)  ! source/sink.c
-
+     ! The fixed loss rate for basal respiration is maintained to have 
+     ! constant Si:C quota in the absence of production
+     flS1U6s(:)  =   flS1U6s(:)+ srs*phytos
     case (2)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -436,26 +439,23 @@
     rr6s  =   sdo* phytos  ! Lysis, particulate
 
     ! Collect first all fluxes of P-->silica
-    flP1R6s(:)  =   flP1R6s(:)+ rr6s
-  endif
+    flS1U6s(:)  =   flS1U6s(:)+ rr6s
 
+  ! fluxes to biogenic particulate silica are assigned here.
+  ! In the pelagic this is done in PelChem since the predation of zooplankton
+  ! also release biogenic particulate silica
+  ! Since there is no zooplankton here, we need to assign the flux
+  !call flux_vector( iiPel, ppphytos,ppU6s, flS1U6s(:) )
+  call flux_vector( iiBen, ppphytos,ppU6s, flS1U6s(:) )
+ endif
 
   if ( ChlLightFlag== 2) then
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rho_Chl = p_qchlcSI( phyto)* p_sum(phyto)* eiSI(phyto,:)* phytoc/( &
-          p_alpha_chl(phyto)*( phytol+ p_small)* Irr)
-! total synthesis, only when there is net production (run > 0)
-!       rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
-!         ZERO, sum- slc+ sdo)* max( ZERO, phytol- p_qchlcSI( phyto)* phytoc)
-        rate_Chl = rho_Chl*( sum- sea- sra)* phytoc- sdo* phytol+ min( &
-          -p_sdchl(phyto), sum- slc+ sdo)* max( ZERO, phytol- p_qchlcSI( phyto)* phytoc)
-!     rate_Chl = rho_Chl*( max(srs,sum-slc) )* phytoc- sdo* phytol+ min( &
-!         -srs -p_sdchl, sum- slc+ sdo)* max( ZERO, phytol- p_qchlcSI( phyto)* phytoc)
-
-        rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_chlNI(phyto)-tI))
-
+      rho_Chl = p_qchlcSI( phyto)* min(ONE, p_sum(phyto)* eiSI(phyto,:)* phytoc/( &
+          p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
+      rate_Chl = rho_Chl*(sum - sea + seo) * phytoc - (srt+ sdo)*phytol
     call flux_vector( iiBen, ppphytol,ppphytol, rate_Chl )
   end if
 

@@ -209,7 +209,7 @@
         public flux, flux_vector, Source, Source_D3_vector, &
                fixed_quota_flux_vector, sourcesink_flux_vector
 %3d-group-function-name
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         public Source_D2_vector
 %2d-group-function-name
 #endif

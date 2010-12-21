@@ -62,6 +62,8 @@
 #endif
 #ifdef INCLUDE_SEAICE
   use mem_SeaiceAlgae
+  use mem_SeaiceBac
+  use mem_SeaiceZoo
 #endif
 
 !  
@@ -144,6 +146,8 @@
 #endif
 #ifdef INCLUDE_SEAICE
       call InitSeaiceAlgae
+      call InitSeaiceBac
+      call InitSeaiceZoo
 #endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files

@@ -92,12 +92,17 @@
   real(RLEN)  :: p_qup(iiSeaiceAlgae)
   real(RLEN)  :: p_lN4(iiSeaiceAlgae)
   real(RLEN)  :: p_chPs(iiSeaiceAlgae)
+  real(RLEN)  :: p_esII(iiSeaiceAlgae)  ! Nutrient stress threshold for Sinking
+  ! p_alpha_chl = 1.0e-5, 0.46e-5*2.0, 2.0e-5, 0.68e-5 # Initial slope P-I curve
+  !  Thalassiosira sp. [0.48-0.63]
   !
   !  ------------- Chlorophyll parameters -----------
   real(RLEN)  :: p_alpha_chl(iiSeaiceAlgae)  ! Initial slope P-I curve
   real(RLEN)  :: p_sdchl(iiSeaiceAlgae)  ! Specific turnover rate for Chla [d-1]
-  real(RLEN)  :: p_chlNI(iiSeaiceAlgae)  ! Nutrient stress threshold for chl turnover
+  real(RLEN)  :: p_chlII(iiSeaiceAlgae)  ! Nutrient stress threshold for chl turnover
   real(RLEN)  :: p_qchlcSI(iiSeaiceAlgae)  ! Maximum quotum Chla:C [mg Chla (mg C)-1]
+  
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -111,8 +116,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Seaicealgae_parameters/ p_q10, p_sum, p_srs, p_sdmo, p_seo, p_pu_ea, &
     p_pu_ra, p_qnlc, p_qplc, p_qslc, p_qnRc, p_qpRc, p_qsRc, p_qun, p_qup, &
-    p_qus, p_xqn, p_xqp, p_xqs, p_chlNI, p_thdo, p_lN4, p_chPs, &
-    p_netgrowth, p_limnut, p_alpha_chl, p_sdchl, p_qchlcSI
+    p_qus, p_xqn, p_xqp, p_xqs, p_chlII, p_thdo, p_lN4, p_chPs, &
+    p_netgrowth, p_limnut, p_alpha_chl, p_sdchl, p_qchlcSI, p_esII
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

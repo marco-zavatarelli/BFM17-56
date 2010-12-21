@@ -27,13 +27,14 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem, ONLY: ppS1p, ppS2p, &
-    ppS1n, ppS2n,  &
-    ppS1s, ppS2s, ppS1c, &
-    ppS1l, ppS2c, ppS2l 
-    use mem, ONLY: iiS1, iiS2 
-   
+  use mem, ONLY: iiSeaiceAlgae, ppSeaiceAlgae , &
+                 iiSeaiceZoo, ppSeaiceZoo, &
+                 iiSeaiceBacteria, ppSeaiceBacteria
+ 
+  use mem, ONLY: iiC, iiN, iiP, iiS, iiL
   use mem_Param, ONLY:  CalcSeaiceAlgae
+  use mem_Param, ONLY:  CalcSeaiceBacteria
+  use mem_Param, ONLY:  CalcSeaiceZoo
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Global interface
@@ -69,6 +70,7 @@
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
+  integer :: i
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Other Seaice diagnostics
@@ -78,16 +80,35 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute sea-ice algae dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  if ( CalcSeaiceAlgae(iiS1)) then
-    call SeaiceAlgaeDynamics( iiS1, ppS1c, ppS1n, ppS1p, ppS1s, ppS1l)
-  end if
+  do i =1,iiSeaiceAlgae
+     if ( CalcSeaiceAlgae(i)) then
+       call SeaiceAlgaeDynamics( i, ppSeaiceAlgae(i,iiC),       &
+                 ppSeaiceAlgae(i,iiN), ppSeaiceAlgae(i,iiP),    &
+                 ppSeaiceAlgae(i,iiS), ppSeaiceAlgae(i,iiL))
+     end if
+  end do
 
-  if ( CalcSeaiceAlgae(iiS2)) then
-    call SeaiceAlgaeDynamics( iiS2, ppS2c, ppS2n, ppS2p, ppS2s, ppS2l)
-  end if
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute sea ice bacteria dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do i =1,iiSeaiceBacteria
+     if ( CalcSeaiceBacteria(i)) then
+        call SeaiceBacDynamics( i, ppSeaiceBacteria(i,iiC),  &
+             ppSeaiceBacteria(i,iiN), ppSeaiceBacteria(i,iiP))
+     end if
+  end do
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute sea ice zooplankton dynamics
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  do i =1,iiSeaiceZoo
+     if ( CalcSeaiceZoo(i)) then
+        call SeaiceZooDynamics( i, ppSeaiceZoo(i,iiC),  &
+             ppSeaiceZoo(i,iiN), ppSeaiceZoo(i,iiP))
+     end if
+  end do
 
-  end
+end subroutine SeaiceSystemDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

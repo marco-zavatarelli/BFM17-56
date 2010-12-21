@@ -61,7 +61,7 @@
                 do i=1,size(flux)
                   if (flux(i)< 0.0D+00) then
                     if ( iiSub== iiBen) then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                       write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
                       write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
 #endif
@@ -85,7 +85,7 @@
                 D3SINK(origin,destination,:)  =  flux/SEC_PER_DAY
                 D3SOURCE(destination,origin,:)=  flux/SEC_PER_DAY
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
 #ifdef ONESOURCE
                  D2SOURCE(origin,destination,:) =  D2SOURCE(origin,destination,:)- & 
@@ -113,7 +113,7 @@
                       flux/SEC_PER_DAY
                   end where
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
 #ifdef ONESOURCE
                   D2SOURCE(origin,destination,:) =D2SOURCE(origin,destination,:) + &
@@ -171,7 +171,7 @@
               write(LOGUNIT,*) "origin,destination:", origin,destination
               write(LOGUNIT,*) flow
               if ( iiSub == iiBen)  then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                  write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
                  write(LOGUNIT,*) "state value destination:",D2STATE(destination,grid_nr)
 #endif
@@ -197,7 +197,7 @@
                 D3SINK(origin,destination,grid_nr)=  flow/SEC_PER_DAY
                 D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               case (iiBen)
 #ifdef ONESOURCE
                  D2SOURCE(origin,destination,grid_nr)=              &
@@ -227,7 +227,7 @@
                          D3SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
                 endif
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               case (iiBen)
 #ifdef ONESOURCE
                 D2SOURCE(origin,destination,grid_nr)=    &
@@ -299,7 +299,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         function Source_D2_vector(iistate)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! vector function to get actual rate of change in the benthic
@@ -345,7 +345,7 @@
              end do
              Source=Source*SEC_PER_DAY
           elseif ( iiSub == iiBen )  then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
              do i = 1, NO_D2_BOX_STATES
                 Source=Source+D2SOURCE(iistate,i,iibox)
 #ifndef ONESOURCE
@@ -385,7 +385,7 @@
               else
                 tot=D3SINK(origin,destination,grid_nr)
               endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             case (iiBen)
               type="D2"
               if ( grid_nr <=0  ) then
@@ -396,7 +396,7 @@
 #endif
             case (iiReset)
               D3SINK(:,:,:)=0.0D+00
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               D2SINK(:,:,:)=0.0D+00
 #endif
               return
@@ -487,7 +487,7 @@
                 write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') &
                   origin,destination
                 if ( iiSub== iiBen) then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                     write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
                     write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
 #endif
@@ -516,7 +516,7 @@
                write(LOGUNIT,*) 'Nan value in scalar flux'
                write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') origin,destination
                if ( iiSub == iiBen)  then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                     write(LOGUNIT,*) "Benthic state value origin:",D2STATE(origin,grid_nr)
                     write(LOGUNIT,*) "Benthic state value destination:",D2STATE(destination,grid_nr)
 #endif

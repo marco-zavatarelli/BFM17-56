@@ -23,15 +23,17 @@
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: 23STATE
+  use mem,  ONLY: D2STATE
 #else
-  use mem, ONLY: U6p, U6c, U6n, U6s, S1s, S1c, T1p, &
-    T1c, T1n, SeaiceZoo, SeaiceAlgae, SeaiceDetritus, &
-    iiSeaiceZoo, iiSeaiceAlgae, iiSeaiceDetritus, ppSeaiceDetritus,&
-    ppSeaiceZoo, ppSeaiceAlgae, iiC, iiP, iiN, iiS, iiL, iiU6, iiS1
+  use mem, ONLY: U6p, U6c, U6n, U6s, T1p, X1n, X1p, X1c, &
+    U1p, U1n, U1c, &
+    T1c, T1n, T1c, SeaiceZoo, SeaiceAlgae, SeaiceDetritus, ppSeaiceDetritus, &
+    iiSeaiceZoo, iiSeaiceAlgae, iiSeaiceBacteria, iiSeaiceDetritus, &
+    ppSeaiceZoo, ppSeaiceAlgae, ppSeaiceBacteria, SeaiceBacteria, &
+    iiC, iiP, iiN, iiS, iiL, iiU6, iiU1
 #endif
   use mem, ONLY: qnSc, qpSc, qsSc, qlSc, qpXc, qnXc, &
-                 qpUc, qnUc, qsUc, qpT1c, qnT1c
+                 qpUc, qnUc, qsUc, qpTc, qnTc
   use mem_Param,  ONLY: p_small
   use mem_PelGlobal
 
@@ -93,20 +95,25 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in Seaicealgae
   ! Compute light prop.or chl. quota in Seaicealgae 
+  ! All sea ice algae may have a silica component (switched off in the 
+  ! GlobalDefs file)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiSeaiceAlgae)
     qpSc(i,:)  =   SeaiceAlgae(i,iiP)/( p_small+ SeaiceAlgae(i,iiC))
     qnSc(i,:)  =   SeaiceAlgae(i,iiN)/( p_small+ SeaiceAlgae(i,iiC))
     qlSc(i,:)  =   SeaiceAlgae(i,iiL)/( p_small+ SeaiceAlgae(i,iiC))
+    qsSc(i,:)  =   SeaiceAlgae(i,iiS)/( p_small+ SeaiceAlgae(i,iiC))
   end do
-
-  qsSc(iiS1,:)  =   S1s(:)/( p_small+ S1c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in seaice Bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  qpT1c(:) = T1p(:)/( p_small+ T1c(:))
-  qnT1c(:) = T1n(:)/( p_small+ T1c(:))
+  do i = 1 , ( iiSeaiceBacteria)
+     if ( ppSeaiceBacteria(i,iiP) > 0 ) &
+        qpTc(i,:)  =   SeaiceBacteria(i,iiP)/( p_small+ SeaiceBacteria(i,iiC))
+     if ( ppSeaiceZoo(i,iiN) > 0 ) &
+        qnTc(i,:)  =   SeaiceBacteria(i,iiN)/( p_small+ SeaiceBacteria(i,iiC))
+  end do
 
   end
 !EOC

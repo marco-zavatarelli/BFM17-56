@@ -46,7 +46,7 @@
                       flux/SEC_PER_DAY
                   D3SOURCE(origin,:) = D3SOURCE(origin,:) - &
                       flux/SEC_PER_DAY
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
@@ -60,7 +60,7 @@
                 case (iiPel)
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
@@ -97,7 +97,7 @@
                          D3SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
                 D3SOURCE(origin,grid_nr) =    &
                          D3SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               case (iiBen)
                 D2SOURCE(destination,grid_nr) =    &
                          D2SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
@@ -111,7 +111,7 @@
               case (iiPel)
                  D3SOURCE(destination,grid_nr) = D3SOURCE(destination,grid_nr) + &
                       flow/SEC_PER_DAY
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               case (iiBen)
                  D2SOURCE(destination,grid_nr) = D2SOURCE(destination,grid_nr) + &
                       flow/SEC_PER_DAY
@@ -164,7 +164,7 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         function Source_D2_vector(iistate)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! vector function to get actual rate of change in the benthic
@@ -195,7 +195,7 @@
           if ( iiSub == iiPel )  then
              Source=D3SOURCE(iistate,iibox)*SEC_PER_DAY
           elseif ( iiSub == iiBen )  then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
              Source=D2SOURCE(iistate,iibox)*SEC_PER_DAY
 #endif
           endif

@@ -28,7 +28,7 @@
                  iiBenthicPhosphate, iiBenthicAmmonium
 #endif
 #ifdef INCLUDE_SEAICE
-  USE mem, ONLY: iiSeaiceAlgae, iiSeaiceZoo
+  USE mem, ONLY: iiSeaiceAlgae, iiSeaiceZoo, iiSeaiceBacteria
 #endif
 !  
 !
@@ -112,7 +112,7 @@
   logical   :: CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
   logical   :: CalcSeaiceAlgae(iiSeaiceAlgae) = .TRUE.
   logical   :: CalcSeaiceZoo(iiSeaiceZoo) = .TRUE.
-  logical   :: CalcSeaiceBacteria = .TRUE.
+  logical   :: CalcSeaiceBacteria(iiSeaiceBacteria)= .TRUE.
 #endif
 
   logical   :: &

@@ -54,6 +54,10 @@ end
   ESB  : Brine salinity	  		: --
   EIB  : Brine irradiance      		: uE/m2/s
   ESI  : Sea-ice bulk salinity	  	: --
+  EDH  : Sea-ice velocity at the bottom	: m/s
+  EDS  : Snow velocity at the surface	: m/s
+  EDM  : Snow ice layer velocity        : m/s
+
 end
 
 
@@ -138,8 +142,9 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Bacteria
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-   B1[cnp]	: Pelagic Bacteria : mg C/m3 : mmol N/m3 : mmol P/m3
+   group PelBacteria[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3	
+          B1	: Pelagic Bacteria 
+   end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Phytoplankton Species
@@ -276,19 +281,21 @@ end
    I5s  :       Silicate  : mmol Si/m2
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  #     State Variable(s) for Microzooplankton
+  #     State Variable(s) for Sea ice Microzooplankton
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    group SeaiceZoo[cnp] : mg C/m2 : mmol N/m2 : mmol P/m2
                 X1  : Sea-ice zooplankton
    end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  #     State Variable(s) for Bacteria
+  #     State Variable(s) for Sea ice Bacteria
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   T1[cnp]      : Sea-ice Bacteria : mg C/m2 : mmol N/m2 : mmol P/m2
+   group SeaiceBacteria[cnp]: mg C/m2 : mmol N/m2 : mmol P/m2
+               T1  : Sea-ice Bacteria 
+   end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  #     State Variable(s) for Detritus (Biogenic Organic Material)
+  #     State Variable(s) for Sea ice Detritus (Biogenic Organic Material)
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     group SeaiceDetritus[cnps] : mg C/m2 : mmol N/m2: mmiol P/m2: mmol Si/m2
       U1[-s]    : Sea-ice Labile Organic Carbon (LOC)
@@ -303,6 +310,13 @@ end
 end
 
 2d-variable -if-exist INCLUDE_SEAICE
+
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #     Variables to check totmass of C N P Si in sea ice
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    totseaice[cnps]  : total mass present in sea ice: g C: g N: g P: g Si
+
     eiSI(SeaiceAlgae)  : Regulating factor for light in SeaiceAlgae : -
     qpSc(SeaiceAlgae)  : Quotum p/c in SeaiceAlgae   : mmol P/mg C
     qnSc(SeaiceAlgae)  : Quotum n/c in SeaiceAlgae   : mmol N/mg C
@@ -316,9 +330,10 @@ end
     qnUc(SeaiceDetritus)    : Quotum n/c in Sea-ice Detritus:mmol P/mg C  
     qsUc(SeaiceDetritus)    : Quotum si/c in Sea-ice Detritus:mmol Si/mg C 
     
-    qpT1c   : Quotum p/c in Sea-ice Bacteria :mmol N/mg C
-    qnT1c   : Quotum n/c in Sea-ice Bacteria :mmol P/mg C  
+    qpTc(SeaiceBacteria)   : Quotum p/c in Sea-ice Bacteria :mmol N/mg C
+    qnTc(SeaiceBacteria)   : Quotum n/c in Sea-ice Bacteria :mmol P/mg C  
 end
+
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 # DIAGNOSTICS
@@ -335,17 +350,14 @@ end
 
 
 3d-flux 
-  ruPTc=P.c <- *:gross primary production:mg C/m3/d
+  ruPTc=P.c <- O3c:gross primary production:mg C/m3/d
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTP=P.p <- N1p : net phosphate uptake : mmol P /m3/d
-  netPP=(P.c<- *)-(P.c -> *)-(P.c->R1c+R2c+R6c): net primary production :mg C/m3/d
+  netPP=(P.c<- O3c)-(P.c -> O3c)-(P.c->R1c+R2c+R6c): net primary production :mg C/m3/d
   exPP=(P.c->R1c+R2c+R6c): excretion phytoplankton :mg C/m3/d
   resPP=(P.c->*) : respiration phytoplankton :mg C/m3/d
-  ruZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): gross secondary production:mg C/m3/d
+  ruZTc=(Z.c<-P.c+B.c+Z.c)-(Z.c->R1c+R6c): gross secondary production:mg C/m3/d
   rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
-  rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
-  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
-  fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
   fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
 end
 
@@ -353,5 +365,19 @@ end
   suPTc=P.c <- *:specific gross primary production: /d
 end
 		
-
-
+2d-flux
+  ruSTc= S.c <- F3c:gross primary production of seaice algae:mg C/m2/d
+  ruSTn=S.n <- I3n+I4n: net nutrient uptake:mmoln /m2/d
+  ruSTp=S.p <- I1p : net phosphate uptake : mmol P /m2/d
+  netSS=(S.c<- F3c)-(S.c -> F3c)-(S.c->U1c+U6c): net primary production :mg C/m2/d
+  exSS=(S.c->U1c+U6c): excretion sea ice algae :mg C/m2/d
+  resSS=(S.c->F3c) : respiration sea ice algae :mg C/m2/d
+  reSTn=(I3n+I4n<-T.n+X.n): sea ice mineralization : mmol N/m2/d
+  reSTp=(I1p<-T.p+X.p): sea ice mineralization: mmol P /m2/d
+  fU1Tc=U1c->T.c: DOC uptake by sea ice bacteria: mg C/m2/d
+  fU6Tc=U6c->T.c: POC uptake by sea ice bacteria: mg C/m2/d
+  resTT=(T.c->F3c) : respiration sea ice bacteria :mg C/m2/d
+  resXX=(X.c->F3c) : respiration sea ice zooplankton :mg C/m2/d
+  ruXTc=(X.c<-S.c+T.c): gross secondary production:mg C/m2/d
+  netXTc=(X.c<-S.c+T.c)-(X.c->U1c+U6c): net secondary production:mg C/m2/d
+end
