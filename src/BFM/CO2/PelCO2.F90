@@ -119,6 +119,16 @@
   !---------------------------------------------------------------
   call CO2flux()
 
+  !---------------------------------------------------------------
+  ! flux is positive downward. 
+  ! Conversion from mmolC/m2/d to mgC/m3/d.
+  ! The fraction of ice-free water is also considered
+  ! Boundary variable first assigned, then the source term is 
+  ! added to the Source/Sink arrays if the Flag is TRUE
+  ! In the water, the flux is subtracted from
+  ! (or added to) the diagonal element of O3c (i.e. infinite source)
+  !---------------------------------------------------------------
+  jsurO3c(:) =  jsurO3c(:) + (ONE-EICE(:))*CO2airflux(:) * MW_C
 #ifdef DEBUG
   write(*,"(4A11)") "dic","ta","pH"
   write(*,"(3G12.6)") DIC(1),Ac(1),pH(1)

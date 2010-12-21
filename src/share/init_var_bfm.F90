@@ -49,7 +49,7 @@
 !
 ! !LOCAL VARIABLES:
    integer              :: icontrol,i,j,iiLastElement,n
-   integer,parameter    :: NSAVE=100  ! Maximum no variables which can be saved
+   integer,parameter    :: NSAVE=120  ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    character(len=64),dimension(NSAVE):: ave_save
    real(RLEN)  :: N1p0,N3n0,N4n0,N5s0,N6r0,  &

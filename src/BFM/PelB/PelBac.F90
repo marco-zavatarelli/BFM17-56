@@ -34,10 +34,13 @@
 #else
   use mem, ONLY: B1c, R6c, B1n, R6n, B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
     N4n, N1p, N3n, R7c
-  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, ppO3c, jnetB1c, &
+  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, ppO3c, &
     ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR7c, flPTN6r, Depth,&
     ETW, qnB1c, qpB1c, eO2mO2, qpR6c, qnR6c, NO_BOXES, iiBen, iiPel, flux_vector, &
     sourcesink_flux_vector
+#endif
+#ifdef BFM_GOTM
+  use mem, ONLY:  jnetB1c
 #endif
   use constants,  ONLY: MW_C, ONE_PER_DAY
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, p_small
@@ -424,7 +427,7 @@
       ! reR2c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      reR7c  =   p_pu_ea_R7* run
+      reR7c  =   p_pu_ea_R7* max(ZERO,run)
 
       r  =   max(  ONE- qpB1c(:)/ p_qpc,  ONE- qnB1c(:)/ p_qnc)
       reR2c  =   ONE_PER_DAY* r* insw_vector(  r)* B1c(:)
@@ -501,9 +504,11 @@
   call flux_vector( iiPel, ppB1c,ppR2c, reR2c )
   call flux_vector( iiPel, ppB1c,ppR7c, reR7c )
 
+
+#ifdef BFM_GOTM
   r=rug -rrc+p_srs* B1c(:)* et-reR7c-reR2c
   jnetB1c(1)=jnetB1c(1)+sum(Depth(:)*r)
-
+#endif
   ! Compute section of PelagicBacteria
 
   end subroutine PelBacDynamics

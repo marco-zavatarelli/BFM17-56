@@ -550,12 +550,12 @@
 ! !LOCAL VARIABLES:
    character                 :: c1,c2,c3,c4
    integer                   :: i
-   character(len=128)        :: cbuf
+   character(len=200)        :: cbuf
 !
 !-----------------------------------------------------------------------
 !BOC
    ierr=0
-   read(unit,'(A128)',ERR=100,END=110) cbuf
+   read(unit,'(A200)',ERR=100,END=110) cbuf
    read(cbuf,900,ERR=100,END=110) yy,c1,mm,c2,dd,hh,c3,min,c4,ss
    read(cbuf(20:),*,ERR=100,END=110) (obs(i),i=1,N)
 

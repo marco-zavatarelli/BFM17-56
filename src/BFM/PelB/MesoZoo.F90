@@ -53,9 +53,12 @@
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
   use mem, ONLY: ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6p, Depth, &
     ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
-    qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, jnetMeZc, &
+    qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiP1, iiC, iiN, iiP, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#endif
+#ifdef BFM_GOTM
+  use mem, ONLY: jnetMeZc
 #endif
   use mem_Param,  ONLY: p_small,check_fixed_quota
   use constants,ONLY: MIN_VAL_EXPFUN, MW_C
@@ -503,9 +506,10 @@
   rep=tfluxC*p_qpc(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,rep,tfluxP)
 
+#ifdef BFM_GOTM
   net=rut_c-rra_c-ret_c-pe_R6c* rut_c
   jnetMeZc(1)=jnetMeZc(1)+sum(Depth(:)*net)
-
+#endif
   end subroutine MesoZooDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
