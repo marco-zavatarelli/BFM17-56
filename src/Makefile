@@ -204,13 +204,19 @@ STDALONE_MOD = \
 
 ifeq ($(INCLUDE_SEAICE),true)
 BFM_SIMOD = \
-	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceAlgae.o)
+	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceAlgae.o)	\
+	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceBac.o)	\
+	${LIB}(${BFMSRC}/Seaice/ModuleSeaiceZoo.o)
+
 BFM_SIOBJ = \
 	${LIB}(./standalone/external_seaice.o)				\
 	${LIB}(${BFMSRC}/Seaice/init_seaice_bfm.o)			\
 	${LIB}(${BFMSRC}/Seaice/SeaiceSystem.o)				\
 	${LIB}(${BFMSRC}/Seaice/SeaiceGlobal.o)				\
-	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)
+        ${LIB}(${BFMSRC}/Seaice/SeaiceCheckMassConservation.o)		\
+	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)	\
+	${LIB}(${BFMSRC}/Seaice/SeaiceBac.o)	\
+	${LIB}(${BFMSRC}/Seaice/SeaiceZoo.o)
 endif
 
 all: ${BFM_PELMOD} ${BFM_BENMOD} ${BFM_PELCO2MOD} ${BFM_BENCO2MOD} ${BFM_SIMOD} \

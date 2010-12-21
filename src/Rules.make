@@ -104,11 +104,6 @@ endif
 # Sea-ice ecosystem (activates compilation and macros, false by default)
 INCLUDE_SEAICE = false
 ifeq ($(INCLUDE_SEAICE),true)
-  # the benthic system must be activated because the sea-ice model is 
-  # defined as a benthic layer. If the user wants to remove the 
-  # benthic variables for memory reasons, it is suggested to use
-  # the GlobalDefsBFM.model.seaice file in BFM/General/Configurations
-  DEFINES += -DINCLUDE_BEN
   DEFINES += -DINCLUDE_SEAICE
   BFMSRCDIR += $(BFMDIR)/src/BFM/Seaice
 endif

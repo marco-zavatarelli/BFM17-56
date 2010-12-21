@@ -9,7 +9,9 @@
    subroutine external_forcing
 !
 ! !DESCRIPTION:
-
+! This routine has to be modified by the user according to the 
+! number of external forcing to be used (NOBS)
+! This example implements 5 meteorological data
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO
@@ -44,12 +46,13 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
+   integer,parameter         :: NOBS=5
    integer                   :: yy,mm,dd,hh,min,ss
    real(RLEN)                :: t,alpha
    real(RLEN), save          :: dt
    integer, save             :: data_jul1,data_secs1
    integer, save             :: data_jul2=0,data_secs2=0
-   real(RLEN), save          :: obs1(4),obs2(4)=0.
+   real(RLEN), save          :: obs1(NOBS),obs2(NOBS)=0.
    integer                   :: rc
 !-----------------------------------------------------------------------
 !BOC
@@ -72,7 +75,7 @@
          data_jul1 = data_jul2
          data_secs1 = data_secs2
          obs1 = obs2
-         call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,4,obs2,rc)
+         call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,NOBS,obs2,rc)
          call julian_day(yy,mm,dd,data_jul2)
          data_secs2 = hh*3600 + min*60 + ss
          if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
@@ -102,7 +105,7 @@
    LEVEL2 'ERHO=',ERHO(:)
    LEVEL2 'EWIND=',EWIND(:)
    LEVEL2 'EICE=',EICE(:)
-   LEVEL2 'SUNQ=',ETW(:)
+   LEVEL2 'SUNQ=',SUNQ
 #endif
   return
    end subroutine external_forcing

@@ -257,7 +257,7 @@
    !---------------------------------------------
    ! Initialise the sea-ice system
    !---------------------------------------------
-   call init_seaice_bfm(namlst,'seaice.nml',unit,bio_setup)
+   call init_seaice_bfm(namlst,'Seaice.nml',unit,bio_setup)
 #endif
 
    !---------------------------------------------
