@@ -566,10 +566,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sedimentation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if ( p_res(phyto)> ZERO) then
-    sediPI(phyto,:) = sediPI(phyto,:) &
+  sediPI(phyto,:) = sediPI(phyto,:) &
                    + p_res(phyto)* max( ZERO, ( p_esNI(phyto)-tN))
-  end if
 
 
   ! End of computation section for process PhytoDynamics

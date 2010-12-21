@@ -121,11 +121,11 @@
          kbot = BOTindices(BoxNumberXY)
          do i = 1 , ( iiPhytoPlankton)
             sedi  =   sediPI(i,kbot)
-            if ( sedi> ZERO .and. p_burvel_PI > ZERO  ) then
+            if ( sedi> ZERO ) then
                ! Phytoplankton carbon
                j=ppPhytoPlankton(i,iiC)
                lcl_PhytoPlankton => PhytoPlankton(i,iiC)
-               ruQIc  =   p_burvel_PI* lcl_PhytoPlankton(kbot)
+               ruQIc  =   sedi* lcl_PhytoPlankton(kbot)
                ruQ1c  =   p_pe_R1c* ruQIc
                ruQ6c  =   ruQIc- ruQ1c
                PELBOTTOM(j,BoxNumberXY)=  - ruQIc
@@ -136,7 +136,7 @@
                ! Phytoplankton nitrogen
                j=ppPhytoPlankton(i,iiN)
                lcl_PhytoPlankton => PhytoPlankton(i,iiN)
-               ruQIn  =   p_burvel_PI* lcl_PhytoPlankton(kbot)
+               ruQIn  =   sedi* lcl_PhytoPlankton(kbot)
                ruQ1n  =   p_pe_R1n* ruQIn
                ruQ6n  =   ruQIn- ruQ1n
                PELBOTTOM(j,BoxNumberXY)=  - ruQIn
@@ -147,7 +147,7 @@
                ! Phytoplankton phosphorus
                j=ppPhytoPlankton(i,iiP)
                lcl_PhytoPlankton => PhytoPlankton(i,iiP)
-               ruQIp  =   p_burvel_PI* lcl_PhytoPlankton(kbot)
+               ruQIp  =   sedi* lcl_PhytoPlankton(kbot)
                ruQ1p  =   p_pe_R1p* ruQIp
                ruQ6p  =   ruQIp- ruQ1p
                PELBOTTOM(j,BoxNumberXY)= - ruQIp
@@ -158,13 +158,13 @@
                ! Phytoplankton chlorophyll (stored but not used)
                j=ppPhytoPlankton(i,iiL)
                lcl_PhytoPlankton => PhytoPlankton(i,iiL)
-                ruQIl  =   p_burvel_PI* lcl_PhytoPlankton(kbot)
+                ruQIl  =   sedi* lcl_PhytoPlankton(kbot)
                 PELBOTTOM(j,BoxNumberXY)=  - ruQIl
                 ! Phytoplankton silica
                 j=ppPhytoPlankton(i,iiS)
                 if ( j> 0) then
                    lcl_PhytoPlankton => PhytoPlankton(i,iiS)
-                   ruQ6s  =   p_burvel_PI* lcl_PhytoPlankton(kbot)
+                   ruQ6s  =   sedi* lcl_PhytoPlankton(kbot)
                    PELBOTTOM(j,BoxNumberXY)  = - ruQ6s
                    call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(kbot))
                    jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
@@ -181,7 +181,7 @@
 
          ! R2 into Q1 and Q6
          ! NOTE: ALL DETRITUS FLUXES TO THE SEDIMENT ARE DIRECTED TO Q6 VIA R6 
-         if ( sediR2(kbot) > ZERO .and. p_burvel_R2 > ZERO) then
+         if ( sediR2(kbot) > ZERO) then
            ! Calculate how the intermediate degradable R2 has to be redistrubuted 
            ! between R1 and R6 in such a way that the degradability is the same
            ! Calculate first actual degradability of LOC ( dependent of quotum NC,PC)
@@ -193,17 +193,17 @@
            ! Calculate distribution factor for R2 between R1 and R6
            p=(p_suR2-p_suR6)/(s-p_suR6)
            jbotR1c(BoxNumberXY)=jbotR1c(BoxNumberXY)- &
-                                            p*p_burvel_R2 * R2c(kbot)
+                                            p*sediR2(kbot) * R2c(kbot)
            jbotR6c(BoxNumberXY)=jbotR6c(BoxNumberXY)-&
-                                    (ONE-p)*p_burvel_R2 * R2c(kbot)
+                                    (ONE-p)*sediR2i(kbot) * R2c(kbot)
          end if
 
          ! R6 into Q6 through burial
          ! NOTE: ALL DETRITUS FLUXES TO THE SEDIMENT ARE DIRECTED TO Q6 VIA R6 
-         ruQ6c  =   p_burvel_R6* R6c(kbot)
-         ruQ6n  =   p_burvel_R6* R6n(kbot)
-         ruQ6p  =   p_burvel_R6* R6p(kbot)
-         ruQ6s  =   p_burvel_R6* R6s(kbot)
+         ruQ6c  =   sediR6(kbot)* R6c(kbot)
+         ruQ6n  =   sediR6(kbot)* R6n(kbot)
+         ruQ6p  =   sediR6(kbot)* R6p(kbot)
+         ruQ6s  =   sediR6(kbot)* R6s(kbot)
          jbotR6c(BoxNumberXY)  =   jbotR6c(BoxNumberXY)- ruQ6c
          jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
          jbotR6p(BoxNumberXY)  =   jbotR6p(BoxNumberXY)- ruQ6p

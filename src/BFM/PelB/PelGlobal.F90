@@ -22,6 +22,12 @@
   use mem_Param,  ONLY: p_small
   use mem_PelGlobal
   use mem
+  use mem_Settling
+#ifdef BFM_GOTM
+  use bio_var, ONLY: BOTindices
+#else
+  use api_bfm, ONLY: BOTindices
+#endif
 !
 !
 ! !AUTHORS
@@ -119,12 +125,18 @@
   qnB1c(:)  =   B1n(:)/( p_small+ B1c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Compute sedimentation velocities
+  ! Prescribe background costant sedimentation velocities
+  ! The velocity at the bottom interface is set equal to the burial
+  ! velocity. This needs to be removed if there is no bottom level.
+  ! Check also Settling.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   sediR2(:)     = ZERO
+  sediR2(BOTindices) = ZERO
   sediR6(:)  =   p_rR6m
+  sediR6(BOTindices) = p_burvel_R6
   do i = 1 , ( iiPhytoPlankton)
     sediPI(i,:)  =   p_rPIm( i)
+    sediPI(i,BOTindices)  =   p_burvel_PI
   end do
 
   end subroutine PelGlobalDynamics
