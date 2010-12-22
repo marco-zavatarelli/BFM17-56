@@ -1,6 +1,6 @@
 # Set options for the GNU Fortran 95 compiler
 ifeq ($(FORTRAN_COMPILER),GFORTRAN)
-FC=/usr/local/gfortran/bin/gfortran
+FC=gfortran
 DEFINES += -DFORTRAN95 -DGFORTRAN
 can_do_F90=true
 F90_to_f90=
