@@ -213,6 +213,7 @@ BFM_SIOBJ = \
 	${LIB}(${BFMSRC}/Seaice/init_seaice_bfm.o)			\
 	${LIB}(${BFMSRC}/Seaice/SeaiceSystem.o)				\
 	${LIB}(${BFMSRC}/Seaice/SeaiceGlobal.o)				\
+	${LIB}(${BFMSRC}/Seaice/SeaicetoPelCoup.o)			\
         ${LIB}(${BFMSRC}/Seaice/SeaiceCheckMassConservation.o)		\
 	${LIB}(${BFMSRC}/Seaice/SeaiceAlgae.o)	\
 	${LIB}(${BFMSRC}/Seaice/SeaiceBac.o)	\

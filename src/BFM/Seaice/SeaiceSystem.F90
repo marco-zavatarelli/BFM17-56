@@ -12,11 +12,6 @@
 !   All the pelagic biogeochemical modules are called in sequence
 !   according to the logical switches
 !        
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine SeaiceSystemDynamics
 !
@@ -44,14 +39,13 @@
 !  
 !
 ! !AUTHORS
-!   ERSEM team
+!   Letizia Tedesco and Marcello Vichi
 !
 ! !REVISION_HISTORY
 
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij and M. Vichi
-!   (rua@nioz.nl, vichi@bo.ingv.it)
+!   Copyright (C) 200
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -107,6 +101,11 @@
              ppSeaiceZoo(i,iiN), ppSeaiceZoo(i,iiP))
      end if
   end do
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Compute sea ice boundary fluxes with atmosphere and pelagic system
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  call SeaiceitoPelCoup()
 
 end subroutine SeaiceSystemDynamics
 !EOC
