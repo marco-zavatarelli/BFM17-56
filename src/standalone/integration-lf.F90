@@ -17,7 +17,7 @@
 #ifndef ONESOURCE
    use mem, ONLY: D3SINK
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                   D2STATETYPE
 #ifndef ONESOURCE
@@ -42,7 +42,7 @@
    integer                 :: i,j,n
    integer,dimension(2,2)  :: blccc
    real(RLEN),dimension(NO_D3_BOX_STATES,NO_BOXES)    :: bc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    real(RLEN),dimension(NO_D2_BOX_STATES,NO_BOXES_XY) :: bc2D
 #endif
 !EOP
@@ -54,7 +54,7 @@
    ! save initial states and additional variables
    bccc3D=D3STATE
    bc3D=bbccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    bccc2D=D2STATE
    bc2D=bbccc2D
 #endif
@@ -70,7 +70,7 @@
 #endif
          END IF
       END DO
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       DO j=1,NO_D2_BOX_STATES
          IF(D2STATETYPE(j).ge.0) THEN
 #ifdef ONESOURCE
@@ -84,7 +84,7 @@
       nmin=nmin+nstep 
       ! Check for negative concentrations
       min3D=minval(ccc_tmp3D)
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       min2D=minval(ccc_tmp2D)
       IF (min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
 #else
@@ -95,7 +95,7 @@
                blccc(1,:)=minloc(ccc_tmp3D)
                LEVEL2 ccc_tmp3D(blccc(1,1),blccc(1,2)), &
                            bbccc3D(blccc(1,1),blccc(1,2))
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                blccc(2,:)=minloc(ccc_tmp2D)
                LEVEL2 ccc_tmp2D(blccc(2,1),blccc(2,2)), &
                            bbccc2D(blccc(2,1),blccc(2,2))
@@ -123,7 +123,7 @@
             END IF
          END DO
          D3STATE=ccc_tmp3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
                bbccc2D(j,:) = D2STATE(j,:) + &
@@ -139,7 +139,7 @@
       IF(nmin.eq.nmaxdelt) EXIT TLOOP
       IF(nmin.eq.0) THEN
          ! 2nd order approximation of backward State from Taylor expansion:
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          bbccc2D=bc2D/n**2+D2STATE*(1.-1./n**2)+ &
             sum((D2SOURCE-D2SINK),2)*.5*delt*(1./n**2-1./n)
 #endif
@@ -171,7 +171,7 @@
                ass*(bc3D(j,:)-2.*bccc3d(j,:)+D3STATE(j,:))
          END IF
       END DO
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       bbccc2D=bccc2D
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN

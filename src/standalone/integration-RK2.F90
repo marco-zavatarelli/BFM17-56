@@ -16,7 +16,7 @@
 #ifndef ONESOURCE
    use mem, ONLY: D3SINK
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                   D2STATETYPE
 #ifndef ONESOURCE
@@ -47,7 +47,7 @@
    LEVEL1 'integration RK: starting delt = ',delt
 #endif
    bbccc3D=D3STATE
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    bbccc2D=D2STATE
 #endif
    TLOOP : DO
@@ -58,7 +58,7 @@
       bccc3D=sum(D3SOURCE-D3SINK,2)
 #endif
       ccc_tmp3D=D3STATE
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
 #ifdef ONESOURCE
       bccc2D=sum(D2SOURCE,2)
 #else
@@ -75,7 +75,7 @@
 #endif
          END IF
       END DO
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN
 #ifdef ONESOURCE
@@ -89,7 +89,7 @@
       nmin=nmin+nstep 
       ! Check for negative concentrations
       min3D=minval(D3STATE)
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       min2D=minval(D2STATE)
 #endif
       IF(min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
@@ -100,7 +100,7 @@
             LEVEL1 ccc_tmp3D(blccc(1,1),blccc(2,1)), &
                            bccc3D(blccc(1,1),blccc(2,1))
             D3STATE=bbccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             blccc(:,2)=minloc(D2STATE)
             LEVEL1 var_names(stBenStateS+blccc(1,2)-1)
             LEVEL1 ccc_tmp2D(blccc(1,2),blccc(2,2)), &
@@ -113,7 +113,7 @@
          nstep=nstep/2
          nmin=0
          D3STATE=bbccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          D2STATE=bbccc2D
 #endif
          dtm1=maxdelt
@@ -149,7 +149,7 @@
 #endif
             END IF
          END DO
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
 #ifdef ONESOURCE
@@ -164,7 +164,7 @@
 #endif
 
          min3D=minval(D3STATE)
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          min2D=minval(D2STATE)
          IF (min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
 #else
@@ -177,7 +177,7 @@
                LEVEL1 ccc_tmp3D(blccc(1,1),blccc(2,1)), &
                               bccc3D(blccc(1,1),blccc(2,1))
                D3STATE=bbccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                blccc(:,2)=minloc(D2STATE)
                LEVEL1 var_names(stBenStateS+blccc(1,2)-1)
                LEVEL1 ccc_tmp2D(blccc(1,2),blccc(2,2)), &
@@ -190,7 +190,7 @@
             nstep=nstep/2
             nmin=0
             D3STATE=bbccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             D2STATE=bbccc2D
 #endif
             dtm1=delt

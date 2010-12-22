@@ -12,7 +12,7 @@
 !   !
 !
 ! !INTERFACE
-  subroutine SeaiceCheckMassConservationDynamics
+  subroutine SeaiceCheckMassConservation
 !
 ! !USES:
 
@@ -127,7 +127,7 @@ use global_mem, ONLY:RLEN,ZERO
   totseaices(:) = totseaices(:)*MW_Si/1000.0_RLEN
 
 
-  end subroutine SeaiceCheckMassConservationDynamics
+  end subroutine SeaiceCheckMassConservation
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

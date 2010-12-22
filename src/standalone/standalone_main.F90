@@ -22,7 +22,9 @@
 !  Author(s): Momme Butenschoen (UNIBO) and Marcello Vichi (INGV)
 !
 ! !LOCAL VARIABLES:
+#ifdef IFORT
    real                      :: t1=-1,t2=-1
+#endif
 ! 
 !EOP
 !-----------------------------------------------------------------------

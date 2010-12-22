@@ -302,7 +302,7 @@
    if (method == 3) then
       bbccc3d = D3STATE
       ccc_tmp3D = D3STATE
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       bbccc2d = D2STATE
       ccc_tmp2D = D2STATE
 #endif
@@ -313,7 +313,7 @@
    do i=1,NO_D3_BOX_STATES
      LEVEL1 trim(var_names(stPelStateS+i-1)),D3STATE(i,1)
    end do
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    do i=1,NO_D2_BOX_STATES
      LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE(i,1)
    end do

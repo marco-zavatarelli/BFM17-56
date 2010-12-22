@@ -16,7 +16,7 @@
 #ifndef ONESOURCE
    use mem, ONLY: D3SINK
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                   D2STATETYPE
 #ifndef ONESOURCE
@@ -47,7 +47,7 @@
    LEVEL1 'integration efw: starting delt = ',delt
 #endif
    bbccc3D=D3STATE
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    bbccc2D=D2STATE
 #endif
    TLOOP : DO
@@ -61,7 +61,7 @@
 #endif
          END IF
       END DO
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       if (bio_setup>=2) then
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
@@ -77,7 +77,7 @@
       nmin=nmin+nstep 
    !  Check for negative concentrations
       min3D=minval(D3STATE)
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       min2D=minval(D2STATE)
       IF(min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
 #else
@@ -90,7 +90,7 @@
             LEVEL1 'Pelagic Variable:',trim(var_names(stPelStateS+blccc(1,1)-1))
             LEVEL1 'Value: ',D3STATE(blccc(1,1),blccc(2,1)),' Rate: ', &
                         bbccc3D(blccc(1,1),blccc(2,1))
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             blccc(:,2)=minloc(D2STATE)
             bbccc2D = sum(D2SOURCE(:,:,:)-D2SINK(:,:,:),2)
             if (bio_setup>=2) then
@@ -105,7 +105,7 @@
          nstep=nstep/2
          nmin=0
          D3STATE=bbccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          D2STATE=bbccc2D
 #endif
          dtm1=delt
