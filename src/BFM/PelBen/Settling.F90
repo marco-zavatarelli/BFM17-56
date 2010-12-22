@@ -34,7 +34,7 @@
   use mem, ONLY: ppR1c, ppR6c, ppR1n, ppR6n, ppR1p, ppR6p, &
     ppR6s, ppPhytoPlankton, &
     NO_BOXES_XY, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
-    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, iiPhytoPlankton, &
+    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, sediR6, iiPhytoPlankton, &
     iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
 #endif
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
@@ -195,7 +195,7 @@
            jbotR1c(BoxNumberXY)=jbotR1c(BoxNumberXY)- &
                                             p*sediR2(kbot) * R2c(kbot)
            jbotR6c(BoxNumberXY)=jbotR6c(BoxNumberXY)-&
-                                    (ONE-p)*sediR2i(kbot) * R2c(kbot)
+                                    (ONE-p)*sediR2(kbot) * R2c(kbot)
          end if
 
          ! R6 into Q6 through burial

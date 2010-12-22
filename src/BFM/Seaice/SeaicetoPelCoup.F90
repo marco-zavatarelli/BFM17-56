@@ -5,12 +5,12 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: SeaicetoPelCoupling
+! !ROUTINE: SeaicetoPelCoup
 !
 ! DESCRIPTION
 !
 ! !INTERFACE
-  subroutine SeaicetoPelCoupling
+  subroutine SeaicetoPelCoup
 !
 ! !USES:
 
@@ -322,15 +322,14 @@
 #ifdef DEBUG
    LEVEL2 'F3 flux ',flux_pel_ice_O3
 #endif
-  return
-   end subroutine external_seaice
+ 
 !EOC
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Other Seaice diagnostics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-end subroutine SeaicetoPelCoupling
+end subroutine SeaicetoPelCoup
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

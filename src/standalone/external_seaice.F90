@@ -12,34 +12,15 @@
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO,ONE
-   use mem_Param,  only: p_PAR,CalcSeaiceAlgae,CalcPhytoPlankton
-   use mem_Param,  only: CalcSeaiceZoo,CalcSeaiceBacteria 
-   use mem_Param,  only: p_eps0,p_epsR6,p_epsChla, p_small
    use constants,  only: E2W, SEC_PER_DAY
    ! seaice forcings
-   use mem,        only: EICE,EVB,ETB,ESB,EIB,EHB,ESI,EDH,EDS,F3c, &
-                         F2o,I1p,I3n,I4n,I5s,S1l,S2l,U6c
-   use mem,        only: iiBen,ppI1p,N1p,N3n,N4n,N5s,O2o,O3c,P1l,P2l,NO_BOXES_XY, &
-                         flux_vector, ppI3n,ppI4n,ppI5s,ppF2o,ppF3c,&
-                         ppS1l,ppS2l
-   use mem,        only: SeaiceAlgae,ppSeaiceAlgae,PhytoPlankton,ppPhytoPlankton,PELSURFACE, &
-                         iiS1,iiS2,iiP1,iiP2,iiSeaiceAlgae,iiPhytoPlankton,iiPel
-   use mem,        only: SeaiceDetritus,ppSeaiceDetritus,PelDetritus,ppPelDetritus, &
-                         iiU1,iiU6,iiR1,iiR6
-   use mem,        only: SeaiceBacteria,ppSeaiceBacteria,PelBacteria,ppPelBacteria, &
-                         iiT1,iiB1
-   use mem,        only: SeaiceZoo,ppSeaiceZoo,MicroZooPlankton,ppMicroZooPlankton, &
-                         iiX1,iiZ5
-   use mem,        only: iiC,iiN,iiP,iiS,iiL
-   use mem,        only: jsurN1p,jsurN3n,jsurN4n,jsurN5s,jsurO3c, &
-                         jsurO2o,jsurP1l,jsurP2l,Depth,NO_BOXES,ppN1p,ppN3n,ppN4n,ppN5s,ppO2o
+   use mem,        only: EICE,EVB,ETB,ESB,EIB,EHB,ESI,EDH,EDS
    use mem,        only: ESW,EIR
    use time,       only: julianday, secondsofday, time_diff, &
                          julian_day,calendar_date
    use envforcing, only: init_forcing_vars, daylength, density, &
                          unit_seaice, read_obs
    use standalone, only: latitude
-   use api_bfm,    only: SRFindices
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -60,20 +41,6 @@
    integer, save                      :: data_jul2=0,data_secs2=0
    real(RLEN), save                   :: obs1(NSI),obs2(NSI)=0.
    integer                            :: rc
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_N1,flux_pel_ice_N3
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_N4,flux_pel_ice_N5
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_O2,flux_pel_ice_O3
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice, flux_atm_N1, flux_atm_N3
-   real(RLEN), dimension(NO_BOXES_XY) :: I1p_tilde,I3n_tilde,I4n_tilde,I5s_tilde
-   real(RLEN), dimension(NO_BOXES_XY) :: F2o_tilde,F3c_tilde
-   real(RLEN), dimension(NO_BOXES_XY) :: I1p_star,I3n_star,I4n_star,I5s_star
-   real(RLEN), dimension(NO_BOXES_XY) :: F2o_star,F3c_star
-
-   integer                            :: i,j,p
-   real(RLEN), dimension(:), pointer  :: lcl_PelagicVar,lcl_SeaiceVar
-   real(RLEN)                         :: tmpflux(NO_BOXES)
-   real(RLEN)                         :: localdelta
-   real(RLEN), external               :: GetDelta
 !-----------------------------------------------------------------------
 !BOC
 #ifdef DEBUG

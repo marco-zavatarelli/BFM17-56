@@ -105,7 +105,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute sea ice boundary fluxes with atmosphere and pelagic system
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  call SeaiceitoPelCoup()
+  call SeaicetoPelCoup
 
 end subroutine SeaiceSystemDynamics
 !EOC

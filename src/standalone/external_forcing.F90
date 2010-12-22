@@ -9,9 +9,7 @@
    subroutine external_forcing
 !
 ! !DESCRIPTION:
-! This routine has to be modified by the user according to the 
-! number of external forcing to be used (NOBS)
-! This example implements 5 meteorological data
+
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO
@@ -46,7 +44,7 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer,parameter         :: NOBS=5
+   integer,parameter         :: NOBS=6
    integer                   :: yy,mm,dd,hh,min,ss
    real(RLEN)                :: t,alpha
    real(RLEN), save          :: dt
@@ -85,19 +83,29 @@
 
    !  Do the time interpolation
    t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
-   alpha = (obs2(1)-obs1(1))/dt
-   ETW(:) = obs1(1) + t*alpha
+!   alpha = (obs2(1)-obs1(1))/dt
+!   ETW(:) = obs1(1) + t*alpha
+!   alpha = (obs2(2)-obs1(2))/dt
+!   ESW(:) = obs1(2) + t*alpha
+!   alpha = (obs2(3)-obs1(3))/dt
+!   ! convert from irradiance (W/m2) to PAR in uE/m2/s
+!   EIR(:) = (obs1(3) + t*alpha)*p_PAR/E2W
+!   alpha = (obs2(4)-obs1(4))/dt
+!   EWIND(:) = obs1(4) + t*alpha
+
+! this part is special for Kobbefjord input data
    alpha = (obs2(2)-obs1(2))/dt
-   ESW(:) = obs1(2) + t*alpha
+   ETW(:) = obs1(2) + t*alpha
    alpha = (obs2(3)-obs1(3))/dt
-   ! convert from irradiance (W/m2) to PAR in uE/m2/s
-   EIR(:) = (obs1(3) + t*alpha)*p_PAR/E2W
+   ESW(:) = obs1(3) + t*alpha
    alpha = (obs2(4)-obs1(4))/dt
    EWIND(:) = obs1(4) + t*alpha
+   alpha = (obs2(5)-obs1(5))/dt
+   EIR(:) = (obs1(5) + t*alpha)*p_PAR/E2W ! convert from irradiance (W/m2) to PAR in uE/m2/s
 
    ! leap years not considered (small error)
    SUNQ=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
-   ERHO(:) = density(ETW(:),ESW(:),Depth(:)/2.0_RLEN)
+   ERHO(:) = density(ETW,ESW,Depth/2.0_RLEN)
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW(:)
    LEVEL2 'ESW=',ESW(:)
