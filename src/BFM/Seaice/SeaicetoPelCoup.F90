@@ -208,7 +208,7 @@
     ! Boundary conditions for the surviving SI algae
     if (CalcSeaiceAlgae(iiS2)) then
        ! loop over iiC, iiN, iiP, iiL,iiS
-       do i = 1, iiS
+       do i = 1, iiL
            lcl_SeaiceVar => SeaiceAlgae(iiS2,i)
            lcl_PelagicVar => PhytoPlankton(iiP2,i)
            where (EHB(:)>ZERO)
@@ -250,7 +250,7 @@
        call flux_vector(iiPel, j, j, tmpflux(:) )
     end do
 
-    do i = 1, iiS
+    do i = 1, iiP
        lcl_SeaiceVar => SeaiceDetritus(iiU1,i)
        lcl_PelagicVar => PelDetritus(iiR1,i)
        where (EHB(:)>ZERO)
@@ -273,7 +273,7 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    if (CalcSeaiceBacteria(iiT1)) then
        ! loop over iiC, iiN, iiP
-       do i = 1, iiS
+       do i = 1, iiP
            lcl_SeaiceVar => SeaiceBacteria(iiT1,i)
            lcl_PelagicVar => PelBacteria(iiB1,i)
            where (EHB(:)>ZERO)
@@ -298,7 +298,7 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    if (CalcSeaiceZoo(iiX1)) then
        ! loop over iiC, iiN, iiP
-       do i = 1, iiS
+       do i = 1, iiP
            lcl_SeaiceVar => SeaiceZoo(iiX1,i)
            lcl_PelagicVar => MicroZooPlankton(iiZ5,i)
            where (EHB(:)>ZERO)

@@ -78,9 +78,9 @@
    ! Write defined variables to stdout
    !---------------------------------------------
    LEVEL3 'Sea ice variables:'
-   do n=stBenStateS,stBenStateE
-      LEVEL4 trim(var_names(n)),'  ',trim(var_units(n)), &
-           '  ',trim(var_long(n))
+   do i=stBenStateS,stBenStateE
+      LEVEL4 trim(var_names(i)),'  ',trim(var_units(i)), &
+           '  ',trim(var_long(i))
    end do
 
    !---------------------------------------------
