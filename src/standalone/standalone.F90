@@ -102,8 +102,11 @@
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm,&
                          init_netcdf_rst_bfm,read_rst_bfm
    use time
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+   use mem, only: D2STATE
+#endif
 #ifdef INCLUDE_BEN
-   use mem, only: D2STATE, Depth_ben
+   use mem, only: Depth_ben
 #endif
 
    IMPLICIT NONE

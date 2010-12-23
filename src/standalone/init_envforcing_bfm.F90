@@ -25,9 +25,6 @@
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use time
    use envforcing
-#ifdef INCLUDE_BEN
-   use mem, only: Depth_ben
-#endif
 
    IMPLICIT NONE
 !

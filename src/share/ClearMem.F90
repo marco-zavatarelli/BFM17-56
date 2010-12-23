@@ -33,7 +33,7 @@ subroutine ClearMem
      deallocate(D3STATETYPE)
      deallocate(D3DIAGNOS)
      deallocate(D2DIAGNOS)
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
      deallocate(D2STATE)
      deallocate(D2SOURCE)
      deallocate(D2SINK)

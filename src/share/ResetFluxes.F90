@@ -18,7 +18,7 @@ subroutine ResetFluxes
 #else
    use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, D3SINK, &
          PELBOTTOM, PELSURFACE
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES, D2SINK, D2SOURCE
 #endif
 #endif
@@ -40,14 +40,14 @@ subroutine ResetFluxes
 #ifdef D1SOURCE
    ! Reset the 1-dimensional source term arrays 
    D3SOURCE(:,:) = ZERO
-#  ifdef INCLUDE_BEN
+#  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    D2SOURCE(:,:) = ZERO
 #  endif
 #else
 #  ifdef  ONESOURCE
    ! Reset the whole source term array 
    D3SOURCE(:,:,:) = ZERO
-#     ifdef INCLUDE_BEN
+#  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    D2SOURCE(:,:,:) = ZERO
 #     endif
 #  else
@@ -57,7 +57,7 @@ subroutine ResetFluxes
       D3SOURCE(i,i,:) = ZERO
       D3SINK(i,i,:) = ZERO
    end do
-#    ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    do i=1,NO_D2_BOX_STATES
       D2SOURCE(i,i,:) = ZERO
       D2SINK(i,i,:) = ZERO

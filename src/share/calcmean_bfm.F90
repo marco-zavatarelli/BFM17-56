@@ -16,7 +16,7 @@
 ! !USES:
    use api_bfm
    use mem, only: D3STATE,D3DIAGNOS,D2DIAGNOS
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE
 #endif
    use mem, only: NO_BOXES,NO_BOXES_XY
@@ -122,7 +122,7 @@
             !---------------------------------------------
             k=0
             j=0
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             do i=stBenStateS,stBenStateE
                j=j+1
                if ( var_ave(i) ) then

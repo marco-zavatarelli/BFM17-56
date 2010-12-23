@@ -367,7 +367,7 @@
    call check_err(iret)
 #endif
 
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    !---------------------------------------------
    ! define 2D dimensions and variables
    !---------------------------------------------
@@ -411,7 +411,7 @@ end subroutine init_netcdf_rst_bfm
 #ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB
@@ -438,7 +438,7 @@ end subroutine init_netcdf_rst_bfm
      iret = nf_put_vara_real(ncid_rst,d3stateb_rid,start,edges,D3STATEB(:,:))
      call check_err(iret)
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES_XY
      iret = nf_put_vara_real(ncid_rst,d2state_rid,start,edges,D2STATE(:,:))
@@ -472,7 +472,7 @@ end subroutine init_netcdf_rst_bfm
 #ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB
@@ -537,7 +537,7 @@ end subroutine init_netcdf_rst_bfm
    call check_err(iret)
 #endif
 
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    !---------------------------------------------
    ! Check 2D dimensions 
    !---------------------------------------------
@@ -680,7 +680,7 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !USES:
    use mem, only: D3STATE,D3DIAGNOS,D2DIAGNOS
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE
 #endif
    implicit none
@@ -763,7 +763,7 @@ end subroutine init_netcdf_rst_bfm
 ! MAV: we need to solve the storage of 2D diagnostics
 !      going through all these loops is probably too expensive
 !   if (bio_setup>1) then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       !---------------------------------------------
       ! Store snapshot of benthic variables
       !---------------------------------------------
@@ -783,7 +783,7 @@ end subroutine init_netcdf_rst_bfm
          if ( var_ids(n) > 0 ) &
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
       end do
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       !---------------------------------------------
       ! Store mean values of (any) benthic entity
       !---------------------------------------------
@@ -796,7 +796,7 @@ end subroutine init_netcdf_rst_bfm
       end do 
 #endif
 !   end if
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
 #ifndef D1SOURCE
    !---------------------------------------------
    ! Store snapshot of benthic fluxes and pel. fluxes per square meter!

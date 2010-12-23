@@ -106,7 +106,7 @@
          nstep=nstep/2
          nmin=0
          D3STATE=bccc3D
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          D2STATE=bccc2D
 #endif
          dtm1=.5*delt

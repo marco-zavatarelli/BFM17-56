@@ -35,7 +35,7 @@
 #ifndef ONESOURCE
       use mem, only: D3SINK
 #endif
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       use mem, only: D2SOURCE,D2STATE
 #ifndef ONESOURCE
       use mem, only: D2SINK
@@ -99,7 +99,7 @@
       klev=NO_BOXES ; if ( flx_CalcIn(nr) == iiBen)  klev=NO_BOXES_XY 
       hulp(:)=ZERO
       if ( flx_CalcIn(nr) == iiBen) then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
           ! check if the variable is defined (e.g. in case of O3c)
           ! if not, the flux becomes diagonal
@@ -183,7 +183,7 @@
           k=0
           ! Sum the total mass
           if ( flx_CalcIn(nr) == iiBen) then
-#ifdef INCLUDE_BEN
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
              do i=flx_calc_nr(nr-1)+1,flx_calc_nr(nr)
                if ( k.ne. flx_states(i) ) then
                   k=flx_states(i)

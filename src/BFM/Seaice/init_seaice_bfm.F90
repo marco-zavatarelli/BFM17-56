@@ -75,6 +75,15 @@
 !BOC
    LEVEL2 'init_seaice_bfm: done also if pelagic setup only'
    !---------------------------------------------
+   ! Write defined variables to stdout
+   !---------------------------------------------
+   LEVEL3 'Sea ice variables:'
+   do n=stBenStateS,stBenStateE
+      LEVEL4 trim(var_names(n)),'  ',trim(var_units(n)), &
+           '  ',trim(var_long(n))
+   end do
+
+   !---------------------------------------------
    ! Give reasonable initial values
    ! Overwritten by namelist parameters
    !---------------------------------------------
