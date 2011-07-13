@@ -62,17 +62,15 @@
          END IF
       END DO
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-      if (bio_setup>=2) then
-         DO j=1,NO_D2_BOX_STATES
-            IF (D2STATETYPE(j).ge.0) THEN
+      DO j=1,NO_D2_BOX_STATES
+         IF (D2STATETYPE(j).ge.0) THEN
 #ifdef ONESOURCE
-               D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:),1)
+            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:),1)
 #else
-               D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
+            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
 #endif
-            END IF
-         END DO
-      end if
+         END IF
+      END DO
 #endif
       nmin=nmin+nstep 
    !  Check for negative concentrations
@@ -93,12 +91,10 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             blccc(:,2)=minloc(D2STATE)
             bbccc2D = sum(D2SOURCE(:,:,:)-D2SINK(:,:,:),2)
-            if (bio_setup>=2) then
-               LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
-               LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &
+            LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
+            LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &
                            bbccc2D(blccc(1,2),blccc(2,2))
-               LEVEL1 'EXIT at  time ',timesec
-            end if
+            LEVEL1 'EXIT at  time ',timesec
 #endif
             STOP 'integration-efw'
          END IF
