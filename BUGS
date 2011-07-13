@@ -1,9 +1,0 @@
-2006-08-12
-	Fortran 95 does not allow the isnan intrinsic procedure.
-	Temporarely removed -e95 from compiler.IFORT.
-	However, isnan is not a standard instrinsic in many compilers
-	and is handled with a special macro
-2009-08
-	GFORTRAN compiler as to version 4.5 does not work yet.
-	The compilation goes till the end but arithmetic exceptions
-	are raised.
