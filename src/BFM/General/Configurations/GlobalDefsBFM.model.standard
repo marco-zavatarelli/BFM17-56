@@ -468,9 +468,9 @@ end
   netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
   rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
   rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
+  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
   reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
   ruBn=(N4n->B1n): bacterial uptake : mmol N/m3/d
-  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
   fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
   fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
 end
