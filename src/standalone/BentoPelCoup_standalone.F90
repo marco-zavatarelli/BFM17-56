@@ -20,6 +20,7 @@
 ! !INTERFACE
   subroutine BentoPelCoupDynamics
 !
+#ifdef INCLUDE_BEN
 ! !USES:
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -98,7 +99,6 @@
   real(RLEN)  :: uptake
   real(RLEN)  :: Pc,Zc
 
-#ifdef INCLUDE_BEN
   ! fluxes from pelagic to benthic organisms only when Benthic model
   ! is more than BENTHIC_RETURN
   if  (CalcBenthicFlag > BENTHIC_RETURN) then
@@ -184,7 +184,6 @@
          Depth(kbot)) )
    end do ! loop over NO_BOXES_XY
   end if ! benthic model includes benthos
-#endif
 
    if ( AssignPelBenFluxesInBFMFlag) then
    ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -283,6 +282,7 @@
 #endif
       end do ! loop over NO_BOXES_XY
 !MAV   end if ! AssignPelBenFluxesInBFMFlag
+#endif
 
   end subroutine  BentoPelCoupDynamics
 !EOC

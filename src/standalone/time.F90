@@ -17,6 +17,7 @@
 !  very simple operations on integers.
 !
 ! !USES:
+   use global_mem, only: RLEN
    IMPLICIT NONE
 !
 !  default: all is private.
@@ -33,8 +34,8 @@
    character(len=19), public           :: timestr
    character(len=19), public           :: start='2000-01-01 00:00:00'
    character(len=19), public           :: stop
-   REALTYPE,          public           :: timestep
-   REALTYPE,          public           :: fsecs,simtime
+   real(RLEN),        public           :: timestep
+   real(RLEN),        public           :: fsecs,simtime
    integer,           public           :: julianday,secondsofday
    integer,           public           :: timefmt,simdays
    integer,           public           :: MinN,MaxN

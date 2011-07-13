@@ -6,6 +6,7 @@
 !
 ! !INTERFACE:
    subroutine external_seaice
+#ifdef INCLUDE_SEAICE
 !
 ! !DESCRIPTION:
 ! Coupling of sea ice processes for Kobbefjord site
@@ -106,7 +107,7 @@
    LEVEL2 'EDS=',EDS
 #endif
   return
-
+#endif
    end subroutine external_seaice
 !EOC
 

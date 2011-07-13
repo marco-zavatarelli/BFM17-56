@@ -529,6 +529,7 @@
 !  meaningful variables to the individual elements in {\tt obs}.
 !
 ! !USES:
+   use global_mem, only: RLEN
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -537,7 +538,7 @@
 !
 ! !OUTPUT PARAMETERS:
    integer, intent(out)                :: yy,mm,dd,hh,min,ss
-   REALTYPE,intent(out)                :: obs(:)
+   REAL(RLEN),intent(out)                :: obs(:)
    integer, intent(out)                :: ierr
 !
 ! !REVISION HISTORY:
