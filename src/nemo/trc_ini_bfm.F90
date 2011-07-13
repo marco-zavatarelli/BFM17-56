@@ -34,7 +34,7 @@
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm
    ! NEMO modules
-   USE trctrp_lec, only: l_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
+   USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
    use trc
    use oce_trc
    use iom_def,    only:jpdom_data
@@ -280,19 +280,18 @@
    call init_netcdf_rst_bfm(rst_fname)
    if (bfm_init == 1) call read_rst_bfm(rst_fname)
 
-   if ( l_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) then
-      !---------------------------------------------
-      ! Allocate and initialise additional
-      ! integration arrays
-      ! Initialise prior time step for leap-frog
-      !---------------------------------------------
-      allocate(D3STATEB(NO_D3_BOX_STATES,NO_BOXES))
-      D3STATEB = D3STATE
+   !---------------------------------------------
+   ! Allocate and initialise additional
+   ! integration arrays
+   ! Initialise prior time step for leap-frog
+   !---------------------------------------------
+   allocate(D3STATEB(NO_D3_BOX_STATES,NO_BOXES))
+   D3STATEB = D3STATE
+
 #ifdef INCLUDE_BEN
       allocate(D2STATEB(NO_D2_BOX_STATES,NO_BOXES))
       D2STATEB = D2STATE
 #endif
-   end if
 
    if (ln_rnf) then
       !-------------------------------------------------------

@@ -16,7 +16,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
       !!         by 1000 kg/m3 (density of plain water) to obtain m/s.
       !!
       !!         Runoff is separated into water flux (included in emps)
-	  !!         and mass flux
+      !!         and mass flux
       !!
       !! ** Action  : - Update the 1st level of tra with the trend associated
       !!                with the tracer surface boundary condition 
@@ -35,12 +35,14 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    USE oce_trc              ! ocean dynamics and active tracers variables
    USE sbcrnf               ! contains river runoff (kg/m2/s) and river mask
    USE trc                  ! ocean  passive tracers variables
+   USE fldread
+
    ! BFM
    use api_bfm
    use mem
    use global_mem,only:LOGUNIT
    use sbc_oce, only: ln_rnf
-   
+ 
    ! substitutions
 #  include "top_substitute.h90"
 
@@ -55,7 +57,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
 
 
    ! 0. initialization
-   zsrau = 1. / rauw
+   zsrau = 1. / rau0
    IF( .NOT. ln_sco )  zse3t = 1. / fse3t(1,1,1)
 
     ! Concentration and dilution effect on tra
@@ -73,7 +75,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
        ! Add mass from prescribed river concentration
 	   allocate(rtmp2d(jpi,jpj))
        rtmp2d(:,:) = unpack(PELRIVER(m,:),SEAmask(:,:,1),ZEROS(:,:,1))
-       tra(:,:,1,1) = tra(:,:,1,1) - zsrau*sf_rnf(1)%fnow(:,:)*rtmp2d(:,:)/fse3t(:,:,1) 
+       tra(:,:,1,1) = tra(:,:,1,1) - zsrau*sf_rnf(1)%fnow(:,:,1)*rtmp2d(:,:)/fse3t(:,:,1) 
 	   deallocate(rtmp2d)
 	END IF
 

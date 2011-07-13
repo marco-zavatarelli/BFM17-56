@@ -98,7 +98,7 @@ CONTAINS
 
       IF( kt == nit000 .OR. ln_rstart) THEN
          ! ... Boundary restoring coefficient (NOTE, discarded the vertical dependence of rdttrc!)
-         zrdt =  rdt * FLOAT(ndttrc)
+         zrdt =  rdt * FLOAT(nn_dttrc)
          rtaue = 2. * zrdt / rn_trdpeob
          rtauw = 2. * zrdt / rn_trdpwob
          rtaun = 2. * zrdt / rn_trdpnob

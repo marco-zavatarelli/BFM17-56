@@ -185,7 +185,7 @@ Yd=0.0_wp
    do jj = 1, jpj      
       do ji = 1, jpi    
          do jk = 1, jpkm1
-            dt    = rdttra(jk) * float(ndttrc)
+            dt    = rdttra(jk) * float(nn_dttrc)
             trn(ji,jj,jk,1) = trn(ji,jj,jk,1) + &
                  dt*(cu(ji,jj,jk+1)-cu(ji,jj,jk))/fse3t(ji,jj,jk)
          end do

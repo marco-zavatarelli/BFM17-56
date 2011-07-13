@@ -48,38 +48,36 @@ IMPLICIT NONE
    ! Assign temperature, salinity and density
    !---------------------------------------------
 #ifdef USEPACK
-      ETW = pack(tn_io,SEAmask)
-      ESW = pack(sn_io,SEAmask)
-      ERHO = pack(rhop_io,SEAmask)
+      ETW = pack(tn,SEAmask)
+      ESW = pack(sn,SEAmask)
+      ERHO = pack(rhop,SEAmask)
    !---------------------------------------------
    ! Assign wind speed
    !---------------------------------------------
-      EWIND = pack(wndm_io,SRFmask(:,:,1) )
+      EWIND = pack(wndm,SRFmask(:,:,1) )
    !---------------------------------------------
    ! Assign Sea-ice cover
    !---------------------------------------------
-      EICE = pack(fr_i_io,SRFmask(:,:,1) )
+      EICE = pack(fr_i,SRFmask(:,:,1) )
 #else
       DO n = 1,NO_BOXES
-         ETW(n) = tn_io(iwet(n),jwet(n),kwet(n))
-         ESW(n) = sn_io(iwet(n),jwet(n),kwet(n))
-         ERHO(n) = rhop_io(iwet(n),jwet(n),kwet(n))
+         ETW(n) = tn(iwet(n),jwet(n),kwet(n))
+         ESW(n) = sn(iwet(n),jwet(n),kwet(n))
+         ERHO(n) = rhop(iwet(n),jwet(n),kwet(n))
       END DO
 
       DO n = 1,NO_BOXES_XY
          !---------------------------------------------
          ! Assign wind speed
          !---------------------------------------------
-         EWIND(n) = wndm_io(iwet(n),jwet(n))
+         EWIND(n) = wndm(iwet(n),jwet(n))
          !---------------------------------------------
          ! Assign Sea-ice cover
          !---------------------------------------------
-         EICE(n) = fr_i_io(iwet(n),jwet(n))
+         EICE(n) = fr_i(iwet(n),jwet(n))
       END DO
 
 #endif
-
-
 
 #ifdef INCLUDE_PELCO2
    !---------------------------------------------
@@ -98,8 +96,8 @@ IMPLICIT NONE
    ! Initialise the bioshading array if ln_qsr_bio
    !---------------------------------------------
       allocate(rtmp3Da(jpi,jpj,jpk)); rtmp3Da = ZERO
-      rtmp3Da(:,:,1) = p_PAR*(qsr_io(:,:)+p_small)/E2W 
-      if (ln_qsr_bio) etot3(:,:,1) = qsr_io(:,:)
+      rtmp3Da(:,:,1) = p_PAR*(qsr(:,:)+p_small)/E2W 
+      if (ln_qsr_bio) etot3(:,:,1) = qsr(:,:)
 
    !---------------------------------------------
    ! Compute extinction coefficient
@@ -157,21 +155,7 @@ IMPLICIT NONE
    !---------------------------------------------
       deallocate(rtmp3Da)
       deallocate(rtmp3Db)
-	  
-   !---------------------------------------------
-   ! Reset cumulative arrays
-   !---------------------------------------------
-      tn_io(:,:,:)=ZERO
-      sn_io(:,:,:)=ZERO
-      wn_io(:,:,:)=ZERO
-      un_io(:,:,:)=ZERO
-      vn_io(:,:,:)=ZERO
-      avt_io(:,:,:)=ZERO
-      qsr_io(:,:)=ZERO
-      wndm_io(:,:)=ZERO
-      fr_i_io(:,:)=ZERO
-      rhop_io(:,:,:)=ZERO
-		 
+
    end subroutine envforcing_bfm
 !EOC
 !-----------------------------------------------------------------------

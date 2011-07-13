@@ -53,7 +53,7 @@
    !---------------------------------------------
    ! Biological timestep (in days)
    !---------------------------------------------
-   timestep  = rdt*FLOAT(ndttrc)/SEC_PER_DAY
+   timestep  = rdt*FLOAT(nn_dttrc)/SEC_PER_DAY
 
    !---------------------------------------------
    ! Transfer sinking velocities 
