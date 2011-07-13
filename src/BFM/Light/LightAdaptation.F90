@@ -101,6 +101,7 @@
   real(RLEN),dimension(NO_BOXES)  :: new_EPLi
   real(RLEN),dimension(NO_BOXES)  :: eir_c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#if ! defined GFORTRAN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -156,6 +157,7 @@
       call flux_vector( iiPel, iphytol,iphytol, rate_PLi )
 
   end select
+#endif
 
   end subroutine LightAdaptationDynamics
 !EOC
