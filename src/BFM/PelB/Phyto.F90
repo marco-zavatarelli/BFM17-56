@@ -376,7 +376,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Respiration rate
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  sra  =   p_pu_ra(phyto)*( sum- sea)  ! activity
+  sra  =   p_pu_ra(phyto)*( sum - sea - seo)  ! activity
   srs  =   et* p_srs(phyto)  ! rest
   srt  =   sra+ srs  ! total
   rrc  =   srt* phytoc  ! total actual respiration
@@ -412,7 +412,7 @@
   if (p_netgrowth(phyto)) then
      sadap  =   max(  srs,  sum)
   else
-     sadap  =   max(  srs,  p_sum(phyto))
+     sadap  =   et*p_sum(phyto)
   end if
   run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 
@@ -423,7 +423,11 @@
   ! to N and P.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  cqun3  =   p_lN4(phyto)/( p_lN4(phyto)+ N4n(:))
+  if (p_netgrowth(phyto)) then
+     cqun3  =   p_lN4(phyto)/( p_lN4(phyto)+ N4n(:))
+  else
+     cqun3 = p_lN4(phyto)
+  end if
   rumn3  =   p_qun(phyto)* N3n(:)* phytoc* cqun3  ! max pot. uptake of N3
   rumn4  =   p_qun(phyto)* N4n(:)* phytoc  ! max pot. uptake of N4
   rumn  =   rumn3+ rumn4  ! max pot. uptake of NI
@@ -465,7 +469,11 @@
   ! Nutrient dynamics: NITROGEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   misn  =   sadap*( p_xqn(phyto)* p_qnRc(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
-  rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
+  if (p_netgrowth(phyto)) then
+     rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
+  else
+     rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run  ! N uptake based on net assimilat. C
+  end if
   runn  =   min(  rumn,  rupn+ misn)  ! actual uptake of NI
 
   r  =   insw_vector(  runn)
@@ -480,7 +488,11 @@
   ! Nuttrient dynamics: PHOSPHORUS
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   misp  =   sadap*( p_xqp(phyto)* p_qpRc(phyto)* phytoc- phytop)  ! intracellular missing amount of P
-  rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
+  if (p_netgrowth(phyto)) then
+     rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
+  else
+     rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)  ! P uptake based on C uptake
+  end if
   runp  =   min(  rump,  rupp+ misp)  ! actual uptake
 
   r  =   insw_vector(  runp)
@@ -492,11 +504,16 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rr6n  =   pe_R6* sdo* phyton
-  rr1n  =   sdo* phyton- rr6n
+  if (p_netgrowth(phyto)) then
+     rr6n  =   pe_R6* sdo* phyton
+     rr1n  =   sdo* phyton- rr6n
 
-  rr6p  =   pe_R6* sdo* phytop
-  rr1p  =   sdo* phytop- rr6p
+     rr6p  =   pe_R6* sdo* phytop
+     rr1p  =   sdo* phytop- rr6p
+  else
+     rr6n = rr6c*p_qnlc(phyto)
+     rr6p = rr6c*p_qplc(phyto)
+  end if
 
   call flux_vector( iiPel, ppphyton,ppR1n, rr1n )  ! source/sink.n
   call flux_vector( iiPel, ppphyton,ppR6n, rr6n )  ! source/sink.n
@@ -557,7 +574,7 @@
        rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
                   -srs * phytol * ONE/(Irr+ONE)
     else
-       rate_Chl = rho_Chl*(sum - sea + seo) * phytoc - (srt+ sdo)*phytol
+       rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
     end if
 
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
@@ -566,8 +583,10 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sedimentation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  sediPI(phyto,:) = sediPI(phyto,:) &
+  if ( p_res(phyto)> ZERO) then
+    sediPI(phyto,:) = sediPI(phyto,:) &
                    + p_res(phyto)* max( ZERO, ( p_esNI(phyto)-tN))
+  end if
 
 
   ! End of computation section for process PhytoDynamics
