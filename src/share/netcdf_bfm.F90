@@ -16,9 +16,8 @@
    use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
    use global_mem, only: RLEN
+   use netcdf
    implicit none
-
-   include 'netcdf.inc'
 !
 ! !PUBLIC MEMBER FUNCTIONS:
    public init_save_bfm,save_bfm,close_ncdf,check_err
@@ -32,7 +31,7 @@
    integer,public                :: ncdf_time_unit
    ! record counter
    integer,public                :: recnum = 0
-   integer                       :: time_len=NF_UNLIMITED
+   integer                       :: time_len=NF90_UNLIMITED
    !---------------------------------------------
    ! Dimension IDs
    !---------------------------------------------
@@ -41,8 +40,7 @@
    integer                            :: ocepoint_dim
    integer                            :: surfpoint_dim,botpoint_dim
    integer                            :: time_dim
-   integer, parameter                 :: dim1=1,dim4=4
-   integer                            :: dims(dim4)
+   integer,allocatable                :: dims(:)
    !---------------------------------------------
    ! Coordinate variables IDs
    !---------------------------------------------
@@ -62,7 +60,7 @@
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
-!  Modifications and BFM additions: Marcello Vichi
+!  Modifications and BFM additions: Marcello Vichi , Tomas Lovato
 !
 !EOP
 !
@@ -114,7 +112,7 @@
    integer                   :: lon_len
    integer                   :: lat_len
    integer                   :: depth_len
-   integer                   :: time_len=NF_UNLIMITED
+   integer                   :: time_len=NF90_UNLIMITED
 !!
 !-------------------------------------------------------------------------
 !BOC
@@ -127,7 +125,7 @@
    fname = TRIM(out_dir) //'/'// TRIM(title) // '.' // ext
    LEVEL2 'Output in NetCDF (time unit is set to seconds):'
    LEVEL2 TRIM(fname)
-   iret = nf_create(fname,NF_CLOBBER,ncid_bfm)
+   iret = NF90_CREATE(fname,NF90_CLOBBER,ncid_bfm)
    call check_err(iret)
 
    ncdf_time_unit = time_unit
@@ -136,76 +134,71 @@
    ! define dimensions
    !---------------------------------------------
    if (present(lon).AND.present(lat)) then
-      iret = nf_def_dim(ncid_bfm, 'lon', NO_BOXES_XY, lon_dim)
+      iret = NF90_DEF_DIM(ncid_bfm, 'lon', NO_BOXES_XY, lon_dim)
       call check_err(iret)
-      iret = nf_def_dim(ncid_bfm, 'lat', NO_BOXES_XY, lat_dim)
+      iret = NF90_DEF_DIM(ncid_bfm, 'lat', NO_BOXES_XY, lat_dim)
       call check_err(iret)
    else if (present(lon2d).AND.present(lat2d)) then
-      iret = nf_def_dim(ncid_bfm, 'x', NO_BOXES_X, x_dim)
+      iret = NF90_DEF_DIM(ncid_bfm, 'x', NO_BOXES_X, x_dim)
       call check_err(iret)
-      iret = nf_def_dim(ncid_bfm, 'y', NO_BOXES_Y, y_dim)
+      iret = NF90_DEF_DIM(ncid_bfm, 'y', NO_BOXES_Y, y_dim)
       call check_err(iret)
    else
       stop '### init_netcdf_bfm: lat and lon must be given'
    end if
-   iret = nf_def_dim(ncid_bfm, 'z', NO_BOXES_Z, depth_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'z', NO_BOXES_Z, depth_dim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_bfm, 'oceanpoint', NO_BOXES, ocepoint_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'oceanpoint', NO_BOXES, ocepoint_dim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_bfm, 'surfacepoint', NO_BOXES_XY, surfpoint_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'surfacepoint', NO_BOXES_XY, surfpoint_dim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_bfm, 'bottompoint', NO_BOXES_XY, botpoint_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'bottompoint', NO_BOXES_XY, botpoint_dim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_bfm, 'time', NF_UNLIMITED, time_dim)
-   call check_err(iret)
+   iret = NF90_DEF_DIM(ncid_bfm, 'time', NF90_UNLIMITED, time_dim)
+   call check_err(iret)   
 
    !---------------------------------------------
    ! define coordinate variables
    !---------------------------------------------
+   ALLOCATE(dims(2))
+   dims(1) = x_dim
+   dims(2) = y_dim
    if (present(lon)) then
-      dims(1) = lon_dim
-      ndims = 1
+     iret = NF90_DEF_VAR(ncid_bfm,'lon',NF90_REAL,lon_dim,lon_id)
+     call check_err(iret)
    elseif (present(lon2d)) then
-      dims(1) = x_dim
-      dims(2) = y_dim
-      ndims = 2
+     iret = NF90_DEF_VAR(ncid_bfm,'lon',NF90_REAL,dims,lon_id)
+     call check_err(iret)
    end if
-   iret = nf_def_var(ncid_bfm,'lon',NF_REAL,ndims,dims,lon_id)
-   call check_err(iret)
    if (present(lat)) then
-      dims(1) = lat_dim
-      ndims = 1
+     iret = NF90_DEF_VAR(ncid_bfm,'lat',NF90_REAL,lat_dim,lat_id)
+     call check_err(iret)
    elseif (present(lat2d)) then
-      dims(1) = x_dim
-      dims(2) = y_dim
-      ndims = 2
+     iret = NF90_DEF_VAR(ncid_bfm,'lat',NF90_REAL,dims,lat_id)
+     call check_err(iret)
    end if
-   iret = nf_def_var(ncid_bfm,'lat',NF_REAL,ndims,dims,lat_id)
+   DEALLOCATE(dims) 
+   iret = NF90_DEF_VAR(ncid_bfm,'z',NF90_REAL,depth_dim,depth_id)
    call check_err(iret)
-   dims(1) = depth_dim
-   iret = nf_def_var(ncid_bfm,'z',NF_REAL,1,dims,depth_id)
+   iret = NF90_DEF_VAR(ncid_bfm,'oceanpoint',NF90_INT,ocepoint_dim,ocepoint_id)
    call check_err(iret)
-   dims(1) = ocepoint_dim
-   iret = nf_def_var(ncid_bfm,'oceanpoint',NF_INT,1,dims,ocepoint_id)
+   iret = NF90_DEF_VAR(ncid_bfm,'surfacepoint',NF90_INT,surfpoint_dim,surfpoint_id)
    call check_err(iret)
-   dims(1) = surfpoint_dim
-   iret = nf_def_var(ncid_bfm,'surfacepoint',NF_INT,1,dims,surfpoint_id)
+   iret = NF90_DEF_VAR(ncid_bfm,'bottompoint',NF90_INT,botpoint_dim,botpoint_id)
    call check_err(iret)
-   dims(1) = botpoint_dim
-   iret = nf_def_var(ncid_bfm,'bottompoint',NF_INT,1,dims,botpoint_id)
-   call check_err(iret)
-   dims(1) = time_dim
-   iret = nf_def_var(ncid_bfm,'time',NF_REAL,1,dims,time_id)
+   iret = NF90_DEF_VAR(ncid_bfm,'time',NF90_REAL,time_dim,time_id)
    call check_err(iret)
    !---------------------------------------------
    ! define mask variables
    !---------------------------------------------
    if (present(mask3d)) then
-      dims(1) = x_dim
-      dims(2) = y_dim
-      dims(3) = depth_dim
-      iret = nf_def_var(ncid_bfm,'mask',NF_REAL,3,dims,mask_id)
+   ALLOCATE(dims(3))
+   dims(1) = x_dim
+   dims(2) = y_dim
+   dims(3) = depth_dim
+      iret = NF90_DEF_VAR(ncid_bfm,'mask',NF90_REAL,dims,mask_id)
       call check_err(iret)
+   DEALLOCATE(dims)
    end if
 
    !---------------------------------------------
@@ -255,18 +248,16 @@
    !---------------------------------------------
    !  global attributes
    !---------------------------------------------
-   iret = nf_put_att_text(ncid_bfm,NF_GLOBAL,  &
-                          'Title',LEN_TRIM(title),title)
+   iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Title',title)
    history = 'Created by BFM v. '//RELEASE
-   iret = nf_put_att_text(ncid_bfm,NF_GLOBAL,'history',  &
-                          LEN_TRIM(history),history)
-   iret = nf_put_att_text(ncid_bfm,NF_GLOBAL,'Conventions',6,'CF-1.0')
+   iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'history',history)
+   iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Conventions','CF-1.0')
    call check_err(iret)
 
    !---------------------------------------------
    ! leave define mode
    !---------------------------------------------
-   iret = nf_enddef(ncid_bfm)
+   iret = NF90_ENDDEF(ncid_bfm)
    call check_err(iret)
 
    !---------------------------------------------
@@ -299,7 +290,7 @@
    !---------------------------------------------
    ! syncronize
    !---------------------------------------------
-   iret = nf_sync(ncid_bfm)
+   iret = NF90_SYNC(ncid_bfm)
    call check_err(iret)
 
    end subroutine init_netcdf_bfm
@@ -343,51 +334,50 @@
    fname = './out_'// TRIM(title) // '.' // ext
    LEVEL2 'Restart file in NetCDF'
    LEVEL2 TRIM(fname)
-   iret = nf_create(fname,NF_CLOBBER,ncid_rst)
+   iret = NF90_CREATE(fname,NF90_CLOBBER,ncid_rst)
    call check_err(iret)
 
    !---------------------------------------------
    ! define 3D dimensions and variables
    !---------------------------------------------
-   iret = nf_def_dim(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_rst, 'oceanpoint', NO_BOXES, ocepoint_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'oceanpoint', NO_BOXES, ocepoint_rdim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_rst, 'surfacepoint', NO_BOXES_XY, surfpoint_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'surfacepoint', NO_BOXES_XY, surfpoint_rdim)
    call check_err(iret)
+   ALLOCATE(dims(2))
    dims(1) = d3vars_rdim
    dims(2) = ocepoint_rdim
-   ndims = 2
-   iret = nf_def_var(ncid_rst,'D3STATE',NF_DOUBLE,ndims,dims,d3state_rid)
+   iret = NF90_DEF_VAR(ncid_rst,'D3STATE',NF90_DOUBLE,dims,d3state_rid)
    call check_err(iret)
 #ifdef BFM_POM
-   iret = nf_def_var(ncid_rst,'D3STATEB',NF_DOUBLE,ndims,dims,d3stateb_rid)
+   iret = NF90_DEF_VAR(ncid_rst,'D3STATEB',NF90_DOUBLE,dims,d3stateb_rid)
    call check_err(iret)
 #endif
-
+ 
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    !---------------------------------------------
    ! define 2D dimensions and variables
    !---------------------------------------------
-   iret = nf_def_dim(ncid_rst, 'd2vars', NO_D2_BOX_STATES, d2vars_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'd2vars', NO_D2_BOX_STATES, d2vars_rdim)
    call check_err(iret)
-   iret = nf_def_dim(ncid_rst, 'bottompoint', NO_BOXES_XY, botpoint_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'bottompoint', NO_BOXES_XY, botpoint_rdim)
    call check_err(iret)
    dims(1) = d2vars_rdim
    dims(2) = botpoint_rdim
-   ndims = 2
-   iret = nf_def_var(ncid_rst,'D2STATE',NF_DOUBLE,ndims,dims,d2state_rid)
+   iret = NF90_DEF_VAR(ncid_rst,'D2STATE',NF90_DOUBLE,dims,d2state_rid)
    call check_err(iret)
 #ifdef BFM_POM
-   iret = nf_def_var(ncid_rst,'D2STATEB',NF_DOUBLE,ndims,dims,d2stateb_rid)
+   iret = NF90_DEF_VAR(ncid_rst,'D2STATEB',NF90_DOUBLE,dims,d2stateb_rid)
    call check_err(iret)
 #endif
 #endif
-
+   DEALLOCATE(dims)
    !---------------------------------------------
    ! leave define mode
    !---------------------------------------------
-   iret = nf_enddef(ncid_rst)
+   iret = NF90_ENDDEF(ncid_rst)
    call check_err(iret)
 
 end subroutine init_netcdf_rst_bfm
@@ -430,26 +420,24 @@ end subroutine init_netcdf_rst_bfm
 !BOC
      start(1) = 1;   edges(1) = NO_D3_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES
-     iret = nf_put_vara_double(ncid_rst,d3state_rid,start,edges,D3STATE(:,:))
+     iret = NF90_PUT_VAR(ncid_rst,d3state_rid,D3STATE(:,:),start,edges)
      call check_err(iret)
 #ifdef BFM_POM
-     iret = nf_put_vara_double(ncid_rst,d3stateb_rid,start,edges,D3STATEB(:,:))
+     iret = NF90_PUT_VAR(ncid_rst,d3stateb_rid,D3STATEB(:,:),start,edges)
      call check_err(iret)
 #endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES_XY
-     iret = nf_put_vara_double(ncid_rst,d2state_rid,start,edges,D2STATE(:,:))
+     iret = NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE(:,:),start,edges,)
      call check_err(iret)
 #ifdef BFM_POM
-     iret = nf_put_vara_double(ncid_rst,d2state_rid,start,edges,D2STATEB(:,:))
+     iret = NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB(:,:),start,edges)
      call check_err(iret)
 #endif
 #endif
      LEVEL1 'Restart has been written in NetCDF'
-     ! the file is closed in the main (in case of more restart files)
-     !iret = nf_close(ncid_rst)
-     !call check_err(iret)
+! the file is closed in the main (in case of more restart files)
 
   end subroutine save_rst_bfm 
 !EOC
@@ -480,6 +468,7 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !INPUT PARAMETERS:
    character(len=*), intent(in)                 :: title
+   character(len=NF90_MAX_NAME)                :: namedimt 
 ! !LOCAL VARIABLES:
    character(len=PATH_MAX)   :: ext,fname
    integer                   :: iret
@@ -499,18 +488,18 @@ end subroutine init_netcdf_rst_bfm
    fname = './in_'// TRIM(title) // '.' // ext
    LEVEL2 'Reading Restart file in NetCDF'
    LEVEL2 TRIM(fname)
-   iret = nf_open(fname,NF_NOWRITE,ncid_rst_in)
+   iret = NF90_OPEN(fname,NF90_NOWRITE,ncid_rst_in)
    call check_err(iret)
    !---------------------------------------------
    ! Check 3D dimensions 
    !---------------------------------------------
-   iret = nf_inq_dimid(ncid_rst_in,"d3vars",nstate_id)
+   iret = NF90_INQ_DIMID(ncid_rst_in,"d3vars",nstate_id)
    call check_err(iret)
-   iret = nf_inq_dimlen(ncid_rst_in,nstate_id,nstate_len)
+   iret = NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len)
    call check_err(iret)
-   iret = nf_inq_dimid(ncid_rst_in,"oceanpoint",ncomp_id)
+   iret = NF90_INQ_DIMID(ncid_rst_in,"oceanpoint",ncomp_id)
    call check_err(iret)
-   iret = nf_inq_dimlen(ncid_rst_in,ncomp_id,ncomp_len)
+   iret = NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len)
    call check_err(iret)
    if (nstate_len/=NO_D3_BOX_STATES .OR. ncomp_len/=NO_BOXES) then
       LEVEL1 "3D Dimension mismatch in restart file:"
@@ -524,14 +513,14 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Initialize 3D variable
    !---------------------------------------------
-   iret = nf_inq_varid(ncid_rst_in,"D3STATE",nstate_id)
+   iret = NF90_INQ_VARID(ncid_rst_in,"D3STATE",nstate_id)
    call check_err(iret)
-   iret = nf_get_var_double(ncid_rst_in,nstate_id,D3STATE(:,:))
+   iret = NF90_GET_VAR(ncid_rst_in,nstate_id,D3STATE(:,:))
    call check_err(iret)
 #ifdef BFM_POM
-   iret = nf_inq_varid(ncid_rst_in,"D3STATEB",nstate_id)
+   iret = NF90_INQ_VARID(ncid_rst_in,"D3STATEB",nstate_id)
    call check_err(iret)
-   iret = nf_get_var_double(ncid_rst_in,nstate_id,D3STATEB(:,:))
+   iret = NF90_GET_VAR(ncid_rst_in,nstate_id,D3STATEB(:,:))
    call check_err(iret)
 #endif
 
@@ -539,13 +528,13 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Check 2D dimensions 
    !---------------------------------------------
-   iret = nf_inq_dimid(ncid_rst_in,"d2vars",nstate_id)
+   iret = NF90_INQ_DIMID(ncid_rst_in,"d2vars",nstate_id)
    call check_err(iret)
-   iret = nf_inq_dimlen(ncid_rst_in,nstate_id,nstate_len)
+   iret = NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len)
    call check_err(iret)
-   iret = nf_inq_dimid(ncid_rst_in,"bottompoint",ncomp_id)
+   iret = NF90_INQ_DIMID(ncid_rst_in,"bottompoint",ncomp_id)
    call check_err(iret)
-   iret = nf_inq_dimlen(ncid_rst_in,ncomp_id,ncomp_len)
+   iret = NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len)
    call check_err(iret)
    if (nstate_len/=NO_D2_BOX_STATES .OR. ncomp_len/=NO_BOXES_XY) then
       LEVEL1 '2D Dimension mismatch in restart file:'
@@ -559,21 +548,21 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Initialize 2D variable
    !---------------------------------------------
-   iret = nf_inq_varid(ncid_rst_in,"D2STATE",nstate_id)
+   iret = NF90_INQ_VARID(ncid_rst_in,"D2STATE",nstate_id)
    call check_err(iret)
-   iret = nf_get_var_double(ncid_rst_in,nstate_id,D2STATE(:,:))
+   iret = NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATE(:,:))
    call check_err(iret)
 #ifdef BFM_POM
-   iret = nf_inq_varid(ncid_rst_in,"D2STATEB",nstate_id)
+   iret = NF90_INQ_VARID(ncid_rst_in,"D2STATEB",nstate_id)
    call check_err(iret)
-   iret = nf_get_var_double(ncid_rst_in,nstate_id,D2STATEB(:,:))
+   iret = NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATEB(:,:))
    call check_err(iret)
 #endif
 #endif
 
    LEVEL1 'Finished reading Restart file'
    LEVEL2 TRIM(fname)
-   iret = nf_close(ncid_rst_in)
+   iret = NF90_CLOSE(ncid_rst_in)
    call check_err(iret)
 
   end subroutine read_rst_bfm
@@ -616,7 +605,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    iret = define_mode(ncid_bfm,.true.)
 
-!MAV   if (bio_setup/=2) then
+      ALLOCATE(dims(2))
       dims(1) = ocepoint_dim
       dims(2) = time_dim
       do n=stPelStateS,stPelFluxE
@@ -629,29 +618,27 @@ end subroutine init_netcdf_rst_bfm
                            var_units(n),time_dim,var_ids(n))
 #endif
          if ( j.eq.0 .and. var_ids(n) /= 0 )  then
-            iret = new_nc_variable(ncid_bfm,var_names(n),NF_REAL, &
-                                 2,dims,var_ids(n))
+            iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
+                           dims,var_ids(n))
             iret = set_attributes(ncid_bfm,var_ids(n),            &
                                  units=var_units(n),              &
                                  long_name=var_long(n))
          end if 
       end do
-!MAV   endif
 
-!MAV   if (bio_setup>1) then
       dims(1) = botpoint_dim
       dims(2) = time_dim
       do n=stBenStateS,stBenFluxE
          if ( var_ids(n) /= 0 )  then 
-            iret = new_nc_variable(ncid_bfm,var_names(n),NF_REAL, &
-                                    2,dims,var_ids(n))
+            iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
+                           dims,var_ids(n))
             iret = set_attributes(ncid_bfm,var_ids(n),            &
                                  units=var_units(n),         &
                                  long_name=var_long(n)) 
          endif
       end do 
-!MAV    end if
 
+   DEALLOCATE(dims)
    iret = define_mode(ncid_bfm,.false.)
    LEVEL2 'NetCDF definitions completed.'
 
@@ -811,7 +798,7 @@ end subroutine init_netcdf_rst_bfm
 #endif
 
 
-   iret = nf_sync(ncid_bfm)
+   iret = NF90_SYNC(ncid_bfm)
    call check_err(iret)
 
    return
@@ -845,7 +832,7 @@ end subroutine init_netcdf_rst_bfm
 !-------------------------------------------------------------------------
 !BOC
 
-   iret = nf_close(ncid)
+   iret = NF90_CLOSE(ncid)
    call check_err(iret)
 
    return
@@ -883,9 +870,9 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
    if(action) then
-      iret = nf_redef(ncid)
+      iret = NF90_REDEF(ncid)
    else
-      iret = nf_enddef(ncid)
+      iret = NF90_ENDDEF(ncid)
    end if
    define_mode = 0
    return
@@ -898,7 +885,7 @@ end subroutine init_netcdf_rst_bfm
 ! !IROUTINE: Define a new NetCDF variable
 !
 ! !INTERFACE:
-   integer function new_nc_variable(ncid,name,data_type,n,dims,id)
+   integer function new_nc_variable(ncid,name,data_type,dimids,id)
 !
 ! !DESCRIPTION:
 !  This routine is used to define a new variable to store in a NetCDF file.
@@ -909,15 +896,15 @@ end subroutine init_netcdf_rst_bfm
 ! !INPUT PARAMETERS:
    integer, intent(in)                 :: ncid
    character(len=*), intent(in)        :: name
-   integer, intent(in)                 :: data_type,n
-   integer, intent(in)                 :: dims(:)
+   integer, intent(in)                 :: data_type
+   integer, intent(in)                 :: dimids(:)
 !
 ! !OUTPUT PARAMETERS:
    integer, intent(out)                :: id
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
-!
+!  TOM
 !EOP
 !
 ! !LOCAL VARIABLES:
@@ -925,7 +912,7 @@ end subroutine init_netcdf_rst_bfm
 !
 !-----------------------------------------------------------------------
 !BOC
-   iret = nf_def_var(ncid,name,data_type,n,dims,id)
+   iret = NF90_DEF_VAR(ncid,name,data_type,dimids,id)
    call check_err(iret)
    new_nc_variable = iret
    return
@@ -977,69 +964,58 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
    if(present(units)) then
-      len = len_trim(units)
-      iret = nf_put_att_text(ncid,id,'units',len,units)
+!      len = len_trim(units)
+      iret = NF90_PUT_ATT(ncid,id,'units',units)
    end if
 
    if(present(long_name)) then
-      len = len_trim(long_name)
-      iret = nf_put_att_text(ncid,id,'long_name',len,long_name)
+      iret = NF90_PUT_ATT(ncid,id,'long_name',long_name)
    end if
 
    if(present(C_format)) then
-      len = len_trim(C_format)
-      iret = nf_put_att_text(ncid,id,'C_format',len,C_format)
+      iret = NF90_PUT_ATT(ncid,id,'C_format',C_format)
    end if
 
    if(present(FORTRAN_format)) then
-      len = len_trim(FORTRAN_format)
-      iret = nf_put_att_text(ncid,id,'FORTRAN_format',len,FORTRAN_format)
+      iret = NF90_PUT_ATT(ncid,id,'FORTRAN_format',FORTRAN_format)
    end if
 
    if(present(compress)) then
-      len = len_trim(compress)
-      iret = nf_put_att_text(ncid,id,'compress',len,compress)
+      iret = NF90_PUT_ATT(ncid,id,'compress',compress)
    end if
 
    if(present(formula_term)) then
-      len = len_trim(formula_term)
-      iret = nf_put_att_text(ncid,id,'formula_term',len,formula_term)
+      iret = NF90_PUT_ATT(ncid,id,'formula_term',formula_term)
    end if
 
    if(present(valid_min)) then
-      vals(1) = valid_min
-      iret = nf_put_att_real(ncid,id,'valid_min',NF_FLOAT,1,vals)
+      iret = NF90_PUT_ATT(ncid,id,'valid_min',valid_min)
    end if
 
    if(present(valid_max)) then
-      vals(1) = valid_max
-      iret = nf_put_att_real(ncid,id,'valid_max',NF_FLOAT,1,vals)
+      iret = NF90_PUT_ATT(ncid,id,'valid_max',valid_max)
    end if
 
    if(present(valid_range)) then
       vals(1) = valid_range(1)
       vals(2) = valid_range(2)
-      iret = nf_put_att_real(ncid,id,'valid_range',NF_FLOAT,2,vals)
+      iret = NF90_PUT_ATT(ncid,id,'valid_range',vals)
    end if
 
    if(present(scale_factor)) then
-      vals(1) = scale_factor
-      iret = nf_put_att_real(ncid,id,'scale_factor',NF_FLOAT,1,vals)
+      iret = NF90_PUT_ATT(ncid,id,'scale_factor',scale_factor)
    end if
 
    if(present(add_offset)) then
-      vals(1) = add_offset
-      iret = nf_put_att_real(ncid,id,'add_offset',NF_FLOAT,1,vals)
+      iret = NF90_PUT_ATT(ncid,id,'add_offset',add_offset)
    end if
 
    if(present(FillValue)) then
-      vals(1) = FillValue
-      iret = nf_put_att_real(ncid,id,'_FillValue',NF_FLOAT,1,vals)
+      iret = NF90_PUT_ATT(ncid,id,'_FillValue',FillValue)
    end if
 
    if(present(missing_value)) then
-      vals(1) = missing_value
-      iret = nf_put_att_real(ncid,id,'missing_value',NF_FLOAT,1,vals)
+      iret = NF90_PUT_ATT(ncid,id,'missing_value',missing_value)
    end if
 
    set_attributes = 0
@@ -1111,11 +1087,11 @@ end subroutine init_netcdf_rst_bfm
    if (present(iscalar)) then
       select case (var_shape)
          case(POINT)
-            iret = nf_put_var_int(ncid,id,iscalar)
+            iret = NF90_PUT_VAR(ncid,id,iscalar)
          case(T_SHAPE)
             start(1) = recnum; edges(1) = 1
             idum(1)=iscalar
-            iret = nf_put_vara_int(ncid,id,start,edges,idum)
+            iret = NF90_PUT_VAR(ncid,id,idum,start,edges)
          case default
             FATAL 'A non valid - var_shape - has been passed in store_data()'
             stop 'store_data'
@@ -1125,7 +1101,7 @@ end subroutine init_netcdf_rst_bfm
          case(Z_SHAPE,G_SHAPE)
             start(1) = 1;   edges(1) = nbox
             idum(1:nbox)=iarray(1:nbox)
-            iret = nf_put_vara_int(ncid,id,start,edges,idum)
+            iret = NF90_PUT_VAR(ncid,id,idum,start,edges)
          case default
             FATAL 'A non valid - var_shape - has been passed in store_data()'
             stop 'store_data'
@@ -1134,17 +1110,17 @@ end subroutine init_netcdf_rst_bfm
       select case (var_shape)
          case(POINT)
             r4 = scalar
-            iret = nf_put_var_real(ncid,id,r4)
+            iret = NF90_PUT_VAR(ncid,id,r4)
          case(T_SHAPE)
             start(1) = recnum; edges(1) = 1
             dum(1)=scalar
-            iret = nf_put_vara_real(ncid,id,start,edges,dum)
+            iret = NF90_PUT_VAR(ncid,id,dum,start,edges)
          case(XYT_SHAPE)
             start(1) = 1;   edges(1) = lon_len
             start(2) = 1;   edges(2) = lat_len
             start(3) = recnum; edges(3) = 1
             dum(1)=scalar
-            iret = nf_put_vara_real(ncid,id,start,edges,dum)
+            iret = NF90_PUT_VAR(ncid,id,dum,start,edges)
          case default
             FATAL 'A non valid - var_shape - has been passed in store_data()'
             stop 'store_data'
@@ -1154,22 +1130,22 @@ end subroutine init_netcdf_rst_bfm
          case(Z_SHAPE,G_SHAPE)
             start(1) = 1;   edges(1) = nbox
             dum(1:nbox) = array(1:nbox)
-            iret = nf_put_vara_real(ncid,id,start,edges,dum(1:nbox))
+            iret = NF90_PUT_VAR(ncid,id,dum(1:nbox),start,edges)
          case(XY_SHAPE)
             start(1) = 1;   edges(1) = lon_len
             start(2) = 1;   edges(2) = lat_len
-            iret = nf_put_vara_real(ncid,id,start,edges,real(array2d(:,:),4))
+            iret = NF90_PUT_VAR(ncid,id,real(array2d(:,:),4),start,edges)
          case(XYZ_SHAPE)
             start(1) = 1;   edges(1) = lon_len
             start(2) = 1;   edges(2) = lat_len
             start(3) = 1;   edges(3) = nbox
-            iret = nf_put_vara_real(ncid,id,start,edges,real(array3d(:,:,:),4))
+            iret = NF90_PUT_VAR(ncid,id,real(array3d(:,:,:),4),start,edges)
          case(XYZT_SHAPE)
             start(1) = 1;   edges(1) = lon_len
             start(2) = 1;   edges(2) = lat_len
             start(3) = 1;   edges(3) = nbox
             start(4) = recnum; edges(4) = 1
-            iret = nf_put_vara_real(ncid,id,start,edges,real(array3d(:,:,:),4))
+            iret = NF90_PUT_VAR(ncid,id,real(array3d(:,:,:),4),start,edges)
          case default
             FATAL 'A non valid - var_shape - has been passed in store_data()'
             stop 'store_data'
@@ -1190,7 +1166,7 @@ end subroutine init_netcdf_rst_bfm
             stop 'store_data'
       end select
       dum(1:nbox)=garray(1:nbox)
-      iret = nf_put_vara_real(ncid,id,start,edges,dum)
+      iret = NF90_PUT_VAR(ncid,id,dum,start,edges)
    else
    end if
    call check_err(iret)
@@ -1218,8 +1194,8 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !USES:
    use mem, only: seddepth
+   use netcdf
    IMPLICIT NONE
-#include "netcdf.inc"
 !
 ! !INPUT PARAMETERS:
    integer, intent(in)                 :: mode
@@ -1242,52 +1218,50 @@ end subroutine init_netcdf_rst_bfm
    real(RLEN)                  :: arr(0:nlev)
    character(len=30)         :: altZ,altZ_longname
    character(len=6)          :: dum,alt_unit
-   integer                   :: dims(4)
+   integer                   :: dims(2)
 !EOP
        if ( index(extname,'__Z' ) ==1 ) then
           j=index(extname,':')-1
           read(extname(1:j),*) dum,altZ, zz,alt_unit, altZ_longname
           ! check is done on the compressed dimension
-          status = nf_inq_dimid(ncid, 'benprofpoint', benprofpoint_dim)
-          if (status.ne.NF_NOERR) then
+          status = NF90_INQ_DIMID(ncid, 'benprofpoint', benprofpoint_dim)
+          if (status.ne.NF90_NOERR) then
             ! define additional dimensions
-            status=nf_def_dim(ncid,altZ,nlev,dim_altZ)
-            if (status.eq.NF_NOERR) then
-               dims(1)=dim_altZ
-               status = nf_def_var(ncid,altZ,NF_REAL,1,dims,altZ_id)
-               if (status.eq.NF_NOERR) then
+            status=NF90_DEF_DIM(ncid,altZ,nlev,dim_altZ)
+            if (status.eq.NF90_NOERR) then
+               status = NF90_DEF_VAR(ncid,altZ,NF90_REAL,dim_altZ,altZ_id)
+               if (status.eq.NF90_NOERR) then
                   i=len_trim(altZ_longname);
                   i=index(extname(1:j),altZ_longname(1:i))
                   status= set_attributes(ncid,altZ_id,long_name=extname(i:j))
                   status= set_attributes(ncid,altZ_id,units=alt_unit)
-                  status = nf_enddef(ncid)
+                  status = NF90_ENDDEF(ncid)
                   status = store_data(ncid,altZ_id,Z_SHAPE,nlev,array=seddepth)
-                  status = nf_redef(ncid)
+                  status = NF90_REDEF(ncid)
                endif
             endif
             ! define coordinate dimension for benthic profile data
-            status=nf_def_dim(ncid,'benprofpoint',NO_BOXES,benprofpoint_dim)
-            if (status.eq.NF_NOERR) then
-               dims(1) = benprofpoint_dim
-               status = nf_def_var(ncid,'benprofpoint',NF_INT,1,dims, &
-                                   benprofpoint_id)
-               if (status.eq.NF_NOERR) then
+            status=NF90_DEF_DIM(ncid,'benprofpoint',NO_BOXES,benprofpoint_dim)
+            if (status.eq.NF90_NOERR) then
+               status = NF90_DEF_VAR(ncid,'benprofpoint',NF90_INT, &
+                       benprofpoint_dim, benprofpoint_id)
+               if (status.eq.NF90_NOERR) then
                   status = set_attributes(ncid,benprofpoint_id, &
                                           formula_term='alternative sigma point')
                   status = set_attributes(ncid,benprofpoint_id, &
                                           compress='x y ' // altZ)
-                  status = nf_enddef(ncid)
+                  status = NF90_ENDDEF(ncid)
                   !MAV this should be improved
                   status = store_data(ncid,benprofpoint_id,G_SHAPE,NO_BOXES, &
                                       iarray=(/(i,i=1,NO_BOXES)/))
-                  status = nf_redef(ncid)
+                  status = NF90_REDEF(ncid)
                endif
             endif
           endif
           if ( mode.eq.1) return
           dims(1) = benprofpoint_dim
           dims(2) = time_dim
-          status = nf_def_var(ncid,name,NF_REAL,2,dims,vars_id)
+          status = NF90_DEF_VAR(ncid,name,NF90_REAL,dims,vars_id)
           status= set_attributes(ncid,vars_id,long_name=trim(extname(j+2:)))
           status= set_attributes(ncid,vars_id,units=units)
           special_dims=1
@@ -1300,10 +1274,10 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 
    subroutine check_err(iret)
+     use netcdf
      integer iret
-     include 'netcdf.inc'
-     if (iret .ne. NF_NOERR) then
-       print *, 'NetCDF Error: ',nf_strerror(iret)
+     if (iret .ne. NF90_NOERR) then
+       print *, 'NetCDF Error: ',NF90_STRERROR(iret)
      stop
      endif
    end subroutine check_err
