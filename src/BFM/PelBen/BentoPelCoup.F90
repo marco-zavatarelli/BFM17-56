@@ -13,9 +13,9 @@
 !   and assign boundary fluxes
 !
 ! !INTERFACE
+#if defined INCLUDE_BEN && ! defined BFM_STANDALONE
   subroutine BentoPelCoupDynamics
 !
-#ifdef INCLUDE_BEN
 ! !USES:
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -279,8 +279,8 @@
       end do ! loop over NO_BOXES_XY
    end if ! AssignPelBenFluxesInBFMFlag
 
-#endif
   end subroutine  BentoPelCoupDynamics
+#endif
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

@@ -10,7 +10,7 @@
 
 #----------------- User configuration -----------------
 archfile="${BFMDIR}/compilers/xlf90.inc"
-cppdefs="-DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
+cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
 exe=${BFMDIR}/bin/bfm_standalone.x
 #----------------- User configuration -----------------
 #set -xv

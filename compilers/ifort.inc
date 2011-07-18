@@ -1,0 +1,9 @@
+	FC=ifort
+	LD=ifort
+	AR=ar
+	ARFLAGS=-r
+        NCDF_LIB= -L /opt/netcdf-ifort/lib -lnetcdff -lnetcdf
+        NCDF_INC= /opt/netcdf-ifort/include
+	CPPFLAGS=
+	FFLAGS= -O3 -I${NCDF_INC}
+	LDFLAGS= -I${NCDF_INC} ${NCDF_LIB} 
