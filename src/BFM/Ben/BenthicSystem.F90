@@ -1,6 +1,6 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
+#ifdef INCLUDE_BEN
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -31,11 +31,6 @@
     iiY2, iiY3, iiY4, iiY5, iiH1, iiH2, iiBen, iiPel, flux
 #endif
   use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following group processes are used: BenOrganismDynamics, BenBacDynamics
-  use global_interface, ONLY: BenOrganismDynamics, BenBacDynamics
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 !
 !
@@ -109,7 +104,8 @@
     call BenBacDynamics( iiH2, ppH2c, ppH2n, ppH2p)
   end if
 
-  end
+  end subroutine BenthicSystemDynamics
+#endif
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

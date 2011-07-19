@@ -9,7 +9,7 @@
 #  Warning: still not working for benthic BFM
 
 #----------------- User configuration -----------------
-archfile="${BFMDIR}/compilers/xlf90.inc"
+archfile="${BFMDIR}/compilers/gfortran.inc"
 cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
 exe=${BFMDIR}/bin/bfm_standalone.x
 #----------------- User configuration -----------------
@@ -41,7 +41,7 @@ find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/share -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/PelB -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/PelBen -name "*.?90" -print >> BFM.lst
-#find ${BFMDIR}/src/BFM/Ben -name "*.?90" -print >> BFM.lst
+find ${BFMDIR}/src/BFM/Ben -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Light -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst

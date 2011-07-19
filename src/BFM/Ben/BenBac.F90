@@ -1,6 +1,6 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
+#ifdef INCLUDE_BEN
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -13,32 +13,10 @@
 !    nutrient dynamics in benthic bacteria (represented
 !    by state variables H1-H2) 
 ! 
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenBacDynamics(hx,  pphxc, pphxn, pphxp)
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: Q6c, Q6n, Q6p, G2o, &
-  ! K16r, D6m, D7m, D8m
-  ! The following Benthic-states are used (NOT in fluxes): D1m, D2m
-  ! For the following Benthic-group-states fluxes are defined: &
-  ! BenDetritus, BenthicAmmonium, BenthicPhosphate
-  ! The following Benthic 1-d global boxvars are modified : rrBTo, reBTn, &
-  ! reBTp, rrATo, reATn, reATp
-  ! The following Benthic 1-d global boxvars  are used: ETW_Ben
-  ! The following Benthic 2-d global boxvars got a value: ruHI,reHI
-  ! The following groupmember vars  are used: iiH1, iiH2
-  ! The following constituent constants  are used: iiC, iiN, iiP
-  ! The following 0-d global parameters are used: p_d_tot, p_small, &
-  ! p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -85,7 +63,7 @@
 !  
 !
 ! !AUTHORS
-!   W. Ebenhoh and C. Kohlmeier 
+!   W. Ebenhoh and C. Kohlmeier,  
 ! 
 !
 !
@@ -94,7 +72,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -392,6 +370,7 @@
   call flux_vector(iiBen, ppD8m,ppD8m,( cmm- D8m(:))*( ruQ6p- rqt6p)/ Q6p(:))
 
   end subroutine BenBacDynamics
+#endif
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 

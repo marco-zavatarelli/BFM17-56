@@ -1,6 +1,6 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
+#ifdef INCLUDE_BEN
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -13,29 +13,10 @@
 !    nutrient dynamics in benthic organisms
 ! 
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenOrganismDynamics(y,  ppyc, ppyn, ppyp)
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: Q6c, Q6n, Q6p, G2o, &
-  ! K4n, K1p, D6m, D7m, D8m
-  ! The following Benthic-states are used (NOT in fluxes): D1m
-  ! For the following Benthic-group-states fluxes are defined: BenOrganisms, &
-  ! BenBacteria
-  ! The following Benthic 1-d global boxvars are modified : rrBTo, reBTn, reBTp
-  ! The following Benthic 1-d global boxvars  are used: ETW_Ben
-  ! The following groupmember vars are used: iiBenOrganisms, iiBenBacteria, &
-  ! iiY1, iiY2, iiY4, iiY5
-  ! The following constituent constants  are used: iiC, iiN, iiP
-  ! The following 0-d global parameters are used: p_d_tot
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -85,7 +66,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -472,8 +453,9 @@
   call flux_vector(iiBen, ppD7m,ppD7m,( cmm- D7m(:))*( rqt6n- ruQ6n)/ Q6n(:))
   call flux_vector(iiBen, ppD8m,ppD8m,( cmm- D8m(:))*( rqt6p- ruQ6p)/ Q6p(:))
 
-  end
-!BOP
+  end subroutine BenOrganismDynamics
+#endif
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

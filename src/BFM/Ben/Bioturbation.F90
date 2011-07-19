@@ -1,6 +1,6 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
+#ifdef INCLUDE_BEN
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -14,24 +14,10 @@
 !   (bioturbation) matter
 ! 
 !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BioturbationDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: D6m, D7m, D8m, D9m
-  ! The following Benthic-states are used (NOT in fluxes): Y2c, Y5c, Y1c, Y4c
-  ! The following Benthic 1-d global boxvars are modified : turenh
-  ! The following Benthic 1-d global boxvars got a value: irrenh, rrBTo, &
-  ! reBTn, reBTp, rrATo, reATn, reATp
-  ! The following Benthic 1-d global boxvars  are used: ETW_Ben
-  ! The following global constants are used: RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
@@ -68,7 +54,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -131,8 +117,9 @@
 
   irrenh(:)  =   1.0D+00+ p_cmirr* MM_vector(  Yirr,  p_chirr)* et
 
-  end
-!BOP
+  end subroutine BioturbationDynamics
+!EOC
+#endif
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
