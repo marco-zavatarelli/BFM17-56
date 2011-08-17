@@ -1,3 +1,4 @@
+#include "cppdefs.h"
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -33,14 +34,14 @@
 !  
 !
 ! !AUTHORS
-!   mfstep/ERSEM team
+!   Piet Ruardij and Marcello Vichi
 !
 ! !REVISION_HISTORY
 !   --------
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -174,6 +175,7 @@
   subroutine InitParam()
   use mem
   use constants
+  use global_mem, ONLY: bfm_lwp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,        &
     p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
@@ -197,13 +199,13 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading Param parameters.."
+   LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+   LEVEL1 "#  Reading Param parameters.."
    open(NMLUNIT,file='Param.nml',status='old',action='read',err=100)
    read(NMLUNIT,nml=Param_parameters,err=101)
    close(NMLUNIT)
-   write(LOGUNIT,*) "#  Namelist is:"
-   write(LOGUNIT,nml=Param_parameters)
+   LEVEL1 "#  Namelist is:"
+   if (bfm_lwp) write(LOGUNIT,nml=Param_parameters)
    ! These initializations are done here because some compilers do not
    ! allow the initialization of constants with intrinsic functions
    MIN_VAL_EXPFUN=log(DBL_MIN)  

@@ -14,7 +14,9 @@
 ! Standard output for parallel computation
 #ifdef BFM_PARALLEL
 #undef STDOUT
-#define STDOUT if (lwp) write(LOGUNIT,*)
+#define STDOUT if (bfm_lwp) write(LOGUNIT,*)
+#undef STDERR
+#define STDERR if (bfm_lwp) write(LOGUNIT,*)
 #endif
 
 #define LEVEL0 STDERR

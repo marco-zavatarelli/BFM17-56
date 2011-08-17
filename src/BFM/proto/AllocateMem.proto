@@ -55,8 +55,8 @@
   ! matrix and pointers
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
-  write(LOGUNIT,*) "# Allocating State Variables and Rates array ..."
+  LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
+  LEVEL1 "# Allocating State Variables and Rates array ..."
 
 #ifndef NOT_STANDALONE
  %3d-state-alloc
@@ -85,8 +85,8 @@
   ! Start the allocation of other pelagic variables which can be outputted
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
-  write(LOGUNIT,*) "# Allocating Other Global Variables .."
+  LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
+  LEVEL1 "# Allocating Other Global Variables .."
 
 %3d-diaggrp-assign-pp
 %3d-diagnos-alloc-pointer

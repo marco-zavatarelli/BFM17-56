@@ -17,7 +17,7 @@
 
 !
 ! !USE:
-   use global_mem, only:RLEN,ZERO
+   use global_mem, only:RLEN,ZERO,bfm_lwp,LOGUNIT
    use mem,        only:NO_D3_BOX_STATES
    implicit none
 
@@ -45,7 +45,6 @@
    !---------------------------------------------
    logical                            :: parallel = .FALSE.
    logical                            :: parallel_log = .FALSE.
-   logical                            :: bfm_lwp = .TRUE.
    integer                            :: parallel_rank = 0
    character(LEN=4)                   :: str
 
@@ -260,43 +259,6 @@ contains
 !-----------------------------------------------------------------------
 !BOC
 
-#ifdef BFM_PARALLEL
-   parallel = .TRUE.
-   ! variable parallel_rank must have been assigned previously
-   ! in the coupling with the ocean model using the 
-   ! specific parallelization method (e.g. MPI)
-   LOGUNIT = 1069 + parallel_rank
-#if defined BFM_NEMO && defined key_obc
-   LOGUNITOBC = 3069 + parallel_rank
-#endif
-   ! provide a different log file name for each process 
-   write(str,'(I4.4)') parallel_rank
-   logfname = 'bfm_'//str//'.log'
-#if defined BFM_NEMO && defined key_obc
-   logfnameobc = 'OBCBFM_'//str//'.log'
-#endif
-   open(LOGUNIT,file=logfname,action='write',  &
-        form='formatted',status='new',err=100)
-#if defined BFM_NEMO && defined key_obc
-   open(LOGUNITOBC,file=logfnameobc,action='write',  &
-        form='formatted',status='new',err=100)
-#endif
-  ! check if logs have to be produced for each process
-   if (parallel_log) then
-      bfm_lwp = (parallel_rank == 0)
-   else 
-      bfm_lwp = .TRUE.
-   end if
-   LEVEL1 "BFM is running in Parallel"
-   LEVEL2 "Producing log for process rank:",parallel_rank
-#else
-   LOGUNIT = 6
-#if defined BFM_NEMO && defined key_obc
-   LOGUNITOBC = 6
-#endif
-#endif
-
-   LEVEL1 'init_bfm'
 
    !---------------------------------------------
    ! Provide sensible values for namelist parameters
@@ -321,11 +283,43 @@ contains
    close(namlst)
 
 #ifdef BFM_PARALLEL
-   ! provide different file names for each process domain
+
+   parallel = .TRUE.
+   ! variable parallel_rank must have been assigned previously
+   ! in the coupling with the ocean model 
+   ! check if logs have to be produced for each process
+   ! and provide a different log file name 
+   LOGUNIT = 1069 + parallel_rank
    write(str,'(I4.4)') parallel_rank
+    if (parallel_log) then
+       if (parallel_rank == 0) then
+          bfm_lwp = .TRUE.
+          logfname = 'bfm.log'
+       else 
+          bfm_lwp = .FALSE.
+          logfname = '/dev/null'
+       end if
+    else 
+       ! logs are produced for every process
+       bfm_lwp = .TRUE.
+       logfname = 'bfm_'//str//'.log'
+    end if
+    open(LOGUNIT,file=logfname,action='write',  &
+        form='formatted',err=100)
+
+   ! provide different file names for each process domain
    out_fname = trim(out_fname)//'_'//str
    rst_fname = trim(rst_fname)//'_'//str
+
+#else
+
+   LOGUNIT = 6
+
 #endif
+
+   LEVEL1 'init_bfm'
+   LEVEL2 "BFM is running in Parallel"
+   LEVEL3 "Producing log for process rank:",parallel_rank
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
    LEVEL3 "Output frequency every ",out_delta,"time-steps"
 

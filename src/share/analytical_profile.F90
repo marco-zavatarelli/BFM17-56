@@ -16,15 +16,16 @@
 ! to {\tt z2} with values linearly varying from {\tt v1} to {\tt v2}.
 !
 ! !USES:
+   use global_mem, only:RLEN,ZERO,bfm_lwp,LOGUNIT
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
    integer,  intent(in)                :: nlev
-   REALTYPE, intent(in)                :: z(nlev)
-   REALTYPE, intent(in)                :: z1,v1,z2,v2
+   real(RLEN), intent(in)                :: z(nlev)
+   real(RLEN), intent(in)                :: z1,v1,z2,v2
 !
 ! !OUTPUT PARAMETERS:
-   REALTYPE, intent(out)               :: prof(nlev)
+   real(RLEN), intent(out)               :: prof(nlev)
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding
@@ -34,7 +35,7 @@
 !
 ! !LOCAL VARIABLES:
    integer                   :: i
-   REALTYPE                  :: alpha
+   real(RLEN)                  :: alpha
 !
 !-----------------------------------------------------------------------
 !BOC

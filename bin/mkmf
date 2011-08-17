@@ -40,7 +40,7 @@ sub ensureTrailingSlash {
 my $version = '$Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ ';
 
 # initialize variables: use getopts for these
-getopts( 'a:c:dfm:o:p:t:vx' ) || die "\aSyntax: $0 [-a abspath] [-c cppdefs] [-d] [-f] [-m makefile] [-o otherflags] ][-p program] [-t template] [-v] [-x] [targets]\n";
+getopts( 'a:c:dfm:o:l:p:t:vx' ) || die "\aSyntax: $0 [-a abspath] [-c cppdefs] [-d] [-f] [-m makefile] [-o otherflags] [-l otherlibs]][-p program] [-t template] [-v] [-x] [targets]\n";
 $opt_v = 1 if $opt_d;	# debug flag turns on verbose flag also
 print "$0 $version\n" if $opt_v;
 
@@ -447,7 +447,8 @@ my $noff = scalar keys %off_sources;
 &print_formatted_list( "OFF =", keys %off_sources ) if $noff > 0;
 
 #write targets
-print MAKEFILE "clean: neat\n\t-rm -f .cppdefs *.mod *.MOD \$(OBJ) $opt_p\n";
+#print MAKEFILE "clean: neat\n\t-rm -f .cppdefs *.mod *.MOD \$(OBJ) $opt_p\n";
+print MAKEFILE "clean: neat\n\t-rm -f .cppdefs \$(OBJ) $opt_p\n";
 print MAKEFILE "neat:\n\t-rm -f \$(TMPFILES)\n";
 print MAKEFILE "localize: \$(OFF)\n\tcp \$(OFF) .\n" if $noff > 0;
 print MAKEFILE "TAGS: \$(SRC)\n\tetags \$(SRC)\n";

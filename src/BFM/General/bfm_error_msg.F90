@@ -14,6 +14,7 @@
 !   This routine in used in standalone and other application than gotm.
 !   
 ! !USES:
+   use global_mem
    IMPLICIT NONE
 
 !EOP

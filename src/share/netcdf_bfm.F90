@@ -15,7 +15,7 @@
 ! !USES:
    use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
-   use global_mem, only: RLEN
+   use global_mem, only: RLEN,LOGUNIT,bfm_lwp
    use netcdf
    implicit none
 !
