@@ -1,0 +1,22 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!-------------------------------------------------------------------------!
+!NAME             KIND    DESCRIPTION
+!in_fname 	  string 	Path to NetCDF input file 
+!out_fname 	  string 	Path to NetCDF input file 
+!mesh_flag  	  logical       If true reads mesh info from file meshmask
+!meshmask 	  string 	Path to meshmask file
+!old_version  	  logical       To read old PELAGOS1.0 output files
+!-------------------------------------------------------------------------!
+&bnremap_nml
+   in_fname='/media/sf_PELAGOS/P014007_mmem_1997.nc'
+   out_fname='/media/sf_PELAGOS/P014007_pelagos_1997.nc'
+   mesh_flag = .TRUE.
+   meshmask='/media/sf_PELAGOS/meshmask.nc'
+   old_version = .TRUE.
+/
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
