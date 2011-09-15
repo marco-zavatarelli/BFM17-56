@@ -1,0 +1,45 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! BFM_NEMO-REMAP bnremap V1.0
+!    Copyright (C) 2009-2011 Marcello Vichi (marcello.vichi@bo.ingv.it)
+!
+!    This program is free software: you can redistribute it and/or modify
+!    it under the terms of the GNU General Public License as published by
+!    the Free Software Foundation, either version 3 of the License, or
+!    (at your option) any later version.
+!
+!    This program is distributed in the hope that it will be useful,
+!    but WITHOUT ANY WARRANTY; without even the implied warranty of
+!    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!    GNU General Public License for more details.
+!
+!    You should have received a copy of the GNU General Public License
+!    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+
+BNREMAP is a tool to remap the 1D output files produced by BFM_NEMO 
+and produce an output on the 3D ocean grid.
+This tool works on output file containing the whole ocean domain.
+Use BNMERGE instead to merge sub-domains from a parallel simulation.
+This program can also be used with data produced by PELAGOS V1.0.
+It is controlled by the namelist bnremap.nml through the
+following parameters:
+in_fname         string        Path to NetCDF input file
+out_fname        string        Path to NetCDF input file
+mesh_flag        logical       If true reads mesh info from file meshmask
+meshmask         string        Path to meshmask file
+old_version      logical       To read old PELAGOS1.0 output files
+
+as for instance 
+
+&bnremap_nml
+   in_fname='/path/to/input.nc'
+   out_fname='/path/to/output.nc'
+   mesh_flag = .TRUE.
+   meshmask='path/to/meshmask.nc'
+   old_version = .FALSE.
+/
+
+All variables are copied and the output file contains also the tmask and
+lat lon arrays.
