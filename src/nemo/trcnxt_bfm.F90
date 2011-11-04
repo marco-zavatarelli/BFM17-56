@@ -24,8 +24,8 @@ MODULE trcnxtbfm
    PRIVATE
 
 !   !! * Routine accessibility
-   PUBLIC trc_nxt_bfm
-   PUBLIC   trc_nxt_alloc    ! routine called by nemogcm.F90
+   PUBLIC trc_nxt_bfm      ! routine called by trc_trp_bfm.F90
+   PUBLIC trc_nxt_alloc    ! routine called by nemogcm.F90
 
    REAL(wp), ALLOCATABLE, SAVE, DIMENSION(:) ::   r2dt
 
@@ -112,18 +112,17 @@ CONTAINS
 
       jn = 1 ! BFM uses only one tracer as a working array
 
-         ! 0. Lateral boundary conditions on tra (T-point, unchanged sign)
-         ! ---------------------------------============
-         CALL lbc_lnk( tra(:,:,:,jn), 'T', 1. )
-
-#if defined key_obc
-         ! Update tracers on open boundaries.
-         CALL obc_trc_bfm(kt,m)
-#endif
+      ! 0. Lateral boundary conditions on tra (T-point, unchanged sign)
+      ! ---------------------------------============
+      CALL lbc_lnk( tra(:,:,:,jn), 'T', 1. )
 
       ! set time step size (Euler/Leapfrog)
-      IF( neuler == 0 .AND. kt ==  nit000) THEN  ;  r2dt(:) =     rdttrc(:)   ! at nit000             (Euler)
-      ELSEIF( kt <= nit000 + 1 )           THEN  ;  r2dt(:) = 2.* rdttrc(:)   ! at nit000 or nit000+1 (Leapfrog)
+      IF( ln_trcadv_cen2 .OR. ln_trcadv_tvd ) THEN
+         IF( neuler == 0 .AND. kt ==  nit000) THEN  ;  r2dt(:) =     rdttrc(:)   ! at nit000             (Euler)
+         ELSEIF( kt <= nit000 + 1 )           THEN  ;  r2dt(:) = 2.* rdttrc(:)   ! at nit000 or nit000+1 (Leapfrog)
+         ENDIF
+      ELSE
+         r2dt(:) =     rdttrc(:)           ! ( Euler step ) 
       ENDIF
 
       ! trends computation initialisation
@@ -131,24 +130,55 @@ CONTAINS
          ALLOCATE( ztrdt(jpi,jpj,jpk,1) )  !* store now fields before applying the Asselin filter
          ztrdt(:,:,:,:)  = trn(:,:,:,:)
       ENDIF
-      ! Leap-Frog + Asselin filter time stepping
-      IF( neuler == 0 .AND. kt == nit000 ) THEN        ! Euler time-stepping at first time-step
-         !                                             ! (only swap)
-         DO jk = 1, jpkm1
-            trn(:,:,jk,jn) = tra(:,:,jk,jn)
-         END DO
-         !
-      ELSE
-         ! Leap-Frog + Asselin filter time stepping
-         IF( lk_vvl ) THEN   ;   CALL tra_nxt_vvl( kt, 'TRC', trb, trn, tra, 1 )      ! variable volume level (vvl)
-         ELSE                ;   CALL tra_nxt_fix( kt, 'TRC', trb, trn, tra, 1 )      ! fixed    volume level
+
+      !                                                ! ===============
+      DO jk = 1, jpk                                   ! Horizontal slab
+         !                                             ! ===============
+         ! 1. Leap-frog scheme (only in explicit case, otherwise the 
+         ! -------------------  time stepping is already done in trczdf)
+         IF( ln_trczdf_exp .AND. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) THEN
+            zfact = 2. * rdttra(jk) * FLOAT(nn_dttrc)
+            IF( neuler == 0 .AND. kt == nit000 ) zfact = rdttra(jk) * FLOAT(nn_dttrc)
+            tra(:,:,jk,jn) = ( trb(:,:,jk,jn) + zfact * tra(:,:,jk,jn) ) * tmask(:,:,jk)
          ENDIF
-      ENDIF
+
+      END DO
+
+#if defined key_obc
+         ! Update tracers on open boundaries.
+      CALL obc_trc_bfm(kt,m)
+#endif
 
 #if defined key_agrif
       ! Update tracer at AGRIF zoom boundaries
       IF( .NOT.Agrif_Root() )    CALL Agrif_Update_Trc( kt )      ! children only
 #endif
+
+      DO jk = 1, jpk
+
+         ! 2. Time filter and swap of arrays
+         ! ---------------------------------
+         IF ( ln_trcadv_cen2 .OR. ln_trcadv_tvd  ) THEN
+
+            IF( neuler == 0 .AND. kt == nit000 ) THEN
+               trb(:,:,jk,jn) = trn(:,:,jk,jn)
+               trn(:,:,jk,jn) = tra(:,:,jk,jn)
+               tra(:,:,jk,jn) = 0.
+            ELSE
+               trb(:,:,jk,jn) = atfp  * ( trb(:,:,jk,jn) + tra(:,:,jk,jn) ) + atfp1 * trn(:,:,jk,jn)
+               trn(:,:,jk,jn) = tra(:,:,jk,jn)
+               tra(:,:,jk,jn) = 0.
+            ENDIF
+
+         ELSE
+!  case of smolar scheme or muscl
+            trb(:,:,jk,jn) = tra(:,:,jk,jn)
+            trn(:,:,jk,jn) = tra(:,:,jk,jn)
+            tra(:,:,jk,jn) = 0.
+         ENDIF
+         !                                             ! ===============
+      END DO                                           !   End of slab
+      !                                                ! ===============
 
       ! trends computation
       IF( l_trdtrc ) THEN                                      ! trends
