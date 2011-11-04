@@ -31,7 +31,7 @@
    integer,public                :: ncdf_time_unit
    ! record counter
    integer,public                :: recnum = 0
-   integer                       :: time_len=NF90_UNLIMITED
+!   integer                       :: time_len=NF90_UNLIMITED
    !---------------------------------------------
    ! Dimension IDs
    !---------------------------------------------
@@ -112,7 +112,7 @@
    integer                   :: lon_len
    integer                   :: lat_len
    integer                   :: depth_len
-   integer                   :: time_len=NF90_UNLIMITED
+!   integer                   :: time_len=NF90_UNLIMITED
 !!
 !-------------------------------------------------------------------------
 !BOC
@@ -134,9 +134,9 @@
    ! define dimensions
    !---------------------------------------------
    if (present(lon).AND.present(lat)) then
-      iret = NF90_DEF_DIM(ncid_bfm, 'lon', NO_BOXES_XY, lon_dim)
+      iret = NF90_DEF_DIM(ncid_bfm, 'lon', max(NO_BOXES_XY,1), lon_dim)
       call check_err(iret)
-      iret = NF90_DEF_DIM(ncid_bfm, 'lat', NO_BOXES_XY, lat_dim)
+      iret = NF90_DEF_DIM(ncid_bfm, 'lat', max(NO_BOXES_XY,1), lat_dim)
       call check_err(iret)
    else if (present(lon2d).AND.present(lat2d)) then
       iret = NF90_DEF_DIM(ncid_bfm, 'x', NO_BOXES_X, x_dim)
@@ -148,11 +148,11 @@
    end if
    iret = NF90_DEF_DIM(ncid_bfm, 'z', NO_BOXES_Z, depth_dim)
    call check_err(iret)
-   iret = NF90_DEF_DIM(ncid_bfm, 'oceanpoint', NO_BOXES, ocepoint_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'oceanpoint', max(NO_BOXES,1), ocepoint_dim)
    call check_err(iret)
-   iret = NF90_DEF_DIM(ncid_bfm, 'surfacepoint', NO_BOXES_XY, surfpoint_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'surfacepoint', max(NO_BOXES_XY,1), surfpoint_dim)
    call check_err(iret)
-   iret = NF90_DEF_DIM(ncid_bfm, 'bottompoint', NO_BOXES_XY, botpoint_dim)
+   iret = NF90_DEF_DIM(ncid_bfm, 'bottompoint', max(NO_BOXES_XY,1), botpoint_dim)
    call check_err(iret)
    iret = NF90_DEF_DIM(ncid_bfm, 'time', NF90_UNLIMITED, time_dim)
    call check_err(iret)   
@@ -177,10 +177,10 @@
      iret = NF90_DEF_VAR(ncid_bfm,'lat',NF90_REAL,dims,lat_id)
      call check_err(iret)
    end if
-   DEALLOCATE(dims) 
+   DEALLOCATE(dims)
    iret = NF90_DEF_VAR(ncid_bfm,'z',NF90_REAL,depth_dim,depth_id)
    call check_err(iret)
-   iret = NF90_DEF_VAR(ncid_bfm,'oceanpoint',NF90_INT,ocepoint_dim,ocepoint_id)
+   iret = NF90_DEF_VAR( ncid_bfm, 'oceanpoint', NF90_INT,ocepoint_dim, ocepoint_id )
    call check_err(iret)
    iret = NF90_DEF_VAR(ncid_bfm,'surfacepoint',NF90_INT,surfpoint_dim,surfpoint_id)
    call check_err(iret)
@@ -249,7 +249,7 @@
    !  global attributes
    !---------------------------------------------
    iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Title',title)
-   history = 'Created by BFM v. '//RELEASE
+   history = 'Created by BFM v. '//'RELEASE'
    iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'history',history)
    iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Conventions','CF-1.0')
    call check_err(iret)
@@ -327,6 +327,7 @@
 !!
 !-------------------------------------------------------------------------
 !BOC
+
    !---------------------------------------------
    ! Prepare the netcdf file
    !---------------------------------------------
@@ -342,9 +343,9 @@
    !---------------------------------------------
    iret = NF90_DEF_DIM(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim)
    call check_err(iret)
-   iret = NF90_DEF_DIM(ncid_rst, 'oceanpoint', NO_BOXES, ocepoint_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'oceanpoint', max(NO_BOXES,1), ocepoint_rdim)
    call check_err(iret)
-   iret = NF90_DEF_DIM(ncid_rst, 'surfacepoint', NO_BOXES_XY, surfpoint_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'surfacepoint', max(NO_BOXES_XY,1), surfpoint_rdim)
    call check_err(iret)
    ALLOCATE(dims(2))
    dims(1) = d3vars_rdim
@@ -362,7 +363,7 @@
    !---------------------------------------------
    iret = NF90_DEF_DIM(ncid_rst, 'd2vars', NO_D2_BOX_STATES, d2vars_rdim)
    call check_err(iret)
-   iret = NF90_DEF_DIM(ncid_rst, 'bottompoint', NO_BOXES_XY, botpoint_rdim)
+   iret = NF90_DEF_DIM(ncid_rst, 'bottompoint', max(NO_BOXES_XY,1), botpoint_rdim)
    call check_err(iret)
    dims(1) = d2vars_rdim
    dims(2) = botpoint_rdim
@@ -418,6 +419,7 @@ end subroutine init_netcdf_rst_bfm
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
      start(1) = 1;   edges(1) = NO_D3_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES
      iret = NF90_PUT_VAR(ncid_rst,d3state_rid,D3STATE(:,:),start,edges)
@@ -599,7 +601,6 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
 
-   LEVEL1 'init_save_bfm'
    !---------------------------------------------
    ! Enter define mode
    !---------------------------------------------
@@ -1207,8 +1208,6 @@ end subroutine init_netcdf_rst_bfm
    integer, intent(inout)              :: vars_id
    integer, intent(in)                 :: time_dim
 !
-! !REVISION HISTORY:
-!  Original author(s): Piet Ruardij
 !  Generic BFM version: Marcello Vichi
 !
 ! !LOCAL VARIABLES:
@@ -1241,7 +1240,7 @@ end subroutine init_netcdf_rst_bfm
                endif
             endif
             ! define coordinate dimension for benthic profile data
-            status=NF90_DEF_DIM(ncid,'benprofpoint',NO_BOXES,benprofpoint_dim)
+            status=NF90_DEF_DIM(ncid,'benprofpoint',max(NO_BOXES,1),benprofpoint_dim)
             if (status.eq.NF90_NOERR) then
                status = NF90_DEF_VAR(ncid,'benprofpoint',NF90_INT, &
                        benprofpoint_dim, benprofpoint_id)
