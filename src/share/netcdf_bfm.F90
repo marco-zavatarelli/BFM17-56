@@ -31,7 +31,6 @@
    integer,public                :: ncdf_time_unit
    ! record counter
    integer,public                :: recnum = 0
-!   integer                       :: time_len=NF90_UNLIMITED
    !---------------------------------------------
    ! Dimension IDs
    !---------------------------------------------
@@ -112,7 +111,6 @@
    integer                   :: lon_len
    integer                   :: lat_len
    integer                   :: depth_len
-!   integer                   :: time_len=NF90_UNLIMITED
 !!
 !-------------------------------------------------------------------------
 !BOC
@@ -177,7 +175,7 @@
      iret = NF90_DEF_VAR(ncid_bfm,'lat',NF90_REAL,dims,lat_id)
      call check_err(iret)
    end if
-   DEALLOCATE(dims)
+   DEALLOCATE(dims) 
    iret = NF90_DEF_VAR(ncid_bfm,'z',NF90_REAL,depth_dim,depth_id)
    call check_err(iret)
    iret = NF90_DEF_VAR( ncid_bfm, 'oceanpoint', NF90_INT,ocepoint_dim, ocepoint_id )
@@ -249,7 +247,7 @@
    !  global attributes
    !---------------------------------------------
    iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Title',title)
-   history = 'Created by BFM v. '//'RELEASE'
+   history = RELEASE
    iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'history',history)
    iret = NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Conventions','CF-1.0')
    call check_err(iret)
@@ -601,6 +599,7 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
 
+   LEVEL1 'init_save_bfm'
    !---------------------------------------------
    ! Enter define mode
    !---------------------------------------------
@@ -1208,6 +1207,8 @@ end subroutine init_netcdf_rst_bfm
    integer, intent(inout)              :: vars_id
    integer, intent(in)                 :: time_dim
 !
+! !REVISION HISTORY:
+!  Original author(s): Piet Ruardij
 !  Generic BFM version: Marcello Vichi
 !
 ! !LOCAL VARIABLES:
