@@ -282,8 +282,11 @@ contains
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
+   LEVEL1 'init_bfm'
+
 #ifdef BFM_PARALLEL
 
+   LEVEL2 "BFM is running in Parallel"
    parallel = .TRUE.
    ! variable parallel_rank must have been assigned previously
    ! in the coupling with the ocean model 
@@ -311,15 +314,14 @@ contains
    out_fname = trim(out_fname)//'_'//str
    rst_fname = trim(rst_fname)//'_'//str
 
+   LEVEL3 "Producing log for process rank:",parallel_rank
+
 #else
 
    LOGUNIT = 6
 
 #endif
 
-   LEVEL1 'init_bfm'
-   LEVEL2 "BFM is running in Parallel"
-   LEVEL3 "Producing log for process rank:",parallel_rank
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
    LEVEL3 "Output frequency every ",out_delta,"time-steps"
 
