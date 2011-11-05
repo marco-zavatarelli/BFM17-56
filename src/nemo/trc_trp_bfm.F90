@@ -184,11 +184,13 @@ SUBROUTINE trc_trp_bfm( kt )
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Clip negative concentrations (FIX!)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-         total = ZERO
+         total(:) = ZERO
          DO m = 1,NO_D3_BOX_STATES
             nneg(m) = 0
+            dummy(:) = ZERO
             DO k = 1,NO_BOXES
                if (D3STATE(m,k)<ZERO) THEN
+                  dummy(k) = D3STATE(m,k)
                   mass = p_small - D3STATE(m,k) ! store the mass loss
                   total(m) = total(m) + mass
                   D3STATE(m,k) = p_small
@@ -196,9 +198,12 @@ SUBROUTINE trc_trp_bfm( kt )
                END IF
             END DO
             nneg(m) = min(nneg(m),NO_BOXES-1)
-! wjm
-            if (nneg(m)>ZERO) LEVEL2 'wjm neg con kt m tot',kt,m,total(m)
-! wjm
+            if (nneg(m)>ZERO) then
+               LEVEL2 'Negative concentration at ',kt,'for ',trim(var_names(m))
+               LEVEL3 'number of negative grid points ',nneg(m)
+               LEVEL3 'largest negative value ',minval(dummy(:))
+               LEVEL3 'total mass added ',total(m),trim(var_units(m))
+            end if
          END DO
       END IF
 
