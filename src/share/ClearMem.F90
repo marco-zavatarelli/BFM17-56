@@ -29,7 +29,9 @@ subroutine ClearMem
 #ifndef NOT_STANDALONE
      deallocate(D3STATE)
      deallocate(D3SOURCE)
+#ifndef ONESOURCE
      deallocate(D3SINK)
+#endif
      deallocate(D3STATETYPE)
      deallocate(D3DIAGNOS)
      deallocate(D2DIAGNOS)
