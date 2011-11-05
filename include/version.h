@@ -1,1 +1,1 @@
-#define RELEASE "4.x"
+#define RELEASE "Created by BFM v. 4.x"

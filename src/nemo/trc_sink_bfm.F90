@@ -86,7 +86,7 @@
 !
 ! !LOCAL VARIABLES:
       integer   :: ji,jj,jk
-      real(wp)  :: dt,Yu,Yd,Yc,Dc,Dd
+      real(wp)  :: Yu,Yd,Yc,Dc,Dd
       real(wp)  :: ws(jpi,jpj,jpk),cu(jpi,jpj,jpk)
 !
 !-----------------------------------------------------------------------
@@ -178,21 +178,18 @@
       end select
 #endif
 
-!     do the vertical advection step 
+!     add the vertical advection trend to general tracer trend 
 !write(*,*) 'jk, cu(jk+1), cu(jk)' 
 Yc=0.0_wp
 Yd=0.0_wp
    do jj = 1, jpj      
       do ji = 1, jpi    
          do jk = 1, jpkm1
-            dt    = rdttra(jk) * float(nn_dttrc)
-            trn(ji,jj,jk,1) = trn(ji,jj,jk,1) + &
-                 dt*(cu(ji,jj,jk+1)-cu(ji,jj,jk))/fse3t(ji,jj,jk)
+            tra(ji,jj,jk,1) = tra(ji,jj,jk,1) + &
+                 (cu(ji,jj,jk+1)-cu(ji,jj,jk))/fse3t(ji,jj,jk)
          end do
       end do 
    end do 
-
-   trb(:,:,:,1)=trn(:,:,:,1)
 
    return
    end subroutine trc_sink_bfm
