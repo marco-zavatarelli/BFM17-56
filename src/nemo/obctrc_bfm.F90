@@ -5,7 +5,7 @@ MODULE obctrc_bfm
    !! Ocean tracers:   Radiation of tracers on each open boundary
    !!=================================================================================
 
-#if defined key_obc && defined key_bfm
+#if defined key_obcbfm
    !!---------------------------------------------------------------------------------
    !!   'key_obc'      :                                      Open Boundary Conditions
    !!---------------------------------------------------------------------------------

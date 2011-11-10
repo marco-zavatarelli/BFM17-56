@@ -90,7 +90,7 @@ CONTAINS
       USE lbclnk          ! ocean lateral boundary conditions (or mpp link)
       USE trcnam_trp      ! pasive tracers transport
       USE prtctl_trc      ! Print control for debbuging
-#ifdef key_obc
+#ifdef key_obcbfm
       USE obctrc_bfm
 #endif
 
@@ -144,7 +144,7 @@ CONTAINS
 
       END DO
 
-#if defined key_obc
+#if defined key_obcbfm
          ! Update tracers on open boundaries.
       CALL obc_trc_bfm(kt,m)
 #endif

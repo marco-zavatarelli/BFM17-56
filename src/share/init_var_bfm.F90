@@ -349,7 +349,7 @@
       end do
    endif
 
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! All variables are inizialized on obc default
   ! D3STATEOBC(:)=OBCSTATES
@@ -366,7 +366,7 @@
       D3STATE(ppB1n,:) = p_small
       D3STATE(ppB1p,:) = p_small
       D3STATETYPE(ppB1c) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
       D3STATEOBC(ppB1c) = NOOBCSTATES
 #endif
    end if
@@ -377,7 +377,7 @@
          do i = iiC,iiLastElement
             D3STATE(ppPhytoPlankton(j,i),:) = p_small
             D3STATETYPE(ppPhytoPlankton(j,i)) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
             D3STATEOBC(ppPhytoPlankton(j,i)) = NOOBCSTATES
 #endif
          end do
@@ -394,7 +394,7 @@
          do i = iiC,iiLastElement
             D3STATE(ppMesoZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMesoZooPlankton(j,i)) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
             D3STATEOBC(ppMesoZooPlankton(j,i)) = NOOBCSTATES
 #endif
          end do
@@ -411,7 +411,7 @@
          do i = iiC,iiLastElement
             D3STATE(ppMicroZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMicroZooPlankton(j,i)) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
             D3STATEOBC(ppMicroZooPlankton(j,i)) = NOOBCSTATES
 #endif
          end do
@@ -423,7 +423,7 @@
       D3STATETYPE(ppB1c) = NOTRANSPORT
       D3STATETYPE(ppB1n) = NOTRANSPORT
       D3STATETYPE(ppB1p) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
       D3STATEOBC(ppB1c) = NOOBCSTATES
       D3STATEOBC(ppB1n) = NOOBCSTATES
       D3STATEOBC(ppB1p) = NOOBCSTATES

@@ -233,7 +233,7 @@ contains
                   NO_STATES, Depth, NO_D3_BOX_FLUX,      &
                   NO_D2_BOX_FLUX
    use global_mem, only: LOGUNIT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
    use global_mem, only: LOGUNITOBC
 #endif
    IMPLICIT NONE
@@ -248,7 +248,7 @@ contains
 ! !LOCAL VARIABLES:
    integer                   :: rc,i,j,n
    character(len=PATH_MAX)   :: logfname
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
 #endif
    namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,         &
