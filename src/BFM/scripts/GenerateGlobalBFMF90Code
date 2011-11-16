@@ -630,7 +630,10 @@ switch -- $mode {
 	  set tmp SOURCE
 	  puts $VARS(file) "#ifdef D1SOURCE"
 	  PrintLine -print "real(RLEN),public,pointer,dimension(:,:) :: D${i}${tmp}"
+          set tmp SINK
+          PrintLine -print "real(RLEN),public,pointer,dimension(:,:) :: D${i}${tmp}"
 	  puts $VARS(file)  "#else"
+	  set tmp SOURCE
 	  PrintLine -print "real(RLEN),public,pointer,dimension(:,:,:) :: D${i}${tmp}"
 	  set tmp SINK
 	  PrintLine -print "real(RLEN),public,pointer,dimension(:,:,:) :: D${i}${tmp}"
