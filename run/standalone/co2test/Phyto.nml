@@ -1,0 +1,112 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model 
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!BOP
+!
+! !ROUTINE: Phyto
+!
+! DESCRIPTION
+!   List of parameter values
+!   for mem_Phyto filled by InitPhyto
+!
+! AUTHORS
+!   the BFM team
+!
+! COPYING
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
+!EOP
+!-------------------------------------------------------------------------!
+!BOC
+!        :
+!        :  	 ---------------- Physiological parameters -----------------
+!        :
+!  p_q10:  	 Doubling temperature
+!  p_sum:  	 Maximal productivity at 10 degrees C
+!  p_srs:  	 Respiration rate at 10 degrees C
+!  p_sdmo:  	 Max.specific nutrient-stress lysis rate
+!  p_thdo:  	 Half value for nutrient stress lysis
+!  p_seo:  	 Extra lysis rate for P4
+!  p_pu_ea:  	 Fraction of pp excreted as PLOC/PDET
+!  p_pu_ra:  	 Activity respiration rate
+!        
+!         	 ---------------- Nutrient parameters in phytoplankton -----------------
+!       
+!  p_netgrowth:  logical switch for nutrient-limited growth (true is default)
+!  p_limnut:  	 switch for nut. limitation (Liebig is default)
+!  p_chPs:  	 half-value of SIO4-lim (mmol Si m-3)
+!  p_qslc:  	 Minimum quotum Si in PI
+!  p_qsRc:  	 Reference quotum Si in PI
+!  p_xqs:  	 factor for max quotum S
+!  p_qus:  	 affinity of PI for Si
+!  p_alpha_chl:  	 Initial slope P-I curve
+!      
+!       	 ------------- Chlorophyll parameters -----------
+!       	 skel: Skeletonema costatum pav: Pavlova lutheri
+!       	 syn: Synechoccus sp. (significant alpha decrease with irradiance)
+!       	 gyr: Gyrodinium sp. iso: Isochrysis galbana
+!       	             skel     iso      syn      gyr
+!  p_sdchl:  	 Specific turnover rate for Chla (d-1)
+!       	p_qchlc =    0.03,    0.025,   0.1,     0.02    # Maximum quotum Chla:C
+!       	            +-0.024  +-0.001  +-0.003  +-0.004
+!       	 Thalassiosira sp. (0.05+-0.01)
+!       	             skel     pav      syn      gyr
+!  p_esNI:  	 Nutrient stress threshold for Sinking
+!       	p_alpha_chl = 1.0d-5, 0.46d-5*2.0, 2.0d-5, 0.68d-5 # Initial slope P-I curve
+!       	 Thalassiosira sp. (0.48-0.63)
+!  p_res:  	Maximum Sinking velocity (m/d)
+!  p_qchlc  = 0.05,      0.03,      0.07,      0.02 # Maximum quotum Chla:C
+!       	 ------------- silicate limitation control: -----------
+!             p_qus > 0.0  : silica limitation is controlled by internal quoata
+!             p_chPs > 0.0 : silica limitation is controlled by external concentration of N5s
+!             p_qus==0 and p_chPs==0  : there is no silica component defined in cell
+!             p_qus has prefwerence above p_chPs!
+
+!               P1	P2	P3	P4
+&Phyto_parameters
+     p_limnut = 1,	1,	1,	1
+  p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
+        p_q10 = 2.0,	2.0,	2.0,	2.0
+        p_sum = 2.5,	3.0,	3.5,	0.5
+        p_srs = 0.1,	0.05,	0.1,	0.1
+       p_sdmo = 0.0,	0.0,	0.0,	0.0
+        p_seo = 0.0,	0.0,	0.0,	0.0
+      p_pu_ea = 0.05,	0.1,	0.1,	0.15
+      p_pu_ra = 0.1,	0.1,	0.2,	0.1
+       p_qnlc = 6.87d-3,6.87d-3,6.87d-3,6.87d-3
+       p_qplc = 4.29d-4,4.29d-4,4.29d-4,4.29d-4
+       p_qslc = 4.3d-3,	0.0,	0.0,	0.0
+       p_qnRc = 1.26d-2,1.26d-2,1.26d-2,1.26d-2
+       p_qpRc = 7.86d-4,7.86d-4,7.86d-4,7.86d-4
+       p_qsRc = 8.5d-3,	0.0,	0.0,	0.0
+        p_qun = 0.025,	0.025,	0.025,	0.025
+        p_qup = 2.5d-3,	2.5d-3,	2.5d-3,	2.5d-3
+        p_qus = 0.0,	0.0,	0.0,	0.0
+        p_xqn = 2.0,	2.0,	2.0,	2.0
+        p_xqp = 2.0,	2.0,	2.0,	2.0
+        p_xqs = 1.0,	0.0,	0.0,	0.0
+       p_esNI = 0.7,	0.75,	0.75,	0.75
+       p_thdo = 0.1,	0.1,	0.1,	0.1
+       p_res  = 0.0,	0.0,	0.0,	0.0
+       p_lN4  = 1.0,	0.5,	0.1,	1.0
+       p_chPs = 0.3,	0.0,	0.0,	0.0
+  p_alpha_chl = 5.8d-6,	1.1d-5,	1.1d-5,	6.8d-6
+      p_sdchl = 0.2,	0.2,	0.2,	0.2
+/
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!END namelist
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+!EOC
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model 
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
