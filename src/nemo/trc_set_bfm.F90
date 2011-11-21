@@ -73,12 +73,9 @@
          ! level KSINK (usually > 150 m)
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
          wbio(:,:,KSINK:jpk) = -p_rR6m
-
-         !CALL trc_sink_muscl_bfm(wbio)       ! vertical sinking
          CALL trc_sink_bfm(wbio)       ! vertical sinking
       case (ppR6c,ppR6n,ppR6p,ppR6s)
          wbio = -p_rR6m
-         !CALL trc_sink_muscl_bfm(wbio)       ! vertical sinking
          CALL trc_sink_bfm(wbio)       ! vertical sinking
       case default
          wbio = 0.0_RLEN

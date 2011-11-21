@@ -41,6 +41,7 @@
    use iom
    use sbc_oce, only: ln_rnf
    use trc_oce, only: etot3
+   use trcdta
 
    IMPLICIT NONE
 !
@@ -234,6 +235,18 @@
    ! Done if restart is not used
    !-------------------------------------------------------
    if (bfm_init /= 1) then
+      ! this is done for compatibility with NEMO variables
+      if (allocated(ln_trc_ini)) then
+         deallocate(ln_trc_ini)
+         allocate(ln_trc_ini(NO_D3_BOX_STATES))
+         ln_trc_ini(:) = .false.
+         do m = 1,NO_D3_BOX_STATES
+            if (InitVar(m) % flag == 2) ln_trc_ini(m) = .true.
+         end do
+      end if
+      ! initialize the data structure for input fields
+      ! found in the top_namelist
+      call trc_dta_init
       do m = 1,NO_D3_BOX_STATES
          select case (InitVar(m) % flag)
          case (1) ! Analytical profile
@@ -247,19 +260,28 @@
             end do
             D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
          case (2) ! from file
-            rtmp3Db = ZERO
             if (lwp) write(LOGUNIT,*) 'Initializing BFM variable ',trim(var_names(stPelStateS+m-1))
-            if (lwp) write(LOGUNIT,*) 'from file ',trim(InitVar(m) % filename)
-            call iom_open ( InitVar(m) % filename, nc_id )
-            call iom_get (nc_id,jpdom_data,InitVar(m) % varname,rtmp3Db(:,:,:),1)
-            D3STATE(m,:)  = pack(rtmp3Db,SEAmask)
-            call iom_close(nc_id)
+            ! mapping index
+            ll = n_trc_index(m)
+            call trc_dta(nit000,sf_trcdta(ll),rf_trfac(ll))
+            D3STATE(m,:)  = pack(sf_trcdta(ll)%fnow(:,:,:),SEAmask)
          end select
       end do
    end if
 
    deallocate(rtmp3Da)
    deallocate(rtmp3Db)
+
+!   IF( nb_trcdta > 0 .AND. .NOT.ln_trcdmp ) THEN
+   IF( nb_trcdta > 0 ) THEN
+      !==   deallocate data structure   ==! 
+      !        data used only for initialisation)
+      IF(lwp) WRITE(numout,*) 'trc_dta: deallocate data arrays as they are only use to initialize the run'
+      DO ll = 1, ntra
+                                       DEALLOCATE( sf_trcdta(ll)%fnow )     !  arrays in the structure
+         IF( sf_trcdta(ll)%ln_tint )   DEALLOCATE( sf_trcdta(ll)%fdta )
+      ENDDO
+   ENDIF
 
    !-------------------------------------------------------
    ! initialise netcdf output
