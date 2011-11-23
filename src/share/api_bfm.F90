@@ -102,6 +102,10 @@
    ! options for flag==2
    ! char filename: name of the input file
    ! char  varname: name of the var in input file
+   ! Options currently used when coupled with NEMO
+   ! logical obc: variable has open boundary data
+   ! logical sbc: variable has surface boundary data
+   ! logical cbc: variable has coastal boundary data
    !---------------------------------------------
    type InputInfo
       integer           :: flag
@@ -111,6 +115,9 @@
       real(RLEN)        :: anv1
       real(RLEN)        :: anz2
       real(RLEN)        :: anv2
+      logical           :: obc
+      logical           :: sbc
+      logical           :: cbc
    end type InputInfo
    type(InputInfo),dimension(NO_D3_BOX_STATES) :: InitVar
 

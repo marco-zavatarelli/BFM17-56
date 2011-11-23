@@ -21,11 +21,6 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    !! ** Action  : - Update the 1st level of tra with the trend associated
    !!                with the tracer surface boundary condition 
    !!
-   !! History :
-   !!   8.2  !  98-10  (G. Madec, G. Roullet, M. Imbard)  Original code
-   !!   8.2  !  01-02  (D. Ludicone)  sea ice and free surface
-   !!   8.5  !  02-06  (G. Madec)  F90: Free form and module
-   !!   9.0  !  04-03  (C. Ethe)  adapted for passive tracers
    !! This software is governed by the CeCILL licence see modipsl/doc/NEMO_CeCILL.txt 
    !! Adapted to usage with the BFM by M. Vichi (CMCC-INGV)
    !! Added runoff input of tracer concentrations
@@ -37,6 +32,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    USE sbcrnf               ! contains river runoff (kg/m2/s) and river mask
    USE trc                  ! ocean  passive tracers variables
    USE fldread
+   USE trcbc
 
    ! BFM
    use api_bfm
@@ -52,14 +48,31 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    integer, intent(IN)     ::  m      ! BFM variable index
 
    !! * Local declarations
-   INTEGER  ::   ji, jj, jn           ! dummy loop indices
-   REAL(wp) ::   ztra, zsrau, zse3t   ! temporary scalars
+   INTEGER  ::   ji, jj, jn             ! dummy loop indices
+   REAL(wp) ::   ztra, zsrau, zse3t     ! temporary scalars
+   TYPE(FLD), DIMENSION(1) ::   sf_dta  ! temporary array of information on the field to read
    !!----------------------------------------------------------------------
 
 
-   ! 0. initialization
+   ! initialization of density and scale factor
    zsrau = 1. / rau0
    IF( .NOT. ln_sco )  zse3t = 1. / fse3t(1,1,1)
+
+    ! read and add surface input flux if needed
+    IF (ln_trc_sbc(m)) THEN
+       jn = n_trc_indsbc(m)
+       sf_dta = sf_trcsbc(jn)
+       CALL fld_read( kt, 1, sf_dta )
+       tra(:,:,1,1) = tra(:,:,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(:,:,1) ! MAV: no change of time units, check input
+    END IF
+
+    ! Add mass from prescribed river concentration
+    IF (ln_rnf .AND. ln_trc_cbc(m)) THEN
+       jn = n_trc_indcbc(m)
+       sf_dta = sf_trccbc(jn)
+       CALL fld_read( kt, 1, sf_dta )
+       tra(:,:,1,1) = tra(:,:,1,1) - zsrau*sf_rnf(1)%fnow(:,:,1)*sf_trccbc(jn)%fnow(:,:,1)/fse3t(:,:,1) 
+    END IF
 
     ! Concentration and dilution effect on tra
     DO jj = 2, jpj
@@ -72,13 +85,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
         END DO
     END DO
        
-    IF (ln_rnf) THEN
-       ! Add mass from prescribed river concentration
-       allocate(rtmp2d(jpi,jpj))
-       rtmp2d(:,:) = unpack(PELRIVER(m,:),SEAmask(:,:,1),ZEROS(:,:,1))
-       tra(:,:,1,1) = tra(:,:,1,1) - zsrau*sf_rnf(1)%fnow(:,:,1)*rtmp2d(:,:)/fse3t(:,:,1) 
-       deallocate(rtmp2d)
-    END IF
+
 
    END SUBROUTINE trc_sbc_bfm
 

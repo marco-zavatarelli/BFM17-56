@@ -315,34 +315,34 @@
       D2STATEB = D2STATE
 #endif
 
-   if (ln_rnf) then
-      !-------------------------------------------------------
-      ! Fill-in the initial river concentration
-      ! MAV: the strategy is to assign the initial values for
-      ! selected variables. Since the mask is zero elsewhere,
-      ! the initial concentration close to the mouth is used
-      !-------------------------------------------------------
-      PELRIVER(ppO2o,:) = RIVmask(:)*D3STATE(ppO2o,SRFindices)
-      PELRIVER(ppN1p,:) = RIVmask(:)*D3STATE(ppN1p,SRFindices)
-      PELRIVER(ppN3n,:) = RIVmask(:)*D3STATE(ppN3n,SRFindices)
-      PELRIVER(ppN4n,:) = RIVmask(:)*D3STATE(ppN4n,SRFindices)
-      PELRIVER(ppN5s,:) = RIVmask(:)*D3STATE(ppN5s,SRFindices)
-#ifdef INCLUDE_PELCO2
-      PELRIVER(ppO3c,:) = D3STATE(ppO3c,SRFindices)
-      PELRIVER(ppO3h,:) = D3STATE(ppO3h,SRFindices)
-#endif
-   end if
 
    ! Initialise the array containing light bioshading
    !-------------------------------------------------------
    if ( ln_qsr_bio ) etot3(:,:,:) = ZERO
 
-#if defined key_obc
+   ! Initialise the arrays containing BC flags
    !-------------------------------------------------------
-   ! initialize obc with the BFM
-   !-------------------------------------------------------
-      CALL trcobc_init_bfm
-#endif
+   if (allocated(ln_trc_obc)) then
+      deallocate(ln_trc_obc)
+      allocate(ln_trc_obc(NO_D3_BOX_STATES))
+      ln_trc_obc(:) = .false.
+   end if
+   if (allocated(ln_trc_sbc)) then
+      deallocate(ln_trc_sbc)
+      allocate(ln_trc_sbc(NO_D3_BOX_STATES))
+      ln_trc_sbc(:) = .false.
+   end if
+   if (allocated(ln_trc_cbc)) then
+      deallocate(ln_trc_cbc)
+      allocate(ln_trc_cbc(NO_D3_BOX_STATES))
+      ln_trc_cbc(:) = .false.
+   end if
+   do m = 1,NO_D3_BOX_STATES
+      if (InitVar(m) % obc) ln_trc_obc(m) = .true.
+      if (InitVar(m) % sbc) ln_trc_sbc(m) = .true.
+      if (InitVar(m) % cbc) ln_trc_cbc(m) = .true.
+   end do
+
    return
 
    end subroutine trc_ini_bfm

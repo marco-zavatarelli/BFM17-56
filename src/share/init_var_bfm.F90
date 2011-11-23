@@ -161,7 +161,7 @@
    ! data. The namelist values override the
    ! assignment
    !---------------------------------------------
-   InitVar = InputInfo(0,"dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO)
+   InitVar = InputInfo(0,"dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO,.FALSE.,.FALSE.,.FALSE.)
 
    !---------------------------------------------
    ! Open and read the namelist
