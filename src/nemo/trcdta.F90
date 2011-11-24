@@ -21,14 +21,13 @@ MODULE trcdta
    USE lib_mpp       !  MPP library
    USE fldread       !  read input fields
 
-   USE mem, ONLY: NO_D3_BOX_STATES
-
    IMPLICIT NONE
    PRIVATE
 
    PUBLIC   trc_dta         ! called in trcini.F90 and trcdmp.F90
    PUBLIC   trc_dta_init    ! called in trcini.F90 
 
+   INTEGER  , PARAMETER, PUBLIC                        :: MAXTRC=100  ! maximum number of tracers 
    INTEGER  , SAVE, PUBLIC                             :: nb_trcdta   ! number of tracers to be initialised with data
    INTEGER  , SAVE, PUBLIC, ALLOCATABLE, DIMENSION(:)  :: n_trc_index ! indice of tracer which is initialised with data
    INTEGER  , SAVE, PUBLIC                             :: ntra        ! MAX( 1, nb_trcdta ) to avoid compilation error with bounds checking
@@ -47,7 +46,7 @@ LOGICAL , PUBLIC, PARAMETER :: lk_dtatrc = .FALSE. !: temperature data flag
    !!----------------------------------------------------------------------
 CONTAINS
 
-   SUBROUTINE trc_dta_init
+   SUBROUTINE trc_dta_init(ntrc)
       !!----------------------------------------------------------------------
       !!                   ***  ROUTINE trc_dta_init  ***
       !!                    
@@ -57,15 +56,16 @@ CONTAINS
       !!              - allocates passive tracer data structure 
       !!----------------------------------------------------------------------
       !
+      INTEGER,INTENT(IN) :: ntrc
       INTEGER            :: jl, jn                   ! dummy loop indicies
       INTEGER            :: ierr0, ierr1, ierr2, ierr3       ! temporary integers
       CHARACTER(len=100) :: clndta, clntrc
       REAL(wp)           :: zfact
       !
       CHARACTER(len=100) :: cn_dir
-      TYPE(FLD_N), DIMENSION(NO_D3_BOX_STATES) :: slf_i     ! array of namelist informations on the fields to read
-      TYPE(FLD_N), DIMENSION(NO_D3_BOX_STATES) :: sn_trcdta
-      REAL(wp)   , DIMENSION(NO_D3_BOX_STATES) :: rn_trfac    ! multiplicative factor for tracer values
+      TYPE(FLD_N), ALLOCATABLE, DIMENSION(:) :: slf_i     ! array of namelist informations on the fields to read
+      TYPE(FLD_N), DIMENSION(MAXTRC) :: sn_trcdta
+      REAL(wp)   , DIMENSION(MAXTRC) :: rn_trfac    ! multiplicative factor for tracer values
       !!
       NAMELIST/namtrc_dta/ sn_trcdta, cn_dir, rn_trfac 
       !!----------------------------------------------------------------------
@@ -73,13 +73,13 @@ CONTAINS
       !  Initialisation
       ierr0 = 0  ;  ierr1 = 0  ;  ierr2 = 0  ;  ierr3 = 0  
       ! Compute the number of tracers to be initialised with data
-      ALLOCATE( n_trc_index(NO_D3_BOX_STATES), STAT=ierr0 )
+      ALLOCATE( n_trc_index(ntrc), slf_i(ntrc), STAT=ierr0 )
       IF( ierr0 > 0 ) THEN
          CALL ctl_stop( 'trc_nam: unable to allocate n_trc_index' )   ;   RETURN
       ENDIF
       nb_trcdta      = 0
       n_trc_index(:) = 0
-      DO jn = 1, NO_D3_BOX_STATES
+      DO jn = 1, ntrc
          IF( ln_trc_ini(jn) ) THEN
              nb_trcdta       = nb_trcdta + 1 
              n_trc_index(jn) = nb_trcdta 
@@ -88,12 +88,12 @@ CONTAINS
       !
       ntra = MAX( 1, nb_trcdta )   ! To avoid compilation error with bounds checking
       WRITE(numout,*) ' '
-      WRITE(numout,*) ' number of passive tracers to be initialize by data :', ntra
+      WRITE(numout,*) ' number of passive tracers to be initialized by data :', nb_trcdta
       WRITE(numout,*) ' '
       !                         ! allocate the arrays (if necessary)
       !
       cn_dir  = './'            ! directory in which the model is executed
-      DO jn = 1, NO_D3_BOX_STATES
+      DO jn = 1, ntrc
          WRITE( clndta,'("TR_",I1)' ) jn
          clndta = TRIM( clndta )
          !                 !  file      ! frequency ! variable  ! time intep !  clim   ! 'yearly' or ! weights  ! rotation !
@@ -107,7 +107,7 @@ CONTAINS
       READ  ( numnat, namtrc_dta )
 
       IF( lwp ) THEN
-         DO jn = 1, NO_D3_BOX_STATES
+         DO jn = 1, ntrc
             IF( ln_trc_ini(jn) )  THEN    ! open input file only if ln_trc_ini(jn) is true
                clndta = TRIM( sn_trcdta(jn)%clvar ) 
                zfact  = rn_trfac(jn)
@@ -123,7 +123,7 @@ CONTAINS
             CALL ctl_stop( 'trc_dta_ini: unable to allocate  sf_trcdta structure' )   ;   RETURN
          ENDIF
          !
-         DO jn = 1, NO_D3_BOX_STATES
+         DO jn = 1, ntrc
             IF( ln_trc_ini(jn) ) THEN      ! update passive tracers arrays with input data read from file
                jl = n_trc_index(jn)
                slf_i(jl)    = sn_trcdta(jn)

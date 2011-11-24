@@ -122,15 +122,15 @@ CONTAINS
       ENDDO
       ntra_obc = MAX( 1, nb_trcobc )   ! To avoid compilation error with bounds checking
       WRITE(numout,*) ' '
-      WRITE(numout,*) ' number of passive tracers to be initialized with open boundary data :', ntra_obc
+      WRITE(numout,*) ' number of passive tracers to be initialized with open boundary data :', nb_trcobc
       WRITE(numout,*) ' '
       ntra_sbc = MAX( 1, nb_trcsbc )   ! To avoid compilation error with bounds checking
       WRITE(numout,*) ' '
-      WRITE(numout,*) ' number of passive tracers to be initialized with surface boundary data :', ntra_sbc
+      WRITE(numout,*) ' number of passive tracers to be initialized with surface boundary data :', nb_trcsbc
       WRITE(numout,*) ' '
-      ntra_sbc = MAX( 1, nb_trccbc )   ! To avoid compilation error with bounds checking
+      ntra_cbc = MAX( 1, nb_trccbc )   ! To avoid compilation error with bounds checking
       WRITE(numout,*) ' '
-      WRITE(numout,*) ' number of passive tracers to be initialized with coastal boundary data :', ntra_cbc
+      WRITE(numout,*) ' number of passive tracers to be initialized with coastal boundary data :', nb_trccbc
 
       ! Initialize the namelists with default values
       cn_dir  = './'            ! directory in which the model is executed

@@ -42,6 +42,7 @@
    use sbc_oce, only: ln_rnf
    use trc_oce, only: etot3
    use trcdta
+   use trcbc
 
    IMPLICIT NONE
 !
@@ -236,19 +237,17 @@
    !-------------------------------------------------------
    if (bfm_init /= 1) then
       ! this is done for compatibility with NEMO variables
-      if (allocated(ln_trc_ini)) then
-         deallocate(ln_trc_ini)
-         allocate(ln_trc_ini(NO_D3_BOX_STATES))
-         ln_trc_ini(:) = .false.
-         do m = 1,NO_D3_BOX_STATES
-            if (InitVar(m) % flag == 2) ln_trc_ini(m) = .true.
-         end do
-      end if
+      if (allocated(ln_trc_ini)) deallocate(ln_trc_ini)
+      allocate(ln_trc_ini(NO_D3_BOX_STATES))
+      ln_trc_ini(:) = .false.
+      do m = 1,NO_D3_BOX_STATES
+         if (InitVar(m) % init == 2) ln_trc_ini(m) = .true.
+      end do
       ! initialize the data structure for input fields
       ! found in the top_namelist
-      call trc_dta_init
+      call trc_dta_init(NO_D3_BOX_STATES)
       do m = 1,NO_D3_BOX_STATES
-         select case (InitVar(m) % flag)
+         select case (InitVar(m) % init)
          case (1) ! Analytical profile
             rtmp3Da = ZERO
             ! fsdept contains the model depth
@@ -260,7 +259,8 @@
             end do
             D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
          case (2) ! from file
-            if (lwp) write(LOGUNIT,*) 'Initializing BFM variable ',trim(var_names(stPelStateS+m-1))
+            if (lwp) write(numout,*) '            Initializing BFM variable ', &
+                     trim(var_names(stPelStateS+m-1)),' from file'
             ! mapping index
             ll = n_trc_index(m)
             call trc_dta(nit000,sf_trcdta(ll),rf_trfac(ll))
@@ -320,28 +320,23 @@
    !-------------------------------------------------------
    if ( ln_qsr_bio ) etot3(:,:,:) = ZERO
 
-   ! Initialise the arrays containing BC flags
+   ! Initialise the arrays containing external boundary data
    !-------------------------------------------------------
-   if (allocated(ln_trc_obc)) then
-      deallocate(ln_trc_obc)
+   if (allocated(ln_trc_obc)) deallocate(ln_trc_obc)
       allocate(ln_trc_obc(NO_D3_BOX_STATES))
       ln_trc_obc(:) = .false.
-   end if
-   if (allocated(ln_trc_sbc)) then
-      deallocate(ln_trc_sbc)
+   if (allocated(ln_trc_sbc)) deallocate(ln_trc_sbc)
       allocate(ln_trc_sbc(NO_D3_BOX_STATES))
       ln_trc_sbc(:) = .false.
-   end if
-   if (allocated(ln_trc_cbc)) then
-      deallocate(ln_trc_cbc)
+   if (allocated(ln_trc_cbc)) deallocate(ln_trc_cbc)
       allocate(ln_trc_cbc(NO_D3_BOX_STATES))
       ln_trc_cbc(:) = .false.
-   end if
    do m = 1,NO_D3_BOX_STATES
       if (InitVar(m) % obc) ln_trc_obc(m) = .true.
       if (InitVar(m) % sbc) ln_trc_sbc(m) = .true.
       if (InitVar(m) % cbc) ln_trc_cbc(m) = .true.
    end do
+   call trc_bc_init
 
    return
 

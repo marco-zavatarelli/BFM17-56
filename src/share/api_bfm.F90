@@ -89,17 +89,17 @@
    real(RLEN), dimension(:), allocatable   :: c1dim
 
    !---------------------------------------------
-   ! BFM variable information for input
-   ! integer flag: select the initialization
+   ! BFM variable information for data input
+   ! integer init: select the initialization
    !               0 = homogeneous
    !               1 = analytical
    !               2 = from file
-   ! options for flag==1
+   ! options for init==1
    ! real anv1: value in the surface layer
    ! real anz1: depth of the surface layer
    ! real anv2: value in the bottom layer
    ! real anz2: depth of the bottom layer
-   ! options for flag==2
+   ! options for init==2
    ! char filename: name of the input file
    ! char  varname: name of the var in input file
    ! Options currently used when coupled with NEMO
@@ -108,7 +108,7 @@
    ! logical cbc: variable has coastal boundary data
    !---------------------------------------------
    type InputInfo
-      integer           :: flag
+      integer           :: init
       character(LEN=40) :: filename
       character(LEN=40) :: varname
       real(RLEN)        :: anz1
