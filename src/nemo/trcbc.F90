@@ -172,6 +172,8 @@ CONTAINS
       ENDIF
       !
       ! The following code is written this way to reduce memory usage and repeated for each boundary data
+!MAV: note that this is just a placeholder and the dimensions must be changed according to 
+!     what will be done with BDY. A new structure will probably need to be included
       IF( nb_trcobc > 0 ) THEN       !  allocate only if the number of tracer to initialise is greater than zero
          ALLOCATE( sf_trcobc(nb_trcobc), rf_trofac(nb_trcobc), STAT=ierr1 )
          IF( ierr1 > 0 ) THEN
@@ -207,8 +209,8 @@ CONTAINS
                jl = n_trc_indsbc(jn)
                slf_i(jl)    = sn_trcsbc(jn)
                rf_trsfac(jl) = rn_trsfac(jn)
-                                            ALLOCATE( sf_trcsbc(jl)%fnow(jpi,jpj,jpk)   , STAT=ierr2 )
-               IF( sn_trcsbc(jn)%ln_tint )  ALLOCATE( sf_trcsbc(jl)%fdta(jpi,jpj,jpk,2) , STAT=ierr3 )
+                                            ALLOCATE( sf_trcsbc(jl)%fnow(jpi,jpj,1)   , STAT=ierr2 )
+               IF( sn_trcsbc(jn)%ln_tint )  ALLOCATE( sf_trcsbc(jl)%fdta(jpi,jpj,1,2) , STAT=ierr3 )
                IF( ierr2 + ierr3 > 0 ) THEN
                  CALL ctl_stop( 'trc_bc_init : unable to allocate passive tracer SBC data arrays' )   ;   RETURN
                ENDIF
@@ -231,8 +233,8 @@ CONTAINS
                jl = n_trc_indcbc(jn)
                slf_i(jl)    = sn_trccbc(jn)
                rf_trcfac(jl) = rn_trcfac(jn)
-                                            ALLOCATE( sf_trccbc(jl)%fnow(jpi,jpj,jpk)   , STAT=ierr2 )
-               IF( sn_trccbc(jn)%ln_tint )  ALLOCATE( sf_trccbc(jl)%fdta(jpi,jpj,jpk,2) , STAT=ierr3 )
+                                            ALLOCATE( sf_trccbc(jl)%fnow(jpi,jpj,1)   , STAT=ierr2 )
+               IF( sn_trccbc(jn)%ln_tint )  ALLOCATE( sf_trccbc(jl)%fdta(jpi,jpj,1,2) , STAT=ierr3 )
                IF( ierr2 + ierr3 > 0 ) THEN
                  CALL ctl_stop( 'trc_bc : unable to allocate passive tracer CBC data arrays' )   ;   RETURN
                ENDIF
@@ -240,7 +242,7 @@ CONTAINS
             !   
          ENDDO
          !                         ! fill sf_trccbc with slf_i and control print
-         CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trc_obc', 'Passive tracer CBC data', 'namtrc_bc' )
+         CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trccbc', 'Passive tracer CBC data', 'namtrc_bc' )
          !
       ENDIF
 

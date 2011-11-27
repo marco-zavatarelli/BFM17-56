@@ -645,8 +645,8 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Store the initial conditions
    !---------------------------------------------
-   ltime=0.0
-   call save_bfm(ltime)
+   !ltime=0.0
+   !call save_bfm(ltime)
 
    return
    end subroutine init_save_bfm
