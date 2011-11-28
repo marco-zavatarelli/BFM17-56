@@ -2,16 +2,23 @@
 ## Configuration file for Pelagic BFM STANDALONE
 #  This script creates a directory BLD_STANDALONE with the appropriate 
 #  makefile
-#  Current available macros (cppdefs) are:
-#  INCLUDE_PELCO2
+
+#  Currently available macros (cppdefs) are:
+#  INCLUDE_SILT
+#  INCLUDE_PELCO2, INCLUDE_BENCO2
+#  INCLUDE_BEN, INCLUDE_BENPROFILES
 #  INCLUDE_SEAICE
-#  INCLUDE_DIAG3D
+#  INCLUDE_DIAG3D, INCLUDE_DIAG2D
+
 #  Warning: still not working for benthic BFM
+#           don't use DIAG with D1SOURCE and ONESOURCE
 
 #----------------- User configuration -----------------
-archfile="${BFMDIR}/compilers/gfortran.inc"
-cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
+archfile="${BFMDIR}/compilers/mpxlf90_calypso.inc"
 exe=${BFMDIR}/bin/bfm_standalone.x
+
+cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2"
+myGlobalDef="GlobalDefsBFM.model.standard"
 #----------------- User configuration -----------------
 #set -xv
 
@@ -19,6 +26,7 @@ if [ "${BFMDIR}" = "" ]; then
    echo "Environmental variable BFMDIR not defined!"
    exit 0
 fi
+# set makefile options and destination
 BLDDIR="./BLD_STANDALONE"
 MKMF="${BFMDIR}/bin/mkmf"
 oflags="-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include"
@@ -28,14 +36,18 @@ if [ ! -d ${BLDDIR} ]; then
 fi
 
 cd ${BLDDIR}
+# Link to the configuration file
+ ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model
 
 # generate BFM files
-${BFMDIR}/src/BFM/scripts/GenerateGlobalBFMF90Code   ${cppdefs} \
-        -read ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model \
-        -from ${BFMDIR}/src/BFM/proto -to ${BFMDIR}/src/BFM/General \
-        -actions statemem allocmem netcdfmem \
-        -to ${BFMDIR}/src/BFM/include -actions headermem
+${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code  ${cppdefs} \
+          -read ${BFMDIR}/build/Configurations/${myGlobalDef} \
+          -from ${BFMDIR}/src/BFM/proto \
+          -to ${BFMDIR}/src/BFM/General -actions statemem allocmem netcdfmem \
+          -to ${BFMDIR}/src/BFM/include -actions headermem \
+          -to ${BFMDIR}/src/share -actions initmem
 
+# list files
 find ${BFMDIR}/src/BFM/General -name "*.?90" -print > BFM.lst
 find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/share -name "*.?90" -print >> BFM.lst
@@ -46,4 +58,5 @@ find ${BFMDIR}/src/BFM/Light -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
 
+# Make makefile
 ${MKMF} -c "${cppdefs}" -o "${oflags}" -t ${archfile} -p ${exe} BFM.lst

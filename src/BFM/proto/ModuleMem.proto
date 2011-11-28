@@ -110,7 +110,7 @@
         integer,public  ::NO_BOXES_XY
         integer,parameter,public  ::iiPel= 0
         integer,parameter,public  ::iiBen= 1000
-        integer,parameter,public  ::iiRESET= -1000
+        integer,parameter,public  ::iiReset= -1000
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! GLOBAL definition of Pelagic (D3) state variables

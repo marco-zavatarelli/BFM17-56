@@ -84,7 +84,11 @@
          IF (nstep.eq.1) THEN
             LEVEL1 'Necessary Time Step too small! Exiting...'
             blccc(:,1)=minloc(D3STATE)
+#ifdef ONESOURCE
+            bbccc3D = sum(D3SOURCE(:,:,:),2)
+#else
             bbccc3D = sum(D3SOURCE(:,:,:)-D3SINK(:,:,:),2)
+#endif
             LEVEL1 'Pelagic Variable:',trim(var_names(stPelStateS+blccc(1,1)-1))
             LEVEL1 'Value: ',D3STATE(blccc(1,1),blccc(2,1)),' Rate: ', &
                         bbccc3D(blccc(1,1),blccc(2,1))

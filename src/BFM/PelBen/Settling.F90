@@ -35,7 +35,7 @@
     ppR6s, ppPhytoPlankton, &
     NO_BOXES_XY, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
     jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, sediR6, iiPhytoPlankton, &
-    iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
+    iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
 #endif
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
   use mem_Settling

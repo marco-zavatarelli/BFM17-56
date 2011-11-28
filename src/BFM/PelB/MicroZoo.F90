@@ -25,10 +25,10 @@
 #else
   use mem, ONLY: D3STATE, B1c, B1n, B1p, O2o, R1c, R6c, R1n, R6n, &
     R2c,R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton
-  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppO3c, ppR1c, ppR6c, Depth,&
+  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppO3c, ppR1c, ppR6c, ppR6s, Depth,&
     ppR1n, ppR6n, ppR1p, ppR6p, ppN4n, ppN1p, ppPhytoPlankton, ppMicroZooPlankton, &
-    flP1R6s, ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, &
-    qlPc, qsPc, iiPhytoPlankton, iiMicroZooPlankton, iiP1, iiC, iiN, iiP, iiL, &
+    ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, &
+    qlPc, qsPc, iiPhytoPlankton, iiMicroZooPlankton, iiC, iiN, iiP, iiL, iiS, &
     NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
 #ifdef BFM_GOTM
   use mem, ONLY: jnetMiZc
@@ -262,11 +262,14 @@
     ! Chl is transferred to the sink
     call flux_vector( iiPel, ppPhytoPlankton(i,iiL),ppPhytoPlankton(i,iiL),-( &
       ruPIc* qlPc(i,:)) )
-    if ( i== iiP1) then
       ! P1s is directly transferred to R6s
       ! PhytoPlankton[i].s -> R6.s = ruPIc * qsPc[i];
-      flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
-    end if
+!tom:if ( i== iiP1) then
+!      flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
+!    end if
+    if ( ppPhytoPlankton(i,iiS) .gt. 0 ) &
+    call flux_vector( iiPel, ppPhytoPlankton(i,iiS), &
+               ppR6s,+(ruPIc* qsPc(i,:)) )
 
     rugn  =   rugn+ ruPIc* qnPc(i,:)
     rugp  =   rugp+ ruPIc* qpPc(i,:)

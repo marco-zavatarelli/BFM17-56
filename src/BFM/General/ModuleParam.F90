@@ -200,12 +200,17 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   LEVEL1 "#  Reading Param parameters.."
+   LEVEL1 "#  Reading BFM parameters .."
    open(NMLUNIT,file='Param.nml',status='old',action='read',err=100)
    read(NMLUNIT,nml=Param_parameters,err=101)
    close(NMLUNIT)
-   LEVEL1 "#  Namelist is:"
-   if (bfm_lwp) write(LOGUNIT,nml=Param_parameters)
+! tom:   LEVEL1 "#  Namelist is:"
+   if (bfm_lwp) then 
+    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"      
+    write(LOGUNIT,*) "#  Reading Param parameters.. "
+    write(LOGUNIT,*) "#  Namelist is:"
+    write(LOGUNIT,nml=Param_parameters)
+   endif 
    ! These initializations are done here because some compilers do not
    ! allow the initialization of constants with intrinsic functions
    MIN_VAL_EXPFUN=log(DBL_MIN)  

@@ -470,6 +470,7 @@ foreach todir $ltodir  todo $ltodo {
        allocmem  { set infile AllocateMem.proto; set ext F90 }
        netcdfmem { set infile set_var_info_bfm.proto }
        headermem { set infile INCLUDE.proto; set ext h }
+       initmem { set infile init_var_bfm.proto; set ext F90 }
     }
   
     # delete existing file with F90 or f90 extension
@@ -1200,6 +1201,35 @@ switch -- $mode {
 	 PrintLine -print ""
 	 Section -decr
      }
+   }
+# tom
+   3d-state-Initpp {
+     if { [ info exists VARS($dim,$type,name) ] } {
+        regsub -all { |$} $VARS($dim,$type,name) "0&" tmp
+        PrintLine -print "real(RLEN) :: [join $tmp {, } ]"
+        PrintLine -print ""
+        PrintLine -print "namelist /bfm_init_nml/ [join $tmp {, } ]"
+     }
+   }
+   3d-state-InitDefault {
+     if { [ info exists VARS($dim,$type,name) ] } {
+        regsub d $dim "" i
+        set TYPE [ string toupper $type ]
+        foreach name $VARS($dim,$type,name) {
+           PrintLine -block "   ${name}0 = _ZERO_"
+           PrintLine -print ""
+           }
+        }
+   }
+   3d-state-InitSets {
+     if { [ info exists VARS($dim,$type,name) ] } {
+        regsub d $dim "" i
+        set TYPE [ string toupper $type ]
+        foreach name $VARS($dim,$type,name) {
+           PrintLine -block "      ${name} = ${name}0"
+           PrintLine -print ""
+           }
+        }
    }
 }
 return 0

@@ -31,12 +31,11 @@
   ! R6p, R6n
   ! For the following Pelagic-group-states fluxes are &
   ! defined: PhytoPlankton, MicroZooPlankton, MesoZooPlankton
-  ! The following Pelagic 1-d global boxvars are modified : flP1R6s
   ! The following Pelagic 1-d global boxvars  are used: ETW
   ! The following Pelagic 2-d global boxvars are used: qnPc, qpPc, qlPc, qsPc, &
   ! qn_mz, qp_mz, qnZc, qpZc
   ! The following groupmember vars are used: iiPhytoPlankton, &
-  ! iiMicroZooPlankton, iiMesoZooPlankton, iiP1
+  ! iiMicroZooPlankton, iiMesoZooPlankton
   ! The following constituent constants  are used: iiC, iiN, iiP, iiL
   ! The following 0-d global parameters are used: p_small
   ! The following global constants are used: RLEN
@@ -51,10 +50,10 @@
 #else
   use mem, ONLY: D3STATE, O2o, N1p, N4n, R6c, R6p, R2c, &
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
-  use mem, ONLY: ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6p, Depth, &
-    ppR6n, ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, flP1R6s, ETW, &
+  use mem, ONLY: Depth, ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6n, ppR6p, ppR6s, &
+    ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, ETW, &
     qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
-    iiMicroZooPlankton, iiMesoZooPlankton, iiP1, iiC, iiN, iiP, iiL, NO_BOXES, &
+    iiMicroZooPlankton, iiMesoZooPlankton, iiC, iiN, iiP, iiL, iiS, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
 #endif
 #ifdef BFM_GOTM
@@ -318,8 +317,11 @@
     call flux_vector( iiPel, ppPhytoPlankton(i,iiL), &
                ppPhytoPlankton(i,iiL),-( ruPIc* qlPc(i,:)) )
     ! PIs is directly transferred to R6s
-    if ( i==iiP1 ) flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
-
+!tom:     if ( i==iiP1 ) flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
+    if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
+    call flux_vector( iiPel, ppPhytoPlankton(i,iiS), &
+               ppR6s,+(ruPIc* qsPc(i,:)) )
+    
   end do
 
 

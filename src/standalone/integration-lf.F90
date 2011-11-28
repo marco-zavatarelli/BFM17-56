@@ -143,8 +143,13 @@
          bbccc2D=bc2D/n**2+D2STATE*(1.-1./n**2)+ &
             sum((D2SOURCE-D2SINK),2)*.5*delt*(1./n**2-1./n)
 #endif
+#ifdef ONESOURCE
+         bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2)+ &
+            sum(D3SOURCE,2)*.5*delt*(1./n**2-1./n)
+#else
          bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2)+ &
             sum((D3SOURCE-D3SINK),2)*.5*delt*(1./n**2-1./n)
+#endif
 #ifdef DEBUG
          LEVEL2 'Time Step cut! delt= ',delt/2.,' nstep= ',nstep
 #endif
