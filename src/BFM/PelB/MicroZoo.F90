@@ -262,11 +262,7 @@
     ! Chl is transferred to the sink
     call flux_vector( iiPel, ppPhytoPlankton(i,iiL),ppPhytoPlankton(i,iiL),-( &
       ruPIc* qlPc(i,:)) )
-      ! P1s is directly transferred to R6s
-      ! PhytoPlankton[i].s -> R6.s = ruPIc * qsPc[i];
-!tom:if ( i== iiP1) then
-!      flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
-!    end if
+    ! PhytoPlankton[i].s -> R6.s = ruPIc * qsPc[i];
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) &
     call flux_vector( iiPel, ppPhytoPlankton(i,iiS), &
                ppR6s,+(ruPIc* qsPc(i,:)) )

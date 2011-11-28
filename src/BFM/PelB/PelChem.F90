@@ -156,8 +156,6 @@
 
   fR6N5s  =   p_sR6N5* eTq_vector(  ETW(:),  p_q10R6N5)* R6s(:)
   call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
-! tom : is now in Mesozoo.f90, MicroZoo.F90 
-!  call flux_vector( iiPel, ppP1s,ppR6s, flP1R6s(:) )
 
 #ifdef CO2
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

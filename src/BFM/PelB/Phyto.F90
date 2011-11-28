@@ -535,7 +535,6 @@
      call flux_vector( iiPel, ppN5s,ppphytos, runs)
      ! The fixed loss rate for basal respiration is maintained to have 
      ! constant Si:C quota in the absence of production
-! tom:     flP1R6s(:)  =   flP1R6s(:)+ srs*phytos
      call flux_vector( iiPel, ppphytos, ppR6s, +( srs* phytos ) )
     case (2)
 
@@ -554,9 +553,6 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Losses of Si (lysis)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!tom:    rr6s  =   (sdo+srs) * phytos  ! Lysis, particulate
-    ! Collect first all fluxes of P-->silica
-!tom:    flP1R6s(:)  =   flP1R6s(:)+ rr6s
     call flux_vector( iiPel, ppphytos, ppR6s, +( (sdo+ srs)* phytos ) )
   endif
 

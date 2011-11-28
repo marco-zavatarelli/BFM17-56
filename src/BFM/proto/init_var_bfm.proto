@@ -66,12 +66,12 @@
    namelist /bfm_save_nml/ var_save, ave_save
 
    interface
-      subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
+      subroutine init_constituents(c,n,p,s,l,f,nc,pc,sc,lc,fc)
          use global_mem, only: RLEN
          real(RLEN),dimension(:),intent(in)             :: c
-         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc
-         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
-      end subroutine init_cnps
+         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc,fc
+         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l,f
+      end subroutine init_constituents
    end interface
 ! COPYING
 !
@@ -189,39 +189,35 @@
       ! with Redfield
       !---------------------------------------------
       do i = 1 , ( iiPhytoPlankton)
-         if (ppPhytoPlankton(i,iiS)>0) then
-            call init_cnps(c=PhytoPlankton(i,iiC),              &
-                           n=D3STATE(ppPhytoPlankton(i,iiN),:), &
-                           p=D3STATE(ppPhytoPlankton(i,iiP),:), &
+         call init_constituents(c=PhytoPlankton(i,iiC),      &
+                        n=D3STATE(ppPhytoPlankton(i,iiN),:), &
+                        p=D3STATE(ppPhytoPlankton(i,iiP),:), &
+                        l=D3STATE(ppPhytoPlankton(i,iiL),:), &
+                        lc=p_qchlc(i), nc=p_qnRc(i), pc=p_qpRc(i))
+         if (ppPhytoPlankton(i,iiS)>0)                          &
+            call init_constituents(c=PhytoPlankton(i,iiC),      &
                            s=D3STATE(ppPhytoPlankton(i,iiS),:), &
-                           l=D3STATE(ppPhytoPlankton(i,iiL),:), &
-                           lc=p_qchlc(i), nc=p_qnRc(i),         &
-                           pc=p_qpRc(i),  sc=p_qsRc(i))
-         else
-            call init_cnps(c=PhytoPlankton(i,iiC),              &
-                           n=D3STATE(ppPhytoPlankton(i,iiN),:), &
-                           p=D3STATE(ppPhytoPlankton(i,iiP),:), &
-                           l=D3STATE(ppPhytoPlankton(i,iiL),:), &
-                           lc=p_qchlc(i), nc=p_qnRc(i), pc=p_qpRc(i))
-         end if
+                           sc=p_qsRc(i))
       end do
-      call init_cnps(c=B1c,n=B1n,p=B1p)
-      call init_cnps(c=R1c,n=R1n,p=R1p)
-      call init_cnps(c=R6c,n=R6n,p=R6p,s=R6s)
+      
+      ! Initialise bacteria components checking for fixed-quota
+      call init_constituents(c=B1c,n=B1n,p=B1p)
+      call init_constituents(c=R1c,n=R1n,p=R1p)
+      call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s)
+
       ! Initialise zooplankton components checking for fixed-quota
       do i = 1 , ( iiMicroZooPlankton)
          if ( (ppMicroZooPlankton(i,iiP)>0) .and. (ppMicroZooPlankton(i,iiN)>0) ) &
-            call init_cnps(c=MicroZooPlankton(i,iiC),  &
+            call init_constituents(c=MicroZooPlankton(i,iiC),  &
                            n=D3STATE(ppMicroZooPlankton(i,iiN),:), &
                            p=D3STATE(ppMicroZooPlankton(i,iiP),:))
       end do
       do i = 1 , ( iiMesoZooPlankton)
          if ( (ppMesoZooPlankton(i,iiP) > 0) .and. (ppMesoZooPlankton(i,iiN)>0) ) &
-            call init_cnps(c=MesoZooPlankton(i,iiC),  &
+            call init_constituents(c=MesoZooPlankton(i,iiC),  &
                            n=D3STATE(ppMesoZooPlankton(i,iiN),:), &
                            p=D3STATE(ppMesoZooPlankton(i,iiP),:))
       end do
-
    !---------------------------------------------
    ! Check setup settings
    ! and finalize initialization

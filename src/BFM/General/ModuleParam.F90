@@ -204,7 +204,6 @@
    open(NMLUNIT,file='Param.nml',status='old',action='read',err=100)
    read(NMLUNIT,nml=Param_parameters,err=101)
    close(NMLUNIT)
-! tom:   LEVEL1 "#  Namelist is:"
    if (bfm_lwp) then 
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"      
     write(LOGUNIT,*) "#  Reading Param parameters.. "

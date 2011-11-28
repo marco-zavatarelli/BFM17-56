@@ -317,7 +317,6 @@
     call flux_vector( iiPel, ppPhytoPlankton(i,iiL), &
                ppPhytoPlankton(i,iiL),-( ruPIc* qlPc(i,:)) )
     ! PIs is directly transferred to R6s
-!tom:     if ( i==iiP1 ) flP1R6s(:)  =   flP1R6s(:)+ ruPIc* qsPc(i,:)
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
     call flux_vector( iiPel, ppPhytoPlankton(i,iiS), &
                ppR6s,+(ruPIc* qsPc(i,:)) )
