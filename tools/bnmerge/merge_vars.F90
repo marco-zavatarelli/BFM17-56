@@ -188,7 +188,7 @@ subroutine merge_vars
            noce = 1
            do j=1,jpj
               do i=1,jpi
-                 if (mask(i,j,k) > 0.0_RLEN) then
+                 if (mask(i,j,1) > 0.0_RLEN) then
                     bfmvar2d(i,j,:) = chunk(noce,:)
                     noce = noce+1
                  end if
