@@ -30,8 +30,8 @@
   use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, &
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
-    ppR6n, ppR1p, ppR6p, ppN5s, SUNQ, ThereIsLight, flP1R6s, ETW, EIR, xEPS, &
-    Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, iiP1, iiP4, NO_BOXES, &
+    ppR6n, ppR1p, ppR6p, ppN5s, ppR6s, SUNQ, ThereIsLight, ETW, EIR, &
+    xEPS, Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, NO_BOXES, &
     iiBen, iiPel, flux_vector, sourcesink_flux_vector
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
@@ -377,9 +377,9 @@
   ! Respiration rate
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   sra  =   p_pu_ra(phyto)*( sum - sea - seo)  ! activity
-  srs  =   et* p_srs(phyto)  ! rest
-  srt  =   sra+ srs  ! total
-  rrc  =   srt* phytoc  ! total actual respiration
+  srs  =   et* p_srs(phyto)                   ! basal
+  srt  =   sra+ srs                           ! total
+  rrc  =   srt* phytoc                        ! total actual respiration
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Production, productivity and C flows
@@ -535,8 +535,7 @@
      call flux_vector( iiPel, ppN5s,ppphytos, runs)
      ! The fixed loss rate for basal respiration is maintained to have 
      ! constant Si:C quota in the absence of production
-     flP1R6s(:)  =   flP1R6s(:)+ srs*phytos
-
+     call flux_vector( iiPel, ppphytos, ppR6s, +( srs* phytos ) )
     case (2)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -554,10 +553,7 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Losses of Si (lysis)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    rr6s  =   (sdo+srs) * phytos  ! Lysis, particulate
-
-    ! Collect first all fluxes of P-->silica
-    flP1R6s(:)  =   flP1R6s(:)+ rr6s
+    call flux_vector( iiPel, ppphytos, ppR6s, +( (sdo+ srs)* phytos ) )
   endif
 
 

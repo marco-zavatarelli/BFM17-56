@@ -160,7 +160,7 @@
 
     call BenAnoxicDynamics
 
-    call flux(1,iiReset,1,1,0.0D+00)
+    call flux(1,iiReset,1,1,0.0)
 
     if ( reAtn(1) .le. 0.0 .or. reATp(1).le.0.0) then
        H1c(BoxNumberXY)=0.5*H1c(BoxNumberXY)

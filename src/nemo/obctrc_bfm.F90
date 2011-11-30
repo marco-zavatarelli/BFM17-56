@@ -5,15 +5,16 @@ MODULE obctrc_bfm
    !! Ocean tracers:   Radiation of tracers on each open boundary
    !!=================================================================================
 
-#if defined key_obc && defined key_bfm
+#if defined key_obcbfm
    !!---------------------------------------------------------------------------------
-   !!   'key_obc'      :                                      Open Boundary Conditions
+   !!   'key_obcbfm'   :                                      Open Boundary Conditions
    !!---------------------------------------------------------------------------------
    !!   obc_trc        : call the subroutine for each open boundary
    !!   obc_trc_east   : radiation of the east open boundary tracers
    !!   obc_trc_west   : radiation of the west open boundary tracers
    !!   obc_trc_north  : radiation of the north open boundary tracers
    !!   obc_trc_south  : radiation of the south open boundary tracers
+   !!   Key changed by Tomas Lovato - 10/21/11 
    !!----------------------------------------------------------------------------------
    !! * Modules used
    USE oce             ! ocean dynamics and tracers variables

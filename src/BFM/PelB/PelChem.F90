@@ -31,7 +31,7 @@
 #else
   use mem,  ONLY: N4n, N3n, O2o, O4n, N6r, R6s, N5s, P1s
   use mem, ONLY: ppN4n, ppN3n, ppO2o, ppO3c, ppO4n, ppN6r, ppR6s, ppN5s,    &
-    ppP1s, flN3O4n, ETW, flPTN6r, flP1R6s, NO_BOXES, iiBen, iiPel, flN4N3n, &
+    flN3O4n, ETW, flPTN6r, NO_BOXES, iiBen, iiPel, flN4N3n, &
     flux_vector
 #endif
   use mem_Param,  ONLY: p_qon_nitri, p_qro, p_qon_dentri, p_small
@@ -156,7 +156,6 @@
 
   fR6N5s  =   p_sR6N5* eTq_vector(  ETW(:),  p_q10R6N5)* R6s(:)
   call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
-  call flux_vector( iiPel, ppP1s,ppR6s, flP1R6s(:) )
 
 #ifdef CO2
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

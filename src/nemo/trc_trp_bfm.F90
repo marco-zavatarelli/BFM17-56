@@ -67,7 +67,7 @@ SUBROUTINE trc_trp_bfm( kt )
    ! Read Open boundary conditions data (only if transport is computed)
    !-----------------------------------------------------------------------
 
-#if defined key_obc
+#if defined key_obcbfm
       CALL trcobc_dta_bfm( kt )    ! OBC for BFM
 #endif
 

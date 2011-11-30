@@ -70,9 +70,8 @@
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
-
 #ifdef DEBUG
-  call  flux(1,iiReset,1,1,0.00D+00)
+  call  flux(1,iiReset,1,1,0.0)
 #endif
 
 #ifdef INCLUDE_SEAICE

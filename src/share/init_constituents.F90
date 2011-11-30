@@ -2,14 +2,14 @@
 !-----------------------------------------------------------------------
 !BOP
 !
-! !SUBROUTINE: Initialise variable components
+! !SUBROUTINE: Initialise internal constituents given carbon
 !
 ! !INTERFACE:
-   subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
+   subroutine init_constituents(c,n,p,s,l,f,nc,pc,sc,lc,fc)
 !
 ! !DESCRIPTION:
-!  This subroutine initialises the other internal components
-!  of biogeochemical variables
+!  This subroutine initialises the internal constituents
+!  of biogeochemical variables given carbon content
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO
@@ -17,17 +17,17 @@
 !
 ! !INPUT PARAMETERS:
     real(RLEN),dimension(:),intent(in)        :: c
-    real(RLEN),intent(in),optional            :: nc,pc,sc,lc
+    real(RLEN),intent(in),optional            :: nc,pc,sc,lc,fc
 !
 ! !OUTPUT PARAMETERS:
-    real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
+    real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l,f
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi
 !
 !LOCAL VARIABLES:
     real(RLEN)                   :: nc_ratio,pc_ratio,sc_ratio, &
-                                    lc_ratio
+                                    lc_ratio,fc_ratio
 !
 !EOP
 !-----------------------------------------------------------------------
@@ -44,6 +44,9 @@
 
     lc_ratio = 0.03_RLEN ! standard diatom value
     if ((present(lc)).AND.(lc>ZERO)) lc_ratio = lc
+
+    fc_ratio = 3.e-04_RLEN ! standard diatom value
+    if ((present(fc)).AND.(fc>ZERO)) fc_ratio = fc
 
     if (present(n)) then
        where (n==ZERO) 
@@ -65,8 +68,13 @@
           l = lc_ratio*c
        end where
     end if
+    if (present(f)) then
+       where (f==ZERO) 
+          f = fc_ratio*c
+       end where
+    end if
 
-  end subroutine init_cnps
+  end subroutine init_constituents
 !EOC
 
 

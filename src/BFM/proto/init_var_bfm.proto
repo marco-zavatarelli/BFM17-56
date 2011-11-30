@@ -52,41 +52,26 @@
    integer,parameter    :: NSAVE=120  ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    character(len=64),dimension(NSAVE):: ave_save
-   real(RLEN)  :: N1p0,N3n0,N4n0,N5s0,N6r0,  &
-                P1c0,P2c0,P3c0,P4c0,Z3c0,  &
-                Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
-                R2c0,R6c0,R7c0,O2o0,O4n0,  &
-#ifdef INCLUDE_PELCO2
-                O3c0,O3h0,                 &
-#endif
-                P1l0,P2l0,P3l0,P4l0,       &
-                P1n0,P2n0,P3n0,P4n0,       &
-                P1p0,P2p0,P3p0,P4p0,P1s0
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+! Definition of Initial Pelagic (D3) state variables
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%3d-state-Initpp
 
    namelist /bfm_init_nml/ surface_flux_method,       &
                            bottom_flux_method,        &
-                           n_surface_fluxes,          &
-                           N1p0,N3n0,N4n0,N5s0,N6r0,  &
-                           P1c0,P2c0,P3c0,P4c0,Z3c0,  &
-                           Z4c0,Z5c0,Z6c0,B1c0,R1c0,  &
-                           R2c0,R6c0,R7c0,O2o0,O4n0,  &
-#ifdef INCLUDE_PELCO2
-                           O3c0,O3h0,                 &
-#endif
-                           P1l0,P2l0,P3l0,P4l0,       &
-                           P1n0,P2n0,P3n0,P4n0,       &
-                           P1p0,P2p0,P3p0,P4p0,P1s0,  &
-                           InitVar
+                           n_surface_fluxes, InitVar
 
    namelist /bfm_save_nml/ var_save, ave_save
 
    interface
-      subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
+      subroutine init_constituents(c,n,p,s,l,f,nc,pc,sc,lc,fc)
          use global_mem, only: RLEN
          real(RLEN),dimension(:),intent(in)             :: c
-         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc
-         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
-      end subroutine init_cnps
+         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc,fc
+         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l,f
+      end subroutine init_constituents
    end interface
 ! COPYING
 !
@@ -116,44 +101,8 @@
    !---------------------------------------------
    ! Pelagic variables
    !---------------------------------------------
-   N1p0 = _ONE_
-   N3n0 = _ONE_
-   N4n0 = _ONE_
-   N5s0 = _ONE_
-   N6r0 = _ONE_
-   O2o0 = 280.0_RLEN
-#ifdef INCLUDE_PELCO2
-   ! give reasonable initial conditions
-   O3c0 = 24785.0_RLEN ! conversion from GLODAP 2303 umol/kg to mg/m3
-   O3h0 = 2360.0_RLEN  ! GLODAP surface average (umol/kg) to mmol eq/m3
-#endif
-   O4n0 = _ONE_
-   P1c0 = _ZERO_
-   P2c0 = _ZERO_
-   P3c0 = _ZERO_
-   P4c0 = _ZERO_
-   P1l0 = _ZERO_
-   P2l0 = _ZERO_
-   P3l0 = _ZERO_
-   P4l0 = _ZERO_
-   P1n0 = _ZERO_
-   P2n0 = _ZERO_
-   P3n0 = _ZERO_
-   P4n0 = _ZERO_
-   P1p0 = _ZERO_
-   P2p0 = _ZERO_
-   P3p0 = _ZERO_
-   P4p0 = _ZERO_
-   P1s0 = _ZERO_
-   Z3c0 = _ZERO_
-   Z4c0 = _ZERO_
-   Z5c0 = _ZERO_
-   Z6c0 = _ZERO_
-   B1c0 = _ZERO_
-   R1c0 = _ZERO_
-   R2c0 = _ZERO_
-   R6c0 = _ZERO_
-   R7c0 = _ZERO_
+
+%3d-state-InitDefault
 
    !---------------------------------------------
    ! Initialize the structured array that 
@@ -232,82 +181,43 @@
    ! also if using a benthic-only setup
    ! (for boundary conditions)
    !---------------------------------------------
-      N1p = N1p0
-      N3n = N3n0
-      N4n = N4n0
-      N5s = N5s0
-      N6r = N6r0
-      O2o = O2o0
-#ifdef INCLUDE_PELCO2
-      O3c = O3c0
-      O3h = O3h0
-#endif
-      O4n = O4n0
-      P1c = P1c0
-      P1n = P1n0
-      P1p = P1p0
-      P1l = P1l0
-      P1s = P1s0
-      P2c = P2c0
-      P2n = P2n0
-      P2p = P2p0
-      P2l = P2l0
-      P3c = P3c0
-      P3n = P3n0
-      P3p = P3p0
-      P3l = P3l0
-      P4c = P4c0
-      P4n = P4n0
-      P4p = P4p0
-      P4l = P4l0
-      Z3c = Z3c0
-      Z4c = Z4c0
-      Z5c = Z5c0
-      Z6c = Z6c0
-      B1c = B1c0
-      R1c = R1c0
-      R2c = R2c0
-      R6c = R6c0
-      R7c = R7c0
+
+%3d-state-InitSets
 
       !---------------------------------------------
       ! Initialise other internal components
       ! with Redfield
       !---------------------------------------------
       do i = 1 , ( iiPhytoPlankton)
-         if (ppPhytoPlankton(i,iiS)>0) then
-            call init_cnps(c=PhytoPlankton(i,iiC),              &
-                           n=D3STATE(ppPhytoPlankton(i,iiN),:), &
-                           p=D3STATE(ppPhytoPlankton(i,iiP),:), &
+         call init_constituents(c=PhytoPlankton(i,iiC),      &
+                        n=D3STATE(ppPhytoPlankton(i,iiN),:), &
+                        p=D3STATE(ppPhytoPlankton(i,iiP),:), &
+                        l=D3STATE(ppPhytoPlankton(i,iiL),:), &
+                        lc=p_qchlc(i), nc=p_qnRc(i), pc=p_qpRc(i))
+         if (ppPhytoPlankton(i,iiS)>0)                          &
+            call init_constituents(c=PhytoPlankton(i,iiC),      &
                            s=D3STATE(ppPhytoPlankton(i,iiS),:), &
-                           l=D3STATE(ppPhytoPlankton(i,iiL),:), &
-                           lc=p_qchlc(i), nc=p_qnRc(i),         &
-                           pc=p_qpRc(i),  sc=p_qsRc(i))
-         else
-            call init_cnps(c=PhytoPlankton(i,iiC),              &
-                           n=D3STATE(ppPhytoPlankton(i,iiN),:), &
-                           p=D3STATE(ppPhytoPlankton(i,iiP),:), &
-                           l=D3STATE(ppPhytoPlankton(i,iiL),:), &
-                           lc=p_qchlc(i), nc=p_qnRc(i), pc=p_qpRc(i))
-         end if
+                           sc=p_qsRc(i))
       end do
-      call init_cnps(c=B1c,n=B1n,p=B1p)
-      call init_cnps(c=R1c,n=R1n,p=R1p)
-      call init_cnps(c=R6c,n=R6n,p=R6p,s=R6s)
+      
+      ! Initialise bacteria components checking for fixed-quota
+      call init_constituents(c=B1c,n=B1n,p=B1p)
+      call init_constituents(c=R1c,n=R1n,p=R1p)
+      call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s)
+
       ! Initialise zooplankton components checking for fixed-quota
       do i = 1 , ( iiMicroZooPlankton)
          if ( (ppMicroZooPlankton(i,iiP)>0) .and. (ppMicroZooPlankton(i,iiN)>0) ) &
-            call init_cnps(c=MicroZooPlankton(i,iiC),  &
+            call init_constituents(c=MicroZooPlankton(i,iiC),  &
                            n=D3STATE(ppMicroZooPlankton(i,iiN),:), &
                            p=D3STATE(ppMicroZooPlankton(i,iiP),:))
       end do
       do i = 1 , ( iiMesoZooPlankton)
          if ( (ppMesoZooPlankton(i,iiP) > 0) .and. (ppMesoZooPlankton(i,iiN)>0) ) &
-            call init_cnps(c=MesoZooPlankton(i,iiC),  &
+            call init_constituents(c=MesoZooPlankton(i,iiC),  &
                            n=D3STATE(ppMesoZooPlankton(i,iiN),:), &
                            p=D3STATE(ppMesoZooPlankton(i,iiP),:))
       end do
-
    !---------------------------------------------
    ! Check setup settings
    ! and finalize initialization
@@ -344,12 +254,12 @@
    if (setup /= 2) then
       LEVEL3 'Pelagic variables:'
       do n=stPelStateS,stPelStateE
-         LEVEL4 trim(var_names(n)),'  ',trim(var_units(n)), &
+         LEVEL4 n,'  ',trim(var_names(n)),'  ',trim(var_units(n)), &
            '  ',trim(var_long(n))
       end do
    endif
 
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! All variables are inizialized on obc default
   ! D3STATEOBC(:)=OBCSTATES
@@ -366,7 +276,7 @@
       D3STATE(ppB1n,:) = p_small
       D3STATE(ppB1p,:) = p_small
       D3STATETYPE(ppB1c) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
       D3STATEOBC(ppB1c) = NOOBCSTATES
 #endif
    end if
@@ -377,7 +287,7 @@
          do i = iiC,iiLastElement
             D3STATE(ppPhytoPlankton(j,i),:) = p_small
             D3STATETYPE(ppPhytoPlankton(j,i)) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
             D3STATEOBC(ppPhytoPlankton(j,i)) = NOOBCSTATES
 #endif
          end do
@@ -394,7 +304,7 @@
          do i = iiC,iiLastElement
             D3STATE(ppMesoZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMesoZooPlankton(j,i)) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
             D3STATEOBC(ppMesoZooPlankton(j,i)) = NOOBCSTATES
 #endif
          end do
@@ -411,7 +321,7 @@
          do i = iiC,iiLastElement
             D3STATE(ppMicroZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMicroZooPlankton(j,i)) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
             D3STATEOBC(ppMicroZooPlankton(j,i)) = NOOBCSTATES
 #endif
          end do
@@ -423,7 +333,7 @@
       D3STATETYPE(ppB1c) = NOTRANSPORT
       D3STATETYPE(ppB1n) = NOTRANSPORT
       D3STATETYPE(ppB1p) = NOTRANSPORT
-#if defined BFM_NEMO && defined key_obc
+#if defined key_obcbfm
       D3STATEOBC(ppB1c) = NOOBCSTATES
       D3STATEOBC(ppB1n) = NOOBCSTATES
       D3STATEOBC(ppB1p) = NOOBCSTATES

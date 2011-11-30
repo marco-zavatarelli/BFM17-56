@@ -175,7 +175,7 @@
      iret = NF90_DEF_VAR(ncid_bfm,'lat',NF90_REAL,dims,lat_id)
      call check_err(iret)
    end if
-   DEALLOCATE(dims) 
+   DEALLOCATE(dims)
    iret = NF90_DEF_VAR(ncid_bfm,'z',NF90_REAL,depth_dim,depth_id)
    call check_err(iret)
    iret = NF90_DEF_VAR( ncid_bfm, 'oceanpoint', NF90_INT,ocepoint_dim, ocepoint_id )
@@ -599,7 +599,6 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
 
-   LEVEL1 'init_save_bfm'
    !---------------------------------------------
    ! Enter define mode
    !---------------------------------------------
@@ -1207,8 +1206,6 @@ end subroutine init_netcdf_rst_bfm
    integer, intent(inout)              :: vars_id
    integer, intent(in)                 :: time_dim
 !
-! !REVISION HISTORY:
-!  Original author(s): Piet Ruardij
 !  Generic BFM version: Marcello Vichi
 !
 ! !LOCAL VARIABLES:

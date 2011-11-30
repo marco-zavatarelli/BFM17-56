@@ -185,7 +185,6 @@ end
     # Water column diagnostic rates
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    flP1R6s     :   Pelagic biogenic silica dissolution rate : mmol Si /m3/d
     flPTN6r     :   Pelagic anaerobic mineralization rate : mmol O2/m3/d
     flN3O4n	:   Pelagic denitrification rate :mmol N/m3/d
     flN4N3n	:   Pelagic nitrification rate   :mmol N/m3/d

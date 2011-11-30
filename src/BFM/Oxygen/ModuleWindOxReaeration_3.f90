@@ -86,13 +86,13 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+   write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
    write(LOGUNIT,*) "#  Reading WindOxReaeration_3 parameters.."
-open(NMLUNIT,file='WindOxReaeration_3.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=WindOxReaeration_3_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=WindOxReaeration_3_parameters)
+   open(NMLUNIT,file='WindOxReaeration_3.nml',status='old',action='read',err=100)
+   read(NMLUNIT,nml=WindOxReaeration_3_parameters,err=101)
+   close(NMLUNIT)
+   write(LOGUNIT,*) "#  Namelist is:"
+   write(LOGUNIT,nml=WindOxReaeration_3_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
