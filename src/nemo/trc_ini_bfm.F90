@@ -41,6 +41,7 @@
    use iom
    use sbc_oce, only: ln_rnf
    use trc_oce, only: etot3
+   use dom_oce, only: nyear, nmonth, nday
 
    IMPLICIT NONE
 !
@@ -59,9 +60,14 @@
    integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:)
    logical,allocatable  :: mask1d(:)
    integer              :: nc_id ! logical unit for data initialization
+   character(len=20)    :: start_time
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+   !-------------------------------------------------------
+   ! Initial time
+   !-------------------------------------------------------
+   write(start_time,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
 
    !-------------------------------------------------------
    ! Initial allocations
@@ -265,11 +271,11 @@
    ! initialise netcdf output
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
-   call init_netcdf_bfm(out_fname,'01-01-0000',0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_0,    &
-             oceanpoint=ocepoint,                  &
-             surfacepoint=surfpoint,               &
-             bottompoint=botpoint,                 &
+   call init_netcdf_bfm(out_fname,TRIM(start_time),0,  &
+             lat2d=gphit,lon2d=glamt,z=gdept_0,        &
+             oceanpoint=ocepoint,                      &
+             surfacepoint=surfpoint,                   &
+             bottompoint=botpoint,                     &
              mask3d=tmask)
    call init_save_bfm
 
