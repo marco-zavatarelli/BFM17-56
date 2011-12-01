@@ -7,27 +7,19 @@
 !
 ! DESCRIPTION
 !   List of parameters values
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
 ! parameter values for mem_Phyto filled by InitPhyto
 !
-
-!  
 !
 ! !AUTHORS
-!   mfstep/ERSEM team
 !
 ! !REVISION_HISTORY
 !   ---
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -92,14 +84,19 @@ p_pu_ra = 0.1,0.1,0.2,0.1,
 p_qnlc = 0.00687,0.00687,0.00687,0.00687,
 p_qplc = 0.0004288,0.0004288,0.0004288,0.0004288,
 p_qslc = 0.007,0.0,0.0,0.0,
+p_qflc = 0.001,0.001,0.0001,0.001,
 p_qnRc = 0.0126,0.0126,0.0126,0.0126,
 p_qpRc = 0.0007862,0.0007862,0.0007862,0.0007862,
 p_qsRc = 0.01,0.0,0.0,0.0,
+p_qfRc = 0.01,0.01,0.001,0.01,
 p_qun = 0.025,0.025,0.025,0.025,
 p_qup = 0.0025,0.0025,0.0025,0.0025,
 p_qus = 0.0025,0.0,0.0,0.0,
+p_quf = 0.0025,0.0025,0.0025,0.0025,
 p_xqn = 2.0,2.0,2.0,2.0,
 p_xqp = 2.0,2.0,2.0,2.0,
+p_xqs = 1.5,0.0,0.0,0.0,
+p_xqf = 1.5,1.0,1.0,1.0,
 p_esNI = 0.7,0.75,0.75,0.75,
 p_thdo = 0.0,0.0,0.0,0.0,
 p_res = 5.0,0.0,0.0,2.5,

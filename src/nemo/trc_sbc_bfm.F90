@@ -39,6 +39,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    use mem
    use global_mem,only:LOGUNIT
    use sbc_oce, only: ln_rnf
+   use constants, only: SEC_PER_DAY
  
    ! substitutions
 #  include "top_substitute.h90"
@@ -60,13 +61,24 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
 
     ! read and add surface input flux if needed
     IF (ln_trc_sbc(m)) THEN
+       if (lwp) write(numout,*) 'BFM reading SBC data for variable:',m
        jn = n_trc_indsbc(m)
-       sf_dta = sf_trcsbc(jn)
+       sf_dta(1) = sf_trcsbc(jn)
        CALL fld_read( kt, 1, sf_dta )
-       tra(:,:,1,1) = tra(:,:,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(:,:,1) ! MAV: no change of time units, check input
+       ! return the info (needed because fld_read is stupid!)
+       sf_trcsbc(jn) = sf_dta(1) 
+       DO jj = 2, jpj
+          DO ji = fs_2, fs_jpim1   ! vector opt.
+              IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+                 ! MAV: units in input files are assumed to be 1/day
+                 tra(ji,jj,1,1) = tra(ji,jj,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(ji,jj,1) &
+                                               * zse3t / SEC_PER_DAY 
+          END DO
+       END DO
     END IF
 
     ! Add mass from prescribed river concentration
+    ! MAV: needs to be checked as for surface boundary conditions
     IF (ln_rnf .AND. ln_trc_cbc(m)) THEN
        jn = n_trc_indcbc(m)
        sf_dta = sf_trccbc(jn)
@@ -86,6 +98,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
     END DO
        
 
+if (lwp) write(numout,*) 'exit trc_sbc_bfm',m
 
    END SUBROUTINE trc_sbc_bfm
 

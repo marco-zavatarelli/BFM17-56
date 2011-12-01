@@ -60,7 +60,11 @@
    ! (negative, z-axis is positive upwards)
    !---------------------------------------------
    select case (m)
+#ifdef INCLUDE_PELFE
+      case (ppP1c,ppP1n,ppP1p,ppP1s,ppP1l,ppP1f)
+#else
       case (ppP1c,ppP1n,ppP1p,ppP1s,ppP1l)
+#endif
 #ifdef USEPACK
          wbio = -unpack(sediPI(iiP1,:),SEAmask,ZEROS)
 #else
@@ -74,7 +78,11 @@
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
          wbio(:,:,KSINK:jpk) = -p_rR6m
          CALL trc_sink_bfm(wbio)       ! vertical sinking
+#ifdef INCLUDE_PELFE
+      case (ppR6c,ppR6n,ppR6p,ppR6s,ppR6f)
+#else
       case (ppR6c,ppR6n,ppR6p,ppR6s)
+#endif
          wbio = -p_rR6m
          CALL trc_sink_bfm(wbio)       ! vertical sinking
       case default

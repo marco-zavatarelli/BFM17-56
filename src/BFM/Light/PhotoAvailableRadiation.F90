@@ -31,8 +31,7 @@
 ! 
 !
 ! !INTERFACE
-  subroutine PhotoAvailableRadiation(phyto, ppphytoc, ppphyton, &
-    ppphytop, ppphytos, ppphytol)
+  subroutine PhotoAvailableRadiation(phyto)
 !
 ! !USES:
 
@@ -44,9 +43,9 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: D3STATE, PhytoPlankton
+  use mem, ONLY: D3STATE, PhytoPlankton
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, EIR, xEPS, Depth, EPLi, eiPI, &
-    iiL, NO_BOXES, iiBen, iiPel, flux_vector
+                 iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
   use mem_Param,  ONLY: LightForcingFlag
   use mem_PhotoAvailableRadiation
@@ -66,11 +65,6 @@
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
 
 !  
 !
@@ -91,7 +85,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -107,14 +101,6 @@
 !BOC
 !
 !
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Set up Local Variable for copy of state var. object
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES) :: phytoc
-  real(RLEN),dimension(NO_BOXES) :: phyton
-  real(RLEN),dimension(NO_BOXES) :: phytop
-  real(RLEN),dimension(NO_BOXES) :: phytos
-  real(RLEN),dimension(NO_BOXES) :: phytol
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -143,34 +129,18 @@
   real(RLEN),dimension(NO_BOXES)  :: afternoon_light
   real(RLEN),dimension(NO_BOXES)  :: sum_state_phyto
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  Copy  state var. object in local var
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  phytoc = D3STATE(ppphytoc,:)
-  phyton = D3STATE(ppphyton,:)
-  phytop = D3STATE(ppphytop,:)
-  phytos = D3STATE(ppphytos,:)
-  phytol = D3STATE(ppphytol,:)
 
-
-  ! Recalculate Optimal light from the transported PLx.l
-
+  ! Recalculate Optimal light from the transported Px.l
   i  =   ppPhytoPlankton(phyto,iiL)
   select case ( D3STATETYPE( i))
 
     case ( NOTRANSPORT )
       EPLi(phyto,:)  =   PhytoPlankton(phyto,iiL)
 
-
-
     case default
-      EPLi(phyto,:)  =   PhytoPlankton(phyto,iiL)/ phytoc
-
-
+      EPLi(phyto,:)  =   PhytoPlankton(phyto,iiL)/ PhytoPlankton(phyto,iiC)
 
   end select
-
-
 
   noon_light  =   EIR(:)* 1.7596E+00_RLEN  ! magic number = 2 * 2PI/(4+PI)
   afternoon_light  =   EIR(:)* 1.0620E+00_RLEN  ! magic number = (sqrt(2)+1)/2* 2PI/(4+PI)
@@ -197,8 +167,6 @@
       corr_irra  =  ( f_z_mean- f_0_mean)/ xd* 6.0E+00_RLEN
       corr_irrb  =   ZERO
 
-
-
     case ( 1 )
       ! Steele
       f_0_noon  =   exp(  ONE- pirr0_noon)
@@ -207,8 +175,6 @@
       f_z_afternoon  =   exp(  ONE- pirrz_afternoon)
       corr_irra  =  -( f_0_noon- f_z_noon)/ xd
       corr_irrb  =  -( f_0_afternoon- f_z_afternoon)/ xd
-
-
 
     case ( 2 )
       ! Ebenhoeh
@@ -219,8 +185,6 @@
       corr_irra  =   2.0E+00_RLEN*( f_0_noon- f_z_noon)/ xd
       corr_irrb  =   2.0E+00_RLEN*( f_0_afternoon- f_z_afternoon)/ xd
 
-
-
     case ( 3 )
       rampcontrol  =   2* int(insw_vector(  pirrz_noon- ONE))
       rampcontrol = min( 2, rampcontrol+ int(insw_vector( pirr0_noon- &
@@ -229,39 +193,27 @@
         WHERE (( rampcontrol)==2)
           corr_irra  =  ( log(  pirr0_noon)- log(  pirrz_noon))/ xd
 
-
         ELSEWHERE (( rampcontrol)==1)
           corr_irra  =  ( ONE+ log(  pirr0_noon)- pirrz_noon)/ xd
-
 
         ELSEWHERE (( rampcontrol)==0)
           corr_irra  =  ( pirr0_noon- pirrz_noon)/ xd
 
-
       END WHERE
 
-
       rampcontrol  =   2* int(insw_vector(  pirrz_afternoon- ONE))
-      rampcontrol = min( 2, rampcontrol+ int(insw_vector( pirr0_afternoon- &
-        ONE)))
+      rampcontrol = min( 2, rampcontrol+ int(insw_vector( pirr0_afternoon- ONE)))
 
-
-        WHERE (( rampcontrol)==2)
+      WHERE (( rampcontrol)==2)
           corr_irrb  =   ONE
-
 
         ELSEWHERE (( rampcontrol)==1)
           corr_irrb  =  ( ONE+ log(  pirr0_afternoon)- pirrz_afternoon)/ xd
 
-
         ELSEWHERE (( rampcontrol)==0)
           corr_irrb  =  ( pirr0_afternoon- pirrz_afternoon)/ xd
 
-
       END WHERE
-
-
-
 
 
     case ( 4 )
@@ -270,8 +222,6 @@
       lxz  =   log(  pirr0_afternoon)
       corr_irra  =  ( max(  ZERO,  lx0)- max(  ZERO,  lx0- xd))/ xd
       corr_irrb  =  ( max(  ZERO,  lxz)- max(  ZERO,  lxz- xd))/ xd
-
-
 
     case ( 5 )
       !Smith:
@@ -282,8 +232,6 @@
       corr_mean  =  ( f_0_mean- f_z_mean)/ xd
       corr_irra  =  ( f_0_mean- f_z_mean)/ xd* 6.0E+00_RLEN
       corr_irrb  =   ZERO
-
-
 
     case ( 6 )
       ! Smith II
@@ -298,12 +246,7 @@
       corr_irra  =  ( f_0_noon- f_z_noon)/ xd
       corr_irrb  =  ( f_0_afternoon- f_z_afternoon)/ xd
 
-
-
   end select
-
-
-
 
   select case ( LightForcingFlag)
 
@@ -311,19 +254,11 @@
       !rectangular integration:
       eiPI(phyto,:)  =   min(  ONE,  corr_mean)
 
-
-
     case ( 3 )
       !   Simpson integration is used as default:
       eiPI(phyto,:)  =  ( corr_irra+ 4.0E+00_RLEN* corr_irrb)/ 6.0E+00_RLEN
 
-
   end select
-
-
-
-
-
 
 
   end subroutine PhotoAvailableRadiation

@@ -155,17 +155,17 @@ CONTAINS
          DO jn = 1, NO_D3_BOX_STATES
             IF( ln_trc_obc(jn) )  THEN    
                clndta = TRIM( sn_trcobc(jn)%clvar ) 
-               WRITE(numout,*) ' read OBC data file for passive tracer number :', jn, ' name : ', clndta, & 
+               IF(lwp) WRITE(numout,*) ' preparing to read OBC data file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', rn_trofac(jn)
             ENDIF
             IF( ln_trc_sbc(jn) )  THEN    
                clndta = TRIM( sn_trcsbc(jn)%clvar ) 
-               WRITE(numout,*) ' read SBC data file for passive tracer number :', jn, ' name : ', clndta, & 
+               IF(lwp) WRITE(numout,*) ' preparing to read SBC data file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', rn_trsfac(jn)
             ENDIF
             IF( ln_trc_cbc(jn) )  THEN    
                clndta = TRIM( sn_trccbc(jn)%clvar ) 
-               WRITE(numout,*) ' read CBC data file for passive tracer number :', jn, ' name : ', clndta, & 
+               IF(lwp) WRITE(numout,*) ' preparing to read CBC data file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', rn_trcfac(jn)
             ENDIF
          END DO
