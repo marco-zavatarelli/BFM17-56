@@ -64,7 +64,7 @@ subroutine merge_vars
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire_dimension(ncbfmid, IDunlimdim, len = ntime)
 #ifdef DEBUG
-     write(*,*) fname
+     write(*,*) trim(fname)
      write(*,*) "===================="
      write(*,*) "Domain:",p-1
      write(*,*) "No of dimensions = ",nDims
@@ -81,6 +81,9 @@ subroutine merge_vars
      status = nf90_inq_dimid(ncbfmid, "oceanpoint", IDocepnt)
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire_dimension(ncbfmid, IDocepnt, len = lenoce)
+     ! check if we have erroneously included land domains
+     ! and skip the domain
+     if (lenoce==1) cycle
      status = nf90_inq_dimid(ncbfmid, "surfacepoint", IDsrfpnt)
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire_dimension(ncbfmid, IDsrfpnt, len = lensrf)
@@ -133,11 +136,6 @@ subroutine merge_vars
      maskglo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1,:) = mask(:,:,:)
      latglo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1) = lat(:,:)
      longlo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1) = lon(:,:)
-#ifdef DEBUG
-     write(*,*) "domain specifications:",nimpp,nlci,njmpp,nlcj
-     write(*,*) "size maskglo:",size(maskglo,1),size(maskglo,2),size(maskglo,3)
-     write(*,*) "size latglo:",size(latglo,1),size(latglo,2)
-#endif
      deallocate(lon)
      deallocate(lat)
 
@@ -146,14 +144,17 @@ subroutine merge_vars
      jpj = nlcj
      allocate(bfmvar3d(jpi,jpj,jpk,ntime))
      allocate(bfmvar2d(jpi,jpj,ntime))
+#ifdef DEBUG
+     write(*,*) "domain specifications nimpp,nlci,njmpp,nlcj,jpi,jpj,jpk,ntime:", &
+                nimpp,nlci,njmpp,nlcj,jpi,jpj,jpk,ntime
+     write(*,*) "size maskglo:",size(maskglo,1),size(maskglo,2),size(maskglo,3)
+     write(*,*) "size latglo:",size(latglo,1),size(latglo,2)
+#endif
 
      ! loop over the variables
      do d=1,n_bfmvar
         status=nf90_inquire_variable(ncbfmid, bfmvarid(d), xtype=vartype, ndims=ndims, name=varname)
         if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
-#ifdef DEBUG
-        write(*,*) "Writing variable: "//trim(varname)
-#endif
         status=nf90_inquire_variable(ncbfmid, bfmvarid(d), dimids=dimids(1:ndims))
         status = nf90_inquire_dimension(ncbfmid, dimids(1), len = dimlen(1))
         allocate(chunk(dimlen(1),ntime))
@@ -163,6 +164,10 @@ subroutine merge_vars
         if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
         ! inquire ID in the output file
         status = nf90_inq_varid(ncid, varname, IDvar)
+#ifdef DEBUG
+        write(*,*) "Writing variable: "//trim(varname)
+        write(*,*) "BFM Dimension:",dimlen(1)
+#endif
 
         if (dimlen(1) == lenoce) then ! 3D variable
            bfmvar3d=NF90_FILL_REAL
@@ -180,6 +185,9 @@ subroutine merge_vars
            end do
            status = nf90_put_var(ncid, IDvar, bfmvar3d, &
                     start = (/ nimpp, njmpp, 1, 1 /), count = (/ jpi, jpj, jpk, ntime /))
+#ifdef DEBUG
+        write(*,*) "3D var, Dimensions: ",jpi, jpj, jpk, ntime
+#endif
            if (status /= NF90_NOERR) &
               call handle_err(status,errstring="variable: "//trim(varname))
         else
@@ -196,6 +204,9 @@ subroutine merge_vars
            end do
            status = nf90_put_var(ncid, IDvar, bfmvar2d, &
                     start = (/ nimpp, njmpp, 1 /), count = (/ jpi, jpj, ntime /))
+#ifdef DEBUG
+        write(*,*) "2D var, Dimensions: ",jpi, jpj, ntime
+#endif
            if (status /= NF90_NOERR) &
               call handle_err(status,errstring="variable: "//trim(varname))
         end if
@@ -209,8 +220,17 @@ subroutine merge_vars
      deallocate(oceanpoint)
      deallocate(bfmvar3d)
      deallocate(bfmvar2d)
+
+#ifdef DEBUG
+     status = nf90_inquire(ncid, nDims, nVars, nGlobalAtts, IDunlimdim)
+     if (status /= NF90_NOERR) call handle_err(status)
+     status = nf90_inquire_dimension(ncid, IDunlimdim, len = ntime)
+     write(*,*) "Current number of time frames:",ntime
+#endif
   end do ! processes
 
+
+#ifdef PIPPO
   ! write global grid specifications
      status = nf90_inq_varid(ncid, "mask", IDmask)
      status = nf90_put_var(ncid, IDmask, maskglo, start = (/ 1, 1, 1 /),     &
@@ -225,6 +245,7 @@ subroutine merge_vars
      status = nf90_put_var(ncid, IDmask, longlo, start = (/ 1, 1 /),     &
                             count = (/ jpiglo, jpjglo /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lon")
+#endif
 
      status = nf90_close(ncid)
      if (status /= NF90_NOERR) call handle_err(status)
