@@ -212,7 +212,11 @@
       ! Initialise bacteria components 
       call init_constituents(c=B1c,n=B1n,p=B1p)
       call init_constituents(c=R1c,n=R1n,p=R1p)
+#ifdef INCLUDE_PELFE
+      call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s,f=R6f)
+#else
       call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s)
+#endif
 
       ! Initialise zooplankton components checking for fixed-quota
       do i = 1 , ( iiMicroZooPlankton)

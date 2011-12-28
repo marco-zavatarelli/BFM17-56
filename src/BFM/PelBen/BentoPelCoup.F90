@@ -13,7 +13,7 @@
 !   and assign boundary fluxes
 !
 ! !INTERFACE
-#if defined INCLUDE_BEN && ! defined BFM_STANDALONE
+#if ! defined BFM_STANDALONE
   subroutine BentoPelCoupDynamics
 !
 ! !USES:
@@ -35,6 +35,10 @@
     jRIY3s, jbotO2o, jbotN1p, jbotN3n, jbotN4n, jbotN5s, jbotN6r, jbotR6c, jbotR6n, &
     jbotR6p, jbotR6s, jbotR1c, jbotR1n, jbotR1p, PELBOTTOM, &
     iiP1, iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, flux
+#ifdef INCLUDE_PELFE
+  use mem, ONLY: iiF,R6f,ppR6f,jbotR6f
+#endif
+
  use mem,  ONLY: Source_D2_vector
  use mem, ONLY: ppY3p,ppP1p,ppP2p,ppP3p,ppP4p,ppZ5c,ppZ6c,iiZ5,iiZ6,qp_mz
 #if defined INCLUDE_PELCO2 && defined INCLUDE_BENCO2
@@ -276,6 +280,10 @@
           Depth(kbot)) )
         call flux(kbot, iiPel, ppR1p, ppR1p, ( jbotR1p(BoxNumberXY)/ &
           Depth(kbot)) )
+#ifdef INCLUDE_PELFE
+        call flux(kbot, iiPel, ppR6f, ppR6f, ( jbotR6f(BoxNumberXY)/ &
+          Depth(kbot)) )
+#endif
       end do ! loop over NO_BOXES_XY
    end if ! AssignPelBenFluxesInBFMFlag
 
