@@ -35,6 +35,9 @@
 #endif
    use mem_Param, ONLY: AssignPelBenFluxesInBFMFlag
    use string_functions, ONLY: getseq_number,empty
+#ifdef INCLUDE_PELFE
+   use mem_Phyto, ONLY: p_qfRc
+#endif
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -110,7 +113,7 @@
    ! data. The namelist values override the
    ! assignment
    !---------------------------------------------
-   InitVar = InputInfo(0,"dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO)
+   InitVar = InputInfo(0,"dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO,.FALSE.,.FALSE.,.FALSE.)
 
    !---------------------------------------------
    ! Open and read the namelist
@@ -198,9 +201,15 @@
             call init_constituents(c=PhytoPlankton(i,iiC),      &
                            s=D3STATE(ppPhytoPlankton(i,iiS),:), &
                            sc=p_qsRc(i))
+#ifdef INCLUDE_PELFE
+         if (ppPhytoPlankton(i,iiF)>0)                          &
+            call init_constituents(c=PhytoPlankton(i,iiC),      &
+                           f=D3STATE(ppPhytoPlankton(i,iiF),:), &
+                           fc=p_qfRc(i))
+#endif
       end do
       
-      ! Initialise bacteria components checking for fixed-quota
+      ! Initialise bacteria components 
       call init_constituents(c=B1c,n=B1n,p=B1p)
       call init_constituents(c=R1c,n=R1n,p=R1p)
       call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s)
@@ -281,10 +290,9 @@
 #endif
    end if
    do j = 1,iiPhytoPlankton
-      iiLastElement = iiL
       if (.NOT.CalcPhytoPlankton(j)) then
-         if (j==iiP1) iiLastElement=iiS
-         do i = iiC,iiLastElement
+         iiLastElement=ppPhytoPlankton(j,0,cmax=1)
+         do i = 1,iiLastElement
             D3STATE(ppPhytoPlankton(j,i),:) = p_small
             D3STATETYPE(ppPhytoPlankton(j,i)) = NOTRANSPORT
 #if defined key_obcbfm
@@ -294,14 +302,9 @@
       end if
    end do
    do j = 1,iiMesoZooPlankton
-      if ( (ppMesoZooPlankton(j,iiP)>0) .and. &
-           (ppMesoZooPlankton(j,iiN)>0) ) then
-         iiLastElement = iiP
-      else
-         iiLastElement = iiC
-      end if
       if (.NOT.CalcMesoZooPlankton(j)) then
-         do i = iiC,iiLastElement
+         iiLastElement=ppMesoZooPlankton(j,0,cmax=1)
+         do i = 1,iiLastElement
             D3STATE(ppMesoZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMesoZooPlankton(j,i)) = NOTRANSPORT
 #if defined key_obcbfm
@@ -311,14 +314,9 @@
       end if
    end do
    do j = 1,iiMicroZooPlankton
-      if ( (ppMicroZooPlankton(j,iiP)>0) .and. &
-           (ppMicroZooPlankton(j,iiN)>0) ) then
-         iiLastElement = iiP
-      else
-         iiLastElement = iiC
-      end if
       if (.NOT.CalcMicroZooPlankton(j)) then
-         do i = iiC,iiLastElement
+         iiLastElement=ppMicroZooPlankton(j,0,cmax=1)
+         do i = 1,iiLastElement
             D3STATE(ppMicroZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMicroZooPlankton(j,i)) = NOTRANSPORT
 #if defined key_obcbfm
@@ -342,17 +340,17 @@
 
 #ifdef INCLUDE_BEN
    do j = 1,iiBenOrganisms
-      iiLastElement = iiP
       if (.NOT.CalcBenOrganisms(j)) then
-         do i = iiC,iiLastElement
+         iiLastElement=ppBenOrganisms(j,0,cmax=1)
+         do i = 1,iiLastElement
             D2STATE(ppBenOrganisms(j,i),:) = p_small
          end do
       end if
    end do
    do j = 1,iiBenBacteria
-      iiLastElement = iiP
       if (.NOT.CalcBenBacteria(j)) then
-         do i = iiC,iiLastElement
+         iiLastElement=ppBenBacteria(j,0,cmax=1)
+         do i = 1,iiLastElement
             D2STATE(ppBenBacteria(j,i),:) = p_small
          end do
       end if

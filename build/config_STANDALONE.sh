@@ -10,8 +10,10 @@
 #  INCLUDE_SEAICE
 #  INCLUDE_DIAG3D, INCLUDE_DIAG2D
 
-#  Warning: still not working for benthic BFM
-#           don't use DIAG with D1SOURCE and ONESOURCE
+#  Warnings
+# 1. Still not working for benthic BFM don't use DIAG with D1SOURCE and ONESOURCE
+# 2. Adding the NOPOINTERS key to compile with gfortran 4.5 and older
+# 3. Using the key DEBUG will add more output information
 
 #----------------- User configuration -----------------
 archfile="${BFMDIR}/compilers/mpxlf90_calypso.inc"

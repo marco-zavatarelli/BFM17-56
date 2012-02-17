@@ -37,7 +37,7 @@
                 p_qon_nitri = 2.0
                     p_clDxm = 0.001
        CalcConservationFlag = .FALSE.
-          CalcTransportFlag = .TRUE.
+          CalcTransportFlag = .FALSE.
             CalcPelagicFlag = .TRUE.
             CalcBenthicFlag = 0
                     p_poro0 = 0.7 

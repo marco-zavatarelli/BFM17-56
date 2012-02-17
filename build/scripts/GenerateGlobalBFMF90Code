@@ -1272,7 +1272,7 @@ if { [ info exists VARS($dim,state,name) ] } {
     if { $components == "" } { set components $mis_components }
     regsub $representative [ lindex $components 0 ] "" firstc
     PrintLine -print ""
-    PrintLine -print "function $pre${groupname}(n,constituent)"
+    PrintLine -print "function $pre${groupname}(n,constituent,cmax)"
     Section -incr body
     PrintLine -print ""
     PrintLine -crepeat "-="
@@ -1285,8 +1285,9 @@ if { [ info exists VARS($dim,state,name) ] } {
      } else {
       PrintLine -print "real(RLEN),dimension(:),pointer ::$pre$groupname"
      }
-    PrintLine -print "integer, intent(IN) ::n"
-    PrintLine -print "integer, intent(IN) ::constituent"
+    PrintLine -print "integer, intent(IN)            :: n"
+    PrintLine -print "integer, intent(IN)            :: constituent"
+    PrintLine -print "integer, intent(IN), optional  :: cmax"
     PrintLine -print ""
     if { $pre == "pp" } {
       catch { unset k }; set l 0
@@ -1324,6 +1325,7 @@ if { [ info exists VARS($dim,state,name) ] } {
       PrintLine -print "$pre$groupname=0"
       Section -decr body
       PrintLine -print "endif"
+      PrintLine -print "if ( present(cmax) ) $pre$groupname = const_max(n)"
     } else {
       regsub d $dim "" dim2
       PrintLine -print "$pre$groupname => D${dim2}STATE(pp${groupname}(n,constituent),:)"

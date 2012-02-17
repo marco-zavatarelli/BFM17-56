@@ -50,7 +50,6 @@ module mod_bnmerge
    integer,allocatable,dimension(:),public         :: bfmvarid
 
    character(LEN=100) :: out_dir, out_fname
-   logical            :: old_layout_flag = .FALSE.
    public 
    contains 
 

@@ -2,8 +2,8 @@
 	LD=gfortran
 	AR=ar
 	ARFLAGS=-r
-        NCDF_LIB= -L/usr/lib -lnetcdff -lnetcdf
-        NCDF_INC= /usr/include
+        NCDF_LIB= -L/usr/local/lib -lnetcdff -lnetcdf -L/usr/local/lib -lhdf5_hl -lhdf5 -lz 
+        NCDF_INC= /usr/local/include 
 	CPPFLAGS=
-	FFLAGS= -g -O3 -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize -I${NCDF_INC}
+	FFLAGS= -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize -I${NCDF_INC}
 	LDFLAGS= -I${NCDF_INC} ${NCDF_LIB} 

@@ -76,7 +76,7 @@
 !stop		string	Final   time: YYYY/MM/DD HH:MM:SS
 !-------------------------------------------------------------------------!
  &time_nml
-  timefmt=      2,
+  timefmt=      4,
   MaxN=         144,
   simdays=      5760,
   start=        "2000-01-01 00:00:00",

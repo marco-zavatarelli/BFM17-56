@@ -21,7 +21,7 @@ subroutine read_input
   integer           :: iost,n
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
-  namelist /bnmerge_nml/ out_dir,out_fname,layout,old_layout_flag 
+  namelist /bnmerge_nml/ out_dir,out_fname,layout
 
 
       ! Reading directory names and file name specification
@@ -36,8 +36,9 @@ subroutine read_input
                write (*,*) '     unit   = ', inum
                write (*,*)
       end if
-      if ( .NOT. old_layout_flag) read (inum,'(a)') dummyline
-      read (inum,'(6i8)') jpnij,jpi,jpj,jpk,jpiglo,jpjglo
+      read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
+      ! get rid of the problem with different forms of the layout.dat file
+      if ( iost /= 0 ) read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
       read (inum,'(a)') dummyline
       allocate (nimppt(jpnij))
       allocate (njmppt(jpnij))

@@ -501,7 +501,7 @@ end subroutine init_netcdf_rst_bfm
    call check_err(iret)
    iret = NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len)
    call check_err(iret)
-   if (nstate_len/=NO_D3_BOX_STATES .OR. ncomp_len/=NO_BOXES) then
+   if (nstate_len/=NO_D3_BOX_STATES .OR. ncomp_len/=NO_BOXES .AND. ncomp_len > 1) then
       LEVEL1 "3D Dimension mismatch in restart file:"
       LEVEL2 TRIM(fname)
       LEVEL3 "NO_D3_BOX_STATES in model:", NO_D3_BOX_STATES
@@ -644,8 +644,8 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Store the initial conditions
    !---------------------------------------------
-   ltime=0.0
-   call save_bfm(ltime)
+   !ltime=0.0
+   !call save_bfm(ltime)
 
    return
    end subroutine init_save_bfm

@@ -57,6 +57,7 @@ subroutine create_outputfile
               status = nf90_def_var(ncid, "lon", NF90_REAL, (/ IDx, IDy /), IDtarget)
      ! copy global attributes
 #ifdef DEBUG
+        write(*,*) "Creating file:",trim(out_fname)//".nc"," containing",ntime,"time frames"
         write(*,*) "Start copying global attributes ..."
 #endif
      do IDatt=1,nGlobalAtts
@@ -101,7 +102,7 @@ subroutine create_outputfile
      ! copy time variable and attributes
      status = nf90_inq_varid(ncbfmid, "time", IDtimetmp)
      if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname)
-     allocate(timE(ntime))
+     allocate(time(ntime))
      status = nf90_get_var(ncbfmid, IDtimetmp, time, start = (/ 1 /), count = (/ ntime /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="reading time values from"//fname)
      status = nf90_def_var(ncid, "time", NF90_REAL, (/ IDtime /), IDvartime)
@@ -120,7 +121,7 @@ subroutine create_outputfile
      status = nf90_close(ncid)
      if (status /= NF90_NOERR) call handle_err(status)
 #ifdef DEBUG
-        write(*,*) "Output file created!"
+        write(*,*) "Output file created with ",ntime,"time frames"
 #endif
 
      return

@@ -41,6 +41,8 @@
    use iom
    use sbc_oce, only: ln_rnf
    use trc_oce, only: etot3
+   use trcdta
+   use trcbc
    use dom_oce, only: nyear, nmonth, nday
 
    IMPLICIT NONE
@@ -240,9 +242,21 @@
    ! Done if restart is not used
    !-------------------------------------------------------
    if (bfm_init /= 1) then
+      ! this is done for compatibility with NEMO variables
+      if (allocated(ln_trc_ini)) deallocate(ln_trc_ini)
+      allocate(ln_trc_ini(NO_D3_BOX_STATES))
+      ln_trc_ini(:) = .false.
       do m = 1,NO_D3_BOX_STATES
-         select case (InitVar(m) % flag)
+         if (InitVar(m) % init == 2) ln_trc_ini(m) = .true.
+      end do
+      ! initialize the data structure for input fields
+      ! found in the top_namelist
+      call trc_dta_init(NO_D3_BOX_STATES)
+      do m = 1,NO_D3_BOX_STATES
+         select case (InitVar(m) % init)
          case (1) ! Analytical profile
+            if (lwp) write(numout,*) '            Initializing BFM variable ', &
+                     trim(var_names(stPelStateS+m-1)),' from Analytical profile.'
             rtmp3Da = ZERO
             ! fsdept contains the model depth
             do j = 1,jpj
@@ -253,19 +267,29 @@
             end do
             D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
          case (2) ! from file
-            rtmp3Db = ZERO
-            if (lwp) write(LOGUNIT,*) 'Initializing BFM variable ',trim(var_names(stPelStateS+m-1))
-            if (lwp) write(LOGUNIT,*) 'from file ',trim(InitVar(m) % filename)
-            call iom_open ( InitVar(m) % filename, nc_id )
-            call iom_get (nc_id,jpdom_data,InitVar(m) % varname,rtmp3Db(:,:,:),1)
-            D3STATE(m,:)  = pack(rtmp3Db,SEAmask)
-            call iom_close(nc_id)
+            if (lwp) write(numout,*) '            Initializing BFM variable ', &
+                     trim(var_names(stPelStateS+m-1)),' from file'
+            ! mapping index
+            ll = n_trc_index(m)
+            call trc_dta(nit000,sf_trcdta(ll),rf_trfac(ll))
+            D3STATE(m,:)  = pack(sf_trcdta(ll)%fnow(:,:,:),SEAmask)
          end select
       end do
    end if
 
    deallocate(rtmp3Da)
    deallocate(rtmp3Db)
+
+!   IF( nb_trcdta > 0 .AND. .NOT.ln_trcdmp ) THEN
+   IF( nb_trcdta > 0 ) THEN
+      !==   deallocate data structure   ==! 
+      !        data used only for initialisation)
+      IF(lwp) WRITE(numout,*) 'trc_dta: deallocate data arrays as they are only use to initialize the run'
+      DO ll = 1, ntra
+                                       DEALLOCATE( sf_trcdta(ll)%fnow )     !  arrays in the structure
+         IF( sf_trcdta(ll)%ln_tint )   DEALLOCATE( sf_trcdta(ll)%fdta )
+      ENDDO
+   ENDIF
 
    !-------------------------------------------------------
    ! initialise netcdf output
@@ -299,34 +323,29 @@
       D2STATEB = D2STATE
 #endif
 
-   if (ln_rnf) then
-      !-------------------------------------------------------
-      ! Fill-in the initial river concentration
-      ! MAV: the strategy is to assign the initial values for
-      ! selected variables. Since the mask is zero elsewhere,
-      ! the initial concentration close to the mouth is used
-      !-------------------------------------------------------
-      PELRIVER(ppO2o,:) = RIVmask(:)*D3STATE(ppO2o,SRFindices)
-      PELRIVER(ppN1p,:) = RIVmask(:)*D3STATE(ppN1p,SRFindices)
-      PELRIVER(ppN3n,:) = RIVmask(:)*D3STATE(ppN3n,SRFindices)
-      PELRIVER(ppN4n,:) = RIVmask(:)*D3STATE(ppN4n,SRFindices)
-      PELRIVER(ppN5s,:) = RIVmask(:)*D3STATE(ppN5s,SRFindices)
-#ifdef INCLUDE_PELCO2
-      PELRIVER(ppO3c,:) = D3STATE(ppO3c,SRFindices)
-      PELRIVER(ppO3h,:) = D3STATE(ppO3h,SRFindices)
-#endif
-   end if
 
    ! Initialise the array containing light bioshading
    !-------------------------------------------------------
    if ( ln_qsr_bio ) etot3(:,:,:) = ZERO
 
-#if defined key_obcbfm
+   ! Initialise the arrays containing external boundary data
    !-------------------------------------------------------
-   ! initialize obc with the BFM
-   !-------------------------------------------------------
-      CALL trcobc_init_bfm
-#endif
+   if (allocated(ln_trc_obc)) deallocate(ln_trc_obc)
+      allocate(ln_trc_obc(NO_D3_BOX_STATES))
+      ln_trc_obc(:) = .false.
+   if (allocated(ln_trc_sbc)) deallocate(ln_trc_sbc)
+      allocate(ln_trc_sbc(NO_D3_BOX_STATES))
+      ln_trc_sbc(:) = .false.
+   if (allocated(ln_trc_cbc)) deallocate(ln_trc_cbc)
+      allocate(ln_trc_cbc(NO_D3_BOX_STATES))
+      ln_trc_cbc(:) = .false.
+   do m = 1,NO_D3_BOX_STATES
+      if (InitVar(m) % obc) ln_trc_obc(m) = .true.
+      if (InitVar(m) % sbc) ln_trc_sbc(m) = .true.
+      if (InitVar(m) % cbc) ln_trc_cbc(m) = .true.
+   end do
+   call trc_bc_init
+
    return
 
    end subroutine trc_ini_bfm

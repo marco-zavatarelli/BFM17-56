@@ -7,13 +7,11 @@
 !out_fname 	  string 	Name of NetCDF output file out_fname_0000.nc
 !out_dir 	  string 	Path to the output file
 !layout 	  string 	Path to the layout.dat file
-!old_layout_flag  logical       If true reads layout.dat prior to NEMO V3
 !-------------------------------------------------------------------------!
 &bnmerge_nml
-   out_fname='PELAGOS_ORCA2'
-   out_dir='/data/ans017/EXPERIMENTS/ORCA2'
-   layout = '/data/ans017/EXPERIMENTS/ORCA2/layout.dat'
-   old_layout_flag = .FALSE.
+   out_fname='FILENAME'
+   out_dir='/path/to/dir'
+   layout ='/path/to/layout.dat'
 /
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

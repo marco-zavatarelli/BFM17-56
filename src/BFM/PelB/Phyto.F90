@@ -505,21 +505,24 @@
   ! Excretion of N and P to PON and POP
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if (p_netgrowth(phyto)) then
-     rr6n  =   pe_R6* sdo* phyton
-     rr1n  =   sdo* phyton- rr6n
+     rr6n  =  pe_R6* sdo* phyton
+     rr1n  =  sdo* phyton- rr6n
 
-     rr6p  =   pe_R6* sdo* phytop
-     rr1p  =   sdo* phytop- rr6p
+     rr6p  =  pe_R6* sdo* phytop
+     rr1p  =  sdo* phytop- rr6p
   else
-     rr6n = rr6c*p_qnlc(phyto)
-     rr6p = rr6c*p_qplc(phyto)
+     rr6n  =  rr6c*p_qnlc(phyto)
+     rr1n  =  ZERO
+
+     rr6p  =  rr6c*p_qplc(phyto)
+     rr1p  =  ZERO
   end if
 
-  call flux_vector( iiPel, ppphyton,ppR1n, rr1n )  ! source/sink.n
   call flux_vector( iiPel, ppphyton,ppR6n, rr6n )  ! source/sink.n
+  call flux_vector( iiPel, ppphyton,ppR1n, rr1n )  ! source/sink.n
 
-  call flux_vector( iiPel, ppphytop,ppR1p, rr1p )  ! source/sink.p
   call flux_vector( iiPel, ppphytop,ppR6p, rr6p )  ! source/sink.p
+  call flux_vector( iiPel, ppphytop,ppR1p, rr1p )  ! source/sink.p
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
