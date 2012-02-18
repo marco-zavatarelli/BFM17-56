@@ -13,7 +13,7 @@
 !   and assign boundary fluxes
 !
 ! !INTERFACE
-#if defined INCLUDE_BEN && ! defined BFM_STANDALONE
+#if ! defined BFM_STANDALONE
   subroutine BentoPelCoupDynamics
 !
 ! !USES:

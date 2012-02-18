@@ -126,6 +126,8 @@
 #else
   ! only the net sink at the bottom is computed
   call SettlingDynamics
+  call BentoPelCoupDynamics
+
 #endif
 
   if (CalcConservationFlag) &

@@ -83,7 +83,13 @@
 #else
       case (ppR6c,ppR6n,ppR6p,ppR6s)
 #endif
-         wbio = -p_rR6m
+#ifdef USEPACK
+         wbio = -unpack(sediR6(:),SEAmask,ZEROS)
+#else
+         DO n = 1,NO_BOXES
+            wbio(iwet(n),jwet(n),kwet(n)) = -sediR6(n)
+         END DO
+#endif
          CALL trc_sink_bfm(wbio)       ! vertical sinking
       case default
          wbio = 0.0_RLEN

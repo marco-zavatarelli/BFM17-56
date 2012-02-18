@@ -158,17 +158,17 @@
                ! Phytoplankton chlorophyll (stored but not used)
                j=ppPhytoPlankton(i,iiL)
                lcl_PhytoPlankton => PhytoPlankton(i,iiL)
-                ruQIl  =   sedi* lcl_PhytoPlankton(kbot)
-                PELBOTTOM(j,BoxNumberXY)=  - ruQIl
-                ! Phytoplankton silica
-                j=ppPhytoPlankton(i,iiS)
-                if ( j> 0) then
-                   lcl_PhytoPlankton => PhytoPlankton(i,iiS)
-                   ruQ6s  =   sedi* lcl_PhytoPlankton(kbot)
-                   PELBOTTOM(j,BoxNumberXY)  = - ruQ6s
-                   call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(kbot))
-                   jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
-                end if
+               ruQIl  =   sedi* lcl_PhytoPlankton(kbot)
+               PELBOTTOM(j,BoxNumberXY)=  - ruQIl
+               ! Phytoplankton silica
+               j=ppPhytoPlankton(i,iiS)
+               if ( j> 0) then
+                  lcl_PhytoPlankton => PhytoPlankton(i,iiS)
+                  ruQ6s  =   sedi* lcl_PhytoPlankton(kbot)
+                  PELBOTTOM(j,BoxNumberXY)  = - ruQ6s
+                  call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(kbot))
+                  jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
+               end if
             else
                 PELBOTTOM(ppPhytoPlankton(i,iiC),BoxNumberXY) = ZERO
                 PELBOTTOM(ppPhytoPlankton(i,iiN),BoxNumberXY) = ZERO
