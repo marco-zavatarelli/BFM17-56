@@ -644,9 +644,11 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Store the initial conditions
    !---------------------------------------------
-   !ltime=0.0
-   !call save_bfm(ltime)
-
+   if (bfm_rstctl) then
+      ltime=0.0
+      call save_bfm(ltime)
+      LEVEL2 'BFM Initial conditions saved into the output file.'
+   endif
    return
    end subroutine init_save_bfm
 !EOC

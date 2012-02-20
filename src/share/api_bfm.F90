@@ -26,7 +26,7 @@
    public init_bfm, find
 !
 ! !PUBLIC DATA MEMBERS:
-   logical                            :: bio_calc,bioshade_feedback
+   logical                            :: bio_calc,bioshade_feedback,bfm_rstctl
    integer                            :: bio_setup  =1
    integer                            :: bfm_init  =0
    integer                            :: surface_flux_method=-1
@@ -258,10 +258,10 @@ contains
 #if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
 #endif
-   namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,         &
-                      out_fname,out_dir,out_units,         &
-                      out_title,out_delta,out_secs,        &
-                      bioshade_feedback,parallel_log
+   namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,bfm_rstctl,   &
+                      out_fname,out_dir,out_units,out_title,    &
+                      out_delta,out_secs,bioshade_feedback,     &
+                      parallel_log
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -270,16 +270,17 @@ contains
    !---------------------------------------------
    ! Provide sensible values for namelist parameters
    !---------------------------------------------
-   bio_calc=.TRUE.
-   bio_setup=1
-   bfm_init = 0
-   out_fname='bfm'
-   rst_fname='bfm_restart'
-   out_dir='.'
-   out_title='Another great BFM simulation!'
-   out_units=0
-   out_delta=100
-   out_secs=100.0
+   bio_calc   = .TRUE.
+   bio_setup  = 1
+   bfm_init   = 0
+   bfm_rstctl = .FALSE.
+   out_fname  = 'bfm'
+   rst_fname  = 'bfm_restart'
+   out_dir    = '.'
+   out_title  = 'Another great BFM simulation!'
+   out_units  = 0
+   out_delta  = 100
+   out_secs   = 100.0
    bioshade_feedback=.FALSE.
 
    !---------------------------------------------

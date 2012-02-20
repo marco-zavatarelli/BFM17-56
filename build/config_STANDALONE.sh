@@ -16,10 +16,10 @@
 # 3. Using the key DEBUG will add more output information
 
 #----------------- User configuration -----------------
-archfile="${BFMDIR}/compilers/mpxlf90_calypso.inc"
+archfile="${BFMDIR}/compilers/gfortran.inc"
 exe=${BFMDIR}/bin/bfm_standalone.x
 
-cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2"
+cppdefs="-DBFM_STANDALONE"
 myGlobalDef="GlobalDefsBFM.model.standard"
 #----------------- User configuration -----------------
 #set -xv
@@ -58,7 +58,7 @@ find ${BFMDIR}/src/BFM/PelBen -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Ben -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Light -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
-find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
+#find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
 
 # Make makefile
 ${MKMF} -c "${cppdefs}" -o "${oflags}" -t ${archfile} -p ${exe} BFM.lst

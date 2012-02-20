@@ -37,6 +37,7 @@
 !bfm_init       integer Initialization state
 !                       0. from constant values in bfm_init_nml below
 !                       1. from restart
+!bfm_rstctl     logical Save initial state of bfm in the output file.
 !bio_setup	integer BFM configuration:
 !			1. pelagic
 !			2. benthic
@@ -47,14 +48,14 @@
 !out_delta 	integer Output is saved every out_delta timesteps
 !-------------------------------------------------------------------------!
 &bfm_nml
-    bio_calc = .TRUE.
-    bfm_init = 0
-   bio_setup = 1
-   out_fname = 'BFM_standalone_pelagic'
-     out_dir = '.'
-   out_title = 'BFM_TEMPERATE_PELAGIC'
-   out_delta = 300 !every 30 days
-!   out_delta = 1 !every 30 days
+   bio_calc   = .TRUE.
+   bfm_init   = 0
+   bfm_rstctl = .TRUE. 
+   bio_setup  = 1
+   out_fname  = 'BFM_standalone_pelagic'
+   out_dir    = '.'
+   out_title  = 'BFM_TEMPERATE_PELAGIC'
+   out_delta  = 300 !every 30 days
 /
 
 !-------------------------------------------------------------------------!
@@ -91,8 +92,6 @@
    N5s0 = 8.0,
    N6r0 = 1.0,
    O2o0 = 300.0,
-   O3c0 = 24785.0   ! conversion from GLODAP 2303 umol/kg to mg/m3
-   O3h0 = 2360.0    ! GLODAP surface average (umol/kg) to mmol eq/m3
    O4n0 = 200.0,
    P1c0 = 1.0,
    P2c0 = 1.0,
@@ -171,7 +170,6 @@
     'qpB1c',
     'qnB1c',
 	  'sunPI(iiP1)','sunPI(iiP2)','sunPI(iiP3)','sunPI(iiP4)',
-    'O3c','O3h','DIC','pH','pCO2',
 /
 
 !EOC
