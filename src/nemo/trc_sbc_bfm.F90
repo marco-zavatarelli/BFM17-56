@@ -54,7 +54,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    TYPE(FLD), DIMENSION(1) ::   sf_dta  ! temporary array of information on the field to read
    !!----------------------------------------------------------------------
 
-
+!   if (lwp) write(numout,*) 'enter trc_sbc_bfm',m
    ! initialization of density and scale factor
    zsrau = 1. / rau0
    IF( .NOT. ln_sco )  zse3t = 1. / fse3t(1,1,1)
@@ -98,7 +98,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
     END DO
        
 
-if (lwp) write(numout,*) 'exit trc_sbc_bfm',m
+!if (lwp) write(numout,*) 'exit trc_sbc_bfm',m
 
    END SUBROUTINE trc_sbc_bfm
 

@@ -255,6 +255,8 @@
       do m = 1,NO_D3_BOX_STATES
          select case (InitVar(m) % init)
          case (1) ! Analytical profile
+            if (lwp) write(numout,*) '            Initializing BFM variable ', &
+                     trim(var_names(stPelStateS+m-1)),' from Analytical profile.'
             rtmp3Da = ZERO
             ! fsdept contains the model depth
             do j = 1,jpj

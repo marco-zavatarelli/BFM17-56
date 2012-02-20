@@ -11,7 +11,7 @@
 &bnmerge_nml
    out_fname='FILENAME'
    out_dir='/path/to/dir'
-   layout = '/path/to/layout.dat'
+   layout ='/path/to/layout.dat'
 /
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

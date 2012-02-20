@@ -53,8 +53,8 @@
    out_fname = 'BFM_standalone_pelagic'
      out_dir = '.'
    out_title = 'BFM_TEMPERATE_PELAGIC'
-!   out_delta = 300 !every 30 days
-   out_delta = 1 !every 30 days
+   out_delta = 300 !every 30 days
+!   out_delta = 1 !every 30 days
 /
 
 !-------------------------------------------------------------------------!
@@ -91,6 +91,8 @@
    N5s0 = 8.0,
    N6r0 = 1.0,
    O2o0 = 300.0,
+   O3c0 = 24785.0   ! conversion from GLODAP 2303 umol/kg to mg/m3
+   O3h0 = 2360.0    ! GLODAP surface average (umol/kg) to mmol eq/m3
    O4n0 = 200.0,
    P1c0 = 1.0,
    P2c0 = 1.0,
@@ -169,17 +171,7 @@
     'qpB1c',
     'qnB1c',
 	  'sunPI(iiP1)','sunPI(iiP2)','sunPI(iiP3)','sunPI(iiP4)',
-	'ruPTc',
-	'ruPTn',
-	'ruPTp',
-	'rePTn',
-	'rePTp',
-	'exPP',
-	'resPP',
-	'ruZTc',
-	'resZT',
-    'fR2B1c',
-    'fP1Z4c'
+    'O3c','O3h','DIC','pH','pCO2',
 /
 
 !EOC

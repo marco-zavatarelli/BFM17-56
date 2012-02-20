@@ -1,6 +1,6 @@
 # Makefile created by mkmf $Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ 
 
-include ../../compilers/xlf90.inc
+include ../../compilers/mpxlf90_calypso.inc
 
 
 .DEFAULT:
