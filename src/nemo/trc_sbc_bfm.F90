@@ -69,10 +69,10 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
        sf_trcsbc(jn) = sf_dta(1) 
        DO jj = 2, jpj
           DO ji = fs_2, fs_jpim1   ! vector opt.
-              IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-                 ! MAV: units in input files are assumed to be 1/day
-                 tra(ji,jj,1,1) = tra(ji,jj,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(ji,jj,1) &
-                                               * zse3t / SEC_PER_DAY 
+             IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+             ! MAV: units in input files are assumed to be 1/day
+             tra(ji,jj,1,1) = tra(ji,jj,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(ji,jj,1) &
+                              * zse3t / SEC_PER_DAY 
           END DO
        END DO
     END IF
@@ -83,7 +83,15 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
        jn = n_trc_indcbc(m)
        sf_dta = sf_trccbc(jn)
        CALL fld_read( kt, 1, sf_dta )
-       tra(:,:,1,1) = tra(:,:,1,1) - zsrau*sf_rnf(1)%fnow(:,:,1)*sf_trccbc(jn)%fnow(:,:,1)/fse3t(:,:,1) 
+       ! return the info (needed because fld_read is stupid!)
+       sf_trccbc(jn) = sf_dta(1) 
+       DO jj = 2, jpj
+          DO ji = fs_2, fs_jpim1   ! vector opt.
+             IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+             tra(ji,jj,1,1) = tra(ji,jj,1,1) - zsrau * sf_rnf(1)%fnow(ji,jj,1) &
+                              * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t
+          END DO
+       END DO
     END IF
 
     ! Concentration and dilution effect on tra
