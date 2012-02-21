@@ -118,7 +118,7 @@
 !var_save: instantaneous value at the output interval
 !-------------------------------------------------------------------------!
 &bfm_save_nml
-   ave_save = 'ETW','O2o','DIC',
+   ave_save = 'ETW','O2o',
           'EIR',
           'N1p',
           'N3n',
@@ -179,15 +179,6 @@
     'qpB1c',
     'qnB1c',
 	  'sunPI(iiP1)','sunPI(iiP2)','sunPI(iiP3)','sunPI(iiP4)',
-	'ruPTc',
-	'ruPTn',
-	'ruPTp',
-	'rePTn',
-	'rePTp',
-	'exPP',
-	'resPP',
-	'ruZTc',
-	'resZT',
 /
 
 !EOC

@@ -5,7 +5,8 @@
 
 #  Currently available macros (cppdefs) are:
 #  INCLUDE_SILT
-#  INCLUDE_PELCO2, INCLUDE_BENCO2
+#  INCLUDE_PELFE                          : add Iron compoennt to the pelagic system
+#  INCLUDE_PELCO2, INCLUDE_BENCO2         : activate Carbonate System 
 #  INCLUDE_BEN, INCLUDE_BENPROFILES
 #  INCLUDE_SEAICE
 #  INCLUDE_DIAG3D, INCLUDE_DIAG2D
