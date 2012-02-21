@@ -7,17 +7,11 @@
 !
 ! DESCRIPTION
 !   This process descibes the additional dynamics of dissolved
-!       compounds in the water. Parameterized processes are:
+!   compounds in the water. Parameterized processes are:
 !       - nitrification
 !       - denitrification
 !       - reoxidation of reduction equivalents
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+!       - iron scavenging and remineralization (INCLUDE_PELFE)
 !
 ! !INTERFACE
   module mem_PelChem
@@ -38,7 +32,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -74,6 +68,12 @@
   real(RLEN)  :: p_sN3O4n
   real(RLEN)  :: p_rPAo
   real(RLEN)  :: p_sR6N5  ! (d-1) specific dissolution rate
+#ifdef INCLUDE_PELFE
+  real(RLEN)  :: p_q10R6N7   ! Q10 temperature dependence
+  real(RLEN)  :: p_sR6N7     ! Specific remineralization rate (d-1)
+  real(RLEN)  :: p_scavN7f   ! Specific scavenging rate (d-1)
+  real(RLEN)  :: p_N7fsol    ! Solubility concentration (umol Fe/m3)
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -86,21 +86,30 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /PelChem_parameters/ p_sN4N3, p_q10N4N3, p_q10R6N5, p_rOS, p_clO2o, &
     p_clN6r, p_sN3O4n, p_rPAo, p_sR6N5
+#ifdef INCLUDE_PELFE
+  namelist /PelChem_parameters_iron/ p_q10R6N7, p_sR6N7, p_scavN7f, p_N7fsol
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading PelChem parameters.."
-open(NMLUNIT,file='PelChem.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=PelChem_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=PelChem_parameters)
+  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+  write(LOGUNIT,*) "#  Reading PelChem parameters.."
+  open(NMLUNIT,file='PelChem.nml',status='old',action='read',err=100)
+  read(NMLUNIT,nml=PelChem_parameters,err=101)
+#ifdef INCLUDE_PELFE
+  read(NMLUNIT,nml=PelChem_parameters_iron,err=102)
+#endif
+  close(NMLUNIT)
+  write(LOGUNIT,*) "#  Namelist is:"
+  write(LOGUNIT,nml=PelChem_parameters)
+#ifdef INCLUDE_PELFE
+  write(LOGUNIT,nml=PelChem_parameters_iron)
+#endif
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -110,10 +119,11 @@ open(NMLUNIT,file='PelChem.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 100 call error_msg_prn(NML_OPEN,"InitPelChem.f90","PelChem.nml")
 101 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters")
+102 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters_iron")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitPelChem
   end module mem_PelChem
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

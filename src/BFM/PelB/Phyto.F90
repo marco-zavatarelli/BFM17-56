@@ -13,8 +13,7 @@
 !    are expressed by differences in parameter-values only.
 !    
 ! !INTERFACE
-  subroutine PhytoDynamics(phyto, ppphytoc, ppphyton, ppphytop, ppphytos, &
-    ppphytol)
+  subroutine PhytoDynamics(phyto)
 !
 ! !USES:
 
@@ -27,12 +26,17 @@
 #ifdef NOPOINTERS
   use mem
 #else
+  use mem, ONLY: iiC,iiN,iiP,iiS,iiL
   use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, &
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, ppR6s, SUNQ, ThereIsLight, ETW, EIR, &
     xEPS, Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, NO_BOXES, &
     iiBen, iiPel, flux_vector, sourcesink_flux_vector
+  use mem, ONLY: ppPhytoPlankton
+#ifdef INCLUDE_PELFE
+  use mem, ONLY: iiF,N7f,qfPc,ppN7f,ppR6f,ppR1f
+#endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag, p_qchlc, &
@@ -54,11 +58,7 @@
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
+
 
 !  
 !
@@ -94,6 +94,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer                         :: silica_control
   integer, save :: first=0
+  integer :: ppphytoc, ppphyton, ppphytop, ppphytos, ppphytol 
   real(RLEN),allocatable,save,dimension(:) :: phytoc,phyton,phytop,phytos,phytol
                                                                                                                                                              
   real(RLEN),allocatable,save,dimension(:) :: r,tmp,et,sum,sadap,sea,sdo,rugc,sra,srs, &
@@ -102,6 +103,11 @@
   real(RLEN),allocatable,save,dimension(:) :: rums,rups,miss,tN,iNN,iN,iN1p,iNIn,eN5s,rrc,rr1c, &
                                        rr1n,rr1p,rr6c,rr6n,rr6p,rr6s,runn,runn3, &
                                        runn4,runp,runs,Irr,rho_Chl,rate_Chl,seo,flPIR2c
+#ifdef INCLUDE_PELFE
+  integer :: ppphytof
+  real(RLEN),allocatable,save,dimension(:) :: phytof
+  real(RLEN),allocatable,save,dimension(:) :: iN7f,misf,rr1f,rr6f,rupf,rumf,runf
+#endif
   integer :: AllocStatus, DeallocStatus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -219,7 +225,43 @@
      if (AllocStatus  /= 0) stop "error allocating flPIR2c"
      allocate(seo(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating seo"
+#ifdef INCLUDE_PELFE
+     allocate(phytof(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating phytof"
+     allocate(misf(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating misf"
+     allocate(iN7f(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iN7f"
+     allocate(rr1f(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr1f"
+     allocate(rr6f(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rr6f"
+     allocate(rupf(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rupf"
+     allocate(rumf(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rumf"
+     allocate(runf(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating runf"
+#endif
   end if
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !  Copy  state var. object in local var
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ppphytoc = ppPhytoPlankton(phyto,iiC)
+  ppphyton = ppPhytoPlankton(phyto,iiN)
+  ppphytop = ppPhytoPlankton(phyto,iiP)
+  ppphytos = ppPhytoPlankton(phyto,iiS)
+  ppphytol = ppPhytoPlankton(phyto,iiL)
+  phytoc(:) = D3STATE(ppphytoc,:)
+  phyton(:) = D3STATE(ppphyton,:)
+  phytop(:) = D3STATE(ppphytop,:)
+  phytol(:) = D3STATE(ppphytol,:)
+  if ( ppphytos > 0 )  phytos(:) = D3STATE(ppphytos,:)
+#ifdef INCLUDE_PELFE
+  ppphytof = ppPhytoPlankton(phyto,iiF)
+  phytof(:) = D3STATE(ppphytof,:)
+#endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  silica_control =0 : no silica component present in cell
@@ -233,23 +275,15 @@
   !                      JSR 53 (2005) 25-42
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    silica_control=0
-   if ( p_qus(phyto) > 0.0 )  then
+   if ( p_qus(phyto) > ZERO )  then
       silica_control=2
-   elseif ( p_chPs(phyto) > 0.0 ) then
+   elseif ( p_chPs(phyto) > ZERO ) then
       silica_control=1
    endif
   
    ! force external regulation with nutrient-stress excretion
    if ( (.not.p_netgrowth(phyto)).and.(ppphytos > 0))  silica_control=1
  
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  Copy  state var. object in local var
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  phytoc = D3STATE(ppphytoc,:)
-  phyton = D3STATE(ppphyton,:)
-  phytop = D3STATE(ppphytop,:)
-  phytol = D3STATE(ppphytol,:)
-  if ( ppphytos > 0 )  phytos = D3STATE(ppphytos,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitation (intracellular) N, P
@@ -258,6 +292,10 @@
          - p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
   iNIn = min( ONE, max( p_small, ( qnPc(phyto,:) &
          - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
+#ifdef INCLUDE_PELFE
+  iN7f = min( ONE, max( p_small, ( qfPc(phyto,:) &
+         - p_qflc(phyto))/( p_qfRc(phyto)- p_qflc(phyto))))
+#endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Phytoplankton growth is limited by nitrogen and phosphorus
@@ -296,6 +334,10 @@
   else
     eN5s  =   ONE
   endif
+
+#ifdef INCLUDE_PELFE
+    eN5s = eN5s * iN7f
+#endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature response of Phytoplankton
@@ -559,6 +601,34 @@
     call flux_vector( iiPel, ppphytos, ppR6s, +( (sdo+ srs)* phytos ) )
   endif
 
+#ifdef INCLUDE_PELFE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Nutrient dynamics: IRON
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !  Nutrient uptake
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  rumf  =   p_quf(phyto)* N7f(:)* phytoc  ! max potential uptake for iron
+  misf  =   sadap*max(ZERO,p_xqf(phyto)*p_qfRc(phyto)*phytoc - phytof)  ! intracellular missing amount of F
+  rupf  =   p_xqp(phyto)* run* p_qfRc(phyto)  ! Fe uptake based on C uptake
+  runf  =   min(  rumf,  rupf+ misf)  ! actual uptake
+
+  r  =   insw_vector(  runf)
+  call flux_vector( iiPel, ppN7f,ppphytof, runf* r )  ! source/sink.p
+  call flux_vector(iiPel, ppphytof,ppN7f,- runf*( ONE- r))  ! source/sink.p
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Losses of Fe
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  rr6f  =   rr6c* p_qflc(phyto)
+  rr1f  =   sdo* phytof- rr6f
+
+  call flux_vector( iiPel, ppphytof,ppR1f, rr1f )  ! source/sink.fe
+  call flux_vector( iiPel, ppphytof,ppR6f, rr6f )  ! source/sink.fe
+#endif
 
   if ( ChlLightFlag== 2) then
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

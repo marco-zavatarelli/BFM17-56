@@ -30,6 +30,9 @@
     ETW, eO2mO2, qnB1c, qpB1c, qnPc, qpPc, qn_mz, qp_mz, &
     qlPc, qsPc, iiPhytoPlankton, iiMicroZooPlankton, iiC, iiN, iiP, iiL, iiS, &
     NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#ifdef INCLUDE_PELFE
+  use mem, ONLY: iiF, qfPc, ppR6f
+#endif
 #ifdef BFM_GOTM
   use mem, ONLY: jnetMiZc
 #endif
@@ -262,13 +265,19 @@
     ! Chl is transferred to the sink
     call flux_vector( iiPel, ppPhytoPlankton(i,iiL),ppPhytoPlankton(i,iiL),-( &
       ruPIc* qlPc(i,:)) )
-    ! PhytoPlankton[i].s -> R6.s = ruPIc * qsPc[i];
+    ! P1s is directly transferred to R6s
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) &
     call flux_vector( iiPel, ppPhytoPlankton(i,iiS), &
                ppR6s,+(ruPIc* qsPc(i,:)) )
-
+#ifdef INCLUDE_PELFE
+    ! Fe constituent is transferred to R6f                                                                                                              
+    if ( ppPhytoPlankton(i,iiF) .gt. 0 ) &                                                                                                              
+    call flux_vector( iiPel, ppPhytoPlankton(i,iiF), &                                                                                                  
+               ppR6f,(ruPIc* qfPc(i,:)) )                                                                                                               
+#endif
     rugn  =   rugn+ ruPIc* qnPc(i,:)
     rugp  =   rugp+ ruPIc* qpPc(i,:)
+
   end do
 
   do i = 1 , ( iiMicroZooPlankton)

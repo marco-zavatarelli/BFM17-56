@@ -13,8 +13,7 @@
 !	the prevailing irradiance level at depth
 !
 ! !INTERFACE
-  subroutine LightAdaptationDynamics(phyto, ppphytoc, ppphyton, ppphytop, &
-    ppphytos, ppphytol)
+  subroutine LightAdaptationDynamics(phyto)
 !
 ! !USES:
 
@@ -41,13 +40,6 @@
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
-
-!  
 !
 ! !AUTHORS
 !   Original version by W. Ebenhoeh, Oldenburg University
@@ -83,14 +75,6 @@
 !
 !
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Set up Local Variable for copy of state var. object
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES) :: phytoc
-  real(RLEN),dimension(NO_BOXES) :: phyton
-  real(RLEN),dimension(NO_BOXES) :: phytop
-  real(RLEN),dimension(NO_BOXES) :: phytos
-  real(RLEN),dimension(NO_BOXES) :: phytol
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: iphytol
@@ -101,18 +85,8 @@
   real(RLEN),dimension(NO_BOXES)  :: new_EPLi
   real(RLEN),dimension(NO_BOXES)  :: eir_c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#if ! defined GFORTRAN
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  Copy  state var. object in local var
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  phytoc = D3STATE(ppphytoc,:)
-  phyton = D3STATE(ppphyton,:)
-  phytop = D3STATE(ppphytop,:)
-  phytos = D3STATE(ppphytos,:)
-  phytol = D3STATE(ppphytol,:)
 
-
-  ! EPLi[%phyto] has been already calculated 
+  ! EPLi(phyto,:) has been already calculated 
 
   ! computation of the change in IRR_OPT
   ! adaptation to the light in the depth p_addepth below surface.
@@ -153,11 +127,10 @@
     case default
 
       rate_PLi = Source_D3_vector(ppPhytoPlankton(phyto,iiC))* EPLi(phyto,:)+ &
-                 p_ruEPLi(phyto)*( new_EPLi- EPLi(phyto,:))* phytoc
+                 p_ruEPLi(phyto)*( new_EPLi- EPLi(phyto,:))* PhytoPlankton(phyto,iiC)
       call flux_vector( iiPel, iphytol,iphytol, rate_PLi )
 
   end select
-#endif
 
   end subroutine LightAdaptationDynamics
 !EOC

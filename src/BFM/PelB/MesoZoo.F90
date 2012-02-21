@@ -55,6 +55,9 @@
     qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiC, iiN, iiP, iiL, iiS, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#ifdef INCLUDE_PELFE
+  use mem, ONLY: iiF, qfPc, ppR6f
+#endif
 #endif
 #ifdef BFM_GOTM
   use mem, ONLY: jnetMeZc
@@ -320,7 +323,12 @@
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
     call flux_vector( iiPel, ppPhytoPlankton(i,iiS), &
                ppR6s,+(ruPIc* qsPc(i,:)) )
-    
+#ifdef INCLUDE_PELFE
+    ! Fe constituent is transferred to R6f
+    if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
+    call flux_vector( iiPel, ppPhytoPlankton(i,iiF), &
+               ppR6f,(ruPIc* qfPc(i,:)) )
+#endif
   end do
 
 

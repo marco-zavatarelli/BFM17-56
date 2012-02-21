@@ -61,46 +61,28 @@
 
   INTERFACE
 
-  subroutine PhytoDynamics(phyto, ppphytoc, ppphyton, ppphytop, ppphytos, &
-    ppphytol)
+  subroutine PhytoDynamics(phyto)
   use global_mem, ONLY:RLEN
   implicit none
   integer,intent(IN) :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
   end subroutine PhytoDynamics
   end INTERFACE
 
   INTERFACE
 
-  subroutine PhotoAvailableRadiation(phyto, ppphytoc, ppphyton, &
-    ppphytop, ppphytos, ppphytol)
+  subroutine PhotoAvailableRadiation(phyto)
   use global_mem, ONLY:RLEN
   implicit none
   integer,intent(IN) :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
   end subroutine PhotoAvailableRadiation
   end INTERFACE
 
   INTERFACE
 
-  subroutine LightAdaptationDynamics(phyto, ppphytoc, ppphyton, ppphytop, &
-    ppphytos, ppphytol)
+  subroutine LightAdaptationDynamics(phyto)
   use global_mem, ONLY:RLEN
   implicit none
   integer,intent(IN) :: phyto
-  integer,intent(IN) :: ppphytoc
-  integer,intent(IN) :: ppphyton
-  integer,intent(IN) :: ppphytop
-  integer,intent(IN) :: ppphytos
-  integer,intent(IN) :: ppphytol
   end subroutine LightAdaptationDynamics
   end INTERFACE
 

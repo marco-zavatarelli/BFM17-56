@@ -36,6 +36,9 @@
     NO_BOXES_XY, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
     jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, sediR6, iiPhytoPlankton, &
     iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
+#ifdef INCLUDE_PELFE
+  use mem, ONLY: iiF,R6f,ppR6f,jbotR6f
+#endif
 #endif
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
   use mem_Settling
@@ -102,6 +105,9 @@
   real(RLEN)  :: ruQ6p
   real(RLEN)  :: ruQIl
   real(RLEN)  :: ruQ6s
+#ifdef INCLUDE_PELFE
+  real(RLEN)  :: ruQ6f
+#endif
   real(RLEN)  :: s
   real(RLEN)  :: p
 
@@ -169,6 +175,7 @@
                   call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(kbot))
                   jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
                end if
+
             else
                 PELBOTTOM(ppPhytoPlankton(i,iiC),BoxNumberXY) = ZERO
                 PELBOTTOM(ppPhytoPlankton(i,iiN),BoxNumberXY) = ZERO
@@ -208,6 +215,10 @@
          jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
          jbotR6p(BoxNumberXY)  =   jbotR6p(BoxNumberXY)- ruQ6p
          jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
+#ifdef INCLUDE_PELFE
+         ruQ6f  =   sediR6(kbot)* R6f(kbot)
+         jbotR6f(BoxNumberXY)  =   jbotR6f(BoxNumberXY)- ruQ6f
+#endif
       end do
 
   end subroutine SettlingDynamics

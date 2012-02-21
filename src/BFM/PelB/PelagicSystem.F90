@@ -11,11 +11,6 @@
 !   All the pelagic biogeochemical modules are called in sequence
 !   according to the logical switches
 !        
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine PelagicSystemDynamics
 !
@@ -27,8 +22,11 @@
 
   use global_mem, ONLY:RLEN
   use mem, ONLY: iiPhytoPlankton,iiMesoZooPlankton,iiMicroZooPlankton,  &
-                  ppPhytoPlankton,ppMesoZooPlankton,ppMicroZooPlankton, &
-                  iiC, iiN, iiP, iiS, iiL   
+                 ppPhytoPlankton,ppMesoZooPlankton,ppMicroZooPlankton, &
+                 iiC, iiN, iiP, iiS, iiL
+#ifdef INCLUDE_PELFE
+  use mem, ONLY: iiF
+#endif
   use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
@@ -89,11 +87,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( ChlLightFlag== 1) then
      do i =1,iiPhytoPlankton
-        if ( CalcPhytoPlankton(i)) then
-           call PhotoAvailableRadiation( i, ppPhytoPlankton(i,iiC),  &
-                ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),              &
-                ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
-        end if
+        if ( CalcPhytoPlankton(i)) call PhotoAvailableRadiation( i )
      end do
   end if
 
@@ -101,11 +95,7 @@
   ! Compute phytoplankton dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiPhytoPlankton
-     if ( CalcPhytoPlankton(i)) then
-        call PhytoDynamics( i, ppPhytoPlankton(i,iiC),        &
-             ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),  &
-             ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
-     end if
+     if ( CalcPhytoPlankton(i)) call PhytoDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -113,11 +103,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   if ( ChlLightFlag== 1) then
      do i =1,iiPhytoPlankton
-        if ( CalcPhytoPlankton(i)) then
-           call LightAdaptationDynamics( i, ppPhytoPlankton(i,iiC),  &
-                ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP),      &
-                ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL)) 
-        end if
+        if ( CalcPhytoPlankton(i)) call LightAdaptationDynamics( i )
      end do
   end if
   

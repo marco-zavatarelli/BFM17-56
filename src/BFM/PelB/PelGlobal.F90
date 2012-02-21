@@ -114,6 +114,9 @@
     qpPc(i,:)  =   PhytoPlankton(i,iiP)/( p_small+ PhytoPlankton(i,iiC))
     qnPc(i,:)  =   PhytoPlankton(i,iiN)/( p_small+ PhytoPlankton(i,iiC))
     qlPc(i,:)  =   PhytoPlankton(i,iiL)/( p_small+ PhytoPlankton(i,iiC))
+#ifdef INCLUDE_PELFE
+    qfPc(i,:)  =   PhytoPlankton(i,iiF)/( p_small+ PhytoPlankton(i,iiC))
+#endif
   end do
 
   qsPc(iiP1,:)  =   P1s(:)/( p_small+ P1c(:))

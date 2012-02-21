@@ -3,17 +3,11 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: Phyto
+! !ROUTINE: mem_Phyto
 !
 ! DESCRIPTION
 !   Parameter values for the phytoplankton groups
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   module mem_Phyto
@@ -36,7 +30,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -85,35 +79,34 @@
   real(RLEN)  :: p_qplc(iiPhytoPlankton)
   real(RLEN)  :: p_qpRc(iiPhytoPlankton)
   real(RLEN)  :: p_xqp(iiPhytoPlankton)
-  real(RLEN)  :: p_qslc(iiPhytoPlankton)  ! Minimum quotum Si in PI
-  real(RLEN)  :: p_qsRc(iiPhytoPlankton)  ! Reference quotum Si in PI
-  real(RLEN)  :: p_xqs(iiPhytoPlankton)
+  real(RLEN)  :: p_qslc(iiPhytoPlankton) ! Minimum quotum Si in PI
+  real(RLEN)  :: p_qsRc(iiPhytoPlankton) ! Reference quotum Si in PI
+  real(RLEN)  :: p_xqs(iiPhytoPlankton)  ! factor for max quotum Si
   real(RLEN)  :: p_qus(iiPhytoPlankton)  ! affinity of PI for Si
   real(RLEN)  :: p_qun(iiPhytoPlankton)
   real(RLEN)  :: p_qup(iiPhytoPlankton)
   real(RLEN)  :: p_lN4(iiPhytoPlankton)
-  real(RLEN)  :: p_chPs(iiPhytoPlankton)
-  real(RLEN)  :: p_alpha_chl(iiPhytoPlankton)  ! Initial slope P-I curve
-  !
-  !  ------------- Chlorophyll parameters -----------
-  !  skel: Skeletonema costatum pav: Pavlova lutheri
-  !  syn: Synechoccus sp. (significant alpha decrease with irradiance)
-  !  gyr: Gyrodinium sp. iso: Isochrysis galbana
-  !              skel     iso      syn      gyr
-  real(RLEN)  :: p_sdchl(iiPhytoPlankton)  ! Specific turnover rate for Chla [d-1]
-  ! p_qchlc =    0.03,    0.025,   0.1,     0.02    # Maximum quotum Chla:C
-  !             +-0.024  +-0.001  +-0.003  +-0.004
-  !  Thalassiosira sp. [0.05+-0.01]
-  !              skel     pav      syn      gyr
-  real(RLEN)  :: p_esNI(iiPhytoPlankton)  ! Nutrient stress threshold for Sinking
-  ! p_alpha_chl = 1.0e-5, 0.46e-5*2.0, 2.0e-5, 0.68e-5 # Initial slope P-I curve
-  !  Thalassiosira sp. [0.48-0.63]
+  real(RLEN)  :: p_chPs(iiPhytoPlankton) ! half-value of SIO4-lim (mmol Si m-3)
+  real(RLEN)  :: p_esNI(iiPhytoPlankton) ! Nutrient stress threshold for Sinking
   real(RLEN)  :: p_res(iiPhytoPlankton)  ! Sinking velocity (m/d)
-  !   p_qchlc  = 0.05,      0.03,      0.07,      0.02 # Maximum quotum Chla:C
+  !
+  !  ---------------- Light parameters in phytoplankton -----------------
+  !
+  real(RLEN)  :: p_alpha_chl(iiPhytoPlankton)  ! Initial slope P-I curve
+  real(RLEN)  :: p_sdchl(iiPhytoPlankton)  ! Specific turnover rate for Chla [d-1]
+#ifdef INCLUDE_PELFE
+  !
+  !  ---------------- Iron parameters in phytoplankton -----------------
+  !
+  real(RLEN)  :: p_qflc(iiPhytoPlankton)
+  real(RLEN)  :: p_qfRc(iiPhytoPlankton)
+  real(RLEN)  :: p_xqf(iiPhytoPlankton)
+  real(RLEN)  :: p_quf(iiPhytoPlankton)
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
-
   public InitPhyto
+
   contains
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -121,24 +114,37 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Phyto_parameters/ p_q10, p_sum, p_srs, p_sdmo, p_seo, p_pu_ea, &
-    p_pu_ra, p_qnlc, p_qplc, p_qslc, p_qnRc, p_qpRc, p_qsRc, p_qun, p_qup, &
-    p_qus, p_xqn, p_xqp, p_xqs, p_esNI, p_thdo, p_res, p_lN4,p_chPs, &
-    p_netgrowth,p_limnut, p_alpha_chl, p_sdchl
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+                              p_netgrowth,p_limnut, &
+                              p_pu_ra, p_qnlc, p_qplc, p_qslc, &
+                              p_qnRc, p_qpRc, p_qsRc, &
+                              p_qun, p_qup, p_qus, &
+                              p_xqn, p_xqp, p_xqs, &
+                              p_esNI, p_thdo, p_res, p_lN4, p_chPs, &
+                              p_alpha_chl, p_sdchl
 
+#ifdef INCLUDE_PELFE
+  namelist /Phyto_parameters_iron/ p_qflc, p_qfRc, p_xqf, p_quf
+#endif
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading Phyto parameters.."
-open(NMLUNIT,file='Phyto.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=Phyto_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=Phyto_parameters)
+  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+  write(LOGUNIT,*) "#  Reading Phyto parameters.."
+  open(NMLUNIT,file='Phyto.nml',status='old',action='read',err=100)
+  read(NMLUNIT,nml=Phyto_parameters,err=101)
+#ifdef INCLUDE_PELFE
+  read(NMLUNIT,nml=Phyto_parameters_iron,err=101)
+#endif
+  close(NMLUNIT)
+  write(LOGUNIT,*) "#  Namelist is:"
+  write(LOGUNIT,nml=Phyto_parameters)
+#ifdef INCLUDE_PELFE
+  write(LOGUNIT,nml=Phyto_parameters_iron)
+#endif
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -151,7 +157,7 @@ open(NMLUNIT,file='Phyto.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitPhyto
   end module mem_Phyto
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
