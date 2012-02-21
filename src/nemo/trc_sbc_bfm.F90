@@ -79,19 +79,29 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
 
     ! Add mass from prescribed river concentration
     ! MAV: needs to be checked as for surface boundary conditions
-    IF (ln_rnf .AND. ln_trc_cbc(m)) THEN
-       jn = n_trc_indcbc(m)
-       sf_dta = sf_trccbc(jn)
-       CALL fld_read( kt, 1, sf_dta )
-       ! return the info (needed because fld_read is stupid!)
-       sf_trccbc(jn) = sf_dta(1) 
-       DO jj = 2, jpj
-          DO ji = fs_2, fs_jpim1   ! vector opt.
-             IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-             tra(ji,jj,1,1) = tra(ji,jj,1,1) - zsrau * sf_rnf(1)%fnow(ji,jj,1) &
-                              * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t
+    IF (ln_rnf) THEN
+       IF (ln_trc_cbc(m)) THEN ! if river values are given
+          jn = n_trc_indcbc(m)
+          sf_dta = sf_trccbc(jn)
+          CALL fld_read( kt, 1, sf_dta )
+          ! return the info (needed because fld_read is stupid!)
+          sf_trccbc(jn) = sf_dta(1) 
+          DO jj = 2, jpj
+             DO ji = fs_2, fs_jpim1   ! vector opt.
+                IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+                tra(ji,jj,1,1) = tra(ji,jj,1,1) - zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
+                                 * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t
+             END DO
           END DO
-       END DO
+       ELSE ! if no river values are given (use instantaneous cell value trn)
+          DO jj = 2, jpj
+             DO ji = fs_2, fs_jpim1   ! vector opt.
+                IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+                tra(ji,jj,1,1) = tra(ji,jj,1,1) - zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
+                               * trn(ji,jj,1,1) * zse3t
+             END DO
+          END DO
+       END IF
     END IF
 
     ! Concentration and dilution effect on tra
