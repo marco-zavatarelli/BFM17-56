@@ -72,6 +72,11 @@
    write(start_time,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
 
    !-------------------------------------------------------
+   ! Force Euler timestepping in the first timestep
+   !-------------------------------------------------------
+   ln_top_euler = .TRUE.
+
+   !-------------------------------------------------------
    ! Initial allocations
    !-------------------------------------------------------
    allocate(SEAmask(jpi,jpj,jpk))  ! allocate  masks for

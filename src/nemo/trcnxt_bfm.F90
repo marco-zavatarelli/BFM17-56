@@ -3,7 +3,7 @@ MODULE trcnxtbfm
 !   !!                       ***  MODULE  trcnxt  ***
 !   !! Ocean passive tracers:  time stepping on passives tracers
 !   !!======================================================================
-#if defined key_top && defined key_bfm
+#if defined key_top 
 !   !!----------------------------------------------------------------------
 !   !!   trc_nxt     : time stepping on passive tracers
 !   !!----------------------------------------------------------------------

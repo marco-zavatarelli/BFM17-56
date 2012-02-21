@@ -48,21 +48,21 @@ IMPLICIT NONE
    ! Assign temperature, salinity and density
    !---------------------------------------------
 #ifdef USEPACK
-      ETW = pack(tn,SEAmask)
-      ESW = pack(sn,SEAmask)
-      ERHO = pack(rhop,SEAmask)
+      ETW = pack(tsn(:,:,:,jp_tem),SEAmask)
+      ESW = pack(tsn(:,:,:,jp_sal),SEAmask)
+      ERHO = pack(rhop(:,:,:),SEAmask)
    !---------------------------------------------
    ! Assign wind speed
    !---------------------------------------------
-      EWIND = pack(wndm,SRFmask(:,:,1) )
+      EWIND = pack(wndm(:,:),SRFmask(:,:,1) )
    !---------------------------------------------
    ! Assign Sea-ice cover
    !---------------------------------------------
-      EICE = pack(fr_i,SRFmask(:,:,1) )
+      EICE = pack(fr_i(:,:),SRFmask(:,:,1) )
 #else
       DO n = 1,NO_BOXES
-         ETW(n) = tn(iwet(n),jwet(n),kwet(n))
-         ESW(n) = sn(iwet(n),jwet(n),kwet(n))
+         ETW(n) = tsn(iwet(n),jwet(n),kwet(n),jp_tem)
+         ESW(n) = tsn(iwet(n),jwet(n),kwet(n),jp_sal)
          ERHO(n) = rhop(iwet(n),jwet(n),kwet(n))
       END DO
 
