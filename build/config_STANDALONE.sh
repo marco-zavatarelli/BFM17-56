@@ -1,7 +1,9 @@
 #!/bin/sh
-## Configuration file for Pelagic BFM STANDALONE
-#  This script creates a directory BLD_STANDALONE with the appropriate 
-#  makefile
+#
+## Configuration file for Pelagic BFM STANDALONE.
+#
+#  This script creates a directory BLD_STANDALONE with the appropriate makefile. 
+#  The STANDALONE configuration is built in the default folder BLD_STANDALONE. 
 
 #  Currently available macros (cppdefs) are:
 #  INCLUDE_SILT
@@ -13,22 +15,29 @@
 
 #  Warnings
 # 1. Still not working for benthic BFM don't use DIAG with D1SOURCE and ONESOURCE
-# 2. Adding the NOPOINTERS key to compile with gfortran 4.5 and older
+# 2. Adding the BFM_NOPOINTERS key to compile with gfortran 4.5 and older
 # 3. Using the key DEBUG will add more output information
 
 #----------------- User configuration -----------------
+# myGlobalDef   : file used by tcl script (GenerateGlobalBFMF90Code) to design the BFM Memory Layout
+# cppdefs       : keys used to configure the model
+# archfile      : compiler architecture file
+# exe           : default location of the BFM standalone executable
+# -----------------------------------------------------
+myGlobalDef="GlobalDefsBFM.model.standard"
+cppdefs="-DBFM_STANDALONE"
+
 archfile="${BFMDIR}/compilers/gfortran.inc"
 exe=${BFMDIR}/bin/bfm_standalone.x
-
-cppdefs="-DBFM_STANDALONE"
-myGlobalDef="GlobalDefsBFM.model.standard"
 #----------------- User configuration -----------------
 #set -xv
 
+# Control if BFMDIR is defined among environment variables
 if [ "${BFMDIR}" = "" ]; then
    echo "Environmental variable BFMDIR not defined!"
    exit 0
 fi
+
 # set makefile options and destination
 BLDDIR="./BLD_STANDALONE"
 MKMF="${BFMDIR}/bin/mkmf"
