@@ -1,6 +1,8 @@
 #include "cppdefs.h"
 #include "DEBUG.h"
 #include "INCLUDE.h"
+
+#ifdef INCLUDE_PELCO2
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -13,8 +15,6 @@
 !
 ! !INTERFACE
   subroutine PelCO2Dynamics()
-
-#ifdef INCLUDE_PELCO2
 !
 ! !USES:
 
@@ -136,10 +136,9 @@
   write(*,"(4G12.6)") pco2(1),co2(1),co3(1),hco3(1)
 #endif
 
-#endif
-
   end subroutine PelCO2Dynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#endif

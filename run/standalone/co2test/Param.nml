@@ -52,7 +52,7 @@
     CalcMicroZooPlankton(2) = .FALSE.
            CalcPelChemistry = .TRUE.
 AssignPelBenFluxesInBFMFlag = .FALSE.
-AssignAirPelFluxesInBFMFlag = .FALSE.
+AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_PAR = 0.50
                ChlLightFlag = 2
            LightForcingFlag = 1

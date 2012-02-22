@@ -7,12 +7,14 @@
 # 
 
 #  Currently available macros (cppdefs) are:
-#  INCLUDE_SILT
 #  INCLUDE_PELFE                          : use Iron component to the pelagic system
 #  INCLUDE_PELCO2, INCLUDE_BENCO2         : activate Carbonate System 
-#  INCLUDE_BEN, INCLUDE_BENPROFILES
-#  INCLUDE_SEAICE
-#  INCLUDE_DIAG3D, INCLUDE_DIAG2D
+#  INCLUDE_BEN, INCLUDE_BENPROFILES       : Add Benthic compartment
+#  INCLUDE_SILT                           : use Silt component
+#  INCLUDE_SEAICE                         : activate SeaIce Ecology 
+#  INCLUDE_DIAG3D, INCLUDE_DIAG2D         : additional diagnostics available for output
+#  USEPACK                                : use pack/unpack fortran intrinsic function
+#  BFM_PARALLEL                           : used to generate bfm Log file in parallel job 
 
 #  Warnings
 # 1. Still not working for benthic BFM don't use DIAG with D1SOURCE and ONESOURCE
@@ -26,7 +28,7 @@
 # BLDDIR        : Local folder containing the generated BFM Memory Layout files
 # -----------------------------------------------------
 myGlobalDef="GlobalDefsBFM.model.standard"
-cppdefs="-DONESOURCE -DINCLUDE_PELCO2" 
+cppdefs=" -DUSEPACK -DBFM_PARALLEL -DONESOURCE -DINCLUDE_PELCO2" 
 
 RELEASE="no"
 
@@ -60,7 +62,7 @@ ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
 
 # Generate the specific bfm.fcm include file for makenemo
 cppdefs=`echo ${cppdefs} | sed -e "s/"-D"//g"` 
-FCMMacros="BFM_NEMO USEPACK BFM_PARALLEL ${cppdefs}"
+FCMMacros="BFM_NEMO ${cppdefs}"
 sed -e "s/_place_keys_/${FCMMacros}/" ${BFMDIR}/build/Configurations/Default_bfm.fcm > ${BFMDIR}/build/${BLDDIR}/bfm.fcm
 
 echo "Memory Layout generated in local folder: ${BLDDIR}."

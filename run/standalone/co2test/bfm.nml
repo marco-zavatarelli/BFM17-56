@@ -53,7 +53,7 @@
    out_fname = 'BFM_standalone_co2test'
      out_dir = '.'
    out_title = 'BFM_CO2'
-   out_delta = 864 !every 1 day
+   out_delta = 300 !every 30 day
 /
 
 !-------------------------------------------------------------------------!

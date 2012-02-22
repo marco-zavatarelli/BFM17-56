@@ -3,15 +3,17 @@
 ## Configuration file for Pelagic BFM STANDALONE.
 #
 #  This script creates a directory BLD_STANDALONE with the appropriate makefile. 
-#  The STANDALONE configuration is built in the default folder BLD_STANDALONE. 
+#  The STANDALONE configuration is created in the default folder BLD_STANDALONE. 
+#  Note: use the gmake to compile the Makefile. 
 
 #  Currently available macros (cppdefs) are:
-#  INCLUDE_SILT
 #  INCLUDE_PELFE                          : use Iron component to the pelagic system
 #  INCLUDE_PELCO2, INCLUDE_BENCO2         : activate Carbonate System 
-#  INCLUDE_BEN, INCLUDE_BENPROFILES
-#  INCLUDE_SEAICE
-#  INCLUDE_DIAG3D, INCLUDE_DIAG2D
+#  INCLUDE_BEN, INCLUDE_BENPROFILES       : Add Benthic compartment
+#  INCLUDE_SILT                           : use Silt component
+#  INCLUDE_SEAICE                         : activate SeaIce Ecology
+#  INCLUDE_DIAG3D, INCLUDE_DIAG2D         : additional diagnostics available for output
+#  USEPACK                                : use pack/unpack fortran intrinsic function
 
 #  Warnings
 # 1. Still not working for benthic BFM don't use DIAG with D1SOURCE and ONESOURCE
@@ -68,7 +70,7 @@ find ${BFMDIR}/src/BFM/PelBen -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Ben -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Light -name "*.?90" -print >> BFM.lst
 find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
-#find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
+find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
 
 # Make makefile
 ${MKMF} -c "${cppdefs}" -o "${oflags}" -t ${archfile} -p ${exe} BFM.lst
