@@ -106,14 +106,8 @@ CONTAINS
       USE trcnxtbfm     , ONLY:   trc_nxt_alloc
       USE trczdf        , ONLY:   trc_zdf_alloc
       USE trdmod_trc_oce, ONLY:   trd_mod_trc_oce_alloc
-#if ! defined key_iomput
-      USE trcdia        , ONLY:   trc_dia_alloc
-#endif
 #if defined key_trcdmp 
       USE trcdmp        , ONLY:   trc_dmp_alloc
-#endif
-#if defined key_dtatrc
-      USE trcdta        , ONLY:   trc_dta_alloc
 #endif
 #if defined key_trdmld_trc   ||   defined key_esopa
       USE trdmld_trc    , ONLY:   trd_mld_trc_alloc
@@ -127,14 +121,8 @@ CONTAINS
       ierr = ierr + trc_nxt_alloc()
       ierr = ierr + trc_zdf_alloc()
       ierr = ierr + trd_mod_trc_oce_alloc()
-#if ! defined key_iomput
-      ierr = ierr + trc_dia_alloc()
-#endif
 #if defined key_trcdmp 
       ierr = ierr + trc_dmp_alloc()
-#endif
-#if defined key_dtatrc
-      ierr = ierr + trc_dta_alloc()
 #endif
 #if defined key_trdmld_trc   ||   defined key_esopa
       ierr = ierr + trd_mld_trc_alloc()
