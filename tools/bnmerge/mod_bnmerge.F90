@@ -49,7 +49,12 @@ module mod_bnmerge
    integer,public                                  :: n_bfmvar
    integer,allocatable,dimension(:),public         :: bfmvarid
 
-   character(LEN=100) :: out_dir, out_fname
+   ! namelist variables
+   character(LEN=100) :: inp_dir, out_dir, out_fname
+   integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
+   character(len=64),dimension(NSAVE):: var_save
+   logical :: ln_grid=.FALSE.
+
    public 
    contains 
 

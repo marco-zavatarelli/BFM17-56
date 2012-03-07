@@ -57,7 +57,7 @@ subroutine merge_vars
 
   do p=1,jpnij
      ! build the file name for each process (start from 0)
-     fname = trim(out_dir)//"/"//trim(out_fname)//"_"//procname(p)//".nc"
+     fname = trim(inp_dir)//"/"//trim(out_fname)//"_"//procname(p)//".nc"
      status = nf90_open(path = fname, mode = NF90_SHARE, ncid = ncbfmid)
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire(ncbfmid, nDims, nVars, nGlobalAtts, IDunlimdim)
@@ -124,6 +124,7 @@ subroutine merge_vars
      write(*,*) "Mask type", vartype,NF90_FLOAT
      write(*,*) "size mask:",size(mask,1),size(mask,2),size(mask,3)
      write(*,*) "size lat:",size(lat,1),size(lat,2)
+     write(*,*) "size lon:",size(lon,1),size(lon,2)
 #endif
 
      ! get the coordinates of the sub-domain
@@ -229,9 +230,8 @@ subroutine merge_vars
 #endif
   end do ! processes
 
-
-#ifdef PIPPO
-  ! write global grid specifications
+  ! write global grid specifications 
+  if (ln_grid) then
      status = nf90_inq_varid(ncid, "mask", IDmask)
      status = nf90_put_var(ncid, IDmask, maskglo, start = (/ 1, 1, 1 /),     &
                             count = (/ jpiglo, jpjglo, jpk /))
@@ -245,7 +245,7 @@ subroutine merge_vars
      status = nf90_put_var(ncid, IDmask, longlo, start = (/ 1, 1 /),     &
                             count = (/ jpiglo, jpjglo /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lon")
-#endif
+  endif
 
      status = nf90_close(ncid)
      if (status /= NF90_NOERR) call handle_err(status)

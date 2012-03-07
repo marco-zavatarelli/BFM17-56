@@ -13,7 +13,11 @@
 !
 !    You should have received a copy of the GNU General Public License
 !    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
+! --------------------------------------------------------------------------
+!    Notes 
+!    ncbfmid   : BFM input file identifier
+!    ncid      : BFM output merged file identifier 
+! --------------------------------------------------------------------------
 subroutine create_outputfile
 
   use netcdf
@@ -33,7 +37,7 @@ subroutine create_outputfile
   
 
      status = nf90_create(trim(out_fname)//".nc", NF90_NOCLOBBER, ncid)
-     if(status /= NF90_NOERR) call handle_err(status)
+     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(out_fname)//".nc already exists!" )
      ! Define the dimensions
      status = nf90_def_dim(ncid, "time", NF90_UNLIMITED, IDtime)
      if(status /= NF90_NOERR) call handle_err(status)
@@ -44,7 +48,7 @@ subroutine create_outputfile
      status = nf90_def_dim(ncid, "z", jpk, IDz)
      if (status /= NF90_NOERR) call handle_err(status)
      ! read variables from domain 0000 and copy attributes
-     fname = trim(out_dir)//"/"//trim(out_fname)//"_0000.nc" 
+     fname = trim(inp_dir)//"/"//trim(out_fname)//"_0000.nc" 
      status = nf90_open(path = fname, mode = NF90_WRITE, ncid = ncbfmid)
      if (status /= NF90_NOERR) call handle_err(status)     
      status = nf90_inquire(ncbfmid, nDims, nVars, nGlobalAtts, IDunlimdim)
@@ -65,31 +69,50 @@ subroutine create_outputfile
         status = nf90_copy_att(ncbfmid, NF90_GLOBAL, trim(attname), ncid, NF90_GLOBAL)
         if (status /= NF90_NOERR) call handle_err(status,errstring="copying attribute "//trim(attname))
      end do
-     ! keep tracks of the variables that are stored
+     ! Tracks of the variables that have to be stored
      allocate(bfmvarid(nVars))
-     n_bfmvar = 0
+     n_bfmvar=0
      do IDvar=1,nVars
+       status=nf90_inquire_variable(ncbfmid, IDvar, ndims=ndims, name=varname)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
+       do n = 1 , NSAVE
+           if ( trim(var_save(n)) == trim(varname) ) then
+              n_bfmvar = n_bfmvar + 1
+              bfmvarid(n_bfmvar)= IDvar
+              write(*,*) "Assigned output ",trim(varname), " with ID:", IDvar
+           endif
+       enddo 
+     enddo
+     write(*,*) "Total Output Variables ", n_bfmvar
+     write(*,*)
+     if (n_bfmvar == 0) then
+        write(*,*) "Selected output variables do not match the content of the input files.", n_bfmvar
+        stop
+     endif
+
+     ! Assign dimensions and attributes to variables 
+     do n = 1 , n_bfmvar
+        IDvar = bfmvarid(n)
         ! inquire variable
         status=nf90_inquire_variable(ncbfmid, IDvar, ndims=ndims, name=varname)
         if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
         status=nf90_inquire_variable(ncbfmid, IDvar, dimids=dimids(1:ndims))
         if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
         status = nf90_inquire_dimension(ncbfmid, dimids(ndims), name = DimName)
+        write(*,*) "Define variable: ",trim(varname)," with ID: ",IDvar
 #ifdef DEBUG
-        write(*,*) "Reading variable ",trim(varname)
         write(*,*) "from file ",trim(fname)
         write(*,*) "last dimension name ",trim(DimName)
 #endif
         if (DimName /= "time" .OR. ndims == 1) cycle ! enter only with time-varying variables
-           ! keep tracks of the variables that are stored
-           n_bfmvar = n_bfmvar + 1
-           bfmvarid(n_bfmvar) = IDvar
-           ! check if it's a 2D or 3D variable
+           ! check the dimension of the variable
            status = nf90_inquire_dimension(ncbfmid, dimids(1), name = DimName)
            if (DimName == "oceanpoint") then
+           ! 3D array
               status = nf90_def_var(ncid, trim(varname), NF90_REAL, (/ IDx, IDy, IDz, IDtime /), IDtarget)
               if (status /= NF90_NOERR) call handle_err(status)
            else
+           ! 2D array
               status = nf90_def_var(ncid, trim(varname), NF90_REAL, (/ IDx, IDy, IDtime /), IDtarget)
               if (status /= NF90_NOERR) call handle_err(status)
            end if
@@ -98,7 +121,11 @@ subroutine create_outputfile
            if (status /= NF90_NOERR) call handle_err(status)
            status = nf90_copy_att(ncbfmid, IDvar, "long_name", ncid, IDtarget)
            if (status /= NF90_NOERR) call handle_err(status)
-     end do ! nvars
+           ! Add fill value
+           status = nf90_put_att(ncid, IDtarget, "_FillValue", NF90_FILL_REAL)
+           if (status /= NF90_NOERR) call handle_err(status)
+     end do ! n_bfmvar 
+
      ! copy time variable and attributes
      status = nf90_inq_varid(ncbfmid, "time", IDtimetmp)
      if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname)

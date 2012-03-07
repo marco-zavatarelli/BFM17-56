@@ -21,9 +21,9 @@ subroutine read_input
   integer           :: iost,n
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
-  namelist /bnmerge_nml/ out_dir,out_fname,layout
+  namelist /bnmerge_nml/ inp_dir,out_dir,out_fname,layout,ln_grid,var_save
 
-
+      var_save="NotVar"
       ! Reading directory names and file name specification
       open(namlst,file='bnmerge.nml',action='read',status='old',err=99)
       read(namlst,nml=bnmerge_nml,err=98)
@@ -60,6 +60,7 @@ subroutine read_input
       write (*,*) ' === ',trim(layout),' === '
       write (*,'(a)') '   jpnij     jpi     jpj     jpk  jpiglo  jpjglo'
       write (*,'(6i8)') jpnij,jpi,jpj,jpk,jpiglo,jpjglo
+      write(*,*)
       return
 
 100   continue

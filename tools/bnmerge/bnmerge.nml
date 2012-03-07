@@ -1,19 +1,28 @@
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!-------------------------------------------------------------------------!
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!------------------------------------------------------------------------------------!
 !Main initialisation and output specifications
 !NAME             KIND    DESCRIPTION
-!out_fname 	  string 	Name of NetCDF output file out_fname_0000.nc
-!out_dir 	  string 	Path to the output file
+!out_fname 	  string 	Name of NetCDF output file (same of input chunks)
+!inp_dir 	  string 	Path to the input files (chunks)
+!out_dir 	  string 	Path to the output file (merged)
 !layout 	  string 	Path to the layout.dat file
-!-------------------------------------------------------------------------!
+!ln_grid 	  logical       Write global grid specifications (mask, lat, lon)
+!var_save 	  string 	List of output variables (set according to bfm output) 
+!
+! Warning: NetCDF files have a dimension limit (~4Tb), so pay attention in selecting 
+!          the number of output variables with HR model configurations.  
+!------------------------------------------------------------------------------------!
 &bnmerge_nml
    out_fname='FILENAME'
-   out_dir='/path/to/dir'
-   layout ='/path/to/layout.dat'
+   inp_dir='/path/to/inp_dir'
+   out_dir='/path/to/out_dir'
+   layout='/path/to/layout.dat'
+   ln_grid=.FALSE.
+   var_save='O2o','N1p','N3n', 'B1c', 'P1c', 'P2c','P3c','P4c',
+           'Z3c','Z4c','Z5c','Z6c','R1c','R2c','R6c','Chla',
 /
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

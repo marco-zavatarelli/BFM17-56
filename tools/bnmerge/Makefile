@@ -1,6 +1,10 @@
 # Makefile created by mkmf $Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ 
 
-include ../../compilers/mpxlf90_calypso.inc
+# compile for serial queue
+include ../../compilers/xlf90_calypso_serial.inc
+
+# compile for parallel queue
+# include ../../compilers/mpxlf90_calypso.inc
 
 
 .DEFAULT:
