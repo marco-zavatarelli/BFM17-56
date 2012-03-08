@@ -101,6 +101,7 @@
 !tde		real	Sinusoidal temperature daily excursion degC
 !ww		real	Sinusoidal wind (winter) m/s
 !ws		real	Sinusoidal wind (summer) m/s
+!CO2inc         real    Linear increase in CO2 air partial pressure [% per year]
 !
 !Bottom boundary conditions for benthic-only simulations
 !(not used in pelagic simulations)

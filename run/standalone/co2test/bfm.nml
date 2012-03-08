@@ -37,6 +37,7 @@
 !bfm_init       integer Initialization state
 !                       0. from constant values in bfm_init_nml below
 !                       1. from restart
+!bfm_rstctl     logical Save initial state of bfm in the output file.
 !bio_setup	integer BFM configuration:
 !			1. pelagic
 !			2. benthic
@@ -49,6 +50,7 @@
 &bfm_nml
     bio_calc = .TRUE.
     bfm_init = 0
+  bfm_rstctl = .TRUE.
    bio_setup = 1
    out_fname = 'BFM_standalone_co2test'
      out_dir = '.'
@@ -78,8 +80,8 @@
    N6r0 = 1.0,
    O2o0 = 300.0,
    O4n0 = 200.0,
-   O3c0 = 12000.00, ! 2000 umol/kg in mg/m3 1981.34
-   O3h0 = 1300.0,   ! 2350 umol eq/kg in mmol/m3 2391.252
+   O3c0 = 25000.00, ![mgC /m3]  2200 ug/Kg 
+   O3h0 = 2660.0,   ![mmol eq/m3]  2600 ug/Kg
 /
 
 !-------------------------------------------------------------------------!

@@ -90,8 +90,8 @@ subroutine analytical_forcing
    ! constant sea-ice fraction 
    EICE(:) = 0.0_RLEN
 #ifdef INCLUDE_PELCO2
-   ! 1% increase of pCO2 in the air 
-   EPCO2air(:) = pco2air*(ONE+0.01_RLEN/360._RLEN*dtime)
+   ! increase of pCO2 in the air by CO2inc [%]
+    EPCO2air(:) = pco2air*(ONE + (CO2inc / 100_RLEN) / 365._RLEN * dtime)
 #endif
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW(:)

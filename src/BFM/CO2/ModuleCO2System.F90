@@ -149,12 +149,13 @@ module CO2System
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),parameter             :: MEG=1.E6_RLEN,XACC=1.E-20_RLEN,  &
+  real(RLEN),parameter             :: MEG=1.E6_RLEN, &
                                       PERMIL=ONE/1000.0_RLEN,&
                                       PERMEG=ONE/MEG
 
   logical     :: small_interval
   integer     :: i, l, error
+  real(RLEN)  :: XACC
   real(RLEN)  :: Hplus, Hplus2
   real(RLEN)  :: tmp1, tmp2
   real(RLEN)  :: intercept,lnk,sit,pt
@@ -177,6 +178,7 @@ module CO2System
   ! Note: mol/kg are actually what the body of this routine uses 
   ! for all calculations.  
   !---------------------------------------------------------------------
+  XACC = M2XACC
   pt = n1p/rho*PERMIL
   sit = n5s/rho*PERMIL
   if (present(dic_in)) then

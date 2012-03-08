@@ -291,6 +291,9 @@
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret)
 
+   ! Flush the log File
+   Call FLUSH (LOGUNIT)
+
    end subroutine init_netcdf_bfm
 !EOC
 
@@ -801,6 +804,9 @@ end subroutine init_netcdf_rst_bfm
 
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret)
+
+   ! Flush the log File
+   Call FLUSH (LOGUNIT)
 
    return
    end subroutine save_bfm

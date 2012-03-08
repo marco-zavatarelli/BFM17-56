@@ -56,8 +56,11 @@ K1K2=2,
 ! MethodCalcCO2=1 Approximate static solution
 ! MethodCalcCO2=2 Default. Standard OCMIP iteration
 ! MethodCalcCO2=3 Follows et al., Ocean Modelling 2006
+!
+! M2XACC       :  Accuracy of the iterative scheme for OCMIP (min value suggested 1.E-10)  
+!
 MethodCalcCO2=2,
-
+M2XACC=1.E-20
 /
 
 !EOC

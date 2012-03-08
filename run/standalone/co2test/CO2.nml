@@ -34,9 +34,9 @@
 
 &CO2_parameters
 ! Initial Partial pressure in the air
-   pco2air = 365.0
+   pco2air = 350.0D0
 ! Initial pH value
-   phstart = 8.0
+   phstart = 8.10D0
 ! Choice of the acidity constants parameterization
 ! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale
 ! K1K2==2 Default
@@ -51,7 +51,11 @@
 ! MethodCalcCO2=1 Approximate static solution
 ! MethodCalcCO2=2 Default. Standard OCMIP iteration
 ! MethodCalcCO2=3 Follows et al., Ocean Modelling 2006
-MethodCalcCO2 = 2
+!
+! M2XACC       :  Accuracy of the iterative scheme for OCMIP (min value suggested 1.E-10)
+!
+MethodCalcCO2=2,
+M2XACC=1.E-10
 /
 
 !EOC

@@ -97,7 +97,7 @@
   real(RLEN),allocatable,save,dimension(:)  :: scl   ! chlorinity
   real(RLEN),allocatable,save,dimension(:)  :: ta    ! total Alkalinity
   real(RLEN),allocatable,save,dimension(:)  :: lnK,bt,ft,st,pt,sit
-  real(RLEN),parameter             :: MEG=1.E6_RLEN,XACC=1.E-20_RLEN,  &
+  real(RLEN),parameter             :: MEG=1.E6_RLEN,  &
                                       PERMIL=ONE/1000.0_RLEN,&
                                       PERMEG=ONE/MEG
   integer     :: i, l, error

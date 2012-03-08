@@ -31,7 +31,7 @@
    ! Parameters for analytical forcings
    ! Note: all read from namelist
    !---------------------------------------------
-   real(RLEN), public :: tw,ts,tde,sw,ss,lw,ls,ww,ws
+   real(RLEN), public :: tw,ts,tde,sw,ss,lw,ls,ww,ws,CO2inc
    real(RLEN), public :: botdep_c,botdep_n,botdep_p,botdep_si,botox_o
    !---------------------------------------------
    ! arrays for integration routines
