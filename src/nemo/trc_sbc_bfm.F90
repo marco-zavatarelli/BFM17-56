@@ -89,7 +89,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
           DO jj = 2, jpj
              DO ji = fs_2, fs_jpim1   ! vector opt.
                 IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-                tra(ji,jj,1,1) = tra(ji,jj,1,1) - zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
+                tra(ji,jj,1,1) = tra(ji,jj,1,1) + zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
                                  * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t
              END DO
           END DO
@@ -97,7 +97,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
           DO jj = 2, jpj
              DO ji = fs_2, fs_jpim1   ! vector opt.
                 IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-                tra(ji,jj,1,1) = tra(ji,jj,1,1) - zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
+                tra(ji,jj,1,1) = tra(ji,jj,1,1) + zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
                                * trn(ji,jj,1,1) * zse3t
              END DO
           END DO
