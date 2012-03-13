@@ -464,18 +464,19 @@ end
   ruPTc=P.c <- O3c:gross primary production:mg C/m3/d
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
+  ruPTs=P.s <- N5s : net silicate uptake : mmol Si /m3/d
+  ruPTf=P.f <- N7f : net iron uptake : umol Fe /m3/d
   exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
-  resPP=(P.c->O3c) : respiration phytoplankton :mg C/m3/d
   resZT=(Z.c->O3c) : respiration zooplankton :mg C/m3/d
   ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
   netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
   rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
   rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
   rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
-  reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
+  ruBc=(R1c+R2c+R6c->B1c): Carbon uptake by bacteria: mg C/m3/d
   ruBn=(N4n->B1n): bacterial uptake : mmol N/m3/d
-  fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
-  fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
+  ruBp=(N1p->B1p): bacterial uptake : mmol P/m3/d
+  resBc=(B1c->O3c) : bacterial respiration:mg C/m3/d
 end
 
 3d-flux -if-exist INCLUDE_DIAG3D specific
