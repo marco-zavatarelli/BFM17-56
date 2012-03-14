@@ -85,24 +85,19 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
           CALL fld_read( kt, 1, sf_dta )
           ! return the info (needed because fld_read is stupid!)
           sf_trccbc(jn) = sf_dta(1) 
+       END IF
           DO jj = 2, jpj
              DO ji = fs_2, fs_jpim1   ! vector opt.
                 IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-!                tra(ji,jj,1,1) = tra(ji,jj,1,1) + zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
-!                                 * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t
-                tra(ji,jj,1,1) = tra(ji,jj,1,1) + rn_rfact * rf_trcfac(jn) * &
-                sf_trccbc(jn)%fnow(ji,jj,1)/(e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
-             END DO
-          END DO
-       ELSE ! if no river values are given (use instantaneous cell value trn)
-          DO jj = 2, jpj
-             DO ji = fs_2, fs_jpim1   ! vector opt.
-                IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+                ! Neglect concentration changes due to river water inflow (use instantaneous cell value of trn)
                 tra(ji,jj,1,1) = tra(ji,jj,1,1) + zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
                                * trn(ji,jj,1,1) * zse3t
+                ! Add river loads assuming an istantaneous mixing in the cell volume 
+                IF (ln_trc_cbc(m))  & 
+                tra(ji,jj,1,1) = tra(ji,jj,1,1) + rn_rfact * rf_trcfac(jn) &
+                               * sf_trccbc(jn)%fnow(ji,jj,1)/(e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
              END DO
           END DO
-       END IF
     END IF
 
     ! Concentration and dilution effect on tra
