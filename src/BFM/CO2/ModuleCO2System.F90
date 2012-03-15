@@ -101,7 +101,7 @@ module CO2System
   real(RLEN)         :: bt,ft,st,pt,sit
   real(RLEN),parameter   :: T1=1.0_RLEN,T2=2.0_RLEN,T3=3.0_RLEN
   
-  public CalcCO2System, CalcHplus, CalcK0, drtsafe, drtsafe2, ta_iter_1
+  public CalcCO2System, CalcHplus, CalcK0, drtsafe2
   
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  functions 
@@ -155,7 +155,6 @@ module CO2System
 
   logical     :: small_interval
   integer     :: i, l, error
-  real(RLEN)  :: XACC
   real(RLEN)  :: Hplus, Hplus2
   real(RLEN)  :: tmp1, tmp2
   real(RLEN)  :: intercept,lnk,sit,pt
@@ -178,7 +177,6 @@ module CO2System
   ! Note: mol/kg are actually what the body of this routine uses 
   ! for all calculations.  
   !---------------------------------------------------------------------
-  XACC = M2XACC
   pt = n1p/rho*PERMIL
   sit = n5s/rho*PERMIL
   if (present(dic_in)) then
@@ -411,16 +409,14 @@ module CO2System
   case ( DYNAMIC )
      small_interval = ( ph.gt.4.0_RLEN .and. ph.lt.9.0_RLEN) 
      if (small_interval) then
-        h1 = 10.0_RLEN**(-(ph+0.5_RLEN))
-        h2 = 10.0_RLEN**(-(ph-0.5_RLEN))
-        Hplus = drtsafe2(h1, h2, XACC, error)
-        !Hplus = drtsafe(h1, h2, XACC)
+        h1 = 10.0_RLEN**(-(ph+M2PHDELT))
+        h2 = 10.0_RLEN**(-(ph-M2PHDELT))
+        Hplus = drtsafe2(h1, h2, M2XACC, M2MAXIT, error)
      end if
      if ((.not.small_interval) .or. error>0) then
         h1 = 10.0_RLEN**(-11.0_RLEN)
         h2 = 10.0_RLEN**(-2.0_RLEN)
-        Hplus = drtsafe2(h1, h2, XACC, error)
-        !Hplus = drtsafe(h1, h2, XACC)
+        Hplus = drtsafe2(h1, h2, M2XACC, M2MAXIT, error)
      end if
      if ( error >0 ) then
         CalcCO2System=error
@@ -708,7 +704,7 @@ module CO2System
 ! !IROUTINE: Drtsafe
 !
 ! !INTERFACE:
-function drtsafe2(x1,x2,xacc,error)
+function drtsafe2(x1,x2,xacc,maxit,error)
 !
 ! !DESCRIPTION:
 !   Find roots of the Total Alkalinity function CalcHplus (see this module)
@@ -722,6 +718,7 @@ function drtsafe2(x1,x2,xacc,error)
 !
 ! !INPUT PARAMETERS:
    real(RLEN),intent(IN)  :: x1,x2,xacc
+   integer,intent(IN)     :: maxit
 !
 ! !INPUT/OUTPUT PARAMETERS:
 !
@@ -740,7 +737,6 @@ function drtsafe2(x1,x2,xacc,error)
    real(RLEN)             :: swap  
    real(RLEN)             :: df,dx,dxold,f,fh,fl,temp,xh,xl
    integer                :: j
-   integer,parameter      :: MAXIT=100
 !
 !EOP
 !-----------------------------------------------------------------------
@@ -776,7 +772,7 @@ function drtsafe2(x1,x2,xacc,error)
 
    j = 0
    ready = .FALSE.
-   do while ( .NOT.ready .AND. j<MAXIT)
+   do while ( .NOT.ready .AND. j<maxit)
       j = j+1
       if (((drtsafe2-xh)*df-f)*((drtsafe2-xl)*df-f) >= ZERO .OR. &
          abs(2.0_RLEN*f) > abs(dxold*df) ) then
@@ -803,7 +799,7 @@ function drtsafe2(x1,x2,xacc,error)
          end if
       end if
    end do
-   if ( j.ge.MAXIT) error=2
+   if ( j.ge.maxit) error=2
 
    return
 
@@ -811,208 +807,8 @@ function drtsafe2(x1,x2,xacc,error)
 end function drtsafe2
 !-----------------------------------------------------------------------
 
-
-!-----------------------------------------------------------------------
-!BOP
-!
-! !ROUTINE: Drtsafe
-!
-! !INTERFACE:
-function drtsafe(x1,x2,xacc)
-!
-! !DESCRIPTION:
-!   find roots of the Total Alkalinity function ta_iter_1 
-!   by Newton-Raphson and bisection
-!   Adapted and optimized from Numerical Recipes rtsafe.f90 
-!   (error checking have been removed)
-!
-! !USES:
-   use mem_co2
-   use global_mem
-   IMPLICIT NONE
-!
-! !INPUT PARAMETERS:
-   real(RLEN),intent(IN)  :: x1,x2,xacc
-!
-! !INPUT/OUTPUT PARAMETERS:
-!
-! !OUTPUT PARAMETERS:
-   real(RLEN)             :: drtsafe
-!
-! !REVISION HISTORY:
-!  Author(s):
-!   WH Press, SA Teukolsky, WT Vetterling and BP Flannery
-!   Adapted from OCMIP standard files by M. Vichi
-!
-! !LOCAL VARIABLES:
-   real(RLEN)             :: swap  
-   real(RLEN)             :: df,dx,dxold,f,fh,fl,temp,xh,xl
-   integer                :: j
-   integer,parameter      :: MAXIT=100
-!
-!EOP
-!-----------------------------------------------------------------------
-!BOC
-
-
-   call Ta_iter_1(x1,fl,df)
-   call Ta_iter_1(x2,fh,df)
-
-   if (fl == ZERO) then
-     drtsafe=x1
-     return
-   else if (fh == ZERO) then
-     drtsafe=x2
-     return
-   else if (fl < ZERO) then
-     xl=x1
-     xh=x2
-   else
-     xh=x1
-     xl=x2
-     swap=fl
-     fl=fh
-     fh=swap
-   end if
-
-   drtsafe=0.5_RLEN*(x1+x2)
-   dxold=abs(x2-x1)
-   dx=dxold
-   call Ta_iter_1(drtsafe,f,df)
-
-do j=1,MAXIT
-  if (((drtsafe-xh)*df-f)*((drtsafe-xl)*df-f) >= ZERO .OR. &
-       abs(2.0_RLEN*f) > abs(dxold*df) ) then
-     dxold=dx
-     dx=0.5_RLEN*(xh-xl)
-     drtsafe=xl+dx
-     if (xl == drtsafe) return
-  else
-     dxold=dx
-     dx=f/df
-     temp=drtsafe
-     drtsafe=drtsafe-dx
-     if (temp == drtsafe) return
-  end if
-  if (abs(dx) < xacc) return
-  call Ta_iter_1(drtsafe,f,df)
-  if (f < ZERO) then
-     xl=drtsafe
-     fl=f
-  else
-     xh=drtsafe
-     fh=f
-  end if
-end do
-
-!-----------------------------------------------------------------------
-end function drtsafe
-!-----------------------------------------------------------------------
-!EOC
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!BOP
-!
-! !ROUTINE:  ta_iter_1
-!
-! !DESCRIPTION
-! This routine expresses TA as a function of dic, hSWS (H+ on
-! sea water scale) and constants.
-! It also calculates the derivative of this function with respect to
-! hSWS. It is used in the iterative solution for hSWS. In the call
-! "x" is the input value for hSWS, "fn" is the calculated value for TA
-! and "df" is the value for dTA/dhSWS
-!
-!   INTENT(IN) x = H+ total on Sea Water Scale, 
-!   INTENT(OUT) fn = calculated value for TA
-!   INTENT(OUT) df = calculated value for dTA/dHtotal
-!
-!       fn = hco3(x) + co3(x) + borate(x) + oh(x) + hpo4(x) +
-!            2*po4(x) + silicate(x) + hfree(x) + hso4(x) +
-!            hf(x) + h3po4(x) - ta
-!
-!       df = dfn/dx
-!
-! !INTERFACE
-  subroutine ta_iter_1(x,fn,df)
-!
-! !USES
-  use mem_co2
-!
-! AUTHORS
-!   the OCMIP team
-!   Modified from ta_iter_1.f (RCS version 1.2, OCMIP-2)
-!   - by A. Mouchet, 2004:
-!   Fixed Problems w/ version of ta_iter_1.f used in OCMIP-2 (vers. 1.2)
-!    1) fixed errors in signs, parenthesis and coefficient c in derivative
-!    2) changed from Total to Seawater Scale
-!       * c defined for seawater H scale;
-!       * fn and df adapted to KF on free H scale
-!       * comments have been adapted
-! 
-!EOP
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!BOC
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! Implicit typing is never allowed
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-IMPLICIT NONE
-
-    real(RLEN),intent(IN)  :: x
-    real(RLEN),intent(OUT) :: fn,df
-    real(RLEN)             :: x2,x3,k12,k12p,k123p,c,a,a2,da,b,b2,db  
-    real(RLEN),parameter   :: T1=1.0_RLEN,T2=2.0_RLEN,T3=3.0_RLEN
-
-        x2 = x*x
-        x3 = x2*x
-  k12   =   K1* K2
-  k12p  =   Kp(1)* Kp(2)
-  k123p =   k12p* Kp(3)
-  c  =   T1 + st/Ks + ft/Kf
-  a  =   x3 + Kp(1)*x2 + k12p*x + k123p
-  a2 =   a*a
-  da =   T3*x2 + T2*Kp(1)*x + k12p
-  b  =   x2 + K1*x + k12
-  b2 =   b*b
-  db =   T2*x+ K1
-
-        fn = k1*x*ldic/b +        &
-             T2*ldic*k12/b +        &
-             bt/(T1 + x/kb) +    &
-             kw/x +                &
-             pt*k12p*x/a +         &
-             T2*pt*k123p/a +       &
-             sit/(T1 + x/ksi) -  &
-             x/c -                   &
-             st/(T1 + ks/(x/c))- &
-             ft/(T1 + kf/(x/c))- &
-             pt*x3/a -             &
-             ta
-
-        df = ((k1*ldic*b) - k1*x*ldic*db)/b2 -     &
-             T2*ldic*k12*db/b2 -                        &
-             bt/kb/(T1+x/kb)**T2 -                 &
-             kw/x2 +                                   &
-             (pt*k12p*(a - x*da))/a2 -                 &
-             T2*pt*k123p*da/a2 -                       &
-             sit/ksi/(T1+x/ksi)**T2 -              &
-             T1/c -                                      &
-             st*(T1 + ks/(x/c))**(-T2)*(ks*c/x2) - &
-             ft*(T1 + kf/(x/c))**(-T2)*(kf*c/x2) -   &
-             pt*x2*(T3*a-x*da)/a2
-
-  return
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  end subroutine ta_iter_1
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!EOC
-!EOC
-
 end module CO2System
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

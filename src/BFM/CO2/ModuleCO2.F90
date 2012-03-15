@@ -69,12 +69,18 @@
    ! Choice of [H+] numerical computation
    ! MethodCalcCO2=1 Approximate static solution
    ! MethodCalcCO2=2 Default. Standard OCMIP iteration
-   ! MethodCalcCO2=2 Follows et al., Ocean Modelling 2006
+   ! MethodCalcCO2=3 Follows et al., Ocean Modelling 2006
    !
-   ! M2XACC         :  is the accuracy of the iterative scheme for OCMIP (1.E-10 suggested)
+   ! Parameters for MethodCalcCO2=2
+   ! M2XACC    :  accuracy of the iterative scheme for OCMIP (default 1.E-10)
+   ! M2PHDELT  :  delta of pH for the root search (realized pH+/-DELT)
+   !              in the OCMIP scheme (default 0.5)
+   ! M2MAXIT   :  maximum number of iterations for OCMIP (default 100 )
    !
    integer      :: MethodCalcCO2=2 
    real(RLEN)   :: M2XACC=1.E-20_RLEN
+   real(RLEN)   :: M2PHDELT=0.5_RLEN
+   integer      :: M2MAXIT=100
 
    ! Initial pH value (needed for Follows)
    real(RLEN)   :: phstart=8.0_RLEN ! [-]
@@ -97,7 +103,8 @@
   use global_mem
   
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    namelist /CO2_parameters/ pco2air,K1K2,MethodCalcCO2,phscale,phstart,M2XACC
+    namelist /CO2_parameters/ pco2air,K1K2,MethodCalcCO2,phscale,phstart,  &
+                              M2XACC,M2PHDELT,M2MAXIT
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -50,12 +50,12 @@
 &bfm_nml
     bio_calc = .TRUE.
     bfm_init = 0
-  bfm_rstctl = .TRUE.
+  bfm_rstctl = .FALSE.
    bio_setup = 1
    out_fname = 'BFM_standalone_co2test'
      out_dir = '.'
    out_title = 'BFM_CO2'
-   out_delta = 300 !every 30 day
+   out_delta = 300 ! every 30 days
 /
 
 !-------------------------------------------------------------------------!
@@ -80,8 +80,8 @@
    N6r0 = 1.0,
    O2o0 = 300.0,
    O4n0 = 200.0,
-   O3c0 = 25000.00, ![mgC /m3]  2200 ug/Kg 
-   O3h0 = 2660.0,   ![mmol eq/m3]  2600 ug/Kg
+   O3c0 = 27060.00, ![mgC /m3]  2200 umol/Kg 
+   O3h0 = 2660.0,   ![mmol eq/m3]  2600 umol/Kg
 /
 
 !-------------------------------------------------------------------------!
