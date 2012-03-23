@@ -87,9 +87,9 @@ CONTAINS
       ENDDO
       !
       ntra = MAX( 1, nb_trcdta )   ! To avoid compilation error with bounds checking
-      WRITE(numout,*) ' '
-      WRITE(numout,*) ' number of passive tracers to be initialized by data :', nb_trcdta
-      WRITE(numout,*) ' '
+      IF( lwp ) WRITE(numout,*) ' '
+      IF( lwp ) WRITE(numout,*) ' number of passive tracers to be initialized by data :', nb_trcdta
+      IF( lwp ) WRITE(numout,*) ' '
       !                         ! allocate the arrays (if necessary)
       !
       cn_dir  = './'            ! directory in which the model is executed
