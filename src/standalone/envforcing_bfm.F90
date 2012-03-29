@@ -5,7 +5,7 @@
 ! !IROUTINE: Light and other environmental forcings used in the BFM
 !
 ! !INTERFACE
-   subroutine envforcing_bfm()
+   subroutine envforcing_bfm(step)
 !
 ! !DESCRIPTION
 ! This routine sets the environmental forcings according to user
@@ -29,7 +29,7 @@
 !  Original author(s): Marcello Vichi (INGV), Jordi Sole (IMEDEA)
 !
 ! !LOCAL VARIABLES:
-
+   integer        :: step
 
 !EOP
 !-----------------------------------------------------------------------

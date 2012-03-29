@@ -11,21 +11,21 @@
 !  Euler-forward integration with time step adjustment
 ! !USES
    use global_mem, ONLY:RLEN
-   use mem, ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
-                  D3STATETYPE
+   use mem,  ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
+                   D3STATETYPE
 #ifndef ONESOURCE
-   use mem, ONLY: D3SINK
+   use mem,  ONLY: D3SINK
 #endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
-                  D2STATETYPE
+   use mem,  ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
+                   D2STATETYPE
 #ifndef ONESOURCE
-   use mem, ONLY: D2SINK
+   use mem,  ONLY: D2SINK
 #endif
 #endif
    use standalone
    use api_bfm
-   use time, only: update_time
+   use time, ONLY: update_time
    implicit none
 !
 ! !INPUT PARAMETERS:

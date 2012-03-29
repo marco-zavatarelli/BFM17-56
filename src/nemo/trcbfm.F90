@@ -30,6 +30,7 @@
 #endif
    use mem_param, only: CalcTransportFlag, CalcBenthicFlag, &
                         CalcPelagicFlag
+   use time,      only: bfmtime
    ! NEMO
    use oce_trc          ! ocean dynamics and active tracers variables
    use trc              ! ocean passive tracers variables
@@ -72,6 +73,11 @@
    ! Biological timestep 
    !---------------------------------------------
    delt  = rdt*real(nn_dttrc,RLEN)
+   
+   !---------------------------------------------
+   ! BFM internal time
+   !--------------------------------------------- 
+   bfmtime%stepnow  = bfmtime%stepnow + real(nn_dttrc,RLEN)
 
    !---------------------------------------------
    ! Compute external forcing functions

@@ -24,11 +24,8 @@
    use mem,        only: EPCO2air
 #endif
 #endif
-#ifdef INCLUDE_PELCO2
-   use mem_CO2,    only: pco2air
-#endif
-   use time, only: julianday, secondsofday, time_diff, &
-                   julian_day,calendar_date
+   use time,       only: julianday, secondsofday, time_diff, &
+                         julian_day,calendar_date
    use envforcing, only: init_forcing_vars, daylength, density, &
                          unit_forcing, read_obs
    use standalone, only: latitude
@@ -46,17 +43,17 @@
 ! !LOCAL VARIABLES:
    integer,parameter         :: NOBS=6
    integer                   :: yy,mm,dd,hh,min,ss
-   real(RLEN)                :: t,alpha
+   real(RLEN)                :: t,alpha,jday
    real(RLEN), save          :: dt
    integer, save             :: data_jul1,data_secs1
    integer, save             :: data_jul2=0,data_secs2=0
    real(RLEN), save          :: obs1(NOBS),obs2(NOBS)=0.
-   integer                   :: rc
+   integer                   :: rc,jh,jn
 !-----------------------------------------------------------------------
 !BOC
 #ifdef DEBUG
    LEVEL1 'external_forcing (jul,sec): ',julianday,secondsofday
-   call  calendar_date(julianday,yy,mm,dd)
+   call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
    LEVEL2 'Calendar day:',yy,mm,dd
 #endif
    ! constant sea-ice fraction (changed below if Sea-ice model is used)
@@ -74,7 +71,8 @@
          data_secs1 = data_secs2
          obs1 = obs2
          call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,NOBS,obs2,rc)
-         call julian_day(yy,mm,dd,data_jul2)
+         call julian_day(yy,mm,dd,0,0,jday)
+         data_jul2 = int(jday)
          data_secs2 = hh*3600 + min*60 + ss
          if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
       end do

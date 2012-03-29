@@ -14,6 +14,7 @@
 !
 ! !USES:
   use global_mem
+  use SystemForcing, only :ForcingName, ForcingField, FieldInit
   IMPLICIT NONE
 !  
 !
@@ -53,7 +54,12 @@
   ! PelCO2 PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    ! Initial Partial pressure in the air
-   real(RLEN)   :: pco2air=365.0_RLEN ! uatm
+   ! pco2air0  : initial constant value 
+   ! AtmCO2    : structure of data from file time series
+   real(RLEN)   :: pco2air0=365.0_RLEN ! uatm
+   
+   type(ForcingName)    :: ATMpCO2_N
+   type(ForcingField)   :: ATMpCO2
 
    ! Choice of the acidity constants parameterization
    ! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale
@@ -99,13 +105,25 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   subroutine InitCO2()
 
-  use mem, ONLY: EPCO2air,pH
-  use global_mem
-  
+#ifdef NOPOINTERS
+  use mem
+#else
+  use mem,          ONLY: EPCO2air,pH,NO_BOXES_XY
+#endif
+!  use SystemForcing, ONLY : FieldInit
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    namelist /CO2_parameters/ pco2air,K1K2,MethodCalcCO2,phscale,phstart,  &
-                              M2XACC,M2PHDELT,M2MAXIT
+    namelist /CO2_parameters/ pco2air0,K1K2,MethodCalcCO2,phscale,phstart,  &
+                              M2XACC,M2PHDELT,M2MAXIT,ATMpCO2_N
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  !--------------------------------------------------------------------------
+  ! Initialize the structured array that defines if a variable is initialized  
+  ! with external data.
+  !---------------------------------------------------------------------------
+                        ! Read  !   File     ! Netcdf  !  Var   ! File    ! Input      !   Time   !
+                        ! Input !   name     ! Logical !  name  ! RefTime ! Frequency  !  interp  !
+    ATMpCO2_N = ForcingName( 0  , "dummy.nc" , .TRUE.  ,"dummy" , "dummy" ,  "dummy"   ,  .TRUE.  )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Open the namelist file(s)
@@ -117,9 +135,24 @@
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=CO2_parameters)
+    
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Set initial conditions
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    ATMpCO2%init = ATMpCO2_N%init 
 
-    ! assign initial atmospheric pCO2 
-    EPCO2air(:) = pco2air
+    ! assign initial atmospheric pCO2
+    if (AtmpCO2%init == 0) then
+       ! Use constant atmospheric pCO2 
+       EPCO2air(:) = pco2air0
+       write(*,*) 'Use constant atmCO2', EPCO2air
+    else
+       ! read external AtmpCO2 
+       CALL FieldInit(ATMpCO2_N, ATMpCO2)
+       EPCO2air(:) = ATMpCO2%fnow
+       write(*,*) 'EPCO2air Initial input', EPCO2air
+    endif
+
     ! assign initial pH 
     pH(:) = phstart
 

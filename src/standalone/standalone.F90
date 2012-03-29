@@ -130,7 +130,7 @@
 !BOC
    call Date_And_Time(datestr,timestr)
    STDERR LINE
-   STDERR 'BFM standalone started on  ',datestr,' ',timestr
+   STDERR 'BFM standalone Simulation started on  ',datestr,' ',timestr
    STDERR LINE
    LEVEL1 'init_standalone'
    !---------------------------------------------
@@ -373,7 +373,7 @@ integer :: i
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Compute environmental forcing functions
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      call envforcing_bfm
+      call envforcing_bfm(ntime)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Compute extinction coefficient
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -8,7 +8,7 @@
 !inp_dir 	  string 	Path to the input files (chunks)
 !out_dir 	  string 	Path to the output file (merged)
 !layout 	  string 	Path to the layout.dat file
-!ln_grid 	  logical       Write global grid specifications (mask, lat, lon)
+!ln_grid 	  logical       Write global grid mask specification
 !var_save 	  string 	List of output variables (set according to bfm output) 
 !
 ! Warning: NetCDF files have a dimension limit (~4Tb), so pay attention in selecting 

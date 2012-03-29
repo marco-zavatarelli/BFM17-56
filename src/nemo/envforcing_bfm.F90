@@ -20,7 +20,7 @@
    use api_bfm
 #ifdef INCLUDE_PELCO2
    use mem,        only: EPCO2air
-   use mem_CO2,    only: pco2air
+   use mem_CO2,    only: pco2air0, AtmpCO2
 #endif
 ! OPA modules
    use oce_trc
@@ -83,8 +83,13 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign atmospheric pCO2
    !---------------------------------------------
-      EPCO2air = pco2air !costant
-      !EPCO2air = pack(,SRFmask(:,:,1) )
+   if (AtmpCO2%init == 0) then
+      ! Constant pCO2
+      EPCO2air = pco2air0 
+   else
+      call FieldRead(AtmpCO2)
+      EPCO2air(:) = ATMpCO2%fnow
+   endif
 #endif
 
    !---------------------------------------------

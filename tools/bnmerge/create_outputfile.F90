@@ -124,6 +124,9 @@ subroutine create_outputfile
            ! Add fill value
            status = nf90_put_att(ncid, IDtarget, "_FillValue", NF90_FILL_REAL)
            if (status /= NF90_NOERR) call handle_err(status)
+           ! Add reference coordinate names (needed with CDO)
+           status = nf90_put_att(ncid, IDtarget, "coordinates", "lon lat")
+           if (status /= NF90_NOERR) call handle_err(status)
      end do ! n_bfmvar 
 
      ! copy time variable and attributes

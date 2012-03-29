@@ -12,7 +12,7 @@
 !
 ! !USES:
    use constants, only: RLEN, SEC_PER_DAY
-   use time, only: timestep
+   use time,      only: timestep
    IMPLICIT NONE
 !
 ! !REVISION HISTORY:
