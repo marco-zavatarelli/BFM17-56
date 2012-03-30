@@ -45,7 +45,7 @@
    use trc_oce, only: etot3
    use trcdta
    use trcbc
-   use daymod, only: nyear, nmonth, nday
+   use dom_oce, only: nyear, nmonth, nday
 
    IMPLICIT NONE
 !
@@ -75,7 +75,7 @@
    write(start_time,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
    call julian_day(nyear,nmonth,nday,0,0,julianday)
    bfmtime%time0    = julianday
-   bfmtime%timeEnd  = julianday + ((nitend-nit000)* timestep) / SEC_PER_DAY
+   bfmtime%timeEnd  = julianday + ((nitend-nit000)* rdt) / SEC_PER_DAY
    bfmtime%step0    = nit000
    bfmtime%timestep = rdt
    bfmtime%stepnow  = nit000

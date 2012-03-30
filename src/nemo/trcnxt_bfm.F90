@@ -149,7 +149,7 @@ CONTAINS
       CALL obc_trc_bfm(kt,m)
 #endif
 
-#if defined key_mfs && defined key_bfm
+#if defined key_mfs && defined key_my_trc
       ! Set boundary conditions for MED equal to first interion line of the domain
       ! TOM: zero gradient condition -> to be put into obc_trc_bfm
       CALL obc_trc_bfm_tom(kt,m)
