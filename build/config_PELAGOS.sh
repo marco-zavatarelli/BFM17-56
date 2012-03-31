@@ -38,8 +38,9 @@ cppdefs="-DBFM_PARALLEL -DONESOURCE -DINCLUDE_PELFE -DINCLUDE_PELCO2 -DINCLUDE_D
 CONFIG="PELAGOS"
 BLDDIR="STD_${CONFIG}"
 COMPILE="yes"
-ARCH="PW6_calypso"
+ARCH="EMPTY"
 NPROC=8
+MODE=${1}
 #----------------- END User configuration -----------------
 # set -xv
 cp="cp"
@@ -92,6 +93,10 @@ if [ ${COMPILE} = "yes" ]; then
   back=${PWD}
   echo "Starting NEMO compilation..."
   cd ${NEMODIR}/NEMOGCM/CONFIG
+  if [ ${MODE} = "clean" ]; then
+    echo "Cleaning up ${CONFIG}..."
+    ./makenemo -n ${CONFIG} -m ${ARCH} clean
+  fi
   ./makenemo -n ${CONFIG} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${NPROC}
   cd ${back}
   echo "${CONFIG} compilation done!"
