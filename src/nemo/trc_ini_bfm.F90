@@ -28,11 +28,13 @@
 #ifdef INCLUDE_PELCO2
    use mem, only: ppO3c,ppO3h
 #endif
-   use global_mem, only:RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
-                        error_msg_prn,ONE
+   use global_mem, only: RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
+                         error_msg_prn,ONE
+   use constants,  only: SEC_PER_DAY
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm
+   use time,       only: bfmtime, julian_day 
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
    use trc
@@ -63,6 +65,7 @@
    logical,allocatable  :: mask1d(:)
    integer              :: nc_id ! logical unit for data initialization
    character(len=20)    :: start_time
+   real                 :: julianday
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -70,7 +73,12 @@
    ! Initial time
    !-------------------------------------------------------
    write(start_time,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
-
+   call julian_day(nyear,nmonth,nday,0,0,julianday)
+   bfmtime%time0    = julianday
+   bfmtime%timeEnd  = julianday + ((nitend-nit000)* rdt) / SEC_PER_DAY
+   bfmtime%step0    = nit000
+   bfmtime%timestep = rdt
+   bfmtime%stepnow  = nit000
    !-------------------------------------------------------
    ! Force Euler timestepping in the first timestep
    !-------------------------------------------------------

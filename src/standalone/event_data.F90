@@ -19,8 +19,8 @@
    use global_mem, only: RLEN,ZERO
    use constants,  only: SEC_PER_DAY
    use mem
-   use time, only: julianday, secondsofday, time_diff, &
-                   julian_day,calendar_date,dayofyear
+   use time,       only: julianday, secondsofday, time_diff, &
+                         julian_day,calendar_date,dayofyear
    use envforcing
    use api_bfm
    IMPLICIT NONE
@@ -39,12 +39,12 @@
    integer,parameter         :: NOBS=iiPhytoPlankton
 
    integer                   :: yy,mm,dd,hh,min,sec
-   real(RLEN)                :: t,alpha
+   real(RLEN)                :: t,alpha,jday
    real(RLEN), save          :: dt
    integer, save             :: data_jul1,data_secs1
    integer, save             :: data_jul2=0,data_secs2=0
    real(RLEN), save          :: obs1(NOBS),obs2(NOBS)=0.
-   integer                   :: rc,i
+   integer                   :: rc,i,jh,jn
    ! Redfield and other constant ratios
    real(RLEN),parameter      :: nc_ratio=0.0126_RLEN 
    real(RLEN),parameter      :: pc_ratio=0.7862e-3_RLEN
@@ -54,7 +54,7 @@
 !BOC
 #ifdef DEBUG
    LEVEL1 'event_data (jul,sec): ',julianday,secondsofday
-   call  calendar_date(julianday,yy,mm,dd)
+   call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
    LEVEL2 'Calendar day:',yy,mm,dd
 #endif
 
@@ -71,7 +71,8 @@
             data_secs1 = data_secs2
             obs1 = obs2
             call read_obs(unit_event,yy,mm,dd,hh,min,sec,NOBS,obs2,rc)
-            call julian_day(yy,mm,dd,data_jul2)
+            call julian_day(yy,mm,dd,0,0,jday)
+            data_jul2 = int(jday)
             data_secs2 = hh*3600 + min*60 + sec
             if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
          end do

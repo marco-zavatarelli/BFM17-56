@@ -34,7 +34,14 @@
 
 &CO2_parameters
 ! Initial Partial pressure in the air
-   pco2air = 390.0E0
+   pco2air0 = 370.0E0
+!-----------------------------------------------------------------------------------!
+! Read external data for atmospheric CO2 values  
+          ! Read  !   File   ! NetCDF  !  Var    !  RefTime   ! Input      !   Time   !
+          ! Input !   name   ! Logical !  name   !  yyyymmdd  ! Frequency  !  interp  !
+!ATMpCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.nc' , .TRUE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.  
+!ATMpCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.  
+!-----------------------------------------------------------------------------------!
 
 ! Initial pH value
    phstart = 8.10E0
@@ -65,7 +72,6 @@
           M2XACC = 1.0E-10
         M2PHDELT = 0.3
          M2MAXIT = 100
-
 /
 
 !EOC

@@ -30,7 +30,7 @@
 myGlobalDef="GlobalDefsBFM.model.standard"
 cppdefs=" -DUSEPACK -DBFM_PARALLEL -DONESOURCE -DINCLUDE_PELCO2" 
 
-RELEASE="no"
+RELEASE="yes"
 
 BLDDIR="STD_MemLayout"
 #----------------- User configuration -----------------

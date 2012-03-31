@@ -17,8 +17,8 @@
                          N1p,N3n,N4n,N5s,                 &
                          R6c,R6n,R6p,R6s,O2o
    use mem,        only: iiC,iiN,iiP,iiS
-   use time, only: julianday, secondsofday, time_diff, &
-                   julian_day,calendar_date,dayofyear
+   use time,       only: julianday, secondsofday, time_diff, &
+                         julian_day,calendar_date,dayofyear
    use envforcing
    use api_bfm
    IMPLICIT NONE
@@ -40,13 +40,13 @@
    integer, save             :: data_jul1,data_secs1
    integer, save             :: data_jul2=0,data_secs2=0
    real(RLEN), save          :: obs1(NOBS),obs2(NOBS)=0.
-   integer                   :: rc,dyear
-   real(RLEN)                :: dfrac
+   integer                   :: rc,dyear,jh,jn
+   real(RLEN)                :: dfrac,jday
 !-----------------------------------------------------------------------
 !BOC
 #ifdef DEBUG
    LEVEL1 'external_data (jul,sec): ',julianday,secondsofday
-   call  calendar_date(julianday,yy,mm,dd)
+   call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
    LEVEL2 'Calendar day:',yy,mm,dd
 #endif
 
@@ -63,7 +63,8 @@
             data_secs1 = data_secs2
             obs1 = obs2
             call read_obs(unit_data,yy,mm,dd,hh,min,sec,NOBS,obs2,rc)
-            call julian_day(yy,mm,dd,data_jul2)
+            call julian_day(yy,mm,dd,0,0,jday)
+            data_jul2 = int(jday)
             data_secs2 = hh*3600 + min*60 + sec
             if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
          end do

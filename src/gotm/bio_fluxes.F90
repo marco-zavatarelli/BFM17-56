@@ -120,6 +120,7 @@
    REALTYPE                  :: tfrac,dt
    integer, save             :: jul1,secs1,jul2=0,secs2=0
    integer                   :: rc
+   real(RLEN)                :: jday
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -139,7 +140,8 @@
             secs1 = secs2
             obs1 = obs2
             call read_obs(sfl_unit,yy,mm,dd,hh,min,ss,n_surface_fluxes,obs2,rc)
-            call julian_day(yy,mm,dd,jul2)
+            call julian_day(yy,mm,dd,0,0,jday)
+            jul2 = int(jday)
             secs2 = hh*3600 + min*60 + ss
             if(time_diff(jul2,secs2,jul,secs) .gt. 0) EXIT
          end do

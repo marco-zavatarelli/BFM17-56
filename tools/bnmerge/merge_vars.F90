@@ -236,6 +236,7 @@ subroutine merge_vars
      status = nf90_put_var(ncid, IDmask, maskglo, start = (/ 1, 1, 1 /),     &
                             count = (/ jpiglo, jpjglo, jpk /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: mask")
+  endif
      status = nf90_inq_varid(ncid, "lat", IDmask)
      if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring variable: lat")
      status = nf90_put_var(ncid, IDmask, latglo, start = (/ 1, 1 /),     &
@@ -245,7 +246,7 @@ subroutine merge_vars
      status = nf90_put_var(ncid, IDmask, longlo, start = (/ 1, 1 /),     &
                             count = (/ jpiglo, jpjglo /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lon")
-  endif
+  !tom: endif
 
      status = nf90_close(ncid)
      if (status /= NF90_NOERR) call handle_err(status)

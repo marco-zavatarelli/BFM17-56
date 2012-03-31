@@ -24,8 +24,6 @@ MODULE trcini
    USE daymod
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
-
-   USE api_bfm, ONLY: bio_calc
    
    IMPLICIT NONE
    PRIVATE
@@ -59,7 +57,7 @@ CONTAINS
 
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_init : initial set up of the passive tracers'
-      IF(lwp) WRITE(numout,*) '           Using the Biogeochemical Flux Model (BFM)'
+      IF(lwp) WRITE(numout,*) '           Using the Biogeochemical Flux Model (BFM'
       IF(lwp) WRITE(numout,*) '~~~~~~~'
 
       CALL top_alloc()              ! allocate TOP arrays
@@ -82,8 +80,8 @@ CONTAINS
       IF( nn_cla == 1 )   &
          &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
 
-      CALL trc_nam                     ! read passive tracers namelists
-      IF (bio_calc) CALL trc_ini_bfm   ! Initialize BFM tracers
+      CALL trc_nam                  ! read passive tracers namelists
+      CALL trc_ini_bfm              ! Initialize BFM tracers
 
       IF( lk_offline )  THEN
            neuler = 0                  ! Set time-step indicator at nit000 (euler)

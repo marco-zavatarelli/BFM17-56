@@ -38,7 +38,7 @@
 &CO2_parameters
 
 ! Initial Partial pressure in the air
-pco2air=365.0D0,
+pco2air0=365.0D0,
 
 ! Choice of the acidity constants parameterization
 ! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale

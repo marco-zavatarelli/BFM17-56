@@ -36,17 +36,17 @@
 ! !LOCAL VARIABLES:
    integer,parameter                  :: NSI=9
    integer                            :: yy,mm,dd,hh,minutes,ss
-   real(RLEN)                         :: t,alpha
+   real(RLEN)                         :: t,alpha,jday
    real(RLEN), save                   :: dt
    integer, save                      :: data_jul1,data_secs1
    integer, save                      :: data_jul2=0,data_secs2=0
    real(RLEN), save                   :: obs1(NSI),obs2(NSI)=0.
-   integer                            :: rc
+   integer                            :: rc,jh,jn
 !-----------------------------------------------------------------------
 !BOC
 #ifdef DEBUG
    LEVEL1 'external_forcing (jul,sec): ',julianday,secondsofday
-   call  calendar_date(julianday,yy,mm,dd)
+   call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
    LEVEL2 'Calendar day:',yy,mm,dd
 #endif
 
@@ -65,7 +65,8 @@
          data_secs1 = data_secs2
          obs1 = obs2
          call read_obs(unit_seaice,yy,mm,dd,hh,minutes,ss,NSI,obs2,rc)
-         call julian_day(yy,mm,dd,data_jul2)
+         call julian_day(yy,mm,dd,0,0,jday)
+         data_jul2 = int(jday)
          data_secs2 = hh*3600 + minutes*60 + ss
          if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .gt. 0) EXIT
       end do

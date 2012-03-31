@@ -17,15 +17,28 @@
 !  very simple operations on integers.
 !
 ! !USES:
-   use global_mem, only: RLEN
+   use global_mem, only: RLEN, bfm_lwp, LOGUNIT
+   use constants,  only: SEC_PER_DAY
    IMPLICIT NONE
 !
 !  default: all is private.
    private
+
+   type TimeInfo
+      character(len=25)      :: date0    ! calendar date of start
+      real(RLEN)             :: time0    ! Julian day start of run 
+      real(RLEN)             :: timeEnd  ! Julian day end of run
+      integer                :: step0    ! Initial step # 
+      integer                :: timestep ! Delta t
+      integer                :: stepnow  ! Actual step #
+   end type TimeInfo
+!
+! tom: maybe this structure can be used to replace maby time parameters
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public                              :: init_time, calendar_date
-   public                              :: julian_day, update_time
+   type(TimeInfo), public              :: bfmtime
+   public                              :: julian_day, calendar_date
+   public                              :: init_time, update_time
    public                              :: write_time_string
    public                              :: time_diff
    public                              :: dayofyear
@@ -104,7 +117,8 @@
 !
 ! !LOCAL VARIABLES:
    integer                   :: jul1=-1,secs1=-1,jul2,secs2
-   integer                   :: ndays,nsecs
+   integer                   :: ndays,nsecs,dd,mm,yy,hh,nn
+   real(RLEN)                :: jday
 !
 !-------------------------------------------------------------------------
 !BOC
@@ -121,14 +135,7 @@
       case (1)
          HasRealTime=.false.
          LEVEL2 '# of timesteps: ',MaxN
-         start='2000-01-01 00:00:00'
-         LEVEL2 'Fake start:     ',start
-      case (4)
-         HasRealTime=.false.
-         nsecs = simdays*86400
-         MaxN = nint(nsecs/timestep)
-         LEVEL2 '# of timesteps: ',MaxN
-         start='2000-01-01 00:00:00'
+!         start='2000-01-01 00:00:00'
          LEVEL2 'Fake start:     ',start
       case (2)
          LEVEL2 'Start:          ',start
@@ -156,6 +163,13 @@
 
          call write_time_string(jul2,secs2,stop)
          LEVEL2 'Stop:           ',stop
+      case (4)
+         HasRealTime=.false.
+         nsecs = simdays*86400
+         MaxN = nint(nsecs/timestep)
+         LEVEL2 '# of timesteps: ',MaxN
+!         start='2000-01-01 00:00:00'
+         LEVEL2 'Fake start:     ',start
       case default
          STDERR 'Fatal error: A non valid input format has been chosen'
          stop 'init_time'
@@ -169,17 +183,28 @@
 
    simtime = timestep*(MaxN-MinN+1)
 
+   ! Set bfmtime 
+   jday = real(jul0,RLEN)
+   call calendar_date(jday,yy,mm,dd,hh,nn)
+   write(bfmtime%date0,'(i4.4,a1,i2.2,a1,i2.2,1x,I2.2,a1,I2.2)') yy,'-',mm,'-',dd,hh,':',nn
+   bfmtime%time0    = jday
+   bfmtime%timeEnd  = jday + (float(MaxN) * timestep) / SEC_PER_DAY
+   bfmtime%step0    = MinN
+   bfmtime%timestep = timestep
+   bfmtime%stepnow  = MinN
+   
+   LEVEL2 'bfmtime : ', bfmtime
+
    return
    end subroutine init_time
 !EOC
-
 !-----------------------------------------------------------------------
 !BOP
 !
 ! !IROUTINE:  Convert true Julian day to calendar date
 !
 ! !INTERFACE:
-   subroutine calendar_date(julian,yyyy,mm,dd)
+   subroutine calendar_date(julian,yyyy,mm,dd,hh,nn)
 !
 ! !DESCRIPTION:
 !  Converts a Julian day to a calendar date --- year, month and day.
@@ -189,42 +214,47 @@
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   integer                             :: julian
+   REAL(RLEN), INTENT(IN)              :: julian
 !
 ! !OUTPUT PARAMETERS:
-   integer                             :: yyyy,mm,dd
+   INTEGER, INTENT(OUT)                :: yyyy,mm,dd,hh,nn
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
+!  Revision 1.0      : Tomas Lovato (2012)
 !
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer, parameter        :: IGREG=2299161
-   integer                   :: ja,jb,jc,jd,je
-   REAL                      :: x
+   INTEGER, PARAMETER        :: IGREG = 2299161
+   INTEGER                   :: ja, jb, jc, jd, je, jday
+   REAL(RLEN)                :: x, res
 !
 !-----------------------------------------------------------------------
 !BOC
-   if(julian .ge. IGREG ) then
-      x = ((julian-1867216)-0.25)/36524.25
-      ja = julian+1+int(x)-int(0.25*x)
+   jday = floor(julian)
+   if(jday >= IGREG ) then
+      x = ((jday - 1867216) - 0.25) / 36524.25
+      ja = jday + 1 + int(x) - int(0.25 * x)
    else
-      ja = julian
+      ja = jday
    end if
 
-   jb = ja+1524
-   jc = int(6680 + ((jb-2439870)-122.1)/365.25)
-   jd = int(365*jc+(0.25*jc))
-   je = int((jb-jd)/30.6001)
+   jb = ja + 1524
+   jc = int(6680 + ((jb - 2439870) - 122.1) / 365.25)
+   jd = int(365 * jc + (0.25 * jc))
+   je = int((jb - jd) / 30.6001)
 
-   dd = jb-jd-int(30.6001*je)
+   dd = jb - jd - int(30.6001 * je)
    mm = je-1
-   if (mm .gt. 12) mm = mm-12
+   if (mm > 12) mm = mm - 12
    yyyy = jc - 4715
-   if (mm .gt. 2) yyyy = yyyy-1
-   if (yyyy .le. 0) yyyy = yyyy-1
+   if (mm > 2) yyyy = yyyy - 1
+   if (yyyy <= 0) yyyy = yyyy - 1
 
+   res = julian - real(jday)
+   hh = floor(res * 24)
+   nn = floor( ((res * 24) - real(hh,RLEN)) * 60)
    return
    end subroutine calendar_date
 !EOC
@@ -235,7 +265,7 @@
 ! !IROUTINE:  Convert a calendar date to true Julian day
 !
 ! !INTERFACE:
-   subroutine julian_day(yyyy,mm,dd,julian)
+   subroutine julian_day(yyyy,mm,dd,hh,nn,julian)
 !
 ! !DESCRIPTION:
 !  Converts a calendar date to a Julian day.
@@ -245,35 +275,47 @@
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   integer                             :: yyyy,mm,dd
+   INTEGER, INTENT(IN)                 :: yyyy, mm, dd, hh, nn
 !
 ! !OUTPUT PARAMETERS:
-   integer                             :: julian
+   REAL, INTENT(OUT)                   :: julian
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
+!  Revision 1.0      : Tomas Lovato (2012)
 !
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer, PARAMETER        :: IGREG=15+31*(10+12*1582)
-   integer                   :: ja,jy,jm
+   INTEGER, PARAMETER        :: IGREG = 15 + 31 * ( 10 + 12 * 1582 )
+   INTEGER                   :: ja, jy, jm, jh ,jn, jday
 !
 !-----------------------------------------------------------------------
 !BOC
    jy = yyyy
-   if(jy .lt. 0) jy = jy+1
-   if (mm .gt. 2) then
-      jm = mm+1
+   if (jy < 0) jy = jy + 1
+   if (mm > 2) then
+      jm = mm + 1
    else
-      jy = jy-1
-      jm = mm+13
+      jy = jy - 1
+      jm = mm + 13
    end if
-   julian = int(floor(365.25*jy)+floor(30.6001*jm)+dd+1720995)
-   if (dd+31*(mm+12*yyyy) .ge. IGREG) then
-      ja = int(0.01*jy)
-      julian = julian+2-ja+int(0.25*ja)
+   jday = int(floor(365.25*jy) + floor(30.6001*jm) + dd + 1720995)
+   if (dd + 31 * (mm + 12 * yyyy) >= IGREG) then
+      ja = int(0.01 * jy)
+      jday = jday + 2 - ja + int(0.25 * ja)
    end if
+   jh = hh
+   jn = nn
+   if (jn >= 60) then
+       jh = jh + 1
+       jn = jn - 60
+   endif
+   if (jh >= 24) then
+      jday = jday + 1
+      jh = jh - 24
+   endif
+   julian  = real(jday,RLEN) +  real(jh,RLEN)/24 + real(jn,RLEN)/ ( 24 * 60)
 
    return
    end subroutine julian_day
@@ -313,7 +355,9 @@
    fsecs = n*timestep + secs0
    julianday    = jul0 + nsecs/86400
    secondsofday = mod(nsecs,86400)
-
+  
+   bfmtime%stepnow = n
+ 
    return
    end subroutine update_time
 !EOC
@@ -347,12 +391,14 @@
 ! !LOCAL VARIABLES:
    character                 :: c1,c2,c3,c4
    integer                   :: yy,mm,dd,hh,min,ss
+   real(RLEN)                :: jday
 !
 !-----------------------------------------------------------------------
 !BOC
    read(timestr,'(i4,a1,i2,a1,i2,1x,i2,a1,i2,a1,i2)')  &
                           yy,c1,mm,c2,dd,hh,c3,min,c4,ss
-   call julian_day(yy,mm,dd,jul)
+   call julian_day(yy,mm,dd,0,0,jday)
+   jul = int(jday)
    secs = 3600*hh + 60*min + ss
 
    return
@@ -386,15 +432,17 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer                   :: ss,min,hh,dd,mm,yy
+   integer                   :: ss,min,hh,dd,mm,yy,jh,jn
+   real(RLEN)                :: jday
 !
 !-----------------------------------------------------------------------
 !BOC
    hh   = secs/3600
    min  = (secs-hh*3600)/60
    ss   = secs - 3600*hh - 60*min
+   jday = real(jul,RLEN)
+   call calendar_date(jday,yy,mm,dd,jh,jn)
 
-   call calendar_date(jul,yy,mm,dd)
 
    write(timestr,'(i4.4,a1,i2.2,a1,i2.2,1x,i2.2,a1,i2.2,a1,i2.2)')  &
                         yy,'-',mm,'-',dd,hh,':',min,':',ss
@@ -460,14 +508,15 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer                             :: yy,mm,dd,julian0
+   integer                             :: yy,mm,dd,hh,nn
+   real(RLEN)                          :: julian0,jday
 !
 !-----------------------------------------------------------------------
 !BOC
-
-      call calendar_date(julian,yy,mm,dd)
-      call julian_day(yy,1,1,julian0)
-      ddyear = julian - julian0 + 1
+      jday = real(julian,RLEN)
+      call calendar_date(jday,yy,mm,dd,hh,nn)
+      call julian_day(yy,1,1,0,0,julian0)
+      ddyear = julian - int(julian0) + 1
 
    end subroutine dayofyear
 !EOC

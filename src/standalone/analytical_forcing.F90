@@ -33,10 +33,11 @@ subroutine analytical_forcing
    use standalone, only: timesec,latitude
    use envforcing
 #ifdef INCLUDE_PELCO2
-   use mem_CO2,    only: pco2air
+   use mem_CO2,    only: pco2air0, AtmpCO2
 #endif
-   use time, only: julianday, secondsofday, timefmt, &
-                   julian_day,calendar_date,dayofyear
+   use time,       only: julianday, secondsofday, timefmt, &
+                         julian_day,calendar_date,dayofyear
+   use SystemForcing, ONLY :FieldRead
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -90,8 +91,13 @@ subroutine analytical_forcing
    ! constant sea-ice fraction 
    EICE(:) = 0.0_RLEN
 #ifdef INCLUDE_PELCO2
-   ! increase of pCO2 in the air by CO2inc [%]
-    EPCO2air(:) = pco2air*(ONE + (CO2inc / 100_RLEN) / 365._RLEN * dtime)
+   if (AtmpCO2%init == 0) then
+      ! increase of initial pCO2 in the air by CO2inc [%]
+      EPCO2air(:) = pco2air0*(ONE + (CO2inc / 100_RLEN) / 365._RLEN * dtime)
+   else
+      call FieldRead(AtmpCO2)
+      EPCO2air(:) = ATMpCO2%fnow
+   endif
 #endif
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW(:)

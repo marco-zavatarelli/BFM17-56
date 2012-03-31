@@ -149,6 +149,12 @@ CONTAINS
       CALL obc_trc_bfm(kt,m)
 #endif
 
+#if defined key_mfs && defined key_my_trc
+      ! Set boundary conditions for MED equal to first interion line of the domain
+      ! TOM: zero gradient condition -> to be put into obc_trc_bfm
+      CALL obc_trc_bfm_tom(kt,m)
+#endif
+
 #if defined key_agrif
       ! Update tracer at AGRIF zoom boundaries
       IF( .NOT.Agrif_Root() )    CALL Agrif_Update_Trc( kt )      ! children only
@@ -198,6 +204,149 @@ CONTAINS
 
 
    END SUBROUTINE trc_nxt_bfm
+
+   !!----------------------------------------------------------------------------
+   !! Subroutine to set BFM OBC zero gradient condition at the open boundary
+   !! TOM: to be placed in obctrc_bfm 
+   !!----------------------------------------------------------------------------
+
+   SUBROUTINE obc_trc_bfm_tom(kt,m)
+   !!----------------------------------------------------------------------------
+   ! Purpose : Used to set OBC equal to internal points as OBC is not yet present 
+   ! This Subroutine is basedon the old structure of bfm obc treatment
+   ! NOTe that all boudaries are asumed to be solid 
+   ! Tomas Lovato
+   !!----------------------------------------------------------------------------
+   ! include file for substituting indeces for open boundaries
+#  include "obc_vectopt_loop_substitute.h90"
+
+      USE oce             ! ocean dynamics and tracers variables
+      USE dom_oce         ! ocean space and time domain variables
+      USE phycst          ! physical constants
+      USE obc_oce         ! ocean open boundary conditions
+!      USE trcobc_oce_bfm      ! ocean open boundary conditions
+      USE lib_mpp         ! ???
+      USE in_out_manager  ! I/O manager
+!      USE daymod,ONLY     :nday,nmonth
+      use global_mem, only:LOGUNIT
+      USE par_kind,ONLY   :wp
+      USE api_bfm
+      !! * Arguments
+      INTEGER, INTENT( in ) ::   kt,m
+
+      !! * Local declaration
+      INTEGER ::   ji, jj, jk      ! dummy loop indices
+
+      ! check consitency of indeces
+     if ( kt == 1 ) then
+      WRITE(numout,*) 'Enter OBC tom for BFM tracer: ',m
+      WRITE(numout,*) 'Check indexes for ', narea
+      WRITE(numout,*) 'Flag: ',lp_obc_west,' West  :',fs_niw0, fs_niw1
+      WRITE(numout,*) 'Flag: ',lp_obc_east,' East  :',fs_nie0, fs_nie1
+      WRITE(numout,*) 'Flag: ',lp_obc_north,' North :',fs_njn0, fs_njn1
+      WRITE(numout,*) 'Flag: ',lp_obc_south,' South :',fs_njs0, fs_njs1
+     endif
+      ! Set Western boundary value
+     if ( lp_obc_west ) then
+         DO ji = fs_niw0, fs_niw1 ! Vector opt.
+            DO jk = 1, jpkm1
+               DO jj = 1, jpj
+                tra(ji,jj,jk,1) = tra(ji+1,jj,jk,1) *  twmsk(jj,jk)
+                if (tra(ji,jj,jk,1)== 0 .and. twmsk(ji,jk)==1) then
+                    tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
+      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' East.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                endif
+!                  ta(ji,jj,jk) = ta(ji,jj,jk) * (1. - twmsk(jj,jk)) + &
+!                                 tfow(jj,jk)*twmsk(jj,jk)
+             END DO
+         END DO
+      END DO
+     endif
+      ! Set Eastern boundary value
+     if ( lp_obc_east ) then
+      DO ji = fs_nie0+1, fs_nie1+1 ! Vector opt.
+         DO jk = 1, jpkm1
+             DO jj = 1, jpj
+                tra(ji,jj,jk,1) = tra(ji-1,jj,jk,1) *  temsk(jj,jk)
+                if (tra(ji,jj,jk,1)== 0 .and. temsk(ji,jk)==1) then
+                    tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
+      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' East.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                endif
+!                tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1. - temsk(jj,jk)) + &
+!                                    trfoe(jj,jk)*temsk(jj,jk)
+             END DO
+         END DO
+      END DO
+     endif
+   ! Set northern boundary value
+     if ( lp_obc_north ) then
+      DO jj = fs_njn0+1, fs_njn1+1  ! Vector opt.
+          DO jk = 1, jpkm1
+              DO ji = 1, jpi
+                 tra(ji,jj,jk,1)= tra(ji,jj-1,jk,1) * tnmsk(ji,jk)
+                 if (tra(ji,jj,jk,1)== 0 .and. tnmsk(ji,jk)==1) then
+                     tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
+      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' North.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                 endif
+!                 tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tnmsk(ji,jk)) + &
+!                               tnmsk(ji,jk) * trfon(ji,jk)
+              END DO
+          END DO
+      END DO
+     endif
+   ! Set southtern boundary value
+     if (lp_obc_south) then
+      DO jj = fs_njs0, fs_njs1  ! Vector opt.
+          DO jk = 1, jpkm1
+             DO ji = 1, jpi
+                tra(ji,jj,jk,1)= tra(ji,jj+1,jk,1) * tsmsk(ji,jk)
+                if (tra(ji,jj,jk,1)== 0 .and. tsmsk(ji,jk)==1) then
+                    tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
+      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' South.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                endif
+!                tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tsmsk(ji,jk)) + &
+!                              tsmsk(ji,jk) * trfos(ji,jk)
+             END DO
+         END DO
+      END DO
+    endif
+
+      !-------------------------------------------------------------
+      ! Based on MFS-MERSEA implementation 2 ocean corners (S-W ans N-W).
+      ! Tracer data in these points are replaced using inner values (numerical!)
+      !-------------------------------------------------------------
+
+        DO jk = 1, jpkm1
+           do jj=njs0,njs1
+              do ji=niw0,niw1
+                    tra(ji,jj,jk,1) = tra(ji+1,jj,jk,1)
+!                 if(jk==1)write(numout,*)'MFS CHECK OBC SOUTH: JI wanted=2, actual=',ji
+!                 if(jk==1)write(numout,*)'MFS CHECK: JJwanted=2, actual=',jj
+                 ! ta(ji,jj,jk)     =  ta(ji+1,jj,jk)
+              enddo
+           enddo
+           do jj=njn0p1,njn1p1
+                 do ji=niw0,niw1
+                    tra(ji,jj,jk,1) = tra(ji+1,jj,jk,1)
+!                 if(jk==1)write(numout,*)'MFS CHECK OBC NORTH: JI wanted=2, actual=',ji
+!                 if(jk==1)write(numout,*)'MFS CHECK: JJ wanted=272, actual=',jj
+                 ! ta(ji,jj,jk) =  ta(ji+1,jj,jk)
+                 enddo
+           enddo
+        END DO
+      ! Link lbc values to global domain state vector
+      IF( lk_mpp ) THEN                  !!bug ???
+         IF( kt >= nit000+3 .AND. ln_rstart ) THEN
+            CALL lbc_lnk( trb(:,:,:,1), 'T', 1. )
+         END IF
+         CALL lbc_lnk( tra(:,:,:,1), 'T', 1. )
+      ENDIF
+
+
+   if (kt == 1) WRITE(numout,*) 'OBC tom done.'
+
+   END SUBROUTINE obc_trc_bfm_tom
+
 !
 #else
 !   !!----------------------------------------------------------------------
