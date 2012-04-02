@@ -209,7 +209,7 @@ CONTAINS
    !! Subroutine to set BFM OBC zero gradient condition at the open boundary
    !! TOM: to be placed in obctrc_bfm 
    !!----------------------------------------------------------------------------
-
+#ifdef key_obc
    SUBROUTINE obc_trc_bfm_tom(kt,m)
    !!----------------------------------------------------------------------------
    ! Purpose : Used to set OBC equal to internal points as OBC is not yet present 
@@ -346,7 +346,7 @@ CONTAINS
    if (kt == 1) WRITE(numout,*) 'OBC tom done.'
 
    END SUBROUTINE obc_trc_bfm_tom
-
+#endif
 !
 #else
 !   !!----------------------------------------------------------------------
