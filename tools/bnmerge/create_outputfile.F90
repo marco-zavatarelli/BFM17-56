@@ -36,7 +36,7 @@ subroutine create_outputfile
   character(len = NF90_MAX_NAME) :: DimName,varname,attname
   
 
-     status = nf90_create(trim(out_fname)//".nc", NF90_NOCLOBBER, ncid)
+     status = nf90_create(trim(out_dir)//"/"//trim(out_fname)//".nc", NF90_NOCLOBBER, ncid)
      if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(out_fname)//".nc already exists!" )
      ! Define the dimensions
      status = nf90_def_dim(ncid, "time", NF90_UNLIMITED, IDtime)
