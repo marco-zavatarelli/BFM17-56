@@ -145,12 +145,12 @@
     if (AtmpCO2%init == 0) then
        ! Use constant atmospheric pCO2 
        EPCO2air(:) = pco2air0
-       write(*,*) 'Use constant atmCO2', EPCO2air
+       write(LOGUNIT,*) 'Using constant atmospheric pCO2:', EPCO2air(1)
     else
        ! read external AtmpCO2 
        CALL FieldInit(ATMpCO2_N, ATMpCO2)
        EPCO2air(:) = ATMpCO2%fnow
-       write(*,*) 'EPCO2air Initial input', EPCO2air
+       write(LOGUNIT,*) 'Using variable atmospheric pCO2. Initial value:', EPCO2air(1)
     endif
 
     ! assign initial pH 

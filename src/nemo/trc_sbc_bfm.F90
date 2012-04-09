@@ -33,7 +33,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    USE trc                  ! ocean  passive tracers variables
    USE fldread
    USE trcbc
-
+   USE iom                  !  print control for debugging
    ! BFM
    use api_bfm
    use mem
@@ -52,16 +52,56 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    INTEGER  ::   ji, jj, jn             ! dummy loop indices
    REAL(wp) ::   ztra, zsrau, zse3t     ! temporary scalars
    TYPE(FLD), DIMENSION(1) ::   sf_dta  ! temporary array of information on the field to read
+   REAL(wp), POINTER, DIMENSION(:,:  ) :: zemps,field
+   CHARACTER (len=25) :: charout
+   !!---------------------------------------------------------------------
+   !
+   ! Allocate temporary workspace
+   CALL wrk_alloc( jpi, jpj,      zemps  )
+#ifdef DEBUG
+   CALL wrk_alloc( jpi, jpj,      field  )
+   field = 0.0
+#endif
    !!----------------------------------------------------------------------
-
-!   if (lwp) write(numout,*) 'enter trc_sbc_bfm',m
    ! initialization of density and scale factor
    zsrau = 1. / rau0
-   IF( .NOT. ln_sco )  zse3t = 1. / fse3t(1,1,1)
+
+   IF( kt == nittrc000 ) THEN
+      IF(lwp) WRITE(numout,*)
+      IF(lwp) WRITE(numout,*) 'trc_sbc_bfm : Surface boundary conditions for BFM variables'
+      IF(lwp) WRITE(numout,*) '~~~~~~~ '
+   ENDIF
+                                                                                                                                                       
+
+   IF( lk_offline ) THEN          ! emps in dynamical files contains emps - rnf
+      zemps(:,:) = emps(:,:)
+   ELSE                           ! Concentration dilution effect on tracer due to evaporation, precipitation, and river runoff
+      IF( lk_vvl ) THEN                      ! volume variable MAV: need to be checked 
+         zemps(:,:) = emps(:,:) - emp(:,:)
+      ELSE                                   ! linear free surface MAV: OK
+         IF( ln_rnf .AND. ln_trc_cbc(m) ) THEN  
+            zemps(:,:) = emps(:,:) - rnf(:,:)   !  E-P-R
+         ELSE               
+            zemps(:,:) = emps(:,:)              !  E-P
+         ENDIF
+      ENDIF
+   ENDIF
+
+   ! Concentration and dilution effect on tra 
+   DO jj = 2, jpj
+      DO ji = fs_2, fs_jpim1   ! vector opt.
+           zse3t = 1. / fse3t(ji,jj,1)
+           ! concent./dilut. effect
+           ztra = zsrau * zse3t * tmask(ji,jj,1) * zemps(ji,jj) * trn(ji,jj,1,1) 
+           ! add the trend to the general tracer trend
+           tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
+      END DO
+   END DO
 
     ! read and add surface input flux if needed
     IF (ln_trc_sbc(m)) THEN
-       if (lwp) write(numout,*) 'BFM reading SBC data for variable:',m
+       if (lwp) write(numout,*) '   BFM: reading SBC data for variable ', &
+                   TRIM( var_names(stPelStateS+m-1) ),' number:',m
        jn = n_trc_indsbc(m)
        sf_dta(1) = sf_trcsbc(jn)
        CALL fld_read( kt, 1, sf_dta )
@@ -69,7 +109,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
        sf_trcsbc(jn) = sf_dta(1) 
        DO jj = 2, jpj
           DO ji = fs_2, fs_jpim1   ! vector opt.
-             IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
+             zse3t = 1. / fse3t(ji,jj,1)
              ! MAV: units in input files are assumed to be 1/day
              tra(ji,jj,1,1) = tra(ji,jj,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(ji,jj,1) &
                               * zse3t / SEC_PER_DAY 
@@ -77,42 +117,42 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
        END DO
     END IF
 
-    ! Add mass from prescribed river concentration
-    IF (ln_rnf) THEN
-       IF (ln_trc_cbc(m)) THEN ! if river values are given
+    ! Add mass from prescribed river concentration if river values are given
+    IF (ln_rnf .AND. ln_trc_cbc(m)) THEN 
+          if (lwp) write(numout,*) '   BFM: reading CBC data for variable ', &
+                   TRIM( var_names(stPelStateS+m-1) ),' number:',m
           jn = n_trc_indcbc(m)
           sf_dta = sf_trccbc(jn)
           CALL fld_read( kt, 1, sf_dta )
           ! return the info (needed because fld_read is stupid!)
           sf_trccbc(jn) = sf_dta(1) 
-       END IF
           DO jj = 2, jpj
              DO ji = fs_2, fs_jpim1   ! vector opt.
-                IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-                ! Neglect concentration changes due to river water inflow (use instantaneous cell value of trn)
-                tra(ji,jj,1,1) = tra(ji,jj,1,1) + zsrau * rn_rfact * sf_rnf(1)%fnow(ji,jj,1) &
-                               * trn(ji,jj,1,1) * zse3t
+                zse3t = 1. / (e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
                 ! Add river loads assuming an istantaneous mixing in the cell volume 
-                IF (ln_trc_cbc(m))  & 
-                tra(ji,jj,1,1) = tra(ji,jj,1,1) + rn_rfact * rf_trcfac(jn) &
-                               * sf_trccbc(jn)%fnow(ji,jj,1)/(e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
+                ! MAV: units in input files are assumed to be 1/day
+                ztra = rn_rfact * rf_trcfac(jn) * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t / SEC_PER_DAY
+                tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
+#ifdef DEBUG
+                field(ji,jj) = ztra
+#endif
              END DO
           END DO
     END IF
 
-    ! Concentration and dilution effect on tra
-    DO jj = 2, jpj
-       DO ji = fs_2, fs_jpim1   ! vector opt.
-           IF ( ln_sco ) zse3t = 1. / fse3t(ji,jj,1)
-           ! concent./dilut. effect
-           ztra = zsrau * zse3t * tmask(ji,jj,1) * emps(ji,jj) * trn(ji,jj,1,1) 
-           ! add the trend to the general tracer trend
-           tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
-        END DO
-    END DO
-       
+#ifdef DEBUG
+    charout = TRIM( var_names(stPelStateS+m-1) )
+    WRITE(LOGUNIT,*) ''//charout//' trends in trc_sbc'
+    WRITE(LOGUNIT,*)
+    WRITE(LOGUNIT,*)'  level = 1'
+    CALL prihre( field/maxval(field), jpi, jpj, 1, jpi, 1, 1, jpj, 1, 1., LOGUNIT )
+    WRITE(LOGUNIT,*)
+    CALL prihre( trn(:,:,1,1), jpi, jpj, 1, jpi, 1, 1, jpj, 1, 1., LOGUNIT )
+    CALL wrk_dealloc( jpi, jpj,      field  )       
+#endif
 
-!if (lwp) write(numout,*) 'exit trc_sbc_bfm',m
+    CALL wrk_dealloc( jpi, jpj,      zemps  )       
+
 
    END SUBROUTINE trc_sbc_bfm
 
