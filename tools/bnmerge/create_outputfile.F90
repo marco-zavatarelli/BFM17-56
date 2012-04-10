@@ -56,9 +56,15 @@ subroutine create_outputfile
      status = nf90_inquire_dimension(ncbfmid, IDunlimdim, len = ntime)
      if (status /= NF90_NOERR) call handle_err(status)
      ! define geographic variables
-              status = nf90_def_var(ncid, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDtarget)
-              status = nf90_def_var(ncid, "lat", NF90_REAL, (/ IDx, IDy /), IDtarget)
-              status = nf90_def_var(ncid, "lon", NF90_REAL, (/ IDx, IDy /), IDtarget)
+     if (ln_mask) &
+     call handle_err (nf90_def_var(ncid, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDtarget))
+
+     call handle_err (nf90_def_var(ncid, "lat", NF90_REAL, (/ IDx, IDy /), IDtarget))
+     call handle_err (nf90_put_att(ncid, IDtarget, "units", "degrees_north"))
+     call handle_err (nf90_def_var(ncid, "lon", NF90_REAL, (/ IDx, IDy /), IDtarget))
+     call handle_err (nf90_put_att(ncid, IDtarget, "units", "degrees_east"))
+     call handle_err (nf90_def_var(ncid, "depth", NF90_REAL, (/ IDz /), IDtarget))
+     call handle_err (nf90_put_att(ncid, IDtarget, "units", "meters"))
      ! copy global attributes
 #ifdef DEBUG
         write(*,*) "Creating file:",trim(out_fname)//".nc"," containing",ntime,"time frames"

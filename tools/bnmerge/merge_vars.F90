@@ -28,22 +28,29 @@ subroutine merge_vars
   integer           :: nimpp, njmpp, nlci, nlcj
   real, allocatable, dimension(:,:) :: lat, lon
   real, allocatable, dimension(:,:,:) :: mask
-  real, allocatable, dimension(:) :: oceanpoint
+  real, allocatable, dimension(:) :: oceanpoint, depth
   real, allocatable, dimension(:,:) :: chunk
   real, allocatable, dimension(:,:,:,:) :: bfmvar3d
   real, allocatable, dimension(:,:,:)   :: bfmvar2d
-  integer :: vartype,dimids(4),dimlen(4)
+  integer :: vartype,dimids(4),dimlen(4),zflag
   character(len = NF90_MAX_NAME) :: DimName,varname,attname
+
+  zflag = 0
 
   ! Allocate global masks
   allocate(maskglo(jpiglo,jpjglo,jpk))
   allocate(latglo(jpiglo,jpjglo))
   allocate(longlo(jpiglo,jpjglo))
-  maskglo=NF90_FILL_REAL
+  allocate(depth(jpk))
 
   ! Initialisations
+  maskglo=NF90_FILL_REAL
+  latglo = 0
+  longlo = 0
+  depth = 0
   ocepoints = 0
   srfpoints = 0
+
   allocate(procname(jpnij))
   do p=1,jpnij
      ! build the file name for each process (start from 0)
@@ -96,6 +103,12 @@ subroutine merge_vars
                             count = (/ lenoce /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: oceanpoint")
 
+     ! read vertical depths only once
+     if (zflag == 0) then 
+     call handle_err(nf90_inq_varid(ncbfmid, "z", IDvar),errstring="Error inquiring depth values")
+     call handle_err(nf90_get_var(ncbfmid, IDvar,depth),errstring="Error in getting depth values")
+     zflag = 1
+     endif
      ! read mask and lat-lon data
      status = nf90_inq_varid(ncbfmid, "mask", IDvar)
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: mask")
@@ -215,8 +228,7 @@ subroutine merge_vars
      end do ! variables
 
      ! close the netcdf file
-     status = nf90_close(ncbfmid)
-     if (status /= NF90_NOERR) call handle_err(status)
+     call handle_err(nf90_close(ncbfmid))
      deallocate(mask)
      deallocate(oceanpoint)
      deallocate(bfmvar3d)
@@ -231,23 +243,28 @@ subroutine merge_vars
   end do ! processes
 
   ! write global grid specifications 
-  if (ln_grid) then
+  ! Oce-land points mask
+  if (ln_mask) then
      status = nf90_inq_varid(ncid, "mask", IDmask)
-     status = nf90_put_var(ncid, IDmask, maskglo, start = (/ 1, 1, 1 /),     &
+     status = nf90_put_var(ncid, IDmask, real(maskglo,4), start = (/ 1, 1, 1 /),     &
                             count = (/ jpiglo, jpjglo, jpk /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: mask")
+     if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: mask")
   endif
+  ! Latitude
      status = nf90_inq_varid(ncid, "lat", IDmask)
      if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring variable: lat")
-     status = nf90_put_var(ncid, IDmask, latglo, start = (/ 1, 1 /),     &
+     status = nf90_put_var(ncid, IDmask, real(latglo,4), start = (/ 1, 1 /),     &
                             count = (/ jpiglo, jpjglo /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lat")
+     if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: lat")
+  ! Longitude
      status = nf90_inq_varid(ncid, "lon", IDmask)
-     status = nf90_put_var(ncid, IDmask, longlo, start = (/ 1, 1 /),     &
+     status = nf90_put_var(ncid, IDmask, real(longlo,4), start = (/ 1, 1 /),     &
                             count = (/ jpiglo, jpjglo /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lon")
-  !tom: endif
-
+     if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: lon")
+  ! Depth levels
+  call handle_err(nf90_inq_varid(ncid, "depth", IDmask))
+  call handle_err(nf90_put_var(ncid, IDmask, real(depth,4)),errstring="Writing: depth")   
+  ! close file
      status = nf90_close(ncid)
      if (status /= NF90_NOERR) call handle_err(status)
 
@@ -255,5 +272,5 @@ subroutine merge_vars
   deallocate(maskglo)
   deallocate(longlo)
   deallocate(latglo)
-
+  deallocate(depth)
 end subroutine merge_vars
