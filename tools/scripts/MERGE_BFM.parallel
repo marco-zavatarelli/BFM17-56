@@ -1,0 +1,86 @@
+#!/bin/sh
+###############################################################################
+# Purpose: Generic script for BFM output re-build .
+#          Check repository folder
+###############################################################################
+#
+#BSUB -J BNMERGE              # name of the Job
+#BSUB -a poe
+#BSUB -q poe_short            # queue
+#BSUB -u tomas.lovato@cmcc.it
+#BSUB -e BNMERGE_%J.err
+#BSUB -o BNMERGE_%J.out
+#BSUB -n 1
+
+set -xv
+
+# Settings
+cd="cd"
+cp="cp"
+ln="ln -sn"
+
+# Merge package location
+REPDIR="$BFMDIR/tools/bnmerge"
+
+# Experiment info
+EXPNAME="MFS16CO2_19910501_19910515_bfm"
+
+# Output grid info
+GRID=".FALSE."
+
+# target folders
+# INPDIR is where layout.dat file is located
+# OUTDIR is where files to be built are and the rebuild final destination
+# LAYDIR is where the layout.dat files has to be copied from
+INPDIR="/data/ans033/EXPERIMENTS/GIT-MFS16/MFS16CO2/outdata/bfm"
+OUTDIR="/data/ans033/Plot_BFM/test"
+LAYDIR="/data/ans033/EXPERIMENTS/MFS16_BFM/work/MFS16CO2"
+
+# Copy the layout to OUTDIR
+${cp} ${LAYDIR}/layout.dat  ${OUTDIR}/layout.dat
+
+# Enter output dir
+${cd} ${OUTDIR}
+
+# Generate bnmerge.nml
+# Here var_save has to be added by the user
+#
+cat > bnmerge.nml << EOF
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!------------------------------------------------------------------------------------!
+!Main initialisation and output specifications
+!NAME             KIND    DESCRIPTION
+!out_fname        string        Name of NetCDF output file (same of input chunks)
+!inp_dir          string        Path to the input files (chunks)
+!out_dir          string        Path to the output file (merged)
+!layout           string        Path to the layout.dat file
+!ln_mask          logical       Write global mask specification
+!var_save         string        List of output variables
+!
+! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting
+!          the number of output variables.
+!------------------------------------------------------------------------------------!
+&bnmerge_nml
+   out_fname='${EXPNAME}'
+   inp_dir='${INPDIR}'
+   out_dir='${OUTDIR}'
+   layout='${OUTDIR}/layout.dat'
+   ln_mask=${GRID} 
+   var_save='O3c','O3h','pH','pCO2','CO2airflux', 
+!   var_save='O2o','N3n','O3c','O3h','pH','CO2airflux', 
+/
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+EOF
+
+# Launch the rebuild
+
+mpirun.lsf  ${REPDIR}/bnmerge 
+
+
+echo "Rebuilding finished."
+
+
