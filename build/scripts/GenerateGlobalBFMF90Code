@@ -1114,8 +1114,8 @@ switch -- $mode {
 # MAV: Needs to be done better!
 #    First check if D1SOURCE is defined, and stop
 #    fluxes cannot be stored with this option
-      if { [ lsearch -exact $DEFINE "D1SOURCE" ] >=0 } \
-         { puts stdout "error: Cannot use the keyword 3d-flux or 2d-flux with D1SOURCE";return 401 }
+     if { [ lsearch -exact $DEFINE "D1SOURCE" ] < 0 } \
+       {
 #    Important:
 #    In the AllocMem.proto file first 3d-flux-fill have to be called!
 #
@@ -1146,6 +1146,9 @@ switch -- $mode {
        }
      }
      set VARS(alloc,flux) [ list $i $j ]
+    } else {
+            puts stdout "Warning: Cannot use the keyword 3d-flux or 2d-flux with D1SOURCE. Diagnostic skipped.";return 401
+    }
    }
    constituent {
       regsub -all {.} $VARS(maxcon) "& " tmp

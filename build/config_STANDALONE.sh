@@ -27,7 +27,7 @@
 # exe           : default location of the BFM standalone executable
 # -----------------------------------------------------
 myGlobalDef="GlobalDefsBFM.model.standard"
-cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2"
+cppdefs="-DBFM_STANDALONE"
 
 archfile="${BFMDIR}/compilers/gfortran.inc"
 exe=${BFMDIR}/bin/bfm_standalone.x
