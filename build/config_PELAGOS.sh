@@ -61,8 +61,6 @@ if [ ! -d ${BFMDIR}/build/${BLDDIR} ]; then
 fi
 
 cd ${BLDDIR}
-# Link to standard file
-ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model
 
 # generate BFM Memory Layout files
 ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
@@ -76,14 +74,15 @@ ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
 cppdefs=`echo ${cppdefs} | sed -e "s/"-D"//g"` 
 # some macros are default with NEMO
 FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${cppdefs}"
-sed -e "s/_place_keys_/${FCMMacros}/" ${BFMDIR}/build/Configurations/Default_bfm.fcm > ${BFMDIR}/build/${BLDDIR}/bfm.fcm
+sed -e "s/_place_keys_/${FCMMacros}/" -e "s/_place_def_/${myGlobalDef}/" \
+       ${BFMDIR}/build/Configurations/Default_bfm.fcm > ${BFMDIR}/build/${BLDDIR}/bfm.fcm
 
 echo "Memory Layout generated in local folder: ${BLDDIR}."
 
 # If COMPILE, copy files to final destination and launch makenemo
 if [ ${COMPILE} = "yes" ]; then
-  # Link to standard file 
-  ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model
+
+  # Move BFM Layout files to target folders 
   ${cp} ${BFMDIR}/build/${BLDDIR}/*.F90 ${BFMDIR}/src/BFM/General
   ${mv} ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
   ${cp} ${BFMDIR}/build/${BLDDIR}/INCLUDE.h ${BFMDIR}/src/BFM/include

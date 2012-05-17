@@ -28,7 +28,7 @@
 # BLDDIR        : Local folder containing the generated BFM Memory Layout files
 # -----------------------------------------------------
 myGlobalDef="GlobalDefsBFM.model.standard"
-cppdefs=" -DUSEPACK -DBFM_PARALLEL -DONESOURCE -DINCLUDE_PELCO2" 
+cppdefs=" -DBFM_PARALLEL -DONESOURCE -DINCLUDE_PELCO2" 
 
 RELEASE="yes"
 
@@ -49,8 +49,6 @@ if [ ! -d ${BFMDIR}/build/${BLDDIR} ]; then
 fi
 
 cd ${BLDDIR}
-  # Link to standard file
-ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model
 
 # generate BFM Memory Layout files
 ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
@@ -62,16 +60,16 @@ ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
 
 # Generate the specific bfm.fcm include file for makenemo
 cppdefs=`echo ${cppdefs} | sed -e "s/"-D"//g"` 
-FCMMacros="BFM_NEMO ${cppdefs}"
-sed -e "s/_place_keys_/${FCMMacros}/" ${BFMDIR}/build/Configurations/Default_bfm.fcm > ${BFMDIR}/build/${BLDDIR}/bfm.fcm
+FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${cppdefs}"
+sed -e "s/_place_keys_/${FCMMacros}/" -e "s/_place_def_/${myGlobalDef}/" \
+       ${BFMDIR}/build/Configurations/Default_bfm.fcm > ${BFMDIR}/build/${BLDDIR}/bfm.fcm
 
 echo "Memory Layout generated in local folder: ${BLDDIR}."
 
 # If a RELEASE Configuration copy files to final destination
 if [ ${RELEASE} = "yes" ]; then
-  # Link to standard file 
-  ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model
 
+  # Move BFM Layout files to target folders
   ${cp} ${BFMDIR}/build/${BLDDIR}/*.F90 ${BFMDIR}/src/BFM/General
   ${mv} ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
   ${cp} ${BFMDIR}/build/${BLDDIR}/INCLUDE.h ${BFMDIR}/src/BFM/include

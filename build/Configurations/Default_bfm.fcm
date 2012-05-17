@@ -1,3 +1,4 @@
+# Generated with the _place_def_ layout file.
 src::bfm::share           $BFMDIR/src/share
 src::bfm::general         $BFMDIR/src/BFM/General
 src::bfm::pel             $BFMDIR/src/BFM/PelB

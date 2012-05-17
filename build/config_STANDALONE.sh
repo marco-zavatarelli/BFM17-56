@@ -50,8 +50,6 @@ if [ ! -d ${BLDDIR} ]; then
 fi
 
 cd ${BLDDIR}
-# Link to the configuration file
- ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} ${BFMDIR}/src/BFM/General/GlobalDefsBFM.model
 
 # generate BFM files
 ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code  ${cppdefs} \
@@ -75,3 +73,6 @@ find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
 
 # Make makefile
 ${MKMF} -c "${cppdefs}" -o "${oflags}" -t ${archfile} -p ${exe} BFM.lst
+
+# Link to the configuration file
+ ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} GlobalDefsBFM.model
