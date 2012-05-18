@@ -10,7 +10,7 @@
 ! !DESCRIPTION
 !  Runge-Kutta 2nd-order integration with time step adjustment
 ! !USES
-   use global_mem, ONLY:RLEN
+   use global_mem, ONLY:RLEN,ONE
    use mem, ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
                   D3STATETYPE
 #ifndef ONESOURCE
@@ -35,7 +35,7 @@
 !  Original author(s): Momme Butenschoen (UNIBO)
 !
 ! !LOCAL VARIABLES:
-   real(RLEN),parameter    :: eps=0.
+   real(RLEN),parameter    :: eps=0.0_RLEN
    real(RLEN)              :: min3D,min2D
    integer                 :: i,j,ll
    integer,dimension(2,2)  :: blccc
@@ -43,6 +43,8 @@
 ! !EOP
 !-----------------------------------------------------------------------
 !BOC
+   min3D =  ONE
+   min2D =  ONE
 #ifdef DEBUG
    LEVEL1 'integration RK: starting delt = ',delt
 #endif

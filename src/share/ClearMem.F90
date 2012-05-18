@@ -12,6 +12,7 @@ subroutine ClearMem
 !
 ! !USES
    use mem
+   use api_bfm
    implicit none
 !
 ! !INPUT PARAMETERS:
@@ -26,6 +27,24 @@ subroutine ClearMem
 !-----------------------------------------------------------------------
 !BOC
 !
+    ! from AllocateMem
+    deallocate(flx_calc_nr)
+    deallocate(flx_CalcIn)
+    deallocate(flx_option)
+    deallocate(flx_t)
+    deallocate(flx_SS)
+    deallocate(flx_states)
+    deallocate(flx_ostates)
+    ! from api_bfm 
+    deallocate(var_ids)
+    deallocate(var_ave)
+    deallocate(var_names)
+    deallocate(var_units)
+    deallocate(var_long)
+    deallocate(c1dim)
+    if (allocated(D3ave)) deallocate(D3ave)
+    if (allocated(D2ave)) deallocate(D2ave)
+
 #ifndef NOT_STANDALONE
      deallocate(D3STATE)
      deallocate(D3SOURCE)

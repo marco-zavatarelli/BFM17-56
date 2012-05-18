@@ -326,7 +326,11 @@ contains
 
 #else
 
-   LOGUNIT = 6
+   LOGUNIT = 1069
+   logfname = 'bfm.log'
+   bfm_lwp = .TRUE.
+   open(LOGUNIT,file=logfname,action='write',  &
+        form='formatted',err=100)
 
 #endif
 
@@ -394,7 +398,7 @@ contains
    allocate(var_long(1:n),stat=rc)
    if (rc /= 0) stop 'init_bfm(): Error allocating var_long'
    ! temporary diagnostic variable
-   allocate(c1dim(0:NO_BOXES),stat=rc)
+   allocate(c1dim(1:NO_BOXES),stat=rc)
    if (rc /= 0) STOP 'init_bio: Error allocating c1dim'
 
    return
