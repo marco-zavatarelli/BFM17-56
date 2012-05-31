@@ -45,7 +45,7 @@ subroutine create_outputfile
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_def_dim(ncid, "y", jpjglo, IDy)
      if (status /= NF90_NOERR) call handle_err(status)
-     status = nf90_def_dim(ncid, "z", jpk, IDz)
+     status = nf90_def_dim(ncid, "depth", jpk, IDz)
      if (status /= NF90_NOERR) call handle_err(status)
      ! read variables from domain 0000 and copy attributes
      fname = trim(inp_dir)//"/"//trim(out_fname)//"_0000.nc" 
@@ -56,15 +56,19 @@ subroutine create_outputfile
      status = nf90_inquire_dimension(ncbfmid, IDunlimdim, len = ntime)
      if (status /= NF90_NOERR) call handle_err(status)
      ! define geographic variables
-     if (ln_mask) &
-     call handle_err (nf90_def_var(ncid, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDtarget))
-
+     if (ln_mask) then
+       call handle_err (nf90_def_var(ncid, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDtarget))
+       call handle_err (nf90_put_att(ncid, IDtarget, "coordinates", "lon lat"))
+     endif
      call handle_err (nf90_def_var(ncid, "lat", NF90_REAL, (/ IDx, IDy /), IDtarget))
      call handle_err (nf90_put_att(ncid, IDtarget, "units", "degrees_north"))
      call handle_err (nf90_def_var(ncid, "lon", NF90_REAL, (/ IDx, IDy /), IDtarget))
      call handle_err (nf90_put_att(ncid, IDtarget, "units", "degrees_east"))
      call handle_err (nf90_def_var(ncid, "depth", NF90_REAL, (/ IDz /), IDtarget))
-     call handle_err (nf90_put_att(ncid, IDtarget, "units", "meters"))
+     call handle_err (nf90_put_att(ncid, IDtarget, "long_name", "depth_below_sea"))
+     call handle_err (nf90_put_att(ncid, IDtarget, "units", "m"))
+     call handle_err (nf90_put_att(ncid, IDtarget, "positive", "down"))
+     call handle_err (nf90_put_att(ncid, IDtarget, "axis", "Z"))
      ! copy global attributes
 #ifdef DEBUG
         write(*,*) "Creating file:",trim(out_fname)//".nc"," containing",ntime,"time frames"

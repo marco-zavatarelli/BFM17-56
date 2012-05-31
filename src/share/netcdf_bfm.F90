@@ -55,7 +55,9 @@
    integer                       :: surfpoint_rdim,botpoint_rdim
    integer                       :: d3vars_rdim,d3state_rid,d3stateb_rid
    integer                       :: d2vars_rdim,d2state_rid,d2stateb_rid
-
+#ifdef INCLUDE_PELCO2
+   integer                       :: ph_rid
+#endif
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -353,6 +355,10 @@
    dims(2) = ocepoint_rdim
    iret = NF90_DEF_VAR(ncid_rst,'D3STATE',NF90_DOUBLE,dims,d3state_rid)
    call check_err(iret)
+#ifdef INCLUDE_PELCO2
+   iret = NF90_DEF_VAR(ncid_rst,'pH',NF90_DOUBLE,ocepoint_rdim,ph_rid) 
+   call check_err(iret)
+#endif
 #ifdef BFM_POM
    iret = NF90_DEF_VAR(ncid_rst,'D3STATEB',NF90_DOUBLE,dims,d3stateb_rid)
    call check_err(iret)
@@ -398,6 +404,9 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !USES:
    use mem, only: D3STATE, NO_D3_BOX_STATES, NO_BOXES
+#ifdef INCLUDE_PELCO2
+   use mem, only: D3DIAGNOS,pppH
+#endif
 #ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
@@ -425,6 +434,10 @@ end subroutine init_netcdf_rst_bfm
      start(2) = 1;   edges(2) = NO_BOXES
      iret = NF90_PUT_VAR(ncid_rst,d3state_rid,D3STATE(:,:),start,edges)
      call check_err(iret)
+#ifdef INCLUDE_PELCO2
+     iret = NF90_PUT_VAR(ncid_rst,ph_rid,D3DIAGNOS(pppH,:),start=(/1/),count=(/NO_BOXES/)) 
+     call check_err(iret)
+#endif
 #ifdef BFM_POM
      iret = NF90_PUT_VAR(ncid_rst,d3stateb_rid,D3STATEB(:,:),start,edges)
      call check_err(iret)
@@ -432,7 +445,7 @@ end subroutine init_netcdf_rst_bfm
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES_XY
-     iret = NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE(:,:),start,edges,)
+     iret = NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE(:,:),start,edges)
      call check_err(iret)
 #ifdef BFM_POM
      iret = NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB(:,:),start,edges)
@@ -458,6 +471,9 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !USES:
    use mem, only: D3STATE, NO_D3_BOX_STATES, NO_BOXES
+#ifdef INCLUDE_PELCO2
+   use mem, only: D3DIAGNOS,pppH
+#endif
 #ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
@@ -520,6 +536,12 @@ end subroutine init_netcdf_rst_bfm
    call check_err(iret)
    iret = NF90_GET_VAR(ncid_rst_in,nstate_id,D3STATE(:,:))
    call check_err(iret)
+#ifdef INCLUDE_PELCO2
+   iret = NF90_INQ_VARID(ncid_rst_in,"pH",nstate_id)
+   call check_err(iret)
+   iret = NF90_GET_VAR(ncid_rst_in,nstate_id,D3DIAGNOS(pppH,:))
+   call check_err(iret)
+#endif 
 #ifdef BFM_POM
    iret = NF90_INQ_VARID(ncid_rst_in,"D3STATEB",nstate_id)
    call check_err(iret)

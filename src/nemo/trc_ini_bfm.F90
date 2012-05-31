@@ -305,6 +305,13 @@
    ENDIF
 
    !-------------------------------------------------------
+   ! initialise (new) and read (previous) restart file
+   ! (override any previous initialisation)
+   !-------------------------------------------------------
+   call init_netcdf_rst_bfm(rst_fname)
+   if (bfm_init == 1) call read_rst_bfm(rst_fname)
+
+   !-------------------------------------------------------
    ! initialise netcdf output
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
@@ -315,13 +322,6 @@
              bottompoint=botpoint,                     &
              mask3d=tmask)
    call init_save_bfm
-
-   !-------------------------------------------------------
-   ! initialise (new) and read (previous) restart file
-   ! (override any previous initialisation)
-   !-------------------------------------------------------
-   call init_netcdf_rst_bfm(rst_fname)
-   if (bfm_init == 1) call read_rst_bfm(rst_fname)
 
    !---------------------------------------------
    ! Allocate and initialise additional

@@ -155,8 +155,9 @@
             STDERR 'Warning: Variable ',trim(ave_save(i)), &
                ' is already selected for output in var_save'
          else if ( j > 0 ) then
-            var_ids(j)=-1
-            var_ave(j)=.true.
+            var_ids(j) = -1
+            var_ave(j) = .true.
+            ave_ctl = .true.
          end if
       end if
    end do

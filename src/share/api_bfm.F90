@@ -59,9 +59,10 @@
    !---------------------------------------------
    ! BFM variable information for output
    !---------------------------------------------
-   integer, dimension(:), allocatable    :: var_ids
-   logical, dimension(:), allocatable    :: var_ave
+   integer, dimension(:), allocatable      :: var_ids
+   logical, dimension(:), allocatable      :: var_ave
    real(RLEN)                              :: ave_count
+   logical                                 :: ave_ctl = .false.
    real(RLEN),allocatable,dimension(:,:)   :: D3ave
    real(RLEN),allocatable,dimension(:,:)   :: D2ave
    character(len=64), dimension(:), allocatable :: var_names

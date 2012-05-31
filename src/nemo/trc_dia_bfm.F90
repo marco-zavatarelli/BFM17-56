@@ -11,11 +11,12 @@
 !
 ! !USES:
    use oce_trc
-   use global_mem, only:RLEN
+   use global_mem, only: RLEN, LOGUNIT
    use netcdf_bfm, only: save_bfm, close_ncdf, ncid_bfm
    use netcdf_bfm, only: save_rst_bfm, ncid_rst
    use mem
-   use api_bfm, only: out_delta
+   use api_bfm,    only: out_delta, ave_ctl
+   use time,       only: bfmtime
 
    implicit none
 !
@@ -30,13 +31,13 @@
 !  Author(s): Marcello Vichi (CMCC-INGV)
 !
 ! !LOCAL VARIABLES:
-   real(RLEN)             :: localtime !time in seconds
+   real(RLEN)             :: localtime  !time in seconds
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
-   localtime = real(kt-nit000,RLEN)*rdt
+   localtime = (bfmtime%stepnow - bfmtime%step0) * rdt
 
    !---------------------------------------------
    ! Update means
@@ -57,6 +58,7 @@
          write(numout,*) 'trc_dia_bfm : write NetCDF passive tracer concentrations at ', kt, 'time-step'
          write(numout,*) '~~~~~~ '
       end if
+      if (ave_ctl) localtime = localtime - ( real(out_delta,RLEN) * rdt / 2.0)
       call calcmean_bfm(MEAN)
       call save_bfm(localtime)
    end if

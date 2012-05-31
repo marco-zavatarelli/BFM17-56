@@ -110,6 +110,7 @@
 #else
   use mem,          ONLY: EPCO2air,pH,NO_BOXES_XY
 #endif
+  use api_bfm, ONLY: bfm_init
 !  use SystemForcing, ONLY : FieldInit
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -154,7 +155,7 @@
     endif
 
     ! assign initial pH 
-    pH(:) = phstart
+    if (bfm_init /= 1 ) pH(:) = phstart
 
     ! check consistency of input parameters
     select case (K1K2)
