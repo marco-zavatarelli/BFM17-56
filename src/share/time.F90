@@ -278,7 +278,7 @@
    INTEGER, INTENT(IN)                 :: yyyy, mm, dd, hh, nn
 !
 ! !OUTPUT PARAMETERS:
-   REAL, INTENT(OUT)                   :: julian
+   REAL(RLEN), INTENT(OUT)                   :: julian
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
