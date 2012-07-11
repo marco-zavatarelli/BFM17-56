@@ -1,3 +1,5 @@
+#include "cppdefs.h"
+
 #ifdef INCLUDE_PELCO2
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
@@ -23,7 +25,7 @@
 !   P. Ruardij, H. Thomas (NIOZ)
 !
 ! !REVISION_HISTORY
-!
+!   T. Lovato (CMCC) 2012
 ! COPYING
 !   
 !   Copyright (C) 2007 P. Ruardij and M. Vichi
@@ -54,12 +56,18 @@
   ! PelCO2 PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    ! Initial Partial pressure in the air
-   ! pco2air0  : initial constant value 
-   ! AtmCO2    : structure of data from file time series
-   real(RLEN)   :: pco2air0=365.0_RLEN ! uatm
-   
-   type(ForcingName)    :: ATMpCO2_N
-   type(ForcingField)   :: ATMpCO2
+   ! pco2air0    : initial constant value 
+   ! calcAtmpCO2 : flag for the computation of Atmospheric pCO2 
+   ! AtmCO2      : structure of data for CO2 atmospheric concentration
+   ! AtmSLP      : structure of data for atmospheric SLP
+   ! AtmTDP      : structure of data for atmospheric Dew Point Temperature
+   ! 
+   real(RLEN)   :: AtmCO20=365.0_RLEN ! ppm 
+   logical      :: calcAtmpCO2=.FALSE. 
+   integer      :: pCO2Method=1
+
+   type(ForcingName)    :: AtmCO2_N, AtmSLP_N, AtmTDP_N
+   type(ForcingField)   :: AtmCO2, AtmSLP, AtmTDP
 
    ! Choice of the acidity constants parameterization
    ! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale
@@ -87,7 +95,6 @@
    real(RLEN)   :: M2XACC=1.E-20_RLEN
    real(RLEN)   :: M2PHDELT=0.5_RLEN
    integer      :: M2MAXIT=100
-
    ! Initial pH value (needed for Follows)
    real(RLEN)   :: phstart=8.0_RLEN ! [-]
 
@@ -95,7 +102,12 @@
    ! phscale = 1: Total
    ! phscale = 2: SeaWater Scale (OCMIP default)
    integer      :: phscale = SWS
-
+   ! Calcium ion concentration 
+   ! Ca seawater concentration [mol/m3], from Seawater : Its composition, properties and behaviour"
+   !                                              (2nd Edition), Open University Course Team, 1995]
+   ! Normalize Calcium ion concentration by sea water salinity 
+   real(RLEN)   :: Caconc0 = 10.279E0
+   logical      :: Canorm = .TRUE.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
   public InitCO2
@@ -108,63 +120,104 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,          ONLY: EPCO2air,pH,NO_BOXES_XY
+  use mem,          ONLY:EPCO2air,pH,NO_BOXES_XY
 #endif
   use api_bfm, ONLY: bfm_init
-!  use SystemForcing, ONLY : FieldInit
-
+  use mem_Param, ONLY: slp0
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    namelist /CO2_parameters/ pco2air0,K1K2,MethodCalcCO2,phscale,phstart,  &
-                              M2XACC,M2PHDELT,M2MAXIT,ATMpCO2_N
+    namelist /CO2_parameters/ AtmCO20,calcAtmpCO2,pCO2Method,K1K2,MethodCalcCO2,     &
+                              phscale,phstart,M2XACC,M2PHDELT,M2MAXIT,         &
+                              Caconc0,Canorm,AtmCO2_N,AtmSLP_N,AtmTDP_N
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-  !--------------------------------------------------------------------------
+  integer            ::error=0
+  !---------------------------------------------------------------------------
   ! Initialize the structured array that defines if a variable is initialized  
   ! with external data.
   !---------------------------------------------------------------------------
                         ! Read  !   File     ! Netcdf  !  Var   ! File    ! Input      !   Time   !
                         ! Input !   name     ! Logical !  name  ! RefTime ! Frequency  !  interp  !
-    ATMpCO2_N = ForcingName( 0  , "dummy.nc" , .TRUE.  ,"dummy" , "dummy" ,  "dummy"   ,  .TRUE.  )
+    AtmCO2_N = ForcingName( 0  , "dummy.nc" , .TRUE.  ,"AtmCO2" , "dummy" ,  "dummy"   ,  .TRUE.  )
+    AtmSLP_N = ForcingName( 0  , "dummy.nc" , .TRUE.  ,"AtmSLP" , "dummy" ,  "dummy"   ,  .TRUE.  )
+    AtmTDP_N = ForcingName( 0  , 'dummy.nc' , .TRUE.  ,'AtmTDP' , 'dummy' ,  'dummy'   ,  .TRUE.  )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+    write(LOGUNIT,*) "#       BFM Pelagic CO2 SETTINGS                        "
+    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+    write(LOGUNIT,*) "#"
     write(LOGUNIT,*) "#  Reading PelCO2 parameters.."
     open(NMLUNIT,file='CO2.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=CO2_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=CO2_parameters)
-    
+ 
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set initial conditions
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ATMpCO2%init = ATMpCO2_N%init 
-
-    ! assign initial atmospheric pCO2
-    if (AtmpCO2%init == 0) then
-       ! Use constant atmospheric pCO2 
-       EPCO2air(:) = pco2air0
-       write(LOGUNIT,*) 'Using constant atmospheric pCO2:', EPCO2air(1)
+    ! Atmospheric CO2 concentration
+    AtmCO2%init = AtmCO2_N%init 
+    if (AtmCO2%init == 0) then
+       ! Use constant  
+       CALL FieldInit(AtmCO2_N, AtmCO2)
+       AtmCO2%fnow = AtmCO20
+       write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
+       write(LOGUNIT,*) ' '
     else
-       ! read external AtmpCO2 
-       CALL FieldInit(ATMpCO2_N, ATMpCO2)
-       EPCO2air(:) = ATMpCO2%fnow
-       write(LOGUNIT,*) 'Using variable atmospheric pCO2. Initial value:', EPCO2air(1)
+       ! read external
+       CALL FieldInit(AtmCO2_N, AtmCO2)
+       write(LOGUNIT,*) 'Using variable atmospheric CO2 concentration. Initial value:', AtmCO2%fnow(1)
+       write(LOGUNIT,*) ' '
+    endif
+    ! Rough approximation: pCO2 is assumed equal to the mixing ratio of CO2
+    if (.not. calcAtmpCO2) EPCO2air = AtmCO2%fnow
+
+    ! COMPUTATION OF pCO2
+    ! Sea Level Pressure
+    AtmSLP%init = AtmSLP_N%init
+    AtmTDP%init = AtmTDP_N%init
+    if (calcAtmpCO2) then
+       if (AtmSLP%init == 0) then
+         ! Use constant
+          CALL FieldInit(AtmSLP_N, AtmSLP)
+          AtmSLP%fnow = slp0
+          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in Param.nml): ', AtmSLP%fnow(1)
+          write(LOGUNIT,*) ' '
+       else
+         CALL FieldInit(AtmSLP_N, AtmSLP)
+       endif
+
+       ! Atmospheric Dew Point Temperature
+       if (pCO2Method == 2 .AND. AtmTDP%init .ne. 0 ) then
+          CALL FieldInit(AtmTDP_N, AtmTDP)
+          if (AtmTDP%init .ne. 4 ) &
+             write(LOGUNIT,*) 'BFM intialize Dew Point Temperature from file: ', AtmTDP_N%filename
+             write(LOGUNIT,*) ' '
+       else
+          pCO2Method = 1
+       endif
     endif
 
-    ! assign initial pH 
+    ! Assign initial pH 
     if (bfm_init /= 1 ) pH(:) = phstart
 
-    ! check consistency of input parameters
+    ! Check consistency of input parameters
     select case (K1K2)
     case (1) 
         phscale = TOTAL
     case (2) 
         phscale = SWS
     end select
+    
+    if (calcAtmpCO2) write(LOGUNIT,*) 'BFM computes pCO2 with method: ', pCO2Method
 
+    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+    write(LOGUNIT,*)
+
+    FLUSH(LOGUNIT)
     return
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
@@ -173,6 +226,8 @@
 101 call error_msg_prn(NML_READ,"ModuleCO2.f90","CO2_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitCO2
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   end module mem_CO2
 

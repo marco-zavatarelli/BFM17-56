@@ -1305,7 +1305,7 @@ end subroutine init_netcdf_rst_bfm
      integer iret
      if (iret .ne. NF90_NOERR) then
        print *, 'NetCDF Error: ',NF90_STRERROR(iret)
-     stop
+       stop
      endif
    end subroutine check_err
 !-----------------------------------------------------------------------

@@ -65,6 +65,7 @@
   integer,      parameter :: ECOLOGY=1  ! Base temperature for Q10
   integer,      parameter :: TRANSPORT=2
   real(RLEN),   parameter :: ZERO_KELVIN=-273.15_RLEN
+  real(RLEN),   parameter :: Rgas=83.131_RLEN ! Gas constant: bar mol^-1 deg-1
   real(RLEN),   parameter :: MW_C=12.0_RLEN  ! Molecular weight Carbon
   real(RLEN),   parameter :: MW_N=14.0_RLEN  ! Molecular weight Nitrogen
   real(RLEN),   parameter :: MW_P=31.0_RLEN  ! Molecular weight Phosphorus

@@ -20,12 +20,18 @@
    use api_bfm
    use SystemForcing, only : FieldRead
 #ifdef INCLUDE_PELCO2
-   use mem,        only: EPCO2air
-   use mem_CO2,    only: pco2air0, AtmpCO2
+   use mem,        only: EPCO2air, EPW
+   use mem_CO2,    only: pco2air0, AtmpCO2, AtmSLP, AtmTDP
 #endif
 ! OPA modules
    use oce_trc
    use trc_oce, only: etot3
+   USE sbcapr, only: apr
+! Tom : may not work with ORCA
+#ifdef INCLUDE_PELCO2
+   use sbcblk_mfs, ONLY: sf
+#endif
+
 IMPLICIT NONE
 ! OPA domain substitutions
 #include "domzgr_substitute.h90"
@@ -84,12 +90,23 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign atmospheric pCO2
    !---------------------------------------------
-   if (AtmpCO2%init == 0) then
-      ! Constant pCO2
-      EPCO2air = pco2air0 
-   else
+   if (AtmpCO2%init .ne. 0) then
       call FieldRead(AtmpCO2)
-      EPCO2air(:) = ATMpCO2%fnow
+   endif
+   ! Water column pressure 
+   ! (need better approximation to convert from m to dbar)
+   EPR = pack(fsdept(:,:,:),SEAmask )
+   !
+   ! Atmospheric sea level pressure
+   if ( allocated(AtmSLP%fnow))  then 
+      if (AtmSLP%init .eq.4) AtmSLP%fnow = pack(apr(:,:),SRFmask(:,:,1) )
+      if (AtmSLP%init .ge.1 .AND. AtmSLP%init .le.3) Call FieldRead(AtmSLP)
+   endif
+   !
+   ! Atmospheric Dew Point Temperature 
+   if ( allocated(AtmTDP%fnow)) then 
+      if (AtmTDP%init .eq.4) AtmTDP%fnow = pack(sf(jp_rhm)%fnow(ji,jj,1),SRFmask(:,:,1) )
+      if (AtmTDP%init .ge.1 .AND. AtmTDP%init .le.3) Call FieldRead(AtmTDP)
    endif
 #endif
 

@@ -20,9 +20,6 @@ subroutine analytical_forcing
                          EICE,jbotR6c,jbotR6n,jbotR6p,jbotR6s, &
                          R6c,R6n,R6p,R6s,O2o,ERHO,Depth
    use mem,        only: iiC,iiN,iiP,iiS
-#ifdef INCLUDE_PELCO2
-   use mem,        only: EPCO2air
-#endif
 #ifdef INCLUDE_SEAICE
    ! seaice forcings
    use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
@@ -33,7 +30,7 @@ subroutine analytical_forcing
    use standalone, only: timesec,latitude
    use envforcing
 #ifdef INCLUDE_PELCO2
-   use mem_CO2,    only: pco2air0, AtmpCO2
+   use mem_CO2,    only: AtmCO20, AtmCO2, AtmSLP, AtmTDP
 #endif
    use time,       only: julianday, secondsofday, timefmt, &
                          julian_day,calendar_date,dayofyear
@@ -91,13 +88,17 @@ subroutine analytical_forcing
    ! constant sea-ice fraction 
    EICE(:) = 0.0_RLEN
 #ifdef INCLUDE_PELCO2
-   if (AtmpCO2%init == 0) then
-      ! increase of initial pCO2 in the air by CO2inc [%]
-      EPCO2air(:) = pco2air0*(ONE + (CO2inc / 100_RLEN) / 365._RLEN * dtime)
+   if (AtmCO2%init == 0) then
+      ! increase of initial CO2 concentration in the air by CO2inc [%]
+      AtmCO2%fnow = AtmCO20*(ONE + (CO2inc / 100_RLEN) / 365._RLEN * dtime)
    else
-      call FieldRead(AtmpCO2)
-      EPCO2air(:) = ATMpCO2%fnow
+      call FieldRead(AtmCO2)
    endif
+!  Update sea level pressure
+   if ( allocated(AtmSLP%fnow)) CALL FieldRead(AtmSLP)
+
+!  Update Air Dew Point temperature
+   if ( allocated(AtmTDP%fnow)) CALL FieldRead(AtmTDP)
 #endif
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW(:)

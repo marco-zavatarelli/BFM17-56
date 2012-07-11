@@ -28,15 +28,15 @@ module CO2System
 !       ETW     = temperature (degrees C)
 !       ESW     = salinity (PSU)
 !       ERHO    = density (kg/m3)
-!       EPco2air        = atmospheric co2 partial pressure (ppm) 
+!       press   = water pressure of the cell (dbar)
 !
 !       diagnostic OUTPUTS
 !       co2  = co2*(aq) (umol/kg)
 !       pco2 = oceanic pco2 (uatm)
 !       hco3 = bicarbonate (umol/kg)
 !       co3  = carbonate (umol/kg)
-!       co2airflux = air-sea co2 flux (mmol/m^2/d)
-!
+!       Ocalc = saturation for Calcite
+!       Oarag = saturation for Aragonite
 !       The code has 3 options defined in mod_pelco2:
 !       choice of the equilibrium constants K1K2
 !       choice of the ph scale PHSCALE
@@ -78,7 +78,7 @@ module CO2System
 
 ! !USES:
   use global_mem, ONLY: RLEN
-  
+
 ! Shared variables
   implicit none
   real(RLEN),public  ::  K0 ! solubility : [Co2]=k0Ac Pco2
@@ -92,6 +92,7 @@ module CO2System
   real(RLEN),public  ::  Ksi ! constant for silicic acid eqilbrium
 
 
+  real(RLEN),public  :: press=0.0_RLEN ! local pressure in bar 
   real(RLEN),public  :: ldic  ! local dic in mol/kg 
   real(RLEN),public  :: lpco2 ! local pco2
   real(RLEN),public  :: scl   ! chlorinity
@@ -114,14 +115,16 @@ module CO2System
 !
 ! !INTERFACE
   integer function CalcCO2System(mode,salt,temp,rho,n1p,n5s,alk,co2,hco3,co3,ph, &
-                         dic_in,pco2_in,dic_out,pco2_out)
+                         pr_in,dic_in,pco2_in,dic_out,pco2_out,omegacal,omegarag)
 ! !DESCRIPTION
 ! See module preamble
 !
 ! USES:
   use global_mem, ONLY: ONE,ZERO
-  use constants, ONLY: ZERO_KELVIN,MW_C
+  use constants, ONLY: ZERO_KELVIN,MW_C,Rgas
   use mem_co2
+  
+!  use mem_co2
 
 ! !INPUT PARAMETERS:
   IMPLICIT NONE
@@ -132,6 +135,7 @@ module CO2System
   real(RLEN),intent(IN)            :: n1p
   real(RLEN),intent(IN)            :: n5s
   real(RLEN),intent(IN)            :: alk
+  real(RLEN),intent(IN),optional   :: pr_in
   real(RLEN),intent(IN),optional   :: dic_in
   real(RLEN),intent(IN),optional   :: pco2_in
 !
@@ -145,6 +149,8 @@ module CO2System
   real(RLEN),intent(INOUT)         :: ph
   real(RLEN),intent(OUT),optional  :: dic_out
   real(RLEN),intent(OUT),optional  :: pco2_out
+  real(RLEN),intent(OUT),optional  :: omegacal
+  real(RLEN),intent(OUT),optional  :: omegarag
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
@@ -160,12 +166,29 @@ module CO2System
   real(RLEN)  :: intercept,lnk,sit,pt
   real(RLEN)  :: h1,h2
   real(RLEN)  :: tk,tk100,tk1002,    &
+                 tc2,pr,pr2,         &
                  invtk,is,is2,       &
                  dlogtk,dsqrtis,s,s2,&
                  dsqrts,s15
-  ! Local variables fro Follows' parameterization
+  ! Variables for Follows' parameterization
   real(RLEN) :: xx,xx2,xx3,k11,k12,k12p,k123p,k3p,a,c
   real(RLEN) :: cag,dummy,gamm
+  ! Variables for Calcite and Aragonite omegas computation
+  real(RLEN) :: Caconc, kspcal, kspcal2, ksparag, ksparag2,lomegacal,lomegarag
+  ! Pressure correction
+  real(RLEN),parameter,dimension(11) :: &
+  a0 = (/ 25.5_RLEN,15.82_RLEN,29.48_RLEN,25.60_RLEN,18.03_RLEN, &
+          9.78_RLEN,48.76_RLEN,46.0_RLEN,14.51_RLEN,23.12_RLEN,26.57_RLEN /), &
+  a1 = (/ 0.1271_RLEN,-0.0219_RLEN,0.1622_RLEN,0.2324_RLEN,0.0466_RLEN, &
+          -0.0090_RLEN, 0.5304_RLEN,  0.5304_RLEN,0.1211_RLEN,0.1758_RLEN,0.2020_RLEN/), &
+  a2 = (/ 0.0_RLEN,0.0_RLEN,2.608_RLEN,-3.6246_RLEN,0.316_RLEN,-0.942_RLEN, &
+          0.0_RLEN,0.0_RLEN,-0.321_RLEN,-2.647_RLEN,-3.042_RLEN /), &
+  b0 = (/ 3.08_RLEN,-1.13_RLEN,2.84_RLEN,5.13_RLEN,4.53_RLEN,3.91_RLEN, &
+          11.76_RLEN,11.76_RLEN,2.67_RLEN,5.15_RLEN,4.08_RLEN /), &
+  b1 = (/ 0.0877_RLEN,-0.1475_RLEN,0.0_RLEN,0.0794_RLEN,0.09_RLEN,0.054_RLEN, &
+          0.3692_RLEN,0.3692_RLEN,0.0427_RLEN,0.09_RLEN,0.0714_RLEN /)
+  real(RLEN) :: deltav,deltak
+  real(RLEN),dimension(11) :: lnkpok0
 !EOP
 !-------------------------------------------------------------------------!
 !BOC
@@ -188,8 +211,9 @@ module CO2System
      way = 2 
   endif
   ! convert input variable alkalinity from umol/kg to mol/kg 
-  ta = alk*PERMEG
-
+  ta = alk * PERMEG
+  ! convert from dbar to bar
+  if (present(pr_in)) press = pr_in * 0.1_RLEN
   ! ---------------------------------------------------------------------
   ! Calculate all constants needed to convert between various measured
   ! carbon species. References for each equation are noted in the code. 
@@ -200,7 +224,8 @@ module CO2System
   !
   ! Derive simple terms used more than once
   ! ---------------------------------------------------------------------
-  tk = temp - ZERO_KELVIN
+  tk = temp - ZERO_KELVIN  !ZERO_KELVIN=-273.16; ETW is in degC; tk is in degK
+  tc2 = temp * temp
 #ifdef DEBUG
   LEVEL2 'Entering CO2System...'
   LEVEL3 'tk',tk,'way',way,'mode',mode
@@ -222,7 +247,11 @@ module CO2System
   is = 19.924_RLEN*salt/ (1000._RLEN-1.005_RLEN*salt)
   is2 = is*is
   dsqrtis = sqrt(is)
-
+  ! divide atmospheric sea level pressure by the gas constant
+  if (present(pr_in)) then 
+     pr2 = press * press / Rgas
+     pr = press / Rgas
+  endif
   !------------------------------------------------------------------------
   ! Calculate concentrations for borate, sulfate, and fluoride
   ! as a function of chlorinity
@@ -234,7 +263,8 @@ module CO2System
   ! Riley (1965)
   ft = 0.000067_RLEN * scl/18.9984_RLEN
 
-!MAV this part is never used
+!MAV this part is never used 
+!TOM Should we keep it to compare with SOCAT
   ! ---------------------------------------------------------------------
   ! convert partial pressure to fugacity
   ! ff = k0(1-ph2O)*correction term for non-ideality
@@ -402,8 +432,35 @@ module CO2System
        (-24.4344_RLEN - 25.085_RLEN*dsqrts - 0.2474_RLEN*s) *     &
        dlogtk + 0.053105_RLEN*dsqrts*tk
   Kb = exp(lnK)
-
-
+  !------------------------------------------------------------------------
+  ! Effect of pressure on equilibrium constant (Millero 1995)
+  ! Zeebe and Wolf-Gladrow, CO2 in Seawater, Elsevier, 2001
+  ! Pag. 267
+  !------------------------------------------------------------------------
+  if (present(pr_in) .AND. press .GT. 0) then
+     do l=1,11
+        deltav  =  -a0(l) + a1(l)*temp + 1.0e-3_RLEN*a2(l)*tc2
+        deltak  = 1.0e-3_RLEN*(-b0(l) + b1(l)*temp)
+        lnkpok0(l) = -deltav*invtk*pr + 0.5_RLEN*deltak*invtk*pr2
+     end do
+     k1 = k1*exp(lnkpok0(1))
+     k2 = k2*exp(lnkpok0(2))
+     kb = kb*exp(lnkpok0(3))
+     kw = kw*exp(lnkpok0(4))
+     ks = ks*exp(lnkpok0(5))
+     kf = kf*exp(lnkpok0(6))
+     kp(1) = kp(1)*exp(lnkpok0(9))
+     kp(2) = kp(2)*exp(lnkpok0(10))
+     kp(3) = kp(3)*exp(lnkpok0(11))
+  endif 
+  !------------------------------------------------------------------------
+  !
+  ! Calculate [H+] total when DIC and TA are known.
+  ! Available Methods: 1 - STATIC
+  !                    
+  !                    2 - FOLLOWS
+  !
+  !------------------------------------------------------------------------
 
   select case ( mode)
   case ( DYNAMIC )
@@ -511,6 +568,46 @@ module CO2System
         hco3  =   dic_in - co2 - co3
   end select
 
+! ======================================================================
+!  Calculate CaCO3 saturation state parameters
+! ======================================================================
+!
+! Omega for calcite and aragonite (< 1 = undersaturation; > 1 = 
+! supersaturation)
+! [derived from Zeebe & Wolf-Gladrow Matlab routine; but apparently
+!  originally from Mucci, 1983 (?)]
+!
+!     convert Ca concentration from mol/m3 to mol/kg
+      Caconc  = Caconc0 / rho          ! concentration in mol/kg
+!
+!     Ca concentration normalised to salinity ! specified in namelist
+      if (Canorm) Caconc = Caconc * (salt / 35.0_RLEN)
+!
+!     Ksp_calcite
+      kspcal   = -171.9065_RLEN - 0.077993_RLEN * tk + 2839.319_RLEN * invtk &
+           + 71.595_RLEN * log10(tk) + dsqrts * (-0.77712_RLEN +  &
+           0.0028426_RLEN * tk + 178.34_RLEN * invtk)            &
+           - 0.07711_RLEN * salt + 0.0041249_RLEN *s15
+      kspcal2  = 10.0_RLEN**kspcal      ! in mol/kg
+!
+!     Ksp_aragonite
+      ksparag  = -171.945_RLEN - 0.077993_RLEN * tk + 2903.293_RLEN * invtk   &
+           + 71.595_RLEN * log10(tk) + dsqrts * (-0.068393_RLEN +   &
+           0.0017276_RLEN * tk + 88.135_RLEN * invtk)   &
+           - 0.10018_RLEN * salt + 0.0059415_RLEN * s15
+      ksparag2 = 10.0_RLEN**ksparag     ! in mol/kg
+
+!     Pressure effect (see above)
+      if (present(pr_in) .AND. press .GT. 0) then
+         kspcal2 = kspcal2*exp(lnkpok0(7));
+         ksparag2 = ksparag2*exp(lnkpok0(8));
+      endif 
+!
+!     Omega_calcite
+      lomegacal = Caconc * co3 / kspcal2
+!
+!     Omega_aragonite
+      lomegarag = Caconc * co3 / ksparag2
   !---------------------------------------------------------------
   ! NOTE: transformation from mol/kg -----> umol/kg
   !       only for output purposes
@@ -522,6 +619,8 @@ module CO2System
   hco3 = hco3 * MEG
   co3  = co3 * MEG
   if (present(pco2_out)) pco2_out = lpco2 * MEG
+  if (present(omegacal)) omegacal = lomegacal
+  if (present(omegarag)) omegarag = lomegarag 
 #ifdef DEBUG
   LEVEL3 'pco2',pco2_out
   LEVEL3 'ph',ph
@@ -712,8 +811,8 @@ function drtsafe2(x1,x2,xacc,maxit,error)
 !   Adapted and optimized from Numerical Recipes drtsafe.f90 
 !
 ! !USES:
-   use global_mem, ONLY: RLEN
-   use mem_co2
+   use global_mem, ONLY: RLEN, ZERO
+!   use mem_co2
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:

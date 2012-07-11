@@ -54,6 +54,7 @@
 AssignPelBenFluxesInBFMFlag = .FALSE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_PAR = 0.50
+                       slp0 = 1013.25E0
                ChlLightFlag = 2
            LightForcingFlag = 1
           LightLocationFlag = 3
@@ -97,6 +98,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  AssignAirPelFluxesInBFMFlag:  	 fluxes in physical of biological model
 !        :  	     dim2D%
 !  p_PAR:  	 Photosynthetically available radiation
+!  slp0    : Standard Atmospheric sea level pressure [hPa]
 !  ChlLightFlag:  	 Switch between light prop.(=1) or Chla.(=2) as a state
 !  LightForcingFlag:  	 Switch between instantaneous light and day light average
 !  LightLocationFlag:    Switch between different depth-parameterizations

@@ -29,7 +29,12 @@
 ! !PUBLIC MEMBER FUNCTIONS:
   
 ! Possible convention to differentiate input field:
-! 0 = No input, 1 = Analytic, 2 = timeseries, 3 = 2D Field
+! 0 = No input / Set Model constant value
+! 1 = Analytic
+! 2 = 1D timeseries
+! 3 = 2D Field
+! 4 = Coupling with external model
+
    type, public :: ForcingName
       integer           :: init
       character(LEN=40) :: filename
@@ -74,7 +79,7 @@
 
    subroutine FieldInit(FName, FData)
 
-   use netcdf_bfm, only:check_err
+   use netcdf_bfm, only: check_err
 
    integer :: yy, mm, dd, hh, nn, jday, LUN, icon
    integer :: iy, im, id, iyend, imend, idend
@@ -95,8 +100,23 @@
    hh = 0
    nn = 0
    ! additional check
-   if (FName%init == 0) return
-
+   if (FName%init == 0 .OR. FName%init == 4 ) then 
+      allocate (FData%fnow(NO_BOXES_XY))
+      write(LOGUNIT,*) 'FieldInit Warning ',trim(FName%varname), &
+                       ': Data will not be read, ONLY %fnow memory structure is allocated !'
+      return
+   endif
+   if (FName%init < 0 .OR. FName%init > 4 ) then
+      LEVEL1  'FieldInit Error ',trim(FName%varname), &
+                       ': initialization flag %init is  invalid! Allowed 0-4.'
+      STOP
+   endif 
+   ! Temporary check to avoid unavailable data structure selection 
+   if (FName%init == 1 .OR. FName%init == 3 ) then
+      LEVEL1  'FieldInit Error ',trim(FName%varname), &
+                       ': initialization flag %init with option 1 and 3 is not yet implemented in the code.'
+      STOP
+   endif
    ! Initialize FData structure 
    allocate (FData%fbef(NO_BOXES_XY), FData%fnow(NO_BOXES_XY), FData%faft(NO_BOXES_XY))
    FData%init     = Fname%init 
@@ -109,7 +129,7 @@
    FData%nbef     = 0
    FData%naft     = 0
 
-   read (FName%RefTime,'(I4,a1,I2,a1,I2,1x,I2,a1,I2)') yy,c1,mm,c1,dd,hh,c1,nn
+   read (FName%RefTime,'(I4,a1,I2,a1,I2,1x,I2,a1,I2)',ERR=903) yy,c1,mm,c1,dd,hh,c1,nn
    call julian_day(yy,mm,dd,hh,nn,jday0)
 
    ! ACCESS EXTERNAL INPUT & FIND TIMELINE BOUNDARIES
@@ -225,8 +245,13 @@
 
    return
 
-902 write(LOGUNIT,*) 'FieldInit: Error opening sequential input file:', FName%varname
+902 LEVEL1 'FieldInit: Error opening sequential input file:', FName%varname
+   write(LOGUNIT,*) 'FieldInit: Error opening sequential input file:', FName%varname
    stop 
+
+903 LEVEL1 'FieldInit: Error reading namelist RefTime for variable: ', FName%varname
+   write(LOGUNIT,*) 'FieldInit: Error reading namelist RefTime for variable: ', FName%varname
+   stop
    end subroutine FieldInit
 !-------------------------------------------------------------------------!
 !-------------------------------------------------------------------------!
@@ -241,6 +266,18 @@
    character(len = 50) :: InpDate, c1
    type(ForcingField), intent(INOUT)   :: FData
      
+   ! additional check 
+   if (FData%init == 0 .OR. FData%init == 4 ) then
+      if (bfmtime%stepnow ==  bfmtime%step0) &
+         write(LOGUNIT,*) 'FieldRead Warning: Data will not be read because filed %init is either 0 or 4!'
+      return
+   endif
+   ! Temporary check to avoid unavailable data structure selection 
+   if (FData%init == 1 .OR. FData%init == 3 ) then
+      LEVEL1  'FieldRead Error : initialization flag %init with option 1 and 3 is not yet implemented in the code.'
+      STOP
+   endif
+
    allocate(diff((NO_BOXES_XY)))
  
    ! Set actual time 

@@ -22,7 +22,7 @@
 !
 !   notes: 
 !   - K0 = co2/pco2 [1.e-6 mol / (l * 1.e-6 atm)]
-!   - exchange coefficient: deltapCO2 * k660 * K0 
+!   - exchange coefficient: deltapCO2 * bt * K0 
 !   [1.e-6atm * cm/hr * 1.e-6mol/(l * 1.e-6atm)] = [cm/hr * 1.e-6mol / l]
 !   - Temperature in degrees C	
 !   test parameter  (DIC=2133, AC=2260, pco2=341), O7.c = AC-2210,
@@ -57,7 +57,7 @@
 #else
   use mem, ONLY: EWIND,ETW,ESW,ERHO,EPCO2air,pCO2,  &
                  NO_BOXES,NO_BOXES_XY,CO2airflux,EICE
-  use mem, ONLY: iiPel, ppO3c, D3STATE, jsurO3c, CO2airflux, &
+  use mem, ONLY: iiPel, ppO3c, jsurO3c, CO2airflux, &
                  Depth, flux_vector
 #endif
    use mem_Param, ONLY:  AssignAirPelFluxesInBFMFlag
@@ -87,10 +87,11 @@ IMPLICIT NONE
     real(RLEN),parameter  :: C3=3.6276_RLEN
     real(RLEN),parameter  :: C4=0.043219_RLEN
     real(RLEN),parameter  :: CO2SCHMIDT=660._RLEN
+    real(RLEN),parameter  :: d=0.3_RLEN
     real(RLEN),parameter  :: CM2M=0.01_RLEN
     integer, save :: first=0
-    real(RLEN),allocatable,save,dimension(:) :: pschmidt,reacon,temp2, &
-                                         k660,kex,tk,tk100,tk1002
+    real(RLEN),allocatable,save,dimension(:) :: pschmidt,temp2,bt, &
+                                         ken,tk,tk100,tk1002,ScRatio
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BEGIN compute
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -99,14 +100,12 @@ IMPLICIT NONE
       first=1
       allocate(pschmidt(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating pschmidt"
-      allocate(reacon(NO_BOXES_XY),stat=AllocStatus)
-      if (AllocStatus  /= 0) stop "error allocating reacon"
       allocate(temp2(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating temp2"
-      allocate(k660(NO_BOXES_XY),stat=AllocStatus)
-      if (AllocStatus  /= 0) stop "error allocating k660"
-      allocate(kex(NO_BOXES_XY),stat=AllocStatus)
-      if (AllocStatus  /= 0) stop "error allocating kex"
+      allocate(bt(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating bt"
+      allocate(ken(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating ken"
       allocate(tk(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating tk"
       allocate(tk100(NO_BOXES_XY),stat=AllocStatus)
@@ -122,7 +121,8 @@ IMPLICIT NONE
     rho = ERHO(SRFindices)
     pco2air = EPCO2air(:)
     pco2sea = pCO2(SRFindices)
-
+    tmpflux(:) = ZERO
+    
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Calculate Schmidt number,
     ! ratio between the kinematic viscosity and the molecular 
@@ -132,21 +132,22 @@ IMPLICIT NONE
     pschmidt = (C1 - C2*temp + C3*temp2 - C4*temp2*temp)
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ! gas transfer velocity at a Schmidt number of 660
-    ! Temperature dependent
+    ! Compute Chemical enhancement the Temperature dependent
+    ! gas transfer 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    k660 = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2) 
+    bt = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2) 
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ! Calculate wind dependency
+    ! Calculate wind dependency + Chemical enhancement
     ! including conversion cm/hr => m/day :
+    ! ScRatio is limited to 0 when T > 40 °C
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    kex = (k660 + 0.3_RLEN*wind*wind)*sqrt(CO2SCHMIDT/pschmidt)* &
-          CM2M*HOURS_PER_DAY
-    !Alternative way 
-    !kex = (0.3_RLEN*wind*wind)*sqrt(CO2SCHMIDT/pschmidt)* &
-    !      CM2M*HOURS_PER_DAY
-
+    ScRatio = max(0.0_RLEN, CO2SCHMIDT/pschmidt)
+    ken = (bt + d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
+    !
+    !Alternative way, without enhancement
+    !kun = (d*wind*wind)*sqrt(ScRatio)*  CM2M*HOURS_PER_DAY
+    !
     ! ---------------------------------------------------------------------
     ! K0, solubility of co2 in the water (K Henry)
     ! from Weiss 1974; K0 = [co2]/pco2 [mol kg-1 atm-1]
@@ -163,7 +164,7 @@ IMPLICIT NONE
     ! (m * d-1) * uatm * (mol * kg-1 * atm-1) * (kg * m-3)
     !     d-1   1.e-6      mol   m-2
     !     umol m-2 d-1 / 1000 = mmol/m2/d
-    CO2airflux(:) = kex * (pco2air - pco2sea) * k0 * rho / 1000.0_RLEN
+    CO2airflux(:) = ken * (pco2air - pco2sea) * k0 * rho / 1000.0_RLEN
 
   !---------------------------------------------------------------
   ! flux is positive downward. 
@@ -175,7 +176,6 @@ IMPLICIT NONE
   ! (or added to) the diagonal element of O3c (i.e. infinite source)
   !---------------------------------------------------------------
   jsurO3c =  (ONE-ice(:))*CO2airflux(:) * MW_C
-  tmpflux(:) = ZERO
   tmpflux(SRFindices) = jsurO3c / Depth(SRFindices)
   if ( AssignAirPelFluxesInBFMFlag) then
      call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
@@ -185,6 +185,81 @@ IMPLICIT NONE
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   end subroutine CO2Flux
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! Compute the pCO2 in the air at sea level
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  subroutine CalcPCO2Air()
+  !
+  ! Covert the atmospheric CO2 conctration into pCO2 
+  ! 
+  ! VARIABLES:
+  ! AtmCO2   CO2 air Mixing Ratio                    ppmv
+  ! EPCO2air Partial Pressure of atmospheric CO2     uatm
+  ! EAPR     Atmospheric Sea Level Pressure          hPa
+  ! AtmTDP   Air temperature                         °C
+  !  
+  ! NOTES:
+  ! The p(H2O vapor) is computed wiht August-Roche-Magnus formula,
+  ! coefficients for water (aw,bw, cw) from Lawrence(2005)
+  ! and ice (ai,bi,ci) surfaces from WMO 2000 Technical Regulations. 
+  ! These parameters are to be used with temperature in  °C.
+  ! Alternatively it is possible to use the formulations of Buck (1996) or
+  ! Goff (1957) for water and Goff and Gratch (1946) for ice.
+  !
+  use global_mem,  ONLY: ONE,ZERO,RLEN
+  use mem,         ONLY: NO_BOXES_XY, EPCO2air
+  use mem_CO2,     ONLY: AtmCO2, AtmSLP, AtmTDP, pCO2Method
+  use constants,   ONLY: ZERO_KELVIN
+  !
+  ! LOCAL variables
+  ! 
+  IMPLICIT NONE
+
+  real(RLEN),dimension(NO_BOXES_XY) :: EATD, EAPR, e
+  real(RLEN),parameter              :: aw=17.625_RLEN, bw=243.04_RLEN, cw=6.1094_RLEN
+  real(RLEN),parameter              :: ai=21.8745584_RLEN, bi=265.5_RLEN, ci=6.1078_RLEN
+  real(RLEN)                        :: atm2pa=9.8692326671601E-06_RLEN
+
+! BOC
+
+  EAPR = AtmSLP%fnow
+
+  select case (pCO2Method) 
+    ! 
+    ! Approximate pCO2, pCO2 = Mixing ratio * p(atm)
+  case(1)
+       EPCO2air = AtmCO2%fnow * (EAPR * 100.0_RLEN) * atm2pa
+#ifdef DEBUG
+    write(*,*)
+    write(*,*) " Control on pCO2 calculation, with method : ", pCO2Method
+    write(*,*) " Atm Press: ",EAPR," CO2 ppm: ",AtmCO2%fnow," pCO2 : ", EPCO2air
+    write(*,*)
+#endif
+    ! 
+    ! pCO2 = Mixing ratio * (p(air) - p(water vapor))
+  case(2)
+       EATD = AtmTDP%fnow
+       ! August-Roche-Magnus formula, with coefficients from Lawrence(2005)
+       ! Input : ETDP and EAPR
+       ! Partial pressure of water vapor 
+       e = cw * exp((aw * EATD) / (bw + EATD))  
+       ! Partial pressure of CO2 
+       EPCO2air = AtmCO2%fnow * (EAPR - e) * 100.0_RLEN * atm2pa
+#ifdef DEBUG
+    write(*,*)
+    write(*,*) " Control on pCO2 calculation, with method : ", pCO2Method
+    write(*,*) " Atm Press: ",EAPR," CO2 ppm: ",AtmCO2%fnow," pCO2 : ", EPCO2air
+    write(*,*) " e (pH2Ovapor): ",e," T dew point :", EATD
+#endif
+  end select
+!EOC
+  end subroutine CalcPCO2Air
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

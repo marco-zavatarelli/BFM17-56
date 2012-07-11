@@ -22,7 +22,7 @@
                  iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
                  iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
   use mem_Param
-  use mem_WindOxReaeration_3
+!  use mem_WindOxReaeration_3
   use mem_PelGlobal
   use mem_PelChem
   use mem_PelBac
@@ -106,7 +106,6 @@
       ! Read all data files:(namelist files)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call InitParam
-      call InitWindOxReaeration_3
       call InitPelGlobal
       call InitPelChem
       call InitPelBac

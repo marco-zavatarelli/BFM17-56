@@ -15,6 +15,7 @@
    use global_mem, only:RLEN,ONE
    use constants,  only:SEC_PER_DAY
    use mem, only: iiC,iiN,iiP,iiS
+
    private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -45,7 +46,6 @@
    integer,parameter,public    :: unit_event=204
    character(len=128),public   :: forcing_file,seaice_file, &
                                   data_file, event_file
-
 !
 ! !PRIVATE DATA MEMBERS:
    real(RLEN),parameter :: PI=3.14159265,RFACTOR=PI/180.
