@@ -146,10 +146,10 @@
   !---------------------------------------------------------------
   jsurO3c(:) =  jsurO3c(:) + (ONE-EICE(:))*CO2airflux(:) * MW_C
 #ifdef DEBUG
-  write(*,"(4A11)") "dic","ta","pH"
-  write(*,"(3G12.6)") DIC(1),Ac(1),pH(1)
-  write(*,"(4A11)") "pco2","co2","co3","hco3"
-  write(*,"(4G12.6)") pco2(1),co2(1),co3(1),hco3(1)
+!  write(*,"(4A11)") "dic","ta","pH"
+!  write(*,"(3G12.6)") DIC(1),Ac(1),pH(1)
+!  write(*,"(4A11)") "pco2","co2","co3","hco3"
+!  write(*,"(4G12.6)") pco2(1),co2(1),co3(1),hco3(1)
 #endif
 
   end subroutine PelCO2Dynamics

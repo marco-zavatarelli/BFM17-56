@@ -61,6 +61,10 @@ subroutine merge_vars
      fname = trim(out_fname)//".nc"
      status = nf90_open(path = fname, mode = NF90_WRITE, ncid = ncid)
      if (status /= NF90_NOERR) call handle_err(status)
+#ifdef DEBUG
+     write(*,*) "Output file: "   
+     write(*,*) trim(fname)
+#endif
 
   do p=1,jpnij
      ! build the file name for each process (start from 0)
@@ -71,6 +75,8 @@ subroutine merge_vars
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire_dimension(ncbfmid, IDunlimdim, len = ntime)
 #ifdef DEBUG
+     write(*,*)
+     write(*,*) "Processing file : "
      write(*,*) trim(fname)
      write(*,*) "===================="
      write(*,*) "Domain:",p-1
@@ -168,17 +174,18 @@ subroutine merge_vars
      ! loop over the variables
      do d=1,n_bfmvar
         status=nf90_inquire_variable(ncbfmid, bfmvarid(d), xtype=vartype, ndims=ndims, name=varname)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
+        if (status /= NF90_NOERR) call handle_err(status,errstring="Inquire variable: "//trim(varname))
         status=nf90_inquire_variable(ncbfmid, bfmvarid(d), dimids=dimids(1:ndims))
         status = nf90_inquire_dimension(ncbfmid, dimids(1), len = dimlen(1))
         allocate(chunk(dimlen(1),ntime))
         ! read all time stamp of chunk data                                                    
         status = nf90_get_var(ncbfmid, bfmvarid(d), chunk(:,:), start = (/ 1, 1 /),     &            
                             count = (/ dimlen(1), ntime /))                                 
-        if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
+        if (status /= NF90_NOERR) call handle_err(status,errstring="Get variable: "//trim(varname))
         ! inquire ID in the output file
         status = nf90_inq_varid(ncid, varname, IDvar)
 #ifdef DEBUG
+        write(*,*)
         write(*,*) "Writing variable: "//trim(varname)
         write(*,*) "BFM Dimension:",dimlen(1)
 #endif
@@ -203,7 +210,7 @@ subroutine merge_vars
         write(*,*) "3D var, Dimensions: ",jpi, jpj, jpk, ntime
 #endif
            if (status /= NF90_NOERR) &
-              call handle_err(status,errstring="variable: "//trim(varname))
+              call handle_err(status,errstring="Put 3D domain: "//procname(p)//" variable: "//trim(varname))
         else
            bfmvar2d=NF90_FILL_REAL
            ! loop sequence is mandatory
@@ -222,7 +229,7 @@ subroutine merge_vars
         write(*,*) "2D var, Dimensions: ",jpi, jpj, ntime
 #endif
            if (status /= NF90_NOERR) &
-              call handle_err(status,errstring="variable: "//trim(varname))
+              call handle_err(status,errstring="Put 2D domain: "//procname(p)//" variable: "//trim(varname))
         end if
         deallocate(chunk)
      end do ! variables

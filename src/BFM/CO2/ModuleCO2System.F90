@@ -247,7 +247,7 @@ module CO2System
   is = 19.924_RLEN*salt/ (1000._RLEN-1.005_RLEN*salt)
   is2 = is*is
   dsqrtis = sqrt(is)
-  ! divide atmospheric sea level pressure by the gas constant
+  ! divide water pressure by the gas constant
   if (present(pr_in)) then 
      pr2 = press * press / Rgas
      pr = press / Rgas

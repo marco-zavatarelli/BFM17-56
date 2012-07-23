@@ -87,7 +87,7 @@ IMPLICIT NONE
     real(RLEN),parameter  :: C3=3.6276_RLEN
     real(RLEN),parameter  :: C4=0.043219_RLEN
     real(RLEN),parameter  :: CO2SCHMIDT=660._RLEN
-    real(RLEN),parameter  :: d=0.3_RLEN
+    real(RLEN),parameter  :: d=0.31_RLEN
     real(RLEN),parameter  :: CM2M=0.01_RLEN
     integer, save :: first=0
     real(RLEN),allocatable,save,dimension(:) :: pschmidt,temp2,bt, &
@@ -112,6 +112,8 @@ IMPLICIT NONE
       if (AllocStatus  /= 0) stop "error allocating tk100"
       allocate(tk1002(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating tk1002"
+      allocate(ScRatio(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating ScRatio"
    end if
 
     temp = ETW(SRFindices)
@@ -131,6 +133,10 @@ IMPLICIT NONE
     temp2 = temp*temp
     pschmidt = (C1 - C2*temp + C3*temp2 - C4*temp2*temp)
 
+    ScRatio = CO2SCHMIDT/pschmidt
+    !
+    ! ScRatio is limited to 0 when T > 40 °C  
+    WHERE(ScRatio .le. 0.0_RLEN); ScRatio=0.0_RLEN ; END WHERE    
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! Compute Chemical enhancement the Temperature dependent
     ! gas transfer 
@@ -140,9 +146,7 @@ IMPLICIT NONE
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! Calculate wind dependency + Chemical enhancement
     ! including conversion cm/hr => m/day :
-    ! ScRatio is limited to 0 when T > 40 °C
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ScRatio = max(0.0_RLEN, CO2SCHMIDT/pschmidt)
     ken = (bt + d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
     !
     !Alternative way, without enhancement

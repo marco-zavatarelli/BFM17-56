@@ -67,7 +67,7 @@
    !---------------------------------------------
    ! Proceed only every nn_dttrc
    !---------------------------------------------   
-   if ( MOD( kt , nn_dttrc ) /= 0 ) return
+!   if ( MOD( kt , nn_dttrc ) /= 0 ) return
 
    !---------------------------------------------
    ! Biological timestep 

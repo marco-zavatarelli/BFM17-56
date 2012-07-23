@@ -207,6 +207,7 @@
    if (ln_rnf) then
       allocate(RIVmask(NO_BOXES_XY))
       allocate(rtmp1D(NO_BOXES_XY))
+      rtmp1D = ZERO; RIVmask = ZERO
       rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
       where (rtmp1d>ZERO)
         RIVmask = ONE

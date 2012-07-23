@@ -15,21 +15,20 @@
    use global_mem, only:RLEN,ZERO,LOGUNIT
    use mem_param,  only: p_PAR, p_small
    use mem,        only: xEPS, ESS, ETW, ESW, EWIND,    &
-                         Depth, EIR, ERHO, EICE,        &
+                         Depth, EIR, ERHO, EICE, EPR,   &
                          NO_BOXES, NO_BOXES_XY
    use api_bfm
    use SystemForcing, only : FieldRead
 #ifdef INCLUDE_PELCO2
-   use mem,        only: EPCO2air, EPW
-   use mem_CO2,    only: pco2air0, AtmpCO2, AtmSLP, AtmTDP
+   use mem_CO2,    only: AtmCO20, AtmCO2, AtmSLP, AtmTDP
 #endif
 ! OPA modules
    use oce_trc
    use trc_oce, only: etot3
-   USE sbcapr, only: apr
+   USE sbcapr,  only: apr
 ! Tom : may not work with ORCA
-#ifdef INCLUDE_PELCO2
-   use sbcblk_mfs, ONLY: sf
+#ifdef USE_MFSBULK
+   use sbcblk_mfs, ONLY: sf 
 #endif
 
 IMPLICIT NONE
@@ -90,24 +89,24 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign atmospheric pCO2
    !---------------------------------------------
-   if (AtmpCO2%init .ne. 0) then
-      call FieldRead(AtmpCO2)
+   if (AtmCO2%init .ne. 0) then
+      call FieldRead(AtmCO2)
    endif
    ! Water column pressure 
    ! (need better approximation to convert from m to dbar)
-   EPR = pack(fsdept(:,:,:),SEAmask )
+   EPR = pack(fsdept(:,:,:),SEAmask)
+#ifdef USE_MFSBULK
    !
-   ! Atmospheric sea level pressure
+   ! Atmospheric sea level pressure (MFS index jp_msl  = 4)
    if ( allocated(AtmSLP%fnow))  then 
-      if (AtmSLP%init .eq.4) AtmSLP%fnow = pack(apr(:,:),SRFmask(:,:,1) )
-      if (AtmSLP%init .ge.1 .AND. AtmSLP%init .le.3) Call FieldRead(AtmSLP)
+      if (AtmSLP%init .eq.4) AtmSLP%fnow = pack(sf(4)%fnow(:,:,1),SRFmask(:,:,1) )
    endif
    !
-   ! Atmospheric Dew Point Temperature 
+   ! Atmospheric Dew Point Temperature (MFS index jp_rhm  = 6)
    if ( allocated(AtmTDP%fnow)) then 
-      if (AtmTDP%init .eq.4) AtmTDP%fnow = pack(sf(jp_rhm)%fnow(ji,jj,1),SRFmask(:,:,1) )
-      if (AtmTDP%init .ge.1 .AND. AtmTDP%init .le.3) Call FieldRead(AtmTDP)
+      if (AtmTDP%init .eq.4) AtmTDP%fnow = pack(sf(6)%fnow(:,:,1),SRFmask(:,:,1) )
    endif
+#endif
 #endif
 
    !---------------------------------------------

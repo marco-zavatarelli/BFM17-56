@@ -108,6 +108,8 @@
       if (AllocStatus  /= 0) stop "error allocating ken"
       allocate(O2AIRFlux(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating O2AIRFlux"
+      allocate(ScRatio(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating ScRatio"
    end if
 
     temp = ETW(SRFindices)
@@ -123,22 +125,23 @@
     temp2 = temp*temp
     pschmidt = (C1 - C2*temp + C3*temp2 - C4*temp2*temp)
 
+    ScRatio = O2SCHMIDT / pschmidt
+    !
+    ! ScRatio is limited to 0 when T > 40 °C 
+    WHERE(ScRatio .le. 0.0_RLEN); ScRatio=0.0_RLEN ; END WHERE
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! Compute Chemical enhancement the Temperature dependent
     ! gas transfer 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     bt = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2)
-
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! Calculate wind dependency + Chemical enhancement
     ! including conversion cm/hr => m/day :
-    ! ScRatio is limited to 0 when T > 40 °C
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ScRatio = max(0.0_RLEN,O2SCHMIDT/pschmidt)
     ken = (bt + d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
     !
     !Alternative way, without enhancement
-    !kun = (d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
+    !ken = (d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
     !
     ! This is the old formulation used before 2012 modifications
     !kun_old = (0.074E00_RLEN*wind*wind)*sqrt(O2SCHMIDT/pschmidt)

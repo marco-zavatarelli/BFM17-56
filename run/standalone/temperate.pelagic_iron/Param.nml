@@ -54,6 +54,7 @@
 AssignPelBenFluxesInBFMFlag = .TRUE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_PAR = 0.50
+                       slp0 = 1013.25E0
                ChlLightFlag = 2
            LightForcingFlag = 1
           LightLocationFlag = 3

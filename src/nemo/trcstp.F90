@@ -10,11 +10,13 @@ MODULE trcstp
    !!----------------------------------------------------------------------
    USE oce_trc          ! ocean dynamics and active tracers variables
    USE api_bfm, ONLY: bio_calc
+   use global_mem,only:LOGUNIT
 #ifdef key_obcbfm
    USE trcobcdta_bfm
 #endif
    USE iom
    USE in_out_manager
+   USE trcsub
 
    IMPLICIT NONE
    PRIVATE
@@ -41,18 +43,33 @@ CONTAINS
       INTEGER, INTENT( in ) ::  kt  ! ocean time-step index
       CHARACTER (len=25)    ::  charout
       !!-------------------------------------------------------------------
-
+#ifdef DEBUG
+      write(LOGUNIT,*) 'Timestep: ',kt
+#endif
       !---------------------------------------------
       ! Check the main BFM flag
       !---------------------------------------------
       IF (bio_calc) THEN
 
-                             CALL trc_bfm( kt )           ! main call to BFM
+!          IF ( nn_dttrc /= 1 )     CALL trc_sub_stp( kt )  ! averaging physical variables for sub-stepping
 
-                             CALL trc_trp_bfm( kt )       ! transport of BFM tracers
+          !---------------------------------------------
+          ! Proceed only every nn_dttrc
+          !---------------------------------------------   
+!          IF ( MOD( kt , nn_dttrc ) == 0 ) THEN  
 
-                             CALL trc_dia_bfm( kt )       ! diagnostic output for BFM
+                                   CALL trc_bfm( kt )           ! main call to BFM
+
+                                   CALL trc_trp_bfm( kt )       ! transport of BFM tracers
+          
+                                   CALL trc_dia_bfm( kt )       ! diagnostic output for BFM
+          
+!          IF ( nn_dttrc /= 1 )     CALL trc_sub_reset( kt )       ! resetting physical variables when sub-stepping
+
+!          ENDIF 
+
       END IF
+      FLUSH(LOGUNIT)
 
    END SUBROUTINE trc_stp
 

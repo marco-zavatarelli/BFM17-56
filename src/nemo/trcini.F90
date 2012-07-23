@@ -24,7 +24,8 @@ MODULE trcini
    USE daymod
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
-   
+   USE trcsub
+ 
    IMPLICIT NONE
    PRIVATE
    
@@ -57,7 +58,7 @@ CONTAINS
 
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_init : initial set up of the passive tracers'
-      IF(lwp) WRITE(numout,*) '           Using the Biogeochemical Flux Model (BFM'
+      IF(lwp) WRITE(numout,*) '           Using the Biogeochemical Flux Model (BFM)'
       IF(lwp) WRITE(numout,*) '~~~~~~~'
 
       CALL top_alloc()              ! allocate TOP arrays
@@ -91,6 +92,12 @@ CONTAINS
       ! 
  
       tra(:,:,:,:) = 0._wp
+      !
+      IF( ln_zps .AND. .NOT. lk_c1d )   &              ! Partial steps: before horizontal gradient of passive
+        &    CALL zps_hde( nit000, jptra, trn, gtru, gtrv )       ! tracers at the bottom ocean level
+      !
+ !     IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
+      !
       
    END SUBROUTINE trc_init
 

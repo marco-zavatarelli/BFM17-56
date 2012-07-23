@@ -6,6 +6,11 @@ include ../../compilers/xlf90_calypso_serial.inc
 # compile for parallel queue
 # include ../../compilers/mpxlf90_calypso.inc
 
+# Macros
+# Xlf
+#CPPDEFS = -WF,"-DDEBUG"
+# gfortran & co.
+#CPPDEFS = -DDEBUG
 
 .DEFAULT:
 	-touch $@
