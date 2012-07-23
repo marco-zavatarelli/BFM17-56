@@ -94,7 +94,7 @@
 %3d-diaggrp-alloc-pointer
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Start the allocation of other benthic vairables which can vbe outputted 
+  ! Start the allocation of other benthic vairables which can be outputted 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 %2d-diaggrp-assign-pp

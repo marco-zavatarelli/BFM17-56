@@ -1087,15 +1087,22 @@ switch -- $mode {
       }
    }
    dd-flux-alloc {
+#    First check if D1SOURCE is defined, and stop
+#    fluxes cannot be stored with this option
      set nn 0
      set mm 0
-     foreach dim {2d 3d} {
-	if { [ info exists VARS($dim,$type,selec) ] } {
-	  incr nn [ llength $VARS($dim,$type,selec) ]
-	  foreach jtem $VARS($dim,$type,selec) {
-	     incr mm [ llength [ lindex $jtem 0 ] ]
-	  }
-	}
+     set i 0
+     if { [ lsearch -exact $DEFINE "D1SOURCE" ] < 0 } \
+     {
+       foreach dim {2d 3d} {
+          if { [ info exists VARS($dim,$type,selec) ] } {
+            incr nn [ llength $VARS($dim,$type,selec) ]
+            foreach jtem $VARS($dim,$type,selec) {
+               incr mm [ llength [ lindex $jtem 0 ] ]
+            }
+          }
+       }
+     if { [ info exists VARS(3d,$type,selec) ] } { set i [ llength $VARS(3d,$type,selec) ] }
      }
      PrintLine -print "allocate(flx_calc_nr(0:$nn),stat=status)"
      PrintLine -print "allocate(flx_CalcIn(1:$nn),stat=status)"
@@ -1105,13 +1112,11 @@ switch -- $mode {
      PrintLine -print "allocate(flx_states(1:$mm),stat=status)"
      PrintLine -print "allocate(flx_ostates(1:$mm),stat=status)"
      PrintLine -print "flx_calc_nr(0)=0"
-     if { [ info exists VARS(3d,$type,selec) ] } { set i [ llength $VARS(3d,$type,selec) ] } { set i 0 }
      PrintLine -print "flx_cal_ben_start=$i"
    }
    3d-flux-fill -
    2d-flux-fill {
 
-# MAV: Needs to be done better!
 #    First check if D1SOURCE is defined, and stop
 #    fluxes cannot be stored with this option
      if { [ lsearch -exact $DEFINE "D1SOURCE" ] < 0 } \
@@ -1147,7 +1152,7 @@ switch -- $mode {
      }
      set VARS(alloc,flux) [ list $i $j ]
     } else {
-            puts stdout "Warning: Cannot use the keyword 3d-flux or 2d-flux with D1SOURCE. Diagnostic skipped.";return 401
+            puts stdout "Warning: Cannot use the keyword 3d-flux or 2d-flux with D1SOURCE. Diagnostic for Fluxes are skipped."
     }
    }
    constituent {

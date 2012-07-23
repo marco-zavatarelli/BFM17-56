@@ -348,7 +348,7 @@ end
 end
 
 
-3d-flux 
+3d-flux -if-exist INCLUDE_DIAG3D
   ruPTc=P.c <- O3c:gross primary production:mg C/m3/d
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTP=P.p <- N1p : net phosphate uptake : mmol P /m3/d
@@ -360,11 +360,11 @@ end
   fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
 end
 
-3d-flux  specific
+3d-flux -if-exist INCLUDE_DIAG3D specific
   suPTc=P.c <- *:specific gross primary production: /d
 end
 		
-2d-flux
+2d-flux -if-exist INCLUDE_DIAG2D
   ruSTc= S.c <- F3c:gross primary production of seaice algae:mg C/m2/d
   ruSTn=S.n <- I3n+I4n: net nutrient uptake:mmoln /m2/d
   ruSTp=S.p <- I1p : net phosphate uptake : mmol P /m2/d

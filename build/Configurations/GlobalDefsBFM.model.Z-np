@@ -453,7 +453,7 @@ end
 end
 
 
-3d-flux 
+3d-flux -if-exist INCLUDE_DIAG3D 
   ruPTc=P.c <- *:gross primary production:mg C/m3/d
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTP=P.p <- N1p : net phosphate uptake : mmol P /m3/d
@@ -468,11 +468,11 @@ end
   fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
 end
 
-3d-flux  specific
+3d-flux -if-exist INCLUDE_DIAG3D specific
   suPTc=P.c <- *:specific gross primary production: /d
 end
 		
-3d-flux  perm2
+3d-flux -if-exist INCLUDE_DIAG2D perm2
   grsPPm2=(P.c<- *):gross primary production:mg C/m2/d
   exPPm2=(P.c->R1c+R2c+R6c): excretion phytoplankton :mg C/m2/d
   resPPm2=(P.c->*) : respiration phytoplankton :mg C/m2/d
