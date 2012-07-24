@@ -701,19 +701,18 @@ end subroutine init_netcdf_rst_bfm
 ! !LOCAL VARIABLES:
    integer                   :: iret
    integer                   :: i,j,k,n
-   real(RLEN)                  :: temp_time
+   real(RLEN)                :: temp_time
 !
 ! !REVISION HISTORY:
 !  Original author(s): Hans Burchard & Karsten Bolding
 !  Adapted to BFM: Marcello Vichi (INGV) & Piet Ruardij (NIOZ)
+!  Rev. 2012 : Tomas Lovato (CMCC)
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
-#ifdef DEBUG
-   LEVEL1 'save_bfm',time
-#endif
+   LEVEL1 'Save bfm output at ',time
 
 ! increase the time record number
    recnum = recnum + 1
@@ -732,97 +731,72 @@ end subroutine init_netcdf_rst_bfm
    iret = store_data(ncid_bfm,time_id,T_SHAPE,1,scalar=temp_time)
 
    !---------------------------------------------
-   ! Store snapshot of pelagic variables
+   ! Pelagic variables
    !---------------------------------------------
-   do n=stPelStateS,stPelStateE
-     if ( var_ids(n) > 0 ) & 
-       iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3STATE(n,:))
-   end do
-   !---------------------------------------------
-   ! Store snapshot of pelagic diagnostics
-   !---------------------------------------------
-   i=0
-   do n=stPelDiagS,stPelDiagE
-      i=i+1
-      if ( var_ids(n) > 0 .and. (.not.var_ave(n))) & 
-         iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3DIAGNOS(i,:))
-   end do
-#ifndef D1SOURCE
-   !---------------------------------------------
-   ! Store snapshot of pelagic fluxes
-   !---------------------------------------------
-   i=0
-   do n=stPelFluxS,stPelFluxE
-      i=i+1
+
+   k = 0
+   do n = stPelStateS , stPelFluxE
       if ( var_ids(n) > 0 ) then
-         call make_flux_output(1,i,1,NO_BOXES,c1dim)
-         iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)
-      end if
-   end do
+
+         !-- Store snapshot of pelagic state variables
+         if ( n >= stPelStateS .AND. n <= stPelStateE ) & 
+            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3STATE(n,:))     
+         
+         !-- Store snapshot of pelagic diagnostics
+         if ( n >= stPelDiagS .AND. n <= stPelDiagE ) then
+            i = n - stPelDiagS + 1
+            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3DIAGNOS(i,:))
+         endif
+#ifndef D1SOURCE         
+         !-- Store snapshot of pelagic fluxes
+         if ( n >= stPelFluxS .AND. n <= stPelFluxE ) then 
+            i = n - stPelFluxS + 1
+            call make_flux_output(1,i,1,NO_BOXES,c1dim)
+            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
+         endif
 #endif
+         if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
+            k=k+1
+            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3ave(k,:))
+         endif
+ 
+      endif
+   enddo
+
    !---------------------------------------------
-   ! Store mean values of (any) pelagic entity
+   ! Benthic variables
    !---------------------------------------------
    k=0
-   do n=stPelStateS,stPelFluxE
-      if ( var_ids(n) > 0 .and.var_ave(n) ) then
-         k=k+1
-         iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3ave(k,:))
-      endif
-   end do
+   do n = stBenStateS , stBenFluxE
+      if ( var_ids(n) > 0 ) then   
 
-! MAV: we need to solve the storage of 2D diagnostics
-!      going through all these loops is probably too expensive
-!   if (bio_setup>1) then
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-      !---------------------------------------------
-      ! Store snapshot of benthic variables
-      !---------------------------------------------
-      i=0
-      do n=stBenStateS,stBenStateE
-         i=i+1
-         if ( var_ids(n) > 0 ) &
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
-      end do
-#endif
-      !---------------------------------------------
-      ! Store snapshot of benthic diagnostics
-      !---------------------------------------------
-      i=0
-      do n=stBenDiagS,stBenDiagE
-         i=i+1
-         if ( var_ids(n) > 0 ) &
+         ! Store snapshot of benthic diagnostics
+         if ( n >= stBenDiagS .AND. n <= stBenDiagE) then   
+            i = n - stBenDiagS + 1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-      end do
+         end if
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-      !---------------------------------------------
-      ! Store mean values of (any) benthic entity
-      !---------------------------------------------
-      k=0
-      do n=stBenStateS,stBenFluxE
-         if ( var_ids(n) > 0 .and. var_ave(n)) then
+         ! Store snapshot of benthic state variables
+         if ( n >= stBenStateS .AND. n <= stBenStateE ) then
+            i = n - stBenStateS + 1
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
+         end if
+#ifndef D1SOURCE 
+         ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
+         if ( n >= stBenFluxS .AND. n <= stBenFluxE ) then
+            i = n - stBenFluxS + 1 
+            call make_flux_output(2,i,1,NO_BOXES_XY, c1dim)
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim) 
+         end if 
+#endif
+         ! Store mean values of (any) benthic entity
+         if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
-         endif
-      end do 
+         end if
 #endif
-!   end if
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-#ifndef D1SOURCE
-   !---------------------------------------------
-   ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
-   !---------------------------------------------
-   i=0
-   do n=stBenFluxS,stBenFluxE
-      i=i+1
-      if ( var_ids(n) > 0 ) then
-          call make_flux_output(2,i,1,NO_BOXES_XY, c1dim)
-          iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim)
-      endif
-   end do
-#endif
-#endif
-
+      end if
+   enddo
 
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret)
