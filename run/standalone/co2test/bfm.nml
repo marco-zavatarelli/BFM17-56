@@ -55,7 +55,7 @@
    out_fname = 'BFM_standalone_co2test'
      out_dir = '.'
    out_title = 'BFM_CO2'
-   out_delta = 300 ! every 30 days
+   out_delta = 30 ! every 30 days
 /
 
 !-------------------------------------------------------------------------!
@@ -92,7 +92,7 @@
 !var_save: instantaneous value at the output interval
 !-------------------------------------------------------------------------!
 &bfm_save_nml
-   var_save = 'EIR','ETW',
+   var_save = 'EIR','ETW','O2o','jsurO2o',
           'O3c','O3h','DIC','EPCO2air',
           'pH','CO2','pCO2','HCO3','CO3','CO2airflux',
 /

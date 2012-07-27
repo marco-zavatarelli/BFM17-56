@@ -64,7 +64,11 @@
       DO j=1,NO_D3_BOX_STATES
          IF(D3STATETYPE(j).ge.0) THEN
 #ifdef ONESOURCE
+#ifdef D1SOURCE
+            ccc_tmp3D(j,:) = bbccc3D(j,:) + delt * D3SOURCE(j,:)
+#else
             ccc_tmp3D(j,:) = bbccc3D(j,:) + delt*sum(D3SOURCE(j,:,:),1)
+#endif
 #else
             ccc_tmp3D(j,:) = bbccc3D(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
 #endif
@@ -144,8 +148,12 @@
             sum((D2SOURCE-D2SINK),2)*.5*delt*(1./n**2-1./n)
 #endif
 #ifdef ONESOURCE
+#ifdef D1SOURCE
+         bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2) + D3SOURCE*.5*delt*(1./n**2-1./n)
+#else
          bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2)+ &
             sum(D3SOURCE,2)*.5*delt*(1./n**2-1./n)
+#endif
 #else
          bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2)+ &
             sum((D3SOURCE-D3SINK),2)*.5*delt*(1./n**2-1./n)

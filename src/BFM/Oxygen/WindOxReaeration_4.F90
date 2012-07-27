@@ -26,7 +26,7 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use constants, ONLY: HOURS_PER_DAY,ZERO_KELVIN,MW_C
-  use global_mem, ONLY: RLEN,ZERO,ONE
+  use global_mem, ONLY: RLEN,ZERO,ONE,LOGUNIT
 #ifdef NOPOINTERS
   use mem
 #else
@@ -91,7 +91,7 @@
   real(RLEN),parameter  :: CM2M=0.01_RLEN
   integer, save :: first=0
   real(RLEN),allocatable,save,dimension(:) :: pschmidt,temp2,bt,  &
-                                         ken,O2AIRFlux,ScRatio
+                                         kun,O2AIRFlux,ScRatio
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BEGIN compute
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -104,8 +104,8 @@
       if (AllocStatus  /= 0) stop "error allocating temp2"
       allocate(bt(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating bt"
-      allocate(ken(NO_BOXES_XY),stat=AllocStatus)
-      if (AllocStatus  /= 0) stop "error allocating ken"
+      allocate(kun(NO_BOXES_XY),stat=AllocStatus)
+      if (AllocStatus  /= 0) stop "error allocating kun"
       allocate(O2AIRFlux(NO_BOXES_XY),stat=AllocStatus)
       if (AllocStatus  /= 0) stop "error allocating O2AIRFlux"
       allocate(ScRatio(NO_BOXES_XY),stat=AllocStatus)
@@ -129,19 +129,11 @@
     !
     ! ScRatio is limited to 0 when T > 40 °C 
     WHERE(ScRatio .le. 0.0_RLEN); ScRatio=0.0_RLEN ; END WHERE
-    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ! Compute Chemical enhancement the Temperature dependent
-    ! gas transfer 
-    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    bt = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2)
-    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ! Calculate wind dependency + Chemical enhancement
-    ! including conversion cm/hr => m/day :
-    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    ken = (bt + d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
     !
-    !Alternative way, without enhancement
-    !ken = (d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    ! Calculate wind dependency, including conversion cm/hr => m/day :
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    kun = (d*wind*wind)*sqrt(ScRatio)* CM2M*HOURS_PER_DAY
     !
     ! This is the old formulation used before 2012 modifications
     !kun_old = (0.074E00_RLEN*wind*wind)*sqrt(O2SCHMIDT/pschmidt)
@@ -151,7 +143,7 @@
     ! computed using ETW
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     !
-    O2AIRFlux = (ONE-ice(:)) * ken * ( cxoO2(SRFindices)- O2o(SRFindices)) 
+    O2AIRFlux = (ONE-ice(:)) * kun * ( cxoO2(SRFindices)- O2o(SRFindices)) 
     ! Update flux
     jsurO2o  = jsurO2o + O2AIRFlux
     ! Convert to mmol/m2/day
@@ -160,9 +152,11 @@
         call flux_vector( iiPel, ppO2o, ppO2o, tmpflux ) 
     end if
 #ifdef DEBUG
-    write(*,*) ' Oxygen Reareation'
-    write(*,*) 'O2 flux [mmol/m3/day]', jsurO2o, 'ken: ',ken
-    write(*,*)
+    write(LOGUNIT,*) ' Oxygen Reareation'
+    write(LOGUNIT,*) 'Idx: ', SRFindices(1),'DOSat ',cxoO2(1),' DOwater ',O2o(1)
+    write(LOGUNIT,*) 'O2 flux', jsurO2o(1),' Depth ',Depth(1),' ken ', ken(1)
+    write(LOGUNIT,*) 'New Flux ', O2AIRFlux(1), ' wind ', wind(1),' temp ',temp(1)
+    write(LOGUNIT,*)
 #endif
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   return

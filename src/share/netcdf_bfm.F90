@@ -16,6 +16,7 @@
    use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
    use global_mem, only: RLEN,LOGUNIT,bfm_lwp
+   use constants, ONLY: SEC_PER_DAY
    use netcdf
    implicit none
 !
@@ -711,9 +712,9 @@ end subroutine init_netcdf_rst_bfm
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-
-   LEVEL1 'Save bfm output at ',time
-
+#ifndef BFM_STANDALONE
+   LEVEL1 'Save bfm output at ',time/SEC_PER_DAY
+#endif
 ! increase the time record number
    recnum = recnum + 1
 
