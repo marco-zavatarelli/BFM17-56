@@ -96,14 +96,12 @@
    if (CalcPelagicFlag .AND. .NOT.CalcTransportFlag) then
       do j=1,NO_D3_BOX_STATES
          if (D3STATETYPE(j).ge.0) then
-#if defined ONESOURCE
-
-#ifndef D1SOURCE
-            D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:),1)
+#ifdef ONESOURCE
+#ifdef D1SOURCE
+            D3State(j,:) = D3STATE(j,:) + delt*D3SOURCE(j,:)
 #else
-            D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:),1)
+            D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:),1)
 #endif            
-
 #else
             D3State(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
 #endif
@@ -115,6 +113,11 @@
       do j=1,NO_D2_BOX_STATES
          if (D2STATETYPE(j).ge.0) then
 #ifdef ONESOURCE
+#ifdef D1SOURCE
+            D2STATE(j,:) = D2STATE(j,:) + delt*D2SOURCE(j,:)
+#else
+            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:),1)
+#endif
 #else
             D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
 #endif

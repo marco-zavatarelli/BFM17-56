@@ -86,7 +86,7 @@ IMPLICIT NONE
     real(RLEN),parameter  :: C2=125.62_RLEN
     real(RLEN),parameter  :: C3=3.6276_RLEN
     real(RLEN),parameter  :: C4=0.043219_RLEN
-    real(RLEN),parameter  :: CO2SCHMIDT=660._RLEN
+    real(RLEN),parameter  :: CO2SCHMIDT=660.0_RLEN
     real(RLEN),parameter  :: d=0.31_RLEN
     real(RLEN),parameter  :: CM2M=0.01_RLEN
     integer, save :: first=0

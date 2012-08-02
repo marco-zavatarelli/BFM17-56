@@ -102,14 +102,14 @@ SUBROUTINE trc_trp_bfm( kt )
             END IF
 #endif
 
+            dummy(:) = ZERO
+            ! sum all the rates
 #if defined D1SOURCE
             dummy(:) = D3SOURCE(m,:)
 #else
-            ! sum all the rates (loop is faster than intrinsic sum)
-            dummy(:) = ZERO
             do k=1,NO_D3_BOX_STATES
                do n=1,NO_BOXES
-#if defined ONESOURCE
+#ifdef ONESOURCE
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n)
 #else
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n) - D3SINK(m,k,n)
@@ -118,6 +118,7 @@ SUBROUTINE trc_trp_bfm( kt )
             end do
 #endif
 
+            ! Add biogeochemical trends
 #ifdef USEPACK
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
 #else

@@ -86,7 +86,7 @@
   real(RLEN),parameter  :: C2=128.0_RLEN
   real(RLEN),parameter  :: C3=3.9918_RLEN
   real(RLEN),parameter  :: C4=0.050091_RLEN
-  real(RLEN),parameter  :: O2SCHMIDT=660._RLEN
+  real(RLEN),parameter  :: O2SCHMIDT=660.0_RLEN
   real(RLEN),parameter  :: d=0.31_RLEN
   real(RLEN),parameter  :: CM2M=0.01_RLEN
   integer, save :: first=0

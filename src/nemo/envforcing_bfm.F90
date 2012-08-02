@@ -25,9 +25,8 @@
 ! OPA modules
    use oce_trc
    use trc_oce, only: etot3
-   USE sbcapr,  only: apr
-! Tom : may not work with ORCA
-#ifdef USE_MFSBULK
+! MFS bulk 
+#if defined  INCLUDE_PELCO2 && defined USE_MFSBULK
    use sbcblk_mfs, ONLY: sf 
 #endif
 

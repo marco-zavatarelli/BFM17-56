@@ -80,8 +80,10 @@
   ! calculate oxygen OxygenReaeration
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   call  CalcOxygenSaturation( )
-  call OxygenReaerationDynamics
 
+  if ( CalcPelChemistry) then
+     call OxygenReaerationDynamics
+  endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! This part is executed if Optimal Irradiance is used
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

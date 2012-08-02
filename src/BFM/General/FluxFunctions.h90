@@ -460,9 +460,9 @@
          if ( mode==0)  return
          if ( sum(abs(flux)/(1.0D-80+abs(collect))-1.0D+00)> 1.0D-6) then
               if ( iiSub==-iiN) then
-                write(LOGUNIT,'(''Warning: N:C quotumn not fixed'')')
+                write(LOGUNIT,'(''Warning: N:C quotum not fixed'')')
               elseif (iiSub==-iiP) then
-                write(LOGUNIT,'(''Warning: P:C quotumn not fixed'')')
+                write(LOGUNIT,'(''Warning: P:C quotum not fixed'')')
               endif
               return
          endif

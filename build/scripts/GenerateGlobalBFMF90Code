@@ -1029,6 +1029,8 @@ switch -- $mode {
 	 set tmp SOURCE
          puts $VARS(file) "#ifdef D1SOURCE"
 	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_STATES,1:NO_BOXES$j),stat=status)"
+         PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D$i$tmp\")"
+         PrintLine -print "D$i$tmp = ZERO"
          puts $VARS(file) "#else"
 	 PrintLine -print "allocate(D$i${tmp}(1:NO_D${i}_BOX_STATES,1:NO_D${i}_BOX_STATES,1:NO_BOXES$j),stat=status)"
 	 PrintLine -print "if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D$i$tmp\")"
