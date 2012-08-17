@@ -36,7 +36,7 @@
     EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPI, sunPI, NO_BOXES_XY, &
     iiBen, flux_vector, sourcesink_flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag 
+  use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag 
   use mem_Seaicealgae
 
 
@@ -237,7 +237,7 @@
   eiSI(phyto,:) = ( ONE- exp( - qlSc(phyto, :)* p_alpha_chl(phyto)/ &
       p_sum(phyto)* Irr))
 
-  select case ( LightForcingFlag)
+  select case ( ProductionLightFlag)
     case ( 1 )
       sum  =   p_sum(phyto)* et* eiSI(phyto,:)   *  eI5s
 

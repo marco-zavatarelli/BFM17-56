@@ -139,7 +139,7 @@
   ! 0d-parameter used in pelagic submodel
   integer   :: &
       ChlLightFlag=2  ,  &  ! Switch between light prop.(=1) or Chla.(=2) as a state
-      LightForcingFlag=1,&  ! Switch between instantaneous light and day light average
+      ProductionLightFlag=1,&  ! Switch between instantaneous light and day light average
       LightLocationFlag=3   ! Switch between different depth-parameterizations
   ! 1d-parameter used in pelagic submodel
   real(RLEN)   :: &
@@ -183,7 +183,7 @@
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
     CalcPelChemistry,CalcMesoZooPlankton, CalcBacteria,                       &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
-    p_PAR, slp0, ChlLightFlag, LightForcingFlag, LightLocationFlag,           &
+    p_PAR, slp0, ChlLightFlag, ProductionLightFlag, LightLocationFlag,           &
     p_qchlc, p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,   &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
 #ifdef INCLUDE_BEN
