@@ -235,12 +235,18 @@
               j = ppPhytoPlankton(i,iiL)
               call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                 Depth(kbot) )
-              if ( i== iiP1) then
-                !No Y3.s defined, all silicate uptaken is moved into sink
-                j = ppPhytoPlankton(i,iiS)
+              j = ppPhytoPlankton(i,iiS)
+              if ( j> 0) then
                 call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
                   Depth(kbot) )
               end if
+#ifdef INCLUDE_PELFE
+              j = ppPhytoPlankton(i,iiF)
+              if ( j> 0) then
+                call flux(kbot, iiPel, j, j, PELBOTTOM(j,BoxNumberXY)/ &
+                  Depth(kbot) )
+              end if
+#endif
         end do
 
         do i = 1 , ( iiMicroZooPlankton)

@@ -135,8 +135,6 @@
                ruQ1c  =   p_pe_R1c* ruQIc
                ruQ6c  =   ruQIc- ruQ1c
                PELBOTTOM(j,BoxNumberXY)=  - ruQIc
-               call flux(BoxNumberXY, iiPel, ppR1c, ppR1c, ruQ1c/ Depth(kbot) )
-               call flux(BoxNumberXY, iiPel, ppR6c, ppR6c, ruQ6c/ Depth(kbot) )
                jbotR1c(BoxNumberXY)  =   jbotR1c(BoxNumberXY)- ruQ1c
                jbotR6c(BoxNumberXY)  =   jbotR6c(BoxNumberXY)- ruQ6c
                ! Phytoplankton nitrogen
@@ -146,8 +144,6 @@
                ruQ1n  =   p_pe_R1n* ruQIn
                ruQ6n  =   ruQIn- ruQ1n
                PELBOTTOM(j,BoxNumberXY)=  - ruQIn
-               call flux(BoxNumberXY, iiPel, ppR1n, ppR1n, ruQ1n/ Depth(kbot) )
-               call flux(BoxNumberXY, iiPel, ppR6n, ppR6n, ruQ6n/ Depth(kbot) )
                jbotR1n(BoxNumberXY)  =   jbotR1n(BoxNumberXY)- ruQ1n
                jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
                ! Phytoplankton phosphorus
@@ -157,8 +153,6 @@
                ruQ1p  =   p_pe_R1p* ruQIp
                ruQ6p  =   ruQIp- ruQ1p
                PELBOTTOM(j,BoxNumberXY)= - ruQIp
-               call flux(BoxNumberXY, iiPel, ppR1p, ppR1p, ruQ1p/ Depth(kbot) )
-               call flux(BoxNumberXY, iiPel, ppR6p, ppR6p, ruQ6p/ Depth(kbot) )
                jbotR1p(BoxNumberXY) =jbotR1p(BoxNumberXY)- ruQ1p
                jbotR6p(BoxNumberXY) =jbotR6p(BoxNumberXY)- ruQ6p
                ! Phytoplankton chlorophyll (stored but not used)
@@ -172,7 +166,6 @@
                   lcl_PhytoPlankton => PhytoPlankton(i,iiS)
                   ruQ6s  =   sedi* lcl_PhytoPlankton(kbot)
                   PELBOTTOM(j,BoxNumberXY)  = - ruQ6s
-                  call flux(BoxNumberXY, iiPel, ppR6s, ppR6s, ruQ6s/ Depth(kbot))
                   jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
                end if
 

@@ -71,7 +71,7 @@
   real(RLEN),save :: initialc,initialn,initialp,initials
   integer         :: prec
   logical,save    :: first=.TRUE.
-  logical         :: flag
+  logical,save    :: flag=.FALSE.
   real(RLEN),parameter :: p_prec=1.e-12_RLEN
 !EOP
 !-------------------------------------------------------------------------!
@@ -196,7 +196,10 @@
         flag = .TRUE.
         write(LOGUNIT,*) "------> Change in Si larger than specified precision:",p_prec,totsyss(1)/initials-ONE
      end if
-     if (flag)    stop "Mass conservation violation in BFM! Check log file."
+     if (flag)  then
+        call flush(LOGUNIT)
+        stop "Mass conservation violation in BFM! Check log file."
+     end if
   end if
   prevsysc = totsysc(1) !first element is sufficient
   prevsysn = totsysn(1)
