@@ -69,7 +69,7 @@ subroutine analytical_forcing
       dyear=mod(dtime,360._RLEN) ! Day of the year
    end if
    wlight=light(dyear,dfrac)
-   select case(LightForcingFlag)
+   select case(ltype)
     case (3) ! light on/off distribution for daylight average
       ThereIsLight=lightAtTime(dfrac,sunq)
       wlight=wlight*ThereIsLight

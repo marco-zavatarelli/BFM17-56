@@ -39,7 +39,7 @@
 #endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlLightFlag, LightForcingFlag, p_qchlc, &
+  use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag, p_qchlc, &
                         LightLocationFlag
   use mem_Phyto
 
@@ -372,7 +372,7 @@
 
   end if
 
-  select case ( LightForcingFlag)
+  select case ( ProductionLightFlag)
     case ( 1 )
       sum  =   p_sum(phyto)* et* eiPI(phyto,:)   *  eN5s
 

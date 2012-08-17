@@ -34,7 +34,7 @@
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
-   namelist /forcings_nml/ forcing_method,lw,ls,sw,ss,tw,ts,tde, & 
+   namelist /forcings_nml/ forcing_method,ltype,lw,ls,sw,ss,tw,ts,tde, & 
             ww,ws,CO2inc,botdep_c,botdep_n,botdep_p,botdep_si,botox_o,  &
             forcing_file, seaice_file, use_external_data, data_file, &
             use_event_data, event_file

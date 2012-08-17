@@ -92,6 +92,10 @@
 !			3 = interactive fluxes (not yet implemented)
 !
 !Analytical forcing functions
+!ltype 		integer	Light forcing options:
+!			1. instantaneous light description
+!			2. constant light over 24h
+!			3. rectangular light distribution (on/off) 
 !lw		real	Sinusoidal light intensity (winter) W m^-2
 !ls		real	Sinusoidal light intensity (summer) W m^-2
 !sw		real	Sinusoidal salinity (winter)
@@ -101,7 +105,6 @@
 !tde		real	Sinusoidal temperature daily excursion degC
 !ww		real	Sinusoidal wind (winter) m/s
 !ws		real	Sinusoidal wind (summer) m/s
-!CO2inc         real    Linear increase in CO2 air partial pressure [% per year]
 !
 !Bottom boundary conditions for benthic-only simulations
 !(not used in pelagic simulations)
@@ -121,6 +124,7 @@
 !-------------------------------------------------------------------------!
 &forcings_nml
    forcing_method = 1,
+   ltype       = 2
    lw          = 20.0,
    ls          = 300.0,
    sw          = 37.0,
