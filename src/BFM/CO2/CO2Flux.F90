@@ -179,8 +179,8 @@ IMPLICIT NONE
   ! In the water, the flux is subtracted from
   ! (or added to) the diagonal element of O3c (i.e. infinite source)
   !---------------------------------------------------------------
-  jsurO3c =  (ONE-ice(:))*CO2airflux(:) * MW_C
-  tmpflux(SRFindices) = jsurO3c / Depth(SRFindices)
+  jsurO3c(:) =  jsurO3c(:) + (ONE-ice(:))*CO2airflux(:) * MW_C
+  tmpflux(SRFindices) = jsurO3c(:) / Depth(SRFindices)
   if ( AssignAirPelFluxesInBFMFlag) then
      call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
   end if
