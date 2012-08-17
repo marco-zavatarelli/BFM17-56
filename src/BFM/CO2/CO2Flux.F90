@@ -179,7 +179,7 @@ IMPLICIT NONE
   ! In the water, the flux is subtracted from
   ! (or added to) the diagonal element of O3c (i.e. infinite source)
   !---------------------------------------------------------------
-  jsurO3c(:) =  jsurO3c(:) + (ONE-ice(:))*CO2airflux(:) * MW_C
+  jsurO3c(:) = jsurO3c(:) + (ONE-ice(:)) * CO2airflux(:) * MW_C
   tmpflux(SRFindices) = jsurO3c(:) / Depth(SRFindices)
   if ( AssignAirPelFluxesInBFMFlag) then
      call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
@@ -201,7 +201,7 @@ IMPLICIT NONE
   ! AtmCO2   CO2 air Mixing Ratio                    ppmv
   ! EPCO2air Partial Pressure of atmospheric CO2     uatm
   ! EAPR     Atmospheric Sea Level Pressure          hPa
-  ! AtmTDP   Air temperature                         °C
+  ! ETDP     Air Dew Point temperature               °
   !  
   ! NOTES:
   ! The p(H2O vapor) is computed wiht August-Roche-Magnus formula,
@@ -211,8 +211,12 @@ IMPLICIT NONE
   ! Alternatively it is possible to use the formulations of Buck (1996) or
   ! Goff (1957) for water and Goff and Gratch (1946) for ice.
   !
-  use global_mem,  ONLY: ONE,ZERO,RLEN
+  use global_mem,  ONLY: ONE,ZERO,RLEN,LOGUNIT
+#ifdef NOPOINTERS
+  use mem
+#else
   use mem,         ONLY: NO_BOXES_XY, EPCO2air
+#endif
   use mem_CO2,     ONLY: AtmCO2, AtmSLP, AtmTDP, pCO2Method
   use constants,   ONLY: ZERO_KELVIN
   !
@@ -235,15 +239,17 @@ IMPLICIT NONE
   case(1)
        EPCO2air = AtmCO2%fnow * (EAPR * 100.0_RLEN) * atm2pa
 #ifdef DEBUG
-    write(*,*)
-    write(*,*) " Control on pCO2 calculation, with method : ", pCO2Method
-    write(*,*) " Atm Press: ",EAPR," CO2 ppm: ",AtmCO2%fnow," pCO2 : ", EPCO2air
-    write(*,*)
+    write(LOGUNIT,*)
+    write(LOGUNIT,*) " Control on pCO2 calculation, with method : ", pCO2Method
+    write(LOGUNIT,*) " Atm Press: ",EAPR(1)," CO2 ppm: ",AtmCO2%fnow(1)," pCO2 : ", EPCO2air(1)
+    write(LOGUNIT,*)
 #endif
     ! 
     ! pCO2 = Mixing ratio * (p(air) - p(water vapor))
   case(2)
        EATD = AtmTDP%fnow
+       ! Convert Temperature at Dew Point to Celsius degrees
+       if (EATD(1) > 200.0) EATD = EATD + ZERO_KELVIN 
        ! August-Roche-Magnus formula, with coefficients from Lawrence(2005)
        ! Input : ETDP and EAPR
        ! Partial pressure of water vapor 
@@ -251,10 +257,10 @@ IMPLICIT NONE
        ! Partial pressure of CO2 
        EPCO2air = AtmCO2%fnow * (EAPR - e) * 100.0_RLEN * atm2pa
 #ifdef DEBUG
-    write(*,*)
-    write(*,*) " Control on pCO2 calculation, with method : ", pCO2Method
-    write(*,*) " Atm Press: ",EAPR," CO2 ppm: ",AtmCO2%fnow," pCO2 : ", EPCO2air
-    write(*,*) " e (pH2Ovapor): ",e," T dew point :", EATD
+    write(LOGUNIT,*)
+    write(LOGUNIT,*) " Control on pCO2 calculation, with method : ", pCO2Method
+    write(LOGUNIT,*) " Atm Press: ",EAPR(1)," CO2 ppm: ",AtmCO2%fnow(1)," pCO2 : ", EPCO2air(1)
+    write(LOGUNIT,*) " e (pH2Ovapor): ",e(1)," T dew point :", EATD(1)
 #endif
   end select
 !EOC

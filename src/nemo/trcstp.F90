@@ -51,12 +51,12 @@ CONTAINS
       !---------------------------------------------
       IF (bio_calc) THEN
 
-!          IF ( nn_dttrc /= 1 )     CALL trc_sub_stp( kt )  ! averaging physical variables for sub-stepping
+          IF ( nn_dttrc /= 1 )     CALL trc_sub_stp( kt )  ! averaging physical variables for sub-stepping
 
           !---------------------------------------------
           ! Proceed only every nn_dttrc
           !---------------------------------------------   
-!          IF ( MOD( kt , nn_dttrc ) == 0 ) THEN  
+          IF ( MOD( kt , nn_dttrc ) == 0 ) THEN  
 
                                    CALL trc_bfm( kt )           ! main call to BFM
 
@@ -64,9 +64,9 @@ CONTAINS
           
                                    CALL trc_dia_bfm( kt )       ! diagnostic output for BFM
           
-!          IF ( nn_dttrc /= 1 )     CALL trc_sub_reset( kt )       ! resetting physical variables when sub-stepping
+          IF ( nn_dttrc /= 1 )     CALL trc_sub_reset( kt )       ! resetting physical variables when sub-stepping
 
-!          ENDIF 
+          ENDIF 
 
       END IF
       FLUSH(LOGUNIT)

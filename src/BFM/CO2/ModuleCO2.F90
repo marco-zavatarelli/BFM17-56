@@ -198,6 +198,7 @@
              write(LOGUNIT,*) ' '
        else
           pCO2Method = 1
+          write(LOGUNIT,*) 'pCO2Method is forced to 1 beacuse AtmTDP%init is set to 0.'
        endif
     endif
 
@@ -213,7 +214,8 @@
     end select
     
     if (calcAtmpCO2) write(LOGUNIT,*) 'BFM computes pCO2 with method: ', pCO2Method
-
+    if (AtmSLP%init == 4 ) write(LOGUNIT,*) 'SLP is provided by external model.' 
+    if (AtmTDP%init == 4 ) write(LOGUNIT,*) 'TDP is provided by external model.' 
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
     write(LOGUNIT,*)
 

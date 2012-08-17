@@ -96,7 +96,7 @@ CONTAINS
 !      IF( ln_zps .AND. .NOT. lk_c1d )   &              ! Partial steps: before horizontal gradient of passive
 !        &    CALL zps_hde( nit000, jptra, trn, gtru, gtrv )       ! tracers at the bottom ocean level
       !
-!      IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
+      IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
       !
       
    END SUBROUTINE trc_init
