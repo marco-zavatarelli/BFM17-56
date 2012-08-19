@@ -143,11 +143,11 @@
     ! computed using ETW
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     !
-    O2AIRFlux = (ONE-ice(:)) * kun * ( cxoO2(SRFindices)- O2o(SRFindices)) 
+    O2AIRFlux(:) = (ONE-ice(:)) * kun * ( cxoO2(SRFindices)- O2o(SRFindices)) 
     ! Update flux
-    jsurO2o  = jsurO2o + O2AIRFlux
+    jsurO2o(:)  = jsurO2o(:) + O2AIRFlux(:)
     ! Convert to mmol/m2/day
-    tmpflux(SRFindices) = jsurO2o / Depth(SRFindices)
+    tmpflux(SRFindices) = jsurO2o(:) / Depth(SRFindices)
     if ( AssignAirPelFluxesInBFMFlag) then
         call flux_vector( iiPel, ppO2o, ppO2o, tmpflux ) 
     end if

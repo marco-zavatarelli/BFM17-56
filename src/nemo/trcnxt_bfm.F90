@@ -238,23 +238,28 @@ CONTAINS
       INTEGER ::   ji, jj, jk      ! dummy loop indices
 
       ! check consitency of indeces
-     if ( kt == 1 ) then
-      WRITE(numout,*) 'Enter OBC tom for BFM tracer: ',m
-      WRITE(numout,*) 'Check indexes for ', narea
-      WRITE(numout,*) 'Flag: ',lp_obc_west,' West  :',fs_niw0, fs_niw1
-      WRITE(numout,*) 'Flag: ',lp_obc_east,' East  :',fs_nie0, fs_nie1
-      WRITE(numout,*) 'Flag: ',lp_obc_north,' North :',fs_njn0, fs_njn1
-      WRITE(numout,*) 'Flag: ',lp_obc_south,' South :',fs_njs0, fs_njs1
-     endif
+!     if ( kt == 1 ) then
+!      WRITE(numout,*) 'Enter OBC tom for BFM tracer: ',m
+!      WRITE(numout,*) 'Check indexes for ', narea
+!      WRITE(numout,*) 'Flag: ',lp_obc_west,' West  :',fs_niw0, fs_niw1
+!      WRITE(numout,*) 'Flag: ',lp_obc_east,' East  :',fs_nie0, fs_nie1
+!      WRITE(numout,*) 'Flag: ',lp_obc_north,' North :',fs_njn0, fs_njn1
+!      WRITE(numout,*) 'Flag: ',lp_obc_south,' South :',fs_njs0, fs_njs1
+!     endif
       ! Set Western boundary value
      if ( lp_obc_west ) then
          DO ji = fs_niw0, fs_niw1 ! Vector opt.
             DO jk = 1, jpkm1
                DO jj = 1, jpj
-                tra(ji,jj,jk,1) = tra(ji+1,jj,jk,1) *  twmsk(jj,jk)
-                if (tra(ji,jj,jk,1)== 0 .and. twmsk(ji,jk)==1) then
-                    tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
-      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' East.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                if ( twmsk(ji,jk) == 1 ) then
+                   ! set equal to first inner domain cell (no gradient)
+                   if ( tra(ji+1,jj,jk,1) /= 0 ) then
+                      tra(ji,jj,jk,1) = tra(ji+1,jj,jk,1)
+                   ! set equal to the one of the upper level
+                   elseif ( tra(ji+1,jj,jk,1) == 0 ) then
+                      tra(ji,jj,jk,1) = tra(ji,jj,jk-1,1)
+!         if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' East.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                   endif
                 endif
 !                  ta(ji,jj,jk) = ta(ji,jj,jk) * (1. - twmsk(jj,jk)) + &
 !                                 tfow(jj,jk)*twmsk(jj,jk)
@@ -267,11 +272,16 @@ CONTAINS
       DO ji = fs_nie0+1, fs_nie1+1 ! Vector opt.
          DO jk = 1, jpkm1
              DO jj = 1, jpj
-                tra(ji,jj,jk,1) = tra(ji-1,jj,jk,1) *  temsk(jj,jk)
-                if (tra(ji,jj,jk,1)== 0 .and. temsk(ji,jk)==1) then
-                    tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
-      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' East.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
-                endif
+                if ( temsk(ji,jk) == 1 ) then
+                   ! set equal to first inner domain cell (no gradient)
+                   if ( tra(ji-1,jj,jk,1) /= 0) then
+                      tra(ji,jj,jk,1) = tra(ji-1,jj,jk,1)
+                   ! set equal to the one of the upper level
+                   elseif ( tra(ji-1,jj,jk,1) == 0 ) then
+                      tra(ji,jj,jk,1) = tra(ji,jj,jk-1,1)
+!         if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' East.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                   endif
+                endif 
 !                tra(ji,jj,jk,1) = tra(ji,jj,jk,1) * (1. - temsk(jj,jk)) + &
 !                                    trfoe(jj,jk)*temsk(jj,jk)
              END DO
@@ -283,10 +293,15 @@ CONTAINS
       DO jj = fs_njn0+1, fs_njn1+1  ! Vector opt.
           DO jk = 1, jpkm1
               DO ji = 1, jpi
-                 tra(ji,jj,jk,1)= tra(ji,jj-1,jk,1) * tnmsk(ji,jk)
-                 if (tra(ji,jj,jk,1)== 0 .and. tnmsk(ji,jk)==1) then
-                     tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
-      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' North.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                 if ( tnmsk(ji,jk) == 1 ) then 
+                   ! set equal to first inner domain cell (no gradient)
+                    if ( tra(ji,jj-1,jk,1) /= 0) then
+                       tra(ji,jj,jk,1) = tra(ji,jj-1,jk,1)
+                   ! set equal to the one of the upper level
+                    elseif ( tra(ji,jj-1,jk,1) == 0 ) then
+                       tra(ji,jj,jk,1) = tra(ji,jj,jk-1,1)
+!      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' North.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                    endif
                  endif
 !                 tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tnmsk(ji,jk)) + &
 !                               tnmsk(ji,jk) * trfon(ji,jk)
@@ -299,10 +314,15 @@ CONTAINS
       DO jj = fs_njs0, fs_njs1  ! Vector opt.
           DO jk = 1, jpkm1
              DO ji = 1, jpi
-                tra(ji,jj,jk,1)= tra(ji,jj+1,jk,1) * tsmsk(ji,jk)
-                if (tra(ji,jj,jk,1)== 0 .and. tsmsk(ji,jk)==1) then
-                    tra(ji,jj,jk,1)=tra(ji,jj,jk-1,1)
-      if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' South.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                if ( tsmsk(ji,jk) == 1 ) then
+                   ! set equal to first inner domain cell (no gradient)
+                   if ( tra(ji,jj+1,jk,1) /= 0 )  then
+                      tra(ji,jj,jk,1) = tra(ji,jj+1,jk,1)
+                   ! set equal to the one of the upper level
+                   elseif ( tra(ji,jj+1,jk,1) == 0 ) then 
+                      tra(ji,jj,jk,1) = tra(ji,jj,jk-1,1)
+!         if (kt == 1) WRITE(numout,*) 'Step :',kt,' Fault at ',narea,' South.',ji,jj,jk,' Used  ', tra(ji,jj,jk,1)
+                   endif
                 endif
 !                tra(ji,jj,jk,1)= tra(ji,jj,jk,1) * (1.-tsmsk(ji,jk)) + &
 !                              tsmsk(ji,jk) * trfos(ji,jk)
@@ -343,7 +363,7 @@ CONTAINS
       ENDIF
 
 
-   if (kt == 1) WRITE(numout,*) 'OBC tom done.'
+!   if (kt == 1) WRITE(numout,*) 'OBC tom done.'
 
    END SUBROUTINE obc_trc_bfm_tom
 #endif
