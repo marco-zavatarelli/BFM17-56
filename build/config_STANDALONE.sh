@@ -27,12 +27,14 @@
 # exe           : default location of the BFM standalone executable
 # -----------------------------------------------------
 myGlobalDef="GlobalDefsBFM.model.standard"
-cppdefs="-DBFM_STANDALONE"
+cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
 
 archfile="${BFMDIR}/compilers/gfortran.inc"
 exe=${BFMDIR}/bin/bfm_standalone.x
 #----------------- User configuration -----------------
 #set -xv
+cp="cp"
+mv="mv"
 
 # Control if BFMDIR is defined among environment variables
 if [ "${BFMDIR}" = "" ]; then
@@ -51,13 +53,17 @@ fi
 
 cd ${BLDDIR}
 
-# generate BFM files
-${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code  ${cppdefs} \
+${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
           -read ${BFMDIR}/build/Configurations/${myGlobalDef} \
           -from ${BFMDIR}/src/BFM/proto \
-          -to ${BFMDIR}/src/BFM/General -actions statemem allocmem netcdfmem \
-          -to ${BFMDIR}/src/BFM/include -actions headermem \
-          -to ${BFMDIR}/src/share -actions initmem
+          -to ${BFMDIR}/build/${BLDDIR} -actions statemem allocmem netcdfmem \
+          -to ${BFMDIR}/build/${BLDDIR} -actions headermem \
+          -to ${BFMDIR}/build/${BLDDIR} -actions initmem
+
+# Move BFM Layout files to target folders
+${cp} ${BFMDIR}/build/${BLDDIR}/*.F90 ${BFMDIR}/src/BFM/General
+${mv} ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
+${cp} ${BFMDIR}/build/${BLDDIR}/INCLUDE.h ${BFMDIR}/src/BFM/include
 
 # list files
 find ${BFMDIR}/src/BFM/General -name "*.?90" -print > BFM.lst

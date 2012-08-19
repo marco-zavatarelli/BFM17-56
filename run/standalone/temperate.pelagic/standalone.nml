@@ -132,8 +132,8 @@
    tw          = 8.0,
    ts          = 24.0,
    tde         = 1.0,
-   ww          = 1.3,
-   ws          = 0.9,
+   ww          = 15.0,
+   ws          = 7.0,
    botdep_c    = 0.0
    botdep_n    = 0.0
    botdep_p    = 0.0
