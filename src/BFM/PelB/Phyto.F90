@@ -524,7 +524,7 @@
   call flux_vector( iiPel, ppN3n,ppphyton, runn3 )  ! source/sink.n
   call flux_vector( iiPel, ppN4n,ppphyton, runn4 )  ! source/sink.n
   tmp = - runn*( ONE- r)
-  call flux_vector(iiPel, ppphyton,ppN4n,tmp)  ! source/sink.n
+  call flux_vector(iiPel, ppphyton,ppR1n,tmp)  ! source/sink.n
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
@@ -541,7 +541,7 @@
   tmp = runp*r
   call flux_vector( iiPel, ppN1p,ppphytop, tmp )  ! source/sink.p
   tmp = - runp*( ONE- r)
-  call flux_vector(iiPel, ppphytop,ppN1p, tmp)  ! source/sink.p
+  call flux_vector(iiPel, ppphytop,ppR1p, tmp)  ! source/sink.p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
@@ -574,23 +574,16 @@
     select case (silica_control)
 
     case (1)
-
-     ! Net uptake of silicate
-     runs = max(ZERO, p_qsRc(phyto) * run )
+     ! Gross uptake of silicate
+     runs = max(ZERO, p_qsRc(phyto) * (sum-srs) * phytoc)
      call flux_vector( iiPel, ppN5s,ppphytos, runs)
-     ! The fixed loss rate for basal respiration is maintained to have 
-     ! constant Si:C quota in the absence of production
-     call flux_vector( iiPel, ppphytos, ppR6s, +( srs* phytos ) )
     case (2)
-
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       !  Nutrient uptake
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       miss  =   sadap*( p_xqs(phyto)* p_qsRc(phyto)* phytoc- phytos)  ! intracellular missing Si
       rups  =   (run* p_qsRc(phyto)-( sdo+ srs)* phytos)  ! Si uptake based on C uptake
       runs  =   min(  rums,  rups+ miss)  ! actual uptake
-
       call flux_vector( iiPel, ppN5s,ppphytos, runs* insw_vector(runs) )  ! source/sink.c
       call flux_vector(iiPel, ppphytos,ppN5s,- runs*insw_vector(-runs))  ! source/sink.c
     end select
@@ -598,7 +591,7 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Losses of Si (lysis)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    call flux_vector( iiPel, ppphytos, ppR6s, +( (sdo+ srs)* phytos ) )
+    call flux_vector( iiPel, ppphytos, ppR6s, sdo*phytos )
   endif
 
 #ifdef INCLUDE_PELFE

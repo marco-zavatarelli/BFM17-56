@@ -1,0 +1,97 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!BOP
+!
+! ROUTINE: CO2
+!
+! DESCRIPTION
+!   List of parameters values
+!
+! INTERFACE
+! parameter values for mem_CO2 filled by InitCO2
+!
+!
+! AUTHORS
+!   the BFM team
+!
+! COPYING
+!   
+!   Copyright (C) 2007 P. Ruardij, M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
+!EOP
+!-------------------------------------------------------------------------!
+!BOC
+
+&CO2_parameters
+! Initial CO2 concentration in the air [ppm]
+   AtmCO20 = 370.0E0
+! Compute the partial pressure of Atmospheric CO2
+   calcAtmpCO2 = .FALSE.
+   pCO2Method = 1  ! 1=MixRatio*slp, 2=Magnus formula 
+!-----------------------------------------------------------------------------------!
+! Read external data for atmospheric CO2 values  
+          ! Read  !   File   ! NetCDF  !  Var    !  RefTime   ! Input      !   Time   !
+          ! Input !   name   ! Logical !  name   !  yyyymmdd  ! Frequency  !  interp  !
+!AtmCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.nc' , .TRUE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.  
+!AtmCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.  
+! Read external data for atmospheric SLP 
+AtmSLP_N  =    0  , 'AtmSLP.nc' , .TRUE.  ,'AtmSLP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.  
+AtmTDP_N  =    0  , 'AtmTDP.nc' , .TRUE.  ,'AtmTDP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.  
+!-----------------------------------------------------------------------------------!
+
+! Initial pH value
+   phstart = 8.10E0
+
+! Choice of the acidity constants parameterization
+! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale
+! K1K2==2 Default
+!         Mehrbach et al (1973) refit by Dickson & Millero (1987)
+!         OCMIP STANDARD; pH on Sea Water Scale
+! K1K2==3 Mehrbach et al (1973) refit by Lueker et al. (2000)
+!         pH on total scale
+! K1K2==4 Hansson (1973b) data as refitted by Dickson and 
+!         Millero (1987); pH on Sea Water Scale
+   K1K2 = 2
+
+! Choice of [H+] numerical computation
+! MethodCalcCO2=1 Approximate static solution
+! MethodCalcCO2=2 Default. Standard OCMIP iteration
+! MethodCalcCO2=3 Follows et al., Ocean Modelling 2006
+!
+! Parameters for MethodCalcCO2=2
+! M2XACC    :  accuracy of the iterative scheme for OCMIP (default 1.E-10)
+! M2PHDELT  :  delta of pH for the root search (realized pH+/-DELT)
+!              in the OCMIP scheme (default 0.5)
+! M2MAXIT   :  maximum number of iterations for OCMIP (default 100 )
+!
+   MethodCalcCO2 = 2
+          M2XACC = 1.0E-10
+        M2PHDELT = 0.3
+         M2MAXIT = 100
+!
+! Calcium ion concentration
+!     [from : "Seawater : Its composition, properties and behaviour"
+!      (2nd Edition), Open University Course Team, 1995]
+!     seawater concentration    = 412 mg / l
+!     atomic weight             = 40.078 g / mol
+!     therefore, concentration  = 10.279 mmol / l
+!                               = 10.279 mol / m3
+        Caconc0 = 10.279E0
+! Normalize Calcium ion concentration by sea water salinity
+        Canorm  = .TRUE.
+/
+
+!EOC
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model 
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
