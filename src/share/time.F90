@@ -31,6 +31,7 @@
       integer                :: step0    ! Initial step # 
       integer                :: timestep ! Delta t
       integer                :: stepnow  ! Actual step #
+      integer                :: stepEnd  ! Actual step #
    end type TimeInfo
 !
 ! tom: maybe this structure can be used to replace maby time parameters
@@ -192,6 +193,7 @@
    bfmtime%step0    = MinN
    bfmtime%timestep = timestep
    bfmtime%stepnow  = MinN
+   bfmtime%stepEnd  = MaxN
    
    LEVEL2 'bfmtime : ', bfmtime
 

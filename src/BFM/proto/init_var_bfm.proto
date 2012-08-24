@@ -26,9 +26,10 @@
    use mem
    use mem_Phyto, ONLY: p_qnRc,p_qpRc,p_qsRc
    use constants, ONLY: HOURS_PER_DAY
-   use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc, &
-                        CalcPhytoPlankton,CalcMicroZooPlankton,          &
-                        CalcMesoZooPlankton,CalcPelChemistry,CalcBacteria
+   use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc,   &
+                        CalcPhytoPlankton,CalcMicroZooPlankton,            &
+                        CalcMesoZooPlankton,CalcPelChemistry,CalcBacteria, &
+                        CalcTransportFlag
 #ifdef INCLUDE_BEN
    use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria, CalcBacteria
    use mem_BenBac, ONLY: p_qnc,p_qpc
@@ -51,7 +52,7 @@
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
-   integer              :: icontrol,i,j,iiLastElement,n
+   integer              :: icontrol,i,j,iiLastElement,n,Flun
    integer,parameter    :: NSAVE=120  ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    character(len=64),dimension(NSAVE):: ave_save
@@ -262,17 +263,6 @@
 #endif
    end select
 
-   !---------------------------------------------
-   ! Write defined variables to stdout
-   !---------------------------------------------
-   if (setup /= 2) then
-      LEVEL3 'Pelagic variables:'
-      do n=stPelStateS,stPelStateE
-         LEVEL4 n,'  ',trim(var_names(n)),'  ',trim(var_units(n)), &
-           '  ',trim(var_long(n))
-      end do
-   endif
-
 #if defined key_obcbfm
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! All variables are inizialized on obc default
@@ -361,6 +351,30 @@
       end if
    end do
 #endif
+   
+   ! Check for transport flag
+#ifdef BFM_STANDALONE
+   D3STATETYPE(:) = NOTRANSPORT
+#else
+   if (.NOT.CalcTransportFlag) D3STATETYPE(:) = NOTRANSPORT
+#endif
+
+   !---------------------------------------------
+   ! Write defined variables to stdout
+   !---------------------------------------------
+#ifdef BFM_PARALLEL
+   Flun = LOGUNIT
+#else
+   Flun = stderr
+#endif
+   if (setup /= 2) then
+      LEVEL3 'Pelagic variables:'
+      write(Flun,155) 'ID','Var','Unit','Long Name','Transport'
+      do n=stPelStateS,stPelStateE
+         write(Flun,156) n,trim(var_names(n)),trim(var_units(n)) &
+           ,trim(var_long(n)),D3STATETYPE(n)
+      end do
+   endif
 
    return
 
@@ -368,7 +382,8 @@
     stop 'init_var_bfm'
 100 FATAL 'I could not read bfm_save_nml'
     stop 'init_var_bfm'
-
+155 FORMAT(10x,a4,1x,a5,1x,a12,1x,a40,1x,a10)
+156 FORMAT(10x,i4,1x,a5,1x,a12,1x,a40,1x,i6)
    end subroutine init_var_bfm
 !EOC
 

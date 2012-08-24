@@ -79,6 +79,7 @@
    bfmtime%step0    = nit000
    bfmtime%timestep = rdt
    bfmtime%stepnow  = nit000
+   bfmtime%stepEnd  = nitend
    !-------------------------------------------------------
    ! Force Euler timestepping in the first timestep
    !-------------------------------------------------------

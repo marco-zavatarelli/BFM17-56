@@ -29,6 +29,7 @@
 !
 ! !REVISION HISTORY:
 !  Author(s): Marcello Vichi (CMCC-INGV)
+!  2012     : Tomas Lovato (CMCC)
 !
 ! !LOCAL VARIABLES:
    real(RLEN)             :: localtime  !time in seconds
@@ -38,7 +39,6 @@
 !BOC
 
    localtime = (bfmtime%stepnow - bfmtime%step0) * rdt
-
    !---------------------------------------------
    ! Update means
    !---------------------------------------------
@@ -53,7 +53,7 @@
    !---------------------------------------------
    ! Write diagnostic output
    !---------------------------------------------
-   if ( MOD( kt, out_delta ) == 0 ) then
+   if ( MOD( (bfmtime%stepnow - bfmtime%step0), out_delta ) == 0 ) then
       if ( lwp ) then
          write(numout,*) 'trc_dia_bfm : write NetCDF passive tracer concentrations at ', kt, 'time-step'
          write(numout,*) '~~~~~~ '
@@ -62,12 +62,10 @@
       call calcmean_bfm(MEAN)
       call save_bfm(localtime)
    end if
-
-   if ( kt == nitend ) then
    !---------------------------------------------
-   ! Close the files (MAV: are we saving the last step?)
+   ! Save Restart and Close the files
    !---------------------------------------------
-      ! save and close the restart file
+   if ( bfmtime%stepnow == bfmtime%stepEnd ) then
       call save_rst_bfm
       call close_ncdf(ncid_rst)
       call close_ncdf(ncid_bfm)
