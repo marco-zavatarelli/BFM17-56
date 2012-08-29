@@ -74,11 +74,12 @@
    !-------------------------------------------------------
    write(start_time,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
    call julian_day(nyear,nmonth,nday,0,0,julianday)
+   bfmtime%date0    = start_time
    bfmtime%time0    = julianday
    bfmtime%timeEnd  = julianday + ((nitend-nit000)* rdt) / SEC_PER_DAY
-   bfmtime%step0    = nit000
+   bfmtime%step0    = nit000 - 1
    bfmtime%timestep = rdt
-   bfmtime%stepnow  = nit000
+   bfmtime%stepnow  = nit000 - 1
    bfmtime%stepEnd  = nitend
    !-------------------------------------------------------
    ! Force Euler timestepping in the first timestep

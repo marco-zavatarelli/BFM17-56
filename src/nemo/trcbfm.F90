@@ -14,7 +14,7 @@
 !  a "no transport" simulation is prescribed.
 !
 ! !USES:
-   use global_mem, only: RLEN
+   use global_mem, only: RLEN,LOGUNIT
    use constants,  only: SEC_PER_DAY
    use mem, only: D3STATE,D3SOURCE,NO_D3_BOX_STATES, &
                   D3STATETYPE,NO_BOXES
@@ -72,8 +72,7 @@
    !---------------------------------------------
    ! BFM internal time
    !--------------------------------------------- 
-   bfmtime%stepnow  = bfmtime%stepnow + real(nn_dttrc,RLEN)
-
+   bfmtime%stepnow  = bfmtime%stepnow + nn_dttrc
    !---------------------------------------------
    ! Compute external forcing functions
    !---------------------------------------------

@@ -38,7 +38,7 @@
 !-----------------------------------------------------------------------
 !BOC
 
-   localtime = (bfmtime%stepnow - bfmtime%step0) * rdt
+   localtime = real((bfmtime%stepnow - bfmtime%step0),RLEN) * rdt
    !---------------------------------------------
    ! Update means
    !---------------------------------------------
