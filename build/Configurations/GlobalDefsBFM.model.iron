@@ -79,7 +79,7 @@ end
 end
 
 3d-state -if-exist INCLUDE_PELCO2
-  group Inorganic[ch]: mgC /m3 : mmol eq/m3
+  group Inorganic[ch]: mg C/m3 : mmol eq/m3
      O3: Dissolved Inorganic Carbon: Alkalinity 
   end
 end
@@ -165,7 +165,7 @@ end
   #	State Variable(s) for Detritus (Biogenic Organic Material)
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    group PelDetritus[cnpfs] : mg C/m3 : mmol N/m3: mmiol P/m3: umol Fe/m3: mmol Si/m3
+    group PelDetritus[cnpfs] : mg C/m3 : mmol N/m3: mmol P/m3: umol Fe/m3: mmol Si/m3
       R1[-s]	: Labile Organic Carbon (LOC)
       R2[-npfs]	: TEP (long sugars)
       R6	: Particulate Organic Carbon (POC)

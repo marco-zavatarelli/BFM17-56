@@ -241,6 +241,7 @@ contains
                   NO_STATES, Depth, NO_D3_BOX_FLUX,      &
                   NO_D2_BOX_FLUX
    use global_mem, only: LOGUNIT
+   use time, only: bfmtime
 #if defined key_obcbfm
    use global_mem, only: LOGUNITOBC
 #endif
@@ -291,10 +292,7 @@ contains
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
-   LEVEL1 'init_bfm'
-
 #ifdef BFM_PARALLEL
-
    LEVEL2 "BFM is running in Parallel"
    parallel = .TRUE.
    ! variable parallel_rank must have been assigned previously
@@ -323,10 +321,11 @@ contains
    out_fname = trim(out_fname)//'_'//str
    rst_fname = trim(rst_fname)//'_'//str
 
+   LEVEL1 'init_bfm'
    LEVEL3 "Producing log for process rank:",parallel_rank
 
 #else
-
+   LEVEL1 'init_bfm'
    LOGUNIT = 1069
    logfname = 'bfm.log'
    bfm_lwp = .TRUE.
@@ -334,7 +333,13 @@ contains
         form='formatted',err=100)
 
 #endif
-
+   !-------------------------------------------------------
+   ! Write to log bfmtime setting
+   !-------------------------------------------------------
+   LEVEL2 'BFM time informations:'
+   WRITE(LOGUNIT,*) 'Start Date, Julianday0, JuliandayEnd, step0, timestep, stepnow, stepEnd'
+   WRITE(LOGUNIT,*) bfmtime   
+   !
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
    LEVEL3 "Output frequency every ",out_delta,"time-steps"
 

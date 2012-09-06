@@ -60,7 +60,6 @@ subroutine analytical_forcing
    ! Computes all the forcings
    !---------------------------------------------
    dtime = timesec/SEC_PER_DAY
-   SUNQ=daylength(dtime,latitude)
    if (timefmt==2) then
       call dayofyear(julianday,dyear)
       dfrac = secondsofday/SEC_PER_DAY
@@ -68,6 +67,7 @@ subroutine analytical_forcing
       dfrac=(dtime-floor(dtime)) ! fraction of the day
       dyear=mod(dtime,360._RLEN) ! Day of the year
    end if
+   SUNQ=daylength(REAL(dyear,RLEN),latitude)
    wlight=light(dyear,dfrac)
    select case(ltype)
     case (3) ! light on/off distribution for daylight average

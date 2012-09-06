@@ -79,7 +79,7 @@ end
 end
 
 3d-state -if-exist INCLUDE_PELCO2
-  group Inorganic[ch]: mgC /m3 : mmol eq/m3
+  group Inorganic[ch]: mg C/m3 : mmol eq/m3
      O3: Dissolved Inorganic Carbon: Alkalinity 
   end
 end
@@ -135,7 +135,7 @@ end
   #	State Variable(s) for Phytoplankton Species
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-   group PhytoPlankton[cnpls] :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmmol Si/m3
+   group PhytoPlankton[cnpls] :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
 	P1	: Diatoms
 # 	P2[-s]	: Flagellates
 # 	P3[-s]	: PicoPhytoPlankton
@@ -164,7 +164,7 @@ end
   #	State Variable(s) for Detritus (Biogenic Organic Material)
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-    group PelDetritus[cnps] : mg C/m3 : mmol N/m3: mmiol P/m3: mmol Si/m3
+    group PelDetritus[cnps] : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
       R1[-s]	: Labile Organic Carbon (LOC)
       R2[-nps]	: TEP (long sugars)
       R6	: Particulate Organic Carbon (POC)
