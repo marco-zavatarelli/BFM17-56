@@ -269,16 +269,14 @@
 #endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  silica_control =1 : external regulation of silica limitation 
-  !  silica_control =2 : internal regulation of silica limitation 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   silica_control=1
-   if ( p_qus(phyto) > ZERO )  silica_control=2
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitations (intracellular and extracellular)
   ! fpplim is the combined non-dimensional factor limiting photosynthesis
   ! Note for silicate limitation:
+  !  silica_control =1 : external regulation of silica limitation 
+  !  silica_control =2 : internal regulation of silica limitation 
   ! The standard Michaelis-Menten formulation contains the Contois parameter
   ! p_Contois=0: standard Michaelis Menten Formulation
   ! 0<p_Contois<=1: The Contois formulation is active. 
@@ -289,16 +287,24 @@
          - p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
   iNIn = min( ONE, max( p_small, ( qnPc(phyto,:) &
          - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
-  iN5s = min(ONE, max( p_small, ( qsPc(phyto,:) &
-         - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
-  eN5s = min( ONE,N5s(:)/(N5s(:) + p_chPs(phyto)));
-  eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
-  select case (silica_control) 
-    case (1)  ! external control
-      fpplim = eN5s
-    case (2) ! internal control
-      fpplim = iN5s
-  end select
+  if (ppphytos > 0) then
+     silica_control=1
+     if ( p_qus(phyto) > ZERO )  silica_control=2
+     iN5s = min(ONE, max( p_small, ( qsPc(phyto,:) &
+            - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
+     eN5s = min( ONE,N5s(:)/(N5s(:) + p_chPs(phyto)));
+     eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
+     select case (silica_control) 
+       case (1)  ! external control
+         fpplim = eN5s
+       case (2) ! internal control
+         fpplim = iN5s
+     end select
+  else 
+     iN5s   = ONE  
+     eN5s   = ONE  
+     fpplim = ONE
+  end if
 #ifdef INCLUDE_PELFE
   iN7f = min( ONE, max( p_small, ( qfPc(phyto,:) &
          - p_qflc(phyto))/( p_qfRc(phyto)- p_qflc(phyto))))
