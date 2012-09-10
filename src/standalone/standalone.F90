@@ -365,7 +365,6 @@
 integer :: i
 
    LEVEL1 'timestepping'
-
    do while (ntime.le.nendtim)
 #ifdef DEBUG
       LEVEL2 'ntime=',ntime

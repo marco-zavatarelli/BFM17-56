@@ -9,7 +9,7 @@
 !
 ! DESCRIPTION
 !   This process describes the dynamics of all phytoplankton
-!    groups in the ERSEM model. The differences in behaviour
+!    groups. The differences in behaviour
 !    are expressed by differences in parameter-values only.
 !    
 ! !INTERFACE
@@ -40,7 +40,7 @@
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag, p_qchlc, &
-                        LightLocationFlag
+                        LightLocationFlag, ChlSynthesisFlag
   use mem_Phyto
 
 
@@ -100,9 +100,10 @@
   real(RLEN),allocatable,save,dimension(:) :: r,tmp,et,sum,sadap,sea,sdo,rugc,sra,srs, &
                                        srt,slc,run,pe_R6,rupp,rump,misp,rupn, &
                                        rumn3,rumn4,rumn,netgrowth,misn,cqun3
-  real(RLEN),allocatable,save,dimension(:) :: rums,rups,miss,tN,iNN,iN,iN1p,iNIn,eN5s,rrc,rr1c, &
+  real(RLEN),allocatable,save,dimension(:) :: rums,rups,miss,tN,fpplim,iN,iN1p,iNIn,eN5s,rrc,rr1c, &
                                        rr1n,rr1p,rr6c,rr6n,rr6p,rr6s,runn,runn3, &
                                        runn4,runp,runs,Irr,rho_Chl,rate_Chl,seo,flPIR2c
+  real(RLEN),allocatable,save,dimension(:) :: iN5s,chl_opt
 #ifdef INCLUDE_PELFE
   integer :: ppphytof
   real(RLEN),allocatable,save,dimension(:) :: phytof
@@ -179,8 +180,8 @@
      if (AllocStatus  /= 0) stop "error allocating miss"
      allocate(tN(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating tN"
-     allocate(iNN(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating iNN"
+     allocate(fpplim(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating fpplim"
      allocate(iN(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating iN"
      allocate(iN1p(NO_BOXES),stat=AllocStatus)
@@ -225,6 +226,10 @@
      if (AllocStatus  /= 0) stop "error allocating flPIR2c"
      allocate(seo(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating seo"
+     allocate(iN5s(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating iN5s"
+     allocate(chl_opt(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating chl_opt"
 #ifdef INCLUDE_PELFE
      allocate(phytof(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating phytof"
@@ -264,80 +269,59 @@
 #endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  silica_control =0 : no silica component present in cell
-  !  silica_control =1 : external regulation of silica limitation & limitation of
-  !                      carbon fixation under silica depletion
-  !  silica_control =2 : internal regulation of silica limitation & excretion
-  !                      of fixed carbon under nutrient stress
-  !                      Process description based on:
-  !                      Growth physiology and fate of diatoms in the ocean: a review
-  !                      G.Sarthou, K.R. Timmermans, S. Blain, & P. Treguer
-  !                      JSR 53 (2005) 25-42
+  !  silica_control =1 : external regulation of silica limitation 
+  !  silica_control =2 : internal regulation of silica limitation 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   silica_control=0
-   if ( p_qus(phyto) > ZERO )  then
-      silica_control=2
-   elseif ( p_chPs(phyto) > ZERO ) then
-      silica_control=1
-   endif
-  
-   ! force external regulation with nutrient-stress excretion
-   if ( (.not.p_netgrowth(phyto)).and.(ppphytos > 0))  silica_control=1
- 
+   silica_control=1
+   if ( p_qus(phyto) > ZERO )  silica_control=2
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Nutrient limitation (intracellular) N, P
+  ! Nutrient limitations (intracellular and extracellular)
+  ! fpplim is the combined non-dimensional factor limiting photosynthesis
+  ! Note for silicate limitation:
+  ! The standard Michaelis-Menten formulation contains the Contois parameter
+  ! p_Contois=0: standard Michaelis Menten Formulation
+  ! 0<p_Contois<=1: The Contois formulation is active. 
+  !                 The limiting role of the population size (intraspecific 
+  !                 competition) can be tuned by increasing p_Contois 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   iN1p = min( ONE, max( p_small, ( qpPc(phyto,:) &
          - p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
   iNIn = min( ONE, max( p_small, ( qnPc(phyto,:) &
          - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
+  iN5s = min(ONE, max( p_small, ( qsPc(phyto,:) &
+         - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
+  eN5s = min( ONE,N5s(:)/(N5s(:) + p_chPs(phyto)));
+  eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
+  select case (silica_control) 
+    case (1)  ! external control
+      fpplim = eN5s
+    case (2) ! internal control
+      fpplim = iN5s
+  end select
 #ifdef INCLUDE_PELFE
   iN7f = min( ONE, max( p_small, ( qfPc(phyto,:) &
          - p_qflc(phyto))/( p_qfRc(phyto)- p_qflc(phyto))))
+  fpplim = fpplim*iN7f
 #endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Phytoplankton growth is limited by nitrogen and phosphorus
+  ! Multiple nutrient limitation
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   select case ( p_limnut(phyto))
     case ( 0 )
-      iN  =   (iN1p* iNIn)**(0.5E+00_RLEN)  ! geometric mean
+      iN  =   (iN1p* iNIn)**(0.5_RLEN)  ! geometric mean
 
     case ( 1 )
       iN  =   min(  iN1p,  iNIn)  ! Liebig rule
 
     case ( 2 )
-      iN  =   2.0E+00_RLEN/( ONE/ iN1p+ ONE/ iNIn)  ! combined
+      iN  =   2.0_RLEN/( ONE/ iN1p+ ONE/ iNIn)  ! combined
 
   end select
 
-  ! tN controls sedimentation of phytoplankton
-  tN= iN
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Nutrient limitation due to intra- extracellular silicate.
-  ! eN5s limit externally nutrient limitation.
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  !calculate internal quota
-  if ( silica_control > 0 ) then
-    select case (silica_control) 
-      case(1)
-        eN5s = min( ONE,N5s(:)/(N5s(:) + p_chPs(phyto)));
-        tN=min(iN,eN5s);
-      case(2)
-        eN5s=ONE
-        r = max( p_small, ( qsPc(phyto,:)- p_qslc(phyto))/ &
-                                    (( p_qsRc(phyto)- p_qslc(phyto))))
-        tN=min(r,iN);
-      end select
-  else
-    eN5s  =   ONE
-  endif
-
-#ifdef INCLUDE_PELFE
-    eN5s = eN5s * iN7f
-#endif
+  ! tN only controls sedimentation of phytoplankton (Liebig)
+  tN= min(iN,fpplim)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature response of Phytoplankton
@@ -351,7 +335,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   if ( ChlLightFlag== 2) then
-
     select case ( LightLocationFlag)
        case ( 1 )
           ! Light at the top of the cell
@@ -366,31 +349,36 @@
           r = EIR(:)/xEPS(:)/Depth(:)*(ONE-exp(-r))
           Irr = max(p_small,r*SEC_PER_DAY)
     end select
-
-    r(:) = qlPc(phyto, :)* p_alpha_chl(phyto)/p_sum(phyto)* Irr
-    eiPI(phyto,:) = ( ONE- exp( - r))
-
   end if
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Compute exponent E_PAR/E_K = alpha0/PBmax
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  r(:) = qlPc(phyto, :)*p_alpha_chl(phyto)/p_sum(phyto)* Irr
+
   select case ( ProductionLightFlag)
-    case ( 1 )
-      sum  =   p_sum(phyto)* et* eiPI(phyto,:)   *  eN5s
-
-    case ( 2 )
-      sum  =   p_sum(phyto)* et* eiPI(phyto,:)*( SUNQ/ HOURS_PER_DAY) * eN5s
-
-    case ( 3 )
-      sum  =   p_sum(phyto)* et* eiPI(phyto,:)* ThereIsLight * eN5s
-
+    case ( 1 ) ! instantaneous light
+      ! no other factors needed
+    case ( 2 ) ! daylight average is used
+      ! recompute r and photsynthesis limitation using daylight scaling
+      fpplim  =   fpplim*SUNQ/HOURS_PER_DAY
+      r(:) = r(:)*HOURS_PER_DAY/SUNQ
+    case ( 3 ) ! on-off
+      fpplim  =   fpplim*ThereIsLight
   end select
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Light limitation factor and total photosynthesis
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  eiPI(phyto,:) = ( ONE- exp( - r))
+  sum  =   p_sum(phyto)*et*eiPI(phyto,:)*fpplim
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Lysis and excretion
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   sdo  =  ( p_thdo(phyto)/( iN+ p_thdo(phyto)))* p_sdmo(phyto)  ! nutr. -stress lysis
-  !MAV: TO BE REMOVED ASAP !
   ! extra lysis for high-density
-  sdo  =   sdo+ p_seo(phyto)* MM_vector(  phytoc,  100.0_RLEN)
+  sdo  =   sdo+ p_seo(phyto)* MM_vector(phytoc, p_sheo(phyto))
 
   sea  =   sum* p_pu_ea(phyto)  ! activity excretion
 
@@ -433,9 +421,9 @@
      flPIR2c  =   sea* phytoc
   else
      ! Activity excretion is assigned to R1
-     rr1c = rr1c + sea*phytoc
+     rr1c = rr1c + p_switchR1R2*sea*phytoc
      ! Nutrient-stress excretion is assigned to R2
-     flPIR2c  =   seo*phytoc
+     flPIR2c  =  seo*phytoc + (ONE-p_switchR1R2)*sea*phytoc
   end if
 
   call sourcesink_flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
@@ -452,17 +440,16 @@
   ! Potential-Net prim prod. (mgC /m3/d)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if (p_netgrowth(phyto)) then
-     sadap  =   max(  srs,  sum)
+     sadap  =   max(  0.05_RLEN,  sum- slc)
   else
      sadap  =   et*p_sum(phyto)
   end if
   run  =   max(  ZERO, ( sum- slc)* phytoc)  ! net production
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Nutrient Uptake: calculate maximal uptake of N, P
-  ! Check if C-fixation is # larger to make of all C new biomass
-  ! Assumed is that Si-depletion directly the growth rate in contradiction
-  ! to N and P.
+  ! Nutrient Uptake: calculate maximum uptake of N, P
+  ! based on affinity
+  ! Ammonium preference is considered if p_lN4 /= 0
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   if (p_netgrowth(phyto)) then
@@ -472,27 +459,23 @@
   end if
   rumn3  =   p_qun(phyto)* N3n(:)* phytoc* cqun3  ! max pot. uptake of N3
   rumn4  =   p_qun(phyto)* N4n(:)* phytoc  ! max pot. uptake of N4
-  rumn  =   rumn3+ rumn4  ! max pot. uptake of NI
+  rumn  =   rumn3+ rumn4  ! max pot. uptake of DIN
 
-  rump  =   p_qup(phyto)* N1p(:)* phytoc  ! max pot. uptake
+  rump  =   p_qup(phyto)* N1p(:)* phytoc  ! max pot. uptake of PO4
 
   if (p_netgrowth(phyto)) then
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Check which fraction of fixed C can be used for new biomass
-   ! by comparing the potential nutrient availability
+   ! given the internal storage.
+   ! N and P uptake are compared sequentially
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      netgrowth = min( run, ( rumn+ max( ZERO, 0.05E+00_RLEN* &
+      netgrowth = min( run, ( rumn+ max( ZERO, 0.05_RLEN* &
       rugc*( qnPc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
       netgrowth = min( netgrowth, ( rump+ max( ZERO, &
-       0.05E+00_RLEN* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
-      if ( silica_control  ==  2) then
-          rums  =   p_qus(phyto)* N5s(:)* phytoc  ! max pot uptake
-          netgrowth = min( netgrowth, ( rums+ max( ZERO, &
-            ONE* rugc*( qsPc(phyto, :)- p_qslc(phyto))))/ p_qslc(phyto))
-      endif
+       0.05_RLEN* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   ! Excrete C which can not be used for growth as carbo-hydrates:
-   ! Correct net C-uptake
+   ! Excrete C that cannot be used for growth as carbo-hydrates:
+   ! Correct the net C uptake
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       netgrowth  =   max(  netgrowth,  ZERO)
       flPIR2c  =   flPIR2c+ run- netgrowth
@@ -502,20 +485,18 @@
   call flux_vector( iiPel, ppphytoc,ppR2c, flPIR2c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Apparent Net prim prod. (mgC /m3/d)
+  ! Specific net growth rate (d-1)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
   sunPI(phyto,:)  =   run/( p_small+ phytoc)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   misn  =   sadap*( p_xqn(phyto)* p_qnRc(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
-  if (p_netgrowth(phyto)) then
-     rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
-  else
-     rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run  ! N uptake based on net assimilat. C
-  end if
+  rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run  ! N uptake based on net assimilat. C
+#ifdef EXTRACOST
+  rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
+#endif
   runn  =   min(  rumn,  rupn+ misn)  ! actual uptake of NI
 
   r  =   insw_vector(  runn)
@@ -530,11 +511,10 @@
   ! Nuttrient dynamics: PHOSPHORUS
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   misp  =   sadap*( p_xqp(phyto)* p_qpRc(phyto)* phytoc- phytop)  ! intracellular missing amount of P
-  if (p_netgrowth(phyto)) then
-     rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
-  else
-     rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)  ! P uptake based on C uptake
-  end if
+  rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)  ! P uptake based on C uptake
+#ifdef EXTRACOST
+  rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
+#endif
   runp  =   min(  rump,  rupp+ misp)  ! actual uptake
 
   r  =   insw_vector(  runp)
@@ -546,19 +526,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if (p_netgrowth(phyto)) then
      rr6n  =  pe_R6* sdo* phyton
      rr1n  =  sdo* phyton- rr6n
 
      rr6p  =  pe_R6* sdo* phytop
      rr1p  =  sdo* phytop- rr6p
-  else
-     rr6n  =  rr6c*p_qnlc(phyto)
-     rr1n  =  ZERO
-
-     rr6p  =  rr6c*p_qplc(phyto)
-     rr1p  =  ZERO
-  end if
 
   call flux_vector( iiPel, ppphyton,ppR6n, rr6n )  ! source/sink.n
   call flux_vector( iiPel, ppphyton,ppR1n, rr1n )  ! source/sink.n
@@ -566,31 +538,32 @@
   call flux_vector( iiPel, ppphytop,ppR6p, rr6p )  ! source/sink.p
   call flux_vector( iiPel, ppphytop,ppR1p, rr1p )  ! source/sink.p
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: SILICATE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if ( silica_control > 0 )  then
+  if ( ppphytos > 0 )  then
     select case (silica_control)
-
     case (1)
-     ! Gross uptake of silicate
-     runs = max(ZERO, p_qsRc(phyto) * (sum-srs) * phytoc)
-     call flux_vector( iiPel, ppN5s,ppphytos, runs)
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      ! Gross uptake of silicate excluding respiratory costs
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      runs = max(ZERO, p_qsRc(phyto) * (sum-srs) * phytoc)
     case (2)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      !  Nutrient uptake
+      !  Silicate uptake based on intracellular needs (note, no luxury)
+      !  There can be efflux of dissolved silicate (M-J et al., 2000)
+      !  however this generates fake remineralization and it is not implemented
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      miss  =   sadap*( p_xqs(phyto)* p_qsRc(phyto)* phytoc- phytos)  ! intracellular missing Si
-      rups  =   (run* p_qsRc(phyto)-( sdo+ srs)* phytos)  ! Si uptake based on C uptake
+      rums  =   p_qus(phyto)* N5s(:)* phytoc  ! max pot uptake based on affinity
+      miss  =   max(ZERO, p_qsRc(phyto)*phytoc - phytos) ! intracellular missing Si
+      rups  =   run* p_qsRc(phyto)* phytos  ! Si uptake based on net C uptake
       runs  =   min(  rums,  rups+ miss)  ! actual uptake
-      call flux_vector( iiPel, ppN5s,ppphytos, runs* insw_vector(runs) )  ! source/sink.c
-      call flux_vector(iiPel, ppphytos,ppN5s,- runs*insw_vector(-runs))  ! source/sink.c
     end select
               
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    ! Losses of Si (lysis)
+    ! Uptake and Losses of Si (only lysis)
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    call flux_vector( iiPel, ppN5s,ppphytos, runs)
     call flux_vector( iiPel, ppphytos, ppR6s, sdo*phytos )
   endif
 
@@ -610,7 +583,7 @@
 
   r  =   insw_vector(  runf)
   call flux_vector( iiPel, ppN7f,ppphytof, runf* r )  ! source/sink.p
-  call flux_vector(iiPel, ppphytof,ppN7f,- runf*( ONE- r))  ! source/sink.p
+  call flux_vector(iiPel, ppphytof,ppR1f,- runf*( ONE- r))  ! source/sink.p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Losses of Fe
@@ -627,18 +600,36 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
-          p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
-    if (p_netgrowth(phyto)) then
-    ! total synthesis, only when there is net production (run > 0)
-    ! The fixed loss rate due to basal respiration is introduced to have 
-    ! mortality in the absence of light (< 1 uE/m2/s)
-       rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
-                  -srs * phytol * ONE/(Irr+ONE)
-    else
-       rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
-    end if
-
+    select case (ChlSynthesisFlag)
+      case (1) ! PELAGOS
+           rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
+                     p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
+           rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
+      case (2) ! OPATM-BFM
+           rho_Chl  =   p_qchlc(phyto)* sum/( p_alpha_chl(phyto)* qlPc(phyto,:)* Irr)
+           rate_Chl = iN* rho_Chl* run- max( p_sdchl(phyto)*( ONE - iN), sdo)* &
+               phytol+ min( ZERO, sum- slc+ sdo)* max( ZERO, phytol- p_qchlc(phyto)* phytoc)
+      case (3) ! UNIBO
+           rho_Chl = p_qchlc(phyto)*min(ONE,          &
+                     (sum-seo-sea-sra) *phytoc /          &
+                     (p_alpha_chl(phyto)*(phytol+p_small) *Irr))
+           ! The "optimal" chl concentration corresponds to the chl that
+           ! (given the actual C biomass) would give (Epar/Ek)=p_EpEk
+           chl_opt = p_EpEk_or(phyto)*p_sum(phyto)*phytoc/  &
+                     (p_alpha_chl(phyto)*Irr+p_small)
+           !  Actual chlorophyll concentration exceeding the "optimal" value is 
+           !  discarded with a p_tochl_relt relaxation.
+           rate_Chl = rho_Chl*(sum-seo-sea-sra)*phytoc-(sdo*srs)*phytol - &
+                      max(ZERO,(phytol-chl_opt))*p_tochl_relt(phyto)
+      case (4) ! NIOZ
+          ! total synthesis, only when there is net production (run > 0)
+          ! The fixed loss rate due to basal respiration is introduced to have 
+          ! mortality in the absence of light (< 1 uE/m2/s)
+           rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
+                     p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
+           rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
+                     -srs * phytol * ONE/(Irr+ONE)
+    end select
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
   end if
 

@@ -72,8 +72,8 @@
   real(RLEN), parameter ::PI=3.14159265359_RLEN
   real(RLEN), parameter ::BASETEMP= 10.0_RLEN
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Next parameters are defined to define differnt types of State variables. &
-  ! There are four different types defined:
+  ! Next parameters are defined to control types of State variables
+  integer,    parameter ::OFF=-100
   integer,    parameter ::SINKSOURCE=-1
   integer,    parameter ::NOTRANSPORT=0
   integer,    parameter ::NOOBCSTATES=0

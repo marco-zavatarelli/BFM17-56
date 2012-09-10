@@ -154,7 +154,7 @@
 #ifdef DEBUG
     write(LOGUNIT,*) ' Oxygen Reareation'
     write(LOGUNIT,*) 'Idx: ', SRFindices(1),'DOSat ',cxoO2(1),' DOwater ',O2o(1)
-    write(LOGUNIT,*) 'O2 flux', jsurO2o(1),' Depth ',Depth(1),' ken ', ken(1)
+    write(LOGUNIT,*) 'O2 flux', jsurO2o(1),' Depth ',Depth(1),' kun ', kun(1)
     write(LOGUNIT,*) 'New Flux ', O2AIRFlux(1), ' wind ', wind(1),' temp ',temp(1)
     write(LOGUNIT,*)
 #endif

@@ -73,6 +73,8 @@ subroutine analytical_forcing
     case (3) ! light on/off distribution for daylight average
       ThereIsLight=lightAtTime(dfrac,sunq)
       wlight=wlight*ThereIsLight
+    case (4) ! light scaled up by photoperiod
+      wlight=wlight*24.0_RLEN/SUNQ
     case (1) ! instantaneous light distribution
       wlight=instLight(wlight,sunq,dfrac)
     case default ! light constant during the day

@@ -56,7 +56,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_PAR = 0.50
                        slp0 = 1013.25E0
                ChlLightFlag = 2
-           ChlSynthesisFlag = 1
+           ChlSynthesisFlag = 3
         ProductionLightFlag = 1
           LightLocationFlag = 3
                      p_eps0 = 0.04
@@ -73,7 +73,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                     p_epsR6 = 0.1d-3
           check_fixed_quota = 0
 !				P1	P2	P3	P4
-                    p_qchlc = 	0.025,  0.015,  0.02,   0.02
+                    p_qchlc = 	0.06,  0.025,  0.02,   0.02
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist

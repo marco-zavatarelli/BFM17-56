@@ -199,8 +199,8 @@
      daytime=abs(daytime-12.) ! distance from noon
      daylength=dl/2.
      if(daytime.lt.daylength) then
-       daytime=(daylength-daytime)/daylength*PI/2.
-       instLight=l*sin(daytime)
+       daytime=daytime/daylength*PI
+       instLight=l*cos(daytime)+l
      else
        instLight=0.
      endif

@@ -3,31 +3,18 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: PelGlobal
+! !ROUTINE: LightAdaptation
 !
 ! DESCRIPTION
 !   List of parameters values
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+!   for mem_LightAdaptation filled by InitLightAdaptation
 !
-! !INTERFACE
-! parameter values for mem_PelGlobal filled by InitPelGlobal
-!
-
-!  
-!
-! !AUTHORS
-!   mfstep/ERSEM team
-!
-! !REVISION_HISTORY
-!   ---
+! AUTHORS
+!   the BFM team
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -43,21 +30,26 @@
 !BOC
 !
 !
-!        :  	 All parameter were copied from the .p-file:
-!  p_rR6m:  	 m/d# detritus sinking rate
+!  p_isw:  	 Switch between parameterizations
+!  p_chEPLi:  	 Maximum Iopt (W/m2)
+!        :  	    p_clEPLi    =      4.0,    6.0,    5.0,    8.0	# Minimum Iopt (W/m2)
+!  p_clEPLi:  	 Minimum Iopt (W/m2)
+!        :  	    p_ruEPLi    =      0.25,    0.25,   0.5,    0.125	# Maximum daily shift in Iopt (1/d)
+!  p_ruEPLi:  	 Maximum daily shift in Iopt (1/d)
+!  p_addepth:  	 Adaptation depth. Meaningless with high-res models
 
-&PelGlobal_parameters
-p_rR6m = 1.5,
-p_rPIm = 0.0,
-         0.0,
-         0.0,
-         0.0
+&LightAdaptation_parameters
+      p_isw = 	1,	1,	1,	1
+  p_addepth = 	50.0,	50.0,	50.0,	50.0
+  p_chEPLi  = 	100.0,	100.0,	100.0,	100.0
+  p_clEPLi  = 	8.0,	10.0,	6.0,	12.0
+  p_ruEPLi  = 	0.2,	0.25,	0.3,	0.15
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
