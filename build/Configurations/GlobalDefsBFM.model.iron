@@ -204,7 +204,7 @@ end
     qnPc(PhytoPlankton)		: Quotum n/c in PhytoPlankton : mmol N/mg C 
     qsPc(PhytoPlankton)		: Quotum si/c in PhytoPlankton : mmol Si/mg C 
     qlPc(PhytoPlankton)		: Quotum chl/c in PhytoPlankton : mg Chl /mg C
-    qfPc(PhytoPlankton)         : Quotum fe/c in PhytoPlankton : mg Fe /mg C
+    qfPc(PhytoPlankton)         : Quotum fe/c in PhytoPlankton : umol Fe /mg C
 
     qpZc(MesoZooPlankton)	: Quotum p/c MesoZooPlankton :mmol P/mg C 
     qnZc(MesoZooPlankton)	: Quotum n/c MesoZooPlankton :mmol N/mg C 

@@ -33,20 +33,20 @@
 !BOC
 
 &CO2_parameters
-! Initial Partial pressure in the air
-   pco2air0 = 370.0E0
+! Initial CO2 concentration in the air [ppm]
+   AtmCO20 = 370.0E0
 ! Compute the partial pressure of Atmospheric CO2
    calcAtmpCO2 = .FALSE.
-   pCO2Method = 1  ! 1=MixRatio*slp, 2=Magnus formula
+   pCO2Method = 1  ! 1=MixRatio*slp, 2=Magnus formula 
 !-----------------------------------------------------------------------------------!
-! Read external data for atmospheric CO2 values
+! Read external data for atmospheric CO2 values  
           ! Read  !   File   ! NetCDF  !  Var    !  RefTime   ! Input      !   Time   !
           ! Input !   name   ! Logical !  name   !  yyyymmdd  ! Frequency  !  interp  !
-!AtmCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.nc' , .TRUE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
-!AtmCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
-! Read external data for atmospheric SLP
-AtmSLP_N  =    0  , 'AtmSLP.nc' , .TRUE.  ,'AtmSLP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.
-AtmTDP_N  =    0  , 'AtmTDP.nc' , .TRUE.  ,'AtmTDP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.
+!AtmCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.nc' , .TRUE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.  
+!AtmCO2_N =    2  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.  
+! Read external data for atmospheric SLP 
+AtmSLP_N  =    0  , 'AtmSLP.nc' , .TRUE.  ,'AtmSLP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.  
+AtmTDP_N  =    0  , 'AtmTDP.nc' , .TRUE.  ,'AtmTDP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.  
 !-----------------------------------------------------------------------------------!
 
 ! Initial pH value
@@ -74,10 +74,21 @@ AtmTDP_N  =    0  , 'AtmTDP.nc' , .TRUE.  ,'AtmTDP' , '1764-07-01 00:00'  , 'dum
 !              in the OCMIP scheme (default 0.5)
 ! M2MAXIT   :  maximum number of iterations for OCMIP (default 100 )
 !
-   MethodCalcCO2 = 2,
+   MethodCalcCO2 = 2
           M2XACC = 1.0E-10
         M2PHDELT = 0.3
          M2MAXIT = 100
+!
+! Calcium ion concentration
+!     [from : "Seawater : Its composition, properties and behaviour"
+!      (2nd Edition), Open University Course Team, 1995]
+!     seawater concentration    = 412 mg / l
+!     atomic weight             = 40.078 g / mol
+!     therefore, concentration  = 10.279 mmol / l
+!                               = 10.279 mol / m3
+        Caconc0 = 10.279E0
+! Normalize Calcium ion concentration by sea water salinity
+        Canorm  = .TRUE.
 /
 
 !EOC

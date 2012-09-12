@@ -43,6 +43,7 @@
 &PelChem_parameters_iron
   p_q10R6N7 = 1.50
     p_sR6N7 = 1.0e-03
+    p_sR1N7 = 1.0e-01
   p_scavN7f = 0.7e-04
    p_N7fsol = 0.6
 /

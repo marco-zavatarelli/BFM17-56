@@ -48,14 +48,14 @@
 !out_delta 	integer Output is saved every out_delta timesteps
 !-------------------------------------------------------------------------!
 &bfm_nml
-    bio_calc = .TRUE.
-    bfm_init = 0
-  bfm_rstctl = .TRUE.
-   bio_setup = 1
-   out_fname = 'BFM_standalone_pelagic'
-     out_dir = '.'
-   out_title = 'BFM_TEMPERATE_PELAGIC'
-   out_delta = 300 !every 30 days
+   bio_calc   = .TRUE.
+   bfm_init   = 0
+   bfm_rstctl = .FALSE. 
+   bio_setup  = 1
+   out_fname  = 'BFM_standalone_SO'
+   out_dir    = '.'
+   out_title  = 'BFM_SOUTHERN_OCEAN_PELAGIC'
+   out_delta  = 100 !every 10 days
 /
 
 !-------------------------------------------------------------------------!
@@ -88,11 +88,13 @@
 !-------------------------------------------------------------------------!
 &bfm_init_nml
    N1p0 = 1.0,
-   N3n0 = 5.0,
+   N3n0 = 30.0,
    N4n0 = 1.0,
-   N5s0 = 8.0,
-   N7f0 = 0.6,
+   N5s0 = 70.0,
+   N7f0 = 0.2,
    N6r0 = 1.0,
+   O3c0 = 27060.00, ![mgC /m3]  2200 umol/Kg
+   O3h0 = 2460.0,   ![mmol eq/m3]  2400 umol/Kg
    O2o0 = 300.0,
    O4n0 = 200.0,
    P1c0 = 1.0,
@@ -118,7 +120,7 @@
 !var_save: instantaneous value at the output interval
 !-------------------------------------------------------------------------!
 &bfm_save_nml
-   ave_save = 'ETW','O2o',
+   ave_save = 'ETW','O2o','DIC',
           'EIR',
           'N1p',
           'N3n',
@@ -165,6 +167,10 @@
           'qpPc(iiP2)',
           'qpPc(iiP3)',
           'qpPc(iiP4)',
+          'qfPc(iiP1)',
+          'qfPc(iiP2)',
+          'qfPc(iiP3)',
+          'qfPc(iiP4)',
     'qpZc(iiZ3)',
     'qnZc(iiZ3)',
     'qpZc(iiZ4)',

@@ -8,10 +8,12 @@
 
 #  Currently available macros (cppdefs) are:
 #  INCLUDE_PELFE                          : use Iron component to the pelagic system
+#                                           requires GlobalDefsBFM.model.iron
 #  INCLUDE_PELCO2, INCLUDE_BENCO2         : activate Carbonate System 
 #  INCLUDE_BEN, INCLUDE_BENPROFILES       : Add Benthic compartment
 #  INCLUDE_SILT                           : use Silt component
 #  INCLUDE_SEAICE                         : activate SeaIce Ecology
+#                                           requires GlobalDefsBFM.model.seaice
 #  INCLUDE_DIAG3D, INCLUDE_DIAG2D         : additional diagnostics available for output
 #  USEPACK                                : use pack/unpack fortran intrinsic function
 
@@ -59,11 +61,6 @@ ${BFMDIR}/build/scripts/GenerateGlobalBFMF90Code ${cppdefs} \
           -to ${BFMDIR}/build/${BLDDIR} -actions statemem allocmem netcdfmem \
           -to ${BFMDIR}/build/${BLDDIR} -actions headermem \
           -to ${BFMDIR}/build/${BLDDIR} -actions initmem
-
-# Move BFM Layout files to target folders
-${cp} ${BFMDIR}/build/${BLDDIR}/*.F90 ${BFMDIR}/src/BFM/General
-${mv} ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
-${cp} ${BFMDIR}/build/${BLDDIR}/INCLUDE.h ${BFMDIR}/src/BFM/include
 
 # list files
 find ${BFMDIR}/src/BFM/General -name "*.?90" -print > BFM.lst
