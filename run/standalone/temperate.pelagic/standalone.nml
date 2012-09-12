@@ -96,6 +96,7 @@
 !			1. instantaneous light description
 !			2. constant light over 24h
 !			3. rectangular light distribution (on/off) 
+!			4. daylight average (scaled up by daylength)
 !lw		real	Sinusoidal light intensity (winter) W m^-2
 !ls		real	Sinusoidal light intensity (summer) W m^-2
 !sw		real	Sinusoidal salinity (winter)
@@ -124,16 +125,16 @@
 !-------------------------------------------------------------------------!
 &forcings_nml
    forcing_method = 1,
-   ltype       = 2
+   ltype       = 1
    lw          = 20.0,
    ls          = 300.0,
    sw          = 37.0,
    ss          = 34.0,
    tw          = 8.0,
-   ts          = 24.0,
+   ts          = 28.0,
    tde         = 1.0,
-   ww          = 15.0,
-   ws          = 7.0,
+   ww          = 20.0,
+   ws          = 10.0,
    botdep_c    = 0.0
    botdep_n    = 0.0
    botdep_p    = 0.0

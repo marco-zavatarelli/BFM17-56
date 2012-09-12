@@ -56,6 +56,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_PAR = 0.50
                        slp0 = 1013.25E0
                ChlLightFlag = 2
+           ChlSynthesisFlag = 1
         ProductionLightFlag = 1
           LightLocationFlag = 3
                      p_eps0 = 0.10
@@ -99,6 +100,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !        :  	     dim2D%
 !  p_PAR:  	 Photosynthetically available radiation
 !  ChlLightFlag:  	 Switch between light prop.(=1) or Chla.(=2) as a state
+!  ChlSynthesisFlag:  	 Switch between types of chl synthesis
+!                        1. PELAGOS; 2. OPATM-BFM; 3. UNIBO
 !  ProductionLightFlag:  Switch between instantaneous light production (=1) 
 !                        and daylength averaged production (=2)
 !  LightLocationFlag:    Switch between different depth-parameterizations

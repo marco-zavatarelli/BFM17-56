@@ -427,9 +427,9 @@
      flPIR2c  =   sea* phytoc
   else
      ! Activity excretion is assigned to R1
-     rr1c = rr1c + p_switchR1R2*sea*phytoc
+     rr1c = rr1c + p_switchR1R2(phyto)*sea*phytoc
      ! Nutrient-stress excretion is assigned to R2
-     flPIR2c  =  seo*phytoc + (ONE-p_switchR1R2)*sea*phytoc
+     flPIR2c  =  seo*phytoc + (ONE-p_switchR1R2(phyto))*sea*phytoc
   end if
 
   call sourcesink_flux_vector( iiPel, ppO3c,ppphytoc, rugc )  

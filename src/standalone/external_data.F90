@@ -44,13 +44,13 @@
    real(RLEN)                :: dfrac,jday
 !-----------------------------------------------------------------------
 !BOC
-#ifdef DEBUG
-   LEVEL1 'external_data (jul,sec): ',julianday,secondsofday
-   call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
-   LEVEL2 'Calendar day:',yy,mm,dd
-#endif
 
    if (use_external_data) then
+#ifdef DEBUG
+      LEVEL1 'external_data (jul,sec): ',julianday,secondsofday
+      call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
+      LEVEL2 'Calendar day:',yy,mm,dd
+#endif
       if (init_forcing_vars) then
         data_jul2=0
         data_secs2=0
