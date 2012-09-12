@@ -164,6 +164,13 @@
   if ( ppO3c > 0 )  call AlkalinityDynamics( )
 #endif
 
+#ifdef INCLUDE_PELFE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Iron Chemistry (dissolution and scavenging)
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  call PelIronDynamics()
+#endif
+
   end subroutine PelChemDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
