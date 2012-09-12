@@ -71,6 +71,7 @@
 #ifdef INCLUDE_PELFE
   real(RLEN)  :: p_q10R6N7   ! Q10 temperature dependence
   real(RLEN)  :: p_sR6N7     ! Specific remineralization rate (d-1)
+  real(RLEN)  :: p_sR1N7     ! Specific remineralization rate from chelated iron (d-1)
   real(RLEN)  :: p_scavN7f   ! Specific scavenging rate (d-1)
   real(RLEN)  :: p_N7fsol    ! Solubility concentration (umol Fe/m3)
 #endif
@@ -87,7 +88,8 @@
   namelist /PelChem_parameters/ p_sN4N3, p_q10N4N3, p_q10R6N5, p_rOS, p_clO2o, &
     p_clN6r, p_sN3O4n, p_rPAo, p_sR6N5
 #ifdef INCLUDE_PELFE
-  namelist /PelChem_parameters_iron/ p_q10R6N7, p_sR6N7, p_scavN7f, p_N7fsol
+  namelist /PelChem_parameters_iron/ p_q10R6N7, p_sR6N7, p_sR1N7, p_scavN7f, &
+    p_N7fsol
 #endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

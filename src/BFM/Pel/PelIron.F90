@@ -27,7 +27,8 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: iiPel,NO_BOXES,ETW,N7f,R6f,ppN7f,ppR6f,flux_vector
+  use mem,  ONLY: iiPel,NO_BOXES,ETW,flux_vector
+  use mem,  ONLY: N7f,R6f,R1f,ppN7f,ppR6f,ppR1f
 #endif
   use mem_Param,  ONLY: p_small
   use mem_PelChem
@@ -73,31 +74,36 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer, save :: first =0
   integer       :: AllocStatus
-  real(RLEN),allocatable,save,dimension(:) :: fR6N7f, fscavN7f
+  real(RLEN),allocatable,save,dimension(:) :: fR1N7f, fR6N7f, fscavN7f
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if (first==0) then
      first=1
      allocate(fR6N7f(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating fR6N7f"
+     allocate(fR1N7f(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating fR1N7f"
      allocate(fscavN7f(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating fscavN7f"
   end if
 
   !-=-==-=-=-=-=-===--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=
-  ! Regeneration of bioavailable iron
+  ! Linear regeneration of bioavailable iron
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  fR6N7f  =  p_sR6N7* eTq_vector(  ETW(:),  p_q10R6N7)* R6f(:)
-  call flux_vector( iiPel, ppR6f, ppN7f, fR6N7f )
+  fR1N7f(:)  =  p_sR1N7* eTq_vector(  ETW(:),  p_q10R6N7)* R1f(:)
+  call flux_vector( iiPel, ppR1f, ppN7f, fR1N7f(:) )
+
+  fR6N7f(:)  =  p_sR6N7* eTq_vector(  ETW(:),  p_q10R6N7)* R6f(:)
+  call flux_vector( iiPel, ppR6f, ppN7f, fR6N7f(:) )
 
   !-=-==-=-=-=-=-===--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=
   ! Scavenging to particles
   ! Linear relaxation to the solubility value p_N7fsol
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  fscavN7f = max(ZERO,p_scavN7f*(N7f-p_N7fsol))
-  call flux_vector( iiPel, ppN7f, ppN7f, -fscavN7f )
+  fscavN7f(:) = max(ZERO,p_scavN7f*(N7f-p_N7fsol))
+  call flux_vector( iiPel, ppN7f, ppN7f, -fscavN7f(:) )
 
   end subroutine PelIronDynamics
 #endif

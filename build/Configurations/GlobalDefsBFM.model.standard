@@ -165,10 +165,10 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
     group PelDetritus[cnps] : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
-      R1[-s]	: Labile Organic Carbon (LOC)
-      R2[-nps]	: TEP (long sugars)
-      R6	: Particulate Organic Carbon (POC)
-      R7[-nps]	: Refractory DOC
+      R1[-s]    : Labile Dissolved Organic Matter
+      R2[-nps]  : TEP (long carbohydrates)
+      R6        : Particulate Organic Matter 
+      R7[-nps]  : Refractory Organic Matter
     end
 end
 
