@@ -1,7 +1,7 @@
 # Generated with the _place_def_ layout file.
 src::bfm::share           $BFMDIR/src/share
 src::bfm::general         $BFMDIR/src/BFM/General
-src::bfm::pel             $BFMDIR/src/BFM/PelB
+src::bfm::pel             $BFMDIR/src/BFM/Pel
 src::bfm::light           $BFMDIR/src/BFM/Light
 src::bfm::pelben          $BFMDIR/src/BFM/PelBen
 src::bfm::bfminclude      $BFMDIR/src/BFM/include
