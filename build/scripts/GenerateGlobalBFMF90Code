@@ -1,6 +1,6 @@
 #!/bin/bash
 # the next line restarts using tclsh \
-exec tclsh "$0" "$@"
+exec ${TCLSH} "$0" "$@"
 
 #-------------------------------------------------------------------------
 # First check the version of tclsh. Only version 8.4 is supported

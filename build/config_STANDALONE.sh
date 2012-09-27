@@ -43,6 +43,13 @@ if [ "${BFMDIR}" = "" ]; then
    echo "Environmental variable BFMDIR not defined!"
    exit 0
 fi
+# Control if TCLSH is defined among environment variables
+if [ "${TCLSH}" = "" ]; then
+   echo "Environmental variable TCLSH not defined!"
+   echo "You cannot generate the BFM code."
+   echo "tclsh 8.4 is REQUIRED."
+   exit 0
+fi
 
 # set makefile options and destination
 BLDDIR="./BLD_STANDALONE"

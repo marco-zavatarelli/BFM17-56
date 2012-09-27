@@ -55,6 +55,13 @@ if [ "${NEMODIR}" = "" ]; then
    echo "Environmental variable NEMODIR not defined!"
    exit 0
 fi
+# Control if TCLSH is defined among environment variables
+if [ "${TCLSH}" = "" ]; then
+   echo "Environmental variable TCLSH not defined!"
+   echo "You cannot generate the BFM code."
+   echo "tclsh 8.4 is REQUIRED."
+   exit 0
+fi
 
 if [ ! -d ${BFMDIR}/build/${BLDDIR} ]; then
   mkdir ${BFMDIR}/build/${BLDDIR}
