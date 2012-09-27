@@ -172,6 +172,7 @@
     'qpB1c',
     'qnB1c',
 	  'sunPI(iiP1)','sunPI(iiP2)','sunPI(iiP3)','sunPI(iiP4)',
+    'ruPTc','ruZTc'
 /
 
 !EOC
