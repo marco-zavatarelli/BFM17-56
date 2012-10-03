@@ -46,9 +46,6 @@ MODE=${1}
 cp="cp"
 mv="mv"
 
-BFMDIR=""
-NEMODIR=""
-
 # Control if BFMDIR and NEMODIR are defined among environment variables
 if [ "${BFMDIR}" = "" ]; then
    echo "Environmental variable BFMDIR not defined!"
