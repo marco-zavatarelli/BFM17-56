@@ -50,7 +50,7 @@ module mod_bnmerge
    integer,allocatable,dimension(:),public         :: bfmvarid
 
    ! namelist variables
-   character(LEN=100) :: inp_dir, out_dir, out_fname
+   character(LEN=100) :: inp_dir, out_dir, chunk_fname
    integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    logical :: ln_mask=.FALSE.
