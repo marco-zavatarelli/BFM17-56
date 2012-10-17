@@ -343,7 +343,7 @@ This book is divided in two main parts.
  It also provides examples of the possible diagnostics that can be activated
  and illustrates the advanced features that allow the user to modify the
  model adding new state variables and components.
- The second part contains an exteded description of the model equations
+ The second part contains an extended description of the model equations
  and as such it describes different parameterizations that can be used to
  simulate biogeochemical processes in the marine system.
  
@@ -2952,13 +2952,13 @@ run/standalone/temperate.pelagic
 .
  It simulates the seasonal cycle of a well-mixed temperate coastal sea,
  with mean depth 5 m.
- This example is to considered as a template for other application, as it
- is not meant to describe any real-world application.
+ This example is to be considered as a template for other applications,
+ as it is not meant to describe any real-world application.
  The simulation starts in January 2000 and terminates in 2010 with a maximum
  time step of 8640 s in the adaptive Runge-Kutta solver and with the output
  stored every 10 days.
  After 2010 the system starts showing more chaotic fluctuations typical
- of this kind of non-linear systems.
+ of this kind of non-linear system.
  The time evolutions of temperature, irradiance, nutrients (the system is
  sustained with regenerated nutrients only, therefore nitrate goes to 0),
  chlorophyll and secondary gross production are provided in Figs.
@@ -5684,7 +5684,7 @@ reference "fig:Schematic-of-D3SINK"
 \end_inset
 
 ).
- It is clear that the two matrices are simmetrical and a predation (negative)
+ It is clear that the two matrices are symmetrical and a predation (negative)
  rate from variable P1c to Z4c is equivalent to an ingestion rate (positive)
  of 
 \family typewriter
@@ -5695,7 +5695,7 @@ Z4c
 P1c
 \family default
 .
- All the rates are defined positive by convention, such as to obtain the
+ All the rates are defined positive by convention, so that to obtain the
  net rate of change for variable of row j, it is sufficient to compute
 \begin_inset listings
 lstparams "basicstyle={\footnotesize},language=Fortran"
@@ -5783,7 +5783,7 @@ NO_D2_BOX_STATES
 \begin_layout Standard
 No direct mass exchanges are allowed between variables from different realms
  (like for instance between pelagic and benthic variables), and therefore
- the those fluxes are defined as diagonal fluxes.
+ those fluxes are defined as diagonal fluxes.
  Specialized functions have been written to take into account all the possible
  kind of exchanges and are collected in 
 \family typewriter
@@ -5972,9 +5972,8 @@ envforcing_bfm
  based on the time of the day/year.
  When coupled with an ocean model, this routine is the contact point between
  the two models.
- Note that information may flow in the two directions because the light
- attenuation coefficient might also be passed back to the physical model
- via this routine.
+ Note that information may flow in two directions because the light attenuation
+ coefficient might also be passed back to the physical model via this routine.
 \end_layout
 
 \begin_layout Enumerate
@@ -5994,8 +5993,8 @@ numerical integration of the biogeochemical terms.
 \family typewriter
 EcologyDynamics
 \family default
- can be called more than one times by this routines when the integration
- schem is of higher-order.
+ can be called more than one time by this routine when the integration scheme
+ is of higher-order.
 \end_layout
 
 \begin_layout Enumerate
@@ -6187,8 +6186,8 @@ reference "sec:Memory-layout"
 \end_inset
 
  is accessed by each submodel of the BFM.
- To refer to the pointer of each phytoplankton component, it can be used
- the placeholder function 
+ To refer to the pointer of each phytoplankton component, one can use the
+ placeholder function 
 \family typewriter
 ppPhytoPlankton(i,j)
 \family default
@@ -6206,7 +6205,7 @@ j
 \family typewriter
 ppPhytoPlankton(1,iiC)
 \family default
- is equivalent to write 
+ is equivalent to writing 
 \family typewriter
 ppP1c
 \family default
@@ -6412,7 +6411,7 @@ The BFM is conceived in a modular way and the number of state variables
  and biogeochemical basic components can be modified according to the modelling
  needs.
  This section addresses the advanced features that are useful to change
- the structure of the model and to opitmize some beahior at compilation.
+ the structure of the model and to opitmize some behaviour at compilation.
 \end_layout
 
 \begin_layout Section
@@ -7448,13 +7447,14 @@ Example 3.
 \end_layout
 
 \begin_layout Standard
-For certain purposes it is not needed to carry on the computation of variable
+For certain purposes it is not needed to carry out the computation of variable
  nutrient:carbon quota in selected Living Functional Groups (for instance,
  in the case of the new macrozooplankton gorup added in example 1).
- This can be due to save computational resources in case of low-resolution
+ This can be done to save computational resources in the case of low-resolution
  long-term global ocean simulations or with high-resolution coastal models.
- A possible example is the assumption of fixed quota in zooplankton which
- allows to reduce the number of standard components of up to 8 state variables.
+ A possible example is the assumption of a fixed quota in zooplankton which
+ allows one to reduce the number of standard components of up to 8 state
+ variables.
  
 \end_layout
 
@@ -8221,8 +8221,8 @@ reference "tab:model_variables"
  measurable properties of marine biogeochemistry to the model state variables.
  They are expressed in terms of several basic components (both elements
  as C, N, P, Si, or molecules as chl) and exchange organic and inorganic
- matter in terms of these constituents trough basic physiological and ecological
- processes (Fig.
+ matter in terms of these constituents through basic physiological and ecologica
+l processes (Fig.
  
 \begin_inset CommandInset ref
 LatexCommand ref
