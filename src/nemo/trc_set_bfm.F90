@@ -95,7 +95,7 @@
          wbio = 0.0_RLEN
    end select
 
-#ifdef PIPPO
+#ifdef AGGREGATION
    !---------------------------------------------
    ! Sinking speeds increase with depth below 
    ! the turbocline depth (aggregation)
@@ -114,13 +114,6 @@
       end do
    end do
 #endif
-
-#ifdef FLUXES
-   !---------------------------------------------
-   ! Surface fluxes (to be copied from GOTM)
-   !---------------------------------------------
-#endif
-
 
    return
    end subroutine trc_set_bfm

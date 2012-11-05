@@ -40,6 +40,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    use global_mem,only:LOGUNIT
    use sbc_oce, only: ln_rnf
    use constants, only: SEC_PER_DAY
+   use print_functions
  
    ! substitutions
 #  include "top_substitute.h90"
@@ -56,22 +57,23 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    CHARACTER (len=25) :: charout
    !!---------------------------------------------------------------------
    !
+   IF( nn_timing == 1 )  CALL timing_start('trc_sbc_bfm')
+   !
    ! Allocate temporary workspace
    CALL wrk_alloc( jpi, jpj,      zemps  )
 #ifdef DEBUG
    CALL wrk_alloc( jpi, jpj,      field  )
-   field = 0.0
+   field = 0.0_wp
 #endif
    !!----------------------------------------------------------------------
    ! initialization of density and scale factor
-   zsrau = 1. / rau0
+   zsrau = 1._wp / rau0
 
    IF( kt == nittrc000 ) THEN
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_sbc_bfm : Surface boundary conditions for BFM variables'
       IF(lwp) WRITE(numout,*) '~~~~~~~ '
    ENDIF
-                                                                                                                                                       
 
    IF( lk_offline ) THEN          ! emps in dynamical files contains emps - rnf
       zemps(:,:) = emps(:,:)
@@ -145,14 +147,13 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
     WRITE(LOGUNIT,*) ''//charout//' trends in trc_sbc'
     WRITE(LOGUNIT,*)
     WRITE(LOGUNIT,*)'  level = 1'
-    CALL prihre( field/maxval(field), jpi, jpj, 1, jpi, 1, 1, jpj, 1, 1., LOGUNIT )
-    WRITE(LOGUNIT,*)
-    CALL prihre( trn(:,:,1,1), jpi, jpj, 1, jpi, 1, 1, jpj, 1, 1., LOGUNIT )
+    CALL prxy( LOGUNIT, 'trend at level = 1',field(:,:), jpi, 1, jpj, 1, ZERO)
+    CALL prxy( LOGUNIT, 'trn at level = 1',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
     CALL wrk_dealloc( jpi, jpj,      field  )       
 #endif
 
     CALL wrk_dealloc( jpi, jpj,      zemps  )       
-
+    IF( nn_timing == 1 )  CALL timing_stop('trc_sbc_bfm')
 
    END SUBROUTINE trc_sbc_bfm
 

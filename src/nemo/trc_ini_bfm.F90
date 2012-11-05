@@ -271,6 +271,7 @@
       do m = 1,NO_D3_BOX_STATES
          select case (InitVar(m) % init)
          case (1) ! Analytical profile
+            if (lwp) write(numout,*) 
             if (lwp) write(numout,*) '            Initializing BFM variable ', &
                      trim(var_names(stPelStateS+m-1)),' from Analytical profile.'
             rtmp3Da = ZERO
@@ -283,6 +284,7 @@
             end do
             D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
          case (2) ! from file
+            if (lwp) write(numout,*) 
             if (lwp) write(numout,*) '            Initializing BFM variable ', &
                      trim(var_names(stPelStateS+m-1)),' from file'
             ! mapping index
@@ -300,7 +302,7 @@
    IF( nb_trcdta > 0 ) THEN
       !==   deallocate data structure   ==! 
       !        data used only for initialisation)
-      IF(lwp) WRITE(numout,*) 'trc_dta: deallocate data arrays as they are only use to initialize the run'
+      IF(lwp) WRITE(numout,*) 'trc_dta: deallocate data arrays as they are only used to initialize the run'
       DO ll = 1, ntra
                                        DEALLOCATE( sf_trcdta(ll)%fnow )     !  arrays in the structure
          IF( sf_trcdta(ll)%ln_tint )   DEALLOCATE( sf_trcdta(ll)%fdta )
