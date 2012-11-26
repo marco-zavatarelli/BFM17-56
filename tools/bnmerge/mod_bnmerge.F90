@@ -1,5 +1,6 @@
 ! BFM_NEMO-MERGE bnmerge
 !    Copyright (C) 2009-2011 Marcello Vichi (marcello.vichi@bo.ingv.it)
+!    UPDATES:   2012 - Tomas Lovato (tomas.lovato@cmcc.it)
 !
 !    This program is free software: you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by
@@ -50,14 +51,20 @@ module mod_bnmerge
    integer,allocatable,dimension(:),public         :: bfmvarid
 
    ! namelist variables
+   character(LEN=400) :: cf_nml_bnmerge='bnmerge.nml'     ! namelist name
    character(LEN=100) :: inp_dir, out_dir, out_fname
    integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    logical :: ln_mask=.FALSE.
+   
 
    public 
    contains 
-
+!
+!   ------------------------------------------------------------------------------    
+!    Handle errors of NetCDF operations
+!   ------------------------------------------------------------------------------
+!
    subroutine handle_err(iret,errstring)
    use netcdf
    implicit none
@@ -70,5 +77,81 @@ module mod_bnmerge
        stop "stop in function handle_err"
      endif
    end subroutine handle_err
-   
+!
+!   ------------------------------------------------------------------------------    
+!    Retrieve the namelist file name and location
+!   ------------------------------------------------------------------------------
+!
+   subroutine GET_ARGUMENTS()
+    
+   INTEGER            :: iargc, jarg
+   CHARACTER(len=400) :: cr 
+   CHARACTER(LEN=2), DIMENSION(1), PARAMETER :: &
+        clist_opt = (/ '-f' /)     
+
+   ! --- get arguments
+   jarg = 0
+
+   ! set the default name
+   if (jarg == iargc()) then
+          PRINT *, ' Input namelist not specified !!! '
+          PRINT *, ' Set the name to the  default (bnmerge.nml). '
+          PRINT *, ' -----'
+          PRINT *, ' To specify a different filename use the option -f, e.g. '
+          PRINT *, '       bnmerge -f bnmerge2000.nml'
+          PRINT *, ''
+          cr=trim(cf_nml_bnmerge)
+   endif
+
+   DO WHILE ( jarg < iargc() )
+      !!
+      jarg = jarg + 1
+      CALL getarg(jarg,cr)
+      !!
+      SELECT CASE (trim(cr))
+ 
+      CASE('-f')
+        
+         IF ( jarg + 1 > iargc() ) THEN
+            PRINT *, 'ERROR: Missing namelist name!'; goto 123; 
+         ELSE
+            !!
+            jarg = jarg + 1
+            CALL getarg(jarg,cr)
+            !!
+            IF ( ANY(clist_opt == trim(cr)) ) THEN
+               PRINT *, 'ERROR: ', trim(cr), ' is definitively not the name of the namelist!'
+               goto 123;
+            END IF
+            !!
+            !!
+         END IF
+
+      CASE DEFAULT
+         PRINT *, ' Unrecognized input option !!! '
+         PRINT *, ' Set the name to the  default (bnmerge.nml). ' 
+         PRINT *, ' -----'
+         PRINT *, ' To specify a the namelis the option -f, e.g. '
+         PRINT *, '       bnmerge -f bnmerge2000.nml'
+         PRINT *, '' 
+         cr=trim(cf_nml_bnmerge)
+      END SELECT       
+ 
+   END DO
+
+    !
+    ! set the namelist name
+    cf_nml_bnmerge=trim(cr)
+
+    PRINT *, ''
+    PRINT *, 'BNMERGE Namelist is: ', trim(cf_nml_bnmerge)   
+    PRINT *, ''
+
+   return
+
+123 PRINT*, 'IF you see this something is wrong with the specified namelist! ' 
+   STOP
+   end subroutine GET_ARGUMENTS
+
+
 end module mod_bnmerge

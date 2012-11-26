@@ -25,7 +25,7 @@ subroutine read_input
 
       var_save="NotVar"
       ! Reading directory names and file name specification
-      open(namlst,file='bnmerge.nml',action='read',status='old',err=99)
+      open(namlst,file=trim(cf_nml_bnmerge),action='read',status='old',err=99)
       read(namlst,nml=bnmerge_nml,err=98)
       close(namlst)
       ! read processor layout from layout.dat file 
@@ -74,7 +74,9 @@ subroutine read_input
           write (*,*)
           stop 'Stop in read_input'
       endif
-99    stop 'I could not open bnmerge.nml'
-98    stop 'I could not read bnmerge_nml'
+99    write (*,*) 'I could not open the namelist: ', trim(cf_nml_bnmerge); write (*,*)
+      stop
+98    write (*,*) 'I could not read the namelist: ', trim(cf_nml_bnmerge); write (*,*)
+      stop
 
 end subroutine read_input

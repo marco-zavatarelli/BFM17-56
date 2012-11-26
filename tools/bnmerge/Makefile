@@ -28,7 +28,7 @@ read_input.o: ./read_input.F90 mod_bnmerge.o
 SRC = ./create_outputfile.F90 ./mod_bnmerge.F90 ./merge_vars.F90 ./bnmerge.F90 ./read_input.F90
 OBJ = create_outputfile.o mod_bnmerge.o merge_vars.o bnmerge.o read_input.o
 clean: neat
-	-rm -f .cppdefs *.mod $(OBJ) bnmerge
+	-rm -f .cppdefs *.mod $(OBJ) bnmerge LinkerMap
 neat:
 	-rm -f $(TMPFILES)
 bnmerge: $(OBJ) 

@@ -16,6 +16,9 @@
 
 program bnmerge
 
+use mod_bnmerge, ONLY: GET_ARGUMENTS
+
+  call GET_ARGUMENTS
   call read_input
   call create_outputfile
   call merge_vars
