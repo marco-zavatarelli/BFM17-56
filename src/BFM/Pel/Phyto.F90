@@ -26,7 +26,7 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: iiC,iiN,iiP,iiS,iiL
+  use mem, ONLY: iiC,iiN,iiP,iiS,iiL,iiP3
   use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, &
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
@@ -331,8 +331,10 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature response of Phytoplankton
+  ! Include cut-off at low temperature if p_temp>0
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   et  =   eTq_vector(  ETW(:),  p_q10(phyto))
+  et  =   max(ZERO,et-p_temp(phyto))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Photosynthesis 

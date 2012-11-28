@@ -61,6 +61,7 @@
   !  ---------------- Physiological parameters -----------------
   !
   real(RLEN)  :: p_q10(iiPhytoPlankton)  ! Doubling temperature
+  real(RLEN)  :: p_temp(iiPhytoPlankton)=ZERO ! Cut-off for temperature factor
   real(RLEN)  :: p_sum(iiPhytoPlankton)  ! Maximal productivity at 10 degrees C
   real(RLEN)  :: p_srs(iiPhytoPlankton)  ! Respiration rate at 10 degrees C
   real(RLEN)  :: p_sdmo(iiPhytoPlankton)  ! Max.specific nutrient-stress lysis rate
@@ -118,7 +119,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Phyto_parameters/ p_q10, p_sum, p_srs, p_sdmo, p_seo, p_pu_ea, &
-                              p_netgrowth,p_limnut, &
+                              p_temp, p_netgrowth,p_limnut, &
                               p_pu_ra, p_qnlc, p_qplc, p_qslc, &
                               p_qnRc, p_qpRc, p_qsRc, &
                               p_qun, p_qup, p_qus, &

@@ -99,9 +99,9 @@ printf MAKEFILE "# Makefile created by %s $version\n\n", basename($0);
 print  MAKEFILE "include $opt_t\n\n" if $opt_t; #include template if supplied
 print  MAKEFILE "SRCROOT = $opt_a\n\n" if $opt_a; # make abspath a variable
 if ( $opt_c ) {
-   if ( $Config{osname} eq 'aix' ) {
-      $opt_c .= ' -D__aix';
-#AIX fortran (xlf) requires -WF, in front, comma delimiter, no spaces
+    if ( $opt_t =~ "xlf"  ){
+      if ( $Config{osname} eq 'aix' ){ $opt_c .= ' -D__aix';}
+      #AIX fortran (xlf) requires -WF, in front, comma delimiter, no spaces
       my $cppdefs_xlf = '-WF "' . $opt_c . '"';
       $cppdefs_xlf =~ s/,/\\,/g; # escape any commas already there
       $cppdefs_xlf =~ s/\s+/,/g; # replace whitespace with commas
