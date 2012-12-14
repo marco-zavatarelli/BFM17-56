@@ -12459,53 +12459,282 @@ Rates of change form equations for bacteria.
 \end_layout
 
 \begin_layout Subsection
-Quadratic mortality
-\end_layout
-
-\begin_layout Standard
-Differently as described in 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "vichi07_part1"
+B0 standard parameterization 
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:B0-bacteria"
 
 \end_inset
 
-, it is now assumed that bacteria in the model have a background quadratic
- mortality term 
+
+\end_layout
+
+\begin_layout Subsubsection
+Substrate uptake 
+\end_layout
+
+\begin_layout Standard
+The realized total carbon uptake rate of organic substrate in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:bacteria_C"
+
+\end_inset
+
+) is regulated by environmental factors and substrate availability with
+ a threshold formulation:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+\NSP\NSP\sum_{j=1,2,6}\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(j)}}^{upt} & =\label{eq:bacteria_bcd-1}\\
+ & \NSP\NSP\NSP\BNSP\min\left(f_{_{B}}^{n,p}f_{_{B}}^{T}r_{0_{B}}B_{c},\sum_{j=1,6}\nu{}_{R^{(j)}}f_{_{R^{(j)}}}^{n,p}R_{c}^{(j)}+\nu_{R^{(2)}}R_{c}^{(2)}\right)\nonumber 
+\end{align}
+
+\end_inset
+
+where the non-dimensional regulating factors represent the nutritional content
+ of bacterial cells and organic substrate, respectively:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+f_{_{B}}^{n,p} & =\min\left(1,\,\frac{B_{p}/B_{c}}{p^{^{opt}}},\,\frac{B_{n}/B_{c}}{n^{^{opt}}}\right);\label{eq:bacteria_regfac}\\
+f_{_{R^{(j)}}}^{n,p} & =\min\left(1,\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{p^{^{opt}}},\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{n^{^{opt}}}\right)\, j=1,6\label{eq:OM_regfac}
+\end{align}
+
+\end_inset
+
+The uptake of the nutrient components in the labile and semi-labile (particulate
+) fractions is then derived from the actual nutrient ratios in the organic
+ matter as:
+\end_layout
+
+\begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(1)}}^{lys}=d_{_{B}}^{0}B_{c}B_{c}\label{eq:bacteria_viral_lys_quad}
+\left.\frac{\partial B_{i}}{\partial t}\right|_{R_{i}^{(j)}}^{upt}=\frac{R_{i}^{(j)}}{R_{c}^{(j)}}\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(j)}}^{upt},\quad i=n,p;\, j=1,6
 \end{equation}
 
 \end_inset
 
-in order to mimic viral lysis.
+
+\end_layout
+
+\begin_layout Subsubsection
+Respiration
+\end_layout
+
+\begin_layout Standard
+The respiration sink term is divided in basal and activity respiration as
+ 
+\begin_inset Formula 
+\begin{align}
+\left.\frac{\partial B_{c}}{\partial t}\right|_{O^{(3)}}^{rsp} & =b_{_{B}}f_{B}^{T}B_{c}+\label{eq:bacteria_rsp-1}\\
+ & +\left[1-\eta_{_{B}}+\eta_{_{B}}^{o}\left(1-f_{B}^{o}\right)\right]\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(1)},R_{c}^{(6)}}^{upt}\nonumber 
+\end{align}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The basal respiration is parameterized as for phytoplankton with a constant
+ specific respiration rate 
+\begin_inset Formula $b_{_{B}}$
+\end_inset
+
+ and the regulating factor for temperature given in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:Q10"
+
+\end_inset
+
+).
+ The parameter 
+\begin_inset Formula $\eta_{_{B}}$
+\end_inset
+
+ in the activity respiration term represents the maximum carbon assimilation
+ efficiency under oxic situations, and 
+\begin_inset Formula $\eta_{_{B}}^{o}$
+\end_inset
+
+ is the efficiency  under low oxygen conditions.
+ Since the B0 parameterization encompasses both aerobic and anaerobic bacterial
+ activities, we consider here the differences in the energetics of the metabolic
+ pathways in relation to oxygen availability.
+ Anaerobic bacteria have a lower efficiency because they need to burn (respire)
+ more carbon in order to produce the same amount of energy.
+ 
+\end_layout
+
+\begin_layout Standard
+The oxygen regulating factor 
+\begin_inset Formula $f_{B}^{o}$
+\end_inset
+
+ in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:bacteria_regfac_O"
+
+\end_inset
+
+) is parameterized with a cubic form of the Michaelis-Menten formulation
+ as:
+\begin_inset Formula 
+\begin{equation}
+f_{_{B}}^{o}=\frac{\left(O^{(2)}\right)^{3}}{\left(O^{(2)}\right)^{3}+\left(h_{_{B}}^{o}\right)^{3}}\label{eq:bacteria_regfac_O}
+\end{equation}
+
+\end_inset
+
+ where the dissolved oxygen concentration 
+\begin_inset Formula $O^{(2)}$
+\end_inset
+
+ is considered, and 
+\begin_inset Formula $h_{_{B}}^{o}$
+\end_inset
+
+ is the oxygen concentration at which metabolic functionalities are halved.
+ This steep sigmoid has been chosen to efficiently switch between bacteria
+ metabolism under aerobic conditions and anaerobic metabolism as further
+ explained in Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Oxygen-anoxic-processes"
+
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Mortality
+\end_layout
+
+\begin_layout Standard
+Concerning the remaining loss terms, it has been assumed that bacteria in
+ the model have a background quadratic mortality term 
+\begin_inset Formula 
+\begin{equation}
+\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(1)}}^{lys}=d_{_{B}}^{0}B_{c}B_{c}\label{eq:bacteria_viral_lys_quad-1}
+\end{equation}
+
+\end_inset
+
+meant to mimic viral lysis.
  The carbon-specific mortality rate 
 \begin_inset Formula $d_{0_{B}}$
 \end_inset
 
- is constant
-\begin_inset Note Note
-status collapsed
-
-\begin_layout Plain Layout
-Do we have an idea of the value from some measurements?
+ is constant and not affected by temperature because the positive effects
+ of (Brownian-motion-enhanced) encounter rates will be offset by a reduced
+ lifetime of the viral particles.
+ 
 \end_layout
 
-\begin_layout Plain Layout
-This viral mortality should kick in when they go over 50mgC
+\begin_layout Subsubsection
+Nutrient release and uptake
 \end_layout
 
-\begin_layout Plain Layout
-/m3....
-\end_layout
+\begin_layout Standard
+Depending on their internal nutrient quota, bacteria are remineralizers
+ or  competitors with phytoplankton, taking up inorganic nutrients directly
+ from the water.
+ The uptake dynamics are similar to the one for phytoplankton, with an affinity
+ constant that regulates the direct uptake and an activity uptake based
+ the optimal quota 
+\begin_inset Formula 
+\begin{align}
+\NSP\NSP\left.\frac{\partial B_{p}}{\partial t}\right|_{N^{(1)}}^{upt} & =\label{eq:bacteria_upt_P}\\
+ & \NSP\NSP\NSP\NSP\min\left(a_{B}^{1}N^{(1)}B_{c},\max\left(0,\, p_{B}^{opt}G_{B}-\NSP\sum_{j=1,6}\left.\frac{\partial B_{p}}{\partial t}\right|_{R_{p}^{(j)}}^{upt}\right)\right)\nonumber 
+\end{align}
 
 \end_inset
 
- and not affected by temperature because the positive effects of (Brownian-motio
-n-enhanced) encounter rates is likely to be offset by a reduced lifetime
- of the viral particles.
- 
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\left.\frac{\partial B_{p}}{\partial t}\right|_{N^{(1)}}^{rel}=\max\left(0,\,\sum_{j=1,6}\left.\frac{\partial B_{p}}{\partial t}\right|_{R_{p}^{(j)}}^{upt}-p_{_{P}}^{opt}G_{B}\right)\label{eq:bacteria_rel_P}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\left.\frac{\partial B_{n}}{\partial t}\right|_{N^{(4)}}^{rel}=\max\left(0,\,\sum_{j=1,6}\left.\frac{\partial B_{n}}{\partial t}\right|_{R_{n}^{(j)}}^{upt}-n_{B}^{opt}G_{B}\right)\label{eq:bacteria_rel_N}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+\NSP\!\!\sum_{i=3,4}\!\!\!\!\left.\frac{\partial B_{n}}{\partial t}\right|_{N^{(i)}}^{upt} & \!\!\!\NSP=\!\!\min\left(\!\!\left(a_{B}^{3}\frac{h_{B}^{n}}{h_{B}^{n}+N^{(4)}}N^{(3)}+a_{B}^{4}N^{(4)}\!\!\right)\! B_{n},\right.\nonumber \\
+ & \left.\max\left(0,\, n_{B}^{opt}G_{B}-\sum_{j=1,6}\left.\frac{\partial B_{n}}{\partial t}\right|_{R_{n}^{(j)}}^{upt}\right)\right)\label{eq:bacteria_upt_N}
+\end{align}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{equation}
+G_{B}=\sum_{j=1,2,6}\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(j)}}^{upt}-\left.\frac{\partial B_{c}}{\partial t}\right|_{O^{(3)}}^{rsp}\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{i}^{(1)}}^{lys}\label{eq:bacteria_net_growth}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Excretion
+\end_layout
+
+\begin_layout Standard
+Only capsular material, assumed to be very refractory (long-chained polysacchari
+des, no nutrients) is lost.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\left.\frac{\partial B_{c}}{\partial t}\right|_{R_{c}^{(7)}}^{rel}=G_{B}-G_{B}^{bal}\label{eq:bacteria_exc_refrac}
+\end{equation}
+
+\end_inset
+
+where
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align*}
+G_{B}^{bal} & =\max\left(0,\min\left(G_{B},\,\frac{1}{n_{B}^{opt}}\sum_{i=3,4}\left.\frac{\partial B_{n}}{\partial t}\right|_{N^{(i)}}^{upt},\right.\right.\\
+ & \left.\left.\frac{1}{p_{B}^{opt}}\left.\frac{\partial B_{p}}{\partial t}\right|_{N^{(1)}}^{upt}\right)\right)
+\end{align*}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection
@@ -12520,14 +12749,8 @@ name "sub:B1-bacteria"
 \end_layout
 
 \begin_layout Standard
-The basic assumptions of the model are essentially the same as in 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "vichi07_part1"
-
-\end_inset
-
-.
+The basic assumptions of the model are essentially the same as the parametrizati
+on described above.
  The lability/refractivity characteristics of DOM are dependent on two factors:
  the C:N and C:P ratios of bacteria and the structure of organic molecules
  constituting the DOM matrix.
