@@ -12942,8 +12942,473 @@ We currently do not include Si and chl in the CFFs for zooplankton, because
  and chl is a negligible part of C and N in the total biomass of preys.
 \end_layout
 
+\begin_layout Subsection
+Food availability
+\end_layout
+
+\begin_layout Standard
+The total amount of food available to zooplankton is computed considering
+ the set of possible preys 
+\begin_inset Formula $X_{i}\in\left\{ P_{i}^{(j)},B_{i},Z_{i}^{(j)}\right\} $
+\end_inset
+
+ as the vector 
+\begin_inset Formula $F_{i}=\sum_{X}\delta_{_{Z,X}}e_{_{Z,X}}X_{i}$
+\end_inset
+
+, where 
+\begin_inset Formula $\delta_{_{Z,X}}$
+\end_inset
+
+is the availability of prey 
+\begin_inset Formula $X_{i}$
+\end_inset
+
+ for predator Z and 
+\begin_inset Formula $e_{_{Z,X}}$
+\end_inset
+
+ is the capture efficiency.
+ The product of the latter terms gives the total preference.
+ There are many definitions of preferences in the literature, and we have
+ used concepts from 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "gentleman03"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "gibson05"
+
+\end_inset
+
+ to combine the parameterizations described in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "barettabekker95"
+
+\end_inset
+
+ for microzooplankton and in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "broekhuizen95"
+
+\end_inset
+
+ for mesozooplankton.
+ Availability represents the suitability of the prey and is assumed to be
+ mostly dependent on the prey's nominal dimensions.
+ Capture efficiency (or relative preference) is also a non-dimensional factor
+ which is set to 1 for mesozooplankton and is density-dependent in microzooplank
+ton, 
+\begin_inset Formula $e_{_{Z,X}}=\frac{X_{c}}{X_{c}+\mu_{Z}}$
+\end_inset
+
+, according to the threshold half-saturation density 
+\begin_inset Formula $\mu_{Z}$
+\end_inset
+
+ (
+\begin_inset Formula $\mu_{Z}=0$
+\end_inset
+
+ for mesozooplankton).
+\end_layout
+
+\begin_layout Subsection
+Ingestion
+\end_layout
+
+\begin_layout Standard
+The first term on the right hand side of eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_C"
+
+\end_inset
+
+) is the total carbon ingestion, which corresponds to the sum of all the
+ predation loss terms in the carbon equations of the other functional groups
+ preyed by zooplankton.
+ Applying the inter-functional group conversion defined in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:flip_flop_rule"
+
+\end_inset
+
+), the rate term for each predation processes is parameterized with a Type
+ 2 formulation 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gentleman03"
+
+\end_inset
+
+, 
+\begin_inset Formula 
+\begin{equation}
+\left.\frac{\partial Z_{c}}{\partial t}\right|_{X_{c}}^{prd}=-\left.\frac{\partial X_{c}}{\partial t}\right|_{Z_{c}}^{prd}=f_{_{Z}}^{T}\, r_{_{Z}}^{0}\frac{\delta_{_{Z,X}}e_{_{Z,X}}\, X_{c}}{F_{c}}\frac{F_{c}}{F_{c}+h_{Z}^{F}}Z_{c}\label{eq:zooplankton_predation}
+\end{equation}
+
+\end_inset
+
+which is traditionally rewritten in terms of the specific search volume
+ in the case of mesozooplankton 
+\begin_inset Formula $(h_{Z}^{F}=\frac{r_{0_{Z}}}{v_{_{Z}}})$
+\end_inset
+
+, because this parameter is generally available in the literature.
+ For brevity, in the zooplankton equations we will use the following notation
+ to indicate the total ingestion rate in units of the BBCs:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{equation}
+\Im_{i}=\sum_{X}\left.\frac{\partial Z_{i}}{\partial t}\right|_{X_{i}}^{prd}\, j=c,n,p.\label{eq:zooplankton_ingestion}
+\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Excretion/egestion
+\end_layout
+
+\begin_layout Standard
+Metabolic rates in zooplankton are assumed to be closely coupled to growth,
+ therefore total ingested carbon is used part for net production, part for
+ respiration and the remainder is egested/excreted.
+ The parameters that can be measured in laboratory experiments are net growth
+ efficiency 
+\begin_inset Formula $\eta_{_{Z}}$
+\end_inset
+
+ (the ratio between net production and the sum of net production and activity
+ respiration) and the egested portion of ingested material 
+\begin_inset Formula $\beta_{_{Z}}$
+\end_inset
+
+ .
+ The ingestion rate in eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_ingestion"
+
+\end_inset
+
+) is not directly affected by prey quality in our present formulation, although
+ this process appears to modulate zooplankton feeding rates substantially
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+before "cf."
+key "mitra05"
+
+\end_inset
+
+.
+ Nevertheless, the definition of constant (optimal) nutrient quota in zooplankto
+n 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "barettabekker97"
+
+\end_inset
+
+, equivalent to the Threshold Elemental Ratios of 
+\begin_inset CommandInset citation
+LatexCommand citet
+after "TER"
+key "andersen04"
+
+\end_inset
+
+, implies that the ingestion of low-quality (i.e.
+ nutrient-poor) food lead to the disposal of the ingested carbon in excess,
+ thus effectively limiting biomass growth.
+ 
+\end_layout
+
+\begin_layout Standard
+On the other hand, an excess of nutrients, as for instance due to the ingestion
+ of phytoplankton under 
+\begin_inset Quotes eld
+\end_inset
+
+luxury uptake
+\begin_inset Quotes erd
+\end_inset
+
+ conditions, leads to an increase of the nutrient remineralization rates
+ as shown below in eqs.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_out_P"
+
+\end_inset
+
+-
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_out_N"
+
+\end_inset
+
+).
+ The release of extra C is parameterized as an increase of the egestion
+ rates of organic carbon compounds or,  alternatively, by increasing the
+ respiration rates.
+ Both processes are well documented in freshwater zooplankton 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "frost04,anderson05"
+
+\end_inset
+
+ and we have decided to parameterize  increased  excretion rates.
+ The two pathways are equivalent from the point of view of internal element
+ regulation in zooplankton, but the consequences of one choice or another
+ on the biogeochemical cycling of carbon are still to be investigated both
+ experimentally and in model studies.
+\end_layout
+
+\begin_layout Standard
+The carbon loss term in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_C"
+
+\end_inset
+
+) thus represents the sum of the activity excretion/egestion (higher for
+ mesozooplankton because of sloppy feeding), the mortality rates and the
+ nutrient-limited excretion of organic carbon: 
+\begin_inset Formula 
+\begin{equation}
+\sum_{j=1,6}\left.\frac{\partial Z_{c}}{\partial t}\right|_{R_{c}^{(j)}}^{rel}=\beta_{_{Z}}\Im_{c}+d_{0_{Z}}\, f_{_{Z}}^{T}\, Z_{c}+d_{_{Z}}^{dns}\, Z_{c}^{\gamma_{_{Z}}}+Q_{Z}^{c}\label{eq:zooplankton_out}
+\end{equation}
+
+\end_inset
+
+The released fraction is further divided into particulate (faecal pellets)
+ and dissolved organic forms using a constant percentage 
+\begin_inset Formula $\varepsilon_{_{Z}}^{c}$
+\end_inset
+
+ (mesozooplankton is assumed to have no dissolved products).
+ Mortality is parameterized as senescence with a first-order constant rate
+ 
+\begin_inset Formula $d_{0_{Z}}$
+\end_inset
+
+ and a grazing closure by higher trophic levels not resolved in the model,
+ which is a power function of density valid only for mesozooplankton (
+\begin_inset Formula $d_{_{Z}}^{dns}=0$
+\end_inset
+
+ for microzooplankton).
+\end_layout
+
+\begin_layout Standard
+The balancing flow of C 
+\begin_inset Formula $Q_{Z}^{c}$
+\end_inset
+
+ is computed from the actual elemental ratios of ingested material: 
+\begin_inset Formula 
+\begin{equation}
+\Gamma_{_{Z}}^{i}=\frac{\left(1-\beta_{_{Z}}\right)\Im_{c}}{\eta_{_{Z}}\Im_{c}},\quad i=n,p\label{eq:zoo_assimilation_ratio_NP}
+\end{equation}
+
+\end_inset
+
+ which are cross-compared with the optimal (constant) TERs, 
+\begin_inset Formula $n_{_{Z}}^{opt}$
+\end_inset
+
+ and 
+\begin_inset Formula $p_{_{Z}}^{opt}$
+\end_inset
+
+.
+ If nitrogen is limiting 
+\begin_inset Formula $\left(\Gamma_{_{Z}}^{n}<n_{_{Z}}^{opt}\right)$
+\end_inset
+
+, and/or phosphorus is limiting 
+\begin_inset Formula $\left(\Gamma_{_{Z}}^{p}<p_{_{Z}}^{opt}\right)$
+\end_inset
+
+, then
+\begin_inset Formula 
+\begin{equation}
+Q_{Z}^{c}=\eta_{_{Z}}\Im_{c}-\frac{\left(1-\beta_{_{Z}}\right)}{n_{_{Z}}^{opt}}\Im_{n}-\frac{\left(1-\beta_{_{Z}}\right)}{p_{_{Z}}^{opt}}\Im_{p},\label{eq:zooplankton_balance_C}
+\end{equation}
+
+\end_inset
+
+else 
+\begin_inset Formula $Q_{Z}^{c}=0$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Subsection
+Respiration
+\end_layout
+
+\begin_layout Standard
+Taking into account the activity excretion in eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_out"
+
+\end_inset
+
+) and after some algebra, the total respiration rate can be written as:
+\begin_inset Formula 
+\begin{equation}
+\left.\frac{\partial Z_{c}}{\partial t}\right|_{O^{(3)}}^{rsp}=(1-\beta_{_{Z}})(1-\eta_{_{Z}})\Im_{c}+b_{_{Z}}\, f_{_{Z}}^{T}\, Z_{c}\label{eq:zooplankton_rsp}
+\end{equation}
+
+\end_inset
+
+where the constant basal respiration rate 
+\begin_inset Formula $b_{Z}$
+\end_inset
+
+ is also considered.
+ 
+\end_layout
+
+\begin_layout Subsection
+Excretion/egestion of organic nutrients
+\end_layout
+
+\begin_layout Standard
+The nutrient dynamics for zooplankton given in eqs.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_N"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_P"
+
+\end_inset
+
+) are mainly derived from carbon dynamics taking into account the nutrient
+ content of the total food uptake.
+ The excretion/egestion rate of organic nutrients is obtained from eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_out"
+
+\end_inset
+
+) as: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{align}
+\NSP\sum_{j=1,6}\left.\frac{\partial Z_{i}}{\partial t}\right|_{R_{i}^{(j)}}^{rel}= & \frac{Z_{i}}{Z_{c}}\left(\beta_{_{Z}}\Im_{c}+d_{0_{Z}}\, f_{_{Z}}^{T}\, Z_{c}+d_{_{Z}}^{dns}\, Z_{c}^{\gamma_{_{Z}}}\right)\nonumber \\
+ & i=n,p\label{eq:zooplankton_out_RNP}
+\end{align}
+
+\end_inset
+
+and is subsiquently partitioned between particulate and dissolved according
+ to the non-dimensional fraction 
+\begin_inset Formula $\varepsilon_{_{Z}}^{i}$
+\end_inset
+
+ which parameterizes the different distribution of nutrients between structural
+ parts and cytoplasm.
+  
+\end_layout
+
+\begin_layout Subsection
+Inorganic nutrients
+\end_layout
+
+\begin_layout Standard
+The third terms on the right hand side of eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_N"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:zooplankton_P"
+
+\end_inset
+
+) parameterize the zooplankton excretion of inorganic nutrients, which occur
+ only when the internal nutrient quota exceed the optimal quota for P and
+ N, 
+\begin_inset Formula $p_{Z}^{opt}$
+\end_inset
+
+ and 
+\begin_inset Formula $n_{Z}^{opt}$
+\end_inset
+
+, respectively.
+ The following formulations allow organisms to have temporary imbalance
+ in their nutrient content:
+\begin_inset Formula 
+\begin{eqnarray}
+\left.\frac{\partial Z_{p}}{\partial t}\right|_{N^{(1)}}^{rel} & \NSP= & \NSP\nu_{Z}^{p}\,\max\left(0,\,\frac{Z_{p}}{Z_{c}}-p_{_{Z}}^{opt}\right)\, Z_{p}\label{eq:zooplankton_out_P}\\
+\left.\frac{\partial Z_{n}}{\partial t}\right|_{N^{(4)}}^{rel} & \NSP= & \NSP\nu_{Z}^{n}\,\max\left(0,\,\frac{Z_{n}}{Z_{c}}-n_{_{Z}}^{opt}\right)\, Z_{n}\label{eq:zooplankton_out_N}
+\end{eqnarray}
+
+\end_inset
+
+ and the time scales of excretion are controlled by the specific constant
+ rates 
+\begin_inset Formula $\nu_{Z}^{p}$
+\end_inset
+
+ and 
+\begin_inset Formula $\nu_{Z}^{n}$
+\end_inset
+
+ (see Appendix).
+ The excretion is in the form of phosphate and urea, but the latter in the
+ model is assumed to be as labile as the ammonium, therefore the rate is
+ directed to the 
+\begin_inset Formula $N^{(4)}$
+\end_inset
+
+ pool.
+\end_layout
+
 \begin_layout Section
-Chemical functional families
+Non-living components
 \begin_inset CommandInset label
 LatexCommand label
 name "sub:Chemical-functional-families"
