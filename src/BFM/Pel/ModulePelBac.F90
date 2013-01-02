@@ -75,6 +75,7 @@
   real(RLEN)  :: p_sulR1  ! Specific potential sugar availability (1/d)
   real(RLEN)  :: p_suR2  ! Specific potential TEP availability (1/d)
   real(RLEN)  :: p_suR6  ! Availability of POM (1/d)
+  real(RLEN)  :: p_suR7  ! Availability of semi-refractory DOC (1/d)
   real(RLEN)  :: p_sum  ! Specific potential uptake (1/d)
   real(RLEN)  :: p_pu_ra  ! Activity respiration (-)
   real(RLEN)  :: p_pu_ra_o  ! Decrease in Ass. efficiency at low O2 conc (-).
@@ -86,6 +87,8 @@
   real(RLEN)  :: p_qun  ! nutrient affinity ( mmol/mgC/day) <BFM>
   real(RLEN)  :: p_qup  ! nutrient affinity ( mmol/mgC/day) <BFM>
   real(RLEN)  :: p_lN4  ! ammonium conc. at which nutrate uptake are equal (BFM)
+  real(RLEN)  :: p_chn  ! half saturation ammonium conc. for uptake
+  real(RLEN)  :: p_chp  ! half saturation phosphate conc. for uptake
   real(RLEN)  :: p_pu_ea_R7  ! excretion of reg. org. met. (-) <LUCA>
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -98,8 +101,8 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
-    p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R7, p_srs, p_qpc, p_qlpc, &
-    p_qnc, p_qlnc, p_qun, p_qup, p_lN4
+    p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R7, p_srs, &
+    p_suR7, p_qpc, p_qlpc, p_qnc, p_qlnc, p_qun, p_qup, p_lN4, p_chn, p_chp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

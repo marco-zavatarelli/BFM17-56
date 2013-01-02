@@ -78,7 +78,7 @@
   real(RLEN)  :: p_sum(iiMicroZooPlankton)  ! Max. rel daily uptake as a fraction of biomass
   real(RLEN)  :: p_sdo(iiMicroZooPlankton)  ! Mortality due to oxygen limitation
   real(RLEN)  :: p_sd(iiMicroZooPlankton)   ! Temperature independent mortality
-  real(RLEN)  :: p_pu_ra(iiMicroZooPlankton)  ! Activity respiration
+  real(RLEN)  :: p_pu(iiMicroZooPlankton)   ! Assimilation efficiency
   real(RLEN)  :: p_pu_ea(iiMicroZooPlankton)  ! Activity excretion
   real(RLEN)  :: p_chro(iiMicroZooPlankton)  ! Oxygen saturation where respiration is 0.5
   real(RLEN)  :: p_chuc(iiMicroZooPlankton)  ! Food concentration where total uptake rate is 0.5
@@ -99,7 +99,7 @@
   subroutine InitMicroZoo()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /MicroZoo_parameters/ p_q10, p_srs, p_sum, p_sdo, p_sd, p_pu_ra, &
+  namelist /MicroZoo_parameters/ p_q10, p_srs, p_sum, p_sdo, p_sd, p_pu, &
     p_pu_ea, p_chro, p_chuc, p_minfood, p_suPI, p_suZI, p_suB1, p_qp_mz, p_qn_mz
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

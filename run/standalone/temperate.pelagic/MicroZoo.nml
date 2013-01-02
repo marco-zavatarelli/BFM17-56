@@ -39,9 +39,9 @@
 !  p_sum:  	 Max. rel daily uptake as a fraction of biomass
 !  p_sdo:  	 Mortality due to oxygen limitation
 !  p_sd:  	 Temperature independent mortality
-!  p_pu_ra:  	 Activity respiration
+!  p_pu:  	 Assimilation efficiency
 !  p_pu_ea:  	 Activity excretion
-!  p_chro:  	 Oxygen saturation where respiration is 0.5
+!  p_chro:  	 Oxygen concentration where respiration is 0.5
 !  p_chuc:  	 Food concentration where total uptake rate is 0.5
 !  p_minfood:  	 Concentration below which feeding on a particular
 !        :  	 foodsource is depressed
@@ -59,29 +59,29 @@
 &MicroZoo_parameters
        p_q10 = 	2.0,	2.0
        p_srs = 	0.02,	0.02
-       p_sum = 	2.0,	10.0
-       p_sdo = 	0.05,	0.05
-        p_sd = 	0.0,	0.0
-     p_pu_ra = 	0.25,	0.35
-     p_pu_ea = 	0.25,	0.35
-      p_chro = 	7.8,	7.8
-      p_chuc = 	30.0,	100.0
-   p_minfood = 	10.0,	50.0
+       p_sum = 	2.0,	4.0
+       p_sdo = 	0.25,	0.25
+        p_sd = 	0.05,	0.05
+        p_pu = 	0.6,	0.5
+     p_pu_ea = 	0.4,	0.3
+      p_chro = 	0.5,	0.5
+      p_chuc = 	20.0,	20.0
+   p_minfood = 	20.0,	20.0
      p_qp_mz = 	1.85d-3,1.85d-3
      p_qn_mz = 	1.67d-2,1.67d-2
 ! Food matrix parameters: take care of the notation
 !		P1	P2	P3	P4
 !	Z5
- p_suPI(1,:) =	0.0,	1.0,	0.1,	0.0
+ p_suPI(1,:) =	0.2,	1.0,	0.1,	0.0
 !	Z6
- p_suPI(2,:) =	0.0,	0.2,	1.0,	0.0
+ p_suPI(2,:) =	0.0,	0.1,	1.0,	0.0
 !		Z5	Z6
 !	Z5
- p_suZI(1,:) = 	1.0,	1.0
+ p_suZI(1,:) = 	1.0,	0.8
 !	Z6
  p_suZI(2,:) = 	0.0,	0.2
 !		Z5	Z6
-      p_suB1 = 	0.1,	1.0
+      p_suB1 = 	0.1,	0.9
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist
