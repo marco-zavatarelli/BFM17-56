@@ -133,6 +133,8 @@
      if (AllocStatus  /= 0) stop "error allocating ruR6p"
      allocate(ruR6n(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating ruR6n"
+     allocate(ruR7c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR7c"
      allocate(cqun3(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating cqun3"
      allocate(rump(NO_BOXES),stat=AllocStatus)
