@@ -24,9 +24,8 @@ MODULE trcstp
    PUBLIC   trc_stp    ! called by step
    
    !!----------------------------------------------------------------------
-   !! NEMO/TOP 3.3 , NEMO Consortium (2010)
-   !! $Id: trcstp.F90 2528 2010-12-27 17:33:53Z rblod $ 
    !! Software governed by the CeCILL licence (NEMOGCM/NEMO_CeCILL.txt)
+   !! Additional software compliant with GPL
    !!----------------------------------------------------------------------
 CONTAINS
 
@@ -46,6 +45,9 @@ CONTAINS
 #ifdef DEBUG
       write(LOGUNIT,*) 'Timestep: ',kt
 #endif
+
+      IF( nn_timing == 1 )   CALL timing_start('trc_stp')
+
       !---------------------------------------------
       ! Check the main BFM flag
       !---------------------------------------------
@@ -59,16 +61,15 @@ CONTAINS
           IF ( MOD( kt , nn_dttrc ) == 0 ) THEN  
 
                                    CALL trc_bfm( kt )           ! main call to BFM
-
                                    CALL trc_trp_bfm( kt )       ! transport of BFM tracers
-          
                                    CALL trc_dia_bfm( kt )       ! diagnostic output for BFM
-          
-          IF ( nn_dttrc /= 1 )     CALL trc_sub_reset( kt )       ! resetting physical variables when sub-stepping
+             IF ( nn_dttrc /= 1 )  CALL trc_sub_reset( kt )     ! resetting physical variables when sub-stepping
 
           ENDIF 
 
       END IF
+
+      IF( nn_timing == 1 )   CALL timing_stop('trc_stp')
       FLUSH(LOGUNIT)
 
    END SUBROUTINE trc_stp

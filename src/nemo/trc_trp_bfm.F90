@@ -54,9 +54,10 @@ SUBROUTINE trc_trp_bfm( kt )
    !! ---------------------------------------------------------------------
       integer :: m,k,n
       real(RLEN) :: dummy(NO_BOXES)
-      ! local variables for clipping
+      ! local variables for clipping and statistics
       integer :: nneg(NO_D3_BOX_STATES)
       real(RLEN) :: total(NO_D3_BOX_STATES),mass
+      real(RLEN) :: zmean, zmin, zmax, zdrift, ztraf
 
    !-----------------------------------------------------------------------
    ! Exit if transport is not computed. Time integration is carried out
@@ -170,6 +171,21 @@ SUBROUTINE trc_trp_bfm( kt )
             CALL prxy( LOGUNIT, 'trn:NXT',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
          END IF ! transported
+
+         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+         ! compute global statistics
+         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+         ztraf = glob_sum( trn(:,:,:,1) * cvol(:,:,:) )
+         zmin  = MINVAL( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
+         zmax  = MAXVAL( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
+         IF( lk_mpp ) THEN
+            CALL mpp_min( zmin )      ! min over the global domain
+            CALL mpp_max( zmax )      ! max over the global domain
+         END IF
+         zmean  = ztraf / areatot
+         zdrift = ( ( ztraf - D3STATE_tot(m) ) / ( D3STATE_tot(m) + 1.e-12_RLEN )  ) * 100._RLEN
+         IF(lwp) WRITE(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax, zdrift
+
       END DO ! over state vars
       
       IF (ln_trcrad) THEN
@@ -200,6 +216,8 @@ SUBROUTINE trc_trp_bfm( kt )
       END IF
 
       if ( nn_timing == 1 )   CALL timing_stop('trc_trp_bfm')
+9000  FORMAT(' STAT tracer nb :',i2,'    name :',a10,'    mean :',e18.10,'    min :',e18.10, &
+      &      '    max :',e18.10,'    drift :',e18.10, ' %')
 
 END SUBROUTINE trc_trp_bfm
 

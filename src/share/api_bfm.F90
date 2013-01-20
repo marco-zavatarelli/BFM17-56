@@ -129,6 +129,8 @@
    integer,allocatable,dimension(:),public     :: BOTindices,SRFindices
    ! real mask of river points at surface
    real(RLEN),allocatable,dimension(:),public  :: RIVmask
+   ! Total amount for each variable
+   real(RLEN),allocatable,dimension(:),public  :: D3STATE_tot,D2STATE_tot
 
 #ifdef BFM_NEMO
    !---------------------------------------------

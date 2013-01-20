@@ -57,6 +57,7 @@ CONTAINS
       INTEGER ::   jk, jn    ! dummy loop indices
       CHARACTER (len=25) :: charout
       !!---------------------------------------------------------------------
+      IF( nn_timing == 1 )   CALL timing_start('trc_init')
 
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_init : initial set up of the passive tracers'
@@ -86,11 +87,14 @@ CONTAINS
            neuler = 0                  ! Set time-step indicator at nit000 (euler)
            CALL day_init               ! set calendar
       ENDIF
-      trb(:,:,:,:) = trn(:,:,:,:)
+      ! Initialize temporary NEMO arrays for tracer transport
+      trn(:,:,:,:) = 0._wp
       tra(:,:,:,:) = 0._wp
+      trb(:,:,:,:) = trn(:,:,:,:)
       !
       IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
       !
+      IF( nn_timing == 1 )   CALL timing_stop('trc_init')
       
    END SUBROUTINE trc_init
 
