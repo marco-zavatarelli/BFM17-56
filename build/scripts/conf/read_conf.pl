@@ -18,6 +18,7 @@ my ($nml_def, $nml_val, $proto_dir, $out_dir, @cpp_defs);
 
 #fix values
 my $VERBOSE = 0;
+my $HELP    = 0;
 my @PROTOS_NAME = qw(ModuleMem AllocateMem set_var_info_bfm init_var_bfm INCLUDE);
 my @PROTOS_EXT  = qw(F90       F90         F90              F90          h      );
 
@@ -28,9 +29,16 @@ my %lst_sta   = ();
 my %lst_const = ();
 
 sub usage(){
-    print "ERROR in input parameters\n";
-    print "usage: $0 -D[cpp_def] -r [mem_layout] -n [namelist] -f [prototype_dir] -t [output_dir]\n";
-    exit 1;
+    print "usage: $0 {-D[cpp_def] -r [mem_layout] -n [namelist] -f [prototype_dir] -t [output_dir]} [-v]\n\n";
+    print "This script generate .F90 and .h files using templates based on configuration files\n\n";
+    print "MUST specify at least one these OPTIONS:\n";
+    print "\t-D[cpp_def]          defines\n";
+    print "\t-r [mem_layout]      memory layout\n";
+    print "\t-n [namelist]        namelist\n";
+    print "\t-f [prototype_dir]   input dir for prototype files\n";
+    print "\t-t [output_dir]      output dir for generated files\n";
+    print "alternative OPTIONS are:\n";
+    print "\t-v                   verbose mode\n";
 }
 
 use Getopt::Long qw(:config bundling noignorecase); # for getopts compat
@@ -39,10 +47,12 @@ GetOptions(
     'n=s'  => \$nml_val,
     'f=s'  => \$proto_dir,
     't=s'  => \$out_dir,  
-    'D=s@' =>  \@cpp_defs,
-    ) or usage();
-if ( !$nml_def || !$nml_val || !$proto_dir || !$out_dir ){ usage(); }
-
+    'D=s@' => \@cpp_defs,
+    'v'    => \$VERBOSE,
+    'h'    => \$HELP,
+    ) or &usage() && exit;
+if ( $HELP ){ &usage(); exit; }
+if ( !$nml_def || !$nml_val || !$proto_dir || !$out_dir || !@cpp_defs ){ &usage(); exit; }
 
 #read memory layout file
 read_memLayout($nml_def, \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs) );
