@@ -8,6 +8,7 @@ use strict;
 use warnings;
 use Exporter;
 use F90Namelist;
+use Data::Dumper;
 
 use classes;
 
@@ -24,34 +25,37 @@ sub read_namelist{
     my $nml_val = shift; #input file
     my $lst_nml = shift; #output for names
     
-    my $nl = Fortran::F90Namelist->new() or die "Couldn't get object\n";
+    my $nl = F90Namelist->new(debug => 0) or die "Couldn't get object\n";
 
     # Read one namelist from file
-    #open(NAMELIST , "< t/$nml_val") or die "Couldn't open file: $?\n";
-    print "FILE: $nml_val\n";
-    # $nl->parse(file     => "$nml_val",
-    #            merge    => 0,
-    #            all      => 1,);
-    open NML_VAL, "<", "$nml_val" or die "$nml_val cannot be opened: $!";
-    
-    $nl->parse(file => \*NML_VAL);
-    print "NAME: " . $nl->name() . " SLOTS: " . $nl->nslots() . "\n";
-    print "Content: ", join(",  ", @{$nl->slots}), "\n";
+    open(NAMELIST , "< $nml_val") or die "Couldn't open file: $nml_val. $?\n";
+    my @lines = <NAMELIST>;
+    close(NAMELIST);
 
-    # foreach my $key ( sort keys %{$nl->hash()} ){
-    #     print "$key => ";
-    #     print "@{${${$nl->hash()}{$key}}{'value'}}" . "; ";
-    #     # foreach my $key1 ( sort keys %{${$nl->hash()}{$key}} ){
-    #     #     print $key1 . "=" . ${${$nl->hash()}{$key}}{$key1} . "; ";
-    #     # }
-    #     print "\n";
-    # }
+    #process each namelist in the file
+    my $block = '';
+    foreach my $line (@lines){
+        $line =~ s/!.*//;
+        if ( $line ){
+            if( $line =~ m/^\s*(\&.*)/ ){
+                $block = $1;
+            }else{
+                $block .= $line;
+                if( $line =~ m/^\// ){
+                    $nl->parse(text => $block);                
+                    print "NAME: " . $nl->name() . " SLOTS: " . $nl->nslots() . "\n";
+                    print Dumper($nl->hash()) , "\n";
+                    $block = '';
+                }
+            }
+        }
+    }
 
-    print "--------------\n";
-    my $nl1 = Fortran::F90Namelist->new() or die "Couldn't get object\n";
-    $nl1->parse(file => \*NML_VAL);
-    print "NAME: " . $nl1->name() . " SLOTS: " . $nl1->nslots() . "\n";
-    print "Content ", join(",  ", @{$nl1->slots}), "\n";
+    print "F90 format:\n", $nl->output();
+    exit;
+
 }
+
+&read_namelist( $ARGV[0] );
 
 1;

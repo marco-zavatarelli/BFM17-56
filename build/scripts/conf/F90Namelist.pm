@@ -439,105 +439,105 @@ interpretation]), but is way faster on large files.
 =cut
 
 
-use strict;
-use Carp;
-use vars qw($VERSION);
+ use strict;
+ use Carp;
+ use vars qw($VERSION);
 
 # Cannot use use Perl5.8's constant { x => 1, y=>2 , ..} because 5.6
 # is very popular still
 #
 # Possible states of parser [used at all?]
-use constant  UNDEF   => -1;
-use constant  START   =>  0;	# initial state of parser
-use constant  VAR     =>  1;	# at beginning of variable name
-use constant  VALUE   =>  2;	# at beginning of value
-use constant  SQUOTE  =>  3;	# in string after opening single quote
-use constant  DQUOTE  =>  4;	# in string after opeing double quote
-use constant  BRACKET =>  5;	# after opening bracket (e.g. complex number)
-use constant  COMMENT =>  6;	# after exclamation mark (F90 comment)
-use constant  NL_END  =>  7;	# after closing `/'
+ use constant  UNDEF   => -1;
+ use constant  START   =>  0;	# initial state of parser
+ use constant  VAR     =>  1;	# at beginning of variable name
+ use constant  VALUE   =>  2;	# at beginning of value
+ use constant  SQUOTE  =>  3;	# in string after opening single quote
+ use constant  DQUOTE  =>  4;	# in string after opeing double quote
+ use constant  BRACKET =>  5;	# after opening bracket (e.g. complex number)
+ use constant  COMMENT =>  6;	# after exclamation mark (F90 comment)
+ use constant  NL_END  =>  7;	# after closing `/'
 #
 # F90 data types
-use constant  UNKNOWN   => 0;
-use constant  SQ_STRING => 1;
-use constant  DQ_STRING => 2;
-use constant  LOGICAL   => 3;
-use constant  INTEGER   => 4;
-use constant  FLOAT     => 5;	# a float here can be single or double
-use constant  SINGLE    => 6;
-use constant  DOUBLE    => 7;
-use constant  COMPLEX   => 8;
-use constant  DCOMPLEX  => 9;
-use constant  MULTIPLE  => 20;
+ use constant  UNKNOWN   => 0;
+ use constant  SQ_STRING => 1;
+ use constant  DQ_STRING => 2;
+ use constant  LOGICAL   => 3;
+ use constant  INTEGER   => 4;
+ use constant  FLOAT     => 5;	# a float here can be single or double
+ use constant  SINGLE    => 6;
+ use constant  DOUBLE    => 7;
+ use constant  COMPLEX   => 8;
+ use constant  DCOMPLEX  => 9;
+ use constant  MULTIPLE  => 20;
 #
-use constant  ID        => 100;	# variable name (_not_ a data type)
+ use constant  ID        => 100;	# variable name (_not_ a data type)
 
 
-$VERSION = '0.5.1';
+ $VERSION = '0.5.1';
 
 ## Regexps for integer and floating-point numbers
 # general float:
-my $numeric   = qr/(?:[+-]?)(?=\d|\.\d)\d*(?:\.\d*)?(?:[EeDd](?:[+-]?\d+))?/;
+ my $numeric   = qr/(?:[+-]?)(?=\d|\.\d)\d*(?:\.\d*)?(?:[EeDd](?:[+-]?\d+))?/;
 # float:
-my $numeric_e = qr/(?:[+-]?)(?=\d|\.\d)\d*(?:\.\d*)?(?:[Ee](?:[+-]?\d+))?/;
+ my $numeric_e = qr/(?:[+-]?)(?=\d|\.\d)\d*(?:\.\d*)?(?:[Ee](?:[+-]?\d+))?/;
 # double:
-my $numeric_d = qr/(?:[+-]?)(?=\d|\.\d)\d*(?:\.\d*)?(?:[Dd](?:[+-]?\d+))?/;
+ my $numeric_d = qr/(?:[+-]?)(?=\d|\.\d)\d*(?:\.\d*)?(?:[Dd](?:[+-]?\d+))?/;
 # float with decimal point, but w/o  exponential part:
-my $float     = qr/(?:[-+]?(?:\d+\.\d*|\d*\.\d+))/;
+ my $float     = qr/(?:[-+]?(?:\d+\.\d*|\d*\.\d+))/;
 
 ## Extend floating-point numeric tpes by one- or two-point
 ## compactification of real numbers (any mathematicians here?), aka IEEE
 ## denormalized numbers (for engineers):
-my $NaN = qr/NaN/;
-my $Inf = qr/(?:[-+]?)Inf/;
-my $ieee_denorm = qr/(?:$NaN|$Inf)/;
+ my $NaN = qr/NaN/;
+ my $Inf = qr/(?:[-+]?)Inf/;
+ my $ieee_denorm = qr/(?:$NaN|$Inf)/;
 #$numeric_e = qr/(?:$numeric_e|$ieee_denorm)/;
 #$numeric_d = qr/(?:$numeric_d|$ieee_denorm)/;
-$numeric   = qr/(?:$numeric|$ieee_denorm)/;
-$float     = qr/(?:$float|$ieee_denorm)/;
+ $numeric   = qr/(?:$numeric|$ieee_denorm)/;
+ $float     = qr/(?:$float|$ieee_denorm)/;
 
 ## Regexps for the different data type values. Make sure all brackets are
 ## marked grouping-but-non-capturing (?:...), or else the parsing
 ## algorithm will fail.
-my @regexp;
-$regexp[SQ_STRING] = qr/'(?:[^']|'')*'/; # even covers 'toto''s quote'
-$regexp[DQ_STRING] = qr/"(?:[^"]|"")*"/; # ditto for double quotes
-$regexp[DCOMPLEX]  = qr/\(\s*$numeric_d\s*,\s*$numeric_d\s*\)/;
-$regexp[COMPLEX]   = qr/\(\s*$numeric\s*,\s*$numeric\s*\)/;
-$regexp[LOGICAL]   = qr/(?:T|F|\.(?:true|TRUE|false|FALSE)\.)/;
-$regexp[MULTIPLE]  = qr/[0-9]+\*/; # also need special treatment...
-$regexp[INTEGER]   = qr/[+-]?[0-9]+/;
-$regexp[DOUBLE]    = qr/$numeric_d/;
-$regexp[SINGLE]    = qr/$numeric_e/;
-$regexp[FLOAT]     = qr/$float/;
-$regexp[ID]        = qr/[a-zA-Z](?:[a-zA-Z0-9_])*/; # allowed namelist/var. names
+ my @regexp;
+ $regexp[SQ_STRING] = qr/'(?:[^']|'')*'/; # even covers 'toto''s quote'
+ $regexp[DQ_STRING] = qr/"(?:[^"]|"")*"/; # ditto for double quotes
+ $regexp[DCOMPLEX]  = qr/\(\s*$numeric_d\s*,\s*$numeric_d\s*\)/;
+ $regexp[COMPLEX]   = qr/\(\s*$numeric\s*,\s*$numeric\s*\)/;
+ $regexp[LOGICAL]   = qr/(?:T|F|\.(?:true|TRUE|false|FALSE)\.)/;
+ $regexp[MULTIPLE]  = qr/[0-9]+\*/; # also need special treatment...
+ $regexp[INTEGER]   = qr/[+-]?[0-9]+/;
+ $regexp[DOUBLE]    = qr/$numeric_d/;
+ $regexp[SINGLE]    = qr/$numeric_e/;
+ $regexp[FLOAT]     = qr/$float/;
+ $regexp[ID]        = qr/[a-zA-Z](?:[a-zA-Z0-9_])*/; # allowed namelist/var. names
 
 ## Corresponding regexp for compatible type class (numeric, complex, ...)
-my @regexp2 = @regexp;		# same regexp by default
-$regexp2[DCOMPLEX]  = qr/\(\s*$numeric\s*,\s*$numeric\s*\)/;
-$regexp2[COMPLEX]   = qr/\(\s*$numeric\s*,\s*$numeric\s*\)/;
-$regexp2[INTEGER]   = qr/$numeric/;
-$regexp2[DOUBLE]    = qr/$numeric/;
-$regexp2[SINGLE]    = qr/$numeric/;
-$regexp2[FLOAT]     = qr/$numeric/;
+ my @regexp2 = @regexp;		# same regexp by default
+ $regexp2[DCOMPLEX]  = qr/\(\s*$numeric\s*,\s*$numeric\s*\)/;
+ $regexp2[COMPLEX]   = qr/\(\s*$numeric\s*,\s*$numeric\s*\)/;
+ $regexp2[INTEGER]   = qr/$numeric/;
+ $regexp2[DOUBLE]    = qr/$numeric/;
+ $regexp2[SINGLE]    = qr/$numeric/;
+ $regexp2[FLOAT]     = qr/$numeric/;
 
 # Hash for looking up symbolic names for type constants. The constants are
 # only expanded as numbers if adding 0.
-my %stypes = ( UNKNOWN   + 0 => 'unknown',
-	       SQ_STRING + 0 => 'single-quote string',
-	       DQ_STRING + 0 => 'double-quote string',
-	       LOGICAL   + 0 => 'logical',
-	       INTEGER   + 0 => 'integer',
-	       FLOAT     + 0 => 'unspecified float',
-	       SINGLE    + 0 => 'single precision float',
-	       DOUBLE    + 0 => 'double precision float',
-	       COMPLEX   + 0 => 'complex number',
-	       DCOMPLEX  + 0 => 'double precision complex number',
-	       MULTIPLE  + 0 => 'multiple data (array)',
-	     );
+ my %stypes = ( UNKNOWN   + 0 => 'unknown',
+                SQ_STRING + 0 => 'single-quote string',
+                DQ_STRING + 0 => 'double-quote string',
+                LOGICAL   + 0 => 'logical',
+                INTEGER   + 0 => 'integer',
+                FLOAT     + 0 => 'unspecified float',
+                SINGLE    + 0 => 'single precision float',
+                DOUBLE    + 0 => 'double precision float',
+                COMPLEX   + 0 => 'complex number',
+                DCOMPLEX  + 0 => 'double precision complex number',
+                MULTIPLE  + 0 => 'multiple data (array)',
+ );
 
 # Global variables related to output() method:
-my ($cmplx_pref,$cmplx_suff) = ('', ''); # default delimiters for complex nums
+ my ($cmplx_pref,$cmplx_suff) = ('', ''); # default delimiters for complex nums
 
 # ---------------------------------------------------------------------- #
 ##
@@ -566,7 +566,7 @@ my ($cmplx_pref,$cmplx_suff) = ('', ''); # default delimiters for complex nums
 ##                 ...
 ##               };
 ##
-sub new {
+ sub new {
 # Return new F90Namelist object. By default, the object is unparsed and has
 # no name. Use `empty => 1' and `name => $name' to create a complete empty
 # namelist with name $name'.
@@ -578,57 +578,57 @@ sub new {
 # my $nl = Fortran::F90Namelist::new({file => $filename);
 # my $nl = Fortran::F90Namelist::new({text => $text, debug => 1});
 #
-    my $proto = shift;		# either classref or object ref or string
-    my @argv  = @_;
-    my $class = ref($proto) || $proto;
-    my $self = {};
+     my $proto = shift;		# either classref or object ref or string
+     my @argv  = @_;
+     my $class = ref($proto) || $proto;
+     my $self = {};
 
-    my %data   = ();
-    my @slots  = ();
-    my $nslots = undef;
-    my $parsed = 0;
+     my %data   = ();
+     my @slots  = ();
+     my $nslots = undef;
+     my $parsed = 0;
 
-    my $short_usage =
-        "Usage:\n" .
-        "  Fortran::F90Namelist::new()\n" .
-        "  Fortran::F90Namelist::new(name => \$name)\n" .
-        "  Fortran::F90Namelist::new({name => \$name})\n" ;
+     my $short_usage =
+         "Usage:\n" .
+         "  Fortran::F90Namelist::new()\n" .
+         "  Fortran::F90Namelist::new(name => \$name)\n" .
+         "  Fortran::F90Namelist::new({name => \$name})\n" ;
 
-    # Parse argument(s) (name => <nlname>); may be list or hashref
-    my %args;
-    if (@argv) {
-	if (ref($argv[0]) eq 'HASH') { # parse($hashref)
-	    %args = %{$argv[0]};
-	} else {		# parse(%hash) or parse(@list)
-	    %args = @argv;
-	}
-    }
-    #
-    my $name  = ($args{name}  || '' );
-    my $empty = ($args{empty} || '' );
-    my $debug = ($args{debug} || 0  );
+     # Parse argument(s) (name => <nlname>); may be list or hashref
+     my %args;
+     if (@argv) {
+         if (ref($argv[0]) eq 'HASH') { # parse($hashref)
+             %args = %{$argv[0]};
+         } else {		# parse(%hash) or parse(@list)
+             %args = @argv;
+         }
+     }
+     #
+     my $name  = ($args{name}  || '' );
+     my $empty = ($args{empty} || '' );
+     my $debug = ($args{debug} || 0  );
 
-    if ($empty) {		# Valid but empty namelist
-	$nslots = 0;
-	$parsed = 1;
-    }
+     if ($empty) {		# Valid but empty namelist
+         $nslots = 0;
+         $parsed = 1;
+     }
 
-    ##
-    ## Finish the object
-    ##
-    # public data of object
-    $self->{DATA}   = \%data;
-    $self->{SLOTS}  = \@slots;
-    $self->{NSLOTS} = $nslots;
-    $self->{NAME}   = $name;
+     ##
+     ## Finish the object
+     ##
+     # public data of object
+     $self->{DATA}   = \%data;
+     $self->{SLOTS}  = \@slots;
+     $self->{NSLOTS} = $nslots;
+     $self->{NAME}   = $name;
 
-    # internal data
-    $self->{PARSED_} = $parsed;
-    $self->{DEBUG_}  = $debug;
+     # internal data
+     $self->{PARSED_} = $parsed;
+     $self->{DEBUG_}  = $debug;
 
-    bless($self,$class);
-    return($self);
-}
+     bless($self,$class);
+     return($self);
+ }
 
 # ====================================================================== #
 
@@ -636,7 +636,7 @@ sub new {
 ##  Methods
 ##
 
-sub parse {
+ sub parse {
 #
 #   $obj->parse($text)
 #   $obj->parse(file => $filename)
@@ -650,106 +650,106 @@ sub parse {
 #
 # Parse text or file containing F90 namelist(s)
 #
-    my $self = shift;
-    my @args = @_;		# can't use shift() since we change value
-                                # of $text
+     my $self = shift;
+     my @args = @_;		# can't use shift() since we change value
+     # of $text
 
-    my $state = START;
-    my $debug = $self->{DEBUG_};
+     my $state = START;
+     my $debug = $self->{DEBUG_};
 
-    my %args;
-    my $text;
-    my $textarg = 0;
+     my %args;
+     my $text;
+     my $textarg = 0;
 
-    # Parse arguments (file => <filename>, etc.); may be single string,
-    # list, hash or hashref
-    if (ref($args[0]) eq 'HASH') { # parse($hashref)
-	%args = %{$args[0]};
-    } else {
-	if (@_ == 1) {		# parse($string)
-	    $textarg = 1;
-	    $text = $args[0];
-	} else {		# parse(%hash) or parse(@list)
-	    %args = @args;
-	}
-    }
-    my $file    = ($args{file}    || '' );
-    my $merge   = ($args{merge}   || 0  );
-    my $all     = ($args{all}     || 0  );
-    my $name    = ($args{name}    || '' );
-    my $dups_ok = ($args{dups_ok} || '' );
-    my $broken  = ($args{broken}  || 0  );
+     # Parse arguments (file => <filename>, etc.); may be single string,
+     # list, hash or hashref
+     if (ref($args[0]) eq 'HASH') { # parse($hashref)
+         %args = %{$args[0]};
+     } else {
+         if (@_ == 1) {		# parse($string)
+             $textarg = 1;
+             $text = $args[0];
+         } else {		# parse(%hash) or parse(@list)
+             %args = @args;
+         }
+     }
+     my $file    = ($args{file}    || '' );
+     my $merge   = ($args{merge}   || 0  );
+     my $all     = ($args{all}     || 0  );
+     my $name    = ($args{name}    || '' );
+     my $dups_ok = ($args{dups_ok} || '' );
+     my $broken  = ($args{broken}  || 0  );
 
-    # Get text from file if necessary
-    $text      = ($args{text}  || $text );
-    if (!defined($text)) {
-	croak "\$nl->parse(): need text or file argument\n"
-	    unless ($file ne '');
-	local $/ = undef;
-        if (ref($file) eq 'GLOB') { # file handle
-            $text = <$file>;
-        } else {                    # file name
-            open(FH, "< $file") or croak "Cannot open file <$file> for reading";
-            $text = <FH>;
-            close(FH);
-        }
-    }
+     # Get text from file if necessary
+     $text      = ($args{text}  || $text );
+     if (!defined($text)) {
+         croak "\$nl->parse(): need text or file argument\n"
+             unless ($file ne '');
+         local $/ = undef;
+         if (ref($file) eq 'GLOB') { # file handle
+             $text = <$file>;
+         } else {                    # file name
+             open(FH, "< $file") or croak "Cannot open file <$file> for reading";
+             $text = <FH>;
+             close(FH);
+         }
+     }
 
-    if ($merge) {
-        $name ||= $self->{NAME};  # default to previous name
-    } else {                      # clear/reset all data
-        $self->{DATA}   = {};
-        $self->{SLOTS}  = [];
-        $self->{NSLOTS} = 0;
-        $self->{NAME}   = $name;
-    }
+     if ($merge) {
+         $name ||= $self->{NAME};  # default to previous name
+     } else {                      # clear/reset all data
+         $self->{DATA}   = {};
+         $self->{SLOTS}  = [];
+         $self->{NSLOTS} = 0;
+         $self->{NAME}   = $name;
+     }
 
-    my $done = 0;
+     my $done = 0;
 
-    do {
-        my ($name1, $nslots1, @slots1);
-        my $href = parse_namelist(\$text, \$name1, \$nslots1, \@slots1,
-                                  $broken, $debug);
-        if (defined($href)
-            && defined($name1)
-            && $name1 ne ''
-           ) { # really read a namelist
+     do {
+         my ($name1, $nslots1, @slots1);
+         my $href = parse_namelist(\$text, \$name1, \$nslots1, \@slots1,
+                                   $broken, $debug);
+         if (defined($href)
+             && defined($name1)
+             && $name1 ne ''
+             ) { # really read a namelist
 
-            $name ||= $name1; # choose first name if not set yet
+             $name ||= $name1; # choose first name if not set yet
 
-            # Call merge method to do the actual work
-            $self->merge([\@slots1, $href],
-                         { name    => $name,
-                           dups_ok => $dups_ok }
-                        );
-            $done = 1 unless ($all);
-        } else {    # read nothing useful --> get out of this loop
-            $done = 1;
-        }
-    } until ($done);
+             # Call merge method to do the actual work
+             $self->merge([\@slots1, $href],
+                          { name    => $name,
+                            dups_ok => $dups_ok }
+                 );
+             $done = 1 unless ($all);
+         } else {    # read nothing useful --> get out of this loop
+             $done = 1;
+         }
+     } until ($done);
 
-    # Is there a way to find out whether $text is mutable (i.e. no
-    # constant)? Until I find one, just use brute force:
-    eval { $_[0] = $text };              # Return remaining $text
-    $@ = '';                             # We won't use this anyway..
+     # Is there a way to find out whether $text is mutable (i.e. no
+     # constant)? Until I find one, just use brute force:
+     eval { $_[0] = $text };              # Return remaining $text
+     $@ = '';                             # We won't use this anyway..
 
-    # Don't mimic success if we haven't read anything useful
-    return undef if ($name eq '');
+     # Don't mimic success if we haven't read anything useful
+     return undef if ($name eq '');
 
-    if ($debug) {
-	print STDERR
-	  "Fortran::F90Namelist->parse: Successfully read namelist <$name>\n";
-	print STDERR "=================================\n";
-    }
+     if ($debug) {
+         print STDERR
+             "Fortran::F90Namelist->parse: Successfully read namelist <$name>\n";
+         print STDERR "=================================\n";
+     }
 
-    $self->{PARSED_} = 1;
+     $self->{PARSED_} = 1;
 
-    return $self->{NAME};
-}
+     return $self->{NAME};
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub merge {
+ sub merge {
 #
 #   $obj->merge($obj2);
 #   $obj->merge($obj2,   name => $name, $dups_ok => 1  );
@@ -757,452 +757,452 @@ sub merge {
 #
 # Merge another namelist into this one
 #
-    my $self = shift();
-    my $nl2  = shift();
-    my @args = @_;              # remaining argument(s)
+     my $self = shift();
+     my $nl2  = shift();
+     my @args = @_;              # remaining argument(s)
 
-    # Arg $nl2 can be a namelist or just a data hashref
-    my (@slots2,$hashref2);
-    if (ref($nl2) eq 'Fortran::F90Namelist') {
-        @slots2   = @{$nl2->{SLOTS}};
-        $hashref2 = $nl2->{DATA};
-    } elsif (ref($nl2) eq 'ARRAY') {
-        @slots2   = @{$$nl2[0]};
-        $hashref2 = $$nl2[1];
-    } else {
-        croak "Fortran::F90Namelist->merge(): "
-          . "expected Fortran::F90Namelist object or hashref\n";
-    }
+     # Arg $nl2 can be a namelist or just a data hashref
+     my (@slots2,$hashref2);
+     if (ref($nl2) eq 'Fortran::F90Namelist') {
+         @slots2   = @{$nl2->{SLOTS}};
+         $hashref2 = $nl2->{DATA};
+     } elsif (ref($nl2) eq 'ARRAY') {
+         @slots2   = @{$$nl2[0]};
+         $hashref2 = $$nl2[1];
+     } else {
+         croak "Fortran::F90Namelist->merge(): "
+             . "expected Fortran::F90Namelist object or hashref\n";
+     }
 
-    # Parse arguments (name => <name>, etc.); may be hash or hashref
-    my %args;
-    if (ref($args[0]) eq 'HASH') { # parse($hashref)
-	%args = %{$args[0]};
-    } else {
-        %args = @args;
-    }
-    my $name    = ($args{name}    || $self->{NAME} );
-    my $dups_ok = ($args{dups_ok} || ''            );
+     # Parse arguments (name => <name>, etc.); may be hash or hashref
+     my %args;
+     if (ref($args[0]) eq 'HASH') { # parse($hashref)
+         %args = %{$args[0]};
+     } else {
+         %args = @args;
+     }
+     my $name    = ($args{name}    || $self->{NAME} );
+     my $dups_ok = ($args{dups_ok} || ''            );
 
-    my $nslots  = $self->{NSLOTS};
-    my @slots   = @{$self->{SLOTS}};
-    my $hashref = $self->{DATA};
-    my $debug   = $self->{DEBUG_};
+     my $nslots  = $self->{NSLOTS};
+     my @slots   = @{$self->{SLOTS}};
+     my $hashref = $self->{DATA};
+     my $debug   = $self->{DEBUG_};
 
-    if ($debug) {
- 	print STDERR
- 	  "Fortran::F90Namelist->merge: "
-            , "Merging ", @slots2 + 0,
-              "-slots namelist into $nslots-slots namelist\n";
-    }
+     if ($debug) {
+         print STDERR
+             "Fortran::F90Namelist->merge: "
+             , "Merging ", @slots2 + 0,
+             "-slots namelist into $nslots-slots namelist\n";
+     }
 
-    # Eliminate repeated slots and warn if values don't agree
-  slot: foreach my $slot (@slots2) {
-        if (defined($$hashref{$slot})) { # slot already known
-            my @val1=@{$$hashref{$slot}{'value'}};
-            my @val2=@{$$hashref2{$slot}{'value'}};
-            while (@val1 and @val2) {
-                my $v1 = pop(@val1);
-                my $v2 = pop(@val2);
-                if (($v1 ne $v2) && ! $dups_ok) {
-                    carp "WARNING: Conflicting slots" .
-                      " $slot = [@{$$hashref{$slot}{'value'}}]" .
-                        " vs. [@{$$hashref2{$slot}{'value'}}]\n";
-                    next slot;
-                }
-            }
-        } else {	# new slot
-            push @slots, $slot;
-            $$hashref{$slot} = $$hashref2{$slot};
-            $nslots++;
-        }
-    }
+     # Eliminate repeated slots and warn if values don't agree
+   slot: foreach my $slot (@slots2) {
+       if (defined($$hashref{$slot})) { # slot already known
+           my @val1=@{$$hashref{$slot}{'value'}};
+           my @val2=@{$$hashref2{$slot}{'value'}};
+           while (@val1 and @val2) {
+               my $v1 = pop(@val1);
+               my $v2 = pop(@val2);
+               if (($v1 ne $v2) && ! $dups_ok) {
+                   carp "WARNING: Conflicting slots" .
+                       " $slot = [@{$$hashref{$slot}{'value'}}]" .
+                       " vs. [@{$$hashref2{$slot}{'value'}}]\n";
+                   next slot;
+               }
+           }
+       } else {	# new slot
+           push @slots, $slot;
+           $$hashref{$slot} = $$hashref2{$slot};
+           $nslots++;
+       }
+   }
 
-    # Wrap it up
-    $self->{NAME}   = $name;
-    $self->{NSLOTS} = $nslots;
-    $self->{SLOTS}  = \@slots;
-    $self->{DATA}   = $hashref;
+     # Wrap it up
+     $self->{NAME}   = $name;
+     $self->{NSLOTS} = $nslots;
+     $self->{SLOTS}  = \@slots;
+     $self->{DATA}   = $hashref;
 
-    if ($debug) {
-	print STDERR
-	  "Fortran::F90Namelist->merge: "
-          . "Successfully merged into namelist <$name>\n";
-	print STDERR "=================================\n";
-    }
+     if ($debug) {
+         print STDERR
+             "Fortran::F90Namelist->merge: "
+             . "Successfully merged into namelist <$name>\n";
+         print STDERR "=================================\n";
+     }
 
-    $self->{PARSED_} = 1;
+     $self->{PARSED_} = 1;
 
-    return 1;                   # success
-}
+     return 1;                   # success
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub name {
+ sub name {
 # Get or set name of parsed namelists
-    my $self = shift();
+     my $self = shift();
 
-    if (@_) { $self->{NAME} = shift };
-    return $self->{NAME};
-}
+     if (@_) { $self->{NAME} = shift };
+     return $self->{NAME};
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub nslots {
+ sub nslots {
 # Get number of slots in namelist
-    my $self = shift();
-    return $self->{NSLOTS}
-}
+     my $self = shift();
+     return $self->{NSLOTS}
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub slots { # FIXME
+ sub slots { # FIXME
 # Return array ref of variable names in slots
-    my $self = shift();
-    return $self->{SLOTS}
-}
+     my $self = shift();
+     return $self->{SLOTS}
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub hash {
+ sub hash {
 # Return hash with parsed namelist contents
-    my $self = shift;
-    return $self->{DATA};
-}
+     my $self = shift;
+     return $self->{DATA};
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub output {
+ sub output {
 # Write namelist in specified format (defaults to 'f90')
-    my $self = shift();
+     my $self = shift();
 
-    # Optional arguments:
-    #   format   => format   ('f90' [default] or 'idl')
-    #   name     => nl_name  (name of nlist/struct [default: get from nlist])
-    #   trim     => 0/1      (trim trailing whitespace off strings)
-    #   double   => 0/1      (mark all floats as double precision)
-    #   oneline  => 0/1      (write all in one line? [only for some formats])
-    #   maxslots => N        (similar to oneline, but split every N slots)
-    my @argv = @_;
+     # Optional arguments:
+     #   format   => format   ('f90' [default] or 'idl')
+     #   name     => nl_name  (name of nlist/struct [default: get from nlist])
+     #   trim     => 0/1      (trim trailing whitespace off strings)
+     #   double   => 0/1      (mark all floats as double precision)
+     #   oneline  => 0/1      (write all in one line? [only for some formats])
+     #   maxslots => N        (similar to oneline, but split every N slots)
+     my @argv = @_;
 
-    # Parse arguments (file => <filename>, etc.); may be list, hash or hashref
-    my %args;
-    if (ref($argv[0]) eq 'HASH') {
-	%args = %{$argv[0]};
-    } else {
-	%args = @argv;
-    }
-    my $format   = ($args{format}   || 'f90');
-    my $name     = ($args{name}     || $self->name() || '');
-    my $trim     = ($args{trim}     || 0);
-    my $double   = ($args{double}   || 0);
-    my $oneline  = ($args{oneline}  || 0);
-    my $maxslots = ($args{maxslots} || 0);
-    $oneline = 0 if ($maxslots);
+     # Parse arguments (file => <filename>, etc.); may be list, hash or hashref
+     my %args;
+     if (ref($argv[0]) eq 'HASH') {
+         %args = %{$argv[0]};
+     } else {
+         %args = @argv;
+     }
+     my $format   = ($args{format}   || 'f90');
+     my $name     = ($args{name}     || $self->name() || '');
+     my $trim     = ($args{trim}     || 0);
+     my $double   = ($args{double}   || 0);
+     my $oneline  = ($args{oneline}  || 0);
+     my $maxslots = ($args{maxslots} || 0);
+     $oneline = 0 if ($maxslots);
 
-    # Sanity check
-    unless ($self->{PARSED_}) {
-	croak "Called method output() on unparsed namelist";
-	return undef;
-    }
+     # Sanity check
+     unless ($self->{PARSED_}) {
+         croak "Called method output() on unparsed namelist";
+         return undef;
+     }
 
-    # Get name of namelist(s?)
-    my ($name1,$hashref) = (%{$self->{DATA}}); # hash (name=>valhash) ->
-                                               # 2-element array; should
-                                               # possibly be a loop over all
-                                               # name=>hash pairs?
-    # Format-dependent settings
-    # We are printing the following:
-    # $head_pref
-    #   <header>
-    # $head_suff
-    # $slot_pref
-    #   <slot1>
-    # $slot_join
-    #   <slot2>
-    # [...]
-    #   <slot_maxslots>
-    # $slot_suff
-    # [...]
-    #   <slotN>
-    # $last_suff
-    # $foot_pref
-    #   <footer>
-    # $foot_suff
+     # Get name of namelist(s?)
+     my ($name1,$hashref) = (%{$self->{DATA}}); # hash (name=>valhash) ->
+     # 2-element array; should
+     # possibly be a loop over all
+     # name=>hash pairs?
+     # Format-dependent settings
+     # We are printing the following:
+     # $head_pref
+     #   <header>
+     # $head_suff
+     # $slot_pref
+     #   <slot1>
+     # $slot_join
+     #   <slot2>
+     # [...]
+     #   <slot_maxslots>
+     # $slot_suff
+     # [...]
+     #   <slotN>
+     # $last_suff
+     # $foot_pref
+     #   <footer>
+     # $foot_suff
 
-    my ($header,$footer);
-    my ($head_pref,$head_suff);
-    my ($slot_pref,$slot_join,$slot_suff,$last_suff);
-    my ($foot_pref,$foot_suff);
+     my ($header,$footer);
+     my ($head_pref,$head_suff);
+     my ($slot_pref,$slot_join,$slot_suff,$last_suff);
+     my ($foot_pref,$foot_suff);
 
-    my ($newline,$indent);      # to play tricks with $oneline
-    if ($oneline) {
-        $newline = " ";
-        $indent  = "";
-    } else {
-        $newline = "\n";
-        $indent  = "  ";
-    }
+     my ($newline,$indent);      # to play tricks with $oneline
+     if ($oneline) {
+         $newline = " ";
+         $indent  = "";
+     } else {
+         $newline = "\n";
+         $indent  = "  ";
+     }
 
-    if      (lc($format) eq 'f90') {
-	$header     = "\&$name";
-	$footer     = "/";
-        #
-	$head_pref  = "";
-        $head_suff  = "$newline";
-	$slot_pref  = "$indent";
-	$slot_join  = ", ";
-	$slot_suff  = ",$newline";
-	$last_suff  = "$newline";
-        $foot_pref  = "";
-        $foot_suff  = "\n";
-    } elsif (lc($format) eq 'idl') {
-	$header = "$name = {";
-	$footer = "}";
-        #
-        $head_pref = "";
-        $head_suff = " \$$newline";
-        $slot_pref = "$indent";
-        $slot_join = ", ";
-        $slot_suff = ", \$$newline";
-        $last_suff = " \$$newline";
-        $foot_pref = "";
-        $foot_suff = "\n";
-        #
-        if ($oneline) {
-            $head_suff = "$newline";
-            $slot_suff = ",$newline";
-            $last_suff = "$newline";
-        }
-        #
-	$cmplx_pref = "complex"; # complex number prefix
-    } else                         {
-	croak "output(): Format <$format> unknown";
-	return undef;
-    }
+     if      (lc($format) eq 'f90') {
+         $header     = "\&$name";
+         $footer     = "/";
+         #
+         $head_pref  = "";
+         $head_suff  = "$newline";
+         $slot_pref  = "$indent";
+         $slot_join  = ", ";
+         $slot_suff  = ",$newline";
+         $last_suff  = "$newline";
+         $foot_pref  = "";
+         $foot_suff  = "\n";
+     } elsif (lc($format) eq 'idl') {
+         $header = "$name = {";
+         $footer = "}";
+         #
+         $head_pref = "";
+         $head_suff = " \$$newline";
+         $slot_pref = "$indent";
+         $slot_join = ", ";
+         $slot_suff = ", \$$newline";
+         $last_suff = " \$$newline";
+         $foot_pref = "";
+         $foot_suff = "\n";
+         #
+         if ($oneline) {
+             $head_suff = "$newline";
+             $slot_suff = ",$newline";
+             $last_suff = "$newline";
+         }
+         #
+         $cmplx_pref = "complex"; # complex number prefix
+     } else                         {
+         croak "output(): Format <$format> unknown";
+         return undef;
+     }
 
-    my @slots = format_slots($self,$format,$double,$trim);
+     my @slots = format_slots($self,$format,$double,$trim);
 
-    # Take care of $maxslots
-    @slots = aggregate_slots(\@slots,$maxslots,$slot_join);
+     # Take care of $maxslots
+     @slots = aggregate_slots(\@slots,$maxslots,$slot_join);
 
-    # Now construct output string
-    my $string;
-    $string .= $head_pref
-               . $header
-               . $head_suff;
-    if (@slots) {
-        $string .= $slot_pref;
-        $string .= join($slot_suff . $slot_pref, @slots);
-        $string .= $last_suff;
-    }
-    $string .= $foot_pref
-               . $footer
-               . $foot_suff;
+     # Now construct output string
+     my $string;
+     $string .= $head_pref
+         . $header
+         . $head_suff;
+     if (@slots) {
+         $string .= $slot_pref;
+         $string .= join($slot_suff . $slot_pref, @slots);
+         $string .= $last_suff;
+     }
+     $string .= $foot_pref
+         . $footer
+         . $foot_suff;
 
-    return $string;
-}
+     return $string;
+ }
 
-sub debug {
+ sub debug {
 #
 #   $obj->debug(1)     # debugging on
 #   $obj->debug(0)     # debugging off
 #
 # Undocumented: Set/get debug flag
-    my $self = shift();
-    if (@_) { $self->{DEBUG_} = shift };
-    return $self->{DEBUG_}
-}
+     my $self = shift();
+     if (@_) { $self->{DEBUG_} = shift };
+     return $self->{DEBUG_}
+ }
 
 
 # ====================================================================== #
 
 ## Private utility subroutines:
 
-sub parse_namelist {
+ sub parse_namelist {
 #
 # Parse first F90 namelist from text string; return reference to hash
 #
 #   parse_namelist(\$text,\$name,\$nslots,\@slots,$broken,$debug);
 #
 
-    my $textref   = shift;
-    my $nameref   = shift;
-    my $nslotsref = shift;
-    my $slotsref  = shift;
-    my $broken    = shift;
-    my $debug     = shift;
+     my $textref   = shift;
+     my $nameref   = shift;
+     my $nslotsref = shift;
+     my $slotsref  = shift;
+     my $broken    = shift;
+     my $debug     = shift;
 
-    my %hash;
-    my $nslots = 0;
-    my $state  = START;
-    my $id = $regexp[ID];	# allowed namelist/variable names
+     my %hash;
+     my $nslots = 0;
+     my $state  = START;
+     my $id = $regexp[ID];	# allowed namelist/variable names
 
-    my ($status,$var,@values,$type);
+     my ($status,$var,@values,$type);
 
-    ## Reset to reasonable default values
-    $$nslotsref = 0;
-    @$slotsref  = ();
-    $$nameref   = '';
+     ## Reset to reasonable default values
+     $$nslotsref = 0;
+     @$slotsref  = ();
+     $$nameref   = '';
 
-    ## Get name of nl
-    $$nameref = extract_nl_name($textref,$debug) or return undef;
+     ## Get name of nl
+     $$nameref = extract_nl_name($textref,$debug) or return undef;
 
-    $status = VAR;
-    ## Extract variable slots
+     $status = VAR;
+     ## Extract variable slots
 
-    my $text = $$textref;
+     my $text = $$textref;
 
-    ## Apply fix for brokenness
-    if ($broken) {
-        $text =~ s{\n'}{',}g;
-    }
+     ## Apply fix for brokenness
+     if ($broken) {
+         $text =~ s{\n'}{',}g;
+     }
 
-    while ($text ne '') {
-	print STDERR "--------------------\nTop of while loop..\n" if ($debug);
-	strip_space_and_comment($text);
-	if ($text =~ s/^($id)(\([0-9, \t]+\))?\s*=\s*//s) {
-            # string starts with <var=...> or <var(idx,idy,...)=...>
-	    $var = lc($1);
-            # any array indices following the variable name?
-            if (defined($2)) {
-                my $indices = $2;
-                $indices =~ s/\s+//g; # squeeze out whitespace
-                $var = $var . $indices;
-            }
-	    $status = VALUE;
-	    if ($debug) {
-		print STDERR "parse_namelist 1: \$var=<$var>\n";
-		print STDERR "parse_namelist 1: \$text=<",
-		  printable_substring($text,50), ">\n";
-	    }
+     while ($text ne '') {
+         print STDERR "--------------------\nTop of while loop..\n" if ($debug);
+         strip_space_and_comment($text);
+         if ($text =~ s/^($id)(\([0-9,\s\t\,\:]+\))?\s*=\s*//s) {
+             # string starts with <var=...> or <var(idx,idy,...)=...>
+             $var = lc($1);
+             # any array indices following the variable name?
+             if (defined($2)) {
+                 my $indices = $2;
+                 $indices =~ s/\s+//g; # squeeze out whitespace
+                 $var = $var . $indices;
+             }
+             $status = VALUE;
+             if ($debug) {
+                 print STDERR "parse_namelist 1: \$var=<$var>\n";
+                 print STDERR "parse_namelist 1: \$text=<",
+                 printable_substring($text,50), ">\n";
+             }
 
-            # Get values and check
-	    @values = get_value(\$text,\$type,$var,$debug); # drop $debug here..
-            if (@values) {
-                $nslots++;
-                push @$slotsref, $var;
-            } else {
-                show_error("Couldn't read value", "", $text, 1);
-                return undef;
-            }
+             # Get values and check
+             @values = get_value(\$text,\$type,$var,$debug); # drop $debug here..
+             if (@values) {
+                 $nslots++;
+                 push @$slotsref, $var;
+             } else {
+                 show_error("Couldn't read value", "", $text, 1);
+                 return undef;
+             }
 
-	} elsif ($text =~ s{\s*(/|\$end)\s*}{}) { # string is </> or <$end>
-	    $status = NL_END;
-	    last;		# end of namelist
+         } elsif ($text =~ s{\s*(/|\$end)\s*}{}) { # string is </> or <$end>
+             $status = NL_END;
+             last;		# end of namelist
 
-	} else {
-	    show_error("Expected var=[...] not found ", "", $text, 1);
-	    return undef;
-	}
+         } else {
+             show_error("Expected var=[...] not found ", "", $text, 1);
+             return undef;
+         }
 
-	print STDERR "[",join(',',@values), "] -> \$hash{$var}\n" if ($debug);
-	my $stype = ($stypes{$type} || 'Type inconsistency!');
-	$hash{$var} = { type  => $type,
-			stype => $stype,
-			value => [@values]
-		      };
-    }
+         print STDERR "[",join(',',@values), "] -> \$hash{$var}\n" if ($debug);
+         my $stype = ($stypes{$type} || 'Type inconsistency!');
+         $hash{$var} = { type  => $type,
+                         stype => $stype,
+                         value => [@values]
+         };
+     }
 
-    unless ($status == NL_END) {
-        carp "Aborted parsing at <",
-             printable_substring($text,50),">\n",
-             "trying to read slot `$var'\n";
-        return undef;
-    }
+     unless ($status == NL_END) {
+         carp "Aborted parsing at <",
+         printable_substring($text,50),">\n",
+         "trying to read slot `$var'\n";
+         return undef;
+     }
 
-    print STDERR
-      "parse_namelist: Namelist <$$nameref> parsed succesfully\n"
-	if ($debug);
+     print STDERR
+         "parse_namelist: Namelist <$$nameref> parsed succesfully\n"
+         if ($debug);
 
-    $$textref   = $text;	# propagate remainder of $text back
-    $$nslotsref = $nslots;	# propagate number of slots back
+     $$textref   = $text;	# propagate remainder of $text back
+     $$nslotsref = $nslots;	# propagate number of slots back
 
-    return \%hash;
-}
+     return \%hash;
+ }
 
 # ---------------------------------------------------------------------- #
-sub extract_nl_name {
+ sub extract_nl_name {
 # Extract namelist name (the part starting with `&' or `$')
 
-    my $textref = shift;
-    my $debug   = shift;
+     my $textref = shift;
+     my $debug   = shift;
 
-    my $text = $$textref;
-    my $name;
-    my $id = $regexp[ID];	# allowed namelist/variable names
+     my $text = $$textref;
+     my $name;
+     my $id = $regexp[ID];	# allowed namelist/variable names
 
-    print STDERR "extract_nl_name 1: \$text=<",
-                 printable_substring($text,50),">\n" if ($debug);
-    strip_space_and_comment($text);
+     print STDERR "extract_nl_name 1: \$text=<",
+     printable_substring($text,50),">\n" if ($debug);
+     strip_space_and_comment($text);
 
-    print STDERR "extract_nl_name 2: \$text=<",
-                 printable_substring($text,50), ">\n" if ($debug);
-    if ($text =~ s/^(?:&|\$)($id)//) {
-	$name = lc($1);
-    } else {			# empty (comment/whitespace) or erroneous
-	if ($text eq '') {
-	    print STDERR "Empty text (at most some comments)" if ($debug);
-	    $$textref = $text; # propagate remainder of $text back
-	    return undef;
-	} else {
-	    show_error("Namelist does not start with &\n","",$text,1);
-	    return undef;       # never got here..
-	}
-    }
-    strip_space_and_comment($text);
+     print STDERR "extract_nl_name 2: \$text=<",
+     printable_substring($text,50), ">\n" if ($debug);
+     if ($text =~ s/^(?:&|\$)($id)//) {
+         $name = lc($1);
+     } else {			# empty (comment/whitespace) or erroneous
+         if ($text eq '') {
+             print STDERR "Empty text (at most some comments)" if ($debug);
+             $$textref = $text; # propagate remainder of $text back
+             return undef;
+         } else {
+             show_error("Namelist does not start with &\n","",$text,1);
+             return undef;       # never got here..
+         }
+     }
+     strip_space_and_comment($text);
 
-    if ($debug) {
-	print STDERR "extract_nl_name 3: \$name=<$name>\n";
-	print STDERR "extract_nl_name 3: \$text=<",
+     if ($debug) {
+         print STDERR "extract_nl_name 3: \$name=<$name>\n";
+         print STDERR "extract_nl_name 3: \$text=<",
 		     printable_substring($text,50), ">\n";
-    }
+     }
 
-    $$textref = $text; # propagate remainder of $text back
-    $name;
-}
+     $$textref = $text; # propagate remainder of $text back
+     $name;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub strip_space_and_comment {
+ sub strip_space_and_comment {
 # Strip leading space and anything from possible leading exclamation mark
 # til end of line.
-    $_[0] =~ s/^(\s*(![^\n]*)?)*//s;
-}
+     $_[0] =~ s/^(\s*(![^\n]*)?)*//s;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub get_value {
+ sub get_value {
 # Extract one or several values from string that starts off immediately
 # after the equal sign of a slot assignment
-    my $txtptr  = shift;
-    my $typeptr = shift;
-    my $varname = shift;
-    my $debug   = shift;    # Need to somewhow get rid of this argument...
+     my $txtptr  = shift;
+     my $typeptr = shift;
+     my $varname = shift;
+     my $debug   = shift;    # Need to somewhow get rid of this argument...
 
-    my $text = $$txtptr;
-    my @values;
+     my $text = $$txtptr;
+     my @values;
 
-    strip_space_and_comment($text); # (are comments really allowed here?)
-    my $type = infer_data_type($text);
-    if ($debug) {		# pretty-printing of type
-	print STDERR
-	  "Found data of type $type (",
-          elucidate_type($type),
-          ") in <",
-	  printable_substring($text,40), ">\n";
-    }
+     strip_space_and_comment($text); # (are comments really allowed here?)
+     my $type = infer_data_type($text);
+     if ($debug) {		# pretty-printing of type
+         print STDERR
+             "Found data of type $type (",
+             elucidate_type($type),
+             ") in <",
+             printable_substring($text,40), ">\n";
+     }
 
-    if ($type == UNKNOWN) {
-	show_error("Cannot identify data type","$varname=","$text");
-	croak();
-    }
+     if ($type == UNKNOWN) {
+         show_error("Cannot identify data type","$varname=","$text");
+         croak();
+     }
 
-    # Extract data
-    my $multiregexp = $regexp[MULTIPLE]; # qr// wouldn't expand the CONSTANT...
-    my $re_type     = qr/$regexp2[$type]/;
+     # Extract data
+     my $multiregexp = $regexp[MULTIPLE]; # qr// wouldn't expand the CONSTANT...
+     my $re_type     = qr/$regexp2[$type]/;
 
-    while ($text =~ s/^
+     while ($text =~ s/^
                       ($multiregexp)?($re_type)
                       \s*
                       (
@@ -1213,353 +1213,353 @@ sub get_value {
                       \s*
                      //sx) {
 
-	my $mul = ( $1 || 1);
-	my ($val,$rest) = ($2,$3);
-	$mul =~ s/\*//;
-	if ($debug) {
-	    print STDERR "\$mul=<$mul>, \$val=<$val>\n";
-	    print STDERR "\$rest=<", printable_substring($rest,2),
-	      ">, \$text=<", printable_substring($text,40), ">\n";
-	}
+         my $mul = ( $1 || 1);
+         my ($val,$rest) = ($2,$3);
+         $mul =~ s/\*//;
+         if ($debug) {
+             print STDERR "\$mul=<$mul>, \$val=<$val>\n";
+             print STDERR "\$rest=<", printable_substring($rest,2),
+             ">, \$text=<", printable_substring($text,40), ">\n";
+         }
 
-	# `Widen' data type if necessary (e.g. integer -> double for
-	# `var = 1, 2.D0')
-	my $valtype = infer_data_type($val);
-	$type = $valtype if ($valtype > $type);
-	if ($debug) {		# pretty-printing of type
-	    print STDERR
-	      "Data type is now ($valtype) $type (",
-              elucidate_type($type),
-              ")\n";
-	}
+         # `Widen' data type if necessary (e.g. integer -> double for
+         # `var = 1, 2.D0')
+         my $valtype = infer_data_type($val);
+         $type = $valtype if ($valtype > $type);
+         if ($debug) {		# pretty-printing of type
+             print STDERR
+                 "Data type is now ($valtype) $type (",
+                 elucidate_type($type),
+                 ")\n";
+         }
 
-	# Remove quotes around (and doubled in) strings
-	if ($type == SQ_STRING) {
-	    $val =~ s/^'(.*)'$/$1/s;
-	    $val =~ s/''/'/gs;
-	}
-	if ($type == DQ_STRING) {
-	    $val =~ s/^"(.*)"$/$1/s;
-	    $val =~ s/""/"/gs;
-	}
+         # Remove quotes around (and doubled in) strings
+         if ($type == SQ_STRING) {
+             $val =~ s/^'(.*)'$/$1/s;
+             $val =~ s/''/'/gs;
+         }
+         if ($type == DQ_STRING) {
+             $val =~ s/^"(.*)"$/$1/s;
+             $val =~ s/""/"/gs;
+         }
 
-	# Remove embedded newlines from strings (Anders' strange namelist
-	# samples from Pencil Code with dust density)
-	if (($type == SQ_STRING) || ($type == DQ_STRING)) {
-	    $val =~ s/\n//g;
-	}
+         # Remove embedded newlines from strings (Anders' strange namelist
+         # samples from Pencil Code with dust density)
+         if (($type == SQ_STRING) || ($type == DQ_STRING)) {
+             $val =~ s/\n//g;
+         }
 
-	push @values, ($val) x $mul;
-	$text =~ s/.*\n// if ($rest eq '!'); # comment
-	print STDERR "<<", ($mul||'1'), "x>><<$val>> <<",
-	  printable_substring($text), ">>\n" if ($debug);
-    }
+         push @values, ($val) x $mul;
+         $text =~ s/.*\n// if ($rest eq '!'); # comment
+         print STDERR "<<", ($mul||'1'), "x>><<$val>> <<",
+         printable_substring($text), ">>\n" if ($debug);
+     }
 
-    $$txtptr = $text;		# return remaining unparsed string
-    $$typeptr = $type;		# return type
-    @values;
-}
+     $$txtptr = $text;		# return remaining unparsed string
+     $$typeptr = $type;		# return type
+     @values;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub elucidate_type {
+ sub elucidate_type {
 # Expand numerical constants into understandable type names
-    my $type = shift;
+     my $type = shift;
 
-    my @tp;
-    $tp[UNKNOWN]   = 'UNKNOWN';
-    $tp[SQ_STRING] = 'SQ_STRING';
-    $tp[DQ_STRING] = 'DQ_STRING';
-    $tp[LOGICAL  ] = 'LOGICAL';
-    $tp[INTEGER  ] = 'INTEGER';
-    $tp[FLOAT    ] = 'FLOAT';
-    $tp[SINGLE   ] = 'SINGLE';
-    $tp[DOUBLE   ] = 'DOUBLE';
-    $tp[COMPLEX  ] = 'COMPLEX';
-    $tp[DCOMPLEX ] = 'DCOMPLEX';
-    $tp[MULTIPLE ] = 'MULTIPLE';
+     my @tp;
+     $tp[UNKNOWN]   = 'UNKNOWN';
+     $tp[SQ_STRING] = 'SQ_STRING';
+     $tp[DQ_STRING] = 'DQ_STRING';
+     $tp[LOGICAL  ] = 'LOGICAL';
+     $tp[INTEGER  ] = 'INTEGER';
+     $tp[FLOAT    ] = 'FLOAT';
+     $tp[SINGLE   ] = 'SINGLE';
+     $tp[DOUBLE   ] = 'DOUBLE';
+     $tp[COMPLEX  ] = 'COMPLEX';
+     $tp[DCOMPLEX ] = 'DCOMPLEX';
+     $tp[MULTIPLE ] = 'MULTIPLE';
 
-    return $tp[$type];
-}
+     return $tp[$type];
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub infer_data_type {
+ sub infer_data_type {
 # Determine the F90 data type of first item in string, skipping multiplier
 # if present
-    my $text = shift;
-    $text =~ s/^\s*[0-9]+\*//;	# ignore multiplier for finding data type
-    if      ($text =~ /^\s*'/)                     { SQ_STRING;
-    } elsif ($text =~ /^\s*"/)                     { DQ_STRING;
-    } elsif ($text =~ /^\s*\(\s*$numeric_e\s*,/)   { COMPLEX;
-    } elsif ($text =~ /^\s*\(/)                    { DCOMPLEX;
-    } elsif ($text =~ /^\s*(T|F|.(true|false).)/i) { LOGICAL;
-    } elsif ($text =~ /^\s*[+-]?[0-9]+(\s|,|!|$)/) { INTEGER;
-    } elsif ($text =~ /^\s*$float(\s|,|!|$)/)      { FLOAT;
-    } elsif ($text =~ /^\s*$numeric_e(\s|,|!|$)/)  { SINGLE;
-    } elsif ($text =~ /^\s*$numeric_d(\s|,|!|$)/)  { DOUBLE;
-    } else                                         { UNKNOWN;
-    }
-}
+     my $text = shift;
+     $text =~ s/^\s*[0-9]+\*//;	# ignore multiplier for finding data type
+     if      ($text =~ /^\s*'/)                     { SQ_STRING;
+     } elsif ($text =~ /^\s*"/)                     { DQ_STRING;
+     } elsif ($text =~ /^\s*\(\s*$numeric_e\s*,/)   { COMPLEX;
+     } elsif ($text =~ /^\s*\(/)                    { DCOMPLEX;
+     } elsif ($text =~ /^\s*(T|F|.(true|false).)/i) { LOGICAL;
+     } elsif ($text =~ /^\s*[+-]?[0-9]+(\s|,|!|$)/) { INTEGER;
+     } elsif ($text =~ /^\s*$float(\s|,|!|$)/)      { FLOAT;
+     } elsif ($text =~ /^\s*$numeric_e(\s|,|!|$)/)  { SINGLE;
+     } elsif ($text =~ /^\s*$numeric_d(\s|,|!|$)/)  { DOUBLE;
+     } else                                         { UNKNOWN;
+     }
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub show_error {
+ sub show_error {
 # Print error message and beginning of string with marker of current
 # position [Slightly ridiculous, as the marker will always point to
 # beginning of line]
-    my $errmsg = shift;
-    my $prefix = shift;
-    my $text   = shift;
-    my $die    = (shift || 0);
+     my $errmsg = shift;
+     my $prefix = shift;
+     my $text   = shift;
+     my $die    = (shift || 0);
 
-    chomp($errmsg);
+     chomp($errmsg);
 
-    # Escape newlines and only print 75 chars:
-    my $subtext = $prefix . $text;
-    $subtext =~ s/\n/\\n/g;
-    $subtext = substr($subtext,0,75) . "\n";
+     # Escape newlines and only print 75 chars:
+     my $subtext = $prefix . $text;
+     $subtext =~ s/\n/\\n/g;
+     $subtext = substr($subtext,0,75) . "\n";
 
-    # Splice in marker line
-    my $marker = " " x length($prefix) . "^------  HERE\n";
-    $subtext =~ s/\n/\n$marker/;
+     # Splice in marker line
+     my $marker = " " x length($prefix) . "^------  HERE\n";
+     $subtext =~ s/\n/\n$marker/;
 
-    # Prefix error message:
-    $subtext = "\e[01m$errmsg:\e[00m\n" . $subtext;
+     # Prefix error message:
+     $subtext = "\e[01m$errmsg:\e[00m\n" . $subtext;
 
-    # Now die
-    if ($die) {
-	croak "$subtext";	# die
-    } else {
-	carp "$subtext";	# warn
-    }
-}
+     # Now die
+     if ($die) {
+         croak "$subtext";	# die
+     } else {
+         carp "$subtext";	# warn
+     }
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub printable_substring {
+ sub printable_substring {
 # Extract substring and quote newlines for diagnostic printing
-    my $string = shift;
-    my $length = shift || 40;
+     my $string = shift;
+     my $length = shift || 40;
 
-    $string =~ s/\n/\\n/g;
-    my $oldlen = length($string);
-    $string = substr($string,0,$length);
-    substr($string,-3,3) = '...' if ($length<$oldlen);
-    $string;
-}
+     $string =~ s/\n/\\n/g;
+     my $oldlen = length($string);
+     $string = substr($string,0,$length);
+     substr($string,-3,3) = '...' if ($length<$oldlen);
+     $string;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub assign_slot_val {
+ sub assign_slot_val {
 #
 # Assignment of value to slot variable for output (format-dependent: `='
 # for f90, `:' for IDL records, etc.)
 #
-    my $var    = shift;
-    my @vals   = @{shift()};
-    my $format = shift;
-    my $type   = shift;
+     my $var    = shift;
+     my @vals   = @{shift()};
+     my $format = shift;
+     my $type   = shift;
 
-    my $assmnt = "$var";
+     my $assmnt = "$var";
 
-    if ($format eq 'f90') {
-	$assmnt .= "=";
-    } elsif ($format eq 'idl') {
-	$assmnt .= ": ";	# structure syntax
-    } else {
-	croak "assign_slot_val: Unknown format <$format>\n";
-    }
+     if ($format eq 'f90') {
+         $assmnt .= "=";
+     } elsif ($format eq 'idl') {
+         $assmnt .= ": ";	# structure syntax
+     } else {
+         croak "assign_slot_val: Unknown format <$format>\n";
+     }
 
-    encapsulate_values(\@vals,$format,$type); # preprocess values
-    if (@vals > 1) {
-	$assmnt .= add_array_bracket(join(",", @vals), $format);
-    } else {
-	$assmnt .= $vals[0];
-    }
+     encapsulate_values(\@vals,$format,$type); # preprocess values
+     if (@vals > 1) {
+         $assmnt .= add_array_bracket(join(",", @vals), $format);
+     } else {
+         $assmnt .= $vals[0];
+     }
 
-    $assmnt;
-}
+     $assmnt;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub encapsulate_values {
+ sub encapsulate_values {
 #
 # Format-specific preprocessing of data values, e.g. quoting strings,
 # mapping logicals to integers for IDL, etc.
 #
-    my $valref = shift;
-    my $format = shift;
-    my $type   = shift;
-    my @vals = @$valref;
+     my $valref = shift;
+     my $format = shift;
+     my $type   = shift;
+     my @vals = @$valref;
 
-    ## Actions for all formats
-    if ($type==COMPLEX or $type==DCOMPLEX) {
+     ## Actions for all formats
+     if ($type==COMPLEX or $type==DCOMPLEX) {
 
-use Data::Dumper;
-	@vals = map { "${cmplx_pref}$_${cmplx_suff}" } @vals;
-    }
+         use Data::Dumper;
+         @vals = map { "${cmplx_pref}$_${cmplx_suff}" } @vals;
+     }
 
-    ## Actions specific for some formats
-    if ($format eq 'f90') {
-	#
-	#  F90 output format:
-	#  - quote strings
-	#
-	if      ($type==SQ_STRING or $type==DQ_STRING) {
-	    @vals = map { quote_string_f90($_) } @vals;
-	}
-    } elsif ($format eq 'idl') {
-	#
-	#  IDL output format:
-	#  - convert logicals to integers
-	#  - quote strings
-	#
-	if      ($type==LOGICAL) {
-	    @vals = map { encaps_logical_idl($_) } @vals;
-	} elsif ($type==SQ_STRING or $type==DQ_STRING) {
-	    @vals = map { quote_string_f90($_) } @vals;
-	}
-    } else {
-	#
-	#  Invalid format
-	#
-	croak "encapsulate_values: Unknown format <$format>\n";
-    }
+     ## Actions specific for some formats
+     if ($format eq 'f90') {
+         #
+         #  F90 output format:
+         #  - quote strings
+         #
+         if      ($type==SQ_STRING or $type==DQ_STRING) {
+             @vals = map { quote_string_f90($_) } @vals;
+         }
+     } elsif ($format eq 'idl') {
+         #
+         #  IDL output format:
+         #  - convert logicals to integers
+         #  - quote strings
+         #
+         if      ($type==LOGICAL) {
+             @vals = map { encaps_logical_idl($_) } @vals;
+         } elsif ($type==SQ_STRING or $type==DQ_STRING) {
+             @vals = map { quote_string_f90($_) } @vals;
+         }
+     } else {
+         #
+         #  Invalid format
+         #
+         croak "encapsulate_values: Unknown format <$format>\n";
+     }
 
-    @$valref = @vals;
-}
+     @$valref = @vals;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub format_slots {
+ sub format_slots {
 #
 # Format all slots for printing and collect in a list
 #
-    my $obj    = shift;
-    my $format = (shift || 0);
-    my $double = (shift || 0);
-    my $trim   = (shift || 0);
+     my $obj    = shift;
+     my $format = (shift || 0);
+     my $double = (shift || 0);
+     my $trim   = (shift || 0);
 
-    return () unless ($obj->{NSLOTS});
+     return () unless ($obj->{NSLOTS});
 
-    my @slots;
-    my $slot;
-    foreach my $var (@{$obj->{SLOTS}}) {
-	my $valhash = $obj->{DATA}->{$var};
-	my @vals = @{$$valhash{'value'}};
-	my $type = $$valhash{'type'};
+     my @slots;
+     my $slot;
+     foreach my $var (@{$obj->{SLOTS}}) {
+         my $valhash = $obj->{DATA}->{$var};
+         my @vals = @{$$valhash{'value'}};
+         my $type = $$valhash{'type'};
 
-        # Trim trailing whitespace
-	if ($trim) {
-	    @vals = map { s/\s*$//; $_ } @vals;
-	}
+         # Trim trailing whitespace
+         if ($trim) {
+             @vals = map { s/\s*$//; $_ } @vals;
+         }
 
-        # Replace E[0-9]+ by, or append `D0' where necessary
-	if ($double) {
-	    if (($type == FLOAT)   ||
-		($type == SINGLE)  ||
-		($type == DOUBLE)  ||
-		($type == COMPLEX) ||
-		($type == DCOMPLEX))  {
-		@vals = map { s/[eEdD]/D/; $_ } @vals;
-		@vals = map { s/(^|\s|,)($float)($|\s|,)/$1$2D0$3/g; $_ } @vals;
-		@vals = map { s/(\(\s*)($float)(\s*,\s*)($float)(\s*\))/$1$2D0$3$4D0$5/g; $_ } @vals;
-	    }
-	}
+         # Replace E[0-9]+ by, or append `D0' where necessary
+         if ($double) {
+             if (($type == FLOAT)   ||
+                 ($type == SINGLE)  ||
+                 ($type == DOUBLE)  ||
+                 ($type == COMPLEX) ||
+                 ($type == DCOMPLEX))  {
+                 @vals = map { s/[eEdD]/D/; $_ } @vals;
+                 @vals = map { s/(^|\s|,)($float)($|\s|,)/$1$2D0$3/g; $_ } @vals;
+                 @vals = map { s/(\(\s*)($float)(\s*,\s*)($float)(\s*\))/$1$2D0$3$4D0$5/g; $_ } @vals;
+             }
+         }
 
-	$slot = assign_slot_val($var,\@vals,$format,$type);
-	push @slots, $slot;
-    }
+         $slot = assign_slot_val($var,\@vals,$format,$type);
+         push @slots, $slot;
+     }
 
-    return @slots;
-}
+     return @slots;
+ }
 
 # ---------------------------------------------------------------------- #
-sub aggregate_slots {
+ sub aggregate_slots {
 #
 # Take list of formatted slot strings, group every $maxslots strings
 # together into one string
 #
-    my $slotsref  = shift;
-    my $maxslots  = shift;
-    my $slot_join = shift;
+     my $slotsref  = shift;
+     my $maxslots  = shift;
+     my $slot_join = shift;
 
-    my @slots = @$slotsref;
+     my @slots = @$slotsref;
 
-    # Short-circuit if nothing to do
-    return @slots unless ($maxslots>0);
+     # Short-circuit if nothing to do
+     return @slots unless ($maxslots>0);
 
-    my @new_slots;
-    while (@slots) {
-        # Use a loop here, as @slots[1..$maxslots] would generate trailing
-        # undefs
-        my @group_us;
-        foreach my $i (1..$maxslots) {
-            push @group_us, shift @slots if (@slots);
-        }
-        my $aggregated_slot = join($slot_join, @group_us);
-        push @new_slots, $aggregated_slot;
-    }
+     my @new_slots;
+     while (@slots) {
+         # Use a loop here, as @slots[1..$maxslots] would generate trailing
+         # undefs
+         my @group_us;
+         foreach my $i (1..$maxslots) {
+             push @group_us, shift @slots if (@slots);
+         }
+         my $aggregated_slot = join($slot_join, @group_us);
+         push @new_slots, $aggregated_slot;
+     }
 
-    return @new_slots;
-}
+     return @new_slots;
+ }
 # ---------------------------------------------------------------------- #
 
-sub add_array_bracket {
+ sub add_array_bracket {
 # Add format-specific array delimiters around string
-    my $string = shift;
-    my $format = shift;
+     my $string = shift;
+     my $format = shift;
 
-    if     ($format eq 'f90') {
-	# No delimiters
-    } elsif ($format eq 'idl') {
-	$string = "[$string]";
-    } else {
-	#
-	#  Invalid format
-	#
-	croak "add_array_bracket: Unknown format <$format>\n";
-    }
+     if     ($format eq 'f90') {
+         # No delimiters
+     } elsif ($format eq 'idl') {
+         $string = "[$string]";
+     } else {
+         #
+         #  Invalid format
+         #
+         croak "add_array_bracket: Unknown format <$format>\n";
+     }
 
-    return $string;
-}
+     return $string;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub encaps_logical_idl {
+ sub encaps_logical_idl {
 # Convert logical string to integer for IDL
-    my $val = shift;
+     my $val = shift;
 
-    $val =~ s/(\.false\.|F)/0L/i;
-    $val =~ s/(\.true\.|T)/-1L/i;
+     $val =~ s/(\.false\.|F)/0L/i;
+     $val =~ s/(\.true\.|T)/-1L/i;
 
-    $val;
-}
+     $val;
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub quote_string_f90 {
+ sub quote_string_f90 {
 # Enclose string by quotation marks, doubling any existing quotation marks
 # for Fortran and IDL
-    my $val = shift;
+     my $val = shift;
 
-    $val =~ s/'/''/g;
+     $val =~ s/'/''/g;
 
-    return quote_string($val);
-}
+     return quote_string($val);
+ }
 
 # ---------------------------------------------------------------------- #
 
-sub quote_string {
+ sub quote_string {
 # Enclose string by quotation marks
-    return "'$_[0]'";
-}
+     return "'$_[0]'";
+ }
 
 # ---------------------------------------------------------------------- #
 
 ## Done.
 
-1;
+ 1;
 
 # End of file
