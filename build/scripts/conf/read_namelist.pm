@@ -44,14 +44,13 @@ sub read_namelist{
                 if( $line =~ m/^\// ){
                     $nl->parse(text => $block);                
                     print "NAME: " . $nl->name() . " SLOTS: " . $nl->nslots() . "\n";
-                    print Dumper($nl->hash()) , "\n";
+                    print "OUTPUT:\n", $nl->output();
+                    #print Dumper($nl->hash()) , "\n";
                     $block = '';
                 }
             }
         }
     }
-
-    print "F90 format:\n", $nl->output();
     exit;
 
 }

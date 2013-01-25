@@ -459,6 +459,7 @@ interpretation]), but is way faster on large files.
 #
 # F90 data types
  use constant  UNKNOWN   => 0;
+ use constant  SEVERALV  => 0.5;
  use constant  SQ_STRING => 1;
  use constant  DQ_STRING => 2;
  use constant  LOGICAL   => 3;
@@ -524,6 +525,7 @@ interpretation]), but is way faster on large files.
 # Hash for looking up symbolic names for type constants. The constants are
 # only expanded as numbers if adding 0.
  my %stypes = ( UNKNOWN   + 0 => 'unknown',
+                SEVERALV  + 0 => 'severalv',
                 SQ_STRING + 0 => 'single-quote string',
                 DQ_STRING + 0 => 'double-quote string',
                 LOGICAL   + 0 => 'logical',
@@ -1038,7 +1040,7 @@ interpretation]), but is way faster on large files.
      my $state  = START;
      my $id = $regexp[ID];	# allowed namelist/variable names
 
-     my ($status,$var,@values,$type);
+     my ($status,$var,@values,$type,@typesv);
 
      ## Reset to reasonable default values
      $$nslotsref = 0;
@@ -1078,7 +1080,8 @@ interpretation]), but is way faster on large files.
              }
 
              # Get values and check
-             @values = get_value(\$text,\$type,$var,$debug); # drop $debug here..
+             @typesv = ();
+             @values = get_value(\$text,\$type,$var,\@typesv,$debug); # drop $debug here..
              if (@values) {
                  $nslots++;
                  push @$slotsref, $var;
@@ -1097,10 +1100,12 @@ interpretation]), but is way faster on large files.
          }
 
          print STDERR "[",join(',',@values), "] -> \$hash{$var}\n" if ($debug);
+         print STDERR "[",join(',',@typesv), "] -> \$hash{$var}\n" if ($debug);
          my $stype = ($stypes{$type} || 'Type inconsistency!');
-         $hash{$var} = { type  => $type,
-                         stype => $stype,
-                         value => [@values]
+         $hash{$var} = { type   => $type,
+                         stype  => $stype,
+                         value  => [@values],
+                         typesv => [@typesv]
          };
      }
 
@@ -1178,6 +1183,7 @@ interpretation]), but is way faster on large files.
      my $txtptr  = shift;
      my $typeptr = shift;
      my $varname = shift;
+     my $ptypesv = shift;
      my $debug   = shift;    # Need to somewhow get rid of this argument...
 
      my $text = $$txtptr;
@@ -1185,6 +1191,7 @@ interpretation]), but is way faster on large files.
 
      strip_space_and_comment($text); # (are comments really allowed here?)
      my $type = infer_data_type($text);
+     $$typeptr = $type;
      if ($debug) {		# pretty-printing of type
          print STDERR
              "Found data of type $type (",
@@ -1253,10 +1260,14 @@ interpretation]), but is way faster on large files.
          $text =~ s/.*\n// if ($rest eq '!'); # comment
          print STDERR "<<", ($mul||'1'), "x>><<$val>> <<",
          printable_substring($text), ">>\n" if ($debug);
+
+         push( @$ptypesv, $type );
+         if ( $type != $$typeptr ){ $$typeptr = SEVERALV; }
+         $type = infer_data_type($text);
+         if ($type != UNKNOWN) { $re_type = qr/$regexp2[$type]/; }
      }
 
      $$txtptr = $text;		# return remaining unparsed string
-     $$typeptr = $type;		# return type
      @values;
  }
 
@@ -1268,6 +1279,7 @@ interpretation]), but is way faster on large files.
 
      my @tp;
      $tp[UNKNOWN]   = 'UNKNOWN';
+     $tp[SEVERALV]  = 'SEVERALV';
      $tp[SQ_STRING] = 'SQ_STRING';
      $tp[DQ_STRING] = 'DQ_STRING';
      $tp[LOGICAL  ] = 'LOGICAL';
@@ -1360,6 +1372,7 @@ interpretation]), but is way faster on large files.
      my @vals   = @{shift()};
      my $format = shift;
      my $type   = shift;
+     my @typesv = @{shift()};
 
      my $assmnt = "$var";
 
@@ -1371,7 +1384,19 @@ interpretation]), but is way faster on large files.
          croak "assign_slot_val: Unknown format <$format>\n";
      }
 
-     encapsulate_values(\@vals,$format,$type); # preprocess values
+     if( $type == SEVERALV){
+         my @vals_ini = @vals;
+         @vals = ();
+         for my $index (0..$#vals_ini){
+             my @vals_tmp = ( $vals_ini[$index] );
+             my $type_tmp = $typesv[$index];
+             encapsulate_values(\@vals_tmp,$format,$type_tmp); # preprocess values
+             @vals = ( @vals, @vals_tmp );
+         }
+     }else{
+         encapsulate_values(\@vals,$format,$type); # preprocess values
+     }
+
      if (@vals > 1) {
          $assmnt .= add_array_bracket(join(",", @vals), $format);
      } else {
@@ -1391,7 +1416,8 @@ interpretation]), but is way faster on large files.
      my $valref = shift;
      my $format = shift;
      my $type   = shift;
-     my @vals = @$valref;
+
+     my @vals   = @$valref;
 
      ## Actions for all formats
      if ($type==COMPLEX or $type==DCOMPLEX) {
@@ -1447,8 +1473,9 @@ interpretation]), but is way faster on large files.
      my $slot;
      foreach my $var (@{$obj->{SLOTS}}) {
          my $valhash = $obj->{DATA}->{$var};
-         my @vals = @{$$valhash{'value'}};
-         my $type = $$valhash{'type'};
+         my @vals    = @{$$valhash{'value'}};
+         my $type    = $$valhash{'type'};
+         my @typesv  = @{$$valhash{'typesv'}};
 
          # Trim trailing whitespace
          if ($trim) {
@@ -1467,8 +1494,7 @@ interpretation]), but is way faster on large files.
                  @vals = map { s/(\(\s*)($float)(\s*,\s*)($float)(\s*\))/$1$2D0$3$4D0$5/g; $_ } @vals;
              }
          }
-
-         $slot = assign_slot_val($var,\@vals,$format,$type);
+         $slot = assign_slot_val($var,\@vals,$format,$type,\@typesv);
          push @slots, $slot;
      }
 
