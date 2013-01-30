@@ -871,6 +871,26 @@ interpretation]), but is way faster on large files.
      my $self = shift;
      return $self->{DATA};
  }
+# ---------------------------------------------------------------------- #
+
+ sub remove {
+# Remove one element from the list
+     my $self    = shift();
+     my $element = shift();
+
+     for my $idx (0..$self->{NSLOTS}){
+         if( $self->{SLOTS}[$idx] eq "$element" ){
+             $self->{NSLOTS} -= 1; 
+             delete($self->{DATA}->{"$element"});
+             splice(@{$self->{SLOTS}}, $idx, 1);
+             last;
+         }
+         $idx++;
+     }
+    
+     return 1;
+ }
+
 
 # ---------------------------------------------------------------------- #
 

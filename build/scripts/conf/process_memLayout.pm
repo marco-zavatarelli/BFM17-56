@@ -2,7 +2,7 @@
 
 #Author: Esteban Gutierrez esteban.gutierrez@cmcc.it
 
-package read_memLayout;
+package process_memLayout;
 
 use strict;
 use warnings;
@@ -39,7 +39,7 @@ my $XPR_UNITS_VALUE       = '([^:]+)';
 
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(read_memLayout);
+our @EXPORT= qw(process_memLayout);
 ########### VARIABLES ##########################
 
 
@@ -193,7 +193,7 @@ sub insert_term{
 }
 
 
-sub read_memLayout{
+sub process_memLayout{
     my $nml_def   = shift; #input file
     my $lst_group = shift; #output for groups
     my $lst_param = shift; #output for parameters
@@ -300,8 +300,7 @@ sub read_memLayout{
                     #$obj->print();
                 }
             }#else{ print "INFO: not included PARAM $par_name\n" }
-        }
-        #default { print "INFO: line without processing: $line_raw"; }
+        }#else { print "INFO: line without processing: $line_raw"; }
     }
 
 

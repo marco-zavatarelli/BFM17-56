@@ -2,7 +2,7 @@
 
 #Author: Esteban Gutierrez esteban.gutierrez@cmcc.it
 
-package read_namelist;
+package process_namelist;
 
 use strict;
 use warnings;
@@ -15,17 +15,17 @@ use classes;
 
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(read_namelist);
+our @EXPORT= qw(process_namelist);
 ########### VARIABLES ##########################
 
 
 ########### FUNCTIONS ##########################
 
-sub read_namelist{
+sub process_namelist{
     my $nml_val = shift; #input file
     my $lst_nml = shift; #output for names
     
-    my $nl = F90Namelist->new(debug => 0) or die "Couldn't get object\n";
+    my $index = 0;
 
     # Read one namelist from file
     open(NAMELIST , "< $nml_val") or die "Couldn't open file: $nml_val. $?\n";
@@ -33,28 +33,33 @@ sub read_namelist{
     close(NAMELIST);
 
     #process each namelist in the file
-    my $block = '';
+    my $block     = '';
+    my $lines_not = '';
     foreach my $line (@lines){
         $line =~ s/!.*//;
         if ( $line ){
             if( $line =~ m/^\s*(\&.*)/ ){
                 $block = $1;
             }else{
-                $block .= $line;
-                if( $line =~ m/^\// ){
-                    $nl->parse(text => $block);                
-                    print "NAME: " . $nl->name() . " SLOTS: " . $nl->nslots() . "\n";
-                    print "OUTPUT:\n", $nl->output();
-                    #print Dumper($nl->hash()) , "\n";
+                if( $block ){ 
+                    $block .= $line;
+                }else{
+                    #lines which are not processed
+                    $lines_not .= $line;
+                }
+
+                #is the end of the namelist?
+                if( $line =~ m/^\s*\// ){
+                    $$lst_nml[$index] = F90Namelist->new(debug => 0) or die "Couldn't get object\n";
+                    $$lst_nml[$index]->parse(text => $block);
+                    #print "OUTPUT:\n", $$lst_nml[$index]->output();
+                    $index++;
                     $block = '';
                 }
             }
         }
     }
-    exit;
-
+    return $lines_not;
 }
-
-&read_namelist( $ARGV[0] );
 
 1;

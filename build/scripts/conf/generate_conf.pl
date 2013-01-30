@@ -8,13 +8,14 @@ use warnings;
 use Data::Dumper;
 use Getopt::Std;
 
-use read_memLayout; #reomve trailing white spaces
-use read_namelist; # get the namelist values in the hash
+use process_memLayout; #reomve trailing white spaces
+use process_namelist; # get the namelist values in the hash
+use F90Namelist; #get the namelists
 use print_f90; # write the variables in the output file
 use classes;
 
 
-my ($nml_def, $nml_val, $proto_dir, $out_dir, @cpp_defs);
+my ($input, $proto_dir, $out_dir, @cpp_defs);
 
 #fix values
 my $VERBOSE = 0;
@@ -23,6 +24,7 @@ my @PROTOS_NAME = qw(ModuleMem AllocateMem set_var_info_bfm init_var_bfm INCLUDE
 my @PROTOS_EXT  = qw(F90       F90         F90              F90          h      );
 
 #structures to allocate the parameters read in memmory layour
+my @lst_nml   = ();
 my %lst_group = ();
 my %lst_param = ();
 my %lst_sta   = ();
@@ -30,11 +32,10 @@ my %lst_const = ();
 
 sub usage(){
     print "usage: $0 {-D[cpp_def] -r [mem_layout] -n [namelist] -f [prototype_dir] -t [output_dir]} [-v]\n\n";
-    print "This script generate .F90 and .h files using templates based on configuration files\n\n";
+    print "This script generate .F90, .h and .nml files using templates based on configuration files\n\n";
     print "MUST specify at least one these OPTIONS:\n";
     print "\t-D[cpp_def]          defines\n";
-    print "\t-r [mem_layout]      memory layout\n";
-    print "\t-n [namelist]        namelist\n";
+    print "\t-r [mem_layout]      memory layout (with or without namelists inside)\n";
     print "\t-f [prototype_dir]   input dir for prototype files\n";
     print "\t-t [output_dir]      output dir for generated files\n";
     print "alternative OPTIONS are:\n";
@@ -43,8 +44,7 @@ sub usage(){
 
 use Getopt::Long qw(:config bundling noignorecase); # for getopts compat
 GetOptions(
-    'r=s'  => \$nml_def,
-    'n=s'  => \$nml_val,
+    'r=s'  => \$input,
     'f=s'  => \$proto_dir,
     't=s'  => \$out_dir,  
     'D=s@' => \@cpp_defs,
@@ -52,11 +52,26 @@ GetOptions(
     'h'    => \$HELP,
     ) or &usage() && exit;
 if ( $HELP ){ &usage(); exit; }
-if ( !$nml_def || !$nml_val || !$proto_dir || !$out_dir || !@cpp_defs ){ &usage(); exit; }
+if ( !$input || !$proto_dir || !$out_dir || !@cpp_defs ){ &usage(); exit; }
+
+my $nml_def_tmp = "$out_dir/nml_def_tmp";
+
+#process namelists removing them from the input file
+if( $VERBOSE ){ print "Reading namelists...\n"; }
+open NML_DEF_TMP, ">", "$nml_def_tmp" or die "$nml_def_tmp cannot be opened: $!";
+my $lines_def = process_namelist($input, \@lst_nml);
+if( $VERBOSE ){ foreach my $nml (@lst_nml){ print $nml->output; } }
+print NML_DEF_TMP $lines_def;
+close(NML_DEF_TMP);
 
 #read memory layout file
-read_memLayout($nml_def, \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs) );
-#read_namelist($nml_val, \%lst_group, \%lst_param);
+if( $VERBOSE ){ print "Reading memory layout...\n"; }
+process_memLayout("$nml_def_tmp", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs) );
+
+#check consistency between namelists and memory_layout
+
+#write memory output files
+if( $VERBOSE ){ print "Printing memory layout...\n"; }
 foreach my $idx ( 0 .. $#PROTOS_NAME ){
     my $name = $PROTOS_NAME[$idx];
     my $ext  = $PROTOS_EXT[$idx];
@@ -65,11 +80,14 @@ foreach my $idx ( 0 .. $#PROTOS_NAME ){
     if( $VERBOSE ){ print "---------- ${name} end \n\n"; }
 }
 
-#my @const = sort keys %lst_const; print "Constituents: @const\n";
-#foreach my $key (sort keys %lst_group) { $lst_group{$key}->print(); }
-#foreach my $key (sort keys %lst_param) { $lst_param{$key}->print(); }
-#foreach my $key (sort keys %lst_sta) { print "STADISTICS => $key have $lst_sta{$key} elements\n"; }
-#foreach my $key (sort keys %lst_param) { if( $lst_param{$key}->getType() eq 'flux' ){ $lst_param{$key}->print(); } }
-#foreach my $key (sort keys %lst_param) { if( $lst_param{$key}->getInclude() ){ $lst_param{$key}->print(); } }
-#print Dumper(\%lst_sta) , "\n";
-#print Dumper(\%lst_const) , "\n";
+#write namelists output files
+if( $VERBOSE ){ print "Writing namelists...\n"; }
+foreach my $nml (@lst_nml){
+    my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
+    $nml->remove('filename_nml_conf');
+    open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
+    print NML_OUT $nml->output;
+    close NML_OUT;
+}
+
+if( $VERBOSE ){ print "Configuration files generation finished\n"; }

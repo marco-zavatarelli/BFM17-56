@@ -25,15 +25,17 @@
 # -----------------------------------------------------
 
 
+MODE="STANDALONE"
 PRESET="STANDALONE"
-ARCH_OTH="PW6_calypso"
+ARCH_NEMO="PW6_calypso"
 ARCH_STD="gfortran"
 NPROC=4
-MODE="clean"
-MODEL="standard"
+CLEAN="clean"
+CPPDEFS="-DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
 
 EXP="EXP00"
-NMLDIR="temperate.pelagic"
+PROC=4
+QUEUE="poe_short"
 
 MKMF="mkmf"
 GMAKE="gmake"
@@ -41,6 +43,7 @@ PERL="perl"
 GENCONF="generate_conf"
 MKNEMO="makenemo"
 BFMSTD="bfm_standalone.x"
+NEMOEXE="opa"
 
 usage(){
     cat << EOF
@@ -56,62 +59,80 @@ MUST specify at least one these OPTIONS:
    -e      execute
 
 alternative COMPILATION OPTIONS are:
+   -m MODE
+              Use with or without NEMO. Valid values are STANDALONE or NEMO. (Default: "STANDALONE")
    -p PRESET
-              Preset to generate the configuration. Available presets are: STANDALONE, GYRE_BFM, NEMO and PELAGOS (Default: "STANDALONE")
+              Preset to generate the configuration. (Default: "STANDALONE")
+              - For other presets, list files *.conf in: BFMDIR/build/Configurations
    -v
               Verbose mode to print all messages (Deactivated by default)
    -b BFMDIR
               the environmental variable BFMDIR pointing to the root directory of BFM (Default: "${BFMDIR}")
    -n NEMODIR
               the environmental variable NEMODIR pointing to the root directory of NEMO. (Default: "${NEMODIR}")
-   -m MODEL
-              option used to design the BFM Memory Layout. Available options are: standard, iron, seaice (Default: "standard")
    -a ARCH
-              NEMO specific architecture file (Default: "gfortran" for STANDALONE or "PW6_calypso" for others)
-              - For STANDALONE, list dir : ${BFMDIR}/compilers
-              - For other presets, execute command: ${NEMODIR}/NEMOGCM/CONFIG/makenemo -h all
+              NEMO specific architecture file (Default: "gfortran" for STANDALONE or "PW6_calypso" for NEMO)
+              - For STANDALONE available archs, list dir : BFMDIR/compilers
+              - For NEMO available archs, execute command: NEMODIR/NEMOGCM/CONFIG/makenemo -h all
    -r PROC
               number of procs used for compilation. Default: 4
 alternative EXECUTION OPTIONS are:
    -x EXP
               Name of the experiment for generation of the output (Default: "EXP00")
    -l NMLDIR
-              input dir where are the namelists to run the experiment (Default: "temperate.pelagic")
-
+              input dir where are the namelists to run the experiment (Default: "BFMDIR/build/PRESET")
+   -r PROC
+              number of procs used for running. Default: 4
+   -q QUEUE
+              name of the queue number of procs used for running. Default
 EOF
 }
 
 
 
-while getopts "hvgecp:m:b:n:a:r:x:l:" opt; do
+while getopts "hgcem:p:vb:n:a:r:x:l:q:" opt; do
     case $opt in
       h )                   usage; exit                                     ;;
-      v )                   echo "verbose mode"          ; VERBOSE=1        ;;
       g ) [ ${VERBOSE} ] && echo "generation activated"  ; GEN=1            ;;
-      e ) [ ${VERBOSE} ] && echo "execution activated"   ; EXE=1            ;;
       c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1; GEN=1     ;;
+      e ) [ ${VERBOSE} ] && echo "execution activated"   ; EXE=1            ;;
+      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"          ; MODE=$OPTARG     ;;
       p ) [ ${VERBOSE} ] && echo "preset $OPTARG"        ; PRESET=$OPTARG   ;;
-      m ) [ ${VERBOSE} ] && echo "model $OPTARG"         ; MODEL=$OPTARG    ;;
+      v )                   echo "verbose mode"          ; VERBOSE=1        ;;
       b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"        ; BFMDIR=$OPTARG   ;;
       n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"       ; NEMODIR=$OPTARG  ;;
       a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"  ; ARCH_OPT=$OPTARG ;;
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"      ; PROC=$OPTARG     ;;
       x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"    ; EXP=$OPTARG      ;;
       l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"  ; NMLDIR=$OPTARG   ;;
+      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"    ; QUEUE=$OPTARG    ;;
     esac
 done
 
-if [[ ! ${EXE} && ! ${CMP} && ! ${GEN} ]] \
-    || [[ ${PRESET} && ${PRESET} != "PELAGOS" && ${PRESET} != "GYRE_BFM" && ${PRESET} != "STANDALONE" && ${PRESET} != "NEMO" ]] \
-    || [[ ${MODEL} && ${MODEL} != "standard" && ${MODEL} != "iron" && ${MODEL} != "ice" ]]; then
-    usage; exit; fi
-if [[ ! $BFMDIR || ! $NEMODIR ]]; then echo "BFMDIR and/or NEMODIR not specified"; exit; fi
-if [[ ${PROC} ]] && ! [[ "$PROC" =~ ^[0-9]+$ ]] ; then echo "PROC must be a number"; exit; fi
+if [[ ! ${EXE} && ! ${CMP} && ! ${GEN} ]]; then
+    echo "YOU MUST specify one of the \"must\" arguments";
+    usage;
+    exit;
+fi
+if [[ ${MODE} != "STANDALONE" && ${MODE} != "NEMO" ]]; then
+    echo "MODE is not correct\n";
+    usage;
+    exit;
+fi
+if [[ ! $BFMDIR || ! $NEMODIR ]]; then 
+    echo "BFMDIR and/or NEMODIR not specified"; 
+    exit; 
+fi
+if [[ ${PROC} ]] && ! [[ "$PROC" =~ ^[0-9]+$ ]] ; then 
+    echo "PROC must be a number"; 
+    exit; 
+fi
+
 
 if [ $VERBOSE ]; then
     cmd_mkmf="${MKMF} -v"
     cmd_gmake="${GMAKE}"
-    cmd_gen="${GENCONF} -v"
+    cmd_gen="${GENCONF}.pl -v"
     cmd_mknemo="${MKNEMO}"
 else
     cmd_mkmf="${MKMF}"
@@ -120,32 +141,34 @@ else
     cmd_mknemo="${MKNEMO} -v0"
 fi
 
-
-
+blddir="${BFMDIR}/build/${PRESET}"
 if [ ${GEN} ]; then
-    myGlobalDef="GlobalDefsBFM.model.${MODEL}"
-    blddir="${BFMDIR}/build/STD_${PRESET}"
+    myGlobalDef="${PRESET}.conf"
+
+    if [ ! -f ${BFMDIR}/build/Configurations/${myGlobalDef} ]; then
+         echo "ERROR: ${BFMDIR}/build/Configurations/${myGlobalDef} not exsits"
+         exit
+    fi
 
     if [ ! -d ${blddir} ]; then mkdir ${blddir}; fi
     cd ${blddir}
     rm -rf *
     
-    if [[ ${PRESET} == "STANDALONE"   ]]; then
-        cppdefs="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
+    if [[ ${MODE} == "STANDALONE" ]]; then
         if [[ ${ARCH_OPT} ]]; then ARCH=${ARCH_OPT}; else ARCH=${ARCH_STD}; fi
     else
-        cppdefs="-DBFM_PARALLEL -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
-        if [[ ${ARCH_OPT} ]]; then ARCH=${ARCH_OPT}; else ARCH=${ARCH_OTH}; fi
+        if [[ ${ARCH_OPT} ]]; then ARCH=${ARCH_OPT}; else ARCH=${ARCH_NEMO}; fi
     fi
 
     # generate BFM Memory Layout files
-    ${PERL} -I${BFMDIR}/build/scripts/conf/ ${BFMDIR}/build/scripts/conf/${cmd_gen} ${cppdefs} \
+    ${PERL} -I${BFMDIR}/build/scripts/conf/ ${BFMDIR}/build/scripts/conf/${cmd_gen} \
+        ${CPPDEFS} \
         -r ${BFMDIR}/build/Configurations/${myGlobalDef}  \
-        -n "asd"   \
         -f ${BFMDIR}/src/BFM/proto \
         -t ${blddir} || exit
 
-    if [[ ${PRESET} == "STANDALONE" ]]; then
+    if [[ ${MODE} == "STANDALONE" ]]; then
+        cppdefs="-DBFM_STANDALONE ${CPPDEFS}"
         # list files
         find ${BFMDIR}/src/BFM/General -name "*.?90" -print > BFM.lst
         find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
@@ -158,8 +181,11 @@ if [ ${GEN} ]; then
         find ${BFMDIR}/src/BFM/Forcing -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
 
-        #change netcdf path in file
-        sed -e "s/\/usr\/local/\/opt\/local/" ${BFMDIR}/compilers/${ARCH}.inc > ${blddir}/${ARCH}.inc
+        #change netcdf path in file if Mac
+        if [ `uname -s` == "Darwin" ]; then
+            [ ${VERBOSE} ] && echo "changing netcd path for Mac!"
+            sed -e "s/\/usr\/local/\/opt\/local/" ${BFMDIR}/compilers/${ARCH}.inc > ${blddir}/${ARCH}.inc
+        fi
 
         # Make makefile
         ${BFMDIR}/bin/${cmd_mkmf} \
@@ -173,8 +199,9 @@ if [ ${GEN} ]; then
         ln -sf ${BFMDIR}/build/Configurations/${myGlobalDef} GlobalDefsBFM.model
         [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
 
+        # If COMPILE, launch gmake
         if [ ${CMP} ]; then
-            if [ ${MODE} == "clean" ]; then
+            if [ ${CLEAN} == "clean" ]; then
                 [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
                 ${cmd_gmake} clean
             fi
@@ -183,6 +210,7 @@ if [ ${GEN} ]; then
             [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
         fi
     else
+        cppdefs="-DBFM_PARALLEL ${CPPDEFS}"
         # Generate the specific bfm.fcm include file for makenemo
         cppdefs=`echo ${cppdefs} | sed -e "s/"-D"//g"` 
         # some macros are default with NEMO
@@ -193,20 +221,21 @@ if [ ${GEN} ]; then
 
         # Move BFM Layout files to target folders 
         cp ${blddir}/*.F90 ${BFMDIR}/src/BFM/General
-        mv ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
+        cp ${blddir}/init_var_bfm.F90 ${BFMDIR}/src/share
         cp ${blddir}/INCLUDE.h ${BFMDIR}/src/BFM/include
         cp ${blddir}/bfm.fcm ${BFMDIR}/src/nemo
         [ ${VERBOSE} ] && echo "Files copied to target folders."
 
         # If COMPILE, launch makenemo
         if [ ${CMP} ]; then
+            cd ${NEMODIR}/NEMOGCM/CONFIG/
 
-            if [ ${MODE} == "clean" ]; then
+            if [ ${CLEAN} == "clean" ]; then
                 [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-                ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
+                ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
             fi
             [ ${VERBOSE} ] && echo "Starting NEMO compilation..."
-            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${NPROC}
+            ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${NPROC}
             [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
         fi
     fi
@@ -214,22 +243,40 @@ fi
 
 if [ ${EXE} ]; then
     [ ${VERBOSE} ] && echo "Executing ${PRESET}"
+
+    if [ ! -d ${blddir} ]; then
+        echo "ERROR: directory ${blddir} not exists"
+    fi
+ 
     exedir="${BFMDIR}/run/${EXP}"
-    if [ ! -d ${exedir} ]; then mkdir ${exedir}; fi
+    if [ ! -d ${exedir} ]; then 
+        mkdir ${exedir}; 
+    fi
     cd ${exedir}
     rm -rf *
 
-    if [[ ${PRESET} == "STANDALONE" ]]; then
-        cp ${BFMDIR}/run/standalone/${NMLDIR}/* .
+    if [[ ${MODE} == "STANDALONE" ]]; then
+        # copy and link necessary files
+        if [ ${NMLDIR} ]; then cp ${NMLDIR}/* .; else cp ${blddir}/*.nml .; fi
+        ln -sf ${BFMDIR}/bin/${BFMSTD} ${BFMSTD}
+
+        #execute
         ./${BFMSTD}
     else
-        nemoexp="${NEMODIR}/NEMOGCM/CONFIG/GYRE_BFM/EXP00"
-        #change EXP and WORKDIR in runscript
-        sed -e "s/EXP=.*/EXP=\"${EXP}\"/" ${nemoexp}/runscript > ${nemoexp}/runscript_${EXP}
-        sed -e "s,workdir=.*,workdir=\"${exedir}\"," ${nemoexp}/runscript > ${nemoexp}/runscript_${EXP}
-        cd ${nemoexp}
+        #change values in runscript
+        sed -e "s,_EXP_,${EXP},g"       \
+            -e "s,_PRESET_,${PRESET},g" \
+            -e "s,_QUEUE_,${QUEUE},g"   \
+            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/build/scripts/conf/runscript > ./runscript_${EXP}
+
+        # copy and link necessary files
+        cp ${BFMDIR}/build/scripts/conf/xmlio_server.def ./
+        if [ ${NMLDIR} ]; then cp ${NMLDIR}/* .; else cp ${blddir}/*.nml .; fi
+        ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${NEMOEXE}.x
+
+        #execute
         bsub < ./runscript_${EXP}
-        [ ${VERBOSE} ] && echo "Execution logs will be generated in ${nemoexp}"
+        [ ${VERBOSE} ] && echo "Execution logs will be generated in ${exedir}"
     fi
     [ ${VERBOSE} ] && echo "Output generated in ${exedir}"
 fi
