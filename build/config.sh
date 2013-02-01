@@ -35,6 +35,7 @@ MKNEMO="makenemo"
 BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
 OPTIONS=( MODE CPPDEFS BFMDIR NEMODIR ARCH PROC NETCDF EXP NMLDIR PROC QUEUE )
+ERROR_MSG="Execute $0 -h for help if you don't know what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
 MODE="STANDALONE"
@@ -151,7 +152,7 @@ done
 #check must parameters
 if [[ ! ${EXE} && ! ${CMP} && ! ${GEN} ]]; then
     echo "ERROR: YOU MUST specify one of the \"must\" arguments"
-    echo "Execute $0 -h for help if you don't what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+    echo ${ERROR_MSG}
     exit
 fi
 
@@ -186,17 +187,17 @@ done
 #Check some optional parameter values
 if [[ ! $BFMDIR || ! $NEMODIR ]]; then 
     echo "ERROR: BFMDIR and/or NEMODIR not specified"
-    echo "Execute $0 -h for help if you don't what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+    echo ${ERROR_MSG}
     exit
 fi
 if [[ "$MODE" != "STANDALONE" && "$MODE" != "NEMO" ]]; then 
     echo "ERROR: MODE value not valid ($MODE). Available values are: STANDALONE or NEMO."
-    echo "Execute $0 -h for help if you don't what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+    echo ${ERROR_MSG}
     exit
 fi
 if [[ ${PROC} ]] && ! [[ "$PROC" =~ ^[0-9]+$ ]] ; then 
     echo "ERROR: PROC must be a number"
-    echo "Execute $0 -h for help if you don't what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+    echo ${ERROR_MSG}
     exit
 fi
 
@@ -205,7 +206,7 @@ if [ ${GEN} ]; then
 
     if [ ! -f ${BFMDIR}/${CONFDIR}/${myGlobalDef} ]; then
          echo "ERROR: ${BFMDIR}/${CONFDIR}/${myGlobalDef} not exsits"
-         echo "Execute $0 -h for help if you don't what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+         echo ${ERROR_MSG}
          exit
     fi
 
@@ -303,7 +304,7 @@ if [ ${EXE} ]; then
 
     if [ ! -d ${blddir} ]; then
         echo "ERROR: directory ${blddir} not exists"
-        echo "Execute $0 -h for help if you don't what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+        echo ${ERROR_MSG}
     fi
  
     exedir="${BFMDIR}/run/${EXP}"
