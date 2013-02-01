@@ -83,11 +83,14 @@ foreach my $idx ( 0 .. $#PROTOS_NAME ){
 #write namelists output files
 if( $VERBOSE ){ print "Writing namelists...\n"; }
 foreach my $nml (@lst_nml){
-    my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
-    $nml->remove('filename_nml_conf');
-    open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
-    print NML_OUT $nml->output;
-    close NML_OUT;
+    if ( $nml->hash()->{'filename_nml_conf'} ){
+        my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
+        $nml->remove('filename_nml_conf');
+        open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
+        print NML_OUT $nml->output;
+        close NML_OUT;
+        if( $VERBOSE ){ print "---------- $nml_name\n"; }
+    }
 }
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }
