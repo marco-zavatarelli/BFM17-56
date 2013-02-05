@@ -66,9 +66,11 @@ close(NML_DEF_TMP);
 
 #read memory layout file
 if( $VERBOSE ){ print "Reading memory layout...\n"; }
-process_memLayout("$nml_def_tmp", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs) );
+process_memLayout("$nml_def_tmp", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs), $VERBOSE );
 
 #check consistency between namelists and memory_layout
+if( $VERBOSE ){ print "Checking namelist and memory layout...\n"; }
+check_namelists( \@lst_nml, \%lst_group, \%lst_param, $VERBOSE );
 
 #write memory output files
 if( $VERBOSE ){ print "Printing memory layout...\n"; }
@@ -92,5 +94,7 @@ foreach my $nml (@lst_nml){
         if( $VERBOSE ){ print "---------- $nml_name\n"; }
     }
 }
+
+
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }

@@ -15,7 +15,7 @@ use classes;
 
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(process_namelist);
+our @EXPORT= qw(process_namelist check_namelists);
 ########### VARIABLES ##########################
 
 
@@ -60,6 +60,63 @@ sub process_namelist{
         }
     }
     return $lines_not;
+}
+
+
+sub check_namelists{
+    my ($lists_ref, $groups_ref, $params_ref, $VERBOSE ) = @_;
+    my %lookup = map {(lc $_, $$groups_ref{$_})} keys %$groups_ref;
+
+    foreach my $list (@$lists_ref){
+        if( $list->{NAME} =~ /(.*)_parameters$/ ){
+            my $nml_name = $1;
+            my $grp_name = "${nml_name}plankton";
+            #check if the group exists in the memory layout for the namelist
+            if( exists $lookup{$grp_name} ){
+                if ( $VERBOSE ){ print "\t$nml_name\n"; }
+                #check all the parameters which are part of this group
+                my $clm_num = 0;
+                foreach my $param (sort keys %$params_ref){
+                    my $prm_grp_name = $$params_ref{$param}->getGroup();
+                    if( $prm_grp_name && lc($prm_grp_name) eq $grp_name ){
+                        if( $VERBOSE ){ print "\t$param -> $grp_name\n"; }
+                        #check the number parameters of this group
+                        #which will be the number of columns should exist in namelist params
+                        $clm_num++;
+                    }
+                }
+
+                if( $clm_num > 0 ){
+                    #remove external elements in the list
+                    foreach my $element ( @{$list->slots} ){
+                        if( $VERBOSE ){ print "\t\t$element\n"; }
+                        if( $element eq "filename_nml_conf" ){
+                            #avoid this element
+                        }elsif( $element =~ /\w+\((\d+)\,\:\)/ ){
+                            #element type array "name(number,:)"
+                            my $values_num = $1;
+                            if ( $values_num > $clm_num ){ 
+                                print "WARNING: ($values_num > $clm_num) removing element $element in namelist $nml_name\n";
+                                $list->remove($element);  
+                            }
+                        }else{
+                            #element type normal "name"
+                            my $values_num = $#{${$list->hash}{$element}{value}}+1;
+                            if( $values_num > $clm_num ){
+                                print "WARNING: ($values_num > $clm_num) removing element values from $element in namelist $nml_name\n";
+                                splice(@{${$list->hash}{$element}{value}} , $clm_num, ($values_num - $clm_num) );
+                                splice(@{${$list->hash}{$element}{typesv}}, $clm_num, ($values_num - $clm_num) );
+                            }elsif( $values_num < $clm_num ){
+                                print "WARNING: ($values_num < $clm_num) adding zero values to element $element in namelist $nml_name\n";
+                                push( @{${$list->hash}{$element}{value}} , '0.0' x ($clm_num - $values_num) );
+                                push( @{${$list->hash}{$element}{typesv}}, (${${$list->hash}{$element}{typesv}}[0]) x ($values_num - $clm_num) );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 1;
