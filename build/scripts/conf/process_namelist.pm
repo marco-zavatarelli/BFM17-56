@@ -64,10 +64,12 @@ sub process_namelist{
 
 
 sub check_namelists{
-    my ($lists_ref, $groups_ref, $params_ref, $VERBOSE ) = @_;
-    my %lookup = map {(lc $_, $$groups_ref{$_})} keys %$groups_ref;
+    my ($lists_ref, $groups_ref, $params_ref, $const_ref, $VERBOSE ) = @_;
+    my %lookup = map {(lc $_, $$groups_ref{$_})} keys %$groups_ref; #lowecase all the group names
+    my @const  = keys %$const_ref;
 
     foreach my $list (@$lists_ref){
+        #check _parameters lists
         if( $list->{NAME} =~ /(.*)_parameters$/ ){
             my $nml_name = $1;
             my $grp_name = "${nml_name}plankton";
@@ -116,6 +118,29 @@ sub check_namelists{
                 }
             }
         }
+
+        #check bfm_save list
+        if( $list->{NAME} eq "bfm_save_nml" ){
+            foreach my $element ( @{$list->slots} ){
+                if( $element eq "ave_save" ){
+                    foreach my $value ( @{${$list->hash}{$element}{value}} ){
+                        if ( $value =~ /(.*)\(ii(.*)\)/ ){
+                            if( ! exists $$params_ref{$2} ){ print "WARNING: output $value does not exists\n"; }
+                            $value = $1;
+                        }
+
+                        if( ! exists $$params_ref{$value} ){
+                            #check if it is part of constituent
+                            my @parts = ( $value =~ /(.*)(\D)/ );
+                            if( ! exists $$params_ref{$parts[0]} || ! exists ${$$params_ref{$parts[0]}->getComponents()}{$parts[1]} ){
+                                print "WARNING: output $value does not exists\n"; 
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
     }
 }
 

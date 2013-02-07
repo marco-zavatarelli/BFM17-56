@@ -62,8 +62,8 @@ SYNOPSIS
 DESCRIPTION
     MUST specify at least one these OPTIONS:
        -h         Shows this help
-       -g         Generate
-       -c         Compile with makenemo (include generation)
+       -g         Generate ".H" ".F90" and ".NML" files
+       -c         Compile
        -e         Execute
 
     alternative COMPILATION OPTIONS are:
@@ -131,7 +131,7 @@ while getopts "hvgcep:m:k:b:n:a:r:ft:x:l:q:" opt; do
       h )                   usage                        ; exit             ;;
       v )                   echo "verbose mode"          ; VERBOSE=1        ;;
       g ) [ ${VERBOSE} ] && echo "generation activated"  ; GEN=1            ;;
-      c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1; GEN=1     ;;
+      c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1            ;;
       e ) [ ${VERBOSE} ] && echo "execution activated"   ; EXE=1            ;;
       p ) [ ${VERBOSE} ] && echo "preset $OPTARG"        ; PRESET=$OPTARG   ;;
       m ) [ ${VERBOSE} ] && echo "mode $OPTARG"          ; MODE=$OPTARG     ;;
@@ -253,18 +253,6 @@ if [ ${GEN} ]; then
 
         # Link to the configuration file
         ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
-        [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
-
-        # If COMPILE, launch gmake
-        if [ ${CMP} ]; then
-            if [ ${CLEAN} ]; then
-                [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-                #${cmd_gmake} clean
-            fi
-            [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
-            ${cmd_gmake}
-            [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
-        fi
     else
         cppdefs="-DBFM_PARALLEL ${CPPDEFS}"
         # Generate the specific bfm.fcm include file for makenemo
@@ -281,22 +269,41 @@ if [ ${GEN} ]; then
         cp ${blddir}/init_var_bfm.F90 ${BFMDIR}/src/share
         cp ${blddir}/INCLUDE.h ${BFMDIR}/src/BFM/include
         cp ${blddir}/bfm.fcm ${BFMDIR}/src/nemo
-        [ ${VERBOSE} ] && echo "Files copied to target folders."
-
-        # If COMPILE, launch makenemo
-        if [ ${CMP} ]; then
-            cd ${NEMODIR}/NEMOGCM/CONFIG/
-
-            if [ ${CLEAN} ]; then
-                [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-                ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
-            fi
-            [ ${VERBOSE} ] && echo "Starting NEMO compilation..."
-            ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
-            [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
-        fi
     fi
+    echo "${PRESET} generation done!"
 fi
+
+
+# If COMPILE, launch gmake
+if [ ${CMP} ]; then
+
+    if [ ! -d ${blddir} ]; then
+        echo "ERROR: directory ${blddir} not exists"
+        echo ${ERROR_MSG}
+    fi
+    cd ${blddir}
+
+    if [[ ${MODE} == "STANDALONE" ]]; then
+        if [ ${CLEAN} ]; then
+            [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+                ${cmd_gmake} clean
+        fi
+        [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
+        ${cmd_gmake}
+    else
+        cd ${NEMODIR}/NEMOGCM/CONFIG/
+
+        if [ ${CLEAN} ]; then
+            [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+            ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
+        fi
+        [ ${VERBOSE} ] && echo "Starting NEMO compilation..."
+        ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
+        [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
+    fi
+    echo "${PRESET} compilation done!"
+fi
+
 
 #start execution of BFM
 if [ ${EXE} ]; then
@@ -307,15 +314,15 @@ if [ ${EXE} ]; then
         echo ${ERROR_MSG}
     fi
  
-    exedir="${BFMDIR}/run/${EXP}"
+    exedir="${BFMDIR}/run/${MODE}/${EXP}"
     if [ ! -d ${exedir} ]; then 
-        mkdir ${exedir}; 
+        mkdir ${exedir};
+        # copy and link namelist files
+        if [ ${NMLDIR} ]; then cp ${NMLDIR}/* .; else cp ${blddir}/*.nml .; fi
+    else
+        echo "WARNING: directory ${exedir} exists (not copying namelist files)"
     fi
     cd ${exedir}
-    rm -rf *
-
-    # copy and link necessary files
-    if [ ${NMLDIR} ]; then cp ${NMLDIR}/* .; else cp ${blddir}/*.nml .; fi
 
     if [[ ${MODE} == "STANDALONE" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMSTD} ${BFMSTD}
@@ -335,5 +342,5 @@ if [ ${EXE} ]; then
         [ ${VERBOSE} ] && echo "Execution logs will be generated in ${exedir}"
     fi
 
-    [ ${VERBOSE} ] && echo "Output generated in ${exedir}"
+    echo "Output generated in ${exedir}"
 fi

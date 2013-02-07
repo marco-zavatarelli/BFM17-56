@@ -70,7 +70,7 @@ process_memLayout("$nml_def_tmp", \%lst_group, \%lst_param, \%lst_sta, \%lst_con
 
 #check consistency between namelists and memory_layout
 if( $VERBOSE ){ print "Checking namelist and memory layout...\n"; }
-check_namelists( \@lst_nml, \%lst_group, \%lst_param, $VERBOSE );
+check_namelists( \@lst_nml, \%lst_group, \%lst_param, \%lst_const, $VERBOSE );
 
 #write memory output files
 if( $VERBOSE ){ print "Printing memory layout...\n"; }
