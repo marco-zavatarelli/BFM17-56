@@ -891,6 +891,24 @@ interpretation]), but is way faster on large files.
      return 1;
  }
 
+# ---------------------------------------------------------------------- #
+
+sub add_elements {
+     # add the column elements of the list
+     my $self         = shift();
+     my $elements_ref = shift();
+
+     $self->{ELEMENTS} = $elements_ref;
+
+     return 1;
+}
+# ---------------------------------------------------------------------- #
+
+sub elements {
+     # return the column elements of the list
+     my $self         = shift();
+     return $self->{ELEMENTS};
+}
 
 # ---------------------------------------------------------------------- #
 

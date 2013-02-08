@@ -1,28 +1,24 @@
-#!/bin/bash -e
+# DESCRIPTION
+#   BFM Configuration manager
 #
-## Configuration for the BFM-NEMO coupling in the PELAGOS configuration. 
+# AUTHORS
+#   Esteban Gutierrez esteban.gutierrez@cmcc.it
+#   Tomas Lovato toma.lovato@cmcc.it
 #
-#  This script creates a directory $blddir with the Memory Layout files and the FCM include for the coupling. 
-#  The COMPILE flag starts the compilation using the makenemo tool.
-#  Requires the environmental variables BFMDIR and NEMODIR to be set and pointing to the
-#  root directories of BFM and NEMO 
-# 
-
-#  Currently available macros (cppdefs) are:
-#  INCLUDE_PELFE                          : use Iron component to the pelagic system
-#  INCLUDE_PELCO2, INCLUDE_BENCO2         : activate Carbonate System 
-#  INCLUDE_BEN, INCLUDE_BENPROFILES       : Add Benthic compartment
-#  INCLUDE_SILT                           : use Silt component
-#  INCLUDE_SEAICE                         : activate SeaIce Ecology 
-#  INCLUDE_DIAG3D, INCLUDE_DIAG2D         : additional diagnostics available for output
-#  BFM_PARALLEL                           : used to run BFM with MPP
-
-#  Warnings
-# 1. Still not working for benthic BFM don't use DIAG with D1SOURCE and ONESOURCE
-# 2. Using the key DEBUG will add more output information
-
-# Author: Esteban Gutierrez (CMCC) based on Tomas lobato (CMCC) scripts to config BFM
+# COPYING
+#  
+#   Copyright (C) 2013 BFM System Team ( bfm_st@lists.cmcc.it )
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation;
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
 # -----------------------------------------------------
+
+#!/bin/bash -e
 
 LOGFILE=logfile_$$.log
 LOGDIR="Logs"
@@ -64,7 +60,7 @@ DESCRIPTION
        -h         Shows this help
        -g         Generate ".H" ".F90" and ".NML" files
        -c         Compile
-       -e         Execute
+       -e         Experiment folder creation
 
     alternative COMPILATION OPTIONS are:
        -v
@@ -201,7 +197,12 @@ if [[ ${PROC} ]] && ! [[ "$PROC" =~ ^[0-9]+$ ]] ; then
     exit
 fi
 
-#start generation of files
+
+# -----------------------------------------------------
+# Memory and namelist files GENERATION
+# -----------------------------------------------------
+
+
 if [ ${GEN} ]; then
 
     if [ ! -f ${BFMDIR}/${CONFDIR}/${myGlobalDef} ]; then
@@ -274,9 +275,12 @@ if [ ${GEN} ]; then
 fi
 
 
-# If COMPILE, launch gmake
-if [ ${CMP} ]; then
+# -----------------------------------------------------
+# COMPILATION of executable
+# -----------------------------------------------------
 
+
+if [ ${CMP} ]; then
     if [ ! -d ${blddir} ]; then
         echo "ERROR: directory ${blddir} not exists"
         echo ${ERROR_MSG}
@@ -289,7 +293,14 @@ if [ ${CMP} ]; then
                 ${cmd_gmake} clean
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
+        rm -rf ${BFMDIR}/bin/${BFMSTD}
         ${cmd_gmake}
+        if [ ! -f ${BFMDIR}/bin/${BFMSTD} ]; then 
+            echo "ERROR in ${PRESET} compilation!" ; 
+            exit 1; 
+        else
+            echo "${PRESET} compilation done!"
+        fi
     else
         cd ${NEMODIR}/NEMOGCM/CONFIG/
 
@@ -297,17 +308,26 @@ if [ ${CMP} ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
             ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
         fi
-        [ ${VERBOSE} ] && echo "Starting NEMO compilation..."
+        [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
+        rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
         ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
-        [ ${VERBOSE} ] && echo "${PRESET} compilation done!"
+        if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
+            echo "ERROR in ${PRESET} compilation!" ; 
+            exit 1; 
+        else
+            echo "${PRESET} compilation done!"
+        fi
     fi
-    echo "${PRESET} compilation done!"
 fi
 
 
-#start execution of BFM
+# -----------------------------------------------------
+# EXPERIMENT folder creation
+# -----------------------------------------------------
+
+
 if [ ${EXE} ]; then
-    [ ${VERBOSE} ] && echo "Executing ${PRESET}"
+    [ ${VERBOSE} ] && echo "creating Experiment ${PRESET}"
 
     if [ ! -d ${blddir} ]; then
         echo "ERROR: directory ${blddir} not exists"
@@ -316,9 +336,10 @@ if [ ${EXE} ]; then
  
     exedir="${BFMDIR}/run/${MODE}/${EXP}"
     if [ ! -d ${exedir} ]; then 
-        mkdir ${exedir};
+        mkdir -p ${exedir};
         # copy and link namelist files
-        if [ ${NMLDIR} ]; then cp ${NMLDIR}/* .; else cp ${blddir}/*.nml .; fi
+        if [ ${NMLDIR} ]; then cp ${NMLDIR}/*.nml ${exedir}/; 
+        else cp ${blddir}/*.nml ${exedir}/; fi
     else
         echo "WARNING: directory ${exedir} exists (not copying namelist files)"
     fi
@@ -326,7 +347,7 @@ if [ ${EXE} ]; then
 
     if [[ ${MODE} == "STANDALONE" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMSTD} ${BFMSTD}
-        ./${BFMSTD}
+        printf "Go to ${exedir} and execute command:\n\t./${BFMSTD}\n"
     else
         # copy and link necessary files
         cp ${BFMDIR}/build/scripts/conf/nemo/* ./
@@ -338,9 +359,6 @@ if [ ${EXE} ]; then
             -e "s,_PRESET_,${PRESET},g" \
             -e "s,_QUEUE_,${QUEUE},g"   \
             -e "s,_PROC_,${PROC},g"     ${BFMDIR}/build/scripts/conf/runscript > ./runscript_${EXP}
-        bsub < ./runscript_${EXP}
-        [ ${VERBOSE} ] && echo "Execution logs will be generated in ${exedir}"
+        printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
     fi
-
-    echo "Output generated in ${exedir}"
 fi

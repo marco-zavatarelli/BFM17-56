@@ -1,6 +1,24 @@
-#!/usr/bin/perl -w
+# DESCRIPTION
+#   Process namelist files (read, check and generation)
+#
+# AUTHORS
+#   Esteban Gutierrez esteban.gutierrez@cmcc.it
+#   Tomas Lovato toma.lovato@cmcc.it
+#
+# COPYING
+#  
+#   Copyright (C) 2013 BFM System Team ( bfm_st@lists.cmcc.it )
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation;
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# -----------------------------------------------------
 
-#Author: Esteban Gutierrez esteban.gutierrez@cmcc.it
+#!/usr/bin/perl -w
 
 package process_namelist;
 
@@ -15,7 +33,7 @@ use classes;
 
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(process_namelist check_namelists);
+our @EXPORT= qw(process_namelist check_namelists print_namelists);
 ########### VARIABLES ##########################
 
 
@@ -78,10 +96,12 @@ sub check_namelists{
                 if ( $VERBOSE ){ print "\t$nml_name\n"; }
                 #check all the parameters which are part of this group
                 my $clm_num = 0;
+                my @params_grp = ();
                 foreach my $param (sort keys %$params_ref){
                     my $prm_grp_name = $$params_ref{$param}->getGroup();
                     if( $prm_grp_name && lc($prm_grp_name) eq $grp_name ){
                         if( $VERBOSE ){ print "\t$param -> $grp_name\n"; }
+                        push ( @params_grp, $param );
                         #check the number parameters of this group
                         #which will be the number of columns should exist in namelist params
                         $clm_num++;
@@ -89,7 +109,9 @@ sub check_namelists{
                 }
 
                 if( $clm_num > 0 ){
-                    #remove external elements in the list
+                    #add new parameter for output comment with parameters in group
+                    $list->add_elements(\@params_grp);
+                    #remove external elements in the list or add 0's
                     foreach my $element ( @{$list->slots} ){
                         if( $VERBOSE ){ print "\t\t$element\n"; }
                         if( $element eq "filename_nml_conf" ){
@@ -140,7 +162,38 @@ sub check_namelists{
                 }
             }
         }
+    }
+}
 
+
+sub print_namelists{
+    my ( $lst_nml, $out_dir, $VERBOSE ) = @_ ;
+
+    foreach my $nml (@$lst_nml){
+        if ( $nml->hash()->{'filename_nml_conf'} ){
+            my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
+            $nml->remove('filename_nml_conf');
+            open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
+
+            if( $nml->elements() ){
+                my @line_tmp = ( "   ", @{$nml->elements} );
+                print NML_OUT "!" . pack('(A20)*', @line_tmp ) . "\n";
+            }
+             
+            foreach my $line ( split(/\n/,$nml->output) ){
+                if( $line =~ "^[&\/].*" ){
+                    #print header or footer 
+                    print NML_OUT $line . "\n"
+                }else{
+                    my @parts = ( $line =~ /^\s*(.*\=)(.*)/ );
+                    my @line_tmp = ( "    $parts[0]" , split( ',', $parts[1]) );
+                    print NML_OUT pack( '(A20)*', @line_tmp ) . "\n";
+               }
+            }
+            
+            close NML_OUT;
+            if( $VERBOSE ){ print "---------- $nml_name\n"; }
+        }
     }
 }
 

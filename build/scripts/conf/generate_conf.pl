@@ -1,6 +1,24 @@
-#!/usr/bin/perl -w
+# DESCRIPTION
+#   Generate .h .f90 and namelist files
+#
+# AUTHORS
+#   Esteban Gutierrez esteban.gutierrez@cmcc.it
+#   Tomas Lovato toma.lovato@cmcc.it
+#
+# COPYING
+#  
+#   Copyright (C) 2013 BFM System Team ( bfm_st@lists.cmcc.it )
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation;
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+# -----------------------------------------------------
 
-#Author: Esteban Gutierrez esteban.gutierrez@cmcc.it
+#!/usr/bin/perl -w
 
 use strict;
 use warnings;
@@ -84,16 +102,7 @@ foreach my $idx ( 0 .. $#PROTOS_NAME ){
 
 #write namelists output files
 if( $VERBOSE ){ print "Writing namelists...\n"; }
-foreach my $nml (@lst_nml){
-    if ( $nml->hash()->{'filename_nml_conf'} ){
-        my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
-        $nml->remove('filename_nml_conf');
-        open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
-        print NML_OUT $nml->output;
-        close NML_OUT;
-        if( $VERBOSE ){ print "---------- $nml_name\n"; }
-    }
-}
+print_namelists( \@lst_nml, $out_dir, $VERBOSE );
 
 
 
