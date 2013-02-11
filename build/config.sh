@@ -170,7 +170,7 @@ blddir="${BFMDIR}/build/${PRESET}"
 myGlobalDef="${PRESET}.conf"
 
 #get the configuration parameters from file and replace current ones
-bfmconf=`perl -ne "/BFM_conf/ .. /\// and print" ${BFMDIR}/${CONFDIR}/${myGlobalDef}`
+bfmconf=`perl -ne "/BFM_conf/ .. /^\// and print" ${BFMDIR}/${CONFDIR}/${myGlobalDef}`
 #echo ${bfmconf}
 for option in "${OPTIONS[@]}"; do
     value=`perl -e "print ( \"${bfmconf}\" =~ m/\${option}\ *=\ *[\"\']*([^\"\'\,]+)[\"\']*[\,\/]*/ );"`
@@ -292,14 +292,17 @@ if [ ${CMP} ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
                 ${cmd_gmake} clean
         fi
-        [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
+        echo " "
+        echo "Starting ${PRESET} compilation..."
         rm -rf ${BFMDIR}/bin/${BFMSTD}
         ${cmd_gmake}
         if [ ! -f ${BFMDIR}/bin/${BFMSTD} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
             exit 1; 
         else
+            echo " "
             echo "${PRESET} compilation done!"
+            echo " "
         fi
     else
         cd ${NEMODIR}/NEMOGCM/CONFIG/
