@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 # DESCRIPTION
 #   Generate .h .f90 and namelist files
 #
@@ -17,8 +19,6 @@
 #   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 # -----------------------------------------------------
-
-#!/usr/bin/perl -w
 
 use strict;
 use warnings;
@@ -104,6 +104,8 @@ foreach my $idx ( 0 .. $#PROTOS_NAME ){
 if( $VERBOSE ){ print "Writing namelists...\n"; }
 print_namelists( \@lst_nml, $out_dir, $VERBOSE );
 
+
+#foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
 
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }

@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 # DESCRIPTION
 #   Generate the memory layout from configuration file using templates
 #
@@ -17,8 +19,6 @@
 #   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 # -----------------------------------------------------
-
-#!/usr/bin/perl -w
 
 package process_memLayout;
 
@@ -326,6 +326,7 @@ sub process_memLayout{
     #assing values to constituents
     @{$lst_const}{sort keys %{$lst_const}} = (1 .. (scalar(keys %{$lst_const})+1) );
     #$$lst_const{'c'} = 1; $$lst_const{'n'} = 2; $$lst_const{'p'} = 3; $$lst_const{'f'} = 5; $$lst_const{'l'} = 4; $$lst_const{'s'} = 6; $$lst_const{'h'} = 7;
+    #$$lst_const{'c'} = 1; $$lst_const{'n'} = 2; $$lst_const{'p'} = 3; $$lst_const{'l'} = 4; $$lst_const{'s'} = 5; $$lst_const{'h'} = 6;
 
 }
 

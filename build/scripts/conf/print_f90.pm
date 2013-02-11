@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 # DESCRIPTION
 #   Generate f.90 and .h files
 #
@@ -17,8 +19,6 @@
 #   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 # -----------------------------------------------------
-
-#!/usr/bin/perl -w
 
 package print_f90;
 
@@ -565,7 +565,7 @@ sub func_ALLOC_Z  {
 
     my %z_hash = ();
 
-    foreach my $name (keys %$LST_PARAM){
+    foreach my $name (sort keys %$LST_PARAM){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $param->getZ() ){
             my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
@@ -937,15 +937,17 @@ sub func_GROUP_FUNCTIONS  {
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
 
     foreach my $pre ("pp", ""){
-        foreach my $groupname (keys %$LST_GROUP){
+        foreach my $groupname (sort keys %$LST_GROUP){
             my $group   = $$LST_GROUP{$groupname};
 
             if( $group->getDim() == $dim ){
                 my @members = ();
-                foreach my $paramname (keys %$LST_PARAM){ 
+                foreach my $paramname (sort keys %$LST_PARAM){ 
                     my $param = $$LST_PARAM{$paramname};
                     if ( $param->getGroup() && ($param->getGroup() eq $groupname) ){ push(@members, $param); }
                 }
+                #order to show in alpahabetic order
+                @members = sort { $a cmp $b } @members;
 
                 my $line = "\n";
                 $line .= "${SPACE}" ."function $pre${groupname}(n,constituent,cmax)\n";
@@ -1011,7 +1013,7 @@ sub func_POINT_Z  {
 
     my %z_hash = ();
 
-    foreach my $name (keys %$LST_PARAM){
+    foreach my $name (sort keys %$LST_PARAM){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $param->getZ() ){
             my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
@@ -1039,12 +1041,12 @@ sub func_STRING  {
 
     $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
 
-    foreach my $name (keys %$LST_PARAM){
+    foreach my $name (sort keys %$LST_PARAM){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             my $comm  = $param->getComment();
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (keys %{$param->getComponents()} ){
+                foreach my $compo (sort keys %{$param->getComponents()} ){
                     my $nameC = $name . $compo;
                     my $unitC = ${$param->getComponents()}{$compo};
                     $line .= "${SPACE}var_names($STRING_INDEX)=\"$nameC\"\n";
@@ -1075,13 +1077,13 @@ sub func_STRING_DIAGG  {
 
     $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
 
-    foreach my $name (keys %$LST_PARAM){
+    foreach my $name (sort keys %$LST_PARAM){
         my $param = $$LST_PARAM{$name};
         if( $param->getDim() == $dim && $param->getType eq $type ){
             my $group_name = $param->getQuota();
             my $unit       = $param->getUnit();
             my $comm       = $param->getComment();
-            foreach my $name2 (keys %$LST_PARAM){
+            foreach my $name2 (sort keys %$LST_PARAM){
                 my $param2 = $$LST_PARAM{$name2};
                 if ( $param2->getGroup() && $group_name eq $param2->getGroup() ){ 
                     my $param_name = $param2->getSigla();
@@ -1254,7 +1256,7 @@ sub func_HEADER  {
     my $line = '';
     my $TYPE = uc($type);
 
-    foreach my $name (keys %$LST_PARAM){
+    foreach my $name (sort keys %$LST_PARAM){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
@@ -1278,7 +1280,7 @@ sub func_GROUP_HEADER  {
 
     my $line = '';
 
-    foreach my $name (keys %$LST_GROUP){
+    foreach my $name (sort keys %$LST_GROUP){
         my $group   = $$LST_GROUP{$name};
         if( $dim == $group->getDim() ){
             $line .= "#define " . $name . "(A,B) D" . $dim . "STATE(pp" . $name . "(A,B),:)\n";
@@ -1332,7 +1334,7 @@ sub func_HEADER_DIAGG  {
     my $line = '';
     my $TYPE = uc($type);
 
-    foreach my $name (keys %$LST_PARAM){
+    foreach my $name (sort keys %$LST_PARAM){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             $line .= "#define " . $name . "(A,B) D" . $dim . "DIAGNOS(pp" . $name . "(A),B)\n";

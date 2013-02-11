@@ -1,3 +1,6 @@
+#!/usr/bin/perl -w
+
+
 # DESCRIPTION
 #   Classes for configuration generator
 #
@@ -17,8 +20,6 @@
 #   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 # -----------------------------------------------------
-
-#!/usr/bin/perl -w
 
 use strict;
 use warnings;

@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 # DESCRIPTION
 #   Process namelist files (read, check and generation)
 #
@@ -17,8 +19,6 @@
 #   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU General Public License for more details.
 # -----------------------------------------------------
-
-#!/usr/bin/perl -w
 
 package process_namelist;
 
@@ -146,16 +146,17 @@ sub check_namelists{
             foreach my $element ( @{$list->slots} ){
                 if( $element eq "ave_save" ){
                     foreach my $value ( @{${$list->hash}{$element}{value}} ){
-                        if ( $value =~ /(.*)\(ii(.*)\)/ ){
-                            if( ! exists $$params_ref{$2} ){ print "WARNING: output $value does not exists\n"; }
-                            $value = $1;
+                        my $tmp = $value;
+                        if ( $tmp =~ /(.*)\(ii(.*)\)/ ){
+                            if( ! exists $$params_ref{$2} ){ print "WARNING: output $tmp does not exists\n"; }
+                            $tmp = $1;
                         }
 
-                        if( ! exists $$params_ref{$value} ){
+                        if( ! exists $$params_ref{$tmp} ){
                             #check if it is part of constituent
-                            my @parts = ( $value =~ /(.*)(\D)/ );
+                            my @parts = ( $tmp =~ /(.*)(\D)/ );
                             if( ! exists $$params_ref{$parts[0]} || ! exists ${$$params_ref{$parts[0]}->getComponents()}{$parts[1]} ){
-                                print "WARNING: output $value does not exists\n"; 
+                                print "WARNING: output $tmp does not exists\n"; 
                             }
                         }
                     }
@@ -168,6 +169,7 @@ sub check_namelists{
 
 sub print_namelists{
     my ( $lst_nml, $out_dir, $VERBOSE ) = @_ ;
+#    print Dumper(\$lst_nml) , "\n\n";
 
     foreach my $nml (@$lst_nml){
         if ( $nml->hash()->{'filename_nml_conf'} ){
@@ -177,7 +179,7 @@ sub print_namelists{
 
             if( $nml->elements() ){
                 my @line_tmp = ( "   ", @{$nml->elements} );
-                print NML_OUT "!" . pack('(A20)*', @line_tmp ) . "\n";
+                print NML_OUT "!" . pack('(A40)*', @line_tmp ) . "\n";
             }
              
             foreach my $line ( split(/\n/,$nml->output) ){
@@ -187,7 +189,7 @@ sub print_namelists{
                 }else{
                     my @parts = ( $line =~ /^\s*(.*\=)(.*)/ );
                     my @line_tmp = ( "    $parts[0]" , split( ',', $parts[1]) );
-                    print NML_OUT pack( '(A20)*', @line_tmp ) . "\n";
+                    print NML_OUT pack( '(A40)*', @line_tmp ) . "\n";
                }
             }
             

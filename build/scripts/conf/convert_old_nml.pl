@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 # DESCRIPTION
 #   Apped to new configuration file the content of an old namelist file
 #
@@ -18,11 +20,14 @@
 #   GNU General Public License for more details.
 # -----------------------------------------------------
 
-#!/usr/bin/perl -w
-
 use strict;
 use warnings;
 use File::Basename;
+
+if ( !$ARGV[0] && !$ARGV[1] ){
+    print "usage $0 \"out_file\" \"input_namelist\"\n";
+    exit;
+}
 
 my $out = $ARGV[0];
 my $in  = $ARGV[1];
@@ -38,4 +43,3 @@ foreach my $line (@lines){
 }
 close IN;
 close OUT;
-
