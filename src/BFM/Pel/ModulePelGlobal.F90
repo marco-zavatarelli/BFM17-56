@@ -85,7 +85,7 @@
 
 write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
    write(LOGUNIT,*) "#  Reading PelGlobal parameters.."
-open(NMLUNIT,file='PelGlobal.nml',status='old',action='read',err=100)
+open(NMLUNIT,file='Pelagic_Environment.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=PelGlobal_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -97,7 +97,7 @@ open(NMLUNIT,file='PelGlobal.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitPelGlobal.f90","PelGlobal.nml")
+100 call error_msg_prn(NML_OPEN,"InitPelGlobal.f90","Pelagic_Environment.nml")
 101 call error_msg_prn(NML_READ,"InitPelGlobal.f90","PelGlobal_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitPelGlobal

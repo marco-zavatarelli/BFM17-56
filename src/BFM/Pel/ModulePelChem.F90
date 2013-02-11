@@ -100,7 +100,7 @@
 
   write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
   write(LOGUNIT,*) "#  Reading PelChem parameters.."
-  open(NMLUNIT,file='PelChem.nml',status='old',action='read',err=100)
+  open(NMLUNIT,file='Pelagic_Environment.nml',status='old',action='read',err=100)
   read(NMLUNIT,nml=PelChem_parameters,err=101)
 #ifdef INCLUDE_PELFE
   read(NMLUNIT,nml=PelChem_parameters_iron,err=102)
@@ -119,7 +119,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitPelChem.f90","PelChem.nml")
+100 call error_msg_prn(NML_OPEN,"InitPelChem.f90","Pelagic_Environment.nml")
 101 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters")
 102 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters_iron")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

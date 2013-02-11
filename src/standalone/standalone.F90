@@ -146,10 +146,10 @@
    endtim      = 360.0
    method      = 1
 
-   open(namlst,file='standalone.nml',status='old',action='read',err=100)
+   open(namlst,file='Standalone.nml',status='old',action='read',err=100)
    read(namlst,nml=standalone_nml,err=101)
    close(namlst)
-   open(namlst,file='standalone.nml',status='old',action='read',err=100)
+   open(namlst,file='Standalone.nml',status='old',action='read',err=100)
    read(namlst,nml=time_nml,err=103)
    close(namlst)
 
@@ -230,7 +230,7 @@
    !---------------------------------------------
    ! the argument list is kept for compatibility 
    ! with GOTM
-   call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
+   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
    !---------------------------------------------
    ! Assign depth
    !---------------------------------------------
@@ -254,7 +254,7 @@
    ! Layer depths and pore-water nutrients are initialised 
    ! according to the value of calc_initial_bennut_states
    !---------------------------------------------
-   call init_benthic_bfm(namlst,'bfm.nml',unit,bio_setup)
+   call init_benthic_bfm(namlst,'BFM_General.nml',unit,bio_setup)
 #endif
 #ifdef INCLUDE_SEAICE
    !---------------------------------------------
@@ -325,8 +325,8 @@
 
    return
 
-100   call error_msg_prn(NML_OPEN,"standalone.f90","standalone.nml")
-101   call error_msg_prn(NML_READ,"standalone.f90","standalone_nml")
+100   call error_msg_prn(NML_OPEN,"standalone.f90","Standalone.nml")
+101   call error_msg_prn(NML_READ,"standalone.f90","Standalone_nml")
 103   call error_msg_prn(NML_READ,"standalone.f90","time_nml")
 
    end subroutine init_standalone

@@ -92,7 +92,7 @@
 
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
     write(LOGUNIT,*) "#  Reading LightAdaptation parameters.."
-    open(NMLUNIT,file='LightAdaptation.nml',status='old',action='read',err=100)
+    open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=LightAdaptation_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -104,7 +104,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitLightAdaptation.f90","LightAdaptation.nml")
+100 call error_msg_prn(NML_OPEN,"InitLightAdaptation.f90","Pelagic_Ecology.nml")
 101 call error_msg_prn(NML_READ,"InitLightAdaptation.f90","LightAdaptation_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitLightAdaptation

@@ -149,7 +149,7 @@
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
     write(LOGUNIT,*) "#"
     write(LOGUNIT,*) "#  Reading PelCO2 parameters.."
-    open(NMLUNIT,file='CO2.nml',status='old',action='read',err=100)
+    open(NMLUNIT,file='Carbonate_Dynamics.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=CO2_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -184,7 +184,7 @@
          ! Use constant
           CALL FieldInit(AtmSLP_N, AtmSLP)
           AtmSLP%fnow = slp0
-          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in Param.nml): ', AtmSLP%fnow(1)
+          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in BFM_General.nml): ', AtmSLP%fnow(1)
           write(LOGUNIT,*) ' '
        else
          CALL FieldInit(AtmSLP_N, AtmSLP)
@@ -224,7 +224,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"ModuleCO2.f90","CO2.nml")
+100 call error_msg_prn(NML_OPEN,"ModuleCO2.f90","Carbonate_Dynamics.nml")
 101 call error_msg_prn(NML_READ,"ModuleCO2.f90","CO2_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitCO2

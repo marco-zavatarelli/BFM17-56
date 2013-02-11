@@ -140,7 +140,7 @@
 
   write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
   write(LOGUNIT,*) "#  Reading Phyto parameters.."
-  open(NMLUNIT,file='Phyto.nml',status='old',action='read',err=100)
+  open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
   read(NMLUNIT,nml=Phyto_parameters,err=101)
 #ifdef INCLUDE_PELFE
   read(NMLUNIT,nml=Phyto_parameters_iron,err=101)
@@ -159,7 +159,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitPhyto.f90","Phyto.nml")
+100 call error_msg_prn(NML_OPEN,"InitPhyto.f90","Pelagic_Ecology.nml")
 101 call error_msg_prn(NML_READ,"InitPhyto.f90","Phyto_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitPhyto

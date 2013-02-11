@@ -249,7 +249,7 @@
    ! Allocate memory and give homogeneous initial values
    !-------------------------------------------------------
    ! the argument list is mandatory with BFM
-   call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
+   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
 
    !-------------------------------------------------------
    ! Prepares the BFM 1D arrays containing the

@@ -290,7 +290,7 @@ contains
    !---------------------------------------------
    !  Open and read the namelist
    !---------------------------------------------
-   open(namlst,file='bfm.nml',action='read',status='old',err=99)
+   open(namlst,file='BFM_General.nml',action='read',status='old',err=99)
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
@@ -410,9 +410,9 @@ contains
    if (rc /= 0) STOP 'init_bio: Error allocating c1dim'
 
    return
-98 FATAL 'I could not read bfm.nml'
+98 FATAL 'I could not read BFM_General.nml'
    stop 'init_bfm'
-99 LEVEL2 'I could not open bfm.nml'
+99 LEVEL2 'I could not open BFM_General.nml'
    LEVEL2 'Simulation starting without the BFM'
    bio_calc = .false.
 100 FATAL 'Cannot create log file: ',trim(logfname)

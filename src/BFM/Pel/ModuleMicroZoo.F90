@@ -111,7 +111,7 @@
 
 write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
    write(LOGUNIT,*) "#  Reading MicroZoo parameters.."
-open(NMLUNIT,file='MicroZoo.nml',status='old',action='read',err=100)
+open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=MicroZoo_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -123,7 +123,7 @@ open(NMLUNIT,file='MicroZoo.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitMicroZoo.f90","MicroZoo.nml")
+100 call error_msg_prn(NML_OPEN,"InitMicroZoo.f90","Pelagic_Ecology.nml")
 101 call error_msg_prn(NML_READ,"InitMicroZoo.f90","MicroZoo_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitMicroZoo

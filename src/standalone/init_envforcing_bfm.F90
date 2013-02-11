@@ -62,7 +62,7 @@
        botdep_n    = 0.0
        botdep_p    = 0.0
        botdep_si   = 0.0
-       open(namlst,file='standalone.nml',status='old',action='read', &
+       open(namlst,file='Standalone.nml',status='old',action='read', &
             err=100)
        read(namlst,nml=forcings_nml,err=102)
        close(namlst)
