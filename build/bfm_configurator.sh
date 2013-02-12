@@ -181,8 +181,13 @@ for option in "${OPTIONS[@]}"; do
 done
 
 #Check some optional parameter values
-if [[ ! $BFMDIR || ! $NEMODIR ]]; then 
-    echo "ERROR: BFMDIR and/or NEMODIR not specified"
+if [[ ! $BFMDIR ]]; then 
+    echo "ERROR: BFMDIR not specified"
+    echo ${ERROR_MSG}
+    exit
+fi
+if [[ ! $NEMODIR && "$MODE" == "NEMO" ]]; then
+    echo "ERROR: NEMODIR not specified in NEMO mode"
     echo ${ERROR_MSG}
     exit
 fi

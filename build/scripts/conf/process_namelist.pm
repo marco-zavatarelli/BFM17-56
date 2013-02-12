@@ -39,6 +39,17 @@ our @EXPORT= qw(process_namelist check_namelists print_namelists);
 
 ########### FUNCTIONS ##########################
 
+sub calculateMaxLen{
+    my ( $ref_line, $ref_max_array ) = @_;
+
+    foreach my $idx (0..$#{$ref_line}){
+        if ( ! $$ref_max_array[$idx] || length($$ref_line[$idx]) > $$ref_max_array[$idx] ){
+            $$ref_max_array[$idx] = length($$ref_line[$idx])
+        }
+    }
+}
+
+
 sub process_namelist{
     my $nml_val = shift; #input file
     my $lst_nml = shift; #output for names
@@ -169,30 +180,46 @@ sub check_namelists{
 
 sub print_namelists{
     my ( $lst_nml, $out_dir, $VERBOSE ) = @_ ;
-#    print Dumper(\$lst_nml) , "\n\n";
 
     foreach my $nml (@$lst_nml){
         if ( $nml->hash()->{'filename_nml_conf'} ){
+            #first get column sizes to print with a beauty format
+            #insert all elements in a table
             my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
             $nml->remove('filename_nml_conf');
-            open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
+            my @max_len_array = ();
+            my @tbl = ();
 
             if( $nml->elements() ){
-                my @line_tmp = ( "   ", @{$nml->elements} );
-                print NML_OUT "!" . pack('(A40)*', @line_tmp ) . "\n";
+                my @line_tmp = ( "!", " " ,@{$nml->elements} );
+                calculateMaxLen(\@line_tmp, \@max_len_array);
+                push( @tbl, [@line_tmp] );
             }
              
             foreach my $line ( split(/\n/,$nml->output) ){
                 if( $line =~ "^[&\/].*" ){
                     #print header or footer 
-                    print NML_OUT $line . "\n"
+                    my @line_tmp = ( $line );
+                    calculateMaxLen(\@line_tmp, \@max_len_array);
+                    push( @tbl, [@line_tmp] );
                 }else{
-                    my @parts = ( $line =~ /^\s*(.*\=)(.*)/ );
-                    my @line_tmp = ( "    $parts[0]" , split( ',', $parts[1]) );
-                    print NML_OUT pack( '(A40)*', @line_tmp ) . "\n";
+                    my @parts = ( $line =~ /^\s*(.*)\=(.*)/ );
+                    my @line_tmp = ();
+                    push( @line_tmp, "    $parts[0]", "=", split( ',', $parts[1]) );
+                    calculateMaxLen(\@line_tmp, \@max_len_array);
+                    push( @tbl, [@line_tmp] );
                }
             }
-            
+
+            #print the formated output to the file
+            open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
+            my @pad_len = map { "%-${_}s  " } @max_len_array;
+            foreach my $line (@tbl){
+                foreach my $idx ( 0..$#{$line} ){
+                    printf NML_OUT "$pad_len[$idx]", ${$line}[$idx];
+                }
+                printf NML_OUT "\n" ;
+            }
             close NML_OUT;
             if( $VERBOSE ){ print "---------- $nml_name\n"; }
         }
