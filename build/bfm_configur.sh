@@ -79,13 +79,13 @@ DESCRIPTION
        -n NEMODIR
                   The environmental variable NEMODIR pointing to the root directory of NEMO. (Default: "${NEMODIR}")
        -a ARCH
-                  NEMO specific architecture file (Default: "gfortran")
-                  - For STANDALONE preset available archs, list dir : BFMDIR/compilers
-                  - For other presets available archs, execute command: NEMODIR/NEMOGCM/CONFIG/makenemo -h all
+                  Specify compilation Architecture file (Default: "gfortran")
+                  - For STANDALONE mode available archs, list dir : BFMDIR/compilers
+                  - For NEMO mode available archs, execute command: NEMODIR/NEMOGCM/CONFIG/makenemo -h all
        -r PROC
                   Number of procs used for compilation. Default: 4
        -f
-                  Fast mode. Dont execute "clean" command in compilation (Deactivated by default)
+                  Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
        -t NETCDF
                   Path to netcdf library and header files. (Default: /usr/local)
     alternative EXECUTION OPTIONS are:
@@ -124,7 +124,7 @@ rm ${LOGDIR}/${LOGFILE}.pipe
 #get user options from commandline
 while getopts "hvgcep:m:k:b:n:a:r:ft:x:l:q:" opt; do
     case $opt in
-      h )                   usage                        ; exit             ;;
+      h ) usage;            rm ${LOGDIR}/${LOGFILE}      ; exit             ;;
       v )                   echo "verbose mode"          ; VERBOSE=1        ;;
       g ) [ ${VERBOSE} ] && echo "generation activated"  ; GEN=1            ;;
       c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1            ;;
@@ -342,7 +342,7 @@ if [ ${EXE} ]; then
         echo ${ERROR_MSG}
     fi
  
-    exedir="${BFMDIR}/run/${MODE}/${EXP}"
+    exedir="${BFMDIR}/run/${EXP}"
     if [ ! -d ${exedir} ]; then 
         mkdir -p ${exedir};
         # copy and link namelist files

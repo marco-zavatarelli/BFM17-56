@@ -143,8 +143,11 @@ sub check_namelists{
                                 splice(@{${$list->hash}{$element}{typesv}}, $clm_num, ($values_num - $clm_num) );
                             }elsif( $values_num < $clm_num ){
                                 print "WARNING: ($values_num < $clm_num) adding zero values to element $element in namelist $nml_name\n";
-                                push( @{${$list->hash}{$element}{value}} , '0.0' x ($clm_num - $values_num) );
-                                push( @{${$list->hash}{$element}{typesv}}, (${${$list->hash}{$element}{typesv}}[0]) x ($values_num - $clm_num) );
+                                my @temp_new_values = map '0.0', 1..($clm_num - $values_num);
+                                my @temp_new_typesv = map ${${$list->hash}{$element}{typesv}}[0], 1..($clm_num - $values_num);
+                                push( @{${$list->hash}{$element}{value}} , @temp_new_values );
+                                push( @{${$list->hash}{$element}{typesv}}, @temp_new_typesv );
+
                             }
                         }
                     }
@@ -183,6 +186,7 @@ sub print_namelists{
 
     foreach my $nml (@$lst_nml){
         if ( $nml->hash()->{'filename_nml_conf'} ){
+            print Dumper ($lst_nml) , "\n";
             #first get column sizes to print with a beauty format
             #insert all elements in a table
             my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];

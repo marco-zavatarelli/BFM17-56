@@ -1458,7 +1458,7 @@ sub elements {
      my @vals   = @$valref;
 
      ## Actions for all formats
-     if ($type==COMPLEX or $type==DCOMPLEX) {
+     if ($type && ($type==COMPLEX or $type==DCOMPLEX )) {
 
          use Data::Dumper;
          @vals = map { "${cmplx_pref}$_${cmplx_suff}" } @vals;
@@ -1470,7 +1470,7 @@ sub elements {
          #  F90 output format:
          #  - quote strings
          #
-         if      ($type==SQ_STRING or $type==DQ_STRING) {
+         if      ($type && ($type==SQ_STRING or $type==DQ_STRING)) {
              @vals = map { quote_string_f90($_) } @vals;
          }
      } elsif ($format eq 'idl') {
@@ -1479,9 +1479,9 @@ sub elements {
          #  - convert logicals to integers
          #  - quote strings
          #
-         if      ($type==LOGICAL) {
+         if      ($type && ($type==LOGICAL)) {
              @vals = map { encaps_logical_idl($_) } @vals;
-         } elsif ($type==SQ_STRING or $type==DQ_STRING) {
+         } elsif ($type && ($type==SQ_STRING or $type==DQ_STRING)) {
              @vals = map { quote_string_f90($_) } @vals;
          }
      } else {
