@@ -36,7 +36,7 @@ ERROR_MSG="Execute $0 -h for help if you don't know what the hell is going wrong
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
 MODE="STANDALONE"
 CPPDEFS="-DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
-PRESET="STANDALONE"
+PRESET="STANDALONE_PELAGIC"
 ARCH="gfortran"
 PROC=4
 EXP="EXP00"
@@ -66,7 +66,7 @@ DESCRIPTION
        -v
                   Verbose mode to print all messages (Deactivated by default)
        -p PRESET
-                  Preset to generate the configuration. (Default: "STANDALONE")
+                  Preset to generate the configuration. (Default: "${PRESET}")
                   - For other presets, list files *.conf in: BFMDIR/${CONFDIR}
        -m MODE
                   Mode for compilation and execution. Available models are: (Default: "STANDALONE")
@@ -92,7 +92,7 @@ DESCRIPTION
        -x EXP
                   Name of the experiment for generation of the output (Default: "EXP00")
        -l NMLDIR
-                  Input dir where are the namelists to run the experiment (Default: "BFMDIR/build/PRESET")
+                  Input dir where are the namelists to run the experiment (Default: "BFMDIR/build/${PRESET}")
        -r PROC
                   Number of procs used for running. Default: 4
        -q QUEUE
@@ -167,7 +167,7 @@ else
 fi
 
 blddir="${BFMDIR}/build/${PRESET}"
-myGlobalDef="${PRESET}.conf"
+myGlobalDef="${PRESET}/${PRESET}.conf"
 
 #get the configuration parameters from file and replace current ones
 bfmconf=`perl -ne "/BFM_conf/ .. /^\// and print" ${BFMDIR}/${CONFDIR}/${myGlobalDef}`

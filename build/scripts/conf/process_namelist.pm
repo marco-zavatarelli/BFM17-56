@@ -186,7 +186,7 @@ sub print_namelists{
 
     foreach my $nml (@$lst_nml){
         if ( $nml->hash()->{'filename_nml_conf'} ){
-            print Dumper ($lst_nml) , "\n";
+            #print Dumper ($lst_nml) , "\n";
             #first get column sizes to print with a beauty format
             #insert all elements in a table
             my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
