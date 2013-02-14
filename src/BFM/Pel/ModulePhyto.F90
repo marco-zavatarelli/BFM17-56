@@ -84,9 +84,9 @@
   real(RLEN)  :: p_qslc(iiPhytoPlankton) ! Minimum quotum Si in PI
   real(RLEN)  :: p_qsRc(iiPhytoPlankton) ! Reference quotum Si in PI
   real(RLEN)  :: p_sheo(iiPhytoPlankton) 
-  real(RLEN)  :: p_qus(iiPhytoPlankton)  ! affinity of PI for Si
-  real(RLEN)  :: p_qun(iiPhytoPlankton)
-  real(RLEN)  :: p_qup(iiPhytoPlankton)
+  real(RLEN)  :: p_qus(iiPhytoPlankton)  ! membrane affinity for Si
+  real(RLEN)  :: p_qun(iiPhytoPlankton)  ! membrane affinity for N
+  real(RLEN)  :: p_qup(iiPhytoPlankton)  ! membrane affinity for P
   real(RLEN)  :: p_lN4(iiPhytoPlankton)
   real(RLEN)  :: p_chPs(iiPhytoPlankton) ! half-value of SIO4-lim (mmol Si m-3)
   real(RLEN)  :: p_Contois(iiPhytoplankton) ! parameter for Contois
@@ -96,6 +96,8 @@
   !  ---------------- Light parameters in phytoplankton -----------------
   !
   real(RLEN)  :: p_alpha_chl(iiPhytoPlankton)  ! Initial slope P-I curve
+  real(RLEN)  :: p_qchlc(iiPhytoPlankton)      ! Fixed or Maximum quotum Chla:C [mg Chla (mg C)-1]
+  real(RLEN)  :: p_epsChla(iiPhytoPlankton)    ! Chla-specific extinction coefficient
   real(RLEN)  :: p_sdchl(iiPhytoPlankton)      ! Specific turnover rate for Chla [d-1]
   real(RLEN)  :: p_EpEk_or(iiPhytoplankton)    ! optimal E_PAR/E_K
   real(RLEN)  :: p_tochl_relt(iiPhytoplankton) ! relaxation rate for chl:C [d-1]
@@ -127,7 +129,7 @@
                               p_esNI, p_thdo, p_res, p_lN4, p_chPs, &
                               p_Contois, p_EpEk_or, p_tochl_relt,   &
                               p_switchR1R2,                         &
-                              p_alpha_chl, p_sdchl
+                              p_alpha_chl, p_sdchl, p_qchlc, p_epsChla
 
 #ifdef INCLUDE_PELFE
   namelist /Phyto_parameters_iron/ p_qflc, p_qfRc, p_xqf, p_quf

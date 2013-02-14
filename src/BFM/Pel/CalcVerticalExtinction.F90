@@ -12,43 +12,23 @@
 !   Calculates the vertical extinction.
 !     
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   SUBROUTINE CalcVerticalExtinction()
 !
 ! !USES:
-  ! The following Pelagic-states are used (NOT in fluxes): R6c
-  ! The following box states are used (NOT in fluxes): PhytoPlankton
-  ! The following Pelagic 1-d global boxvars are modified : xEPS
-  ! The following Pelagic 1-d global boxvars  are used: ABIO_eps, ESS
-  ! The following groupmember vars  are used: iiPhytoPlankton
-  ! The following constituent constants  are used: iiC, iiL
-  ! The following 0-d global parameters are used: p_eps0, &
-  ! p_epsR6, p_epsESS, ChlLightFlag, p_epsChla
-  ! The following 1-d global parameter vars are used: p_qchlc
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: R6c, PhytoPlankton
+  use mem, ONLY: R6c, PhytoPlankton
   use mem, ONLY: ppR6c, ppPhytoPlankton, xEPS, ABIO_eps, ESS, iiPhytoPlankton, &
-    iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
+                 iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlLightFlag, p_epsChla,p_qchlc 
-
-!  
+  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlLightFlag
+  use mem_Phyto, ONLY: p_qchlc, p_epsChla
 !
 ! !AUTHORS
 !   ERSEM-team
@@ -59,7 +39,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -88,14 +68,13 @@
 
 
 
-  select case ( p_eps0== 0.0D+00)
+  select case ( p_eps0 == ZERO)
 
     case( .TRUE. )
-      xEPS(:)  =   ABIO_eps(:)+ p_epsR6* R6c(:)
+      xEPS(:)  =   ABIO_eps(:) + p_epsR6* R6c(:)
 
     case( .FALSE. )
-      xEPS(:)  =   p_eps0+ p_epsESS* ESS(:)+ p_epsR6* R6c(:)
-
+      xEPS(:)  =   p_eps0 + p_epsESS*ESS(:)+ p_epsR6* R6c(:)
 
   end select
 
@@ -104,14 +83,14 @@
 
     case ( 1 )
       do i = 1 , ( iiPhytoPlankton)
-        lcl_PhytoPlankton =>    PhytoPlankton(i,iiC)
-        xEPS(:)  =   xEPS(:)+ p_epsChla * p_qchlc(i)* lcl_PhytoPlankton
+        lcl_PhytoPlankton => PhytoPlankton(i,iiC)
+        xEPS(:) = xEPS(:) + p_epsChla(i) * p_qchlc(i) * lcl_PhytoPlankton
       end do
 
     case ( 2 )
       do i = 1 , ( iiPhytoPlankton)
-        lcl_PhytoPlankton =>    PhytoPlankton(i,iiL)
-        xEPS(:)  =   xEPS(:)+ p_epsChla * lcl_PhytoPlankton
+        lcl_PhytoPlankton => PhytoPlankton(i,iiL)
+        xEPS(:) = xEPS(:) + p_epsChla(i) * lcl_PhytoPlankton
       end do
 
   end select

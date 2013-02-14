@@ -39,7 +39,7 @@
 #endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag, p_qchlc, &
+  use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag, &
                         LightLocationFlag, ChlSynthesisFlag
   use mem_Phyto
 

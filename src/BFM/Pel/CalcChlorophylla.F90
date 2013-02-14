@@ -10,42 +10,24 @@
 !
 ! DESCRIPTION
 !   Calculates the total chl-a content in the phytoplankton 
-!    
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   SUBROUTINE CalcChlorophylla()
 !
 ! !USES:
-  ! The following box states are used (NOT in fluxes): PhytoPlankton
-  ! The following Pelagic 1-d global boxvars are modified : Chla
-  ! The following groupmember vars  are used: iiPhytoPlankton
-  ! The following constituent constants  are used: iiC, iiL
-  ! The following 0-d global parameters are used: ChlLightFlag
-  ! The following 1-d global parameter vars are used: p_qchlc
-  ! The following global constants are used: RLEN
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: PhytoPlankton
+  use mem, ONLY: PhytoPlankton
   use mem, ONLY: ppPhytoPlankton, Chla, iiPhytoPlankton, iiC, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector
 #endif
-  use mem_Param,  ONLY: ChlLightFlag, p_qchlc
-
-
+  use mem_Param,  ONLY: ChlLightFlag
+  use mem_Phyto,  ONLY: p_qchlc
 
 !  
 !
@@ -59,7 +41,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify

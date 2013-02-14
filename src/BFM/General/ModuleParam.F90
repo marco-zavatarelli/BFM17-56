@@ -142,11 +142,6 @@
       ChlSynthesisFlag=1  ,  & ! Switch between types of Chl syntheis
       ProductionLightFlag=1,&  ! Switch between instantaneous light and day light average
       LightLocationFlag=3   ! Switch between different depth-parameterizations
-  ! 1d-parameter used in pelagic submodel
-  real(RLEN)   :: &
-      p_qchlc(iiPhytoPlankton)  ! Fixed/Maximum quotum Chla:C dependent on ChlLightFlag [mg Chla (mg C)-1]
-  ! %p_qchlc%   0.05, 0.03,  0.07,  0.02
-
   ! 0d-parameter used in pelagic submodel
   real(RLEN)   :: &
       p_eps0=0.04  ,  &  ! Background extinction (abiotic)
@@ -157,7 +152,6 @@
       p_pe_R1n=0.72  ,     &  ! Fraction of excretion going to PLOC
       p_pe_R1p=0.832  ,    &  ! Fraction of excretion going to PLOC
       p_pe_R1s=0.06  ,     &
-      p_epsChla=10.0e-3  , &  ! Chla-contribution to extinction
       p_epsR6=0.1e-3  
   ! 0d-parameter used in benthic submodel
   integer      :: &
@@ -186,7 +180,7 @@
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
     p_PAR, slp0, ChlLightFlag, ProductionLightFlag, LightLocationFlag,        &
     ChlSynthesisFlag,                                                         &
-    p_qchlc, p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,   &
+    p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,            &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
 #ifdef INCLUDE_BEN
     CalcBenOrganisms,CalcBenBacteria,                                         & 
@@ -194,7 +188,7 @@
 #ifdef INCLUDE_SEAICE
     CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
 #endif
-    p_epsChla, p_epsR6,check_fixed_quota
+    p_epsR6,check_fixed_quota
    integer :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute

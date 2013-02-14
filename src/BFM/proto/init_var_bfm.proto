@@ -24,9 +24,9 @@
    use global_mem, ONLY: RLEN,ZERO,ONE
 #endif
    use mem
-   use mem_Phyto, ONLY: p_qnRc,p_qpRc,p_qsRc
+   use mem_Phyto, ONLY: p_qnRc,p_qpRc,p_qsRc,p_qchlc
    use constants, ONLY: HOURS_PER_DAY
-   use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,p_qchlc,   &
+   use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,           &
                         CalcPhytoPlankton,CalcMicroZooPlankton,            &
                         CalcMesoZooPlankton,CalcPelChemistry,CalcBacteria, &
                         CalcTransportFlag
