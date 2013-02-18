@@ -299,7 +299,7 @@
    end if
    do j = 1,iiPhytoPlankton
       if (.NOT.CalcPhytoPlankton(j)) then
-         iiLastElement=ppPhytoPlankton(j,0,cmax=1)
+         iiLastElement=ppPhytoPlankton(j,1,cmax=1)
          do i = 1,iiLastElement
             D3STATE(ppPhytoPlankton(j,i),:) = p_small
             D3STATETYPE(ppPhytoPlankton(j,i)) = OFF
@@ -311,7 +311,7 @@
    end do
    do j = 1,iiMesoZooPlankton
       if (.NOT.CalcMesoZooPlankton(j)) then
-         iiLastElement=ppMesoZooPlankton(j,0,cmax=1)
+         iiLastElement=ppMesoZooPlankton(j,1,cmax=1)
          do i = 1,iiLastElement
             D3STATE(ppMesoZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMesoZooPlankton(j,i)) = OFF
@@ -323,7 +323,7 @@
    end do
    do j = 1,iiMicroZooPlankton
       if (.NOT.CalcMicroZooPlankton(j)) then
-         iiLastElement=ppMicroZooPlankton(j,0,cmax=1)
+         iiLastElement=ppMicroZooPlankton(j,1,cmax=1)
          do i = 1,iiLastElement
             D3STATE(ppMicroZooPlankton(j,i),:) = p_small
             D3STATETYPE(ppMicroZooPlankton(j,i)) = OFF
@@ -337,7 +337,7 @@
 #ifdef INCLUDE_BEN
    do j = 1,iiBenOrganisms
       if (.NOT.CalcBenOrganisms(j)) then
-         iiLastElement=ppBenOrganisms(j,0,cmax=1)
+         iiLastElement=ppBenOrganisms(j,1,cmax=1)
          do i = 1,iiLastElement
             D2STATE(ppBenOrganisms(j,i),:) = p_small
          end do
@@ -345,7 +345,7 @@
    end do
    do j = 1,iiBenBacteria
       if (.NOT.CalcBenBacteria(j)) then
-         iiLastElement=ppBenBacteria(j,0,cmax=1)
+         iiLastElement=ppBenBacteria(j,1,cmax=1)
          do i = 1,iiLastElement
             D2STATE(ppBenBacteria(j,i),:) = p_small
          end do
