@@ -265,7 +265,7 @@ if [ ${GEN} ]; then
         cppdefs=`echo ${cppdefs} | sed -e "s/"-D"//g"` 
         # some macros are default with NEMO
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${cppdefs}"
-        sed -e "s/_place_keys_/${FCMMacros}/" -e "s/_place_def_/${myGlobalDef}/" \
+        sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalDef};" \
             ${BFMDIR}/${CONFDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
 

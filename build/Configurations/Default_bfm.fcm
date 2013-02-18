@@ -11,5 +11,5 @@ src::bfm::co2             $BFMDIR/src/BFM/CO2
 src::bfm::include         $BFMDIR/include
 
 bld::pp::bfm      1
-bld::tool::fppflags::bfm 0 %FPPFLAGS
+bld::tool::fppflags::bfm %FPPFLAGS
 bld::tool::fppkeys  %bld::tool::fppkeys _place_keys_ 
