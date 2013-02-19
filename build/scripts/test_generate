@@ -1,6 +1,0 @@
-## Script to test the construction of the ancillary BFM files as a function of macros
-./GenerateGlobalBFMF90Code  -DINCLUDE_PELCO2 -DIFORT \
-        -read ../General/Configurations/GlobalDefsBFM.model.standard \
-        -from ../proto -to ./ \
-        -actions statemem allocmem netcdfmem \
-        -to ./ -actions headermem
