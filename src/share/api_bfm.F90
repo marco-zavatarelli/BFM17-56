@@ -257,7 +257,7 @@ contains
 !  Adapted from GOTM code by Hans Burchard & Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-   integer                   :: rc,i,j,n
+   integer                   :: rc,n
    character(len=PATH_MAX)   :: logfname
 #if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
@@ -284,7 +284,7 @@ contains
    out_title  = 'Another great BFM simulation!'
    out_units  = 0
    out_delta  = 100
-   out_secs   = 100.0
+   out_secs   = 100
    bioshade_feedback=.FALSE.
 
    !---------------------------------------------

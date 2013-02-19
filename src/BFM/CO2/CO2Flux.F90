@@ -29,10 +29,12 @@
 !*/
 ! AUTHORS
 !   H. Thomas (NIOZ) adapted from the OCMIP standard files
+!   T. Lovato (CMCC) added atmospheric pCO2 and chemical enhancement
 ! 
 ! CHANGE_LOG
 !
 ! COPYING
+!   Copyright (C) 2013, the BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2004  H. Thomas and the ERSEM team (vichi@ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -92,10 +94,10 @@ IMPLICIT NONE
     integer, save :: first=0
     real(RLEN),allocatable,save,dimension(:) :: pschmidt,temp2,bt, &
                                          ken,tk,tk100,tk1002,ScRatio
+    integer :: AllocStatus
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BEGIN compute
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  integer :: AllocStatus, DeallocStatus
    if (first==0) then
       first=1
       allocate(pschmidt(NO_BOXES_XY),stat=AllocStatus)
@@ -141,7 +143,7 @@ IMPLICIT NONE
     ! Compute Chemical enhancement the Temperature dependent
     ! gas transfer 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    bt = 2.5_RLEN*(0.5246_RLEN + 1.6256D-02*temp + 4.9946D-04*temp2) 
+    bt = 2.5_RLEN*(0.5246_RLEN + 1.6256E-02_RLEN*temp + 4.9946E-04_RLEN*temp2) 
 
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     ! Calculate wind dependency + Chemical enhancement
