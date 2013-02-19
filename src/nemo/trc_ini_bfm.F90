@@ -203,24 +203,6 @@
    deallocate(btmp1D)
 
    !-------------------------------------------------------
-   ! Prepares the array containing the 1D mask with
-   ! 1.0 in the location of the river grid points and
-   ! 0.0 elsewhere
-   !-------------------------------------------------------
-   if (ln_rnf) then
-      allocate(RIVmask(NO_BOXES_XY))
-      allocate(rtmp1D(NO_BOXES_XY))
-      rtmp1D = ZERO; RIVmask = ZERO
-      rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
-      where (rtmp1d>ZERO)
-        RIVmask = ONE
-      elsewhere
-        RIVmask = ZERO
-      end where
-      deallocate(rtmp1D)
-   end if
-
-   !-------------------------------------------------------
    ! Prepares the array containing the total amount per var
    !-------------------------------------------------------
    allocate(D3STATE_tot(NO_D3_BOX_STATES))
