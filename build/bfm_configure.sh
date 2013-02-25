@@ -22,6 +22,7 @@
 
 LOGFILE=logfile_$$.log
 LOGDIR="Logs"
+OPTS="hvgcep:m:k:b:n:a:r:ft:x:l:q:"
 CONFDIR="build/Configurations"
 MKMF="mkmf"
 GMAKE="gmake"
@@ -30,14 +31,16 @@ GENCONF="generate_conf"
 MKNEMO="makenemo"
 BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
-OPTIONS=( MODE CPPDEFS BFMDIR NEMODIR ARCH PROC NETCDF EXP NMLDIR PROC QUEUE )
+NEMO_FILES="iodef.xml namelist namelist_top xmlio_server.def";
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     )
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr )
 ERROR_MSG="Execute $0 -h for help if you don't know what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
 MODE="STANDALONE"
-CPPDEFS="-DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
+CPPDEFS="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
 PRESET="STANDALONE_PELAGIC"
-ARCH="gfortran"
+ARCH="gfortran.inc"
 PROC=4
 EXP="EXP00"
 QUEUE="poe_short"
@@ -79,7 +82,7 @@ DESCRIPTION
        -n NEMODIR
                   The environmental variable NEMODIR pointing to the root directory of NEMO. (Default: "${NEMODIR}")
        -a ARCH
-                  Specify compilation Architecture file (Default: "gfortran")
+                  Specify compilation Architecture file (Default: "gfortran.inc")
                   - For STANDALONE mode available archs, list dir : BFMDIR/compilers
                   - For NEMO mode available archs, execute command: NEMODIR/NEMOGCM/CONFIG/makenemo -h all
        -r PROC
@@ -122,7 +125,7 @@ rm ${LOGDIR}/${LOGFILE}.pipe
 
 
 #get user options from commandline
-while getopts "hvgcep:m:k:b:n:a:r:ft:x:l:q:" opt; do
+while getopts "${OPTS}" opt; do
     case $opt in
       h ) usage;            rm ${LOGDIR}/${LOGFILE}      ; exit             ;;
       v )                   echo "verbose mode"          ; VERBOSE=1        ;;
@@ -130,17 +133,17 @@ while getopts "hvgcep:m:k:b:n:a:r:ft:x:l:q:" opt; do
       c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1            ;;
       e ) [ ${VERBOSE} ] && echo "execution activated"   ; EXE=1            ;;
       p ) [ ${VERBOSE} ] && echo "preset $OPTARG"        ; PRESET=$OPTARG   ;;
-      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"          ; MODE=$OPTARG     ;;
-      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"   ; CPPDEFS=$OPTARG  ;;
-      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"        ; BFMDIR=$OPTARG   ;;
-      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"       ; NEMODIR=$OPTARG  ;;
-      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"  ; ARCH=$OPTARG     ;;
-      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"      ; PROC=$OPTARG     ;;
-      f ) [ ${VERBOSE} ] && echo "fast mode activated"   ; CLEAN=           ;;
-      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"   ; NETCDF=$OPTARG   ;;
-      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"    ; EXP=$OPTARG      ;;
-      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"  ; NMLDIR=$OPTARG   ;;
-      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"    ; QUEUE=$OPTARG    ;;
+      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"          ; mode_usr=$OPTARG    ;;
+      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"   ; cppdefs_usr=$OPTARG ;;
+      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"        ; bfmdir_usr=$OPTARG  ;;
+      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"       ; nemodir_usr=$OPTARG ;;
+      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"  ; arch_usr=$OPTARG    ;;
+      f ) [ ${VERBOSE} ] && echo "fast mode activated"   ; clean_usr=          ;;
+      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"   ; netcdf_usr=$OPTARG  ;;
+      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"    ; exp_usr=$OPTARG     ;;
+      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"  ; nmldir_usr=$OPTARG  ;;
+      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"      ; proc_usr=$OPTARG    ;;
+      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"    ; queue_usr=$OPTARG   ;;
       * ) echo "option not recognized"                   ; exit             ;;
     esac
 done
@@ -154,7 +157,7 @@ fi
 
 #activate/deactivate verbose mode
 if [ $VERBOSE ]; then
-    set -xv
+    #set -xv
     cmd_mkmf="${MKMF} -v"
     cmd_gmake="${GMAKE}"
     cmd_gen="${GENCONF}.pl -v"
@@ -166,12 +169,12 @@ else
     cmd_mknemo="${MKNEMO} -v0"
 fi
 
-blddir="${BFMDIR}/build/${PRESET}"
-myGlobalDef="${PRESET}/${PRESET}.conf"
+myGlobalConf="${PRESET}/${PRESET}.conf"
+myGlobalMem="${PRESET}/${PRESET}.mem"
+myGlobalNml="${PRESET}/${PRESET}.nml"
 
-#get the configuration parameters from file and replace current ones
-bfmconf=`perl -ne "/BFM_conf/ .. /^\// and print" ${BFMDIR}/${CONFDIR}/${myGlobalDef}`
-#echo ${bfmconf}
+##### Overwrite options specified in configuration file
+bfmconf=`perl -ne "/BFM_conf/ .. /^\// and print" ../${CONFDIR}/${myGlobalConf}`
 for option in "${OPTIONS[@]}"; do
     value=`perl -e "print ( \"${bfmconf}\" =~ m/\${option}\ *=\ *[\"\']*([^\"\'\,]+)[\"\']*[\,\/]*/ );"`
     if [ "${value}" ]; then 
@@ -179,6 +182,16 @@ for option in "${OPTIONS[@]}"; do
         eval ${option}=\"\${value}\"
     fi
 done
+
+##### Overwrite options specified in command line by user
+for option in "${OPTIONS_USR[@]}"; do
+    opt_name=`echo $option | sed -e 's/_usr//' | awk '{print toupper($0)}'`
+    eval [ \"\${$option}\" ] && eval "${opt_name}"=\"\${$option}\" && eval 
+    [ ${VERBOSE} ] && eval [ \"\${$option}\" ]  && eval echo "replacing ${opt_name}="\"\${$option}\"
+done
+
+#specify build dir of BFM
+blddir="${BFMDIR}/build/${PRESET}"
 
 #Check some optional parameter values
 if [[ ! $BFMDIR ]]; then 
@@ -203,6 +216,8 @@ if [[ ${PROC} ]] && ! [[ "$PROC" =~ ^[0-9]+$ ]] ; then
 fi
 
 
+
+
 # -----------------------------------------------------
 # Memory and namelist files GENERATION
 # -----------------------------------------------------
@@ -210,25 +225,31 @@ fi
 
 if [ ${GEN} ]; then
 
-    if [ ! -f ${BFMDIR}/${CONFDIR}/${myGlobalDef} ]; then
-         echo "ERROR: ${BFMDIR}/${CONFDIR}/${myGlobalDef} not exsits"
+    if [ ! -f ${BFMDIR}/${CONFDIR}/${myGlobalMem} ]; then
+         echo "ERROR: ${BFMDIR}/${CONFDIR}/${myGlobalMem} not exsits"
          echo ${ERROR_MSG}
          exit
     fi
+    if [ ! -f ${BFMDIR}/${CONFDIR}/${myGlobalNml} ]; then
+         echo "ERROR: ${BFMDIR}/${CONFDIR}/${myGlobalNml} not exsits"
+         echo ${ERROR_MSG}
+         exit
+    fi
+
 
     if [ ! -d ${blddir} ]; then mkdir ${blddir}; fi
     cd ${blddir}
     rm -rf *
     
     # generate BFM Memory Layout files and namelists
-    ${PERL} -I${BFMDIR}/build/scripts/conf/ ${BFMDIR}/build/scripts/conf/${cmd_gen} \
+    ${PERL} -I${BFMDIR}/build/Scripts/Conf/ ${BFMDIR}/build/Scripts/Conf/${cmd_gen} \
         ${CPPDEFS} \
-        -r ${BFMDIR}/${CONFDIR}/${myGlobalDef}  \
+        -r ${BFMDIR}/${CONFDIR}/${myGlobalMem}  \
+        -n ${BFMDIR}/${CONFDIR}/${myGlobalNml}  \
         -f ${BFMDIR}/src/BFM/proto \
         -t ${blddir} || exit
 
     if [[ ${MODE} == "STANDALONE" ]]; then
-        cppdefs="-DBFM_STANDALONE ${CPPDEFS}"
         # list files
         find ${BFMDIR}/src/BFM/General -name "*.?90" -print > BFM.lst
         find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
@@ -241,32 +262,31 @@ if [ ${GEN} ]; then
         find ${BFMDIR}/src/BFM/Forcing -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
 
-        #change netcdf path in file if Mac
+        #change netcdf path in compiler file
         if [ ${NETCDF} ]; then
             [ ${VERBOSE} ] && echo "changing netcd path!"
-            sed -e "s,/usr/local,${NETCDF}," ${BFMDIR}/compilers/${ARCH}.inc > ${blddir}/${ARCH}.inc
+            sed -e "s,/usr/local,${NETCDF}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
         else
-            cp ${BFMDIR}/compilers/${ARCH}.inc ${blddir}/${ARCH}.inc
+            cp ${BFMDIR}/compilers/${ARCH} ${blddir}/${ARCH}
         fi
 
         # Make makefile
         ${BFMDIR}/bin/${cmd_mkmf} \
-            -c "${cppdefs}" \
+            -c "${CPPDEFS}" \
             -o "-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include" \
-            -t "${blddir}/${ARCH}.inc" \
+            -t "${blddir}/${ARCH}" \
             -p "${BFMDIR}/bin/bfm_standalone.x" \
             BFM.lst && echo ""
 
         # Link to the configuration file
-        ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
+        #ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
     else
-        cppdefs="-DBFM_PARALLEL ${CPPDEFS}"
         # Generate the specific bfm.fcm include file for makenemo
-        cppdefs=`echo ${cppdefs} | sed -e "s/"-D"//g"` 
+        cppdefs=`echo ${CPPDEFS} | sed -e "s/"-D"//g"` 
         # some macros are default with NEMO
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${cppdefs}"
-        sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalDef};" \
-            ${BFMDIR}/${CONFDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
+        sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
+            ${BFMDIR}/build/Scripts/Conf/Default_bfm.fcm > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
 
         # Move BFM Layout files to target folders 
@@ -342,6 +362,8 @@ if [ ${EXE} ]; then
         echo ${ERROR_MSG}
     fi
  
+
+    #Copy Namelists
     exedir="${BFMDIR}/run/${EXP}"
     if [ ! -d ${exedir} ]; then 
         mkdir -p ${exedir};
@@ -351,22 +373,23 @@ if [ ${EXE} ]; then
     else
         echo "WARNING: directory ${exedir} exists (not copying namelist files)"
     fi
-    cd ${exedir}
 
+    #Copy nemo files and executable 
     if [[ ${MODE} == "STANDALONE" ]]; then
-        ln -sf ${BFMDIR}/bin/${BFMSTD} ${BFMSTD}
+        ln -sf ${BFMDIR}/bin/${BFMSTD} ${exedir}/${BFMSTD}
         printf "Go to ${exedir} and execute command:\n\t./${BFMSTD}\n"
     else
         # copy and link necessary files
-        cp ${BFMDIR}/build/scripts/conf/nemo/* ./
-        ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${NEMOEXE}
+        cd "${BFMDIR}/${CONFDIR}/${PRESET}"
+        cp ${NEMO_FILES} ${exedir}/
+        ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
         #change values in runscript
         sed -e "s,_EXP_,${EXP},g"       \
             -e "s,_EXE_,${NEMOEXE},g" \
             -e "s,_VERBOSE_,${VERBOSE},g" \
             -e "s,_PRESET_,${PRESET},g" \
             -e "s,_QUEUE_,${QUEUE},g"   \
-            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/build/scripts/conf/runscript > ./runscript_${EXP}
+            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/build/Scripts/Conf/runscript > ${exedir}/runscript_${EXP}
         printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
     fi
 fi

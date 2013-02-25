@@ -335,13 +335,18 @@ sub func_POINT_ALLOC  {
     my $line = "";
     my $TYPE = uc($type);
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    $line .= "$nameC => D${dim}${TYPE}(pp$nameC,:); $nameC=ZERO\n";
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        #foreach my $compo (sort keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        my $nameC = $name . $const;
+                        $line .= "$nameC => D${dim}${TYPE}(pp$nameC,:); $nameC=ZERO\n";
+                    }
                 }
             }else{
                 $line .= "$name => D${dim}${TYPE}(pp$name,:); $name=ZERO\n";
@@ -372,11 +377,13 @@ sub func_PP_ASSIGN  {
     #     $len = $$LST_STA{"diagnos ${dim}d"};
     # }
 
-    foreach my $root (sort keys %$LST_PARAM){
+    #foreach my $root (sort keys %$LST_PARAM){
+    foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() && $param->getQuota() ){
             #print $root . " -> " . $param->getQuota() . "\n";
-            foreach my $member (sort keys %$LST_PARAM){
+            #foreach my $member (sort keys %$LST_PARAM){
+            foreach my $member ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param2 = $$LST_PARAM{$member};
                 if( defined($param2->getGroup()) && $param2->getGroup() eq $param->getQuota() ){
                     #$line .= "pp${root}(ii${member})=" . ++$len . "\n";
@@ -395,12 +402,14 @@ sub func_POINT_ALLOC_DIAGG  {
     
     my $line = "";
 
-    foreach my $root (sort keys %$LST_PARAM){
+    #foreach my $root (sort keys %$LST_PARAM){
+    foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() && $param->getQuota() ){
             #print $root . " -> " . $param->getQuota() . "\n";
             my @namesMem = ();
-            foreach my $member (sort keys %$LST_PARAM){
+            #foreach my $member (sort keys %$LST_PARAM){
+            foreach my $member ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param2 = $$LST_PARAM{$member};
                 if( defined($param2->getGroup()) && ($param2->getGroup() eq $param->getQuota()) ){
                     push (@namesMem, $param2->getSigla() );
@@ -441,13 +450,18 @@ sub func_POINT_ALLOC_FIELD  {
     $$LST_STA{"${type} ${dim}d ${spec} index"} = $n;
 
     $line_ini .= "${SPACE}PEL${SPEC} => D2DIAGNOS(${n}+1:${n}+${m},:); PEL${SPEC}=ZERO\n";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    $line_par .= "${SPACE}j${spec_short}${nameC} => D2DIAGNOS(${n}+pp${nameC},:); j${spec_short}${nameC}=ZERO\n";
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (sort keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        $line_par .= "${SPACE}j${spec_short}${nameC} => D2DIAGNOS(${n}+pp${nameC},:); j${spec_short}${nameC}=ZERO\n";
+                    }
                 }
             }else{
                 $line_par .= "${SPACE}j${spec_short}${name} => D2DIAGNOS(${n}+pp${name},:); j${spec_short}${name}=ZERO\n";
@@ -468,7 +482,8 @@ sub func_ALLOC_INTVAR  {
     my $TYPE = uc($type);
     if ( $dim == 2 ){ $j = "_XY"; }
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             my $mode = 0;
@@ -477,7 +492,8 @@ sub func_ALLOC_INTVAR  {
             if( $param->getDim() > 1 ){ $mode += 2; }
             if( $param->getQuota()   ){ 
                 $mode += 1; 
-                my @group = (sort keys %$LST_GROUP);
+                #my @group = (sort keys %$LST_GROUP);
+                my @group = ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP );
                 $groupindex = firstidx { $_ eq $param->getQuota() } @group;
                 $l = "ii";
             }
@@ -530,7 +546,8 @@ sub func_FLUX_FILL  {
     my $jndex=1;
 
     if( exists $$LST_STA{"flux ${dim}d"} && exists $$LST_STA{"select ${dim}d"} ){
-        foreach my $key (sort keys %$LST_PARAM) { 
+        #foreach my $key (sort keys %$LST_PARAM) { 
+        foreach my $key ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
             my $param    = $$LST_PARAM{$key};
             my $function = $param->getFunction();
             if( $param->getType() eq 'flux' ){ 
@@ -565,7 +582,8 @@ sub func_ALLOC_Z  {
 
     my %z_hash = ();
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $param->getZ() ){
             my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
@@ -607,15 +625,21 @@ sub func_DESC  {
     foreach (1..10){ $line .=  "-"; } $line .=  " ";
     foreach (1..60){ $line .=  "-"; } $line .=  " ";
     foreach (1..15){ $line .=  "-"; } $line .=  "\n";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         my $comment = $param->getComment();
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    my $unit = ${$param->getComponents()}{$compo};
-                    $line_par .= sprintf "! %10s %60s %15s\n", $nameC, $comment, $unit;
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (sort keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        #my $unit = ${$param->getComponents()}{$compo};
+                        my $unit = ${$param->getComponents()}{$const};
+                        $line_par .= sprintf "! %10s %60s %15s\n", $nameC, $comment, $unit;
+                    }
                 }
             }else{
                 my $unit = 
@@ -707,18 +731,27 @@ sub func_PP  {
 
     my $index = 1;
     $line .= "${SPACE}integer,parameter,public :: ";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    push( @line_par, "pp${nameC}=".$index++ );
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        push( @line_par, "pp${nameC}=".$index++ );
+                    }
                 }
                 if( $param->getComponentsEx() && keys(%{$param->getComponentsEx()}) != 0 ){
-                    foreach my $compo (sort keys %{$param->getComponentsEx()} ){
-                        my $nameC = $name . $compo;
-                        push( @line_par, "pp${nameC}=0" );
+                    foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                        if( exists ${$param->getComponentsEx()}{$const} ){
+                            my $nameC = $name . $const;
+                            #foreach my $compo (keys %{$param->getComponentsEx()} ){
+                            #my $nameC = $name . $compo;
+                            push( @line_par, "pp${nameC}=0" );
+                        }
                     }
                 }
             }else{
@@ -740,13 +773,18 @@ sub func_POINT  {
     my @line_par = ();
 
     $line .= "${SPACE}real(RLEN),public,dimension(:),pointer  :: ";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    push( @line_par, ${nameC} );
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        push( @line_par, ${nameC} );
+                    }
                 }
             }else{
                 push( @line_par, ${name} );
@@ -766,7 +804,7 @@ sub func_CONSTITUENT  {
     my @line_par = ();
 
     $line .= "${SPACE}integer,parameter,public :: ";
-    foreach my $key (sort keys %$LST_CONST){
+    foreach my $key ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
         push( @line_par, "ii" . uc($key) . "=" . $$LST_CONST{$key} );
     }
 
@@ -778,12 +816,14 @@ sub func_GROUP_PARAMETER  {
     my ( $file, $dim, $type) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUP_PARAMETER: "; }
 
-    foreach my $group_name (sort keys %$LST_GROUP){
+    #foreach my $group_name (sort keys %$LST_GROUP){
+    foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ) {
         my $group = $$LST_GROUP{$group_name};
         if( $dim == $group->getDim() ){
             my @elements = ();
             my $index = 1;
-            foreach my $param_name (sort keys %$LST_PARAM){
+            #foreach my $param_name (sort keys %$LST_PARAM){
+            foreach my $param_name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param = $$LST_PARAM{$param_name};
                 if( $param->getGroup() && $group_name eq $param->getGroup() ){ push(@elements, ("ii$param_name=". $index++ ) ); }
             }
@@ -804,7 +844,8 @@ sub func_INTVAR  {
     elsif ( $type eq 'intvar'  ) { $line_ini = "${SPACE}integer,public"   ; } # :: &\n
     else                         { print "ERROR: $type not found\n"; exit 1;  }
 
-    foreach my $param_name (sort keys %$LST_PARAM){
+    #foreach my $param_name (sort keys %$LST_PARAM){
+    foreach my $param_name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$param_name};
         if( $param->getDim() == $dim && ($param->getType() eq $type) ){
             my $mode  = 0;
@@ -832,11 +873,13 @@ sub func_DESC_DIAGG  {
     my ( $file, $dim, $type) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_DESC_DIAGG: "; }
 
-    foreach my $root (sort keys %$LST_PARAM){
+    #foreach my $root (sort keys %$LST_PARAM){
+    foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() && $param->getQuota() ){
             #print $root . " -> " . $param->getQuota() . "\n";
-            foreach my $member (sort keys %$LST_PARAM){
+            #foreach my $member (sort keys %$LST_PARAM){
+            foreach my $member ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param2 = $$LST_PARAM{$member};
                 if( defined($param2->getGroup()) && $param2->getGroup() eq $param->getQuota() ){
                     printf $file "! %10s %60s %15s\n", "${root}(ii${member})", $param2->getComment(), $param->getUnit();
@@ -855,7 +898,8 @@ sub func_PP_DIAGG  {
     my @line_par = ();
 
     $line .= "${SPACE}integer,public :: ";
-    foreach my $root (sort keys %$LST_PARAM){
+    #foreach my $root (sort keys %$LST_PARAM){
+    foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() && $param->getQuota() ){
             push(@line_par,"pp${root}(ii". $param->getQuota() .")" );
@@ -874,7 +918,8 @@ sub func_POINT_DIAGG  {
     my @line_par = ();
 
     $line .= "${SPACE}real(RLEN),public,dimension(:,:),pointer  :: ";
-    foreach my $root (sort keys %$LST_PARAM){
+    #foreach my $root (sort keys %$LST_PARAM){
+    foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() && $param->getQuota() ){
             push( @line_par, "${root}" );
@@ -894,13 +939,18 @@ sub func_POINT_FIELD  {
 
     my $SPEC = substr($spec,0,3);
     $line .= "${SPACE}real(RLEN),public,dimension(:),pointer  :: ";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $param->getDim() == $dim && ($param->getType() eq $type) ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    push( @line_par, "j${SPEC}${nameC}");
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #    my $nameC = $name . $compo;
+                        push( @line_par, "j${SPEC}${nameC}");
+                    }
                 }
             }else{
                 push( @line_par, "j${SPEC}${name}" );
@@ -920,7 +970,8 @@ sub func_GROUP_FUNCTION_NAME  {
     my @line_par = ();
 
     $line .= "${SPACE}public ";
-    foreach my $group_name (sort keys %$LST_GROUP){
+    #foreach my $group_name (sort keys %$LST_GROUP){
+    foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group = $$LST_GROUP{$group_name};
         if( $group->getDim() == $dim ){
             push( @line_par, "pp${group_name}" );
@@ -937,12 +988,14 @@ sub func_GROUP_FUNCTIONS  {
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
 
     foreach my $pre ("pp", ""){
-        foreach my $groupname (sort keys %$LST_GROUP){
+        #foreach my $groupname (sort keys %$LST_GROUP){
+        foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
             my $group   = $$LST_GROUP{$groupname};
 
             if( $group->getDim() == $dim ){
                 my @members = ();
-                foreach my $paramname (sort keys %$LST_PARAM){ 
+                #foreach my $paramname (sort keys %$LST_PARAM){ 
+                foreach my $paramname ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                     my $param = $$LST_PARAM{$paramname};
                     if ( $param->getGroup() && ($param->getGroup() eq $groupname) ){ push(@members, $param); }
                 }
@@ -1013,7 +1066,8 @@ sub func_POINT_Z  {
 
     my %z_hash = ();
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $param->getZ() ){
             my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
@@ -1041,18 +1095,24 @@ sub func_STRING  {
 
     $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             my $comm  = $param->getComment();
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    my $unitC = ${$param->getComponents()}{$compo};
-                    $line .= "${SPACE}var_names($STRING_INDEX)=\"$nameC\"\n";
-                    $line .= "${SPACE}var_long($STRING_INDEX)=\"$comm\"\n";
-                    $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
-                    $STRING_INDEX++;
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        my $unitC = ${$param->getComponents()}{$const};
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        #my $unitC = ${$param->getComponents()}{$compo};
+                        $line .= "${SPACE}var_names($STRING_INDEX)=\"$nameC\"\n";
+                        $line .= "${SPACE}var_long($STRING_INDEX)=\"$comm\"\n";
+                        $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
+                        $STRING_INDEX++;
+                    }
                 }
             }else{
                 my $unit  = $param->getUnit();
@@ -1077,13 +1137,15 @@ sub func_STRING_DIAGG  {
 
     $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $param->getDim() == $dim && $param->getType eq $type ){
             my $group_name = $param->getQuota();
             my $unit       = $param->getUnit();
             my $comm       = $param->getComment();
-            foreach my $name2 (sort keys %$LST_PARAM){
+            #foreach my $name2 (sort keys %$LST_PARAM){
+            foreach my $name2 ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param2 = $$LST_PARAM{$name2};
                 if ( $param2->getGroup() && $group_name eq $param2->getGroup() ){ 
                     my $param_name = $param2->getSigla();
@@ -1114,18 +1176,24 @@ sub func_STRING_FIELD  {
 
     $STRING_INDEX_ARRAY{"${type}_${dim}_${spec}"} = $STRING_INDEX;
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             my $comm  = $param->getComment();
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    my $unitC = decreaseUnit( ${$param->getComponents()}{$compo} );
-                    $line .= "${SPACE}var_names($STRING_INDEX)=\"j${spec_short}${nameC}\"\n";
-                    $line .= "${SPACE}var_long($STRING_INDEX)=\"flux of $comm at $SPEC\"\n";
-                    $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
-                    $STRING_INDEX++;
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        my $unitC = decreaseUnit( ${$param->getComponents()}{$const} );
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        #my $unitC = decreaseUnit( ${$param->getComponents()}{$compo} );
+                        $line .= "${SPACE}var_names($STRING_INDEX)=\"j${spec_short}${nameC}\"\n";
+                        $line .= "${SPACE}var_long($STRING_INDEX)=\"flux of $comm at $SPEC\"\n";
+                        $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
+                        $STRING_INDEX++;
+                    }
                 }
             }else{
                 my $unit  = decreaseUnit($param->getUnit());
@@ -1178,13 +1246,18 @@ sub func_INIT_PP  {
 
     my $line1 = "${SPACE}real(RLEN) :: ";
     my $line2 = "${SPACE}namelist /bfm_init_nml/ ";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo . '0';
-                    push( @line_par, ${nameC} );
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const . '0';
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo . '0';
+                        push( @line_par, ${nameC} );
+                    }
                 }
             }else{
                 push( @line_par, (${name} . '0') );
@@ -1205,12 +1278,17 @@ sub func_INIT_DEFAULT  {
 
     my $line = '';
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    $line .= "${SPACE}" . $name . $compo . "0 = _ZERO_\n";
+                #foreach my $compo (keys %{$param->getComponents()} ){
+                #$line .= "${SPACE}" . $name . $compo . "0 = _ZERO_\n";
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        $line .= "${SPACE}" . $name . $const . "0 = _ZERO_\n";
+                    }
                 }
             }else{
                 $line .= "${SPACE}" . $name . "0 = _ZERO_\n";
@@ -1228,12 +1306,17 @@ sub func_INIT_SETS  {
 
     my $line = '';
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    $line .= "${SPACE}  " . $name . $compo . " = " . $name . $compo . "0\n";
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        $line .= "${SPACE}  " . $name . $const . " = " . $name . $const . "0\n";
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #$line .= "${SPACE}  " . $name . $compo . " = " . $name . $compo . "0\n";
+                    }
                 }
             }else{
                 $line .= "${SPACE}  " . $name . " = " . $name . "0\n";
@@ -1256,13 +1339,18 @@ sub func_HEADER  {
     my $line = '';
     my $TYPE = uc($type);
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    $line .= "#define " . $nameC . "(A) D" . $dim . $TYPE . "(pp" . $nameC . ",A)\n";
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        $line .= "#define " . $nameC . "(A) D" . $dim . $TYPE . "(pp" . $nameC . ",A)\n";
+                    }
                 }
             }else{
                 $line .= "#define " . $name . "(A) D" . $dim . $TYPE . "(pp" . $name . ",A)\n";
@@ -1280,7 +1368,8 @@ sub func_GROUP_HEADER  {
 
     my $line = '';
 
-    foreach my $name (sort keys %$LST_GROUP){
+    #foreach my $name (sort keys %$LST_GROUP){
+    foreach my $name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group   = $$LST_GROUP{$name};
         if( $dim == $group->getDim() ){
             $line .= "#define " . $name . "(A,B) D" . $dim . "STATE(pp" . $name . "(A,B),:)\n";
@@ -1308,13 +1397,18 @@ sub func_HEADER_FIELD  {
 
 
     $line_ini .= "#define PEL${SPEC}(A,B) D2DIAGNOS($n+A,B)\n";
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
-                foreach my $compo (sort keys %{$param->getComponents()} ){
-                    my $nameC = $name . $compo;
-                    $line_par .= "#define j${spec_short}${nameC}(B) D2DIAGNOS($n+pp$nameC,B)\n";
+                foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                    if( exists ${$param->getComponents()}{$const} ){
+                        my $nameC = $name . $const;
+                        #foreach my $compo (keys %{$param->getComponents()} ){
+                        #my $nameC = $name . $compo;
+                        $line_par .= "#define j${spec_short}${nameC}(B) D2DIAGNOS($n+pp$nameC,B)\n";
+                    }
                 }
             }else{
                 $line_par .= "#define j${spec_short}${name}(B) D2DIAGNOS($n+pp${name},B)\n";
@@ -1334,7 +1428,8 @@ sub func_HEADER_DIAGG  {
     my $line = '';
     my $TYPE = uc($type);
 
-    foreach my $name (sort keys %$LST_PARAM){
+    #foreach my $name (sort keys %$LST_PARAM){
+    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
             $line .= "#define " . $name . "(A,B) D" . $dim . "DIAGNOS(pp" . $name . "(A),B)\n";

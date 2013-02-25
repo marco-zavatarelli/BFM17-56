@@ -53,6 +53,7 @@ sub calculateMaxLen{
 sub process_namelist{
     my $nml_val = shift; #input file
     my $lst_nml = shift; #output for names
+    my $lst_com = shift; #output for commentaries
     
     my $index = 0;
 
@@ -63,32 +64,35 @@ sub process_namelist{
 
     #process each namelist in the file
     my $block     = '';
-    my $lines_not = '';
-    foreach my $line (@lines){
-        $line =~ s/!.*//;
-        if ( $line ){
-            if( $line =~ m/^\s*(\&.*)/ ){
-                $block = $1;
-            }else{
-                if( $block ){ 
-                    $block .= $line;
-                }else{
-                    #lines which are not processed
-                    $lines_not .= $line;
-                }
+    my $comm      = '';
 
-                #is the end of the namelist?
-                if( $line =~ m/^\s*\// ){
-                    $$lst_nml[$index] = F90Namelist->new(debug => 0) or die "Couldn't get object\n";
-                    $$lst_nml[$index]->parse(text => $block);
-                    #print "OUTPUT:\n", $$lst_nml[$index]->output();
-                    $index++;
-                    $block = '';
-                }
+    foreach my $line (@lines){
+        if( $line =~ m/^\!\s*NAMELIST (.*)/ ){
+            $comm = "! $1 ";
+        }
+        elsif( $line =~ m/^\s*(\&.*)/ ){
+            $block = $1;
+            $$lst_com[$index] = $comm;
+            $comm  = '';
+        }else{
+            if( $block ){ 
+                $block .= $line;
+            }
+
+            if( $comm ){
+                $comm .= $line;
+            }
+
+            #is the end of the namelist?
+            if( $line =~ m/^\s*\// ){
+                $$lst_nml[$index] = F90Namelist->new(debug => 0) or die "Couldn't get object\n";
+                $$lst_nml[$index]->parse(text => $block);
+                #print "OUTPUT:\n", $$lst_nml[$index]->output();
+                $index++;
+                $block = '';
             }
         }
     }
-    return $lines_not;
 }
 
 
@@ -182,8 +186,9 @@ sub check_namelists{
 
 
 sub print_namelists{
-    my ( $lst_nml, $out_dir, $VERBOSE ) = @_ ;
+    my ( $lst_nml, $lst_com, $out_dir, $VERBOSE ) = @_ ;
 
+    my $index = 0;
     foreach my $nml (@$lst_nml){
         if ( $nml->hash()->{'filename_nml_conf'} ){
             #print Dumper ($lst_nml) , "\n";
@@ -217,6 +222,7 @@ sub print_namelists{
 
             #print the formated output to the file
             open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
+            print NML_OUT $$lst_com[$index++];
             my @pad_len = map { "%-${_}s  " } @max_len_array;
             foreach my $line (@tbl){
                 foreach my $idx ( 0..$#{$line} ){
@@ -224,6 +230,7 @@ sub print_namelists{
                 }
                 printf NML_OUT "\n" ;
             }
+            printf NML_OUT "\n\n\n" ;
             close NML_OUT;
             if( $VERBOSE ){ print "---------- $nml_name\n"; }
         }

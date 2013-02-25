@@ -234,6 +234,9 @@ sub process_memLayout{
     close(NML_DEF);
 
     #iterate through default namelist substituting the parameters for new ones
+    my $blk_group_idx = 0;
+    my $param_idx     = 0;
+    my $const_idx     = 1;
     undef $blk_dim;
     undef $blk_type;
     undef $blk_group;
@@ -265,9 +268,17 @@ sub process_memLayout{
             $blk_group=$name;
             #add to groups list
             if( $blk_is_include ){
-                $obj = new Group( $blk_group, $blk_dim, $blk_type, $par_compo, $blk_include, $blk_z);
+                $obj = new Group( $blk_group, $blk_dim, $blk_type, $par_compo, $blk_include, $blk_z, $blk_group_idx);
+                $blk_group_idx++;
                 $$lst_group{$blk_group} = $obj;
-                @{$lst_const}{@par_const} = 0; # create the list of constituents
+                #add constituents to list
+                foreach my $const (@par_const){
+                    if ( ! exists $$lst_const{$const} ){ 
+                        $$lst_const{$const} = $const_idx;
+                        #print "\$\$lst_const{$const} = $const_idx\n";
+                        $const_idx++;
+                    }
+                }
                 if ( $VERBOSE ){ $obj->print(); }
             }#else{ print "INFO: not included GROUP $blk_group\n" }
         }
@@ -296,7 +307,9 @@ sub process_memLayout{
                     foreach my $compo_tmp ( @compo_array ){
                         $par_name = $par_name_src . $compo_tmp;
 
-                        $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota );
+                        $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
+                        #print " " . $obj->getSigla() . " - " . $obj->getIndex() . "\n";
+                        $param_idx++;
                         $$lst_param{$par_name} = $obj;
                         $$lst_sta{"${par_type} ${blk_dim}d"} += $size;
                         #@{$lst_const}{@par_const} = 0; # create the list of constituents
@@ -312,7 +325,9 @@ sub process_memLayout{
                     elsif( $3 && ($blk_type eq 'variable') && ( $blk_dim =~ /[23]/ ) ){ $par_type = 'diagnos';  } #if 3d/2d has units and is a variable => insert in diagnos group
                     else                                                              { $par_type = $blk_type;  };#normal parameter
                     
-                    $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota );
+                    $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
+                    $param_idx++;
+                    #print " " . $obj->getSigla() . " - " . $obj->getIndex() . "\n";
                     $$lst_param{$par_name} = $obj;
                     $$lst_sta{"${par_type} ${blk_dim}d"} += $size;
                     #@{$lst_const}{@par_const} = 0; # create the list of constituents
@@ -324,9 +339,9 @@ sub process_memLayout{
 
 
     #assing values to constituents
-    @{$lst_const}{sort keys %{$lst_const}} = (1 .. (scalar(keys %{$lst_const})+1) );
     #$$lst_const{'c'} = 1; $$lst_const{'n'} = 2; $$lst_const{'p'} = 3; $$lst_const{'f'} = 5; $$lst_const{'l'} = 4; $$lst_const{'s'} = 6; $$lst_const{'h'} = 7;
     #$$lst_const{'c'} = 1; $$lst_const{'n'} = 2; $$lst_const{'p'} = 3; $$lst_const{'l'} = 4; $$lst_const{'s'} = 5; $$lst_const{'h'} = 6;
+    #$$lst_const{'c'} = 1; $$lst_const{'n'} = 2; $$lst_const{'p'} = 3; $$lst_const{'l'} = 4; $$lst_const{'s'} = 5;
 
 }
 
