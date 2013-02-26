@@ -54,32 +54,68 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   public
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! PelBac PARAMETERS (read from nml)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer     :: p_version  ! Switch for DOM uptake parameterization
-  real(RLEN)  :: p_q10      ! Q10-value (temperature dependency)
-  real(RLEN)  :: p_chdo     ! Michaelis const for O2 dependence (mmol/m3)
-  real(RLEN)  :: p_sd       ! Independent specific mortality (1/d)
-  real(RLEN)  :: p_sd2      ! Density dependent mortality (value: 0.009) (1/d)
-  real(RLEN)  :: p_suhR1    ! Specific potential of rich DOM availability (1/d)
-  real(RLEN)  :: p_sulR1    ! Specific potential sugar availability (1/d)
-  real(RLEN)  :: p_suR2     ! Specific potential TEP availability (1/d)
-  real(RLEN)  :: p_suR6     ! Availability of POM (1/d)
-  real(RLEN)  :: p_suR7     ! Availability of semi-refractory DOC (1/d)
-  real(RLEN)  :: p_sum      ! Specific potential uptake (1/d)
-  real(RLEN)  :: p_pu_ra    ! Activity respiration (-)
-  real(RLEN)  :: p_pu_ra_o  ! Decrease in Ass. efficiency at low O2 conc (-).
-  real(RLEN)  :: p_srs      ! Specific rest respiration (1/day)
-  real(RLEN)  :: p_qnc      ! Optimal N/C ratio (model units) 45:9:1
-  real(RLEN)  :: p_qpc      ! Optimal P/C ratio (model units) C:N:P
-  real(RLEN)  :: p_qlnc     ! Minimal N/C ratio (model units) 45:9:1 
-  real(RLEN)  :: p_qlpc     ! Minimal P/C ratio (model units) C:N:P 
-  real(RLEN)  :: p_qun      ! nutrient affinity ( mmol/mgC/day) 
-  real(RLEN)  :: p_qup      ! nutrient affinity ( mmol/mgC/day) 
-  real(RLEN)  :: p_lN4      ! ammonium conc. at which nitrate uptake are equal
-  real(RLEN)  :: p_chn      ! half saturation ammonium conc. for uptake
-  real(RLEN)  :: p_chp      ! half saturation phosphate conc. for uptake
-  real(RLEN)  :: p_pu_ea_R7 ! excretion of semirefractory DOC (-) 
+  !NAMELIST PelBac_parameters
+  !-------------------------------------------------------------------------!
+  !  PELAGIC BACTERIA
+  !
+  ! NAME         [UNIT]/KIND            DESCRIPTION
+  ! p_version   integer         Switch for bacteria parameterization
+  !                              1 : Baretta-Bekker et al. 1995;
+  !                                  Vichi et al., 2007
+  !                              2 : Vichi et al., 2004
+  !                              3 : Polimene et al., 2006
+  ! p_q10                        Q10-value (temperature dependency)
+  ! p_chdo      [mmol/m3]        Half-saturation constant for O2 limitation
+  ! p_sd        [1/d]            Specific mortality rate
+  ! p_sd2       [1/d]            Density dependent specific mortality rate
+  ! p_suhR1     [1/d]            Specific potential uptake for nutrient-rich DOM
+  ! p_sulR1     [1/d]            Specific potential uptake for nutrient-poor DOM
+  ! p_suR2      [1/d]            Specific potential uptake for semi-labile DOC
+  ! p_suR3      [1/d]            Specific potential uptake for semi-refractory DOC
+  ! p_suR6      [1/d]            Specific potential uptake for POM (1/d)
+  ! p_sum       [1/d]            Potential specific growth rate
+  ! p_pu_ra     [-]              Activity respiration fraction
+  ! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
+  ! p_srs       [1/d]            Specific rest respiration
+  ! p_qnc       [model units]    Optimal N/C ratio 
+  ! p_qpc       [model units]    Optimal P/C ratio
+  ! p_qlnc      [model units]    Minimal N/C ratio
+  ! p_qlpc      [model units]    Minimal P/C ratio
+  ! p_qun       [mmol N/mgC/day] Membrane affinity for N
+  ! p_qup       [mmol P/mgC/day] Membrane affinity for N
+  ! p_chn       [mmol N/m3]      half saturation ammonium conc. for uptake
+  ! p_chp       [mmol P/m3]      half saturation phosphate conc. for uptake
+  ! p_ruen      [1/d]            relaxation timescale for N uptake/remin.
+  ! p_ruep      [1/d]            relaxation timescale for P uptake/remin.
+  ! p_rec       [1/d]            relaxation timescale for semi-labile excretion
+  ! p_pu_ea_R7  [-]              excretion of semi-refractory DOC
+  integer     :: p_version
+  integer, parameter ::       BACT1=1,BACT2=2,BACT3=3
+  real(RLEN)  :: p_q10
+  real(RLEN)  :: p_chdo
+  real(RLEN)  :: p_sd
+  real(RLEN)  :: p_sd2
+  real(RLEN)  :: p_suhR1
+  real(RLEN)  :: p_sulR1
+  real(RLEN)  :: p_suR2
+  real(RLEN)  :: p_suR6
+  real(RLEN)  :: p_suR7
+  real(RLEN)  :: p_sum
+  real(RLEN)  :: p_pu_ra
+  real(RLEN)  :: p_pu_ra_o
+  real(RLEN)  :: p_srs
+  real(RLEN)  :: p_qnc
+  real(RLEN)  :: p_qpc
+  real(RLEN)  :: p_qlnc
+  real(RLEN)  :: p_qlpc
+  real(RLEN)  :: p_qun
+  real(RLEN)  :: p_qup
+  real(RLEN)  :: p_chn
+  real(RLEN)  :: p_chp
+  real(RLEN)  :: p_ruen
+  real(RLEN)  :: p_ruep
+  real(RLEN)  :: p_rec
+  real(RLEN)  :: p_pu_ea_R7
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -95,7 +131,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
     p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R7, p_srs, &
-    p_suR7, p_qpc, p_qlpc, p_qnc, p_qlnc, p_qun, p_qup, p_lN4, p_chn, p_chp
+    p_suR7, p_qpc, p_qlpc, p_qnc, p_qlnc, p_qun, p_qup, p_chn, p_chp, &
+    p_ruen, p_ruep, p_rec
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute
@@ -113,15 +150,19 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   write(LOGUNIT,*) "#  using p_version=",p_version
   select case ( p_version )
-    case ( 1 ) ! Polimene et al. (2006)
+    case ( BACT3 ) ! Polimene et al. (2006)
       p_sulR1 = ZERO
       write(LOGUNIT,*) "#  forcing p_sulR1=0"
-    case ( 2 ) ! Vichi et al. 2007
+      if (p_pu_ea_R7 + p_pu_ra .GT. 0.3_RLEN) then
+        write(LOGUNIT,*)"#  Warning: Bacterial growth efficiency is lower than 0.3!"
+        write(LOGUNIT,*)"#  The release of capsular material is possibly larger than p_pu_ra/4"
+      end if
+    case ( BACT1 ) ! Vichi et al. 2007
       p_sulR1 = ZERO
       p_suR2 = ZERO
       p_suR7 = ZERO
       write(LOGUNIT,*) "#  forcing p_sulR1,p_suR2,p_suR7=0"
-    case ( 3 ) ! Vichi et al. 2004
+    case ( BACT2 ) ! Vichi et al. 2004
       p_suR7 = ZERO
       write(LOGUNIT,*) "#  forcing p_suR7=0"
   end select

@@ -87,7 +87,7 @@
                                           iNIn,iN,qpR1c,qnR1c,eN1p,eN4n, &
                                           huln, hulp
   real(RLEN),allocatable,save,dimension(:) ::  misn,misp,rupp,rupn
-  integer :: AllocStatus, DeallocStatus
+  integer :: AllocStatus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -237,7 +237,7 @@
 
   select case ( p_version )
 
-    case ( 1 )  ! Polimene et al. (2006)
+    case ( BACT3 )  ! Polimene et al. (2006)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Potential uptake by bacteria
@@ -252,7 +252,7 @@
       cuR1 = ONE
       cuR6 = ONE
 
-    case ( 2,3 )  ! Vichi et al. (2004,2007), Lazzari et al. (2012) 
+    case ( BACT1,BACT2 )  ! Vichi et al. (2004,2007), Lazzari et al. (2012) 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-==--=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-
       ! Nutrient limitation (intracellular, eq. 51 Vichi et al. 2007)
@@ -344,7 +344,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   select case ( p_version)
-    case ( 1 ) ! Polimene et al. (2006)
+    case ( BACT3 ) ! Polimene et al. (2006)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Carbon excretion as Semi-Labile (R2) and Semi-Refractory (R7) DOC 
@@ -354,29 +354,31 @@
       ! to about 1/4 of the respiration rate, ~5% of uptake 
       ! (Stoderegger and Herndl, 1998)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      reR2c = max((ONE-(qpB1c(:)/p_qpc)),(ONE-(qnB1c(:)/p_qnc)))*ONE_PER_DAY
+      reR2c = max((ONE-(qpB1c(:)/p_qpc)),(ONE-(qnB1c(:)/p_qnc)))*p_rec
       reR2c = max(ZERO,reR2c)*B1c(:)
       reR7c = rug*p_pu_ea_R7
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics
       ! Direct uptake of ammonium if N excretion rate is negative (ren < 0)
-      ! This rate is assumed to occur with a timescale of 1 day
+      ! This rate is assumed to occur with a timescale p_ruen=1 day
+      ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ren = (qnB1c(:) - p_qnc)*B1c(:)*ONE_PER_DAY
+      ren = (qnB1c(:) - p_qnc)*B1c(:)*p_ruen
       call flux_vector(iiPel, ppB1n, ppN4n,       ren*insw_vector( ren))
       call flux_vector(iiPel, ppN4n, ppB1n, -eN4n*ren*insw_vector(-ren))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
       ! Direct uptake of phosphate if P excretion rate is negative (rep < 0)
-      ! This rate is assumed to occur with a timescale of 1 day
+      ! This rate is assumed to occur with a timescale of p_ruep=1 day
+      ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rep  =  (qpB1c(:) - p_qpc)*B1c(:)* ONE_PER_DAY
+      rep  =  (qpB1c(:) - p_qpc)*B1c(:)*p_ruep
       call flux_vector(iiPel, ppB1p, ppN1p,       rep*insw_vector( rep))
       call flux_vector(iiPel, ppN1p, ppB1p, -eN1p*rep*insw_vector(-rep))
 
-    case ( 2 ) ! Vichi et al. 2007
+    case ( BACT1 ) ! Vichi et al. 2007
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! There is no Carbon excretion in Vichi et al. 2007
@@ -387,22 +389,24 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics
       ! Direct uptake of ammonium if N excretion rate is negative (ren < 0)
-      ! This rate is assumed to occur with a timescale of 1 day
+      ! This rate is assumed to occur with a timescale p_ruen=1 day
+      ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ren  =  (qnB1c(:) - p_qnc)*B1c(:)*ONE_PER_DAY
+      ren  =  (qnB1c(:) - p_qnc)*B1c(:)*p_ruen
       call flux_vector(iiPel, ppB1n, ppN4n,       ren*insw_vector( ren))
       call flux_vector(iiPel, ppN4n, ppB1n, -eN4n*ren*insw_vector(-ren))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
       ! Direct uptake of phosphate if P excretion rate is negative (rep < 0)
-      ! This rate is assumed to occur with a timescale of 1 day
+      ! This rate is assumed to occur with a timescale of p_ruep=1 day
+      ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rep  =  (qpB1c(:) - p_qpc)*B1c(:)* ONE_PER_DAY
+      rep  =  (qpB1c(:) - p_qpc)*B1c(:)*p_ruep
       call flux_vector(iiPel, ppB1p, ppN1p,       rep*insw_vector( rep))
       call flux_vector(iiPel, ppN1p, ppB1p, -eN1p*rep*insw_vector(-rep))
 
-    case ( 3 ) ! Vichi et al. 2004
+    case ( BACT2 ) ! Vichi et al. 2004
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium remineralization  (Eq. 28 Vichi et al. 2004, note that there 
@@ -418,7 +422,7 @@
       ! from Ammonium and Nitrate when N is not balanced (huln<0)
       ! (nitrate uptake with ammonium inhibition)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rumn3 = p_qun*N3n(:)*B1c(:)*p_lN4/(p_lN4+ N4n(:))  
+      rumn3 = p_qun*N3n(:)*B1c(:)*(ONE-eN4n)
       rumn4 = p_qun*N4n(:)*B1c(:)
       rumn  = rumn3 + rumn4
       ren   = max(-rumn,huln)*insw_vector(-huln)

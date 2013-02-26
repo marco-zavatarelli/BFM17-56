@@ -104,7 +104,6 @@
 AssignPelBenFluxesInBFMFlag = .TRUE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
                ChlLightFlag = 2
-           ChlSynthesisFlag = 1
         ProductionLightFlag = 1
           LightLocationFlag = 3
           check_fixed_quota = 0
@@ -221,13 +220,10 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
 /
 
-
-
 !-------------------------------------------------------------------------!
 !NAMELIST Settling_parameters
 !-------------------------------------------------------------------------!
 ! BURIAL VELOCITIES into the sediment
-!  : for mem_Settling filled by InitSettling
 ! NAME         [UNIT]/KIND            DESCRIPTION
 ! p_burvel_R6     [m/d]              Bottom Burial Velocity for detritus 
 ! p_burvel_R2     [m/d]              Bottom Burial Velocity for dissolved
@@ -243,9 +239,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 
 
 !-------------------------------------------------------------------------!
-!NAMELIST Settling_parameters
-!-------------------------------------------------------------------------!
-! List of parameters values for the Carbonate System modules
+!NAMELIST CO2_parameters 
 !-------------------------------------------------------------------------!
 ! CARBONATE SYSYEM SETTING
 ! NAME           [UNIT]/KIND             DESCRIPTION
@@ -272,7 +266,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
 !              ----------------------------------------------------- 
 ! Caconc0        [mol/m3]         Calcium ion concentration 
-!                                 ["Seawater : Its composition, properties and behaviour" (2nd Edition), Open University Course Team, 1995]
+!                                 ["Seawater : Its composition, properties and behaviour" 
+!                                 (2nd Edition), Open University Course Team, 1995]
 !                                 Seawater concentration    = 412 mg / l -> atomic weight             = 40.078 g / mol
 !                                 therefore, concentration  = 10.279 mmol / l = 10.279 mol / m3
 ! Canorm          logical         Normalize Calcium ion concentration by sea water salinity
@@ -311,56 +306,66 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !-------------------------------------------------------------------------!
 !NAMELIST PelBac_parameters
 !-------------------------------------------------------------------------!
-!  PELAGIC BACTERIA !!! REVISE CONTENT of description
+!  PELAGIC BACTERIA 
 !
 ! NAME         [UNIT]/KIND            DESCRIPTION
-! p_version    numeric         Switch for DOM uptake parameterization
-!                              1 : Polimene et al., 2006
-!                              2 : BFM standard version
+! p_version   integer         Switch for bacteria parameterization
+!                              1 : Baretta-Bekker et al. 1995; 
+!                                  Vichi et al., 2007
+!                              2 : Vichi et al., 2004
+!                              3 : Polimene et al., 2006
 ! p_q10                        Q10-value (temperature dependency)
-! p_chdo      [mmol/m3]        Michaelis const for O2 dependence
-! p_sd        [1/d]            Independent specific mortality 
-! p_sd2       [1/d]            Density dependent mortality (value: 0.009)
-! p_suR1      [1/d]            Specific potential DOM availability 
-! p_suR2      [1/d]            Specific potential DOM availability 
-! p_suR6      [1/d]            Availability of POM 
-! p_sum       [1/d]            Specific potential uptake 
-! p_pu_ra     [-]              Activity respiration
-! p_pu_ra_o   [-]              Decrease in Ass. efficiency at low O2 conc
+! p_chdo      [mmol/m3]        Half-saturation constant for O2 limitation
+! p_sd        [1/d]            Specific mortality rate
+! p_sd2       [1/d]            Density dependent specific mortality rate
+! p_suhR1     [1/d]            Specific potential uptake for nutrient-rich DOM
+! p_sulR1     [1/d]            Specific potential uptake for nutrient-poor DOM
+! p_suR2      [1/d]            Specific potential uptake for semi-labile DOC
+! p_suR3      [1/d]            Specific potential uptake for semi-refractory DOC
+! p_suR6      [1/d]            Specific potential uptake for POM (1/d)
+! p_sum       [1/d]            Potential specific growth rate
+! p_pu_ra     [-]              Activity respiration fraction
+! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
 ! p_srs       [1/d]            Specific rest respiration 
-! p_qnc       [model units]    Optimal N/C ratio (model units) 45:9:1
-! p_qpc       [model units]    Optimal P/C ratio (model units) C:N:P
-! p_qlnc      [model units]    Minimal N/C ratio (model units) 45:9:1 <BFM>
-! p_qlpc      [model units]    Minimal P/C ratio (model units) C:N:P (BFM>
-! p_qun       [mmol/mgC/day]   nutrient affinity <BFM>
-! p_qup       [mmol/mgC/day]   nutrient affinity <BFM>
-! p_lN4                        ammonium conc. at which nutrate uptake are equal (BFM)
-! p_pu_ea_R7  [-]              excretion of reg. org. met.  <POLIMENE>
+! p_qnc       [model units]    Optimal N/C ratio 
+! p_qpc       [model units]    Optimal P/C ratio 
+! p_qlnc      [model units]    Minimal N/C ratio 
+! p_qlpc      [model units]    Minimal P/C ratio 
+! p_qun       [mmol N/mgC/day] Membrane affinity for N 
+! p_qup       [mmol P/mgC/day] Membrane affinity for N 
+! p_chn       [mmol N/m3]      half saturation ammonium conc. for uptake
+! p_chp       [mmol P/m3]      half saturation phosphate conc. for uptake
+! p_ruen      [1/d]            relaxation timescale for N uptake/remin.
+! p_ruep      [1/d]            relaxation timescale for P uptake/remin.
+! p_rec       [1/d]            relaxation timescale for semi-labile excretion
+! p_pu_ea_R7  [-]              excretion of semi-refractory DOC
 !-------------------------------------------------------------------------!
 &PelBac_parameters
-     p_version = 2
+     p_version = 1
          p_q10 = 2.95
         p_chdo = 30.0
           p_sd = 0.1
-       p_suhr1 = 0.3
-        p_sur6 = 0.01
-        p_sur7 = 0.0
+         p_sd2 = 0.0
+       p_suhR1 = 0.3
+       p_sulR1 = 0.0
+        p_suR2 = 0.0
+        p_suR7 = 0.0
+        p_suR6 = 0.01
          p_sum = 8.38
        p_pu_ra = 0.6
      p_pu_ra_o = 0.2
          p_srs = 0.01
-         p_qpc = 0.00185
          p_qnc = 0.0167
-         p_chn = 5.00
-         p_chp = 1.00
-        p_qlpc = 0.00185
+         p_qpc = 0.00185
         p_qlnc = 0.0167
+        p_qlpc = 0.00185
          p_qun = 0.0
          p_qup = 0.0
-         p_ln4 = 0.0
-         p_sd2 = 0.0
-       p_sulr1 = 0.0
-        p_sur2 = 0.0
+         p_chn = 5.00
+         p_chp = 1.00
+         p_rec = 1.0
+        p_ruen = 1.0
+        p_ruep = 1.0
     p_pu_ea_r7 = 0.0
 	filename_nml_conf = 'Pelagic_Ecology.nml',
 /
@@ -372,105 +377,113 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  PELAGIC PHYTOPLANKTON
 ! NAME         [UNIT]/KIND            DESCRIPTION
 !        :     --------- Physiological parameters -----------------
-!  p_q10                      Doubling temperature
-!  p_sum                      Maximal productivity at 10 degrees C
-!  p_srs                      Respiration rate at 10 degrees C
-!  p_sdmo                     Max.specific nutrient-stress lysis rate
-!  p_thdo                     Half value for nutrient stress lysis
-!  p_seo                      Extra lysis rate for P4
-!  p_sheo                     Half value for density stress lysis
-!  p_pu_ea                    Fraction of pp excreted as PLOC/PDET
-!  p_pu_ra                    Activity respiration rate
-!  p_switchR1R2               Switch for R1-R2 excretion
+!  p_q10       [-]            Characteristic Q10 coefficient
+!  p_qtemp     [-]            Cut-off threshold for temperature factor
+!  p_sum       [1/d]          Maximal productivity at 10 degrees C
+!  p_srs       [1/d]          Respiration rate at 10 degrees C
+!  p_sdmo      [1/d]          Max.specific nutrient-stress lysis rate
+!  p_thdo      [-]            Half saturation constant for nutrient stress lysis
+!  p_seo       [1/d]          Extra lysis rate (biomass density-dependent)
+!  p_sheo      [mgC/3]        Half saturation constant for extra lysis
+!  p_pu_ea     [-]            Excreted fraction of primary production
+!  p_pu_ra     [-]            Activity respiration fraction
+!  p_switchR1R2[0-1]          Switch for R1-R2 excretion
 !
 !              --------- Nutrient parameters in phytoplankton -----------------
-!
-!  p_netgrowth                logical switch for nutrient-limited growth (true is default)
-!  p_limnut                   switch for nut. limitation (Liebig is default)
-!  p_chPs      [mmolSi/m3]    half-value of SIO4-lim 
-!  p_qslc                     Minimum quotum Si in PI
-!  p_qsRc                     Reference quotum Si in PI
-!  p_qus                      affinity of PI for Si
-!  p_xqn                       
-!  p_alpha_chl                Initial slope P-I curve
-!
+!  p_netgrowth [T or F]       Logical switch for nutrient-limited growth
+!                             .T. nutrient-balanced growth (Vichi et al.2004)
+!                             .F. nutrient-stress carbon excretion
+!                               (Baretta-Bekker et al.1995 and Vichi et al.2007)
+!  p_limnut    [1-3]          Switch for N-P co-limitation
+!                             0. Geometric mean
+!                             1. Threshold (Liebig-like)
+!                             2. Combined
+!                   ---- N limitation control ----
+!  p_qun       [m3/mgC/d]     Membrane affinity for N
+!  p_lN4       [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
+!  p_qnlc      [mmolN/mgC]    Minimum quotum Si:C 
+!  p_qnRc      [mmolN/mgC]    Reference quotum Si:C
+!  p_xqn       [-]            Multiplication factor for luxury storage
+!                   ---- P limitation control ----
+!  p_qup       [m3/mgC/d]     Membrane affinity for P
+!  p_qplc      [mmolP/mgC]    Minimum quotum Si:C 
+!  p_qpRc      [mmolP/mgC]    Reference quotum Si:C
+!  p_xqp       [-]            Multiplication factor for luxury storage
+!                   ---- Si limitation control ----
+!  p_switchSi  [1-2]          Switch for Silica limitation
+!                             2. Si limitation is controlled by external Si conc.
+!                             1. Si limitation is controlled by internal quota
+!  p_chPs      [mmolSi/m3]    Half saturation conc. for dissolved Si limitation
+!  p_Contois   [>=0]          If >0, use Contois formulation
+!  p_qus       [m3/mgC/d]     Membrane affinity for Si
+!  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C 
+!  p_qsRc      [mmolSi/mgC]   Reference quotum Si:C
+!                   ---- nutrient stressed sinking ----
+!  p_esNI      [-]            Nutrient stress threshold for sinking
+!  p_res       [m/d]          Maximum Sinking vel city (m/d)
 !              --------- Chlorophyll parameters -----------
-!                             skel: Skeletonema costatum pav: Pavlova lutheri
-!                             syn: Synechoccus sp. (significant alpha decrease with irradiance)
-!                             gyr: Gyrodinium sp. iso: Isochrysis galbana
-!                                          skel     iso      syn      gyr
-!  p_sdchl     [1/d]          Specific turnover rate for Chla (d-1)
-!                             p_qchlc =    0.03,    0.025,   0.1,     0.02    # Maximum quotum Chla:C
-!                                        +-0.024  +-0.001  +-0.003  +-0.004
-!                             Thalassiosira sp. (0.05+-0.01)
-!                                            skel     pav      syn      gyr
-!  p_esNI                     Nutrient stress threshold for Sinking
-!                             p_alpha_chl = 1.0d-5, 0.46d-5*2.0, 2.0d-5, 0.68d-5 # Initial slope P-I curve
-!                              Thalassiosira sp. (0.48-0.63)
-!  p_res                      Maximum Sinking velocity (m/d)
+!  p_switchChl [1-4]          Switch for Chla-a synthesis 
+!  p_sdchl     [1/d]          Specific turnover rate for Chla 
+!  p_alpha_chl [mgC s m2/     Initial slope of the P-E curve
+!               mgChl/uE] 
 !  p_qchlc     [mgChla/mgC]   Fixed/Maximum quotum Chla:C
 !  p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
-!  p_Contois                  Use Contois formulation
-!  p_tochl_relt  [1/d]        Relaxation rate for chl:C
-!  p_EpEk_or                  Optimal E_PAR/E_K
-!
-!              --------- silicate limitation control -----------
-!  p_qus > 0.0                silica limitation is controlled by internal quoata
-!  p_chPs > 0.0               silica limitation is controlled by external concentration of N5s
-!  p_qus==0                   there is no silica component defined in cell  
-!  p_chPs==0                  there is no silica component defined in cell
-!  p_qus                      has prefwerence above p_chPs!
+!  p_tochl_relt  [1/d]        Relaxation rate towards maximum Chla:C
+!  p_EpEk_or   [-]            Optimal value of E_PAR/E_K
 !              --------- Iron parameters -----------
-!                             conc.=[umol/m3] ratio=[umol Fe/mg C]
-!  p_qflc                     min Fe:C ratio derived from 3 umol Fe/mol C
+!  p_quf       [m3/mgC/d]     Membrane affinity for Fe
+!  p_qflc      [umolFe/mgC]   Minimum quotum Fe:C derived from 3 umol Fe/mol C
 !                             Sunda & Huntsman (1997), Nature, 390, p 389-392
-!              --------- Light parameters -----------
+!  p_qfRc      [umolFe/mgC]   Reference quotum Fe:C 
+!  p_xqf       [-]            Multiplication factor for luxury storage
+!              --------- Light parameters ERSEM-II -----------
 !  p_iswLtyp                  Shape of the productivity function
 !  p_isw                      Switch between parameterizations
 !  p_chEPLi    [W/m2]         Maximum Iopt
 !  p_clEPLi    [W/m2]         Minimum Iopt
-!                             : p_clEPLi    =      4.0,    6.0,   5.0,   8.0 
 !  p_ruEPLi    [1/d]          Maximum daily shift in Iopt (1/d)
-!                             : p_ruEPLi    =     0.25,   0.25,   0.5,   0.125
-!  p_addepth                  Adaptation depth. Meaningless with high-res models
+!  p_addepth   [m]            Adaptation depth. Meaningless with high-res models
 !
 !-------------------------------------------------------------------------!
-&Phyto_parameters
 !               P1      P2      P3      P4
-     p_limnut = 1,      1,      1,      1
-  p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
+&Phyto_parameters
         p_q10 = 2.0,    2.0,    2.0,    2.0
+       p_temp = 0.0,    0.0,    0.0,    0.0
         p_sum = 2.5,    3.0,    3.5,    0.5
         p_srs = 0.1,    0.05,   0.1,    0.1
        p_sdmo = 0.05,   0.05,   0.05,   0.0
+       p_thdo = 0.1,    0.1,    0.1,    0.1
         p_seo = 0.0,    0.0,    0.0,    0.0
        p_sheo = 0.0,    0.0,    0.0,    100.0
       p_pu_ea = 0.05,   0.1,    0.1,    0.15
       p_pu_ra = 0.1,    0.1,    0.2,    0.1
  p_switchR1R2 = 1.0,    1.0,    1.0,    1.0
+  p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
+     p_limnut = 1,      1,      1,      1
+        p_qun = 0.025,  0.025,  0.025,  0.025
+        p_lN4 = 1.0,    0.5,    0.1,    1.0
        p_qnlc = 6.87e-3,6.87e-3,6.87e-3,6.87e-3
        p_qnRc = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
+        p_qup = 2.5e-3, 2.5e-3, 2.5e-3, 2.5e-3
        p_qplc = 4.29e-4,4.29e-4,4.29e-4,4.29e-4
        p_qpRc = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
-       p_qslc = 4.3e-3, 0.0,    0.0,    0.0
-       p_qsRc = 8.5e-3, 0.0,    0.0,    0.0
-        p_qun = 0.025,  0.025,  0.025,  0.025
-        p_qup = 2.5e-3, 2.5e-3, 2.5e-3, 2.5e-3
-        p_qus = 0.0,    0.0,    0.0,    0.0
-       p_esNI = 0.7,    0.75,   0.75,   0.75
-       p_thdo = 0.1,    0.1,    0.1,    0.1
-       p_res  = 0.0,    0.0,    0.0,    0.0
-       p_lN4  = 1.0,    0.5,    0.1,    1.0
+   p_switchSi = 1,      0,      0,      0
        p_chPs = 0.3,    0.0,    0.0,    0.0
     p_Contois = 0.0,    0.0,    0.0,    0.0
-  p_alpha_chl = 5.8e-6, 1.1e-5, 1.1e-5, 6.8e-6
+        p_qus = 0.0,    0.0,    0.0,    0.0
+       p_qslc = 4.3e-3, 0.0,    0.0,    0.0
+       p_qsRc = 8.5e-3, 0.0,    0.0,    0.0
+       p_esNI = 0.7,    0.75,   0.75,   0.75
+       p_res  = 0.0,    0.0,    0.0,    0.0
+  p_switchChl = 1,      1,      1,      1
       p_sdchl = 0.2,    0.2,    0.2,    0.2
+  p_alpha_chl = 5.8e-6, 1.1e-5, 1.1e-5, 6.8e-6
+      p_qchlc = 0.025,  0.015,  0.02,   0.02
+    p_epsChla = 0.03,   0.03,   0.03,   0.03
     p_EpEk_or = 0.0,    0.0,    0.0,    0.0
  p_tochl_relt = 0.0,    0.0,    0.0,    0.0
-      p_qchlc = 0.05,   0.03,   0.07,   0.02
-    p_epsChla = 0.03,   0.03,   0.03,   0.03
 	filename_nml_conf = 'Pelagic_Ecology.nml',
 /
 
@@ -496,7 +509,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !NAMELIST MicroZoo_parameters
 !-------------------------------------------------------------------------!
 !  MICRO-ZOOPLANKTON 
-!  The variable Z5 represents microozooplankton and Z6 represents heterotrophic nanoflagellates (HNAN)
+!  
 ! NAME         [UNIT]/KIND           DESCRIPTION
 ! p_q10                        Q10 value
 ! p_srs                        Respiration rate at 10 degrees Celsius
@@ -507,7 +520,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_pu_ea                      Activity excretion
 ! p_chro                       Oxygen saturation where respiration is 0.5
 ! p_chuc                       Food concentration where total uptake rate is 0.5
-! p_minfood                    Concentration below which feeding on a particular foodsource is depressed
+! p_minfood                    Concentration below which feeding on a 
+!                              particular foodsource is depressed
 ! p_qn_mz                      Maximum quotum P
 ! p_qp_mz                      Maximum quotum N
 ! p_suPI(P1)   [1/d]           relative P1 uptake by zoo
@@ -519,7 +533,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_suB1       [1/d]           relative B1 uptake by zoo
 !-------------------------------------------------------------------------!
 &MicroZoo_parameters
-!               Z5      Z6
+!              Z5      Z6
        p_q10 =  2.0,    2.0
        p_srs =  0.02,   0.02
        p_sum =  2.0,    4.0
@@ -612,6 +626,12 @@ p_puMEZ(2,:)=   0.0,    1.0
 ! p_sN3O4n
 ! p_rPAo
 ! p_sR6N5
+!              --------- Iron parameters -----------
+! p_q10R6N7   [-]              Q10 temperature dependence
+! p_sR6N7     [1/d]            Specific remineralization rate of particulate
+! p_sR1N7     [1/d]            Specific remineralization rate of dissolved
+! p_scavN7f   [1/d]            Specific scavenging rate
+! p_N7fsol    [umolFe/m3]      Solubility concentration
 !-------------------------------------------------------------------------!
 &PelChem_parameters
     p_sN4N3 = 0.01
@@ -754,3 +774,7 @@ p_puMEZ(2,:)=   0.0,    1.0
    use_external_data = .false.,
 	filename_nml_conf = 'Standalone.nml',
 /
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

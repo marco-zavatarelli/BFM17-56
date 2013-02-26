@@ -16,11 +16,6 @@
   subroutine PhytoDynamics(phyto)
 !
 ! !USES:
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Modules (use of ONLY is strongly encouraged!)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants, ONLY: MW_C
 #ifdef NOPOINTERS
@@ -40,15 +35,9 @@
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag, &
-                        LightLocationFlag, ChlSynthesisFlag
+                        LightLocationFlag
   use mem_Phyto
-
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following vector functions are used:eTq_vector, MM_vector, insw_vector
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: eTq_vector, MM_vector, insw_vector
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Implicit typing is never allowed
@@ -56,26 +45,23 @@
   IMPLICIT NONE
 
 ! !INPUT:
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: phyto
-
-
 !  
 !
 ! !AUTHORS
-!   ERSEM group + J.G. Baretta-Bekker + W.Ebenhoeh
-!     P. Ruardij (NIOZ)
-!
-!
+!   ERSEMII version by J.W. Baretta, H. Baretta-Bekker and W. Ebenhoeh
+!   Additional parametrizations by P. Ruardij, M. Vichi, M. Zavatarelli,
+!   P. Lazzari, G. Cossarini 
+!   Dynamical allocation by G. Mattia 
 !
 ! !REVISION_HISTORY
 !   !
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, M. Vichi
-!   (rua@nioz.nl, vichi@bo.ingv.it)
-!
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)!!
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
 !   the Free Software Foundation;
@@ -97,12 +83,14 @@
   integer :: ppphytoc, ppphyton, ppphytop, ppphytos, ppphytol 
   real(RLEN),allocatable,save,dimension(:) :: phytoc,phyton,phytop,phytos,phytol
                                                                                                                                                              
-  real(RLEN),allocatable,save,dimension(:) :: r,tmp,et,sum,sadap,sea,sdo,rugc,sra,srs, &
-                                       srt,slc,run,pe_R6,rupp,rump,misp,rupn, &
-                                       rumn3,rumn4,rumn,netgrowth,misn,cqun3
-  real(RLEN),allocatable,save,dimension(:) :: rums,rups,miss,tN,fpplim,iN,iN1p,iNIn,eN5s,rrc,rr1c, &
-                                       rr1n,rr1p,rr6c,rr6n,rr6p,rr6s,runn,runn3, &
-                                       runn4,runp,runs,Irr,rho_Chl,rate_Chl,seo,flPIR2c
+  real(RLEN),allocatable,save,dimension(:) :: r,tmp,et,sum,sadap,sea,sdo,rugc,  &
+                                       srt,slc,run,pe_R6,rupp,rump,misp,rupn,   &
+                                       rumn3,rumn4,rumn,netgrowth,misn,cqun3,   &
+                                       sra,srs
+  real(RLEN),allocatable,save,dimension(:) :: rums,rups,miss,tN,fpplim,iN,iN1p, &
+                                       rr1n,rr1p,rr6c,rr6n,rr6p,rr6s,runn,runn3,&
+                                       runn4,runp,runs,Irr,rho_Chl,rate_Chl,seo,&
+                                       flPIR2c,iNIn,eN5s,rrc,rr1c
   real(RLEN),allocatable,save,dimension(:) :: iN5s,chl_opt
 #ifdef INCLUDE_PELFE
   integer :: ppphytof
@@ -275,8 +263,8 @@
   ! Nutrient limitations (intracellular and extracellular)
   ! fpplim is the combined non-dimensional factor limiting photosynthesis
   ! Note for silicate limitation:
-  !  silica_control =1 : external regulation of silica limitation 
-  !  silica_control =2 : internal regulation of silica limitation 
+  !  p_switchSi =1 : external regulation of silica limitation 
+  !  p_switchSi =2 : internal regulation of silica limitation 
   ! The standard Michaelis-Menten formulation contains the Contois parameter
   ! p_Contois=0: standard Michaelis Menten Formulation
   ! 0<p_Contois<=1: The Contois formulation is active. 
@@ -288,13 +276,10 @@
   iNIn = min( ONE, max( p_small, ( qnPc(phyto,:) &
          - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
   if (ppphytos > 0) then
-     silica_control=1
-     if ( p_qus(phyto) > ZERO )  silica_control=2
      iN5s = min(ONE, max( p_small, ( qsPc(phyto,:) &
             - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
-     eN5s = min( ONE,N5s(:)/(N5s(:) + p_chPs(phyto)));
      eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
-     select case (silica_control) 
+     select case (p_switchSi(phyto)) 
        case (1)  ! external control
          fpplim = eN5s
        case (2) ! internal control
@@ -438,11 +423,9 @@
   call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )
   call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )
 
-
   call sourcesink_flux_vector( iiPel, ppphytoc,ppO3c, rrc )
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
   call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Potential-Net prim prod. (mgC /m3/d)
@@ -459,16 +442,10 @@
   ! based on affinity
   ! Ammonium preference is considered if p_lN4 /= 0
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  if (p_netgrowth(phyto)) then
-     cqun3  =   p_lN4(phyto)/( p_lN4(phyto)+ N4n(:))
-  else
-     cqun3 = p_lN4(phyto)
-  end if
+  cqun3  =   p_lN4(phyto)/( p_small + p_lN4(phyto)+ N4n(:))
   rumn3  =   p_qun(phyto)* N3n(:)* phytoc* cqun3  ! max pot. uptake of N3
   rumn4  =   p_qun(phyto)* N4n(:)* phytoc  ! max pot. uptake of N4
   rumn  =   rumn3+ rumn4  ! max pot. uptake of DIN
-
   rump  =   p_qup(phyto)* N1p(:)* phytoc  ! max pot. uptake of PO4
 
   if (p_netgrowth(phyto)) then
@@ -550,7 +527,7 @@
   ! Nutrient dynamics: SILICATE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if ( ppphytos > 0 )  then
-    select case (silica_control)
+    select case (p_switchSi(phyto))
     case (1)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Gross uptake of silicate excluding respiratory costs
@@ -608,7 +585,7 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    select case (ChlSynthesisFlag)
+    select case (p_switchChl(phyto))
       case (1) ! PELAGOS
            rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
                      p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
@@ -632,10 +609,10 @@
       case (4) ! NIOZ
           ! total synthesis, only when there is net production (run > 0)
           ! The fixed loss rate due to basal respiration is introduced to have 
-          ! mortality in the absence of light (< 1 uE/m2/s)
+          ! chl loss in the absence of light (< 1 uE/m2/s)
            rho_Chl = p_qchlc( phyto)* min(ONE, p_sum(phyto)* eiPI(phyto,:)* phytoc/( &
                      p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
-           rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_esNI(phyto)-tN)) &
+           rate_Chl = rho_Chl*run - p_sdchl(phyto)*phytol*max( ZERO, ( p_thdo(phyto)-tN)) &
                      -srs * phytol * ONE/(Irr+ONE)
     end select
     call flux_vector( iiPel, ppphytol,ppphytol, rate_Chl )
