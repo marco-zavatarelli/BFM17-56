@@ -23,7 +23,8 @@
 LOGFILE=logfile_$$.log
 LOGDIR="Logs"
 OPTS="hvgcep:m:k:b:n:a:r:ft:x:l:q:"
-CONFDIR="build/Configurations"
+CONFDIR="build/configurations"
+SCRIPTSDIR="build/scripts/conf"
 MKMF="mkmf"
 GMAKE="gmake"
 PERL="perl"
@@ -242,7 +243,7 @@ if [ ${GEN} ]; then
     rm -rf *
     
     # generate BFM Memory Layout files and namelists
-    ${PERL} -I${BFMDIR}/build/Scripts/Conf/ ${BFMDIR}/build/Scripts/Conf/${cmd_gen} \
+    ${PERL} -I${BFMDIR}/${SCRIPTSDIR}/ ${BFMDIR}/${SCRIPTSDIR}/${cmd_gen} \
         ${CPPDEFS} \
         -r ${BFMDIR}/${CONFDIR}/${myGlobalMem}  \
         -n ${BFMDIR}/${CONFDIR}/${myGlobalNml}  \
@@ -286,7 +287,7 @@ if [ ${GEN} ]; then
         # some macros are default with NEMO
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${cppdefs}"
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
-            ${BFMDIR}/build/Scripts/Conf/Default_bfm.fcm > ${blddir}/bfm.fcm
+            ${BFMDIR}/${SCRIPTSDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
 
         # Move BFM Layout files to target folders 
@@ -389,7 +390,7 @@ if [ ${EXE} ]; then
             -e "s,_VERBOSE_,${VERBOSE},g" \
             -e "s,_PRESET_,${PRESET},g" \
             -e "s,_QUEUE_,${QUEUE},g"   \
-            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/build/Scripts/Conf/runscript > ${exedir}/runscript_${EXP}
+            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTSDIR}/runscript > ${exedir}/runscript_${EXP}
         printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
     fi
 fi
