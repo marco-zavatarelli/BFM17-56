@@ -6,42 +6,26 @@
 ! !ROUTINE: MicroZoo
 !
 ! DESCRIPTION
-!   The parameter values for the microzooplankton submodel.
+!   Definition and reading of the parameters for the microzooplankton submodel
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   module mem_MicroZoo
 !
 ! !USES:
-
   use global_mem
   use mem,  ONLY: iiMicroZooPlankton, &
                   iiMesoZooPlankton, iiPhytoPlankton
-
 !  
 !
 ! !AUTHORS
-!   ERSEM group, Hanneke Baretta-Bekker
-!
-!
-! !REVISION_HISTORY
-!   by Piet Ruardij at Thu Mar 16 08:34:04 CET 2006
-!       s: BFMI
-!       d: 
-!	
-
-!
-!
+!   Original: Hanneke Baretta-Bekker and Job Baretta
+!   Additional parameterizations: P. Ruardij and M. Vichi
 !
 ! COPYING
 !   
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -65,30 +49,47 @@
   ! Default all is public
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   public
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! MicroZoo PARAMETERS (read from nml)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !-------------------------------------------------------------------------!
+  !NAMELIST MicroZoo_parameters
+  !-------------------------------------------------------------------------!
+  !  MICRO-ZOOPLANKTON
   !
-  !  The variable Z5 represents microozooplankton and Z6 represents
-  !  heterotrophic nanoflagellates (HNAN)
-  !
-  !
-  real(RLEN)  :: p_q10(iiMicroZooPlankton)  ! Q10 value
-  real(RLEN)  :: p_srs(iiMicroZooPlankton)  ! Respiration rate at 10 degrees Celsius
-  real(RLEN)  :: p_sum(iiMicroZooPlankton)  ! Max. rel daily uptake as a fraction of biomass
-  real(RLEN)  :: p_sdo(iiMicroZooPlankton)  ! Mortality due to oxygen limitation
-  real(RLEN)  :: p_sd(iiMicroZooPlankton)   ! Temperature independent mortality
-  real(RLEN)  :: p_pu(iiMicroZooPlankton)   ! Assimilation efficiency
-  real(RLEN)  :: p_pu_ea(iiMicroZooPlankton)  ! Activity excretion
-  real(RLEN)  :: p_chro(iiMicroZooPlankton)  ! Oxygen saturation where respiration is 0.5
-  real(RLEN)  :: p_chuc(iiMicroZooPlankton)  ! Food concentration where total uptake rate is 0.5
-  real(RLEN)  :: p_minfood(iiMicroZooPlankton)  ! Concentration below which feeding on a particular
-                                                !  foodsource is depressed
-  real(RLEN)  :: p_suB1(iiMicroZooPlankton)  ! /day   #relative B1 uptake by zoo
-  real(RLEN)  :: p_qn_mz(iiMicroZooPlankton)  ! Maximum quotum P
-  real(RLEN)  :: p_qp_mz(iiMicroZooPlankton)  ! Maximum quotum N
-  real(RLEN)  :: p_suPI(iiMicroZooPlankton,iiPhytoPlankton)    ! /day   #relative P uptake by zoo
-  real(RLEN)  :: p_suZI(iiMicroZooPlankton,iiMicroZooPlankton) ! /day   #relative Z uptake by zoo
+  ! NAME         [UNIT]/KIND           DESCRIPTION
+  ! p_q10        [-]             Q10 value for physiological rates
+  ! p_srs        [1/d]           Respiration rate at 10 degrees Celsius
+  ! p_sum        [1/d]           Potential growth rate
+  ! p_sdo        [1/d]           Mortality rate due to oxygen limitation
+  ! p_sd         [1/d]           Temperature independent mortality rate
+  ! p_pu         [-]             Assimilation efficiency
+  ! p_pu_ea      [-]             Fraction of activity excretion
+  ! p_chro       [mmolO2/m3]     Half-saturation oxygen concentration 
+  ! p_chuc       [mgC/m3]        Half-saturation Food concentration for Type II
+  ! p_minfood    [mgC/m3]        Half-saturation food concentration for
+  !                              preference factor
+  ! p_qnMIZc     [mmolN/mgC]     Maximum quotum P:C
+  ! p_qpMIZc     [mmolN/mgC]     Maximum quotum N:C
+  ! p_paPBA(z,b) [-]             Availability of pelagic Bacteria group b 
+  !                              to Zooplankton group z
+  ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
+  !                              to Zooplankton group z
+  ! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m 
+  !                              to Zooplankton group z
+  !-------------------------------------------------------------------------!
+  real(RLEN)  :: p_q10(iiMicroZooPlankton)  
+  real(RLEN)  :: p_srs(iiMicroZooPlankton)
+  real(RLEN)  :: p_sum(iiMicroZooPlankton)
+  real(RLEN)  :: p_sdo(iiMicroZooPlankton)
+  real(RLEN)  :: p_sd(iiMicroZooPlankton)
+  real(RLEN)  :: p_pu(iiMicroZooPlankton)
+  real(RLEN)  :: p_pu_ea(iiMicroZooPlankton)
+  real(RLEN)  :: p_chro(iiMicroZooPlankton)
+  real(RLEN)  :: p_chuc(iiMicroZooPlankton)
+  real(RLEN)  :: p_minfood(iiMicroZooPlankton)
+  real(RLEN)  :: p_qpMIZc(iiMicroZooPlankton)
+  real(RLEN)  :: p_qnMIZc(iiMicroZooPlankton)
+  real(RLEN)  :: p_paPBA(iiMicroZooPlankton)
+  real(RLEN)  :: p_paPPY(iiMicroZooPlankton,iiPhytoPlankton)
+  real(RLEN)  :: p_paMIZ(iiMicroZooPlankton,iiMicroZooPlankton)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -100,7 +101,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /MicroZoo_parameters/ p_q10, p_srs, p_sum, p_sdo, p_sd, p_pu, &
-    p_pu_ea, p_chro, p_chuc, p_minfood, p_suPI, p_suZI, p_suB1, p_qp_mz, p_qn_mz
+    p_pu_ea, p_chro, p_chuc, p_minfood, p_qnMIZc, p_qpMIZc,p_paPPY, p_paMIZ, p_paPBA
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -109,13 +110,13 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading MicroZoo parameters.."
-open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=MicroZoo_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=MicroZoo_parameters)
+  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+  write(LOGUNIT,*) "#  Reading MicroZoo parameters.."
+  open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
+  read(NMLUNIT,nml=MicroZoo_parameters,err=101)
+  close(NMLUNIT)
+  write(LOGUNIT,*) "#  Namelist is:"
+  write(LOGUNIT,nml=MicroZoo_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -128,7 +129,7 @@ open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitMicroZoo
   end module mem_MicroZoo
-!BOP
+!EOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

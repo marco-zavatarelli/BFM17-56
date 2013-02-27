@@ -24,8 +24,8 @@
   use mem
 
 
-  use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
-  use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
+  use mem_MesoZoo, ONLY: p_qnMEZc,p_qpMEZc
+  use mem_MicroZoo, ONLY: p_qnMIZc,p_qpMIZc
   use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
 #ifdef INCLUDE_BEN
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
@@ -100,14 +100,14 @@
      if ( j /= 0) then
         s = MicroZooplankton(i,iiN)
      else
-        s = MicroZooplankton(i,iiC)*p_qn_mz(i)
+        s = MicroZooplankton(i,iiC)*p_qnMIZc(i)
      end if
      totpeln(:)=totpeln(:) + s
      j=ppMicroZooPlankton(i,iiP)
      if ( j /= 0) then
         s = MicroZooplankton(i,iiP)
      else
-        s = MicroZooplankton(i,iiC)*p_qp_mz(i)
+        s = MicroZooplankton(i,iiC)*p_qpMIZc(i)
      end if
      totpelp(:)=totpelp(:) + s
   end do
@@ -118,14 +118,14 @@
      if ( j /= 0) then
         s = MesoZooPlankton(i,iiN)
      else
-        s = MesoZooPlankton(i,iiC)*p_qnMc(i)
+        s = MesoZooPlankton(i,iiC)*p_qnMEZc(i)
      end if
      totpeln(:)=totpeln(:) + s
     j=ppMesoZooPlankton(i,iiP)
      if ( j /= 0) then
         s = MesoZooPlankton(i,iiP)
      else
-        s = MesoZooPlankton(i,iiC)*p_qpMc(i)
+        s = MesoZooPlankton(i,iiC)*p_qpMEZc(i)
      end if
      totpelp(:)=totpelp(:) + s
    end do

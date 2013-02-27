@@ -8,11 +8,6 @@
 ! DESCRIPTION
 !   Initialization of model
 !   Allocation of memory for variables, reading of data files 
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   SUBROUTINE Initialize
@@ -22,11 +17,10 @@
                  iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
                  iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
   use mem_Param
-!  use mem_WindOxReaeration_3
   use mem_PelGlobal
   use mem_PelChem
   use mem_PelBac
-  use mem_MesoZoo,p_qnMc=>p_qnc,p_qpMc=>p_qpc
+  use mem_MesoZoo
   use mem_MicroZoo
   use mem_Phyto
   use mem_PhotoAvailableRadiation
@@ -93,10 +87,8 @@
 !
 !
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
-
       InitializeModel=0
+
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Allocate Memory for All global variables
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -161,15 +153,15 @@
       ! In case of variable quota these values are recomputed every time-step
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
        do i = 1 , ( iiMicroZooPlankton)
-         if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qp_mz(i) 
-         if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qn_mz(i)
+         if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qpMIZc(i) 
+         if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qnMIZc(i)
        end do
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        ! Nutrient quota in omnivorous and herbivorous mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
-         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMc(i)
-         if ( ppMesoZooPlankton(i,iiN) == 0 ) qnZc(i,:)  =   p_qnMc(i)
+         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMEZc(i)
+         if ( ppMesoZooPlankton(i,iiN) == 0 ) qnZc(i,:)  =   p_qnMEZc(i)
        end do
 
 

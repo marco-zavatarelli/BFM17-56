@@ -87,23 +87,23 @@
   integer       :: i
   integer, save :: first =0
   integer       :: AllocStatus, DeallocStatus
-  real(RLEN),allocatable,save,dimension(:) :: put_u,et,eO2,rumc,rumn,rump,  &
+  real(RLEN),allocatable,save,dimension(:) :: sut,et,eO2,rumc,rumn,rump,  &
                                          rugc,rugn,rugp,runc,runn,runp, &
                                          rrsc,rrac,reac,rdc,rrtc,ruB1c,ruPIc,  &
-                                         ruZIc,rumB1c,rric,rr1c,rr6c,rr1p,rr1n, &
+                                         ruZIc,PBAc,rric,rr1c,rr6c,rr1p,rr1n, &
                                          rrip,rr6p,rep,rrin,zooc
   real(RLEN),allocatable,save,dimension(:)    :: rr6n,ren,pu_ra,r,tfluxc,tfluxn,tfluxp
-  real(RLEN),allocatable,save,dimension(:,:)  :: rumPIc,rumZIc
+  real(RLEN),allocatable,save,dimension(:,:)  :: PPYc,MIZc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if (first==0) then
      first=1
-     allocate(rumPIc(NO_BOXES,iiPhytoPlankton),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rumPIc"
-     allocate(rumZIc(NO_BOXES,iiMicroZooPlankton),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rumZIc"
-     allocate(put_u(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating put_u,"
+     allocate(PPYc(NO_BOXES,iiPhytoPlankton),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating PPYc"
+     allocate(MIZc(NO_BOXES,iiMicroZooPlankton),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating MIZc"
+     allocate(sut(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sut,"
      allocate(et(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating et"
      allocate(eO2(NO_BOXES),stat=AllocStatus)
@@ -142,8 +142,8 @@
      if (AllocStatus  /= 0) stop "error allocating ruPIc"
      allocate(ruZIc(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating ruZIc"
-     allocate(rumB1c(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rumB1c"
+     allocate(PBAc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating PBAc"
      allocate(rric(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating rric"
      allocate(rr1c(NO_BOXES),stat=AllocStatus)
@@ -201,42 +201,44 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate total potential food given the non-dim prey availability
-  ! and capture efficiency  with loops over all LFGs.
+  ! and capture efficiency with loops over all LFGs.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rumB1c = p_suB1(zoo)*B1c(:)*MM_vector(B1c(:), p_minfood(zoo))
-  rumc   = rumB1c
-  rumn   = rumB1c*qnB1c(:)
-  rump   = rumB1c*qpB1c(:)
+  rumc   = ZERO
+  rumn   = ZERO
+  rump   = ZERO
+  PBAc   = p_paPBA(zoo)*B1c(:)*MM_vector(B1c(:), p_minfood(zoo))
+  rumc   = rumc+PBAc
+  rumn   = rumn+PBAc*qnB1c(:)
+  rump   = rump+PBAc*qpB1c(:)
 
   do i = 1 ,iiPhytoPlankton
-     rumPIc(:,i) = p_suPI(zoo,i)*PhytoPlankton(i,iiC)* &
+     PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)* &
                    MM_vector(PhytoPlankton(i,iiC), p_minfood(zoo))
-    rumc = rumc + rumPIc(:,i)
-    rumn = rumn + rumPIc(:,i)*qnPc(i,:)
-    rump = rump + rumPIc(:,i)*qpPc(i,:)
+    rumc = rumc + PPYc(:,i)
+    rumn = rumn + PPYc(:,i)*qnPc(i,:)
+    rump = rump + PPYc(:,i)*qpPc(i,:)
   end do
 
   do i = 1, iiMicroZooPlankton
-     rumZIc(:,i) = p_suZI(zoo,i)*MicroZooPlankton(i,iiC)* &
+     MIZc(:,i) = p_paMIZ(zoo,i)*MicroZooPlankton(i,iiC)* &
                    MM_vector(MicroZooPlankton(i,iiC), p_minfood(zoo))
-    rumc = rumc + rumZIc(:,i)
-    rumn = rumn + rumZIc(:,i)*qn_mz(i,:)
-    rump = rump + rumZIc(:,i)*qp_mz(i,:)
+    rumc = rumc + MIZc(:,i)
+    rumn = rumn + MIZc(:,i)*qn_mz(i,:)
+    rump = rump + MIZc(:,i)*qp_mz(i,:)
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Calculate total food uptake (eq 38 Vichi et al. 2007) and proportion
-  ! of ingested food over potentialy available food (put_u)
+  ! Calculate total food uptake rate (eq 38 Vichi et al. 2007) and 
+  ! specific uptake rate considering potentially available food (sut)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rugc  = et*p_sum(zoo)*MM_vector(rumc, p_chuc(zoo))*zooc
-  put_u = rugc/rumc
+  sut = rugc/rumc
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-                                
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Total Gross Uptakes from every LFG
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Bacterioplankton
-  ruB1c = put_u*rumB1c
+  ruB1c = sut*PBAc
   call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, ppB1c, ppzooc, &
                                ruB1c         , tfluxC)
   call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, ppB1n, ppzoon, &
@@ -247,7 +249,7 @@
   rugp = ruB1c*qpB1c(:)
   ! Phytoplankton
   do i = 1, iiPhytoPlankton
-    ruPIc = put_u*rumPIc(:,i)
+    ruPIc = sut*PPYc(:,i)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
                 ppPhytoPlankton(i,iiC), ppzooc, ruPIc          , tfluxc)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
@@ -270,7 +272,7 @@
   end do
   ! Microzooplankton
   do i = 1, iiMicroZooPlankton
-    ruZIc = put_u*rumZIc(:,i)
+    ruZIc = sut*MIZc(:,i)
     ! Note that intra-group predation (cannibalism) is not added as a flux
     if ( i/= zoo) then
        call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
@@ -288,20 +290,17 @@
   ! Fluxes from microzooplankton
   ! The metabolic balance is the following:
   ! Ingestion = Growth + Excretion + Respiration
-  ! Assimilation efficiency p_pu = G/(G+R)
   ! Assimilation efficiency p_pu = G/I
   ! Excretion E = I*p_pu_ea
-  ! therefore R = (1-p_pu)*(1-p_pu_ea)*I
-  ! and it turns out that G < I  G = p_pu*(1-p_pu_ea)*I
+  ! therefore R = (1-p_pu-p_pu_ea)*I
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Rest, activity and total respiration fluxes
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rrsc = p_srs(zoo)*et*zooc
-  ! the activity respiration is derived from other constant parameters
-  ! rrac  = rugc*(ONE - p_pu(zoo) - p_pu_ea(zoo))
-  rrac = rugc*(ONE - p_pu(zoo))*(ONE - p_pu_ea(zoo))
+  ! the activity respiration is derived from the other constant parameters
+  rrac = rugc*(ONE - p_pu(zoo) - p_pu_ea(zoo))
   rrtc = rrsc + rrac
   call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
                                ppzooc, ppO3c, rrtc, tfluxC)
@@ -354,8 +353,8 @@
   runc = max(ZERO, rugc*(ONE - p_pu_ea(zoo)) - rrac)
   runn = max(ZERO, rugn*(ONE - p_pu_ea(zoo)) + rrsc*qn_mz(zoo,:))
   runp = max(ZERO, rugp*(ONE - p_pu_ea(zoo)) + rrsc*qp_mz(zoo,:))
-  ren  = max(ZERO, runn/(p_small + runc) - p_qn_mz(zoo))* runc
-  rep  = max(ZERO, runp/(p_small + runc) - p_qp_mz(zoo))* runc
+  ren  = max(ZERO, runn/(p_small + runc) - p_qnMIZc(zoo))* runc
+  rep  = max(ZERO, runp/(p_small + runc) - p_qpMIZc(zoo))* runc
   call fixed_quota_flux_vector(check_fixed_quota,iiPel, ppzoon, ppzoon, &
                                ppN4n, ren, tfluxN)
   call fixed_quota_flux_vector(check_fixed_quota,iiPel, ppzoop, ppzoop, &
@@ -363,14 +362,14 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! The following part is computed only if zooplankton has fixed 
-  ! nutrient quota and check_fixed_quota is set to 1                                                        
+  ! nutrient quota and check_fixed_quota is set to 1
   ! It controls all nutrient imbalances and gives a warning in case 
   ! there are nutrient leaks
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if ( check_fixed_quota == 1 ) then
-     r = tfluxC*p_qn_mz(zoo)
+     r = tfluxC*p_qnMIZc(zoo)
      call fixed_quota_flux_vector(check_fixed_quota, -iiN, 0, 0, 0, r, tfluxN)
-     r = tfluxC*p_qp_mz(zoo)
+     r = tfluxC*p_qpMIZc(zoo)
      call fixed_quota_flux_vector(check_fixed_quota, -iiP, 0, 0, 0, r, tfluxP)
   end if
 

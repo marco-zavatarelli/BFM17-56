@@ -95,16 +95,16 @@
   integer  :: i
   integer,dimension(NO_BOXES)  :: nut_lim
   integer, save :: first =0
-  real(RLEN),allocatable,save,dimension(:) :: put_u,temp_p,temp_n,rumc,rugc,eo,  &
+  real(RLEN),allocatable,save,dimension(:) :: sut,temp_p,temp_n,rumc,rugc,eo,  &
                                        et,rrs_c,rrs_n,rrs_p,rut_c, &
                                        rut_n,rut_p,rd_c,rd_n,rd_p,sdo,rdo_c,  &
                                        rdo_n,rdo_p,ret_c,ret_n,ret_p,ru_c, &
                                        ru_n,ru_p,pu_e_n,pu_e_p,prI,pe_R6c
 
-  real(RLEN),allocatable,save,dimension(:) :: pe_N1p,pe_N4n,ruPIc,ruMIZc,ruMEZc,rq6c, &
+  real(RLEN),allocatable,save,dimension(:) :: pe_N1p,pe_N4n,ruPPYc,ruMIZc,ruMEZc,rq6c, &
                                        rq6n,rq6p,rrc,ren,rep,tfluxc,tfluxn,    &
                                        tfluxp,zooc,zoop,zoon
-  real(RLEN),allocatable,save,dimension(:,:) :: rumPIc,rumMIZc,rumMEZc
+  real(RLEN),allocatable,save,dimension(:,:) :: PPYc,MIZc,MEZc
   real(RLEN),allocatable,save,dimension(:) :: net,r
   integer :: AllocStatus, DeallocStatus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -116,12 +116,12 @@
      first=1
      allocate(eo(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating eo"
-     allocate(rumPIc(NO_BOXES,4),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rumPIc"
-       allocate(rumMIZc(NO_BOXES,2),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rumMIZc"
-       allocate(rumMEZc(NO_BOXES,2),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rumMEZc"
+     allocate(PPYc(NO_BOXES,4),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating PPYc"
+       allocate(MIZc(NO_BOXES,2),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating MIZc"
+       allocate(MEZc(NO_BOXES,2),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating MEZc"
        allocate(zooc(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating zooc"
        allocate(zoop(NO_BOXES),stat=AllocStatus)
@@ -150,8 +150,8 @@
      if (AllocStatus  /= 0) stop "error allocating ruMEZc"
      allocate(ruMIZc(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating ruMIZc"
-     allocate(ruPIc(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating ruPIc"
+     allocate(ruPPYc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruPPYc"
      allocate(pe_N4n(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating pe_N4n"
      allocate(pe_N1p(NO_BOXES),stat=AllocStatus)
@@ -198,8 +198,8 @@
      if (AllocStatus  /= 0) stop "error allocating rut_c"
      allocate(et(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating et"
-     allocate(put_u(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating put_u"
+     allocate(sut(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating sut"
      allocate(temp_p(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating temp_p"
      allocate(temp_n(NO_BOXES),stat=AllocStatus)
@@ -239,24 +239,24 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rumc = ZERO
   do i = 1, iiPhytoPlankton
-    rumPIc(:,i) = p_puPI(zoo,i)*PhytoPlankton(i,iiC)
-    rumc = rumc + rumPIc(:,i)
+    PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)
+    rumc = rumc + PPYc(:,i)
   end do
   do i = 1, iiMicroZooPlankton
-    rumMIZc(:,i) = p_puMIZ(zoo,i)*MicroZooPlankton(i,iiC)
-    rumc = rumc + rumMIZc(:,i)
+    MIZc(:,i) = p_paMIZ(zoo,i)*MicroZooPlankton(i,iiC)
+    rumc = rumc + MIZc(:,i)
   end do
   do i = 1, iiMesoZooPlankton
-    rumMEZc(:,i) = p_puMEZ(zoo,i)*MesoZooPlankton(i,iiC)
-    rumc = rumc + rumMEZc(:,i)
+    MEZc(:,i) = p_paMEZ(zoo,i)*MesoZooPlankton(i,iiC)
+    rumc = rumc + MEZc(:,i)
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Calculate total food uptake (eq 38 Vichi et al. 2007) and proportion
-  ! of ingested food over potentialy available food (put_u)
+  ! Calculate total food uptake rate (eq 38 Vichi et al. 2007) and 
+  ! specific uptake rate considering potentially available food (sut)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rugc  = et*p_sum(zoo)*MM_vector(p_vum(zoo)*rumc, p_sum(zoo))*zooc
-  put_u = rugc/(p_small + rumc)
+  sut = rugc/(p_small + rumc)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Total Gross Uptakes from every LFG
@@ -266,31 +266,31 @@
   rut_p = ZERO
   ! Phytoplankton
   do i = 1, iiPhytoPlankton
-    ruPIc = put_u*rumPIc(:,i)
+    ruPPYc = sut*PPYc(:,i)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
-                ppPhytoPlankton(i,iiC), ppzooc, ruPIc          , tfluxc)
+                ppPhytoPlankton(i,iiC), ppzooc, ruPPYc          , tfluxc)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
-                ppPhytoPlankton(i,iiN), ppzoon, ruPIc*qnPc(i,:), tfluxn)
+                ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qnPc(i,:), tfluxn)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, &
-                ppPhytoPlankton(i,iiP), ppzoop, ruPIc*qpPc(i,:), tfluxp)
-    rut_c = rut_c + ruPIc
-    rut_n = rut_n + ruPIc*qnPc(i,:)
-    rut_p = rut_p + ruPIc*qpPc(i,:)
+                ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpPc(i,:), tfluxp)
+    rut_c = rut_c + ruPPYc
+    rut_n = rut_n + ruPPYc*qnPc(i,:)
+    rut_p = rut_p + ruPPYc*qpPc(i,:)
     ! Chl is transferred to the infinite sink
     call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
-               ppPhytoPlankton(i,iiL), -ruPIc*qlPc(i,:))
+               ppPhytoPlankton(i,iiL), -ruPPYc*qlPc(i,:))
     ! silicon constituent is transferred to biogenic silicate
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
-       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPIc*qsPc(i,:))
+       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qsPc(i,:))
 #ifdef INCLUDE_PELFE
     ! Fe constituent is transferred to particulate iron
     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
-       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPIc*qfPc(i,:))
+       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfPc(i,:))
 #endif
   end do
   ! Microzooplankton
   do i = 1, iiMicroZooPlankton
-    ruMIZc = put_u*rumMIZc(:,i)
+    ruMIZc = sut*MIZc(:,i)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
                ppMicroZooPlankton(i,iiC), ppzooc, ruMIZc           , tfluxc )
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
@@ -303,7 +303,7 @@
   end do
   ! Mesozooplankton
   do i = 1, iiMesoZooPlankton
-    ruMEZc = put_u*rumMEZc(:, i)
+    ruMEZc = sut*MEZc(:, i)
     ! Note that intra-group predation (cannibalism) is not added as a flux
     if ( i/= zoo ) then
       call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
@@ -323,7 +323,7 @@
   ! First compute the the energy cost of ingestion
   ! 1 - assimilation - egestion
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  prI = ONE - p_puI_u(zoo) - p_peI_R6(zoo)
+  prI = ONE - p_puI(zoo) - p_peI(zoo)
   rrc = prI*rut_c + p_srs(zoo)*et*zooc
   call flux_vector(iiPel, ppO2o, ppO2o, -rrc/MW_C)
   call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
@@ -340,9 +340,9 @@
   ! Total egestion including pellet production 
   ! Eq. 40 and 44 Vichi et al. 2007
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rq6c = p_peI_R6(zoo)*rut_c + rdo_c + rd_c
-  rq6n = p_peI_R6(zoo)*rut_n + qnZc(zoo,:)*(rdo_c + rd_c)
-  rq6p = p_peI_R6(zoo)*rut_p + qpZc(zoo,:)*(rdo_c + rd_c)
+  rq6c = p_peI(zoo)*rut_c + rdo_c + rd_c
+  rq6n = p_peI(zoo)*rut_n + qnZc(zoo,:)*(rdo_c + rd_c)
+  rq6p = p_peI(zoo)*rut_p + qpZc(zoo,:)*(rdo_c + rd_c)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Check the assimilation rate for Carbon, Nitrogen and Phosphorus
@@ -352,9 +352,9 @@
   ! Eq 41 in Vichi et al. 2007 (there is an error in the denominator,
   ! the \Iota_c should be \Iota_i, with i=n,p)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ru_c = p_puI_u(zoo)*rut_c
-  ru_n = (p_puI_u(zoo) + prI)* rut_n
-  ru_p = (p_puI_u(zoo) + prI)* rut_p
+  ru_c = p_puI(zoo)*rut_c
+  ru_n = (p_puI(zoo) + prI)* rut_n
+  ru_p = (p_puI(zoo) + prI)* rut_p
   pu_e_n  =   ru_n/( p_small+ ru_c)
   pu_e_p  =   ru_p/( p_small+ ru_c)
 
@@ -383,16 +383,16 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   WHERE     ( nut_lim==iiC )
       pe_R6c = ZERO
-      pe_N1p = max(ZERO, (ONE - p_peI_R6(zoo))*rut_p - p_qpc(zoo)*ru_c)
-      pe_N4n = max(ZERO, (ONE - p_peI_R6(zoo))*rut_n - p_qnc(zoo)*ru_c)
+      pe_N1p = max(ZERO, (ONE - p_peI(zoo))*rut_p - p_qpMEZc(zoo)*ru_c)
+      pe_N4n = max(ZERO, (ONE - p_peI(zoo))*rut_n - p_qnMEZc(zoo)*ru_c)
   ELSEWHERE ( nut_lim==iiP )
       pe_N1p = ZERO
-      pe_R6c = max(ZERO, ru_c - (ONE - p_peI_R6(zoo))*rut_p/p_qpc(zoo))
-      pe_N4n = max( ZERO, (ONE - p_peI_R6(zoo))*rut_n - p_qnc(zoo)*(ru_c - pe_R6c))
+      pe_R6c = max(ZERO, ru_c - (ONE - p_peI(zoo))*rut_p/p_qpMEZc(zoo))
+      pe_N4n = max( ZERO, (ONE - p_peI(zoo))*rut_n - p_qnMEZc(zoo)*(ru_c - pe_R6c))
   ELSEWHERE ( nut_lim==iiN )
       pe_N4n = ZERO
-      pe_R6c = max(ZERO, ru_c - (ONE - p_peI_R6(zoo))*rut_n/p_qnc(zoo))
-      pe_N1p = max(ZERO, (ONE - p_peI_R6(zoo))*rut_p - p_qpc(zoo)*(ru_c - pe_R6c))
+      pe_R6c = max(ZERO, ru_c - (ONE - p_peI(zoo))*rut_n/p_qnMEZc(zoo))
+      pe_N1p = max(ZERO, (ONE - p_peI(zoo))*rut_p - p_qpMEZc(zoo)*(ru_c - pe_R6c))
   END WHERE
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -426,9 +426,9 @@
   ! there are nutrient leaks
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   if ( check_fixed_quota == 1 ) then
-     ren = tfluxC*p_qnc(zoo)
+     ren = tfluxC*p_qnMEZc(zoo)
      call fixed_quota_flux_vector( check_fixed_quota,-iiN,0,0,0,ren,tfluxN)
-     rep = tfluxC*p_qpc(zoo)
+     rep = tfluxC*p_qpMEZc(zoo)
      call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,rep,tfluxP)
   end if
 

@@ -60,55 +60,69 @@
   ! Default all is public
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   public
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! MesoZoo PARAMETERS (read from nml)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !
-  !  The variable Z3 represents carnivorous mesozooplankton and Z4 represents
-  !  omnivorous mesozooplankton.
-  !
-  real(RLEN)  :: p_q10(iiMesoZooPlankton)  ! Doubling temperature
-  real(RLEN)  :: p_srs(iiMesoZooPlankton)  ! Respiration rate at 10 degrees C
-  real(RLEN)  :: p_sum(iiMesoZooPlankton)  ! Maximal productivity at 10 degrees C
-  real(RLEN)  :: p_sd(iiMesoZooPlankton)  ! Background natural mortality
-  real(RLEN)  :: p_vum(iiMesoZooPlankton)  ! Specific search volume
-  real(RLEN)  :: p_puI_u(iiMesoZooPlankton)  ! Assimilation efficiency
-  real(RLEN)  :: p_peI_R6(iiMesoZooPlankton)  ! Faeces production
-  real(RLEN)  :: p_sdo(iiMesoZooPlankton)  ! Fractional density-dependent mortality
-  real(RLEN)  :: p_sds(iiMesoZooPlankton)  ! Exponent of density-dependent mortality
-  real(RLEN)  :: p_qpc(iiMesoZooPlankton)  ! Quotum phosphate
-  real(RLEN)  :: p_qnc(iiMesoZooPlankton)  ! Quotum nitrate
-  real(RLEN)  :: p_puPI(iiMesoZooPlankton,iiPhytoPlankton)
-  real(RLEN)  :: p_puMIZ(iiMesoZooPlankton,iiMesoZooPlankton)
-  real(RLEN)  :: p_puMEZ(iiMesoZooPlankton,iiMicroZooPlankton)
-  real(RLEN)  :: p_clO2o(iiMesoZooPlankton)  ! Low oxygen
+  !-------------------------------------------------------------------------!
+  !NAMELIST MesoZoo_parameters
+  !-------------------------------------------------------------------------!
+  !  MESO-ZOOPLANKTON
+  ! NAME         [UNIT]/KIND            DESCRIPTION
+  ! p_q10        [-]             Doubling temperature
+  ! p_srs        [1/d]           Respiration rate at 10 degrees C
+  ! p_sum        [1/d]           Maximal productivity at 10 degrees C
+  ! p_sd         [1/d]           Background natural mortality
+  ! p_vum        [m3/mgC]        Specific search volume
+  ! p_puI        [-]             Assimilation efficiency
+  ! p_peI        [-]             Faeces production
+  ! p_sdo        [m3/mgC/d]      Fractional density-dependent mortality
+  ! p_sds        [-]             Exponent of density-dependent mortality
+  ! p_qpMEZc     [mmolP/mgC]     Maximum quotum P:C
+  ! p_qnMEZc     [mmolN/mgC]     Maximum quotum N:C
+  ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
+  !                              to Zooplankton group z
+  ! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m
+  !                              to Zooplankton group z
+  ! p_paMEZ(z,m) [-]             Availability of MesoZooplankton group m
+  !                              to Zooplankton group z
+  !-------------------------------------------------------------------------!
+  real(RLEN)  :: p_q10(iiMesoZooPlankton)
+  real(RLEN)  :: p_srs(iiMesoZooPlankton)
+  real(RLEN)  :: p_sum(iiMesoZooPlankton)
+  real(RLEN)  :: p_sd(iiMesoZooPlankton)
+  real(RLEN)  :: p_vum(iiMesoZooPlankton)
+  real(RLEN)  :: p_puI(iiMesoZooPlankton)
+  real(RLEN)  :: p_peI(iiMesoZooPlankton)
+  real(RLEN)  :: p_sdo(iiMesoZooPlankton)
+  real(RLEN)  :: p_sds(iiMesoZooPlankton)
+  real(RLEN)  :: p_qpMEZc(iiMesoZooPlankton)
+  real(RLEN)  :: p_qnMEZc(iiMesoZooPlankton)
+  real(RLEN)  :: p_clO2o(iiMesoZooPlankton)
+  real(RLEN)  :: p_paPPY(iiMesoZooPlankton,iiPhytoPlankton)
+  real(RLEN)  :: p_paMIZ(iiMesoZooPlankton,iiMicroZooPlankton)
+  real(RLEN)  :: p_paMEZ(iiMesoZooPlankton,iiMesoZooPlankton)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
-
   public InitMesoZoo
+
   contains
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   subroutine InitMesoZoo()
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /MesoZoo_parameters/ p_q10, p_srs, p_puPI, p_puMIZ, p_puMEZ, p_sd, &
-    p_sum, p_vum, p_puI_u, p_peI_R6, p_sdo, p_sds, p_qpc, p_qnc, p_clO2o
+  namelist /MesoZoo_parameters/ p_q10, p_srs, p_paPPY, p_paMIZ, p_paMEZ, p_sd, &
+    p_sum, p_vum, p_puI, p_peI, p_sdo, p_sds, p_qpMEZc, p_qnMEZc, p_clO2o
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   !BEGIN compute
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+  write(LOGUNIT,*) "#  Reading MesoZoo parameters.."
+  open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
+  read(NMLUNIT,nml=MesoZoo_parameters,err=101)
+  close(NMLUNIT)
+  write(LOGUNIT,*) "#  Namelist is:"
+  write(LOGUNIT,nml=MesoZoo_parameters)
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading MesoZoo parameters.."
-open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=MesoZoo_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=MesoZoo_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -121,7 +135,7 @@ open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitMesoZoo
   end module mem_MesoZoo
-!BOP
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
