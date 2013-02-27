@@ -24,9 +24,9 @@
   use mem
 #else
   use mem, ONLY: B1c, R6c, B1n, R6n, B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
-    N4n, N1p, N3n, R7c
+    N4n, N1p, N3n, R3c
   use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, ppO3c, &
-    ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR7c, flPTN6r, Depth,&
+    ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR3c, flPTN6r, Depth,&
     ETW, qnB1c, qpB1c, eO2mO2, qpR6c, qnR6c, NO_BOXES, iiBen, iiPel, flux_vector, &
     sourcesink_flux_vector
 #endif
@@ -79,10 +79,10 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer, save :: first =0
   real(RLEN),allocatable,save,dimension(:) :: runn,runp,et,eO2,r,flB1N6r,rrc,  &
-                                          rd,ruR1c,ruR1n,ruR1p,ruR2c,ruR7c,  &
+                                          rd,ruR1c,ruR1n,ruR1p,ruR2c,ruR3c,  &
                                           ruR6c,ruR6p,ruR6n,cqun3,rump,  &
                                           rumn,rumn3,rumn4,ren,rep,reR2c, &
-                                          reR7c,rut,rum,run,sun,rug,suR1, &
+                                          reR3c,rut,rum,run,sun,rug,suR1, &
                                           suR1n,suR1p,suR2,cuR6,cuR1,iN1p, &
                                           iNIn,iN,qpR1c,qnR1c,eN1p,eN4n, &
                                           huln, hulp
@@ -133,8 +133,8 @@
      if (AllocStatus  /= 0) stop "error allocating ruR6p"
      allocate(ruR6n(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating ruR6n"
-     allocate(ruR7c(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating ruR7c"
+     allocate(ruR3c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruR3c"
      allocate(cqun3(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating cqun3"
      allocate(rump(NO_BOXES),stat=AllocStatus)
@@ -151,8 +151,8 @@
      if (AllocStatus  /= 0) stop "error allocating rep"
      allocate(reR2c(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating reR2c"
-     allocate(reR7c(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating reR7c"
+     allocate(reR3c(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating reR3c"
      allocate(rut(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating rut"
      allocate(rum(NO_BOXES),stat=AllocStatus)
@@ -279,13 +279,13 @@
   ! Calculate the realized substrate uptake rate depending on the
   ! type of detritus and quality (cuRx)
   ! See eq 27 in Vichi et al., 2004 for R2
-  ! and eq 6 in Polimene et al., 2006 for R7 (named R3 in the paper)
+  ! and eq 6 in Polimene et al., 2006 for R3 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ruR1c = (p_suhR1*cuR1 + p_sulR1*(ONE-cuR1))*R1c(:)
   ruR2c = p_suR2*R2c(:)
+  ruR3c = p_suR3*R3c(:)
   ruR6c = p_suR6*cuR6*R6c(:)
-  ruR7c = p_suR7*R7c(:)
-  rut   = p_small + ruR1c + ruR2c + ruR6c + ruR7c
+  rut   = p_small + ruR1c + ruR2c + ruR6c + ruR3c
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Actual uptake by bacteria (eq. 50 Vichi et al. 2007)
@@ -297,12 +297,12 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ruR1c = rug*ruR1c/rut
   ruR2c = rug*ruR2c/rut
+  ruR3c = rug*ruR3c/rut
   ruR6c = rug*ruR6c/rut
-  ruR7c = rug*ruR7c/rut
   call flux_vector( iiPel, ppR1c, ppB1c, ruR1c )
   call flux_vector( iiPel, ppR2c, ppB1c, ruR2c )
+  call flux_vector( iiPel, ppR3c, ppB1c, ruR3c )
   call flux_vector( iiPel, ppR6c, ppB1c, ruR6c )
-  call flux_vector( iiPel, ppR7c, ppB1c, ruR7c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Nitrogen and Phosphrous uptake
@@ -347,7 +347,7 @@
     case ( BACT3 ) ! Polimene et al. (2006)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ! Carbon excretion as Semi-Labile (R2) and Semi-Refractory (R7) DOC 
+      ! Carbon excretion as Semi-Labile (R2) and Semi-Refractory (R3) DOC 
       ! The R2 rate is assumed to occur with a timescale of 1 day
       ! (eq 8 Polimene et al., 2006)
       ! The renewal of capsular material is a constant rate, equivalent
@@ -356,7 +356,7 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       reR2c = max((ONE-(qpB1c(:)/p_qpPBAc)),(ONE-(qnB1c(:)/p_qnPBAc)))*p_rec
       reR2c = max(ZERO,reR2c)*B1c(:)
-      reR7c = rug*p_pu_ea_R7
+      reR3c = rug*p_pu_ea_R3
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics
@@ -384,7 +384,7 @@
       ! There is no Carbon excretion in Vichi et al. 2007
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       reR2c = ZERO
-      reR7c = ZERO
+      reR3c = ZERO
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics
@@ -448,22 +448,22 @@
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excess carbon (also considering dissolved nutrient uptake ren and rep) 
-      ! is released as R7c, no other excretion (reR2c=0)
+      ! is released as R3c, no other excretion (reR2c=0)
       ! (eq. 30 Vichi et al. 2004, unfortunately there is another error in 
       ! the paper, the flux of dissolved nutrient is not written)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       r     = min(run, (ruR6n+ruR1n-ren)/p_qlnc)
-      reR7c = run - min(r, (ruR6p+ruR1p-rep)/p_qlpc)
-      reR7c = max(ZERO, reR7c)
+      reR3c = run - min(r, (ruR6p+ruR1p-rep)/p_qlpc)
+      reR3c = max(ZERO, reR3c)
       reR2c = ZERO
 
   end select
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Excretion fluxes (only losses to R2 and R7)
+  ! Excretion fluxes (only losses to R2 and R3)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   call flux_vector( iiPel, ppB1c,ppR2c, reR2c )
-  call flux_vector( iiPel, ppB1c,ppR7c, reR7c )
+  call flux_vector( iiPel, ppB1c,ppR3c, reR3c )
 
   end subroutine PelBacDynamics
 
