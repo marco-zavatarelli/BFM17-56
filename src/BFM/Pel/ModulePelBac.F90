@@ -77,18 +77,18 @@
   ! p_pu_ra     [-]              Activity respiration fraction
   ! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
   ! p_srs       [1/d]            Specific rest respiration
-  ! p_qnc       [model units]    Optimal N/C ratio 
-  ! p_qpc       [model units]    Optimal P/C ratio
-  ! p_qlnc      [model units]    Minimal N/C ratio
-  ! p_qlpc      [model units]    Minimal P/C ratio
-  ! p_qun       [mmol N/mgC/day] Membrane affinity for N
-  ! p_qup       [mmol P/mgC/day] Membrane affinity for N
-  ! p_chn       [mmol N/m3]      half saturation ammonium conc. for uptake
-  ! p_chp       [mmol P/m3]      half saturation phosphate conc. for uptake
-  ! p_ruen      [1/d]            relaxation timescale for N uptake/remin.
-  ! p_ruep      [1/d]            relaxation timescale for P uptake/remin.
-  ! p_rec       [1/d]            relaxation timescale for semi-labile excretion
-  ! p_pu_ea_R7  [-]              excretion of semi-refractory DOC
+  ! p_qnPBAc    [mmolN/mgC]      Optimal N/C ratio 
+  ! p_qpPBAc    [mmolP/mgC]      Optimal P/C ratio 
+  ! p_qlnc      [mmolN/mgC]      Minimal N/C ratio 
+  ! p_qlpc      [mmolP/mgC]      Minimal P/C ratio 
+  ! p_qun       [mmolN/mgC/day]  Membrane affinity for N 
+  ! p_qup       [mmolP/mgC/day]  Membrane affinity for N 
+  ! p_chn       [mmolN/m3]       Half saturation ammonium conc. for uptake
+  ! p_chp       [mmolP/m3]       Half saturation phosphate conc. for uptake
+  ! p_ruen      [1/d]            Relaxation timescale for N uptake/remin.
+  ! p_ruep      [1/d]            Relaxation timescale for P uptake/remin.
+  ! p_rec       [1/d]            Relaxation timescale for semi-labile excretion
+  ! p_pu_ea_R7  [-]              Excretion of semi-refractory DOC
   integer     :: p_version
   integer, parameter ::       BACT1=1,BACT2=2,BACT3=3
   real(RLEN)  :: p_q10
@@ -104,8 +104,8 @@
   real(RLEN)  :: p_pu_ra
   real(RLEN)  :: p_pu_ra_o
   real(RLEN)  :: p_srs
-  real(RLEN)  :: p_qnc
-  real(RLEN)  :: p_qpc
+  real(RLEN)  :: p_qnPBAc
+  real(RLEN)  :: p_qpPBAc
   real(RLEN)  :: p_qlnc
   real(RLEN)  :: p_qlpc
   real(RLEN)  :: p_qun
@@ -131,7 +131,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
     p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R7, p_srs, &
-    p_suR7, p_qpc, p_qlpc, p_qnc, p_qlnc, p_qun, p_qup, p_chn, p_chp, &
+    p_suR7, p_qpPBAc, p_qlpc, p_qnPBAc, p_qlnc, p_qun, p_qup, p_chn, p_chp, &
     p_ruen, p_ruep, p_rec
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

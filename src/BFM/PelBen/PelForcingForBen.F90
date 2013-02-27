@@ -38,7 +38,7 @@
     use mem, ONLY: O3c_Ben,O3c,O3h_Ben,O3h
 #endif
 #endif
-  use mem_MicroZoo, ONLY:p_qn_mz,p_qp_mz
+  use mem_MicroZoo, ONLY:p_qnMIZc,p_qpMIZc
   use mem_Param,  ONLY: p_small
 #ifdef BFM_GOTM
   use bio_var, ONLY: BOTindices
@@ -131,14 +131,14 @@
            lcl_MicroZooPlankton => MicroZooPlankton(i,iiN)
            ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)
         else
-           ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)*p_qn_mz(i)
+           ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)*p_qnMIZc(i)
         endif
         j = ppMicroZooPlankton(i,iiP)
         if ( j> 0) then
           lcl_MicroZooPlankton => MicroZooPlankton(i,iiP)
           ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)
         else
-          ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)*p_qp_mz(i)
+          ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)*p_qpMIZc(i)
         endif
       enddo
 

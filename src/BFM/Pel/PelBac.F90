@@ -257,8 +257,8 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-==--=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-
       ! Nutrient limitation (intracellular, eq. 51 Vichi et al. 2007)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      iNIn = min(ONE, max(ZERO, qnB1c(:)/p_qnc))  !Nitrogen
-      iN1p = min(ONE, max(ZERO, qpB1c(:)/p_qpc))  !Phosphorus
+      iNIn = min(ONE, max(ZERO, qnB1c(:)/p_qnPBAc))  !Nitrogen
+      iN1p = min(ONE, max(ZERO, qpB1c(:)/p_qpPBAc))  !Phosphorus
       iN   = min(iN1p, iNIn)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -270,8 +270,8 @@
       ! correction of substrate quality depending on nutrient content
       ! (eq. 52 Vichi et al. 2007)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      cuR1 = min(ONE, qpR1c(:)/p_qpc, qnR1c(:)/ p_qnc)
-      cuR6 = min(ONE, qpR6c(:)/p_qpc, qnR6c(:)/ p_qnc)
+      cuR1 = min(ONE, qpR1c(:)/p_qpPBAc, qnR1c(:)/ p_qnPBAc)
+      cuR6 = min(ONE, qpR6c(:)/p_qpPBAc, qnR6c(:)/ p_qnPBAc)
 
   end select
 
@@ -354,7 +354,7 @@
       ! to about 1/4 of the respiration rate, ~5% of uptake 
       ! (Stoderegger and Herndl, 1998)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      reR2c = max((ONE-(qpB1c(:)/p_qpc)),(ONE-(qnB1c(:)/p_qnc)))*p_rec
+      reR2c = max((ONE-(qpB1c(:)/p_qpPBAc)),(ONE-(qnB1c(:)/p_qnPBAc)))*p_rec
       reR2c = max(ZERO,reR2c)*B1c(:)
       reR7c = rug*p_pu_ea_R7
 
@@ -364,7 +364,7 @@
       ! This rate is assumed to occur with a timescale p_ruen=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ren = (qnB1c(:) - p_qnc)*B1c(:)*p_ruen
+      ren = (qnB1c(:) - p_qnPBAc)*B1c(:)*p_ruen
       call flux_vector(iiPel, ppB1n, ppN4n,       ren*insw_vector( ren))
       call flux_vector(iiPel, ppN4n, ppB1n, -eN4n*ren*insw_vector(-ren))
 
@@ -374,7 +374,7 @@
       ! This rate is assumed to occur with a timescale of p_ruep=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rep  =  (qpB1c(:) - p_qpc)*B1c(:)*p_ruep
+      rep  =  (qpB1c(:) - p_qpPBAc)*B1c(:)*p_ruep
       call flux_vector(iiPel, ppB1p, ppN1p,       rep*insw_vector( rep))
       call flux_vector(iiPel, ppN1p, ppB1p, -eN1p*rep*insw_vector(-rep))
 
@@ -392,7 +392,7 @@
       ! This rate is assumed to occur with a timescale p_ruen=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ren  =  (qnB1c(:) - p_qnc)*B1c(:)*p_ruen
+      ren  =  (qnB1c(:) - p_qnPBAc)*B1c(:)*p_ruen
       call flux_vector(iiPel, ppB1n, ppN4n,       ren*insw_vector( ren))
       call flux_vector(iiPel, ppN4n, ppB1n, -eN4n*ren*insw_vector(-ren))
 
@@ -402,7 +402,7 @@
       ! This rate is assumed to occur with a timescale of p_ruep=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rep  =  (qpB1c(:) - p_qpc)*B1c(:)*p_ruep
+      rep  =  (qpB1c(:) - p_qpPBAc)*B1c(:)*p_ruep
       call flux_vector(iiPel, ppB1p, ppN1p,       rep*insw_vector( rep))
       call flux_vector(iiPel, ppN1p, ppB1p, -eN1p*rep*insw_vector(-rep))
 
@@ -412,7 +412,7 @@
       ! Ammonium remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is a bug in the paper as there should be no division by B1c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      huln = (ruR6n + ruR1n) - p_qnc*run
+      huln = (ruR6n + ruR1n) - p_qnPBAc*run
       ren  = huln*insw_vector(huln)
       call flux_vector(iiPel, ppB1n, ppN4n, ren)
 
@@ -433,7 +433,7 @@
       ! Phosphate remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is an error in the paper as there should be no division by B1c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      hulp = (ruR6p + ruR1p) - p_qpc*run
+      hulp = (ruR6p + ruR1p) - p_qpPBAc*run
       rep  = hulp*insw_vector(hulp)
       call flux_vector(iiPel, ppB1p, ppN1p, rep)
 
