@@ -36,22 +36,26 @@ my $XPR_GLOBAL_COMMENT = '([^#]*)#{0,1}(.*)'; # dont process commentaries
 my $XPR_START_BLOCK = '^([123])d-([^-\s\n]+)(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
 my $XPR_END_BLOCK   = '^end';
 
-my $XPR_START_GROUP = '^group\s+([^:]*):(.*)'; # group name : units
+#my $XPR_START_GROUP = '^group\s+([^:]*):(.*)'; # group name : units
+my $XPR_START_GROUP = '^group\s+([^\(\:\s]+)\s*\(?([^\)]*)\)?\s*:\s*(.*)'; # group name (acronym) : units
 my $XPR_END_GROUP   = '^end';
 
-my $XPR_PARAM      = '^([^:]+):{0,1}([^:]*):{0,1}(.*)'; #name : comment : units
+my $XPR_ACRO        = '^\s*[a-zA-Z_\-0-9]+\s*$';
 
-my $XPR_NAME       = '^([^\[\(\=\s]+)(.*)';
-my $XPR_NAME_CONS  = '^\[(.+)\](.*)';
-my $XPR_NAME_QUOTA = '^\((.+)\)(.*)';
-my $XPR_NAME_FUNC  = '^\=(.+)';
+#my $XPR_PARAM      = '^([^:]+):{0,1}([^:]*):{0,1}(.*)'; #name : comment : units
+my $XPR_PARAM       = '^(?!group\s+)([^:]+):{0,1}([^:]*):{0,1}(.*)'; #name : comment : units
 
-my $XPR_FUNC_SYM  = '(\+|-){0,1}([^\+-]+)';
-my $XPR_FUNC_TERM = '(.*)(->|<-)(.*)'; # ( a ->/<- b )
-my $XPR_FUNC_STAT = '(\+|-){0,1}\({0,1}([^\)]+)\){0,1}';
+my $XPR_NAME        = '^([^\[\(\=\s]+)(.*)';
+my $XPR_NAME_CONS   = '^\[(.+)\](.*)';
+my $XPR_NAME_QUOTA  = '^\((.+)\)(.*)';
+my $XPR_NAME_FUNC   = '^\=(.+)';
 
-my $XPR_UNITS_NAME        = '(\D)';
-my $XPR_UNITS_VALUE       = '([^:]+)';
+my $XPR_FUNC_SYM    = '(\+|-){0,1}([^\+-]+)';
+my $XPR_FUNC_TERM   = '(.*)(->|<-)(.*)'; # ( a ->/<- b )
+my $XPR_FUNC_STAT   = '(\+|-){0,1}\({0,1}([^\)]+)\){0,1}';
+
+my $XPR_UNITS_NAME  = '(\D)';
+my $XPR_UNITS_VALUE = '([^:]+)';
 ########### REGULAR EXPRESSIONS ##########################
 
 
@@ -260,15 +264,17 @@ sub process_memLayout{
         }
         elsif( $line =~ /$XPR_START_GROUP/ ){
             #extract name and units
-            #print "Processing GROUP: $line_raw";
+            if( $VERBOSE){ print "Processing GROUP: $line_raw"; }
             my ( $obj, $name, $units, $par_compo, @par_const );
-            if ( ! process_name($1, $blk_dim, \$name, \$units, undef, undef, undef, undef) ){ print "WARNING: Group not found: $1\n"; next; }
-            process_units($2, $units, undef, \$par_compo, undef, undef, \@par_const);
+            my ( $in_name, $in_acro, $in_units ) = ($1, $2, $3);
+            if ( ! process_name($in_name, $blk_dim, \$name, \$units, undef, undef, undef, undef) ){ print "WARNING: Group not found: $in_name\n"; next; }
+            if( ! ($in_acro =~ /$XPR_ACRO/) ){ print "ERROR: Group \"$name\" has not a valid Acronym: $in_acro \n"; exit 1; }
+            process_units($in_units, $units, undef, \$par_compo, undef, undef, \@par_const);
             
             $blk_group=$name;
             #add to groups list
             if( $blk_is_include ){
-                $obj = new Group( $blk_group, $blk_dim, $blk_type, $par_compo, $blk_include, $blk_z, $blk_group_idx);
+                $obj = new Group( $blk_group, $in_acro, $blk_dim, $blk_type, $par_compo, $blk_include, $blk_z, $blk_group_idx);
                 $blk_group_idx++;
                 $$lst_group{$blk_group} = $obj;
                 #add constituents to list
@@ -287,7 +293,7 @@ sub process_memLayout{
         }
         elsif( $line =~ /$XPR_PARAM/ ){
             #extract name, comment and units
-            #print "Processing PARAM: $line_raw";
+            if( $VERBOSE){ print "Processing PARAM: $line_raw"; }
             if( $blk_is_include ){
                 my ( $units, $size );
                 my ( $obj, $par_name, $par_unit, $par_type, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, @par_const );
@@ -405,7 +411,7 @@ sub process_units{
         
         if( $name_list[0] eq '-' ){
             #the units have to be extracted from parent
-            if( ! $group_obj ){ print "ERROR: group parent does not exists: "; exit 1; }
+            if( ! $group_obj ){ print "ERROR: group parent does not exists\n"; exit 1; }
             %child_compo = %{$group_obj->getComponents()}; #copy all elements from parent
             splice @name_list, 0, 1; #remove first element (-)
             foreach my $name (@name_list){ 

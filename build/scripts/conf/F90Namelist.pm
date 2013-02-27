@@ -898,7 +898,9 @@ sub add_elements {
      my $self         = shift();
      my $elements_ref = shift();
 
-     $self->{ELEMENTS} = $elements_ref;
+     if( scalar @$elements_ref ){
+         $self->{ELEMENTS} = $elements_ref;
+     }
 
      return 1;
 }
@@ -908,6 +910,29 @@ sub elements {
      # return the column elements of the list
      my $self         = shift();
      return $self->{ELEMENTS};
+}
+
+# ---------------------------------------------------------------------- #
+
+sub add_subElements {
+     # add the list of subElements to the list
+     my $self         = shift();
+     my $acro         = shift();
+     my $elements_ref = shift();
+
+     if( scalar @$elements_ref && $acro ){
+         ${$self->{SUB_ELEMENTS}}{$acro} = $elements_ref;
+     }
+
+     return 1;
+}
+# ---------------------------------------------------------------------- #
+
+sub subElements {
+     # return the column subElements[i] of the list
+     my $self         = shift();
+     my $acro         = shift();
+     return ${$self->{SUB_ELEMENTS}}{$acro};
 }
 
 # ---------------------------------------------------------------------- #
@@ -1103,7 +1128,8 @@ sub elements {
          strip_space_and_comment($text);
          if ($text =~ s/^($id)(\([0-9,\s\t\,\:]+\))?\s*=\s*//s) {
              # string starts with <var=...> or <var(idx,idy,...)=...>
-             $var = lc($1);
+             #$var = lc($1);
+             $var = $1;
              # any array indices following the variable name?
              if (defined($2)) {
                  my $indices = $2;
@@ -1182,7 +1208,8 @@ sub elements {
      print STDERR "extract_nl_name 2: \$text=<",
      printable_substring($text,50), ">\n" if ($debug);
      if ($text =~ s/^(?:&|\$)($id)//) {
-         $name = lc($1);
+         #$name = lc($1);
+         $name = $1;
      } else {			# empty (comment/whitespace) or erroneous
          if ($text eq '') {
              print STDERR "Empty text (at most some comments)" if ($debug);

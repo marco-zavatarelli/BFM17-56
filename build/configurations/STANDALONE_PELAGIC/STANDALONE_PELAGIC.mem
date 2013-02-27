@@ -87,7 +87,7 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Phytoplankton Species
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   group PhytoPlankton[cnpls] :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
+   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
 	P1	: Diatoms
 	P2[-s]	: Flagellates
 	P3[-s]	: PicoPhytoplankton
@@ -97,7 +97,7 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Mesozooplankton
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   group MesoZooPlankton[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3
+   group MesoZooPlankton[cnp] (MEZ) : mg C/m3 : mmol N/m3 : mmol P/m3
 		Z3 	: Carnivorous Mesozooplankton
 		Z4 	: Omnivorous Mesozooplankton
    end
@@ -105,7 +105,7 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Microzooplankton
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   group MicroZooPlankton[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3
+   group MicroZooPlankton[cnp] (MIZ) : mg C/m3 : mmol N/m3 : mmol P/m3
 	   Z5	: Microzooplankton
 	   Z6	: Heterotrophic Nanoflagellates (HNAN)
    end
@@ -113,7 +113,7 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Detritus (Biogenic Organic Material)
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    group PelDetritus[cnps] : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
+    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
       R1[-s]    : Labile Dissolved Organic Matter
       R2[-nps]  : Semi-labile Dissolved Organic Carbon
       R3[-nps]  : Semi-refractory Dissolved Organic Carbon
@@ -125,7 +125,7 @@ end
 #       CO2 and Carbonate system variables
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 3d-state -if-exist INCLUDE_PELCO2
-  group Inorganic[ch]: mg C/m3 : mmol eq/m3
+  group Inorganic[ch] (CAR): mg C/m3 : mmol eq/m3
      O3: Dissolved Inorganic Carbon: Alkalinity 
   end
 end
@@ -230,13 +230,16 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-3d-flux -if-exist INCLUDE_DIAG3D
+3d-flux -if-exist INCLUDE_DIAG3D INCLUDE_PELCO2
   ruPTc=P.c <- O3c:gross primary production:mg C/m3/d
+  resPP=(P.c->O3c) : respiration phytoplankton :mg C/m3/d
+  resZT=(Z.c->O3c) : respiration zooplankton :mg C/m3/d
+end
+
+3d-flux -if-exist INCLUDE_DIAG3D
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
   exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
-  resPP=(P.c->O3c) : respiration phytoplankton :mg C/m3/d
-  resZT=(Z.c->O3c) : respiration zooplankton :mg C/m3/d
   ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
   netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
   rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d

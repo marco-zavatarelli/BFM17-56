@@ -27,11 +27,14 @@
 #else
   use mem, ONLY: D3STATE, O2o, N1p, N4n, R6c, R6p, R2c, &
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
-  use mem, ONLY: Depth, ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6n, ppR6p, ppR6s, &
+  use mem, ONLY: Depth, ppO2o, ppN1p, ppN4n, ppR6c, ppR6n, ppR6p, ppR6s, &
     ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, ETW, &
     qnPPYc, qpPPYc, qlPPYc, qsPPYc, qnMIZc, qpMIZc, qnMEZc, qpMEZc, iiPhytoPlankton, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiC, iiN, iiP, iiL, iiS, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#ifdef INCLUDE_PELCO2
+  use mem, ONLY: ppO3c
+#endif
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF, qfPc, ppR6f
 #endif
@@ -107,6 +110,9 @@
   real(RLEN),allocatable,save,dimension(:,:) :: PPYc,MIZc,MEZc
   real(RLEN),allocatable,save,dimension(:) :: net,r
   integer :: AllocStatus, DeallocStatus
+#ifndef INCLUDE_PELCO2
+  integer,parameter :: ppO3c = 0
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

@@ -103,6 +103,7 @@ if( $VERBOSE ){ print "Writing namelists...\n"; }
 print_namelists( \@lst_nml, \@lst_com, $out_dir, $VERBOSE );
 
 
+#foreach my $key (keys %lst_group){ $lst_group{$key}->print(); }
 #foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
 
 

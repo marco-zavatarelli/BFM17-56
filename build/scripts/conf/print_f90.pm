@@ -26,6 +26,7 @@ use strict;
 use warnings;
 use Exporter;
 use F90Namelist;
+use List::Util qw[min max];
 #use List::MoreUtils qw(firstidx);
 #use List::Util qw(minstr maxstr);
 use Data::Dumper;
@@ -827,7 +828,11 @@ sub func_GROUP_PARAMETER  {
                 my $param = $$LST_PARAM{$param_name};
                 if( $param->getGroup() && $group_name eq $param->getGroup() ){ push(@elements, ("ii$param_name=". $index++ ) ); }
             }
-            print $file "${SPACE}integer,parameter,public     :: ii$group_name=". scalar(@elements) . ", " . join(", ",@elements) . "\n" ;
+            if( $#elements == -1 ){
+                print $file "${SPACE}integer,parameter,public     :: ii$group_name=". scalar(@elements) . "\n" ;
+            }else{
+                print $file "${SPACE}integer,parameter,public     :: ii$group_name=". scalar(@elements) . ", " . join(", ",@elements) . "\n" ;
+            }
         }
     }
 }
@@ -1030,8 +1035,10 @@ sub func_GROUP_FUNCTIONS  {
                         push( @refers, "pp" . $member->getSigla() . ${minkey} );
                         push( @refersMax, ${maxkey} );
                     }
-                    $line .= "${SPACE}" ."  integer,dimension(" . scalar(@members)      . ") :: referto=(/"         . join(',',@refers)    . "/)\n";
-                    $line .= "${SPACE}" ."  integer,dimension(" . scalar(@members)      . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n";
+                    if( scalar(@refers)    == 0 ){ push(@refers,    0); }
+                    if( scalar(@refersMax) == 0 ){ push(@refersMax, 0); }
+                    $line .= "${SPACE}" ."  integer,dimension(" . max(1,scalar(@members))      . ") :: referto=(/"         . join(',',@refers)    . "/)\n";
+                    $line .= "${SPACE}" ."  integer,dimension(" . max(1,scalar(@members))      . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n";
 
                     my @consAdd = (0) x scalar(keys %$LST_CONST);
                     my $num_ele = 0;

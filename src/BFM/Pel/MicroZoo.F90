@@ -25,11 +25,14 @@
 #else
   use mem, ONLY: D3STATE, B1c, B1n, B1p, O2o, R1c, R6c, R1n, R6n, &
     R2c,R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton
-  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppO3c, ppR1c, ppR6c, ppR6s, Depth,&
+  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppR1c, ppR6c, ppR6s, Depth,&
     ppR1n, ppR6n, ppR1p, ppR6p, ppN4n, ppN1p, ppPhytoPlankton, ppMicroZooPlankton, &
     ETW, eO2mO2, qnPBAc, qpPBAc, qnPPYc, qpPPYc, qnMIZc, qpMIZc, &
     qlPPYc, qsPPYc, iiPhytoPlankton, iiMicroZooPlankton, iiC, iiN, iiP, iiL, iiS, &
     NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+#ifdef INCLUDE_PELCO2
+  use mem, ONLY: ppO3c
+#endif
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF, qfPc, ppR6f
 #endif
@@ -94,6 +97,9 @@
                                          rrip,rr6p,rep,rrin,zooc
   real(RLEN),allocatable,save,dimension(:)    :: rr6n,ren,pu_ra,r,tfluxc,tfluxn,tfluxp
   real(RLEN),allocatable,save,dimension(:,:)  :: PPYc,MIZc
+#ifndef INCLUDE_PELCO2
+  integer,parameter :: ppO3c = 0
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if (first==0) then

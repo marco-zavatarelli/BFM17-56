@@ -24,11 +24,14 @@
   use mem, ONLY: iiC,iiN,iiP,iiS,iiL,iiP3
   use mem, ONLY: D3STATE, R1c, R6c, O2o, R2c, &
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
-  use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
+  use mem, ONLY: ppR1c, ppR6c, ppO2o, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, ppR6s, SUNQ, ThereIsLight, ETW, EIR, &
     xEPS, Depth, eiPI, sediPI, sunPI, qpPPYc, qnPPYc, qsPPYc, qlPPYc, NO_BOXES, &
     iiBen, iiPel, flux_vector, sourcesink_flux_vector
   use mem, ONLY: ppPhytoPlankton
+#ifdef INCLUDE_PELCO2
+  use mem, ONLY: ppO3c
+#endif
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF,N7f,qfPc,ppN7f,ppR6f,ppR1f
 #endif
@@ -92,6 +95,9 @@
                                        runn4,runp,runs,Irr,rho_Chl,rate_Chl,seo,&
                                        flPIR2c,iNIn,eN5s,rrc,rr1c
   real(RLEN),allocatable,save,dimension(:) :: iN5s,chl_opt
+#ifndef INCLUDE_PELCO2
+  integer,parameter :: ppO3c = 0
+#endif
 #ifdef INCLUDE_PELFE
   integer :: ppphytof
   real(RLEN),allocatable,save,dimension(:) :: phytof

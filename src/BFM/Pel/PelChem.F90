@@ -30,9 +30,12 @@
   use mem
 #else
   use mem,  ONLY: N4n, N3n, O2o, O4n, N6r, R6s, N5s, P1s
-  use mem, ONLY: ppN4n, ppN3n, ppO2o, ppO3c, ppO4n, ppN6r, ppR6s, ppN5s,    &
+  use mem, ONLY: ppN4n, ppN3n, ppO2o, ppO4n, ppN6r, ppR6s, ppN5s,    &
     flN3O4n, ETW, flPTN6r, NO_BOXES, iiBen, iiPel, flN4N3n, &
     flux_vector
+#ifdef INCLUDE_PELCO2
+  use mem, ONLY: ppO3c
+#endif
 #endif
   use mem_Param,  ONLY: p_qon_nitri, p_qro, p_qon_dentri, p_small
   use mem_PelChem
@@ -85,6 +88,9 @@
   integer       :: AllocStatus, DeallocStatus
   real(RLEN),allocatable,save,dimension(:) :: fN4N3n,fN6O2r,eo,     &
                                               er,osat,rPAo,fR6N5s
+#ifndef INCLUDE_PELCO2
+  integer,parameter :: ppO3c = 0
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if (first==0) then

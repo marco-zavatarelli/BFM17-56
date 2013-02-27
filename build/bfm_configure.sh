@@ -39,7 +39,7 @@ ERROR_MSG="Execute $0 -h for help if you don't know what the hell is going wrong
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
 MODE="STANDALONE"
-CPPDEFS="-DBFM_STANDALONE -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D"
+CPPDEFS="BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D"
 PRESET="STANDALONE_PELAGIC"
 ARCH="gfortran.inc"
 PROC=4
@@ -77,7 +77,7 @@ DESCRIPTION
                   - STANDALONE (without NEMO. Compile and run in local machine)
                   - NEMO (with NEMO. Compile and run ONLY in LSF platform)
        -k CPPDEFS
-                  Key options to configure the model. (Default: "-DINCLUDE_PELCO2 -DINCLUDE_DIAG3D")                 
+                  Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D")                 
        -b BFMDIR
                   The environmental variable BFMDIR pointing to the root directory of BFM (Default: "${BFMDIR}")
        -n NEMODIR
@@ -242,9 +242,12 @@ if [ ${GEN} ]; then
     cd ${blddir}
     rm -rf *
     
+    #add -D to cppdefs
+    cppdefs=`echo ${CPPDEFS} | sed -e 's/\([a-zA-Z_0-9]*\)/-D\1/g'` 
+
     # generate BFM Memory Layout files and namelists
     ${PERL} -I${BFMDIR}/${SCRIPTSDIR}/ ${BFMDIR}/${SCRIPTSDIR}/${cmd_gen} \
-        ${CPPDEFS} \
+        ${cppdefs} \
         -r ${BFMDIR}/${CONFDIR}/${myGlobalMem}  \
         -n ${BFMDIR}/${CONFDIR}/${myGlobalNml}  \
         -f ${BFMDIR}/src/BFM/proto \
@@ -273,7 +276,7 @@ if [ ${GEN} ]; then
 
         # Make makefile
         ${BFMDIR}/bin/${cmd_mkmf} \
-            -c "${CPPDEFS}" \
+            -c "${cppdefs}" \
             -o "-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include" \
             -t "${blddir}/${ARCH}" \
             -p "${BFMDIR}/bin/bfm_standalone.x" \
@@ -283,9 +286,8 @@ if [ ${GEN} ]; then
         #ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
     else
         # Generate the specific bfm.fcm include file for makenemo
-        cppdefs=`echo ${CPPDEFS} | sed -e "s/"-D"//g"` 
         # some macros are default with NEMO
-        FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${cppdefs}"
+        FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${CPPDEFS}"
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
             ${BFMDIR}/${SCRIPTSDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."

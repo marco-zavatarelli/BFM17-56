@@ -25,10 +25,13 @@
 #else
   use mem, ONLY: B1c, R6c, B1n, R6n, B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
     N4n, N1p, N3n, R3c, iiR1, iiR6
-  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, ppO3c, &
+  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, &
     ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR3c, flPTN6r, Depth,&
     ETW, qnPBAc, qpPBAc, eO2mO2, qpOMTc, qnOMTc, NO_BOXES, iiBen, iiPel, flux_vector, &
     sourcesink_flux_vector
+#ifdef INCLUDE_PELCO2
+  use mem, ONLY: ppO3c
+#endif
 #endif
   use constants,  ONLY: MW_C, ONE_PER_DAY
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, p_small
@@ -88,6 +91,9 @@
                                           huln, hulp
   real(RLEN),allocatable,save,dimension(:) ::  misn,misp,rupp,rupn
   integer :: AllocStatus
+#ifndef INCLUDE_PELCO2
+  integer,parameter :: ppO3c = 0
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
