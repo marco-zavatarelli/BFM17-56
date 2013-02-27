@@ -1,6 +1,5 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
-
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -9,7 +8,8 @@
 ! !ROUTINE: PelGlobal
 !
 ! DESCRIPTION
-!   !
+!   Compute global pelagic diagnostic variables that are needed in other
+!   subroutines
 !
 ! !INTERFACE
   subroutine PelGlobalDynamics
@@ -28,21 +28,25 @@
 #else
   use api_bfm, ONLY: BOTindices
 #endif
-!
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Implicit typing is never allowed
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  IMPLICIT NONE
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Local Variables
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  integer  :: i
 !
 ! !AUTHORS
 !   Piet Ruardij
 !
-!
-!
 ! !REVISION_HISTORY
-!   Created at Tue Apr 20 09:11:59 AM CEST 2004
-!
-!
 !
 ! COPYING
 !
-!   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -54,78 +58,73 @@
 !   GNU General Public License for more details.
 !
 !EOP
-!-------------------------------------------------------------------------!
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOC
-!
-!
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Implicit typing is never allowed
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  IMPLICIT NONE
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Local Variables
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer  :: i
-  real(RLEN),dimension(NO_BOXES)  :: n,p,c
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Reset var in which silica fluxes are collected:
+  ! Reset total flux variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-!  flP1R6s(:)  =   ZERO
   flPTN6r(:)  =   ZERO
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Compute nutrient quota in pelagic detritus
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  qpR6c(:)  =   R6p(:)/( p_small+ R6c(:))
-  qnR6c(:)  =   R6n(:)/( p_small+ R6c(:))
-  qsR6c(:)  =   R6s(:)/( p_small+ R6c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Compute nutrient quota in microzooplankton and HNAN
-  ! in case of fixed quota qp_mz and qn_mz are one time calculated in the Initialize.F90
+  ! Compute nutrient quota in pelagic organic matter
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  do i = 1 , ( iiMicroZooPlankton)
+  do i = 1, iiPelDetritus
+    if ( ppPelDetritus(i,iiP) > 0 ) &
+      qpOMTc(i,:)  =  PelDetritus(i,iiP)/( p_small+ PelDetritus(i,iiC))
+    if ( ppPelDetritus(i,iiN) > 0 ) &
+      qnOMTc(i,:)  =  PelDetritus(i,iiN)/( p_small+ PelDetritus(i,iiC))
+    if ( ppPelDetritus(i,iiS) > 0 ) &
+      qsOMTc(i,:)  =   PelDetritus(i,iiS)/( p_small+ PelDetritus(i,iiC))
+  end do
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Compute nutrient quota in microzooplankton
+  ! in case of fixed quota the values are constant and assigned 
+  ! in Initialize.F90
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  do i = 1, iiMicroZooPlankton
     if ( ppMicroZooPlankton(i,iiP) > 0 ) &
-      qp_mz(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
+      qpMIZc(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
     if ( ppMicroZooPlankton(i,iiN) > 0 ) &
-      qn_mz(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
+      qnMIZc(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
   end do
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Compute nutrient quota in omnivorous and herbivorous mesozooplankton
-  ! in case of fixed quota qp_mz and qn_mz are one time calculated in the Initialize.F90
+  ! Compute nutrient quota in mesozooplankton
+  ! in case of fixed quota the values are constant and assigned 
+  ! in Initialize.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  do i = 1 , ( iiMesoZooPlankton)
+  do i = 1, iiMesoZooPlankton
     if ( ppMesoZooPlankton(i,iiP) > 0 ) &
-      qpZc(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
+      qpMEZc(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
     if ( ppMesoZooPlankton(i,iiN) > 0 ) &
-      qnZc(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
+      qnMEZc(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
   end do
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Compute nutrient quota in phytoplankton
-  ! Compute light prop.or chl. quota in phytoplankton (dep. on ChlLightFlag)
+  ! Compute constituents quota in phytoplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  do i = 1 , ( iiPhytoPlankton)
-
-    qpPc(i,:)  =   PhytoPlankton(i,iiP)/( p_small+ PhytoPlankton(i,iiC))
-    qnPc(i,:)  =   PhytoPlankton(i,iiN)/( p_small+ PhytoPlankton(i,iiC))
-    qlPc(i,:)  =   PhytoPlankton(i,iiL)/( p_small+ PhytoPlankton(i,iiC))
+  do i = 1, iiPhytoPlankton
+    if ( ppPhytoPlankton(i,iiP) > 0 ) &
+      qpPPYc(i,:)  =   PhytoPlankton(i,iiP)/( p_small+ PhytoPlankton(i,iiC))
+    if ( ppPhytoPlankton(i,iiN) > 0 ) &
+      qnPPYc(i,:)  =   PhytoPlankton(i,iiN)/( p_small+ PhytoPlankton(i,iiC))
+    if ( ppPhytoPlankton(i,iiS) > 0 ) &
+      qsPPYc(i,:)  =   PhytoPlankton(i,iiS)/( p_small+ PhytoPlankton(i,iiC))
+    if ( ppPhytoPlankton(i,iiL) > 0 ) &
+      qlPPYc(i,:)  =   PhytoPlankton(i,iiL)/( p_small+ PhytoPlankton(i,iiC))
 #ifdef INCLUDE_PELFE
-    qfPc(i,:)  =   PhytoPlankton(i,iiF)/( p_small+ PhytoPlankton(i,iiC))
+    if ( ppPhytoPlankton(i,iiF) > 0 ) &
+      qfPPYc(i,:)  =   PhytoPlankton(i,iiF)/( p_small+ PhytoPlankton(i,iiC))
 #endif
   end do
-
-  qsPc(iiP1,:)  =   P1s(:)/( p_small+ P1c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in Pelagic Bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  qpB1c(:)  =   B1p(:)/( p_small+ B1c(:))
-  qnB1c(:)  =   B1n(:)/( p_small+ B1c(:))
+  qpPBAc(:)  =   B1p(:)/( p_small+ B1c(:))
+  qnPBAc(:)  =   B1n(:)/( p_small+ B1c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Prescribe background costant sedimentation velocities

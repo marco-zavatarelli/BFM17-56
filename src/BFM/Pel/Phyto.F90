@@ -26,7 +26,7 @@
                  N3n, N4n, N1p, R1n, R6n, R1p, R6p, N5s
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppO3c, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, ppR6s, SUNQ, ThereIsLight, ETW, EIR, &
-    xEPS, Depth, eiPI, sediPI, sunPI, qpPc, qnPc, qsPc, qlPc, NO_BOXES, &
+    xEPS, Depth, eiPI, sediPI, sunPI, qpPPYc, qnPPYc, qsPPYc, qlPPYc, NO_BOXES, &
     iiBen, iiPel, flux_vector, sourcesink_flux_vector
   use mem, ONLY: ppPhytoPlankton
 #ifdef INCLUDE_PELFE
@@ -271,12 +271,12 @@
   !                 The limiting role of the population size (intraspecific 
   !                 competition) can be tuned by increasing p_Contois 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  iN1p = min( ONE, max( p_small, ( qpPc(phyto,:) &
+  iN1p = min( ONE, max( p_small, ( qpPPYc(phyto,:) &
          - p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
-  iNIn = min( ONE, max( p_small, ( qnPc(phyto,:) &
+  iNIn = min( ONE, max( p_small, ( qnPPYc(phyto,:) &
          - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
   if (ppphytos > 0) then
-     iN5s = min(ONE, max( p_small, ( qsPc(phyto,:) &
+     iN5s = min(ONE, max( p_small, ( qsPPYc(phyto,:) &
             - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
      eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
      select case (p_switchSi(phyto)) 
@@ -347,7 +347,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute exponent E_PAR/E_K = alpha0/PBmax
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  r(:) = qlPc(phyto, :)*p_alpha_chl(phyto)/p_sum(phyto)* Irr
+  r(:) = qlPPYc(phyto, :)*p_alpha_chl(phyto)/p_sum(phyto)* Irr
 
   select case ( ProductionLightFlag)
     case ( 1 ) ! instantaneous light
@@ -390,8 +390,8 @@
   ! at least a fraction equal to the minimum quota is released as POM.
   ! Therefore, nutrients (and C) in the structural part go to R6.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  pe_R6 = min( p_qplc(phyto)/( qpPc(phyto, :)+ p_small), p_qnlc(phyto)/ &
-          ( qnPc(phyto, :)+ p_small))
+  pe_R6 = min( p_qplc(phyto)/( qpPPYc(phyto, :)+ p_small), p_qnlc(phyto)/ &
+          ( qnPPYc(phyto, :)+ p_small))
   pe_R6  =   min(  ONE,  pe_R6)
   rr6c  =   pe_R6* sdo* phytoc
   rr1c  =  ( ONE- pe_R6)* sdo* phytoc
@@ -455,9 +455,9 @@
    ! N and P uptake are compared sequentially
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       netgrowth = min( run, ( rumn+ max( ZERO, 0.05_RLEN* &
-      rugc*( qnPc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
+      rugc*( qnPPYc(phyto, :)- p_qnlc(phyto))))/ p_qnlc(phyto))
       netgrowth = min( netgrowth, ( rump+ max( ZERO, &
-       0.05_RLEN* rugc*( qpPc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
+       0.05_RLEN* rugc*( qpPPYc(phyto, :)- p_qplc(phyto))))/ p_qplc(phyto))
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    ! Excrete C that cannot be used for growth as carbo-hydrates:
    ! Correct the net C uptake
@@ -591,7 +591,7 @@
                      p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
            rate_Chl = rho_Chl*(sum - seo - sea - sra) * phytoc - sdo*phytol
       case (2) ! OPATM-BFM
-           rho_Chl  =   p_qchlc(phyto)* sum/( p_alpha_chl(phyto)* qlPc(phyto,:)* Irr)
+           rho_Chl  =   p_qchlc(phyto)* sum/( p_alpha_chl(phyto)* qlPPYc(phyto,:)* Irr)
            rate_Chl = iN* rho_Chl* run- max( p_sdchl(phyto)*( ONE - iN), sdo)* &
                phytol+ min( ZERO, sum- slc+ sdo)* max( ZERO, phytol- p_qchlc(phyto)* phytoc)
       case (3) ! UNIBO

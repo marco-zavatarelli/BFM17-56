@@ -29,7 +29,7 @@
     R6n, PhytoPlankton, MicroZooPlankton, MesoZooPlankton
   use mem, ONLY: Depth, ppO2o, ppO3c, ppN1p, ppN4n, ppR6c, ppR6n, ppR6p, ppR6s, &
     ppPhytoPlankton, ppMicroZooPlankton, ppMesoZooPlankton, ETW, &
-    qnPc, qpPc, qlPc, qsPc, qn_mz, qp_mz, qnZc, qpZc, iiPhytoPlankton, &
+    qnPPYc, qpPPYc, qlPPYc, qsPPYc, qnMIZc, qpMIZc, qnMEZc, qpMEZc, iiPhytoPlankton, &
     iiMicroZooPlankton, iiMesoZooPlankton, iiC, iiN, iiP, iiL, iiS, NO_BOXES, &
     iiBen, iiPel, flux_vector,fixed_quota_flux_vector
 #ifdef INCLUDE_PELFE
@@ -270,18 +270,18 @@
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
                 ppPhytoPlankton(i,iiC), ppzooc, ruPPYc          , tfluxc)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
-                ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qnPc(i,:), tfluxn)
+                ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qnPPYc(i,:), tfluxn)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, &
-                ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpPc(i,:), tfluxp)
+                ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpPPYc(i,:), tfluxp)
     rut_c = rut_c + ruPPYc
-    rut_n = rut_n + ruPPYc*qnPc(i,:)
-    rut_p = rut_p + ruPPYc*qpPc(i,:)
+    rut_n = rut_n + ruPPYc*qnPPYc(i,:)
+    rut_p = rut_p + ruPPYc*qpPPYc(i,:)
     ! Chl is transferred to the infinite sink
     call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
-               ppPhytoPlankton(i,iiL), -ruPPYc*qlPc(i,:))
+               ppPhytoPlankton(i,iiL), -ruPPYc*qlPPYc(i,:))
     ! silicon constituent is transferred to biogenic silicate
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
-       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qsPc(i,:))
+       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qsPPYc(i,:))
 #ifdef INCLUDE_PELFE
     ! Fe constituent is transferred to particulate iron
     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
@@ -294,12 +294,12 @@
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
                ppMicroZooPlankton(i,iiC), ppzooc, ruMIZc           , tfluxc )
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
-               ppMicroZooPlankton(i,iiN), ppzoon, ruMIZc*qn_mz(i,:), tfluxn)
+               ppMicroZooPlankton(i,iiN), ppzoon, ruMIZc*qnMIZc(i,:), tfluxn)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, &
-               ppMicroZooPlankton(i,iiP), ppzoop, ruMIZc*qp_mz(i,:), tfluxp)
+               ppMicroZooPlankton(i,iiP), ppzoop, ruMIZc*qpMIZc(i,:), tfluxp)
     rut_c = rut_c + ruMIZc
-    rut_n = rut_n + ruMIZc*qn_mz(i,:)
-    rut_p = rut_p + ruMIZc*qp_mz(i,:)
+    rut_n = rut_n + ruMIZc*qnMIZc(i,:)
+    rut_p = rut_p + ruMIZc*qpMIZc(i,:)
   end do
   ! Mesozooplankton
   do i = 1, iiMesoZooPlankton
@@ -309,13 +309,13 @@
       call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
                  ppMesoZooPlankton(i,iiC), ppzooc, ruMEZc          , tfluxc )
       call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoon, &
-                 ppMesoZooPlankton(i,iiN), ppzoon, ruMEZc*qnZc(i,:), tfluxn)
+                 ppMesoZooPlankton(i,iiN), ppzoon, ruMEZc*qnMEZc(i,:), tfluxn)
       call fixed_quota_flux_vector( check_fixed_quota, iiPel, ppzoop, &
-                 ppMesoZooPlankton(i,iiP), ppzoop, ruMEZc*qpZc(i,:), tfluxp)
+                 ppMesoZooPlankton(i,iiP), ppzoop, ruMEZc*qpMEZc(i,:), tfluxp)
     end if
     rut_c = rut_c + ruMEZc
-    rut_n = rut_n + ruMEZc*qnZc(i,:)
-    rut_p = rut_p + ruMEZc*qpZc(i,:)
+    rut_n = rut_n + ruMEZc*qnMEZc(i,:)
+    rut_p = rut_p + ruMEZc*qpMEZc(i,:)
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -341,8 +341,8 @@
   ! Eq. 40 and 44 Vichi et al. 2007
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rq6c = p_peI(zoo)*rut_c + rdo_c + rd_c
-  rq6n = p_peI(zoo)*rut_n + qnZc(zoo,:)*(rdo_c + rd_c)
-  rq6p = p_peI(zoo)*rut_p + qpZc(zoo,:)*(rdo_c + rd_c)
+  rq6n = p_peI(zoo)*rut_n + qnMEZc(zoo,:)*(rdo_c + rd_c)
+  rq6p = p_peI(zoo)*rut_p + qpMEZc(zoo,:)*(rdo_c + rd_c)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Check the assimilation rate for Carbon, Nitrogen and Phosphorus
@@ -364,15 +364,15 @@
   ! value to variable nut_lim
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   nut_lim = iiC
-  temp_p  = pu_e_p/qpZc(zoo,:)
-  temp_n  = pu_e_n/qnZc(zoo,:)
+  temp_p  = pu_e_p/qpMEZc(zoo,:)
+  temp_n  = pu_e_n/qnMEZc(zoo,:)
 
   WHERE ( temp_p<temp_n .OR. abs(temp_p-temp_n)<p_small ) 
-      WHERE ( pu_e_p< qpZc(zoo,:) )
+      WHERE ( pu_e_p< qpMEZc(zoo,:) )
         nut_lim = iiP
       END WHERE
   ELSEWHERE
-      WHERE ( pu_e_n<qnZc(zoo,:) )
+      WHERE ( pu_e_n<qnMEZc(zoo,:) )
         nut_lim = iiN
       END WHERE
   END WHERE

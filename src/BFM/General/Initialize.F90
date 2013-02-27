@@ -15,7 +15,7 @@
 ! USES:
   use mem, only: InitializeModel,ppMicroZooplankton,ppMesoZooPlankton, &
                  iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
-                 iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
+                 iiN,iiP,qpMEZc,qnMEZc,qpMIZc,qnMIZc
   use mem_Param
   use mem_PelGlobal
   use mem_PelChem
@@ -153,15 +153,15 @@
       ! In case of variable quota these values are recomputed every time-step
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
        do i = 1 , ( iiMicroZooPlankton)
-         if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qpMIZc(i) 
-         if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qnMIZc(i)
+         if ( ppMicroZooPlankton(i,iiP) == 0 ) qpMIZc(i,:)  =  p_qpMIZc(i) 
+         if ( ppMicroZooPlankton(i,iiN) == 0 ) qnMIZc(i,:)  =  p_qnMIZc(i)
        end do
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        ! Nutrient quota in omnivorous and herbivorous mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
-         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMEZc(i)
-         if ( ppMesoZooPlankton(i,iiN) == 0 ) qnZc(i,:)  =   p_qnMEZc(i)
+         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpMEZc(i,:)  =   p_qpMEZc(i)
+         if ( ppMesoZooPlankton(i,iiN) == 0 ) qnMEZc(i,:)  =   p_qnMEZc(i)
        end do
 
 
