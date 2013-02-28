@@ -64,11 +64,11 @@
   ! LightAdaptation PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: p_isw(iiPhytoPlankton)  ! Switch between parameterizations
-  real(RLEN)  :: p_chEPLi(iiPhytoPlankton)  ! Maximum Iopt (uE/m2/s)
-  real(RLEN)  :: p_clEPLi(iiPhytoPlankton)  ! Minimum Iopt (uE/m2/s)
-  ! p_ruEPLi = 0.25, 0.25, 0.5, 0.125 # Maximum daily shift in &
+  real(RLEN)  :: p_chELiPPY(iiPhytoPlankton)  ! Maximum Iopt (uE/m2/s)
+  real(RLEN)  :: p_clELiPPY(iiPhytoPlankton)  ! Minimum Iopt (uE/m2/s)
+  ! p_ruELiPPY = 0.25, 0.25, 0.5, 0.125 # Maximum daily shift in &
   ! Iopt (1/d)
-  real(RLEN)  :: p_ruEPLi(iiPhytoPlankton)  ! Maximum daily shift in Iopt (1/d)
+  real(RLEN)  :: p_ruELiPPY(iiPhytoPlankton)  ! Maximum daily shift in Iopt (1/d)
   real(RLEN)  :: p_addepth(iiPhytoPlankton)  ! Adaptation depth. Meaningless with high
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -80,8 +80,8 @@
   subroutine InitLightAdaptation()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /LightAdaptation_parameters/ p_isw, p_addepth, p_chEPLi, p_clEPLi, &
-    p_ruEPLi
+  namelist /LightAdaptation_parameters/ p_isw, p_addepth, p_chELiPPY, p_clELiPPY, &
+    p_ruELiPPY
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

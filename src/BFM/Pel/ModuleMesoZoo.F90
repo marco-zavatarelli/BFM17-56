@@ -74,8 +74,8 @@
   ! p_peI        [-]             Faeces production
   ! p_sdo        [m3/mgC/d]      Fractional density-dependent mortality
   ! p_sds        [-]             Exponent of density-dependent mortality
-  ! p_qpMEZc     [mmolP/mgC]     Maximum quotum P:C
-  ! p_qnMEZc     [mmolN/mgC]     Maximum quotum N:C
+  ! p_qpcMEZ     [mmolP/mgC]     Maximum quotum P:C
+  ! p_qncMEZ     [mmolN/mgC]     Maximum quotum N:C
   ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
   !                              to Zooplankton group z
   ! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m
@@ -92,8 +92,8 @@
   real(RLEN)  :: p_peI(iiMesoZooPlankton)
   real(RLEN)  :: p_sdo(iiMesoZooPlankton)
   real(RLEN)  :: p_sds(iiMesoZooPlankton)
-  real(RLEN)  :: p_qpMEZc(iiMesoZooPlankton)
-  real(RLEN)  :: p_qnMEZc(iiMesoZooPlankton)
+  real(RLEN)  :: p_qpcMEZ(iiMesoZooPlankton)
+  real(RLEN)  :: p_qncMEZ(iiMesoZooPlankton)
   real(RLEN)  :: p_clO2o(iiMesoZooPlankton)
   real(RLEN)  :: p_paPPY(iiMesoZooPlankton,iiPhytoPlankton)
   real(RLEN)  :: p_paMIZ(iiMesoZooPlankton,iiMicroZooPlankton)
@@ -108,7 +108,7 @@
   subroutine InitMesoZoo()
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /MesoZoo_parameters/ p_q10, p_srs, p_paPPY, p_paMIZ, p_paMEZ, p_sd, &
-    p_sum, p_vum, p_puI, p_peI, p_sdo, p_sds, p_qpMEZc, p_qnMEZc, p_clO2o
+    p_sum, p_vum, p_puI, p_peI, p_sdo, p_sds, p_qpcMEZ, p_qncMEZ, p_clO2o
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute
 

@@ -26,7 +26,7 @@
   use mem
 #else
   use mem,  ONLY: D3STATE, PhytoPlankton
-  use mem, ONLY: ppPhytoPlankton, D3STATETYPE, Depth, xEPS, EIR, EPLi, &
+  use mem, ONLY: ppPhytoPlankton, D3STATETYPE, Depth, xEPS, EIR, ELiPPY, &
     iiL, iiC, Source_D3_vector, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
   use mem_LightAdaptation
@@ -81,12 +81,12 @@
   real(RLEN),dimension(NO_BOXES)  :: addepth
   real(RLEN),dimension(NO_BOXES)  :: adfactor
   real(RLEN),dimension(NO_BOXES)  :: rate_PLi
-  real(RLEN),dimension(NO_BOXES)  :: rate_EPLi
-  real(RLEN),dimension(NO_BOXES)  :: new_EPLi
+  real(RLEN),dimension(NO_BOXES)  :: rate_ELiPPY
+  real(RLEN),dimension(NO_BOXES)  :: new_ELiPPY
   real(RLEN),dimension(NO_BOXES)  :: eir_c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  ! EPLi(phyto,:) has been already calculated 
+  ! ELiPPY(phyto,:) has been already calculated 
 
   ! computation of the change in IRR_OPT
   ! adaptation to the light in the depth p_addepth below surface.
@@ -102,13 +102,13 @@
   select case ( p_isw(phyto))
 
     case ( 1 )
-      new_EPLi  =   max(  eir_c,  p_clEPLi(phyto))
-      new_EPLi  =   min(  new_EPLi,  p_chEPLi(phyto))
+      new_ELiPPY  =   max(  eir_c,  p_clELiPPY(phyto))
+      new_ELiPPY  =   min(  new_ELiPPY,  p_chELiPPY(phyto))
 
     case ( 2 )
-      new_EPLi = max( 2.0E+00_RLEN* eir_c* p_chEPLi(phyto)/( &
-        eir_c+ p_chEPLi(phyto)), p_clEPLi(phyto))
-      new_EPLi  =   min(  new_EPLi,  p_chEPLi(phyto))
+      new_ELiPPY = max( 2.0E+00_RLEN* eir_c* p_chELiPPY(phyto)/( &
+        eir_c+ p_chELiPPY(phyto)), p_clELiPPY(phyto))
+      new_ELiPPY  =   min(  new_ELiPPY,  p_chELiPPY(phyto))
 
   end select
 
@@ -121,13 +121,13 @@
 
     case ( NOTRANSPORT )
 
-      rate_EPLi  =   p_ruEPLi(phyto)*( new_EPLi(:)- EPLi(phyto,:))
-      call flux_vector( iiPel, iphytol,iphytol, rate_EPLi )
+      rate_ELiPPY  =   p_ruELiPPY(phyto)*( new_ELiPPY(:)- ELiPPY(phyto,:))
+      call flux_vector( iiPel, iphytol,iphytol, rate_ELiPPY )
 
     case default
 
-      rate_PLi = Source_D3_vector(ppPhytoPlankton(phyto,iiC))* EPLi(phyto,:)+ &
-                 p_ruEPLi(phyto)*( new_EPLi- EPLi(phyto,:))* PhytoPlankton(phyto,iiC)
+      rate_PLi = Source_D3_vector(ppPhytoPlankton(phyto,iiC))* ELiPPY(phyto,:)+ &
+                 p_ruELiPPY(phyto)*( new_ELiPPY- ELiPPY(phyto,:))* PhytoPlankton(phyto,iiC)
       call flux_vector( iiPel, iphytol,iphytol, rate_PLi )
 
   end select

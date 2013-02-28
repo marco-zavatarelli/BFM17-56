@@ -77,8 +77,8 @@
   ! p_pu_ra     [-]              Activity respiration fraction
   ! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
   ! p_srs       [1/d]            Specific rest respiration
-  ! p_qnPBAc    [mmolN/mgC]      Optimal N/C ratio 
-  ! p_qpPBAc    [mmolP/mgC]      Optimal P/C ratio 
+  ! p_qncPBA    [mmolN/mgC]      Optimal N/C ratio 
+  ! p_qpcPBA    [mmolP/mgC]      Optimal P/C ratio 
   ! p_qlnc      [mmolN/mgC]      Minimal N/C ratio 
   ! p_qlpc      [mmolP/mgC]      Minimal P/C ratio 
   ! p_qun       [mmolN/mgC/day]  Membrane affinity for N 
@@ -104,8 +104,8 @@
   real(RLEN)  :: p_pu_ra
   real(RLEN)  :: p_pu_ra_o
   real(RLEN)  :: p_srs
-  real(RLEN)  :: p_qnPBAc
-  real(RLEN)  :: p_qpPBAc
+  real(RLEN)  :: p_qncPBA
+  real(RLEN)  :: p_qpcPBA
   real(RLEN)  :: p_qlnc
   real(RLEN)  :: p_qlpc
   real(RLEN)  :: p_qun
@@ -131,7 +131,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
     p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R3, p_srs, &
-    p_suR3, p_qpPBAc, p_qlpc, p_qnPBAc, p_qlnc, p_qun, p_qup, p_chn, p_chp, &
+    p_suR3, p_qpcPBA, p_qlpc, p_qncPBA, p_qlnc, p_qun, p_qup, p_chn, p_chp, &
     p_ruen, p_ruep, p_rec
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

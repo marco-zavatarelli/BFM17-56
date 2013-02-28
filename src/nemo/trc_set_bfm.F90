@@ -66,10 +66,10 @@
       case (ppP1c,ppP1n,ppP1p,ppP1s,ppP1l)
 #endif
 #ifdef USEPACK
-         wbio = -unpack(sediPI(iiP1,:),SEAmask,ZEROS)
+         wbio = -unpack(sediPPY(iiP1,:),SEAmask,ZEROS)
 #else
          DO n = 1,NO_BOXES
-            wbio(iwet(n),jwet(n),kwet(n)) = -sediPI(iiP1,n)
+            wbio(iwet(n),jwet(n),kwet(n)) = -sediPPY(iiP1,n)
          END DO
 #endif
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

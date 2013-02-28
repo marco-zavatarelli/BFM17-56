@@ -203,8 +203,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
           'R1n','R6n',
           'R1p','R6p',
           'P1s','R6s',
-          'eiPI(iiP1)','eiPI(iiP2)','eiPI(iiP3)','eiPI(iiP4)',
-          'sunPI(iiP1)','sunPI(iiP2)','sunPI(iiP3)','sunPI(iiP4)',
+          'eiPPY(iiP1)','eiPPY(iiP2)','eiPPY(iiP3)','eiPPY(iiP4)',
+          'sunPPY(iiP1)','sunPPY(iiP2)','sunPPY(iiP3)','sunPPY(iiP4)',
           'ruPTc','ruZTc'
 	filename_nml_conf = 'BFM_General.nml',
 /
@@ -316,8 +316,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_pu_ra     [-]              Activity respiration fraction
 ! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
 ! p_srs       [1/d]            Specific rest respiration 
-! p_qnPBAc    [mmolN/mgC]      Optimal N/C ratio 
-! p_qpPBAc    [mmolP/mgC]      Optimal P/C ratio 
+! p_qncPBA    [mmolN/mgC]      Optimal N/C ratio 
+! p_qpcPBA    [mmolP/mgC]      Optimal P/C ratio 
 ! p_qlnc      [mmolN/mgC]      Minimal N/C ratio 
 ! p_qlpc      [mmolP/mgC]      Minimal P/C ratio 
 ! p_qun       [mmolN/mgC/day]  Membrane affinity for N 
@@ -344,8 +344,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
        p_pu_ra = 0.6
      p_pu_ra_o = 0.2
          p_srs = 0.01
-      p_qnPBAc = 0.0167
-      p_qpPBAc = 0.00185
+      p_qncPBA = 0.0167
+      p_qpcPBA = 0.00185
         p_qlnc = 0.0167
         p_qlpc = 0.00185
          p_qun = 0.0
@@ -428,9 +428,9 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !              --------- Light parameters ERSEM-II -----------
 !  p_iswLtyp                  Shape of the productivity function
 !  p_isw                      Switch between parameterizations
-!  p_chEPLi    [W/m2]         Maximum Iopt
-!  p_clEPLi    [W/m2]         Minimum Iopt
-!  p_ruEPLi    [1/d]          Maximum daily shift in Iopt (1/d)
+!  p_chELiPPY    [W/m2]         Maximum Iopt
+!  p_clELiPPY    [W/m2]         Minimum Iopt
+!  p_ruELiPPY    [1/d]          Maximum daily shift in Iopt (1/d)
 !  p_addepth   [m]            Adaptation depth. Meaningless with high-res models
 !
 !-------------------------------------------------------------------------!
@@ -488,9 +488,9 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 &LightAdaptation_parameters
       p_isw =   1,      1,      1,      1
   p_addepth =   50.0,   50.0,   50.0,   50.0
-  p_chEPLi  =   100.0,  100.0,  100.0,  100.0
-  p_clEPLi  =   8.0,    10.0,   6.0,    12.0
-  p_ruEPLi  =   0.2,    0.25,   0.3,    0.15
+  p_chELiPPY  =   100.0,  100.0,  100.0,  100.0
+  p_clELiPPY  =   8.0,    10.0,   6.0,    12.0
+  p_ruELiPPY  =   0.2,    0.25,   0.3,    0.15
 	filename_nml_conf = 'Pelagic_Ecology.nml',
 /
 
@@ -511,8 +511,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_chuc       [mgC/m3]        Half-saturation Food concentration for Type II
 ! p_minfood    [mgC/m3]        Half-saturation food concentration for
 !                              preference factor
-! p_qnMIZc     [mmolN/mgC]     Maximum quotum P:C
-! p_qpMIZc     [mmolN/mgC]     Maximum quotum N:C
+! p_qncMIZ     [mmolN/mgC]     Maximum quotum P:C
+! p_qpcMIZ     [mmolN/mgC]     Maximum quotum N:C
 ! p_paPBA(z,b) [-]             Availability of pelagic Bacteria group b 
 !                              to Zooplankton group z
 ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
@@ -532,8 +532,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
       p_chro =  0.5,    0.5
       p_chuc =  20.0,   20.0
    p_minfood =  20.0,   20.0
-    p_qpMIZc =  1.85d-3,1.85d-3
-    p_qnMIZc =  1.67d-2,1.67d-2
+    p_qpcMIZ =  1.85d-3,1.85d-3
+    p_qncMIZ =  1.67d-2,1.67d-2
 ! Food matrix parameters: take care of the notation
 !               Z5      Z6
      p_paPBA =  0.1,    0.9
@@ -564,8 +564,8 @@ p_paMIZ(2,:) =  0.0,    0.2
 ! p_peI        [-]             Faeces production
 ! p_sdo        [m3/mgC/d]      Fractional density-dependent mortality
 ! p_sds        [-]             Exponent of density-dependent mortality
-! p_qpMEZc     [mmolP/mgC]     Maximum quotum P:C
-! p_qnMEZc     [mmolN/mgC]     Maximum quotum N:C
+! p_qpcMEZ     [mmolP/mgC]     Maximum quotum P:C
+! p_qncMEZ     [mmolN/mgC]     Maximum quotum N:C
 ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
 !                              to Zooplankton group z
 ! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m
@@ -584,8 +584,8 @@ p_paMIZ(2,:) =  0.0,    0.2
        p_sdo =  0.01,   0.01
         p_sd =  0.02,   0.02
        p_sds =  2.0,    2.0
-    p_qpMEZc =  1.67d-3,1.67d-3
-    p_qnMEZc =  0.015,  0.015
+    p_qpcMEZ =  1.67d-3,1.67d-3
+    p_qncMEZ =  0.015,  0.015
      p_clO2o =  30.0,   30.0
 !               P1      P2      P3      P4
 !       Z3

@@ -82,16 +82,18 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Bacteria
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   B1[cnp]	: Pelagic Bacteria : mg C/m3 : mmol N/m3 : mmol P/m3
+   group Bacteria[cnp] (PBA) : mg C/m3 : mmol N/m3 : mmol P/m3
+     B1	: Pelagic Bacteria 
+   end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Phytoplankton Species
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
-	P1	: Diatoms
-	P2[-s]	: Flagellates
-	P3[-s]	: PicoPhytoplankton
-	P4[-s]	: Large Phytoplankton
+	   P1	: Diatoms
+	   P2[-s]	: Flagellates
+	   P3[-s]	: PicoPhytoplankton
+	   P4[-s]	: Large Phytoplankton
    end
                
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -180,40 +182,40 @@ end
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Variables holding quota of elements in species
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    qpPPYc(PhytoPlankton)	: Quotum P/C in Phytoplankton : mmol P/mg C 
-    qnPPYc(PhytoPlankton)	: Quotum N/C in Phytoplankton : mmol N/mg C 
-    qsPPYc(PhytoPlankton)	: Quotum Si/C in Phytoplankton : mmol Si/mg C 
-    qlPPYc(PhytoPlankton)	: Quotum Chl/C in Phytoplankton : mg Chl /mg C
+    qpcPPY(PhytoPlankton)	: Quotum P/C in Phytoplankton : mmol P/mg C 
+    qncPPY(PhytoPlankton)	: Quotum N/C in Phytoplankton : mmol N/mg C 
+    qscPPY(PhytoPlankton)	: Quotum Si/C in Phytoplankton : mmol Si/mg C 
+    qlcPPY(PhytoPlankton)	: Quotum Chl/C in Phytoplankton : mg Chl /mg C
 
-    qpMEZc(MesoZooPlankton)	: Quotum P/C in Mesozooplankton :mmol P/mg C 
-    qnMEZc(MesoZooPlankton)	: Quotum N/C in Mesozooplankton :mmol N/mg C 
+    qpcMEZ(MesoZooPlankton)	: Quotum P/C in Mesozooplankton :mmol P/mg C 
+    qncMEZ(MesoZooPlankton)	: Quotum N/C in Mesozooplankton :mmol N/mg C 
 
-    qpMIZc(MicroZooPlankton)	: Quotum P/C in MicroZooPlankton :mmol P/mg C  
-    qnMIZc(MicroZooPlankton)	: Quotum N/C in MicroZooPlankton :mmol N/mg C 
+    qpcMIZ(MicroZooPlankton)	: Quotum P/C in MicroZooPlankton :mmol P/mg C  
+    qncMIZ(MicroZooPlankton)	: Quotum N/C in MicroZooPlankton :mmol N/mg C 
 
-    qpOMTc(PelDetritus)		: Quotum P/C in Organic Matter:mmol N/mg C 
-    qnOMTc(PelDetritus)		: Quotum N/C in Organic Matter:mmol P/mg C  
-    qsOMTc(PelDetritus)		: Quotum Si/C in Organic Matter:mmol Si/mg C
+    qpcOMT(PelDetritus)		: Quotum P/C in Organic Matter:mmol N/mg C 
+    qncOMT(PelDetritus)		: Quotum N/C in Organic Matter:mmol P/mg C  
+    qscOMT(PelDetritus)		: Quotum Si/C in Organic Matter:mmol Si/mg C
  
-    qpPBAc			: Quotum P/C in Pelagic Bacteria :mmol P/mg C  
-    qnPBAc			: Quotum N/C in Pelagic Bacteria :mmol N/mg C  
+    qpcPBA			: Quotum P/C in Pelagic Bacteria :mmol P/mg C  
+    qncPBA			: Quotum N/C in Pelagic Bacteria :mmol N/mg C  
 
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    # Sinking rates of phytoplankton and detritus
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    sediPI(PhytoPlankton)     : PhytoPlankton sedimentation rate :m/d
-    sediMiZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate :m/d
-    sediMeZ(MesoZooPlankton)  : MesoZooPlankton sedimentation rate :m/d
+    sediPPY(PhytoPlankton)     : PhytoPlankton sedimentation rate :m/d
+    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate :m/d
+    sediMEZ(MesoZooPlankton)  : MesoZooPlankton sedimentation rate :m/d
     sediR2                    : Detritus sedimentation rate:m/d
     sediR6                    : Detritus sedimentation rate:m/d
 
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    # Sinking rates of phytoplankton and detritus
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    sunPI(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
-    eiPI(PhytoPlankton)  : Regulating Factor for Light in PhytoPlankton : -
+    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
+    eiPPY(PhytoPlankton)  : Regulating Factor for Light in PhytoPlankton : -
     xEPS                 : Total Extinction Coefficient : 1/m
-    EPLi(PhytoPlankton)  : Optimal light in PhytoPlankton : W/m2
+    ELiPPY(PhytoPlankton)  : Optimal light in PhytoPlankton : W/m2
     ABIO_eps             : Abiotic Extinction Coefficient : 1/m
 end
 

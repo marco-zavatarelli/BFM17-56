@@ -66,8 +66,8 @@
   ! p_chuc       [mgC/m3]        Half-saturation Food concentration for Type II
   ! p_minfood    [mgC/m3]        Half-saturation food concentration for
   !                              preference factor
-  ! p_qnMIZc     [mmolN/mgC]     Maximum quotum P:C
-  ! p_qpMIZc     [mmolN/mgC]     Maximum quotum N:C
+  ! p_qncMIZ     [mmolN/mgC]     Maximum quotum P:C
+  ! p_qpcMIZ     [mmolN/mgC]     Maximum quotum N:C
   ! p_paPBA(z,b) [-]             Availability of pelagic Bacteria group b 
   !                              to Zooplankton group z
   ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
@@ -85,8 +85,8 @@
   real(RLEN)  :: p_chro(iiMicroZooPlankton)
   real(RLEN)  :: p_chuc(iiMicroZooPlankton)
   real(RLEN)  :: p_minfood(iiMicroZooPlankton)
-  real(RLEN)  :: p_qpMIZc(iiMicroZooPlankton)
-  real(RLEN)  :: p_qnMIZc(iiMicroZooPlankton)
+  real(RLEN)  :: p_qpcMIZ(iiMicroZooPlankton)
+  real(RLEN)  :: p_qncMIZ(iiMicroZooPlankton)
   real(RLEN)  :: p_paPBA(iiMicroZooPlankton)
   real(RLEN)  :: p_paPPY(iiMicroZooPlankton,iiPhytoPlankton)
   real(RLEN)  :: p_paMIZ(iiMicroZooPlankton,iiMicroZooPlankton)
@@ -101,7 +101,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /MicroZoo_parameters/ p_q10, p_srs, p_sum, p_sdo, p_sd, p_pu, &
-    p_pu_ea, p_chro, p_chuc, p_minfood, p_qnMIZc, p_qpMIZc,p_paPPY, p_paMIZ, p_paPBA
+    p_pu_ea, p_chro, p_chuc, p_minfood, p_qncMIZ, p_qpcMIZ,p_paPPY, p_paMIZ, p_paPBA
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

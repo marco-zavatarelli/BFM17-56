@@ -71,11 +71,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1, iiPelDetritus
     if ( ppPelDetritus(i,iiP) > 0 ) &
-      qpOMTc(i,:)  =  PelDetritus(i,iiP)/( p_small+ PelDetritus(i,iiC))
+      qpcOMT(i,:)  =  PelDetritus(i,iiP)/( p_small+ PelDetritus(i,iiC))
     if ( ppPelDetritus(i,iiN) > 0 ) &
-      qnOMTc(i,:)  =  PelDetritus(i,iiN)/( p_small+ PelDetritus(i,iiC))
+      qncOMT(i,:)  =  PelDetritus(i,iiN)/( p_small+ PelDetritus(i,iiC))
     if ( ppPelDetritus(i,iiS) > 0 ) &
-      qsOMTc(i,:)  =   PelDetritus(i,iiS)/( p_small+ PelDetritus(i,iiC))
+      qscOMT(i,:)  =   PelDetritus(i,iiS)/( p_small+ PelDetritus(i,iiC))
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -85,9 +85,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1, iiMicroZooPlankton
     if ( ppMicroZooPlankton(i,iiP) > 0 ) &
-      qpMIZc(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
+      qpcMIZ(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
     if ( ppMicroZooPlankton(i,iiN) > 0 ) &
-      qnMIZc(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
+      qncMIZ(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -97,9 +97,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1, iiMesoZooPlankton
     if ( ppMesoZooPlankton(i,iiP) > 0 ) &
-      qpMEZc(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
+      qpcMEZ(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
     if ( ppMesoZooPlankton(i,iiN) > 0 ) &
-      qnMEZc(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
+      qncMEZ(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -107,13 +107,13 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1, iiPhytoPlankton
     if ( ppPhytoPlankton(i,iiP) > 0 ) &
-      qpPPYc(i,:)  =   PhytoPlankton(i,iiP)/( p_small+ PhytoPlankton(i,iiC))
+      qpcPPY(i,:)  =   PhytoPlankton(i,iiP)/( p_small+ PhytoPlankton(i,iiC))
     if ( ppPhytoPlankton(i,iiN) > 0 ) &
-      qnPPYc(i,:)  =   PhytoPlankton(i,iiN)/( p_small+ PhytoPlankton(i,iiC))
+      qncPPY(i,:)  =   PhytoPlankton(i,iiN)/( p_small+ PhytoPlankton(i,iiC))
     if ( ppPhytoPlankton(i,iiS) > 0 ) &
-      qsPPYc(i,:)  =   PhytoPlankton(i,iiS)/( p_small+ PhytoPlankton(i,iiC))
+      qscPPY(i,:)  =   PhytoPlankton(i,iiS)/( p_small+ PhytoPlankton(i,iiC))
     if ( ppPhytoPlankton(i,iiL) > 0 ) &
-      qlPPYc(i,:)  =   PhytoPlankton(i,iiL)/( p_small+ PhytoPlankton(i,iiC))
+      qlcPPY(i,:)  =   PhytoPlankton(i,iiL)/( p_small+ PhytoPlankton(i,iiC))
 #ifdef INCLUDE_PELFE
     if ( ppPhytoPlankton(i,iiF) > 0 ) &
       qfPPYc(i,:)  =   PhytoPlankton(i,iiF)/( p_small+ PhytoPlankton(i,iiC))
@@ -123,8 +123,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in Pelagic Bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  qpPBAc(:)  =   B1p(:)/( p_small+ B1c(:))
-  qnPBAc(:)  =   B1n(:)/( p_small+ B1c(:))
+  qpcPBA(:)  =   B1p(:)/( p_small+ B1c(:))
+  qncPBA(:)  =   B1n(:)/( p_small+ B1c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Prescribe background costant sedimentation velocities
@@ -137,8 +137,8 @@
   sediR6(:)  =   p_rR6m
   sediR6(BOTindices) = p_burvel_R6
   do i = 1 , ( iiPhytoPlankton)
-    sediPI(i,:)  =   p_rPIm( i)
-    sediPI(i,BOTindices)  =   p_burvel_PI
+    sediPPY(i,:)  =   p_rPIm( i)
+    sediPPY(i,BOTindices)  =   p_burvel_PI
   end do
 
   end subroutine PelGlobalDynamics

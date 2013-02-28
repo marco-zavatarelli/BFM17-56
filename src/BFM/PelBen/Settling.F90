@@ -34,7 +34,7 @@
   use mem, ONLY: ppR1c, ppR6c, ppR1n, ppR6n, ppR1p, ppR6p, &
     ppR6s, ppPhytoPlankton, &
     NO_BOXES_XY, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
-    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, sediR6, iiPhytoPlankton, &
+    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPPY, sediR2, sediR6, iiPhytoPlankton, &
     iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF,R6f,ppR6f,jbotR6f
@@ -43,7 +43,7 @@
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
   use mem_Settling
   use mem_PelBac, ONLY: p_suhR1,p_sulR1,p_suR2,p_suR6, &
-                        p_qnPBAc,p_qpPBAc
+                        p_qncPBA,p_qpcPBA
 #ifdef BFM_GOTM
   use bio_var, ONLY: BOTindices
 #else
@@ -126,7 +126,7 @@
       do BoxNumberXY = 1,NO_BOXES_XY 
          kbot = BOTindices(BoxNumberXY)
          do i = 1 , ( iiPhytoPlankton)
-            sedi  =   sediPI(i,kbot)
+            sedi  =   sediPPY(i,kbot)
             if ( sedi> ZERO ) then
                ! Phytoplankton carbon
                j=ppPhytoPlankton(i,iiC)
@@ -186,8 +186,8 @@
            ! between R1 and R6 in such a way that the degradability is the same
            ! Calculate first actual degradability of LOC ( dependent of quotum NC,PC)
            ! and compare with bacterial preferencial quota
-           p = min(ONE, R1n(kbot)/(R1c(kbot)* p_qnPBAc), &
-                                    R1p(kbot)/(R1c(kbot)*p_qpPBAc))
+           p = min(ONE, R1n(kbot)/(R1c(kbot)* p_qncPBA), &
+                                    R1p(kbot)/(R1c(kbot)*p_qpcPBA))
            ! Calculate actual degradability of R1
            s= p_suhR1*p-p_sulR1* (ONE-p)
            ! Calculate distribution factor for R2 between R1 and R6
