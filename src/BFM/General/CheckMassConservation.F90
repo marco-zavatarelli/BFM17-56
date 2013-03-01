@@ -147,19 +147,32 @@
         totpels(:)=totpels(:) + s
      end if
   end do
+  do i=1, iiPelBacteria
+     if ( ppPelBacteria(i,iiC)/=0) then
+        s=PelBacteria(i,iiC)
+        totpelc(:)=totpelc(:) + s
+     end if
+     if ( ppPelBacteria(i,iiN)/=0) then
+        s=PelBacteria(i,iiN)
+        totpeln(:)=totpeln(:) + s
+     end if
+     if ( ppPelBacteria(i,iiP)/=0) then
+        s=PelBacteria(i,iiP)
+        totpelp(:)=totpelp(:) + s
+     end if
+  end do
 
-  totpelc(:) = totpelc(:)+ B1c(:)
 #ifdef INCLUDE_PELCO2
   totpelc(:) = totpelc(:)+ O3c(:)
 #endif
   ! Convert from default units to g and multiply for the water volume
   totpelc(:) = totpelc(:)*Volume(:)/1000.0_RLEN
   ! Convert from default units to g and multiply for the water volume
-  totpeln(:) = (totpeln(:)+ ( B1n(:) + N3n(:) + N4n(:) + O4n(:))) &
+  totpeln(:) = (totpeln(:)+ ( N3n(:) + N4n(:) + O4n(:))) &
                *Volume(:)*MW_N/1000.0_RLEN
-  totpelp(:) = (totpelp(:)+ ( B1p(:) + N1p(:))) &
+  totpelp(:) = (totpelp(:)+ N1p(:)) &
                *Volume(:)*MW_P/1000.0_RLEN
-  totpels(:) = (totpels(:)+ ( N5s(:) )) &
+  totpels(:) = (totpels(:)+ N5s(:)) &
                *Volume(:)*MW_SI/1000.0_RLEN
 
   totsysc(:) = sum(totpelc(:))

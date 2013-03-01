@@ -14,7 +14,7 @@
 !
 ! !USES:
   use global_mem
-  use mem,  ONLY: iiMicroZooPlankton, &
+  use mem,  ONLY: iiMicroZooPlankton, iiPelBacteria, &
                   iiMesoZooPlankton, iiPhytoPlankton
 !  
 !
@@ -87,7 +87,7 @@
   real(RLEN)  :: p_minfood(iiMicroZooPlankton)
   real(RLEN)  :: p_qpcMIZ(iiMicroZooPlankton)
   real(RLEN)  :: p_qncMIZ(iiMicroZooPlankton)
-  real(RLEN)  :: p_paPBA(iiMicroZooPlankton)
+  real(RLEN)  :: p_paPBA(iiMicroZooPlankton,iiPelBacteria)
   real(RLEN)  :: p_paPPY(iiMicroZooPlankton,iiPhytoPlankton)
   real(RLEN)  :: p_paMIZ(iiMicroZooPlankton,iiMicroZooPlankton)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

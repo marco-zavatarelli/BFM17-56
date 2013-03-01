@@ -14,6 +14,7 @@
 !
 ! !USES:
   use global_mem
+  use mem,  ONLY: iiPelBacteria
 !  
 !
 ! !AUTHORS
@@ -53,6 +54,7 @@
   ! Default all is public
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   public
+  integer,private     :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !NAMELIST PelBac_parameters
   !-------------------------------------------------------------------------!
@@ -89,33 +91,33 @@
   ! p_ruep      [1/d]            Relaxation timescale for P uptake/remin.
   ! p_rec       [1/d]            Relaxation timescale for semi-labile excretion
   ! p_pu_ea_R3  [-]              Excretion of semi-refractory DOC
-  integer     :: p_version
+  integer     :: p_version(iiPelBacteria)
   integer, parameter ::       BACT1=1,BACT2=2,BACT3=3
-  real(RLEN)  :: p_q10
-  real(RLEN)  :: p_chdo
-  real(RLEN)  :: p_sd
-  real(RLEN)  :: p_sd2
-  real(RLEN)  :: p_suhR1
-  real(RLEN)  :: p_sulR1
-  real(RLEN)  :: p_suR2
-  real(RLEN)  :: p_suR6
-  real(RLEN)  :: p_suR3
-  real(RLEN)  :: p_sum
-  real(RLEN)  :: p_pu_ra
-  real(RLEN)  :: p_pu_ra_o
-  real(RLEN)  :: p_srs
-  real(RLEN)  :: p_qncPBA
-  real(RLEN)  :: p_qpcPBA
-  real(RLEN)  :: p_qlnc
-  real(RLEN)  :: p_qlpc
-  real(RLEN)  :: p_qun
-  real(RLEN)  :: p_qup
-  real(RLEN)  :: p_chn
-  real(RLEN)  :: p_chp
-  real(RLEN)  :: p_ruen
-  real(RLEN)  :: p_ruep
-  real(RLEN)  :: p_rec
-  real(RLEN)  :: p_pu_ea_R3
+  real(RLEN)  :: p_q10(iiPelBacteria)
+  real(RLEN)  :: p_chdo(iiPelBacteria)
+  real(RLEN)  :: p_sd(iiPelBacteria)
+  real(RLEN)  :: p_sd2(iiPelBacteria)
+  real(RLEN)  :: p_suhR1(iiPelBacteria)
+  real(RLEN)  :: p_sulR1(iiPelBacteria)
+  real(RLEN)  :: p_suR2(iiPelBacteria)
+  real(RLEN)  :: p_suR6(iiPelBacteria)
+  real(RLEN)  :: p_suR3(iiPelBacteria)
+  real(RLEN)  :: p_sum(iiPelBacteria)
+  real(RLEN)  :: p_pu_ra(iiPelBacteria)
+  real(RLEN)  :: p_pu_ra_o(iiPelBacteria)
+  real(RLEN)  :: p_srs(iiPelBacteria)
+  real(RLEN)  :: p_qncPBA(iiPelBacteria)
+  real(RLEN)  :: p_qpcPBA(iiPelBacteria)
+  real(RLEN)  :: p_qlnc(iiPelBacteria)
+  real(RLEN)  :: p_qlpc(iiPelBacteria)
+  real(RLEN)  :: p_qun(iiPelBacteria)
+  real(RLEN)  :: p_qup(iiPelBacteria)
+  real(RLEN)  :: p_chn(iiPelBacteria)
+  real(RLEN)  :: p_chp(iiPelBacteria)
+  real(RLEN)  :: p_ruen(iiPelBacteria)
+  real(RLEN)  :: p_ruep(iiPelBacteria)
+  real(RLEN)  :: p_rec(iiPelBacteria)
+  real(RLEN)  :: p_pu_ea_R3(iiPelBacteria)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -149,23 +151,26 @@
   ! Check consistency of parameters according to the parametrization
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   write(LOGUNIT,*) "#  using p_version=",p_version
-  select case ( p_version )
-    case ( BACT3 ) ! Polimene et al. (2006)
-      p_sulR1 = ZERO
-      write(LOGUNIT,*) "#  forcing p_sulR1=0"
-      if (p_pu_ea_R3 + p_pu_ra .GT. 0.3_RLEN) then
-        write(LOGUNIT,*)"#  Warning: Bacterial growth efficiency is lower than 0.3!"
-        write(LOGUNIT,*)"#  The release of capsular material is possibly larger than p_pu_ra/4"
-      end if
-    case ( BACT1 ) ! Vichi et al. 2007
-      p_sulR1 = ZERO
-      p_suR2 = ZERO
-      p_suR3 = ZERO
-      write(LOGUNIT,*) "#  forcing p_sulR1,p_suR2,p_suR3=0"
-    case ( BACT2 ) ! Vichi et al. 2004
-      p_suR3 = ZERO
-      write(LOGUNIT,*) "#  forcing p_suR3=0"
-  end select
+  do i=1,iiPelBacteria
+     write(LOGUNIT,*) "#  Checking PelBacteria parameters for group:",i
+     select case ( p_version(i) )
+       case ( BACT3 ) ! Polimene et al. (2006)
+         p_sulR1(i) = ZERO
+         write(LOGUNIT,*) "#  forcing p_sulR1=0"
+         if (p_pu_ea_R3(i) + p_pu_ra(i) .GT. 0.3_RLEN) then
+           write(LOGUNIT,*)"#  Warning: Bacterial growth efficiency is lower than 0.3!"
+           write(LOGUNIT,*)"#  The release of capsular material is possibly larger than p_pu_ra/4"
+         end if
+       case ( BACT1 ) ! Vichi et al. 2007
+         p_sulR1(i) = ZERO
+         p_suR2(i) = ZERO
+         p_suR3(i) = ZERO
+         write(LOGUNIT,*) "#  forcing p_sulR1,p_suR2,p_suR3=0"
+       case ( BACT2 ) ! Vichi et al. 2004
+         p_suR3(i) = ZERO
+         write(LOGUNIT,*) "#  forcing p_suR3=0"
+     end select
+  end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Write parameter list to the log

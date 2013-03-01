@@ -123,8 +123,10 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in Pelagic Bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  qpcPBA(:)  =   B1p(:)/( p_small+ B1c(:))
-  qncPBA(:)  =   B1n(:)/( p_small+ B1c(:))
+  do i = 1, (iiPelBacteria)
+    qpcPBA(i,:)  =   PelBacteria(i,iiP)/( p_small+ PelBacteria(i,iiC))
+    qncPBA(i,:)  =   PelBacteria(i,iiN)/( p_small+ PelBacteria(i,iiC))
+  end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Prescribe background costant sedimentation velocities

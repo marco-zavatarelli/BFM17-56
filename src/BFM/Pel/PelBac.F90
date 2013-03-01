@@ -13,7 +13,7 @@
 !    
 !
 ! !INTERFACE
-  subroutine PelBacDynamics
+  subroutine PelBacDynamics(bac, ppbacc, ppbacn, ppbacp)
 !
 ! !USES:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -23,11 +23,12 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: B1c, R6c, B1n, R6n, B1p, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
-    N4n, N1p, N3n, R3c, iiR1, iiR6
-  use mem, ONLY: ppB1c, ppR6c, ppB1n, ppR6n, ppB1p, ppR6p, ppR1c, &
-    ppR1n, ppR1p, ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR3c, flPTN6r, Depth,&
-    ETW, qncPBA, qpcPBA, eO2mO2, qpcOMT, qncOMT, NO_BOXES, iiBen, iiPel, flux_vector, &
+  use mem, ONLY:  R6c, R6n, R6p, R1c, R1n, R1p, R2c, O2o, N6r, &
+    N4n, N1p, N3n, R3c, iiR1, iiR6, D3STATE
+  use mem, ONLY: iiPelBacteria, ppPelBacteria, iiC, iiN, iiP, ppR6c, &
+    ppR6n, ppR6p, ppR1c, ppR1n, ppR1p, &
+    ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR3c, flPTN6r, Depth, ETW, &
+    qncPBA, qpcPBA, eO2mO2, qpcOMT, qncOMT, NO_BOXES, iiBen, iiPel, flux_vector, &
     sourcesink_flux_vector
 #ifdef INCLUDE_PELCO2
   use mem, ONLY: ppO3c
@@ -36,9 +37,6 @@
   use constants,  ONLY: MW_C, ONE_PER_DAY
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, p_small
   use mem_PelBac
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following vector functions are used:eTq_vector, MM_vector, insw_vector
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: eTq_vector, MM_power_vector, insw_vector, &
                              MM_vector
 !  
@@ -76,19 +74,25 @@
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   IMPLICIT NONE
+! !INPUT:
+  integer,intent(IN)  :: bac
+  integer,intent(IN) :: ppbacc
+  integer,intent(IN) :: ppbacn
+  integer,intent(IN) :: ppbacp
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  integer       :: i
   integer, save :: first =0
-  real(RLEN),allocatable,save,dimension(:) :: runn,runp,et,eO2,r,flB1N6r,rrc,  &
+  real(RLEN),allocatable,save,dimension(:) :: runn,runp,et,eO2,r,flN6rPBA,rrc,  &
                                           rd,ruR1c,ruR1n,ruR1p,ruR2c,ruR3c,  &
                                           ruR6c,ruR6p,ruR6n,cqun3,rump,  &
                                           rumn,rumn3,rumn4,ren,rep,reR2c, &
                                           reR3c,rut,rum,run,sun,rug,suR1, &
                                           suR1n,suR1p,suR2,cuR6,cuR1,iN1p, &
                                           iNIn,iN,eN1p,eN4n, &
-                                          huln, hulp
+                                          huln, hulp, bacc
   real(RLEN),allocatable,save,dimension(:) ::  misn,misp,rupp,rupn
   integer :: AllocStatus
 #ifndef INCLUDE_PELCO2
@@ -119,8 +123,8 @@
      if (AllocStatus  /= 0) stop "error allocating eO2"
      allocate(r(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating r"
-     allocate(flB1N6r(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating flB1N6r"
+     allocate(flN6rPBA(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating flN6rPBA"
      allocate(rrc(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating rrc"
      allocate(rd(NO_BOXES),stat=AllocStatus)
@@ -189,10 +193,15 @@
      if (AllocStatus  /= 0) stop "error allocating iN"
   end if
 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Copy state var. object in local var
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  bacc = D3STATE(ppbacc,:)
+  
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect on pelagic bacteria:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  et = eTq_vector(ETW(:), p_q10)
+  et = eTq_vector(ETW(:), p_q10(bac))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Oxygen environment: bacteria are both aerobic and anaerobic
@@ -200,13 +209,13 @@
   ! oxygen regulating factor eO2 is cubic
   ! (eq. 19 in Vichi et al., 2004)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  eO2 = MM_power_vector(max(p_small,O2o(:)),  p_chdo,3)
+  eO2 = MM_power_vector(max(p_small,O2o(:)),  p_chdo(bac),3)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! External nutrient limitation (used by some parametrizations)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  eN4n = MM_vector(N4n(:), p_chn)
-  eN1p = MM_vector(N1p(:), p_chp)
+  eN4n = MM_vector(N4n(:), p_chn(bac))
+  eN1p = MM_vector(N1p(:), p_chp(bac))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !  Mortality:
@@ -217,21 +226,21 @@
   !   LOC (R1) and detritus (R6) as for phytoplankton and microzooplankton
   !   using the p_pe_R1x parameters defined in Param
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rd  =  ( p_sd*et + (p_sd2*B1c(:)) ) * B1c(:)
+  rd  =  ( p_sd(bac)*et + p_sd2(bac)*bacc ) * bacc
 
-  call flux_vector( iiPel, ppB1c,ppR6c, rd*(ONE-p_pe_R1c) )
-  call flux_vector( iiPel, ppB1n,ppR6n, rd*qncPBA(:)*(ONE-p_pe_R1n) )
-  call flux_vector( iiPel, ppB1p,ppR6p, rd*qpcPBA(:)*(ONE-p_pe_R1p) )
+  call flux_vector( iiPel, ppbacc,ppR6c, rd*(ONE-p_pe_R1c) )
+  call flux_vector( iiPel, ppbacn,ppR6n, rd*qncPBA(bac,:)*(ONE-p_pe_R1n) )
+  call flux_vector( iiPel, ppbacp,ppR6p, rd*qpcPBA(bac,:)*(ONE-p_pe_R1p) )
 
-  call flux_vector( iiPel, ppB1c,ppR1c, rd*p_pe_R1c )
-  call flux_vector( iiPel, ppB1n,ppR1n, rd*qncPBA(:)*p_pe_R1n )
-  call flux_vector( iiPel, ppB1p,ppR1p, rd*qpcPBA(:)*p_pe_R1p )
+  call flux_vector( iiPel, ppbacc,ppR1c, rd*p_pe_R1c )
+  call flux_vector( iiPel, ppbacn,ppR1n, rd*qncPBA(bac,:)*p_pe_R1n )
+  call flux_vector( iiPel, ppbacp,ppR1p, rd*qpcPBA(bac,:)*p_pe_R1p )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Substrate availability
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  select case ( p_version )
+  select case ( p_version(bac) )
 
     case ( BACT3 )  ! Polimene et al. (2006)
 
@@ -240,7 +249,7 @@
       ! Note: oxygen control in eq 5 (Polimene et al. 2006) is not included
       !        as bacteria are both aerobic and anaerobic
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rum  =  p_sum*et*B1c(:)
+      rum  =  p_sum(bac)*et*bacc
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! No correction of organic material quality
@@ -253,21 +262,21 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-==--=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-
       ! Nutrient limitation (intracellular, eq. 51 Vichi et al. 2007)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      iNIn = min(ONE, max(ZERO, qncPBA(:)/p_qncPBA))  !Nitrogen
-      iN1p = min(ONE, max(ZERO, qpcPBA(:)/p_qpcPBA))  !Phosphorus
+      iNIn = min(ONE, max(ZERO, qncPBA(bac,:)/p_qncPBA(bac)))  !Nitrogen
+      iN1p = min(ONE, max(ZERO, qpcPBA(bac,:)/p_qpcPBA(bac)))  !Phosphorus
       iN   = min(iN1p, iNIn)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Potential uptake by bacteria (eq. 50 Vichi et al. 2007)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rum  = iN*et*p_sum*B1c(:)
+      rum  = iN*et*p_sum(bac)*bacc
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! correction of substrate quality depending on nutrient content
       ! (eq. 52 Vichi et al. 2007)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      cuR1 = min(ONE, qpcOMT(iiR1,:)/p_qpcPBA, qncOMT(iiR1,:)/ p_qncPBA)
-      cuR6 = min(ONE, qpcOMT(iiR6,:)/p_qpcPBA, qncOMT(iiR6,:)/ p_qncPBA)
+      cuR1 = min(ONE, qpcOMT(iiR1,:)/p_qpcPBA(bac), qncOMT(iiR1,:)/ p_qncPBA(bac))
+      cuR6 = min(ONE, qpcOMT(iiR6,:)/p_qpcPBA(bac), qncOMT(iiR6,:)/ p_qncPBA(bac))
 
   end select
 
@@ -277,10 +286,10 @@
   ! See eq 27 in Vichi et al., 2004 for R2
   ! and eq 6 in Polimene et al., 2006 for R3 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ruR1c = (p_suhR1*cuR1 + p_sulR1*(ONE-cuR1))*R1c(:)
-  ruR2c = p_suR2*R2c(:)
-  ruR3c = p_suR3*R3c(:)
-  ruR6c = p_suR6*cuR6*R6c(:)
+  ruR1c = (p_suhR1(bac)*cuR1 + p_sulR1(bac)*(ONE-cuR1))*R1c(:)
+  ruR2c = p_suR2(bac)*R2c(:)
+  ruR3c = p_suR3(bac)*R3c(:)
+  ruR6c = p_suR6(bac)*cuR6*R6c(:)
   rut   = p_small + ruR1c + ruR2c + ruR6c + ruR3c
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -295,23 +304,23 @@
   ruR2c = rug*ruR2c/rut
   ruR3c = rug*ruR3c/rut
   ruR6c = rug*ruR6c/rut
-  call flux_vector( iiPel, ppR1c, ppB1c, ruR1c )
-  call flux_vector( iiPel, ppR2c, ppB1c, ruR2c )
-  call flux_vector( iiPel, ppR3c, ppB1c, ruR3c )
-  call flux_vector( iiPel, ppR6c, ppB1c, ruR6c )
+  call flux_vector( iiPel, ppR1c, ppbacc, ruR1c )
+  call flux_vector( iiPel, ppR2c, ppbacc, ruR2c )
+  call flux_vector( iiPel, ppR3c, ppbacc, ruR3c )
+  call flux_vector( iiPel, ppR6c, ppbacc, ruR6c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Nitrogen and Phosphrous uptake
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ruR1n = qncOMT(iiR1,:)*ruR1c
   ruR6n = qncOMT(iiR6,:)*ruR6c
-  call flux_vector( iiPel, ppR1n, ppB1n, ruR1n )
-  call flux_vector( iiPel, ppR6n, ppB1n, ruR6n )
+  call flux_vector( iiPel, ppR1n, ppbacn, ruR1n )
+  call flux_vector( iiPel, ppR6n, ppbacn, ruR6n )
 
   ruR1p = qpcOMT(iiR1,:)*ruR1c
   ruR6p = qpcOMT(iiR6,:)*ruR6c
-  call flux_vector( iiPel, ppR1p,ppB1p, ruR1p )
-  call flux_vector( iiPel, ppR6p,ppB1p, ruR6p )
+  call flux_vector( iiPel, ppR1p,ppbacp, ruR1p )
+  call flux_vector( iiPel, ppR6p,ppbacp, ruR6p )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Aerobic and anaerobic respiration 
@@ -322,13 +331,13 @@
   ! If nitrate is present, the rate of consumption of N6r is converted to N3n
   ! consumption (eq 19 Vichi et al., 2004 and PelChem.F90)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rrc = (p_pu_ra+ p_pu_ra_o*(ONE-eO2) )*rug + p_srs* B1c(:)* et
-  call sourcesink_flux_vector( iiPel, ppB1c, ppO3c, rrc )
+  rrc = (p_pu_ra(bac)+ p_pu_ra_o(bac)*(ONE-eO2) )*rug + p_srs(bac)* bacc* et
+  call sourcesink_flux_vector( iiPel, ppbacc, ppO3c, rrc )
   call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
-  flB1N6r = (ONE- eO2)*rrc/ MW_C* p_qro
-  call flux_vector( iiPel, ppN6r, ppN6r, flB1N6r )
+  flN6rPBA = (ONE- eO2)*rrc/ MW_C* p_qro
+  call flux_vector( iiPel, ppN6r, ppN6r, flN6rPBA )
   ! Update the total rate of formation of reduction equivalent
-  flPTN6r(:) = flPTN6r(:) + flB1N6r
+  flPTN6r(:) = flPTN6r(:) + flN6rPBA
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Net Production
@@ -339,7 +348,7 @@
   !             Fluxes from bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  select case ( p_version)
+  select case ( p_version(bac))
     case ( BACT3 ) ! Polimene et al. (2006)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -350,9 +359,10 @@
       ! to about 1/4 of the respiration rate, ~5% of uptake 
       ! (Stoderegger and Herndl, 1998)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      reR2c = max((ONE-(qpcPBA(:)/p_qpcPBA)),(ONE-(qncPBA(:)/p_qncPBA)))*p_rec
-      reR2c = max(ZERO,reR2c)*B1c(:)
-      reR3c = rug*p_pu_ea_R3
+      reR2c = max((ONE-(qpcPBA(bac,:)/p_qpcPBA(bac))), &
+              (ONE-(qncPBA(bac,:)/p_qncPBA(bac))))*p_rec(bac)
+      reR2c = max(ZERO,reR2c)*bacc
+      reR3c = rug*p_pu_ea_R3(bac)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics
@@ -360,9 +370,9 @@
       ! This rate is assumed to occur with a timescale p_ruen=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ren = (qncPBA(:) - p_qncPBA)*B1c(:)*p_ruen
-      call flux_vector(iiPel, ppB1n, ppN4n,       ren*insw_vector( ren))
-      call flux_vector(iiPel, ppN4n, ppB1n, -eN4n*ren*insw_vector(-ren))
+      ren = (qncPBA(bac,:) - p_qncPBA(bac))*bacc*p_ruen(bac)
+      call flux_vector(iiPel, ppbacn, ppN4n,       ren*insw_vector( ren))
+      call flux_vector(iiPel, ppN4n, ppbacn, -eN4n*ren*insw_vector(-ren))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
@@ -370,9 +380,9 @@
       ! This rate is assumed to occur with a timescale of p_ruep=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rep  =  (qpcPBA(:) - p_qpcPBA)*B1c(:)*p_ruep
-      call flux_vector(iiPel, ppB1p, ppN1p,       rep*insw_vector( rep))
-      call flux_vector(iiPel, ppN1p, ppB1p, -eN1p*rep*insw_vector(-rep))
+      rep  =  (qpcPBA(bac,:) - p_qpcPBA(bac))*bacc*p_ruep(bac)
+      call flux_vector(iiPel, ppbacp, ppN1p,       rep*insw_vector( rep))
+      call flux_vector(iiPel, ppN1p, ppbacp, -eN1p*rep*insw_vector(-rep))
 
     case ( BACT1 ) ! Vichi et al. 2007
 
@@ -388,9 +398,9 @@
       ! This rate is assumed to occur with a timescale p_ruen=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      ren  =  (qncPBA(:) - p_qncPBA)*B1c(:)*p_ruen
-      call flux_vector(iiPel, ppB1n, ppN4n,       ren*insw_vector( ren))
-      call flux_vector(iiPel, ppN4n, ppB1n, -eN4n*ren*insw_vector(-ren))
+      ren  =  (qncPBA(bac,:) - p_qncPBA(bac))*bacc*p_ruen(bac)
+      call flux_vector(iiPel, ppbacn, ppN4n,       ren*insw_vector( ren))
+      call flux_vector(iiPel, ppN4n, ppbacn, -eN4n*ren*insw_vector(-ren))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
@@ -398,9 +408,9 @@
       ! This rate is assumed to occur with a timescale of p_ruep=1 day
       ! and controlled with a Michaelis-Menten function
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rep  =  (qpcPBA(:) - p_qpcPBA)*B1c(:)*p_ruep
-      call flux_vector(iiPel, ppB1p, ppN1p,       rep*insw_vector( rep))
-      call flux_vector(iiPel, ppN1p, ppB1p, -eN1p*rep*insw_vector(-rep))
+      rep  =  (qpcPBA(bac,:) - p_qpcPBA(bac))*bacc*p_ruep(bac)
+      call flux_vector(iiPel, ppbacp, ppN1p,       rep*insw_vector( rep))
+      call flux_vector(iiPel, ppN1p, ppbacp, -eN1p*rep*insw_vector(-rep))
 
     case ( BACT2 ) ! Vichi et al. 2004
 
@@ -408,9 +418,9 @@
       ! Ammonium remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is a bug in the paper as there should be no division by B1c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      huln = (ruR6n + ruR1n) - p_qncPBA*run
+      huln = (ruR6n + ruR1n) - p_qncPBA(bac)*run
       ren  = huln*insw_vector(huln)
-      call flux_vector(iiPel, ppB1n, ppN4n, ren)
+      call flux_vector(iiPel, ppbacn, ppN4n, ren)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Inorganic Nitrogen uptake  (Eq. 29 Vichi et al. 2004, there is a bug
@@ -418,29 +428,29 @@
       ! from Ammonium and Nitrate when N is not balanced (huln<0)
       ! (nitrate uptake with ammonium inhibition)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rumn3 = p_qun*N3n(:)*B1c(:)*(ONE-eN4n)
-      rumn4 = p_qun*N4n(:)*B1c(:)
+      rumn3 = p_qun(bac)*N3n(:)*bacc*(ONE-eN4n)
+      rumn4 = p_qun(bac)*N4n(:)*bacc
       rumn  = rumn3 + rumn4
       ren   = max(-rumn,huln)*insw_vector(-huln)
-      call flux_vector(iiPel, ppN4n, ppB1n, -ren*rumn4/rumn)
-      call flux_vector(iiPel, ppN3n, ppB1n, -ren*rumn3/rumn)
+      call flux_vector(iiPel, ppN4n, ppbacn, -ren*rumn4/rumn)
+      call flux_vector(iiPel, ppN3n, ppbacn, -ren*rumn3/rumn)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Phosphate remineralization  (Eq. 28 Vichi et al. 2004, note that there 
       ! is an error in the paper as there should be no division by B1c)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      hulp = (ruR6p + ruR1p) - p_qpcPBA*run
+      hulp = (ruR6p + ruR1p) - p_qpcPBA(bac)*run
       rep  = hulp*insw_vector(hulp)
-      call flux_vector(iiPel, ppB1p, ppN1p, rep)
+      call flux_vector(iiPel, ppbacp, ppN1p, rep)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Inorganic Phosphorus uptake  (Eq. 29 Vichi et al. 2004, there is a bug
       ! here as well, the min should be a max as the numbers are negative!)
       ! from dissolved phosphate whene P is not balanced (hulp<0)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rump = p_qup*N1p(:)*B1c(:)
+      rump = p_qup(bac)*N1p(:)*bacc
       rep  = max(-rump,hulp)*insw_vector(-hulp)
-      call flux_vector(iiPel, ppN1p, ppB1p, -rep)
+      call flux_vector(iiPel, ppN1p, ppbacp, -rep)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Excess carbon (also considering dissolved nutrient uptake ren and rep) 
@@ -448,8 +458,8 @@
       ! (eq. 30 Vichi et al. 2004, unfortunately there is another error in 
       ! the paper, the flux of dissolved nutrient is not written)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      r     = min(run, (ruR6n+ruR1n-ren)/p_qlnc)
-      reR3c = run - min(r, (ruR6p+ruR1p-rep)/p_qlpc)
+      r     = min(run, (ruR6n+ruR1n-ren)/p_qlnc(bac))
+      reR3c = run - min(r, (ruR6p+ruR1p-rep)/p_qlpc(bac))
       reR3c = max(ZERO, reR3c)
       reR2c = ZERO
 
@@ -458,8 +468,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion fluxes (only losses to R2 and R3)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  call flux_vector( iiPel, ppB1c,ppR2c, reR2c )
-  call flux_vector( iiPel, ppB1c,ppR3c, reR3c )
+  call flux_vector( iiPel, ppbacc,ppR2c, reR2c )
+  call flux_vector( iiPel, ppbacc,ppR3c, reR3c )
 
   end subroutine PelBacDynamics
 

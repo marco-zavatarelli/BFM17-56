@@ -185,13 +185,13 @@
            ! Calculate how the intermediate degradable R2 has to be redistrubuted 
            ! between R1 and R6 in such a way that the degradability is the same
            ! Calculate first actual degradability of LOC ( dependent of quotum NC,PC)
-           ! and compare with bacterial preferencial quota
-           p = min(ONE, R1n(kbot)/(R1c(kbot)* p_qncPBA), &
-                                    R1p(kbot)/(R1c(kbot)*p_qpcPBA))
+           ! and compare with bacterial preferencial quota (first bacteria group)
+           p = min(ONE, R1n(kbot)/(R1c(kbot)* p_qncPBA(1)), &
+                                    R1p(kbot)/(R1c(kbot)*p_qpcPBA(1)))
            ! Calculate actual degradability of R1
-           s= p_suhR1*p-p_sulR1* (ONE-p)
+           s= p_suhR1(1)*p-p_sulR1(1)* (ONE-p)
            ! Calculate distribution factor for R2 between R1 and R6
-           p=(p_suR2-p_suR6)/(s-p_suR6)
+           p=(p_suR2(1)-p_suR6(1))/(s-p_suR6(1))
            jbotR1c(BoxNumberXY)=jbotR1c(BoxNumberXY)- &
                                             p*sediR2(kbot) * R2c(kbot)
            jbotR6c(BoxNumberXY)=jbotR6c(BoxNumberXY)-&

@@ -23,11 +23,11 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: D3STATE, B1c, B1n, B1p, O2o, R1c, R6c, R1n, R6n, &
-    R2c,R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton
-  use mem, ONLY: ppB1c, ppB1n, ppB1p, ppO2o, ppR1c, ppR6c, ppR6s, Depth,&
+  use mem, ONLY: D3STATE, O2o, R1c, R6c, R1n, R6n, &
+    R2c,R1p, R6p, N4n, N1p, PhytoPlankton, MicroZooPlankton, PelBacteria
+  use mem, ONLY: ppPelBacteria, ppO2o, ppR1c, ppR6c, ppR6s, Depth,&
     ppR1n, ppR6n, ppR1p, ppR6p, ppN4n, ppN1p, ppPhytoPlankton, ppMicroZooPlankton, &
-    ETW, eO2mO2, qncPBA, qpcPBA, qncPPY, qpcPPY, qncMIZ, qpcMIZ, &
+    ETW, eO2mO2, qncPBA, qpcPBA, qncPPY, qpcPPY, qncMIZ, qpcMIZ, iiPelBacteria, &
     qlcPPY, qscPPY, iiPhytoPlankton, iiMicroZooPlankton, iiC, iiN, iiP, iiL, iiS, &
     NO_BOXES, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
 #ifdef INCLUDE_PELCO2
@@ -92,11 +92,11 @@
   integer       :: AllocStatus, DeallocStatus
   real(RLEN),allocatable,save,dimension(:) :: sut,et,eO2,rumc,rumn,rump,  &
                                          rugc,rugn,rugp,runc,runn,runp, &
-                                         rrsc,rrac,reac,rdc,rrtc,ruB1c,ruPIc,  &
-                                         ruZIc,PBAc,rric,rr1c,rr6c,rr1p,rr1n, &
+                                         rrsc,rrac,reac,rdc,rrtc,ruPBAc,ruPPYc,  &
+                                         ruMIZc,rric,rr1c,rr6c,rr1p,rr1n, &
                                          rrip,rr6p,rep,rrin,zooc
   real(RLEN),allocatable,save,dimension(:)    :: rr6n,ren,pu_ra,r,tfluxc,tfluxn,tfluxp
-  real(RLEN),allocatable,save,dimension(:,:)  :: PPYc,MIZc
+  real(RLEN),allocatable,save,dimension(:,:)  :: PBAc,PPYc,MIZc
 #ifndef INCLUDE_PELCO2
   integer,parameter :: ppO3c = 0
 #endif
@@ -104,6 +104,8 @@
 
   if (first==0) then
      first=1
+     allocate(PBAc(NO_BOXES,iiPelBacteria),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating PBAc"
      allocate(PPYc(NO_BOXES,iiPhytoPlankton),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating PPYc"
      allocate(MIZc(NO_BOXES,iiMicroZooPlankton),stat=AllocStatus)
@@ -142,14 +144,12 @@
      if (AllocStatus  /= 0) stop "error allocating rdc"
      allocate(rrtc(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating rrtc"
-     allocate(ruB1c(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating ruB1c"
-     allocate(ruPIc(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating ruPIc"
-     allocate(ruZIc(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating ruZIc"
-     allocate(PBAc(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating PBAc"
+     allocate(ruPBAc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruPBAc"
+     allocate(ruPPYc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruPPYc"
+     allocate(ruMIZc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating ruMIZc"
      allocate(rric(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating rric"
      allocate(rr1c(NO_BOXES),stat=AllocStatus)
@@ -212,10 +212,13 @@
   rumc   = ZERO
   rumn   = ZERO
   rump   = ZERO
-  PBAc   = p_paPBA(zoo)*B1c(:)*MM_vector(B1c(:), p_minfood(zoo))
-  rumc   = rumc+PBAc
-  rumn   = rumn+PBAc*qncPBA(:)
-  rump   = rump+PBAc*qpcPBA(:)
+  do i = 1 ,iiPelBacteria
+     PBAc(:,i) = p_paPBA(zoo,i)*PelBacteria(i,iiC)* &
+                 MM_vector(PelBacteria(i,iiC), p_minfood(zoo))
+     rumc = rumc + PBAc(:,i)
+     rumn = rumn + PBAc(:,i)*qncPBA(:,i)
+     rump = rump + PBAc(:,i)*qpcPBA(:,i)
+  end do
 
   do i = 1 ,iiPhytoPlankton
      PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)* &
@@ -244,52 +247,57 @@
   ! Total Gross Uptakes from every LFG
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Bacterioplankton
-  ruB1c = sut*PBAc
-  call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, ppB1c, ppzooc, &
-                               ruB1c         , tfluxC)
-  call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, ppB1n, ppzoon, &
-                               ruB1c*qncPBA(:), tfluxN)
-  call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, ppB1p, ppzoop, &
-                               ruB1c*qpcPBA(:), tfluxP)
-  rugn = ruB1c*qncPBA(:)
-  rugp = ruB1c*qpcPBA(:)
+  rugn = ZERO
+  rugp = ZERO
+
+  do i = 1, iiPelBacteria
+    ruPBAc = sut*PBAc(:,i)
+    call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
+               ppPelBacteria(i,iiC), ppzooc, ruPBAc, tfluxc )
+    call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
+               ppPelBacteria(i,iiN), ppzoon, ruPBAc*qncPBA(i,:), tfluxn)
+    call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, &
+               ppPelBacteria(i,iiP), ppzoop, ruPBAc*qpcPBA(i,:), tfluxp)
+    rugn = rugn + ruPBAc*qncPBA(i,:)
+    rugp = rugp + ruPBAc*qpcPBA(i,:)
+  end do
   ! Phytoplankton
   do i = 1, iiPhytoPlankton
-    ruPIc = sut*PPYc(:,i)
+    ruPPYc = sut*PPYc(:,i)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
-                ppPhytoPlankton(i,iiC), ppzooc, ruPIc          , tfluxc)
+                ppPhytoPlankton(i,iiC), ppzooc, ruPPYc          , tfluxc)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
-                ppPhytoPlankton(i,iiN), ppzoon, ruPIc*qncPPY(i,:), tfluxn)
+                ppPhytoPlankton(i,iiN), ppzoon, ruPPYc*qncPPY(i,:), tfluxn)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, &
-                ppPhytoPlankton(i,iiP), ppzoop, ruPIc*qpcPPY(i,:), tfluxp)
-    rugn = rugn + ruPIc*qncPPY(i,:)
-    rugp = rugp + ruPIc*qpcPPY(i,:)
+                ppPhytoPlankton(i,iiP), ppzoop, ruPPYc*qpcPPY(i,:), tfluxp)
+    rugn = rugn + ruPPYc*qncPPY(i,:)
+    rugp = rugp + ruPPYc*qpcPPY(i,:)
     ! Chl is transferred to the infinite sink
     call flux_vector(iiPel, ppPhytoPlankton(i,iiL), &
-               ppPhytoPlankton(i,iiL), -ruPIc*qlcPPY(i,:))
+               ppPhytoPlankton(i,iiL), -ruPPYc*qlcPPY(i,:))
     ! silicon constituent is transferred to biogenic silicate
     if ( ppPhytoPlankton(i,iiS) .gt. 0 ) & 
-       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPIc*qscPPY(i,:))                              
+       call flux_vector(iiPel, ppPhytoPlankton(i,iiS), ppR6s, ruPPYc*qscPPY(i,:))                              
 #ifdef INCLUDE_PELFE
     ! Fe constituent is transferred to particulate iron
     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
-       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPIc*qfPc(i,:))
+       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfPc(i,:))
 #endif
   end do
   ! Microzooplankton
   do i = 1, iiMicroZooPlankton
-    ruZIc = sut*MIZc(:,i)
+    ruMIZc = sut*MIZc(:,i)
     ! Note that intra-group predation (cannibalism) is not added as a flux
     if ( i/= zoo) then
        call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
-               ppMicroZooPlankton(i,iiC), ppzooc, ruZIc           , tfluxc )
+               ppMicroZooPlankton(i,iiC), ppzooc, ruMIZc           , tfluxc )
        call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoon, &
-               ppMicroZooPlankton(i,iiN), ppzoon, ruZIc*qncMIZ(i,:), tfluxn)
+               ppMicroZooPlankton(i,iiN), ppzoon, ruMIZc*qncMIZ(i,:), tfluxn)
        call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzoop, &
-               ppMicroZooPlankton(i,iiP), ppzoop, ruZIc*qpcMIZ(i,:), tfluxp)
+               ppMicroZooPlankton(i,iiP), ppzoop, ruMIZc*qpcMIZ(i,:), tfluxp)
     end if
-    rugn = rugn + ruZIc*qncMIZ(i,:)
-    rugp = rugp + ruZIc*qpcMIZ(i,:)
+    rugn = rugn + ruMIZc*qncMIZ(i,:)
+    rugp = rugp + ruMIZc*qpcMIZ(i,:)
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

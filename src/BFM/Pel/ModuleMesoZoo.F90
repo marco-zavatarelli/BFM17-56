@@ -65,14 +65,14 @@
   !-------------------------------------------------------------------------!
   !  MESO-ZOOPLANKTON
   ! NAME         [UNIT]/KIND            DESCRIPTION
-  ! p_q10        [-]             Doubling temperature
+  ! p_q10        [-]             Q10 value for physiological rates
   ! p_srs        [1/d]           Respiration rate at 10 degrees C
   ! p_sum        [1/d]           Maximal productivity at 10 degrees C
   ! p_sd         [1/d]           Background natural mortality
-  ! p_vum        [m3/mgC]        Specific search volume
+  ! p_vum        [m3/mgC/d]      Specific search volume
   ! p_puI        [-]             Assimilation efficiency
-  ! p_peI        [-]             Faeces production
-  ! p_sdo        [m3/mgC/d]      Fractional density-dependent mortality
+  ! p_peI        [-]             Fraction of Faeces production
+  ! p_sdo        [m3/mgC/d]      Specific density-dependent mortality
   ! p_sds        [-]             Exponent of density-dependent mortality
   ! p_qpcMEZ     [mmolP/mgC]     Maximum quotum P:C
   ! p_qncMEZ     [mmolN/mgC]     Maximum quotum N:C

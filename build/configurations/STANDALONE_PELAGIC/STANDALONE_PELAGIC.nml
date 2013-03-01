@@ -66,7 +66,7 @@
 ! CalcTransportFlag             logical Switch for transport
 ! CalcConservationFlag          logical Switch for mass conservation check
 ! CalcPhytoPlankton             logical Switches to turn on/off the calculation of pelagic groups
-! CalcBacteria                  logical "
+! CalcPelBacteria               logical "
 ! CalcMesoZooPlankton           logical "
 ! CalcMicroZooPlankton          logical "
 ! CalcPelChemistry              logical Switch for Pelagic physicochemical processes
@@ -112,7 +112,7 @@
        CalcPhytoPlankton(2) = .TRUE.
        CalcPhytoPlankton(3) = .TRUE.
        CalcPhytoPlankton(4) = .TRUE.
-               CalcBacteria = .TRUE.
+         CalcPelBacteria(1) = .TRUE.
     CalcMicroZooPlankton(1) = .TRUE.
     CalcMicroZooPlankton(2) = .TRUE.
      CalcMesoZooPlankton(1) = .TRUE.
@@ -242,8 +242,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !                                     Mehrbach et al (1973) refit by Dickson & Millero (1987)
 !                                 3 : Mehrbach et al (1973) refit by Lueker et al. (2000)
 !                                     pH on total scale
-!                                 4 : Hansson (1973b) data as refitted by Dickson and Millero (1987);
-!                                     pH on Sea Water Scale 
+!                                 4 : Hansson (1973b) data as refitted by Dickson and 
+!                                     Millero (1987);  pH on Sea Water Scale 
 ! MethodCalcCO2  numeric          Switch for the choice of [H+] numerical computation                                
 !                                 1 : Approximate static solution 
 !                                 2 : Default. Standard OCMIP iteration 
@@ -257,17 +257,21 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! Caconc0        [mol/m3]         Calcium ion concentration 
 !                                 ["Seawater : Its composition, properties and behaviour" 
 !                                 (2nd Edition), Open University Course Team, 1995]
-!                                 Seawater concentration    = 412 mg / l -> atomic weight             = 40.078 g / mol
-!                                 therefore, concentration  = 10.279 mmol / l = 10.279 mol / m3
+!                                 Seawater concentration   = 412 mg / l 
+!                                                        -> atomic weight = 40.078 g / mol
+!                                 therefore, concentration = 10.279 mmol / l = 10.279 mol / m3
 ! Canorm          logical         Normalize Calcium ion concentration by sea water salinity
 !              ---------  EXTERNAL DATA INPUT STRUCTURES -----------
 ! AtmCO2_N       structure        Read external data for atmospheric CO2 values
 ! AtmSLP_N       structure        Read external data for atmospheric sea level pressure
 ! AtmTDP_N       structure        Read external data for atmospheric dew-point temperature
 ! Example of general input structure for the data structure:
-!          ! Read  !   File   ! NetCDF  !  Var    !  RefTime   ! Input      !   Time   !
-!          ! Input !   name   ! Logical !  name   !  yyyymmdd  ! Frequency  !  interp  !
-!AtmCO2_N  =    0  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
+!          ! Read  !   File                               ! NetCDF  !  Var    !
+!          ! Input !   name                               ! Logical !  name   !
+!AtmCO2_N  =    0  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'  ,
+!          !  RefTime          ! Input      !   Time   !
+!          !  yyyymmdd         ! Frequency  !  interp  !
+!           '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
 !
 ! Convetion for Input reading : 0 = use constant value (default if structure is not initialized) 
 !                               2 = read timeseries file ( e.g. CO2 mixing ratios)
@@ -303,7 +307,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !                                  Vichi et al., 2007
 !                              2 : Vichi et al., 2004
 !                              3 : Polimene et al., 2006
-! p_q10                        Q10-value (temperature dependency)
+! p_q10       [-]              Q10-value (temperature dependency)
 ! p_chdo      [mmol/m3]        Half-saturation constant for O2 limitation
 ! p_sd        [1/d]            Specific mortality rate
 ! p_sd2       [1/d]            Density dependent specific mortality rate
@@ -329,6 +333,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_rec       [1/d]            Relaxation timescale for semi-labile excretion
 ! p_pu_ea_R3  [-]              Excretion of semi-refractory DOC
 !-------------------------------------------------------------------------!
+!                B1
 &PelBac_parameters
      p_version = 1
          p_q10 = 2.95
@@ -555,14 +560,14 @@ p_paMIZ(2,:) =  0.0,    0.2
 !-------------------------------------------------------------------------!
 !  MESO-ZOOPLANKTON
 ! NAME         [UNIT]/KIND            DESCRIPTION
-! p_q10        [-]             Doubling temperature
+! p_q10        [-]             Q10 value for physiological rates
 ! p_srs        [1/d]           Respiration rate at 10 degrees C
 ! p_sum        [1/d]           Maximal productivity at 10 degrees C
 ! p_sd         [1/d]           Background natural mortality
-! p_vum        [m3/mgC]        Specific search volume
+! p_vum        [m3/mgC/d]      Specific search volume
 ! p_puI        [-]             Assimilation efficiency
-! p_peI        [-]             Faeces production
-! p_sdo        [m3/mgC/d]      Fractional density-dependent mortality
+! p_peI        [-]             Fraction of Faeces production
+! p_sdo        [m3/mgC/d]      Specific density-dependent mortality
 ! p_sds        [-]             Exponent of density-dependent mortality
 ! p_qpcMEZ     [mmolP/mgC]     Maximum quotum P:C
 ! p_qncMEZ     [mmolN/mgC]     Maximum quotum N:C

@@ -25,13 +25,14 @@
 #endif
    use mem
    use mem_Phyto, ONLY: p_qnRc,p_qpRc,p_qsRc,p_qchlc
+   use mem_PelBac, ONLY: p_qncPBA,p_qpcPBA
    use constants, ONLY: HOURS_PER_DAY
    use mem_Param, ONLY: CalcPelagicFlag,CalcBenthicFlag,p_small,           &
                         CalcPhytoPlankton,CalcMicroZooPlankton,            &
-                        CalcMesoZooPlankton,CalcPelChemistry,CalcBacteria, &
+                        CalcMesoZooPlankton,CalcPelChemistry,CalcPelBacteria, &
                         CalcTransportFlag
 #ifdef INCLUDE_BEN
-   use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria, CalcBacteria
+   use mem_Param, ONLY: CalcBenOrganisms, CalcBenBacteria, CalcPelBacteria
    use mem_BenBac, ONLY: p_qnc,p_qpc
 #endif
    use mem_Param, ONLY: AssignPelBenFluxesInBFMFlag
@@ -79,6 +80,7 @@
    end interface
 ! COPYING
 !
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and Marcello Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -212,13 +214,33 @@
       end do
       
       ! Initialise bacteria components 
-      call init_constituents(c=B1c,n=B1n,p=B1p)
-      call init_constituents(c=R1c,n=R1n,p=R1p)
+     do i = 1 , ( iiPelBacteria)
+            call init_constituents(c=PelBacteria(i,iiC),  &
+                           n=D3STATE(ppPelBacteria(i,iiN),:), &
+                           p=D3STATE(ppPelBacteria(i,iiP),:), &
+                           nc=p_qncPBA(i),pc=p_qpcPBA(i))
+      end do
+ 
+     ! call init_constituents(c=B1c,n=B1n,p=B1p)
+     do i = 1 , ( iiPelDetritus)
+         if (ppPelDetritus(i,iiP)>0)                          &
+            call init_constituents(c=PelDetritus(i,iiC),      &
+                  p=D3STATE(ppPelDetritus(i,iiP),:))
+         if (ppPelDetritus(i,iiN)>0)                          &
+            call init_constituents(c=PelDetritus(i,iiC),      &
+                  n=D3STATE(ppPelDetritus(i,iiN),:))
+         if (ppPelDetritus(i,iiN)>0)                          &
+            call init_constituents(c=PelDetritus(i,iiC),      &
+                  n=D3STATE(ppPelDetritus(i,iiN),:))
+         if (ppPelDetritus(i,iiS)>0)                          &
+            call init_constituents(c=PelDetritus(i,iiC),      &
+                  s=D3STATE(ppPelDetritus(i,iiS),:))
 #ifdef INCLUDE_PELFE
-      call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s,f=R6f)
-#else
-      call init_constituents(c=R6c,n=R6n,p=R6p,s=R6s)
+         if (ppPelDetritus(i,iiF)>0)                          &
+            call init_constituents(c=PelDetritus(i,iiC),      &
+                  f=D3STATE(ppPelDetritus(i,iiF),:))
 #endif
+      end do
 
       ! Initialise zooplankton components checking for fixed-quota
       do i = 1 , ( iiMicroZooPlankton)
@@ -251,7 +273,7 @@
          LEVEL2 "Benthic-only setup (bio_setup=2), Switching off the pelagic system"
          CalcPelagicFlag = .FALSE.
          CalcPhytoPlankton=.FALSE.
-         CalcBacteria=.FALSE.
+         CalcPelBacteria=.FALSE.
          CalcMesoZooPlankton=.FALSE.
          CalcMicroZooPlankton=.FALSE.
       case (3) ! Pelagic-Benthic coupling
@@ -284,19 +306,6 @@
    !---------------------------------------------
    ! Zeroing of the switched off state variables
    !---------------------------------------------
-   if (.NOT.CalcBacteria) then
-      D3STATE(ppB1c,:) = p_small
-      D3STATE(ppB1n,:) = p_small
-      D3STATE(ppB1p,:) = p_small
-      D3STATETYPE(ppB1c) = OFF
-      D3STATETYPE(ppB1n) = OFF
-      D3STATETYPE(ppB1p) = OFF
-#if defined key_obcbfm
-      D3STATEOBC(ppB1c) = NOOBCSTATES
-      D3STATEOBC(ppB1n) = NOOBCSTATES
-      D3STATEOBC(ppB1p) = NOOBCSTATES
-#endif
-   end if
    do j = 1,iiPhytoPlankton
       if (.NOT.CalcPhytoPlankton(j)) then
          iiLastElement=ppPhytoPlankton(j,1,cmax=1)
@@ -333,6 +342,19 @@
          end do
       end if
    end do
+
+  do j = 1,iiPelBacteria
+      if (.NOT.CalcPelBacteria(j)) then
+         iiLastElement =ppPelBacteria(j,1,cmax=1) 
+         do i = 1,iiLastElement
+            D3STATE(ppPelBacteria(j,i),:) = p_small
+            D3STATETYPE(ppPelBacteria(j,i)) = OFF
+#if defined key_obcbfm
+            D3STATEOBC(ppPelBacteria(j,i)) = NOOBCSTATES
+#endif
+         end do
+      end if
+  end do
 
 #ifdef INCLUDE_BEN
    do j = 1,iiBenOrganisms

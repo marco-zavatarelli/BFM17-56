@@ -8,12 +8,7 @@
 !
 ! DESCRIPTION
 !   List of global model parameters 
-!      (global variables which can be changed during the model initialization
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+!   (global variables that can be changed during the model initialization
 !
 ! !INTERFACE
   MODULE mem_Param
@@ -23,7 +18,8 @@
 
   USE global_mem
   USE constants
-  USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, iiMicroZooPlankton
+  USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, &
+                 iiMicroZooPlankton, iiPelBacteria
 #ifdef INCLUDE_BEN
   USE mem, ONLY: iiBenOrganisms, iiBenDetritus, iiBenBacteria, &
                  iiBenthicPhosphate, iiBenthicAmmonium
@@ -41,6 +37,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -100,7 +97,7 @@
   logical   :: CalcPhytoPlankton(iiPhytoPlankton) = .TRUE.
   logical   :: CalcMicroZooPlankton(iiMicroZooPlankton) = .TRUE.
   logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
-  logical   :: CalcBacteria = .TRUE. 
+  logical   :: CalcPelBacteria(iiPelBacteria) = .TRUE. 
 #ifdef INCLUDE_BEN
   logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
   logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
@@ -175,7 +172,7 @@
   namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,        &
     p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
-    CalcPelChemistry,CalcMesoZooPlankton, CalcBacteria,                       &
+    CalcPelChemistry,CalcMesoZooPlankton, CalcPelBacteria,                    &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
     p_PAR, slp0, ChlLightFlag, ProductionLightFlag, LightLocationFlag,        &
     p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,            &

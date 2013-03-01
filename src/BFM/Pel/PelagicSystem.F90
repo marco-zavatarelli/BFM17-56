@@ -23,12 +23,13 @@
   use global_mem, ONLY:RLEN
   use mem, ONLY: iiPhytoPlankton,iiMesoZooPlankton,iiMicroZooPlankton,  &
                  ppPhytoPlankton,ppMesoZooPlankton,ppMicroZooPlankton, &
+                 iiPelBacteria, ppPelBacteria,                         &
                  iiC, iiN, iiP, iiS, iiL
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF
 #endif
   use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
-    CalcMesoZooPlankton, CalcBacteria, CalcPelChemistry
+    CalcMesoZooPlankton, CalcPelBacteria, CalcPelChemistry
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
   use global_interface, ONLY: PhotoAvailableRadiation, &
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
@@ -40,9 +41,10 @@
 !   BFM team
 !
 ! !REVISION_HISTORY
-
+!
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -132,9 +134,12 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute Bacteria dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  if ( CalcBacteria) then
-    call PelBacDynamics
-  end if
+  do i =1,iiPelBacteria
+     if ( CalcPelBacteria(i)) then
+       call PelBacDynamics( i, ppPelBacteria(i,iiC),  &
+            ppPelBacteria(i,iiN), ppPelBacteria(i,iiP))
+     end if
+  end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute HydroChemistry (including CO2 in seawater)
