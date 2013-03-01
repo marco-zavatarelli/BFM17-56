@@ -37,7 +37,7 @@
 #endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag, &
+  use mem_Param,  ONLY: p_small, ChlDynamicsFlag, LightPeriodFlag, &
                         LightLocationFlag
   use mem_Phyto
   use mem_globalfun,   ONLY: eTq_vector, MM_vector, insw_vector
@@ -333,7 +333,7 @@
   ! Irr is top, middle or average irradiance in uE m-2 day-1
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  if ( ChlLightFlag== 2) then
+  if ( ChlDynamicsFlag== 2) then
     select case ( LightLocationFlag)
        case ( 1 )
           ! Light at the top of the cell
@@ -355,7 +355,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   r(:) = qlcPPY(phyto, :)*p_alpha_chl(phyto)/p_sum(phyto)* Irr
 
-  select case ( ProductionLightFlag)
+  select case ( LightPeriodFlag)
     case ( 1 ) ! instantaneous light
       ! no other factors needed
     case ( 2 ) ! daylight average is used
@@ -587,7 +587,7 @@
   call flux_vector( iiPel, ppphytof,ppR6f, rr6f )  ! source/sink.fe
 #endif
 
-  if ( ChlLightFlag== 2) then
+  if ( ChlDynamicsFlag== 2) then
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

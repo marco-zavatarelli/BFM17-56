@@ -27,7 +27,7 @@
   use mem, ONLY: ppR6c, ppPhytoPlankton, xEPS, ABIO_eps, ESS, iiPhytoPlankton, &
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlLightFlag
+  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlDynamicsFlag
   use mem_Phyto, ONLY: p_qchlc, p_epsChla
 !
 ! !AUTHORS
@@ -79,7 +79,7 @@
   end select
 
 
-  select case ( ChlLightFlag)
+  select case ( ChlDynamicsFlag)
 
     case ( 1 )
       do i = 1 , ( iiPhytoPlankton)

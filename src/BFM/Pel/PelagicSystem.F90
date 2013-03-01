@@ -28,7 +28,7 @@
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF
 #endif
-  use mem_Param, ONLY: ChlLightFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
+  use mem_Param, ONLY: ChlDynamicsFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcPelBacteria, CalcPelChemistry
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
   use global_interface, ONLY: PhotoAvailableRadiation, &
@@ -89,7 +89,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! This part is executed if Optimal Irradiance is used
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  if ( ChlLightFlag== 1) then
+  if ( ChlDynamicsFlag== 1) then
      do i =1,iiPhytoPlankton
         if ( CalcPhytoPlankton(i)) call PhotoAvailableRadiation( i )
      end do
@@ -105,7 +105,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! This part is executed if Optimal Irradiance is used
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  if ( ChlLightFlag== 1) then
+  if ( ChlDynamicsFlag== 1) then
      do i =1,iiPhytoPlankton
         if ( CalcPhytoPlankton(i)) call LightAdaptationDynamics( i )
      end do

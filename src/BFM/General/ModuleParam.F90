@@ -64,32 +64,51 @@
   PUBLIC
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  Global Model Parameters
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  ! 0d-parameter used in pelagic and benthic submodels
-  real(RLEN)   :: &
-      p_small=1.0D-80  ,  &
-      p_q10diff=1.49  ,  &  ! Temperature-dependency porewater diffusion
-      p_qro=0.5  ,  &  ! stoichiometry O2-->S2-
-      p_qon_dentri=1.25  ,  &  ! stoichiometry O2-->N denitrification
-      p_qon_nitri=2.0  ,  &  ! stoichiometry O2-->N nitrification
-      p_clDxm=0.001  ! minimal value of D?.m for calculation of the alpha
-  !  alpha is used in expo.func and values > 1/0.001 leadt
-
-  ! 0d-parameter used in pelagic submodel
-  logical   :: &
-      CalcPelagicFlag=.TRUE.  ! Switch for pelagic system
-  ! 0d-parameter used in benthic submodel
-  integer   :: &
-      CalcBenthicFlag=3  ! Switch for benthic system
-  ! 0d-parameter used in pelagic submodel when coupled with GCM
-  logical   :: &
-      CalcTransportFlag=.TRUE.  ! Switch for pelagic system
-  ! 0d-parameter used for mass conservation check
-  logical   :: &
-      CalcConservationFlag=.TRUE.  
-
+  ! Global Switches : turn on/off or choose model components
+  ! NAME                          KIND    DESCRIPTION
+  ! CalcPelagicFlag               logical Pelagic System
+  ! CalcBenthicFlag               numeric Benthic system
+  !                                       0 = No Benthic System
+  !                                       The following are Not Yet Activated
+  !                                       1 = Simple Benthic Return
+  !                                       2 = Benthic organisms and intermediate
+  !                                           complexity nutrient regeneration
+  !                                       3 = Benthic organisms and full nutrient
+  !                                           regeneration (early diagenesis)
+  ! CalcTransportFlag             logical Compute Transport Term (when coupled
+  !                                       with a OGCM)
+  ! CalcConservationFlag          logical Mass Conservation Check
+  ! CalcPhytoPlankton             logical Pelagic Phytoplankton (vector)
+  ! CalcPelBacteria               logical Pelagic Bacteria (vector)
+  ! CalcMesoZooPlankton           logical Mesozooplankton (vector)
+  ! CalcMicroZooPlankton          logical Microzooplankton (vector)
+  ! CalcPelChemistry              logical Pelagic Hydrochemical Processes
+  ! AssignPelBenFluxesInBFMFlag   logical Benthic-pelagic fluxes are added to the
+  !                                       time integration
+  ! AssignAirPelFluxesInBFMFlag   logical Air-sea fluxes are added to the
+  !                                       time integration
+  ! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
+  !                                       1 = diagnostic, optimal light property
+  !                                           in phytoplankton 
+  !                                           (Ebenhoeh et al 1995, ERSEM-II) 
+  !                                       2 = state variable, constituent of 
+  !                                           phytoplankton
+  ! LightPeriodFlag               numeric Choose the light averaging period
+  !                                       1 = Instantanous irradiance
+  !                                       2 = Daily average
+  !                                       3 = Daylight average with explicit
+  !                                           photoperiod                                       
+  ! LightLocationFlag             numeric Choose the parameterization of light
+  !                                       location in the discrete grid
+  !                                       1 = Light at the top of the cell
+  !                                       2 = Light in the middle of the cell 
+  !                                       3 = Average Light in the cell
+  ! check_fixed_quota             numeric Check whether zooplankton have fixed quota
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  logical   :: CalcPelagicFlag=.TRUE.  
+  integer   :: CalcBenthicFlag=0  
+  logical   :: CalcTransportFlag=.FALSE.  
+  logical   :: CalcConservationFlag=.TRUE.  
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !  Allocate the logical flags for switch on the LFG
   !  Initialize to TRUE (overwritten by the namelist values)
@@ -99,10 +118,12 @@
   logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
   logical   :: CalcPelBacteria(iiPelBacteria) = .TRUE. 
 #ifdef INCLUDE_BEN
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Bethic model flags
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
   logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
 #endif
-
 #ifdef INCLUDE_SEAICE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sea-ice flags
@@ -112,50 +133,73 @@
   logical   :: CalcSeaiceZoo(iiSeaiceZoo) = .TRUE.
   logical   :: CalcSeaiceBacteria(iiSeaiceBacteria)= .TRUE.
 #endif
-
-  logical   :: &
-      CalcPelChemistry=.TRUE.  ,  &  !
-      AssignPelBenFluxesInBFMFlag=.TRUE.  ,  &  ! Switches to make choice to define boundary
-      AssignAirPelFluxesInBFMFlag=.TRUE.        ! fluxes in physical of biological model
-  !      %dim2D%
-
-  ! 1d-parameter used in benthic submodel
-  real(RLEN),public,dimension(:),allocatable   :: &
-      p_p_ae  ,  &
-      p_poro
-  ! 0d-parameter used in benthic submodel
-  real(RLEN)   :: p_poro0=0.4  ! Constant porosity for 0D and 1D runs
-  ! 0d-parameter used in pelagic submodel
+  logical   :: CalcPelChemistry=.TRUE.
+  logical   :: AssignPelBenFluxesInBFMFlag=.TRUE.
+  logical   :: AssignAirPelFluxesInBFMFlag=.TRUE.
   integer   :: &
-      check_fixed_quota=0
-  ! 0d-parameter used in pelagic submodel
+      ChlDynamicsFlag=2,  & 
+      LightPeriodFlag=1,  & 
+      LightLocationFlag=3 
+  integer   :: check_fixed_quota=0
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Global Parameters : used throughout the model and not related 
+  !                     to a specific component
+  ! NAME          UNIT          DESCRIPTION
+  ! p_small      [-]           Smallest numeric value (the model "zero")
+  ! slp0         [mbar]        Reference sea level pressure
+  ! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
+  ! p_eps0       [1/m]         Background extinction coefficient
+  ! p_epsESS     [m2/g]        Specific attenuation coefficient of
+  !                            suspended sediments
+  ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
+  !                            detritus
+  ! p_pe_R1c     [-]           Fractional content of C in cytoplasm 
+  ! p_pe_R1n     [-]           Fractional content of N in cytoplasm
+  ! p_pe_R1p     [-]           Fractional content of P in cytoplasm
+  ! p_qro        [mmolHS-/     Stoichiometric coefficient for
+  !               mmolO2]      anaerobic reactions
+  ! p_qon_dentri [mmolO2/      Stoichiometric coefficient for 
+  !               mmolN]       denitrification 
+  ! p_qon_nitri  [mmolO2/      Stoichiometric coefficient for 
+  !               mmolN]       nitrification 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Pelagic model parameters
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   real(RLEN)   :: &
-      XLatitude=54.0  ,  &  ! Latitude
-      p_PAR=0.50  ,      &  ! Photosynthetically available radiation
-      slp0=1013.25_RLEN     ! standard mean sea level pressure  (1013.25 hPa)
-  ! 0d-parameter used in pelagic submodel
-  integer   :: &
-      ChlLightFlag=2  ,  &     ! Switch between light prop.(=1) or Chla.(=2) as a state
-      ProductionLightFlag=1,&  ! Switch between instantaneous light and day light average
-      LightLocationFlag=3   ! Switch between different depth-parameterizations
-  ! 0d-parameter used in pelagic submodel
+      p_small=1.0E-20_RLEN,  &
+      slp0=1013.25_RLEN
   real(RLEN)   :: &
-      p_eps0=0.04  ,  &  ! Background extinction (abiotic)
-      p_epsESS=0.04e-3  ,  &  ! Inorg. suspended matter extinction coeff. (abiotic)
-      p_InitSink=100.0  ,  &  ! parameter to Initialize BenthicSInk var.
-      p_clD1D2m=0.01  ,    &  ! m # minimum distancebetween D1m and D2m
-      p_pe_R1c=0.60  ,     &  ! Fraction of excretion going to PLOC
-      p_pe_R1n=0.72  ,     &  ! Fraction of excretion going to PLOC
-      p_pe_R1p=0.832  ,    &  ! Fraction of excretion going to PLOC
-      p_pe_R1s=0.06  ,     &
-      p_epsR6=0.1e-3  
-  ! 0d-parameter used in benthic submodel
-  integer      :: &
-      p_sedlevels=20        ! - # Number of sigma levels for benthic nutrient
+      p_PAR=0.50_RLEN,      &  
+      p_eps0=0.04_RLEN  ,  &  
+      p_epsESS=0.04e-3_RLEN  ,  &
+      p_epsR6=0.1e-3_RLEN , & 
+      p_pe_R1c=0.60_RLEN  ,     &
+      p_pe_R1n=0.72_RLEN  ,     &
+      p_pe_R1p=0.832_RLEN  ,    &
+      p_pe_R1s=0.06_RLEN  ,     &
+      p_qro=0.5_RLEN,  &  
+      p_qon_dentri=1.25_RLEN,  &  
+      p_qon_nitri=2.0_RLEN
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Benthic model parameters
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! 0d-parameters 
+  integer      :: p_sedlevels=20 ! - # Number of sigma levels for benthic nutrient
+  real(RLEN)   :: p_poro0=0.4    ! Constant porosity for 0D and 1D runs
   real(RLEN)   :: &
-      p_d_tot=0.30  ,    &  ! m # Thickness of modelled benthic sediment layers
-      p_d_tot_2=0.35  ,  &  ! m # maximal Thickness of D2m
-      p_sedsigma=2.0        ! - # Parameter for sigma level distribution 
+      p_InitSink=100.0_RLEN,  &  ! parameter to Initialize BenthicSInk var.
+      p_q10diff=1.49_RLEN,  &  ! Temperature-dependency porewater diffusion
+      p_clDxm=0.001_RLEN, &  ! minimal value of D?.m for calculation of the alpha
+      p_d_tot=0.30_RLEN,    &  ! m # Thickness of modelled benthic sediment layers
+      p_clD1D2m=0.01_RLEN,    &  ! m # minimum distancebetween D1m and D2m
+      p_d_tot_2=0.35_RLEN,  &  ! m # maximal Thickness of D2m
+      p_sedsigma=2.0_RLEN        ! - # Parameter for sigma level distribution 
+  ! 1d-parameters
+  real(RLEN),public,dimension(:),allocatable   ::  p_p_ae, p_poro
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -174,7 +218,7 @@
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
     CalcPelChemistry,CalcMesoZooPlankton, CalcPelBacteria,                    &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
-    p_PAR, slp0, ChlLightFlag, ProductionLightFlag, LightLocationFlag,        &
+    p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,        &
     p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,            &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
 #ifdef INCLUDE_BEN

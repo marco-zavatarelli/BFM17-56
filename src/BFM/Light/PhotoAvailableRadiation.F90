@@ -47,7 +47,7 @@
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, EIR, xEPS, Depth, ELiPPY, eiPPY, &
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Param,  ONLY: ProductionLightFlag
+  use mem_Param,  ONLY: LightPeriodFlag
   use mem_PhotoAvailableRadiation
 
 
@@ -248,7 +248,7 @@
 
   end select
 
-  select case ( ProductionLightFlag)
+  select case ( LightPeriodFlag)
 
     case ( 1 )
       !rectangular integration:
