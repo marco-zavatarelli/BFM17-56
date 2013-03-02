@@ -162,7 +162,7 @@
   ! p_qon_dentri [mmolO2/      Stoichiometric coefficient for 
   !               mmolN]       denitrification 
   ! p_qon_nitri  [mmolO2/      Stoichiometric coefficient for 
-  !               mmolN]       nitrification 
+  !               mmolN]       nitrification (3/2)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Pelagic model parameters
@@ -178,10 +178,10 @@
       p_pe_R1c=0.60_RLEN  ,     &
       p_pe_R1n=0.72_RLEN  ,     &
       p_pe_R1p=0.832_RLEN  ,    &
-      p_pe_R1s=0.06_RLEN  ,     &
+      p_pe_R1s=0.06_RLEN  ,  &
       p_qro=0.5_RLEN,  &  
-      p_qon_dentri=1.25_RLEN,  &  
-      p_qon_nitri=2.0_RLEN
+      p_qon_dentri=1.25_RLEN, &  
+      p_qon_nitri=1.5_RLEN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Benthic model parameters

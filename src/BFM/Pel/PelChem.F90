@@ -14,17 +14,18 @@
 !       - nitrification
 !       - denitrification
 !       - reoxidation of reduction equivalents
-!        - dissolution of biogenic silica
+!       - dissolution of biogenic silica
+!       This function also calls the carbonate system dynamics
+!       (INCLUDE_PELCO2) and iron dynamics (INCLUDE_PELFE)
+!       if activated
 !
 ! !INTERFACE
   subroutine PelChemDynamics
 !
 ! !USES:
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN,ZERO
 #ifdef NOPOINTERS
   use mem
@@ -35,19 +36,12 @@
     flux_vector
 #ifdef INCLUDE_PELCO2
   use mem, ONLY: ppO3c
+  use mem_CO2, ONLY: CalcBioAlkFlag
 #endif
 #endif
   use mem_Param,  ONLY: p_qon_nitri, p_qro, p_qon_dentri, p_small
   use mem_PelChem
-
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following vector functions are used:MM_vector, eTq_vector, insw_vector
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: MM_vector, eTq_vector, insw_vector
-
-
-
 !  
 !
 ! !AUTHORS
@@ -56,10 +50,10 @@
 !
 !
 ! !REVISION_HISTORY
-!   !
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -121,53 +115,44 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Regulating factors
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   eo  =   MM_vector(  max(p_small,O2o(:)),  p_clO2o)
   er  =   MM_vector(  N6r(:),  p_clN6r)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Nitrification in the water
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   flN4N3n(:) =  max(ZERO,p_sN4N3* N4n(:)* eTq_vector(  ETW(:),  p_q10N4N3)* eo)
   call flux_vector( iiPel, ppN4n,ppN3n, flN4N3n(:) )
-
   call flux_vector( iiPel, ppO2o,ppO2o,-( flN4N3n(:)* p_qon_nitri) )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Denitrification in the water
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   rPAo  =   flPTN6r(:)/ p_qro
   flN3O4n(:) = max(ZERO,p_sN3O4n* eTq_vector( ETW(:), p_q10N4N3)* er* rPAo/ p_rPAo* &
                N3n(:))
-
   call flux_vector( iiPel, ppN3n,ppO4n, flN3O4n(:) )
   call flux_vector( iiPel, ppN6r,ppN6r,-( p_qro* flN3O4n(:)* p_qon_dentri* &
   insw_vector( -( O2o(:)- N6r(:)/ p_qro))) )
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Reoxidation of reduction equivalents
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   fN6O2r  =   p_rOS* N6r(:)* eo
-
   call flux_vector( iiPel, ppN6r,ppN6r,-( fN6O2r) )
   call flux_vector( iiPel, ppO2o,ppO2o,-( fN6O2r/ p_qro) )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Dissolution of biogenic silicate
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   fR6N5s  =   p_sR6N5* eTq_vector(  ETW(:),  p_q10R6N5)* R6s(:)
   call flux_vector( iiPel, ppR6s,ppN5s, fR6N5s )
 
-#ifdef TOBETESTED
+#ifdef INCLUDE_PELCO2
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Alkalinity
+  ! Corrections of nitrogen cycle biogeochemistry on Total Alkalinity
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  if ( ppO3c > 0 )  call AlkalinityDynamics( )
+  if ( ppO3c > 0 .and. CalcBioAlkFlag)  call AlkalinityDynamics( )
 #endif
 
 #ifdef INCLUDE_PELFE

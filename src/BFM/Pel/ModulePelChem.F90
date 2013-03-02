@@ -17,9 +17,7 @@
   module mem_PelChem
 !
 ! !USES:
-
   use global_mem
-
 !  
 !
 ! !AUTHORS
@@ -28,10 +26,10 @@
 !
 !
 ! !REVISION_HISTORY
-!   !
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -59,16 +57,42 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! PelChem PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN)  :: p_sN4N3
+  !NAMELIST PelChem_parameters, PelChem_parameters_iron
+  !-------------------------------------------------------------------------!
+  !  Pelagic Chemistry parameters
+  ! NAME        [UNIT]/KIND      DESCRIPTION
+  ! p_q10N4N3   [-]              Q10 factor for nitrification/denit
+  ! p_sN4N3     [1/d]            Specific nitrification rate at 10 degC
+  ! p_clO2o     [mmolO2/m3]      Half-saturation O2 concentration for
+  !                              nitrification and reoxidation
+  ! p_rOS       [1/d]            Specific reoxidation rate of reduction
+  !                              equivalents
+  ! p_sN3O4n    [1/d]            Specific denitrification rate                                           
+  ! p_clN6r     [mmolHS/m3]      Half-saturation concentration of
+  !                              reduction equivalents for denitrification
+  ! p_rPAo      [mmolO2/m3/d]    Reference anoxic mineralization rate
+  ! p_q10R6N5   [-]              Q10 factor for biogenic silica
+  ! p_sR6N5     [1/d]            Specific remineralization rate of
+  !                              biogenic silica
   real(RLEN)  :: p_q10N4N3
-  real(RLEN)  :: p_q10R6N5
-  real(RLEN)  :: p_rOS
+  real(RLEN)  :: p_sN4N3
   real(RLEN)  :: p_clO2o
-  real(RLEN)  :: p_clN6r
+  real(RLEN)  :: p_rOS
   real(RLEN)  :: p_sN3O4n
+  real(RLEN)  :: p_clN6r
   real(RLEN)  :: p_rPAo
-  real(RLEN)  :: p_sR6N5  ! (d-1) specific dissolution rate
+  real(RLEN)  :: p_q10R6N5
+  real(RLEN)  :: p_sR6N5
 #ifdef INCLUDE_PELFE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !NAMELIST PelChem_parameters, PelChem_parameters_iron
+  !-------------------------------------------------------------------------!
+  !              --------- Iron parameters -----------
+  ! p_q10R6N7   [-]              Q10 temperature dependence
+  ! p_sR6N7     [1/d]            Specific remineralization rate of particulate
+  ! p_sR1N7     [1/d]            Specific remineralization rate of dissolved
+  ! p_scavN7f   [1/d]            Specific scavenging rate
+  ! p_N7fsol    [umolFe/m3]      Solubility concentration
   real(RLEN)  :: p_q10R6N7   ! Q10 temperature dependence
   real(RLEN)  :: p_sR6N7     ! Specific remineralization rate (d-1)
   real(RLEN)  :: p_sR1N7     ! Specific remineralization rate from chelated iron (d-1)
