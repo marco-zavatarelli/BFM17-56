@@ -38,7 +38,9 @@
 \end{alltt}
   \vspace{-10pt}
 }
+\usepackage{pdfsync}
 \end_preamble
+\options onecolumn
 \use_default_options true
 \begin_modules
 eqs-within-sections
@@ -16340,6 +16342,22 @@ name "part:BFM-code-description"
 
 \end_layout
 
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+onecolumn
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Chapter
 Installation, configuration and compilation
 \end_layout
@@ -16415,72 +16433,18 @@ reference "sec:Test-cases"
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:Source-directory-tree"
+reference "tab:Source-directory-tree"
 
 \end_inset
 
 .
 \end_layout
 
-\begin_layout Section
-System Requirements
-\end_layout
-
-\begin_layout Standard
-The currently supported architectures are
-\end_layout
-
-\begin_layout Itemize
-linux
-\end_layout
-
-\begin_layout Itemize
-Mac OSX (Darwin)
-\end_layout
-
-\begin_layout Itemize
-AIX
-\end_layout
-
-\begin_layout Standard
-The software requirements are:
-\end_layout
-
-\begin_layout Itemize
-perl, used automatically during compilation time to generate the code from
- the model template (see Sec.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Model-structure-changes"
-
-\end_inset
-
-).
-\end_layout
-
-\begin_layout Itemize
-FORTRAN 90/95 compiler.
- Under linux and Mac OSX the model can be currently compiled with gfortran
- (version 4.5 above).
- For AIX xlf90 is required.
-\end_layout
-
-\begin_layout Itemize
-NetCDF library (http://www.unidata.ucar.edu/software/netcdf) .
- It is mandatory that the library has been compiled with the same compiler
- used for the model compilation since the F90 netcdf module is used.
-\end_layout
-
-\begin_layout Section
-Configuring the BFM STANDALONE
-\end_layout
-
 \begin_layout Standard
 \begin_inset Float table
 wide true
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -16499,12 +16463,22 @@ status open
 
 \begin_layout Plain Layout
 
-|   |-- Configurations
+|   |-- configurations
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |-- logs
 \end_layout
 
 \begin_layout Plain Layout
 
 |   `-- scripts
+\end_layout
+
+\begin_layout Plain Layout
+
+|       `-- conf
 \end_layout
 
 \begin_layout Plain Layout
@@ -16525,26 +16499,6 @@ status open
 \begin_layout Plain Layout
 
 |-- run
-\end_layout
-
-\begin_layout Plain Layout
-
-|   `-- standalone
-\end_layout
-
-\begin_layout Plain Layout
-
-|       |-- co2test
-\end_layout
-
-\begin_layout Plain Layout
-
-|       |-- southern_ocean.pelagic
-\end_layout
-
-\begin_layout Plain Layout
-
-|       `-- temperate.pelagic
 \end_layout
 
 \begin_layout Plain Layout
@@ -16678,6 +16632,1189 @@ Source directory tree and description of the directory contents.
 \end_inset
 
 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+System Requirements
+\end_layout
+
+\begin_layout Standard
+The currently supported architectures are
+\end_layout
+
+\begin_layout Itemize
+linux
+\end_layout
+
+\begin_layout Itemize
+Mac OSX (Darwin)
+\end_layout
+
+\begin_layout Itemize
+AIX
+\end_layout
+
+\begin_layout Standard
+The software requirements are:
+\end_layout
+
+\begin_layout Itemize
+PERL (version 5.8.2 above), used automatically during compilation time to
+ generate the code from the model template (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Model-structure-changes"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+FORTRAN 90/95 compiler.
+ Under linux and Mac OSX the model can be currently compiled with gfortran
+ (version 4.5 above).
+ For AIX xlf90 is required.
+\end_layout
+
+\begin_layout Itemize
+NetCDF library (http://www.unidata.ucar.edu/software/netcdf) .
+ It is mandatory that the library has been compiled with the same compiler
+ used for the model compilation since the F90 netcdf module is used.
+\end_layout
+
+\begin_layout Section
+Configuring the BFM STANDALONE
+\end_layout
+
+\begin_layout Standard
+Configuration and deployment of the model is done automatically by the script
+ 
+\shape italic
+bfm_configure.sh
+\shape default
+.
+ The minimal user local settings for compilation is provided by means of
+ the environmental shell variable:
+\end_layout
+
+\begin_layout Itemize
+BFMDIR The root directory of the BFM model (the path to the installed bfm-<versi
+on> directory).
+\end_layout
+
+\begin_layout Standard
+After setting-up BFMDIR variable in your shell environment you can go to
+ 
+\shape italic
+build
+\shape default
+ directory and execute 
+\shape italic
+bfm_configure
+\shape default
+ using default values:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -gcd
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+An execution without errors
+\begin_inset Foot
+status open
+
+\begin_layout Plain Layout
+If you experience problems during the generation or compilation, visit 
+\begin_inset Flex URL
+status collapsed
+
+\begin_layout Plain Layout
+
+http://oceano.cmcc.it:8087/bfm/documentation
+\end_layout
+
+\end_inset
+
+ for help
+\end_layout
+
+\end_inset
+
+ will show the output directory for running the experiment and the command
+ to execute.
+ Output after successful compilation should end with:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+Go to .../bfm/run/standalone.pelagic and execute command:
+\end_layout
+
+\begin_layout Plain Layout
+
+./bfm_standalone.x
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+bfm_configure
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+bfm_configure
+\shape default
+ generates, compiles and/or deploys files needed for BFM model.
+ There are three different steps to have an executable model:
+\end_layout
+
+\begin_layout Enumerate
+
+\shape italic
+Generation
+\shape default
+: based on model parameters in .mem file, this step generates .h , .F90 and
+ .nml files needed for compilation and execution.
+\end_layout
+
+\begin_layout Enumerate
+
+\shape italic
+Compilation
+\shape default
+: based on compilation options selected, this step compiles and generates
+ the executable file.
+\end_layout
+
+\begin_layout Enumerate
+
+\shape italic
+Deployment
+\shape default
+ of the execution environment: create experiment folder and copies namelists
+ for execution.
+\end_layout
+
+\begin_layout Standard
+You must specify which step/s want to execute using one or several of the
+ following arguments:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Itemize
+
+-g: Generation
+\end_layout
+
+\begin_layout Itemize
+
+-c: Compilation
+\end_layout
+
+\begin_layout Itemize
+
+-d: Deployment
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Along with these must arguments, there are other optional arguments explained
+ in section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Optional-arguments"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Optional arguments
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Optional-arguments"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Optional arguments for 
+\shape italic
+bfm_configure
+\shape default
+ are classified depending if they are for compilation or deployment.
+ Execute the following command to show a description of all available options:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+bfm_configure.sh -h
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For a list of all available optional arguments see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:bfm_configure-optional-args"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+onecolumn
+\end_layout
+
+\end_inset
+
+
+\begin_inset Float space
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+Alternative COMPILATION OPTIONS:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="3">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0pt">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+OPTION
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+ARGUMENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DESCRIPTION
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+VERBOSE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-v
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Verbose mode to print all messages
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PRESET
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-p
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Preset to generate the configuration
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+MODE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-m
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Mode for compilation and deployment
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+CPPDEFS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-k
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Key options to configure the model
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+BFMDIR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-b
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+path to root directory of BFM
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NEMODIR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-n
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+path to root directory of NEMO
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+ARCH
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-a
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Specify compilation Architecture file
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PROC
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-r
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Number of procs used for compilation (and execution)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+FAST
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-f
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Fast mode.
+ Dont execute "clean" command in compilation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NETCDF
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-t
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Path to netcdf library and header files
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+Alternative DEPLOYMENT OPTIONS:
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="3">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<row>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+OPTION
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+ARGUMENT
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+DESCRIPTION
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EXP
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-x
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Name of the experiment for generation of the output folder
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NMLDIR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-l
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Input dir where are the namelists to run the experiment
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PROC
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-r
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Number of procs used for running (same as compilation)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+QUEUE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-q
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Name of the queue number of procs used for running
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:bfm_configure-optional-args"
+
+\end_inset
+
+bfm_configure list of optional arguments
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Options can be specified by environment variables (only BFMDIR and NEMODIR
+ options in this case), preset configuration file (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Configuration-file"
+
+\end_inset
+
+) or command line arguments.
+ If an option is specified using more than one method, precedence used for
+ preserve their value are (highest to lowest precedence): command line,
+ configuration file and environment variable.
+ 
+\end_layout
+
+\begin_layout Subsection
+Presets
+\end_layout
+
+\begin_layout Standard
+An experiment is defined by model structure and initial input values.
+ These definitions put together with compilation and run options is what
+ is called a PRESET.
+ A preset is contained together in a folder and it is all you need to execute
+ a particular experiment.
+\end_layout
+
+\begin_layout Standard
+The folder containing presets is 
+\shape italic
+${BFMDIR}/build/configurations/
+\shape default
+.
+ You can list this directory to see what presets are available.
+ Presets are loaded using option 
+\begin_inset Quotes eld
+\end_inset
+
+-p
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Presets are composed of three different main files:
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+.conf compilation and deployment options
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+.nml namelist file
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+.mem memory layout configuration file
+\end_layout
+
+\begin_layout Subsubsection
+Configuration file
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Configuration-file"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This file uses the f90 namelist format to set values.
+ Below a schematic view of configuration file format:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+&BFM_conf
+\end_layout
+
+\begin_layout Plain Layout
+
+	<option>=<value>,
+\end_layout
+
+\begin_layout Plain Layout
+
+	...
+\end_layout
+
+\begin_layout Plain Layout
+
+	<option>=<value>
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Not all the options can be specify in the conf file.
+ Available options are: MODE, CPPDEFS, BFMDIR, NEMODIR, ARCH, CLEAN, PROC,
+ NETCDF, EXP, NMLDIR, PROC and QUEUE (see 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:bfm_configure-optional-args"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+For specifying a 
+\shape italic
+value
+\shape default
+, don't use " to surround values, use ' instead.
+\end_layout
+
+\begin_layout Subsubsection
+Namelist file
+\end_layout
+
+\begin_layout Standard
+This file contains all the namelist used for the experiment.
+ In generation time this file is used to generate the model source code
+ and to produce the namelists used in the execution of the model.
+ 
+\end_layout
+
+\begin_layout Standard
+Namelists are used in generation time for contrasting with the model configurati
+on file.
+ This check will guarantee an executable file compatible with namelists
+ provided.
+ The list of checks are:
+\end_layout
+
+\begin_layout Itemize
+Groups in .mem file have their related namelist in .nml
+\end_layout
+
+\begin_layout Itemize
+Value for a specie in .nml have the corresponding specie in .mem
+\end_layout
+
+\begin_layout Standard
+Special nomenclature have to be followed in the specification of namelists.
+ For each group to be checked we have to have a namelist called with the
+ group name without word 
+\begin_inset Quotes eld
+\end_inset
+
+Plankton
+\begin_inset Quotes erd
+\end_inset
+
+ follow by 
+\begin_inset Quotes eld
+\end_inset
+
+_parameters
+\begin_inset Quotes erd
+\end_inset
+
+ word.
+ As an example the PhytoPlankton group namelist has to be called 
+\begin_inset Quotes eld
+\end_inset
+
+Phyto_parameters
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+In the execution environment each namelist will be copied inside a file
+ which name is specified by the special key 
+\begin_inset Quotes eld
+\end_inset
+
+filename_nml_conf
+\begin_inset Quotes erd
+\end_inset
+
+.
+ As an example, for 
+\begin_inset Quotes eld
+\end_inset
+
+Phyto_parameters
+\begin_inset Quotes erd
+\end_inset
+
+ we have 
+\begin_inset Quotes eld
+\end_inset
+
+filename_nml_conf = 'Pelagic_Ecology.nml'
+\begin_inset Quotes erd
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Not all the commentaries are copied from Namelist file to final namelists
+ in the execution environment.
+ Only commentaries contained between the word 
+\begin_inset Quotes eld
+\end_inset
+
+NAMELIST
+\begin_inset Quotes erd
+\end_inset
+
+ until start of the namelist will be copied.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Box Frameless
+position "t"
+hor_pos "c"
+has_inner_box 1
+inner_pos "t"
+use_parbox 0
+use_makebox 0
+width "100col%"
+special "none"
+height "1in"
+height_special "totalheight"
+status open
+
+\begin_layout Plain Layout
+! -------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+! NAMELIST 
+\series bold
+Phyto_parameters
+\end_layout
+
+\begin_layout Plain Layout
+! ...
+\end_layout
+
+\begin_layout Plain Layout
+! 
+\color green
+These commentaries goes to
+\series bold
+ Pelagic_Ecology.nml
+\end_layout
+
+\begin_layout Plain Layout
+! ...
+\end_layout
+
+\begin_layout Plain Layout
+! -------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+&Phyto_parameters
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \quad{}
+\end_inset
+
+....
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \quad{}
+\end_inset
+
+! 
+\color red
+These commentaries 
+\series bold
+NOT
+\series default
+ goes to 
+\series bold
+Pelagic_Ecology.nml
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \quad{}
+\end_inset
+
+....
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset space \quad{}
+\end_inset
+
+filename_nml_conf = 'Pelagic_Ecology.nml',
+\end_layout
+
+\begin_layout Plain Layout
+
+\backslash
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Paragraph
+Memory layout file
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+twocolumn
 \end_layout
 
 \end_inset
