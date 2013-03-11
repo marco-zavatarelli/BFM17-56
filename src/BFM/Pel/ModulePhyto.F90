@@ -225,6 +225,14 @@
                          "Internal silica control is "//&
                          "selected but membrane affinity p_qus=0")
      end select
+     if (p_netgrowth(i)) then
+        p_switchDOC(i) = 2
+        write(LOGUNIT,*) "#  Balanced growth is activated: p_netgrowth=",p_netgrowth(i)
+        write(LOGUNIT,*) "#  forcing p_switchDOC = 2"
+     else if (p_switchDOC(i)==2) then
+        write(LOGUNIT,*) "#  Balanced growth is not activated: p_netgrowth=",p_netgrowth(i)
+        write(LOGUNIT,*) "#  do you really want p_switchDOC = 2?"
+     end if
      write(LOGUNIT,*) "#  OK"
   end do
 
