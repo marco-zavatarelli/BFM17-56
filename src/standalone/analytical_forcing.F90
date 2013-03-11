@@ -67,16 +67,16 @@ subroutine analytical_forcing
       dfrac=(dtime-floor(dtime)) ! fraction of the day
       dyear=mod(dtime,360._RLEN) ! Day of the year
    end if
-   SUNQ=daylength(REAL(dyear,RLEN),latitude)
+   SUNQ(:)=daylength(REAL(dyear,RLEN),latitude)
    wlight=light(dyear,dfrac)
    select case(ltype)
     case (3) ! light on/off distribution for daylight average
-      ThereIsLight=lightAtTime(dfrac,sunq)
-      wlight=wlight*ThereIsLight
+      ThereIsLight(:)=lightAtTime(dfrac,SUNQ(1))
+      wlight=wlight*ThereIsLight(1)
     case (4) ! light scaled up by photoperiod
-      wlight=wlight*24.0_RLEN/SUNQ
+      wlight=wlight*24.0_RLEN/SUNQ(1)
     case (1) ! instantaneous light distribution
-      wlight=instLight(wlight,sunq,dfrac)
+      wlight=instLight(wlight,SUNQ(1),dfrac)
     case default ! light constant during the day
    end select
    ETW(:) = temperature(dyear,dfrac)

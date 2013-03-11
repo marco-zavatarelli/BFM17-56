@@ -44,13 +44,11 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       PHYSICAL VARIABLES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-1d-variable
-  SUNQ	       : Daylength in hours : h
-  ThereIsLight : Forcing for day/night cycle : -
-end
 2d-variable
-  EWIND : 2D Wind speed : m/s
-  EICE  : 2D Sea-ice fraction: -
+  ThereIsLight : Switch for day/night cycle : -
+  SUNQ	       : Daylength in hours : h
+  EWIND : Wind speed : m/s
+  EICE  : Sea-ice fraction: -
 end
 3d-variable
   ETW   : temperature : C
