@@ -105,8 +105,8 @@
   !  p_xqp       [-]            Multiplication factor for luxury storage
   !                   ---- Si limitation control ----
   !  p_switchSi  [1-2]          Switch for Silica limitation
-  !                             2. Si limitation is controlled by external Si conc.
-  !                             1. Si limitation is controlled by internal quota
+  !                             1. Si limitation is controlled by external Si conc.
+  !                             2. Si limitation is controlled by internal quota
   !  p_chPs      [mmolSi/m3]    Half saturation conc. for dissolved Si limitation
   !  p_Contois   [>=0]          If >0, use Contois formulation
   !  p_qus       [m3/mgC/d]     Membrane affinity for Si
