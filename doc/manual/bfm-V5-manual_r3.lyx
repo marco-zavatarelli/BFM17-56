@@ -38,9 +38,7 @@
 \end{alltt}
   \vspace{-10pt}
 }
-\usepackage{pdfsync}
 \end_preamble
-\options onecolumn
 \use_default_options true
 \begin_modules
 eqs-within-sections
@@ -875,11 +873,13 @@ centerline{
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="23" columns="4">
+<lyxtabular version="3" rows="23" columns="6">
 <features tabularvalignment="middle">
 <column alignment="block" valignment="top" width="1.5cm">
-<column alignment="block" valignment="top" width="1cm">
 <column alignment="block" valignment="top" width="2cm">
+<column alignment="block" valignment="top" width="1cm">
+<column alignment="block" valignment="top" width="1.5cm">
+<column alignment="block" valignment="top" width="2.5cm">
 <column alignment="left" valignment="top" width="6cm">
 <row>
 <cell alignment="block" valignment="top" topline="true" bottomline="true" usebox="none">
@@ -890,6 +890,18 @@ centerline{
 \series bold
 \size footnotesize
 Variable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size footnotesize
+Code
 \end_layout
 
 \end_inset
@@ -913,7 +925,19 @@ Type
 
 \series bold
 \size footnotesize
-Components
+Const.
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size footnotesize
+Units
 \end_layout
 
 \end_inset
@@ -946,6 +970,17 @@ Description
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+N1p
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
@@ -968,17 +1003,28 @@ P
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmol P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Phosphate (mmol P m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-)
+Phosphate ()
 \end_layout
 
 \end_inset
@@ -999,6 +1045,17 @@ Phosphate (mmol P m
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+N3n
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1021,17 +1078,28 @@ N
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmol N m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Nitrate (mmol N m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-)
+Nitrate ()
 \end_layout
 
 \end_inset
@@ -1052,6 +1120,17 @@ Nitrate (mmol N m
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+N4n
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1074,17 +1153,28 @@ N
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmol N m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Ammonium (mmol N m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-)
+Ammonium ()
 \end_layout
 
 \end_inset
@@ -1101,6 +1191,17 @@ Ammonium (mmol N m
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+N5s
 \end_layout
 
 \end_inset
@@ -1127,17 +1228,28 @@ Si
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmol Si m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Silicate (mmol Si m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-)
+Silicate ()
 \end_layout
 
 \end_inset
@@ -1154,6 +1266,17 @@ Silicate (mmol Si m
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+N6r
 \end_layout
 
 \end_inset
@@ -1180,7 +1303,104 @@ R
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmol S m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Reduction equivalents, HS
+\begin_inset Formula $^{-}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $N^{(7)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+N7f
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1217,6 +1437,17 @@ r)
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+O2o
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1239,13 +1470,13 @@ O
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" usebox="none">
+<cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Dissolved Oxygen (mmol O
+mmol O
 \begin_inset Formula $_{2}$
 \end_inset
 
@@ -1253,7 +1484,18 @@ Dissolved Oxygen (mmol O
 \begin_inset Formula $^{-3}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Dissolved Oxygen 
 \end_layout
 
 \end_inset
@@ -1270,6 +1512,17 @@ Dissolved Oxygen (mmol O
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+O3c
 \end_layout
 
 \end_inset
@@ -1296,17 +1549,28 @@ C
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Carbon Dioxide (mg C m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-)
+Dissolved Inorganic Carbon
 \end_layout
 
 \end_inset
@@ -1327,57 +1591,13 @@ Carbon Dioxide (mg C m
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size footnotesize
-IO
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="block" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size footnotesize
-Total alkalinity (
-\begin_inset Formula $\mu$
-\end_inset
-
-mol Kg
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
 <cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $O^{(7)}$
-\end_inset
-
-
+O3h
 \end_layout
 
 \end_inset
@@ -1402,25 +1622,28 @@ IO
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmol Eq m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Total 
-\begin_inset Formula $[H^{+}]$
-\end_inset
-
- (
-\begin_inset Formula $\mu$
-\end_inset
-
-mol Kg
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
+Total Alkalinity 
 \end_layout
 
 \end_inset
@@ -1443,6 +1666,17 @@ mol Kg
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+P1[cnpslf]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1460,7 +1694,42 @@ LO
 \begin_layout Plain Layout
 
 \size footnotesize
-C N P Si Chl
+C N P Si Chl Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P-Si m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mg Chl-
+\emph on
+a
+\emph default
+ m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, 
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1471,23 +1740,7 @@ C N P Si Chl
 \begin_layout Plain Layout
 
 \size footnotesize
-Diatoms (mg C m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-, mmol N-P-Si m
-\begin_inset Formula $^{-3}$
-\end_inset
-
- and mg Chl-
-\emph on
-a
-\emph default
- m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-)
+Diatoms
 \end_layout
 
 \end_inset
@@ -1508,6 +1761,17 @@ a
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+P2[cnplf]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1525,7 +1789,42 @@ LO
 \begin_layout Plain Layout
 
 \size footnotesize
-C N P Chl
+C N P Chl Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mg Chl-
+\emph on
+a
+\emph default
+ m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, 
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1536,11 +1835,7 @@ C N P Chl
 \begin_layout Plain Layout
 
 \size footnotesize
-Flagellates (
-\begin_inset Quotes eld
-\end_inset
-
-)
+NanoFlagellates
 \end_layout
 
 \end_inset
@@ -1561,6 +1856,17 @@ Flagellates (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+P3[cnplf]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1578,7 +1884,42 @@ LO
 \begin_layout Plain Layout
 
 \size footnotesize
-C N P Chl
+C N P Chl Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mg Chl-
+\emph on
+a
+\emph default
+ m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, 
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1589,11 +1930,7 @@ C N P Chl
 \begin_layout Plain Layout
 
 \size footnotesize
-Picophytoplankton (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Picophytoplankton
 \end_layout
 
 \end_inset
@@ -1614,6 +1951,17 @@ Picophytoplankton (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+P4[cnplf]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1631,7 +1979,42 @@ LO
 \begin_layout Plain Layout
 
 \size footnotesize
-C N P Chl
+C N P Chl Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mg Chl-
+\emph on
+a
+\emph default
+ m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, 
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1642,11 +2025,7 @@ C N P Chl
 \begin_layout Plain Layout
 
 \size footnotesize
-Large phytoplankton (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Large phytoplankton
 \end_layout
 
 \end_inset
@@ -1669,6 +2048,17 @@ Large phytoplankton (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+B1[cnp]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1691,17 +2081,32 @@ C N P
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Pelagic Bacteria (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Pelagic Bacteria
 \end_layout
 
 \end_inset
@@ -1722,6 +2127,17 @@ Pelagic Bacteria (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Z3[cnp]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1733,7 +2149,7 @@ LO
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -1744,17 +2160,32 @@ C N P
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Carnivorous Mesozooplankton (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Carnivorous Mesozooplankton
 \end_layout
 
 \end_inset
@@ -1775,6 +2206,17 @@ Carnivorous Mesozooplankton (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Z4[cnp]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1797,17 +2239,32 @@ C N P
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Omnivorous Mesozooplankton (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Omnivorous Mesozooplankton
 \end_layout
 
 \end_inset
@@ -1830,6 +2287,17 @@ Omnivorous Mesozooplankton (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Z5[cnp]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1852,17 +2320,32 @@ C N P
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Microzooplankton (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Microzooplankton
 \end_layout
 
 \end_inset
@@ -1883,6 +2366,17 @@ Microzooplankton (
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Z6[cnp]
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
@@ -1905,17 +2399,32 @@ C N P
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Heterotrophic Flagellates (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Heterotrophic Flagellates
 \end_layout
 
 \end_inset
@@ -1932,6 +2441,17 @@ Heterotrophic Flagellates (
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+R1[cnpf]
 \end_layout
 
 \end_inset
@@ -1953,7 +2473,34 @@ NO
 \begin_layout Plain Layout
 
 \size footnotesize
-C N P
+C N P Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, 
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -1964,11 +2511,7 @@ C N P
 \begin_layout Plain Layout
 
 \size footnotesize
-Labile Dissolved Organic Matter (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Labile Dissolved Organic Matter
 \end_layout
 
 \end_inset
@@ -1985,6 +2528,17 @@ Labile Dissolved Organic Matter (
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+R2c
 \end_layout
 
 \end_inset
@@ -2011,17 +2565,28 @@ C
 
 \end_inset
 </cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-Carbohydrates (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Semi-labile Dissolved Organic Carbon
 \end_layout
 
 \end_inset
@@ -2034,10 +2599,21 @@ Carbohydrates (
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $R_{i}^{(6)}$
+\begin_inset Formula $R_{i}^{(3)}$
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+R3c
 \end_layout
 
 \end_inset
@@ -2053,13 +2629,28 @@ NO
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-C N P Si
+C 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -2070,11 +2661,7 @@ C N P Si
 \begin_layout Plain Layout
 
 \size footnotesize
-Particulate Organic Detritus (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Semi-refractory Dissolved Organic Carbon
 \end_layout
 
 \end_inset
@@ -2087,10 +2674,21 @@ Particulate Organic Detritus (
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $R_{i}^{(7)}$
+\begin_inset Formula $R_{i}^{(6)}$
 \end_inset
 
 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+R6[cnpsf]
 \end_layout
 
 \end_inset
@@ -2112,7 +2710,34 @@ NO
 \begin_layout Plain Layout
 
 \size footnotesize
-C
+C N P Si Fe
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mg C m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, mmol N-P-Si m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+, 
+\begin_inset Formula $\mu$
+\end_inset
+
+mol Fe m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -2123,11 +2748,7 @@ C
 \begin_layout Plain Layout
 
 \size footnotesize
-Semi-refractory Dissolved Organic Matter (
-\begin_inset Quotes eld
-\end_inset
-
-)
+Particulate Organic Detritus
 \end_layout
 
 \end_inset
@@ -2218,10 +2839,10 @@ centering
 \begin_inset Tabular
 <lyxtabular version="3" rows="11" columns="2">
 <features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2232,7 +2853,7 @@ Abbreviation
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2245,7 +2866,7 @@ Process
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2256,7 +2877,7 @@ gpp
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2267,7 +2888,7 @@ Gross primary production
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2278,7 +2899,7 @@ rsp
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2289,7 +2910,7 @@ Respiration
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2300,7 +2921,7 @@ prd
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2311,7 +2932,7 @@ Predation
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2322,7 +2943,7 @@ rel
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2333,7 +2954,7 @@ Biological release: Egestion, Excretion
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2344,7 +2965,7 @@ exu
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2355,7 +2976,7 @@ Exudation
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2366,7 +2987,7 @@ lys
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2377,7 +2998,7 @@ Lysis
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2388,7 +3009,7 @@ syn
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2399,7 +3020,7 @@ Biochemical synthesis
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2410,7 +3031,7 @@ nit/denit
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2421,7 +3042,7 @@ Nitrification, denitrification
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2432,7 +3053,7 @@ scv
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2443,7 +3064,7 @@ Scavenging
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2454,7 +3075,7 @@ rmn
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -2492,7 +3113,7 @@ List of abbreviations
 \end_inset
 
 List of all the abbreviations used to indicate the physiological and ecological
- processes in the equations.
+ processes in the equations
 \end_layout
 
 \end_inset
@@ -2559,6 +3180,13 @@ key "blackford95"
 
 \end_inset
 
+ and 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "vichi07_part1"
+
+\end_inset
+
 ).
 \end_layout
 
@@ -2590,9 +3218,11 @@ name "sec:The-environmental-parameters"
 \begin_layout Standard
 This section describes the dependencies of the pelagic biogeochemical processes
  from the physical environment.
+ The BFM has defined a set of environmental variables that are provided
+ by external data or by a physical model (Tab.
+ ).
  The local coupling between physics and biogeochemistry is realized explicitly
- through surface irradiance and temperature that are provided by external
- data or by a physical model.
+ through surface irradiance and temperature.
  Temperature regulates all physiological processes in the model and its
  effect, denoted by 
 \begin_inset Formula $f^{T}$
@@ -2643,6 +3273,76 @@ E_{_{PAR}}(z)=\varepsilon_{_{PAR}}\,\, Q_{S}\, e^{\lambda_{w}z+\int_{z}^{0}\lamb
 
 \end_inset
 
+ 
+\begin_inset Formula $\varepsilon_{_{PAR}}$
+\end_inset
+
+ is the coefficient determining the fraction of PAR in 
+\begin_inset Formula $Q_{S}$
+\end_inset
+
+.
+ Light propagation takes into account the extinction due to suspended particles,
+ 
+\begin_inset Formula $\lambda_{bio}$
+\end_inset
+
+, and 
+\begin_inset Formula $\lambda_{w}$
+\end_inset
+
+ as the background extinction of water.
+ The biological extinction is written as
+\begin_inset Formula 
+\begin{equation}
+\lambda_{bio}=\sum_{j=1}^{4}c_{_{P^{(j)}}}P_{l}^{(j)}+c_{_{R^{(6)}}}R_{c}^{(6)}\label{eq:bio_extinction_coefficient}
+\end{equation}
+
+\end_inset
+
+where the extinctions due to the concentration of phytoplankton chlorophyll
+ and particulate detritus are considered (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Phytoplankton"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:non-living"
+
+\end_inset
+
+).
+ The 
+\begin_inset Formula $c$
+\end_inset
+
+ constants are the specific absorption coefficients of each suspended substance
+ (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:phytoplankton_parameters"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Chemical-parameters"
+
+\end_inset
+
+), which may also include extinction by suspended sediments (not currently
+ resolved by the BFM but can be included from an external model).
+ 
+\end_layout
+
+\begin_layout Standard
 The short-wave surface irradiance flux 
 \begin_inset Formula $Q_{S}$
 \end_inset
@@ -2651,7 +3351,7 @@ The short-wave surface irradiance flux
  model.
  Three types of forcings are allowed depending on the value of 
 \family typewriter
-LightProductionFlag
+LightPeriodFlag
 \family default
  in 
 \family typewriter
@@ -2661,27 +3361,27 @@ Pelagic_Ecology.nml
 \end_layout
 
 \begin_layout Enumerate
-Daily average (
-\family typewriter
-LightProductionFlag=2
-\family default
-)
-\end_layout
-
-\begin_layout Enumerate
 Instantaneous irradiance (
 \family typewriter
-LightProductionFlag=
+LightPeriodFlag=
 \family default
 1)
 \end_layout
 
 \begin_layout Enumerate
-Daylight average (with explicit photoperiod, 
+Daily average (
 \family typewriter
-LightProductionFlag=4
+LightPeriodFlag=2
 \family default
 )
+\end_layout
+
+\begin_layout Enumerate
+Daylight average (with explicit photoperiod, 
+\family typewriter
+LightPeriodFlag=
+\family default
+3)
 \end_layout
 
 \begin_layout Standard
@@ -2772,43 +3472,560 @@ key "reinart98"
 \end_inset
 
 .
- 
-\begin_inset Formula $\varepsilon_{_{PAR}}$
-\end_inset
+\end_layout
 
- is the coefficient determining the fraction of PAR in 
-\begin_inset Formula $Q_{S}$
-\end_inset
+\begin_layout Standard
+\begin_inset Float table
+wide true
+sideways false
+status open
 
-.
- Light propagation takes into account the extinction due to suspended particles,
- 
-\begin_inset Formula $\lambda_{bio}$
-\end_inset
+\begin_layout Plain Layout
+\align left
+\begin_inset ERT
+status open
 
-, and 
-\begin_inset Formula $\lambda_{w}$
-\end_inset
+\begin_layout Plain Layout
 
- as the background extinction of water.
- The biological extinction is written as
-\begin_inset Formula 
-\begin{equation}
-\lambda_{bio}=\sum_{j=1}^{4}c_{_{P^{(j)}}}P_{l}^{(j)}+c_{_{R^{(6)}}}R_{c}^{(6)}\label{eq:bio_extinction_coefficient}
-\end{equation}
+
+\backslash
+centering{
+\end_layout
 
 \end_inset
 
-where the extinctions due to the concentration of phytoplankton chlorophyll
- and particulate detritus are considered.
- Extinction due to dissolved substances and inorganic suspended matter is
- currently not considered for global ocean applications.
- The 
-\begin_inset Formula $c$
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="9" columns="4">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="2cm">
+<column alignment="left" valignment="top" width="2cm">
+<column alignment="left" valignment="top" width="2cm">
+<column alignment="block" valignment="top" width="5cm">
+<row>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\shape italic
+\size footnotesize
+Symbol
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Code
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Unit
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size footnotesize
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $T$
 \end_inset
 
- constants are the specific absorption coefficients of each suspended substance.
- 
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ETW
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $^{o}$
+\end_inset
+
+C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Sea water salinity
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $S$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ESW
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+(-)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Sea water temperature
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $\rho$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ERHO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Kg m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Sea water density
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $E_{PAR}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+EIR
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $\mu$
+\end_inset
+
+E m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Photosynthetically available radiation
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $S_{S}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+ESS
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+g m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Suspended sediment load
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $W_{atm}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+EWIND
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+m s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Wind speed
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $F_{ice}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+EICE
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+(-)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Sea ice fraction
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+\begin_inset Formula $\Phi$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+SUNQ
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+hours
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="block" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Daylight length 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:env-variables"
+
+\end_inset
+
+
+\begin_inset Argument
+status open
+
+\begin_layout Plain Layout
+Environmental variables
+\end_layout
+
+\end_inset
+
+Mathematical and code symbols, units and description of the environmental
+ state variables defined in the model.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -3128,6 +4345,7 @@ Symbol
 
 \begin_layout Plain Layout
 
+\series bold
 \size footnotesize
 Code
 \end_layout
@@ -3139,6 +4357,7 @@ Code
 
 \begin_layout Plain Layout
 
+\series bold
 \size footnotesize
 Unit
 \end_layout
@@ -3667,11 +4886,6 @@ Activity respiration fraction
 
 \begin_layout Plain Layout
 
-\size footnotesize
-\begin_inset Formula $q_{_{P}}$
-\end_inset
-
-
 \end_layout
 
 \end_inset
@@ -3682,7 +4896,7 @@ Activity respiration fraction
 \begin_layout Plain Layout
 
 \size footnotesize
-p_switchR1R2
+p_switchDOC
 \end_layout
 
 \end_inset
@@ -3691,7 +4905,9 @@ p_switchR1R2
 \begin_inset Text
 
 \begin_layout Plain Layout
-0-1
+
+\size footnotesize
+1-3
 \end_layout
 
 \end_inset
@@ -3702,7 +4918,70 @@ p_switchR1R2
 \begin_layout Plain Layout
 
 \size footnotesize
-Partitioning coefficient of DOC excretion between labile and semi-labile
+Switch for the type of DOC excretion.
+ This choice must be consistent with bacteria parameterization in Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Bacterioplankton"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\size footnotesize
+1.
+ All DOC is released as 
+\begin_inset Formula $R_{c}^{^{(1)}}$
+\end_inset
+
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "vichi07_part1"
+
+\end_inset
+
+, consistent with BACT1
+\end_layout
+
+\begin_layout Plain Layout
+
+\size footnotesize
+2.
+ Activity DOC is released as 
+\begin_inset Formula $R_{c}^{^{(2)}}$
+\end_inset
+
+ as there is no nutrient-stress excretion in BACT2 parameterization 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "vichi04"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\size footnotesize
+3.
+ All DOC is released as 
+\begin_inset Formula $R_{c}^{^{(2)}}$
+\end_inset
+
+, consistent with BACT3 in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "polimene06"
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -5721,18 +7000,36 @@ name "sub:Exudation-of-carbohydrates"
 \begin_layout Standard
 In the case of intra-cellular nutrient shortage, not all photosynthesized
  carbon can be assimilated into biomass, and the non-assimilated part is
- released in the form of dissolved carbohydrates (DOC, 
-\begin_inset Formula $R_{c}^{(1)}$
+ released in the form of dissolved carbohydrates.
+ The model considers three different types of DOC (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:model_variables"
+
 \end_inset
 
-).
+, Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Bacterioplankton"
+
+\end_inset
+
+) and phytoplankton excretion must be consistent with the bacteria parameterizat
+ion.
  Carbohydrates are excreted when phytoplankton cannot equilibrate the fixed
  C with sufficient nutrients to maintain the minimum quotum needed for the
  synthesis of new biomass.
  The choice of the parametrization for DOC exudation is controlled by the
- flag parameter 
+ flag parameters 
 \family typewriter
 p_netgrowth
+\family default
+ and 
+\family typewriter
+p_switchDOC
 \family default
  in the phytoplankton namelist (Tab.
  
@@ -5742,7 +7039,9 @@ reference "tab:phytoplankton_parameters"
 
 \end_inset
 
-), which can be activated at the level of each sub-group.
+), which can be set differently for each sub-group.
+ There is a runtime check that controls the consistency between the two
+ parameters.
  When the flag is false, the ERSEM-II parameterization 
 \begin_inset CommandInset citation
 LatexCommand citep
@@ -5770,8 +7069,26 @@ key "vichi07_part1"
 
 where exudation (and thus carbon biomass loss) increases when phytoplankton
  has low nutrient:carbon ratios.
- However, this parameterization not only leads to the desired extra release
- of C-enriched DOM but also to a decrease of the population biomass.
+ The nutrient-stress excretion can also be partly directed to semi-refractory
+ DOC (
+\begin_inset Formula $R_{c}^{(2)}$
+\end_inset
+
+) by setting the parameter 
+\family typewriter
+p_switchDOC=3
+\family default
+:
+\begin_inset Formula 
+\begin{eqnarray}
+\left.\frac{dP_{c}}{dt}\right|_{R_{c}^{(1)}}^{exu} & = & \beta_{_{P}}\left.\frac{dP_{c}}{dt}\right|_{O^{(3)}}^{gpp}\\
+\left.\frac{dP_{c}}{dt}\right|_{R_{c}^{(2)}}^{exu} & = & \left(1-\beta_{_{P}}\right)\left(1-f_{_{P}}^{n,p}\right)\left.\frac{dP_{c}}{dt}\right|_{O^{(3)}}^{gpp}
+\end{eqnarray}
+
+\end_inset
+
+ However, the ERSEM-II parameterization not only leads to the desired extra
+ release of C-enriched DOM but also to a decrease of the population biomass.
  It has been shown by 
 \begin_inset CommandInset citation
 LatexCommand citet
@@ -5810,9 +7127,9 @@ reference "sec:Bacterioplankton"
 
 \end_inset
 
- for a detailed explanation of DOM in the BFM), which represents carbohydrates
- and it is written as the sum of an activity exudation linked to the gross
- primary production and a balance term
+ for a detailed explanation of DOM in the BFM), and it is written as the
+ sum of an activity exudation linked to the gross primary production and
+ a balance term
 \end_layout
 
 \begin_layout Standard
@@ -6374,7 +7691,7 @@ which is a constrained ramp function over the  range of  saturating irradiances.
 \begin_inset Float table
 wide true
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \align left
@@ -9218,7 +10535,7 @@ In this parameterisation labile
 \end_inset
 
 , constitute the organic substrate available to bacteria.
- Both 
+ This parameterization requires that phytoplankton 
 \end_layout
 
 \begin_layout Subsubsection
@@ -9326,8 +10643,8 @@ The mineralisers/phytoplankton competitors behavior is controlled by the
 \begin_layout Standard
 \begin_inset Formula 
 \begin{eqnarray}
-\left.\frac{dB_{p}}{dt}\right|_{N^{(1)}}^{upt,rel} & \NSP= & \NSP f_{_{B}}^{p}\nu_{_{B}}^{p}\left(\frac{B_{p}}{B_{c}}-p_{_{B}}^{^{opt}}\right)B_{c}\label{eq:bacteria_upt/rel_P}\\
-\left.\frac{dB_{n}}{dt}\right|_{N^{(4)}}^{upt,rel} & \NSP= & \NSP f_{_{B}}^{n}\nu_{_{B}}^{n}\left(\frac{B_{n}}{B_{c}}-n_{_{B}}^{^{opt}}\right)B_{c}\label{eq:bacteria_upt/rel_N}
+\left.\frac{dB_{p}}{dt}\right|_{N^{(1)}}^{upt,rel} & \NSP= & \NSP f_{_{B}}^{p}\nu_{_{B}}^{p}\left\Vert \frac{B_{p}}{B_{c}}-p_{_{B}}^{^{opt}}\right\Vert B_{c}\label{eq:bacteria_upt/rel_P}\\
+\left.\frac{dB_{n}}{dt}\right|_{N^{(4)}}^{upt,rel} & \NSP= & \NSP f_{_{B}}^{n}\nu_{_{B}}^{n}\left\Vert \frac{B_{n}}{B_{c}}-n_{_{B}}^{^{opt}}\right\Vert B_{c}\label{eq:bacteria_upt/rel_N}
 \end{eqnarray}
 
 \end_inset
@@ -13167,7 +14484,7 @@ and the time scales of excretion are controlled by the specific constant
 Non-living components
 \begin_inset CommandInset label
 LatexCommand label
-name "sub:non-living"
+name "sec:non-living"
 
 \end_inset
 
@@ -13336,7 +14653,7 @@ reference "eq:oxygen_O2"
  first-order dependence on ammonium and oxygen concentrations:
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dN^{(4)}}{dt}\right|_{N^{(3)}}^{nit}=\Lambda_{_{N^{(4)}}}^{nit}\, f_{_{N^{(4)}}}^{T}\,\frac{O^{(2)}}{O^{(2)}+h_{_{N^{(4)}}}^{o}}\, N^{(4)}\label{eq:nitrogen_nitrification}
+\left.\frac{dN^{(4)}}{dt}\right|_{N^{(3)}}^{nit}=\Lambda_{_{N^{(4)}}}^{nit}\, f_{_{n}}^{T}\,\frac{O^{(2)}}{O^{(2)}+h_{_{o}}}\, N^{(4)}\label{eq:nitrogen_nitrification}
 \end{equation}
 
 \end_inset
@@ -13346,7 +14663,7 @@ where
 \end_inset
 
  is the constant specific nitrification rate and 
-\begin_inset Formula $f^{T}$
+\begin_inset Formula $f_{n}^{T}$
 \end_inset
 
  a temperature regulating factor with the Q10 formulation shown in (
@@ -13382,7 +14699,7 @@ l oxygen demand of bacteria (under low oxygen conditions) into sulphide
 The utilization of nitrate as an electron acceptor in microbial metabolic
  reactions is parameterized in an indirect way.
  Firstly, when the oxygen level falls below the threshold level and 
-\begin_inset Formula $f_{_{B1}}^{o}<1$
+\begin_inset Formula $f_{_{B}}^{o}<1$
 \end_inset
 
  (eq.
@@ -13409,7 +14726,7 @@ reference "eq:bacteria_rsp"
  enhance the denitrification flux in the following way:
 \begin_inset Formula 
 \begin{align}
-\!\!\!\!\NSP\left.\frac{dN^{(3)}}{dt}\right|^{denit}\NSP= & \Lambda_{_{N^{(3)}}}^{denit}\left[\frac{1}{\mathcal{M}_{o}^{*}}\Omega_{_{c}}^{o}\left(1-f_{_{B}}^{o}\right)\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}\right]N^{(3)}\cdot\label{eq:nitrate_denitrification}
+\!\!\!\!\NSP\left.\frac{dN^{(3)}}{dt}\right|^{denit}\NSP= & \Lambda_{_{N^{(3)}}}^{denit}\, f_{_{n}}^{T}\left[\frac{1}{\mathcal{M}_{o}^{*}}\Omega_{_{c}}^{o}\left(1-f_{_{B}}^{o}\right)\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}\right]N^{(3)}\cdot\label{eq:nitrate_denitrification}
 \end{align}
 
 \end_inset
@@ -13431,11 +14748,16 @@ where
 
  is converted to nitrate consumption, mimicking the bacteria-mediated denitrific
 ation reactions.
- This chemical rate does not lead to a direct production of gaseous N
+ This chemical rate leads to a direct production of gaseous N
 \begin_inset Formula $_{2}$
 \end_inset
 
- in the water, because this variable is not currently defined in the model.
+ in the water, which is the only time rate of change for state variable
+ 
+\begin_inset Formula $O^{(4)}$
+\end_inset
+
+ in the model.
 \end_layout
 
 \begin_layout Standard
@@ -13443,7 +14765,7 @@ Furthermore, as long as there is some oxygen left, reduction equivalents
  are also quickly reoxidized at the following rate:
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dN^{(6)}}{dt}\right|_{sink_{r}}^{reox}=\Lambda_{_{N^{(6)}}}^{reox}\, f_{_{N^{(6)}}}^{T}\,\frac{O^{(2)}}{O^{(2)}+h_{_{N^{(6)}}}^{o}}N^{(6)}\label{eq:redequiv_reox}
+\left.\frac{dN^{(6)}}{dt}\right|_{sink_{r}}^{reox}=\Lambda_{_{N^{(6)}}}^{reox}\,\frac{O^{(2)}}{O^{(2)}+h_{_{o}}}N^{(6)}\label{eq:redequiv_reox}
 \end{equation}
 
 \end_inset
@@ -13452,22 +14774,11 @@ where
 \begin_inset Formula $\Lambda_{_{N^{(6)}}}^{reox}$
 \end_inset
 
- is the (constant) specific daily reoxidation rate, 
-\begin_inset Formula $f_{_{N^{(6)}}}^{T}$
+ is the (constant) specific daily reoxidation rate, and 
+\begin_inset Formula $h_{_{o}}$
 \end_inset
 
- is the temperature regulating factor given in (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:Q10"
-
-\end_inset
-
-) and 
-\begin_inset Formula $h_{_{N^{(6)}}}^{o}$
-\end_inset
-
- is the half-saturation concentration.
+ is the half-saturation oxygen concentration.
   When oxygen and nitrate are completely depleted the last two terms in
  (
 \begin_inset CommandInset ref
@@ -13489,7 +14800,7 @@ status open
 \begin_layout Plain Layout
 \align left
 \begin_inset ERT
-status open
+status collapsed
 
 \begin_layout Plain Layout
 
@@ -13502,9 +14813,10 @@ centerline{
 
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="19" columns="3">
+<lyxtabular version="3" rows="19" columns="4">
 <features tabularvalignment="middle">
 <column alignment="block" valignment="top" width="2cm">
+<column alignment="left" valignment="top" width="3cm">
 <column alignment="left" valignment="top" width="0">
 <column alignment="block" valignment="top" width="7cm">
 <row>
@@ -13521,7 +14833,7 @@ Symbol
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -13529,6 +14841,18 @@ Symbol
 \series bold
 \size footnotesize
 Code
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\size footnotesize
+Units
 \end_layout
 
 \end_inset
@@ -13561,11 +14885,13 @@ Description
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+MW_C
 \end_layout
 
 \end_inset
@@ -13576,7 +14902,7 @@ Description
 \begin_layout Plain Layout
 
 \size footnotesize
-Unit conversion factor and stoichiometric coefficient (mmolO
+mmolO
 \begin_inset Formula $_{2}$
 \end_inset
 
@@ -13588,7 +14914,18 @@ mgC
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Unit conversion factor and stoichiometric coefficient 
 \end_layout
 
 \end_inset
@@ -13609,11 +14946,13 @@ mgC
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_qon_nitri
 \end_layout
 
 \end_inset
@@ -13624,7 +14963,7 @@ mgC
 \begin_layout Plain Layout
 
 \size footnotesize
-Stoichiometric coefficient nitrification reaction (mmolO
+mmolO
 \begin_inset Formula $_{2}$
 \end_inset
 
@@ -13636,7 +14975,18 @@ mmolN
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Stoichiometric coefficient for nitrification reaction
 \end_layout
 
 \end_inset
@@ -13657,11 +15007,13 @@ mmolN
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_qon_dentri
 \end_layout
 
 \end_inset
@@ -13672,7 +15024,7 @@ mmolN
 \begin_layout Plain Layout
 
 \size footnotesize
-Stoichiometric coefficient denitrification reaction (mmolO
+mmolO
 \begin_inset Formula $_{2}$
 \end_inset
 
@@ -13684,7 +15036,18 @@ mmolN
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Stoichiometric coefficient for denitrification reaction
 \end_layout
 
 \end_inset
@@ -13705,11 +15068,13 @@ mmolN
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_qro
 \end_layout
 
 \end_inset
@@ -13720,7 +15085,7 @@ mmolN
 \begin_layout Plain Layout
 
 \size footnotesize
-Stoichiometric coefficient (mmolHS 
+mmolHS 
 \begin_inset Formula $^{-}$
 \end_inset
 
@@ -13736,7 +15101,18 @@ mmolO
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Stoichiometric coefficient for oxic-anoxic reaction
 \end_layout
 
 \end_inset
@@ -13757,11 +15133,13 @@ mmolO
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_qro * p_qon_dentri
 \end_layout
 
 \end_inset
@@ -13772,7 +15150,7 @@ mmolO
 \begin_layout Plain Layout
 
 \size footnotesize
-Stoichiometric coefficient (mmolHS 
+mmolHS 
 \begin_inset Formula $^{-}$
 \end_inset
 
@@ -13784,7 +15162,18 @@ mmolN
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Stoichiometric coefficient nitrogen-anoxic reaction
 \end_layout
 
 \end_inset
@@ -13805,11 +15194,13 @@ mmolN
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_sN4N3
 \end_layout
 
 \end_inset
@@ -13820,11 +15211,26 @@ mmolN
 \begin_layout Plain Layout
 
 \size footnotesize
-Specific nitrification rate (d
+d
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Specific nitrification rate at 10
+\begin_inset Formula $^{o}$
+\end_inset
+
+C
 \end_layout
 
 \end_inset
@@ -13837,7 +15243,7 @@ Specific nitrification rate (d
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $Q_{10_{N4}}$
+\begin_inset Formula $Q_{10_{n}}$
 \end_inset
 
 
@@ -13845,11 +15251,13 @@ Specific nitrification rate (d
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_q10N4N3
 \end_layout
 
 \end_inset
@@ -13860,7 +15268,18 @@ Specific nitrification rate (d
 \begin_layout Plain Layout
 
 \size footnotesize
-Q10 factor for nitrification reaction.
+(-)
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Q10 factor for nitrification/denitrification reaction
 \end_layout
 
 \end_inset
@@ -13873,7 +15292,7 @@ Q10 factor for nitrification reaction.
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $Q_{10_{N3}}$
+\begin_inset Formula $h_{_{o}}$
 \end_inset
 
 
@@ -13881,11 +15300,13 @@ Q10 factor for nitrification reaction.
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_clO2o
 \end_layout
 
 \end_inset
@@ -13896,47 +15317,7 @@ Q10 factor for nitrification reaction.
 \begin_layout Plain Layout
 
 \size footnotesize
-Q10 factor for denitrification reaction.
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size footnotesize
-\begin_inset Formula $h_{_{N4}}^{o}$
-\end_inset
-
-, 
-\begin_inset Formula $h_{_{N6}}^{o}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size footnotesize
-Half saturation oxygen concentration for chemical processes (mmolO
+mmolO
 \begin_inset Formula $_{2}$
 \end_inset
 
@@ -13948,7 +15329,79 @@ m
 \begin_inset Formula $^{-3}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Half saturation  for chemical processes
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+\begin_inset Formula $h_{_{r}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_clN6r
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmolHS 
+\begin_inset Formula $^{-}$
+\end_inset
+
+
+\begin_inset space ~
+\end_inset
+
+m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Half saturation oxygen concentration for anoxic processes
 \end_layout
 
 \end_inset
@@ -13969,10 +15422,27 @@ m
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_sN3O4n
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size footnotesize
+d
+\begin_inset Formula $^{-1}$
+\end_inset
+
 
 \end_layout
 
@@ -13984,11 +15454,7 @@ m
 \begin_layout Plain Layout
 
 \size footnotesize
-Specific denitrification rate (d
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
+Specific denitrification rate
 \end_layout
 
 \end_inset
@@ -14009,11 +15475,13 @@ Specific denitrification rate (d
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+p_rPAo
 \end_layout
 
 \end_inset
@@ -14024,7 +15492,7 @@ Specific denitrification rate (d
 \begin_layout Plain Layout
 
 \size footnotesize
-Reference anoxic mineralization rate (mmol O
+mmol O
 \begin_inset Formula $_{2}$
 \end_inset
 
@@ -14044,7 +15512,18 @@ d
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Reference anoxic mineralization rate
 \end_layout
 
 \end_inset
@@ -14065,10 +15544,27 @@ d
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_rOS
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size footnotesize
+d
+\begin_inset Formula $^{-1}$
+\end_inset
+
 
 \end_layout
 
@@ -14080,11 +15576,7 @@ d
 \begin_layout Plain Layout
 
 \size footnotesize
-Specific reoxidation rate of reduction equivalents (d
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
+Specific reoxidation rate of reduction equivalents
 \end_layout
 
 \end_inset
@@ -14105,11 +15597,24 @@ Specific reoxidation rate of reduction equivalents (d
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_q10R6N5
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+(-)
 \end_layout
 
 \end_inset
@@ -14142,10 +15647,27 @@ Q10 factor for dissolution of biogenic silica
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_sR6N5
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size footnotesize
+d
+\begin_inset Formula $^{-1}$
+\end_inset
+
 
 \end_layout
 
@@ -14157,11 +15679,7 @@ Q10 factor for dissolution of biogenic silica
 \begin_layout Plain Layout
 
 \size footnotesize
-Specific dissolution rate of biogenic silica (d
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
+Specific dissolution rate of biogenic silica
 \end_layout
 
 \end_inset
@@ -14182,11 +15700,24 @@ Specific dissolution rate of biogenic silica (d
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_PAR
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
+\size footnotesize
+(-)
 \end_layout
 
 \end_inset
@@ -14197,7 +15728,7 @@ Specific dissolution rate of biogenic silica (d
 \begin_layout Plain Layout
 
 \size footnotesize
-Fraction of Photosynthetically Available Radiation (-)
+Fraction of Photosynthetically Available Radiation 
 \end_layout
 
 \end_inset
@@ -14218,10 +15749,27 @@ Fraction of Photosynthetically Available Radiation (-)
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_eps0
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size footnotesize
+m
+\begin_inset Formula $^{-1}$
+\end_inset
+
 
 \end_layout
 
@@ -14233,11 +15781,7 @@ Fraction of Photosynthetically Available Radiation (-)
 \begin_layout Plain Layout
 
 \size footnotesize
-Optical extinction coefficient for pure water (m
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
+Background attenuation coefficient
 \end_layout
 
 \end_inset
@@ -14258,22 +15802,24 @@ Optical extinction coefficient for pure water (m
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-</cell>
 <cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
-C-specific extinction coefficient of particulate detritus (m
+p_epsR6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+m
 \begin_inset Formula $^{2}$
 \end_inset
 
@@ -14285,7 +15831,18 @@ mg C
 \begin_inset Formula $^{-1}$
 \end_inset
 
-)
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+C-specific attenuation coefficient of particulate detritus
 \end_layout
 
 \end_inset
@@ -14306,10 +15863,27 @@ mg C
 
 \end_inset
 </cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_sediR6
+\end_layout
+
+\end_inset
+</cell>
 <cell alignment="center" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size footnotesize
+m d
+\begin_inset Formula $^{-1}$
+\end_inset
+
 
 \end_layout
 
@@ -14321,11 +15895,7 @@ mg C
 \begin_layout Plain Layout
 
 \size footnotesize
-Settling velocity of particulate detritus (m d
-\begin_inset Formula $^{-1}$
-\end_inset
-
-)
+Settling velocity of particulate detritus
 \end_layout
 
 \end_inset
@@ -14425,7 +15995,7 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset ERT
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
@@ -14689,7 +16259,8 @@ label{eq:zooplankton}
 \begin_inset Formula 
 \begin{eqnarray}
 \left.\frac{dR_{c}^{(1)}}{dt}\right|_{bio} & = & \sum_{j=1}^{3}\left.\frac{dP_{c}^{(j)}}{dt}\right|_{R_{c}^{(1)}}^{exu}-\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(1)}}^{upt}+\sum_{k=5,6}\left.\frac{dZ_{c}^{(k)}}{dt}\right|_{R_{c}^{(1)}}^{rel}\label{eq:DOC_R1c}\\
-\left.\frac{dR_{i}^{(1)}}{dt}\right|_{bio} & = & \sum_{j=1}^{3}\left.\frac{dP_{i}^{(j)}}{dt}\right|_{R_{i}^{(1)}}^{exu}-\frac{R_{i}^{(1)}}{R_{c}^{(1)}}\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(1)}}^{upt}+\sum_{k=5,6}\frac{Z_{i}^{(k)}}{Z_{c}^{(k)}}\left.\frac{dZ_{c}^{(k)}}{dt}\right|_{R_{c}^{(1)}}^{rel}\quad i=n,p\label{eq:DON_DOP_R1j}
+\left.\frac{dR_{i}^{(1)}}{dt}\right|_{bio} & = & \sum_{j=1}^{3}\left.\frac{dP_{i}^{(j)}}{dt}\right|_{R_{i}^{(1)}}^{exu}-\frac{R_{i}^{(1)}}{R_{c}^{(1)}}\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(1)}}^{upt}+\sum_{k=5,6}\frac{Z_{i}^{(k)}}{Z_{c}^{(k)}}\left.\frac{dZ_{c}^{(k)}}{dt}\right|_{R_{c}^{(1)}}^{rel}\quad i=n,p\label{eq:DON_DOP_R1j}\\
+\left.\frac{dR_{c}^{(2)}}{dt}\right|_{bio} & = & \left.\frac{dP_{c}}{dt}\right|_{R_{c}^{(2)}}^{exu}-\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(2)}}^{upt}\left(+\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(2)}}^{rel}\right)\label{eq:DOC_R2c}
 \end{eqnarray}
 
 \end_inset
@@ -14723,7 +16294,17 @@ name "box:DOM"
 
 \end_inset
 
-Dissolved organic matter equations.
+
+\begin_inset Argument
+status open
+
+\begin_layout Plain Layout
+Dissolved organic matter
+\end_layout
+
+\end_inset
+
+Dissolved organic matter equations
 \end_layout
 
 \end_inset
@@ -14841,27 +16422,29 @@ name "sub:Non-living-organic"
 \end_layout
 
 \begin_layout Standard
-The equations for labile dissolved organic matter (DOM, 
-\begin_inset Formula $R_{j}^{(1)}$
-\end_inset
-
-) are linked to 3 biogeochemical basic constituents C, N and P and are thus
- described by 3 equations shown in Box 
+The state variables describing dissolved organic matter shown in Box 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "box:DOM"
 
 \end_inset
 
-.
-\end_layout
+ have been introduced in Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Bacterioplankton"
 
-\begin_layout Standard
-DOM is produced by phytoplankton, bacteria and microzooplankton and used
+\end_inset
+
+ because they are tightly linked to the parameterizations of pelagic bacteria.
+ 3 biogeochemical basic constituents C, N and P and are thus described by
+ 3 equations shown in.
+ DOM is produced by phytoplankton, bacteria and microzooplankton and used
  as organic substrate by bacteria.
  The different degrees of lability of DOM are reflected in the nutrient
  content of 
-\begin_inset Formula $R_{(j)}^{(1)}$
+\begin_inset Formula $R_{j}^{(1)}$
 \end_inset
 
 , which regulates bacterial uptake as shown in eq (
@@ -14871,13 +16454,24 @@ reference "eq:bacteria_bcd"
 
 \end_inset
 
-).
- 
-\end_layout
+), while variables 
+\begin_inset Formula $R_{c}^{(2)}$
+\end_inset
 
-\begin_layout Standard
-The equation for semi-labile DOC (carbohydrates) is derived from the production
- terms, which are different for the bacteria parameterizations (Secs.
+ and 
+\begin_inset Formula $R_{c}^{(3)}$
+\end_inset
+
+ only contains the carbon constituent.
+ The equation (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:DOC_R2c"
+
+\end_inset
+
+) for semi-labile DOC (carbohydrates) is derived from the production terms
+ implemented in the different bacteria parameterizations (Secs.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -14899,16 +16493,9 @@ reference "sub:BACT3"
 
 \end_inset
 
-), 
-\begin_inset Formula 
-\[
-\left.\frac{dR_{c}^{(2)}}{dt}\right|_{bio}=\left.\frac{dP_{c}}{dt}\right|_{R_{c}^{(2)}}^{exu}-\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(2)}}^{upt}\left(+\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(2)}}^{rel}\right)
-\]
-
-\end_inset
-
-because bacteria are allowed to release carbohydrates (term in brackets)
- only in BACT2 and BACT3 parameterizations.
+).
+ Bacteria are allowed to release carbohydrates only in BACT2 and BACT3 parameter
+izations.
  
 \end_layout
 
@@ -15380,11 +16967,11 @@ and
 \end_inset
 
 , 
-\begin_inset Formula $N^{(5)}$
+\begin_inset Formula $N^{(1)}$
 \end_inset
 
  and 
-\begin_inset Formula $N{}^{(1)}$
+\begin_inset Formula $N{}^{(5)}$
 \end_inset
 
  are the model state variables for DIC, total alkalinity, total phosphorus
@@ -15411,7 +16998,51 @@ and
 
  are given as dependent on the temperature and salinity only.
  Currently, the model does not take into account changes of alkalinity due
- to nitrate uptake and calcification.
+ to calcification.
+ 
+\end_layout
+
+\begin_layout Standard
+The effects of biogeochemical processes on alkalinity linked to the N cycle
+ are taken into account with a correction to the total alkalinity value
+ after 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "wolf-gladrow07"
+
+\end_inset
+
+.
+ The uptake of 1 mole of N leads to (i) an increase of alkalinity by 1 mole
+ when nitrate is the source, (ii) to a decrease of alkalinity by 1 mole
+ when ammonia is used.
+ Nitrification leads to a decrease of TA by 2 moles per mole of nitrate
+ formed and denitrification leads to an increase of TA by 1 mole per mole
+ of nitrate converted.
+ Thus, considering the equations in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:nitrate_N3n"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ammonium_N4n"
+
+\end_inset
+
+), the source form equation for TA reads: 
+\begin_inset Formula 
+\begin{eqnarray}
+\left.\frac{dO^{(5)}}{dt}\right|_{bio} & = & \sum_{j=1}^{4}\left.\frac{dP_{n}^{(j)}}{dt}\right|_{N^{(3)}}^{upt}-\sum_{j=1}^{4}\left.\frac{dP_{n}^{(j)}}{dt}\right|_{N^{(4)}}^{upt}+\nonumber \\
+ &  & -2\left.\frac{dN^{(3)}}{dt}\right|_{N^{(4)}}^{nit}+\left.\frac{dN^{(3)}}{dt}\right|_{sink_{n}}^{denit}
+\end{eqnarray}
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -15522,17 +17153,29 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering{
+\end_layout
+
+\end_inset
+
 
 \size scriptsize
+
 \begin_inset Tabular
-<lyxtabular version="3" rows="15" columns="4">
+<lyxtabular version="3" rows="16" columns="3">
 <features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="2cm">
-<column alignment="center" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="6cm">
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15544,31 +17187,19 @@ Parameter
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \series bold
 \size scriptsize
-Type Units
+Units
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-\size scriptsize
-Symbol
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15582,7 +17213,7 @@ Description
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15593,7 +17224,7 @@ pCO2Method
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15604,18 +17235,7 @@ Integer Switch
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15642,7 +17262,7 @@ Methods for computing pCO2
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15653,7 +17273,7 @@ AtmCO20
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15664,18 +17284,7 @@ ppmv
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15689,7 +17298,7 @@ Set constant atmospheric CO2 concentration (ppm), also referred as the CO2
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15700,7 +17309,7 @@ calcAtmpCO2
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15711,18 +17320,7 @@ Logical
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15735,7 +17333,7 @@ Compute the atmospheric pCO2
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15746,7 +17344,7 @@ phstart
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15757,18 +17355,7 @@ pH
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15781,7 +17368,7 @@ Initial guess of the seawater pH.
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15792,7 +17379,7 @@ K1K2
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15803,18 +17390,7 @@ Integer Switch
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15856,7 +17432,7 @@ Acidity constants parameterization
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15867,7 +17443,7 @@ MethodCalcCO2
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15878,18 +17454,7 @@ Integer Switch
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15905,7 +17470,42 @@ Method for Carbonate System computation: 1 - Approximate static solution;
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+CalcBioAlkFlag
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Logical
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Compute the corrections of alkalinity due to biogeochemical processes
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15916,7 +17516,7 @@ M2XACC
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15927,18 +17527,7 @@ Threshold
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15951,7 +17540,7 @@ Accuracy of the iterative scheme for OCMIP (with MethodCalcCO2=2)
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15962,7 +17551,7 @@ M2PHDELT
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15973,18 +17562,7 @@ pH
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -15997,7 +17575,7 @@ pH range for the root search in the OCMIP scheme (with MethodCalcCO2=2)
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16008,7 +17586,7 @@ M2MAXIT
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16019,18 +17597,7 @@ Integer
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16043,7 +17610,7 @@ maximum number of iterations for OCMIP (with MethodCalcCO2=2)
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16054,7 +17621,7 @@ Caconc0
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16069,18 +17636,7 @@ mol m
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16094,7 +17650,7 @@ Calcium ion concentration (In "Seawater : Its composition, properties and
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16105,7 +17661,7 @@ Canorm
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16116,18 +17672,7 @@ Logical
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16140,7 +17685,7 @@ Normalize Calcium ion concentration by sea water salinity
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16151,7 +17696,7 @@ AtmCO2_N
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16162,18 +17707,7 @@ ppmv
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16190,7 +17724,7 @@ Read external file with atmospheric CO
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16201,7 +17735,7 @@ AtmSLP_N
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16212,18 +17746,7 @@ Pa
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16236,7 +17759,7 @@ Read external file with Sea Level Pressure data (with pCO2Method=1 and 2).
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16247,7 +17770,7 @@ AtmTDP_N
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16261,18 +17784,7 @@ C
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
--
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -16290,6 +17802,17 @@ Read external file with atmospheric Dew Point Temperature data (with pCO2Method
 \end_inset
 
 
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
@@ -16299,6 +17822,16 @@ Read external file with atmospheric Dew Point Temperature data (with pCO2Method
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:Parameters-carbonate"
+
+\end_inset
+
+
+\begin_inset Argument
+status open
+
+\begin_layout Plain Layout
+Carbonate system
+\end_layout
 
 \end_inset
 
@@ -16366,7 +17899,7 @@ Installation, configuration and compilation
 The default basic configuration of BFM is the STANDALONE model, which simulates
  the biogeochemistry of a water volume with given depth.
  The typical example is a micro- or mesocosm batch culture.
- Only pelagic system can be simulated with this configuration.
+ Only the pelagic system can be currently simulated with this configuration.
  The model is forced with prescribed or analytical functions of temperature,
  salinity and light and can be integrated for any desired period with three
  different numerical schemes.
@@ -16444,10 +17977,27 @@ reference "tab:Source-directory-tree"
 \begin_inset Float table
 wide true
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\lang american
+
 \begin_inset listings
+lstparams "basicstyle={\ttfamily}"
 inline false
 status open
 
@@ -16509,16 +18059,6 @@ status open
 \begin_layout Plain Layout
 
 |   |-- BFM
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- Ben
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- Bennut
 \end_layout
 
 \begin_layout Plain Layout
@@ -16679,7 +18219,7 @@ reference "sec:Model-structure-changes"
 \begin_layout Itemize
 FORTRAN 90/95 compiler.
  Under linux and Mac OSX the model can be currently compiled with gfortran
- (version 4.5 above).
+ (version 4.5 and above).
  For AIX xlf90 is required.
 \end_layout
 
@@ -16710,10 +18250,10 @@ on> directory).
 \end_layout
 
 \begin_layout Standard
-After setting-up BFMDIR variable in your shell environment you can go to
+After setting-up $BFMDIR variable in your shell environment you can go to
  
 \shape italic
-build
+$BFMDIR/build
 \shape default
  directory and execute 
 \shape italic
@@ -16724,6 +18264,7 @@ bfm_configure
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "basicstyle={\ttfamily}"
 inline false
 status open
 
@@ -16740,16 +18281,16 @@ status open
 \begin_layout Standard
 An execution without errors
 \begin_inset Foot
-status open
+status collapsed
 
 \begin_layout Plain Layout
 If you experience problems during the generation or compilation, visit 
 \begin_inset Flex URL
-status collapsed
+status open
 
 \begin_layout Plain Layout
 
-http://oceano.cmcc.it:8087/bfm/documentation
+http://bfm-community.eu/documentation
 \end_layout
 
 \end_inset
@@ -16766,6 +18307,7 @@ http://oceano.cmcc.it:8087/bfm/documentation
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "basicstyle={\ttfamily}"
 inline false
 status open
 
@@ -16794,135 +18336,17 @@ Go to .../bfm/run/standalone.pelagic and execute command:
 
 \end_layout
 
-\begin_layout Subsection
-bfm_configure
-\end_layout
-
 \begin_layout Standard
-
-\shape italic
-bfm_configure
-\shape default
- generates, compiles and/or deploys files needed for BFM model.
- There are three different steps to have an executable model:
-\end_layout
-
-\begin_layout Enumerate
-
-\shape italic
-Generation
-\shape default
-: based on model parameters in .mem file, this step generates .h , .F90 and
- .nml files needed for compilation and execution.
-\end_layout
-
-\begin_layout Enumerate
-
-\shape italic
-Compilation
-\shape default
-: based on compilation options selected, this step compiles and generates
- the executable file.
-\end_layout
-
-\begin_layout Enumerate
-
-\shape italic
-Deployment
-\shape default
- of the execution environment: create experiment folder and copies namelists
- for execution.
-\end_layout
-
-\begin_layout Standard
-You must specify which step/s want to execute using one or several of the
- following arguments:
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-inline false
-status open
-
-\begin_layout Itemize
-
--g: Generation
-\end_layout
-
-\begin_layout Itemize
-
--c: Compilation
-\end_layout
-
-\begin_layout Itemize
-
--d: Deployment
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Along with these must arguments, there are other optional arguments explained
- in section 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Optional-arguments"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Subsubsection
-Optional arguments
-\begin_inset CommandInset label
-LatexCommand label
-name "sub:Optional-arguments"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Optional arguments for 
-\shape italic
-bfm_configure
-\shape default
- are classified depending if they are for compilation or deployment.
- Execute the following command to show a description of all available options:
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-inline false
+\begin_inset Float table
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
 
-bfm_configure.sh -h
 \end_layout
 
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-For a list of all available optional arguments see 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "tab:bfm_configure-optional-args"
-
-\end_inset
-
- 
-\end_layout
-
-\begin_layout Standard
+\begin_layout Plain Layout
 \begin_inset ERT
 status open
 
@@ -16930,59 +18354,84 @@ status open
 
 
 \backslash
-onecolumn
+centering
 \end_layout
 
 \end_inset
 
 
-\begin_inset Float space
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-Alternative COMPILATION OPTIONS:
-\end_layout
-
-\begin_layout Plain Layout
 \begin_inset Tabular
-<lyxtabular version="3" rows="11" columns="3">
+<lyxtabular version="3" rows="17" columns="3">
 <features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0pt">
 <row>
-<cell alignment="left" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-OPTION
+
+\series bold
+Option
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-ARGUMENT
+
+\series bold
+Argument
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-DESCRIPTION
+
+\series bold
+Description
 \end_layout
 
 \end_inset
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Compilation options
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17000,7 +18449,7 @@ VERBOSE
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17011,7 +18460,7 @@ Verbose mode to print all messages
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17029,7 +18478,7 @@ PRESET
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17040,7 +18489,7 @@ Preset to generate the configuration
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17058,7 +18507,7 @@ MODE
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17069,7 +18518,7 @@ Mode for compilation and deployment
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17087,7 +18536,7 @@ CPPDEFS
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17098,7 +18547,7 @@ Key options to configure the model
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17116,7 +18565,7 @@ BFMDIR
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17127,7 +18576,7 @@ path to root directory of BFM
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17145,7 +18594,7 @@ NEMODIR
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17156,7 +18605,7 @@ path to root directory of NEMO
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17174,7 +18623,7 @@ ARCH
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17185,7 +18634,7 @@ Specify compilation Architecture file
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17203,7 +18652,7 @@ PROC
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17214,7 +18663,7 @@ Number of procs used for compilation (and execution)
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17232,7 +18681,7 @@ FAST
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17244,7 +18693,7 @@ Fast mode.
 </cell>
 </row>
 <row>
-<cell alignment="left" valignment="top" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17253,7 +18702,7 @@ NETCDF
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17262,7 +18711,7 @@ NETCDF
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17272,55 +18721,37 @@ Path to netcdf library and header files
 \end_inset
 </cell>
 </row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-Alternative DEPLOYMENT OPTIONS:
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="3">
-<features tabularvalignment="middle">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="left" valignment="top" width="0">
 <row>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" leftline="true" usebox="none">
+<cell multicolumn="1" alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-OPTION
+Deployment options
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-ARGUMENT
+
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell multicolumn="2" alignment="center" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-DESCRIPTION
+
 \end_layout
 
 \end_inset
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17329,7 +18760,7 @@ EXP
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17338,7 +18769,7 @@ EXP
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17349,7 +18780,7 @@ Name of the experiment for generation of the output folder
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17358,7 +18789,7 @@ NMLDIR
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17367,7 +18798,7 @@ NMLDIR
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17378,7 +18809,7 @@ Input dir where are the namelists to run the experiment
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17387,7 +18818,7 @@ PROC
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17396,7 +18827,7 @@ PROC
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17407,7 +18838,7 @@ Number of procs used for running (same as compilation)
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17416,7 +18847,7 @@ QUEUE
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17425,7 +18856,7 @@ QUEUE
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" rightline="true" usebox="none">
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -17440,6 +18871,9 @@ Name of the queue number of procs used for running
 \end_inset
 
 
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset Caption
 
 \begin_layout Plain Layout
@@ -17449,7 +18883,7 @@ name "tab:bfm_configure-optional-args"
 
 \end_inset
 
-bfm_configure list of optional arguments
+List of optional arguments for bfm_configure
 \end_layout
 
 \end_inset
@@ -17457,26 +18891,13 @@ bfm_configure list of optional arguments
 
 \end_layout
 
-\end_inset
-
+\begin_layout Plain Layout
 
 \end_layout
 
-\begin_layout Standard
-Options can be specified by environment variables (only BFMDIR and NEMODIR
- options in this case), preset configuration file (see Sec.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Configuration-file"
-
 \end_inset
 
-) or command line arguments.
- If an option is specified using more than one method, precedence used for
- preserve their value are (highest to lowest precedence): command line,
- configuration file and environment variable.
- 
+
 \end_layout
 
 \begin_layout Subsection
@@ -17484,7 +18905,7 @@ Presets
 \end_layout
 
 \begin_layout Standard
-An experiment is defined by model structure and initial input values.
+An experiment is defined by a model structure and initial input values.
  These definitions put together with compilation and run options is what
  is called a PRESET.
  A preset is contained together in a folder and it is all you need to execute
@@ -17515,17 +18936,29 @@ Presets are composed of three different main files:
 
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
-.conf compilation and deployment options
+
+\family typewriter
+configuration
+\family default
+ compilation and deployment options
 \end_layout
 
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
-.nml namelist file
+
+\family typewriter
+layout
+\family default
+ memory layout configuration file
 \end_layout
 
 \begin_layout Labeling
 \labelwidthstring 00.00.0000
-.mem memory layout configuration file
+
+\family typewriter
+namelists
+\family default
+ namelist file with standard values
 \end_layout
 
 \begin_layout Subsubsection
@@ -17546,6 +18979,7 @@ This file uses the f90 namelist format to set values.
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "basicstyle={\ttfamily}"
 inline false
 status open
 
@@ -17601,44 +19035,72 @@ value
 \end_layout
 
 \begin_layout Subsubsection
+Model and memory layout
+\end_layout
+
+\begin_layout Standard
+Short description here.
+ Refer to Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Memory-layout"
+
+\end_inset
+
+ for details
+\end_layout
+
+\begin_layout Subsubsection
 Namelist file
 \end_layout
 
 \begin_layout Standard
-This file contains all the namelist used for the experiment.
- In generation time this file is used to generate the model source code
- and to produce the namelists used in the execution of the model.
+This file contains all the standard values of the namelists used for the
+ experiment.
+ Namelists are checked for consistency against the source code at generation
+ time and the files effectively used for the simulation will be copied in
+ the 
+\family typewriter
+run
+\family default
+ directory.
+ This check will guarantee an executable file compatible with the namelists
+ provided.
+ The regular user will generally work with generated namelists and usually
+ there is no need to change any keyword in this file besides the values
+ in case there is the willingness to generate a new standard set of values.
  
 \end_layout
 
 \begin_layout Standard
-Namelists are used in generation time for contrasting with the model configurati
-on file.
- This check will guarantee an executable file compatible with namelists
- provided.
- The list of checks are:
+The effective list of checks is the following:
 \end_layout
 
 \begin_layout Itemize
-Groups in .mem file have their related namelist in .nml
+Groups in 
+\family typewriter
+layout
+\family default
+ file have their related namelist in file 
+\family typewriter
+namelists
 \end_layout
 
 \begin_layout Itemize
-Value for a specie in .nml have the corresponding specie in .mem
+Value for a group in 
+\family typewriter
+namelists
+\family default
+ file have the corresponding group in 
+\family typewriter
+layout
 \end_layout
 
 \begin_layout Standard
 Special nomenclature have to be followed in the specification of namelists.
  For each group to be checked we have to have a namelist called with the
- group name without word 
-\begin_inset Quotes eld
-\end_inset
-
-Plankton
-\begin_inset Quotes erd
-\end_inset
-
- follow by 
+ group name followed by 
 \begin_inset Quotes eld
 \end_inset
 
@@ -17656,11 +19118,8 @@ Phyto_parameters
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Standard
-In the execution environment each namelist will be copied inside a file
- which name is specified by the special key 
+ In the execution environment each namelist will be copied inside a file
+ whose name is specified by the special key 
 \begin_inset Quotes eld
 \end_inset
 
@@ -17686,140 +19145,6 @@ filename_nml_conf = 'Pelagic_Ecology.nml'
 \end_inset
 
 .
-\end_layout
-
-\begin_layout Standard
-Not all the commentaries are copied from Namelist file to final namelists
- in the execution environment.
- Only commentaries contained between the word 
-\begin_inset Quotes eld
-\end_inset
-
-NAMELIST
-\begin_inset Quotes erd
-\end_inset
-
- until start of the namelist will be copied.
- 
-\end_layout
-
-\begin_layout Standard
-\begin_inset Box Frameless
-position "t"
-hor_pos "c"
-has_inner_box 1
-inner_pos "t"
-use_parbox 0
-use_makebox 0
-width "100col%"
-special "none"
-height "1in"
-height_special "totalheight"
-status open
-
-\begin_layout Plain Layout
-! -------------------------------------------------------------------------!
-\end_layout
-
-\begin_layout Plain Layout
-! NAMELIST 
-\series bold
-Phyto_parameters
-\end_layout
-
-\begin_layout Plain Layout
-! ...
-\end_layout
-
-\begin_layout Plain Layout
-! 
-\color green
-These commentaries goes to
-\series bold
- Pelagic_Ecology.nml
-\end_layout
-
-\begin_layout Plain Layout
-! ...
-\end_layout
-
-\begin_layout Plain Layout
-! -------------------------------------------------------------------------!
-\end_layout
-
-\begin_layout Plain Layout
-&Phyto_parameters
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset space \quad{}
-\end_inset
-
-....
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset space \quad{}
-\end_inset
-
-! 
-\color red
-These commentaries 
-\series bold
-NOT
-\series default
- goes to 
-\series bold
-Pelagic_Ecology.nml
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset space \quad{}
-\end_inset
-
-....
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset space \quad{}
-\end_inset
-
-filename_nml_conf = 'Pelagic_Ecology.nml',
-\end_layout
-
-\begin_layout Plain Layout
-
-\backslash
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Paragraph
-Memory layout file
-\end_layout
-
-\begin_layout Standard
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-twocolumn
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \begin_layout Chapter
@@ -17880,6 +19205,19 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
 \begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="3">
 <features tabularvalignment="middle">
@@ -17887,156 +19225,45 @@ status open
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="2.22956in">
 <row endhead="true">
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
-name 
-\series default
-\shape default
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
+name
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
 kind 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
 description 
-\series default
-\shape default
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
 \end_layout
 
 \end_inset
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18049,7 +19276,7 @@ bio_setup
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18062,7 +19289,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18085,7 +19312,7 @@ pelagic and benthic
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18098,7 +19325,7 @@ out_fname
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18111,7 +19338,7 @@ string
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18122,7 +19349,7 @@ Name of NetCDF output file
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18135,7 +19362,7 @@ out_dir
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18148,7 +19375,7 @@ string
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18159,7 +19386,7 @@ Path to the output file
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18172,7 +19399,7 @@ out_title
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18185,7 +19412,7 @@ string
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18196,7 +19423,7 @@ Name of the experiment in NetCDF file
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18209,7 +19436,7 @@ out_delta
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18222,7 +19449,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18274,6 +19501,19 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
 \begin_inset Tabular
 <lyxtabular version="3" rows="8" columns="3">
 <features tabularvalignment="middle">
@@ -18281,156 +19521,45 @@ status open
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="5cm">
 <row endhead="true">
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
 name 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
- 
-\end_layout
-
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
 kind 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
- 
-\end_layout
-
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
 description 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
- 
-\end_layout
-
 \end_inset
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18443,7 +19572,7 @@ nboxes
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18456,7 +19585,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18467,7 +19596,7 @@ Number of water volumes (boxes)
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18480,7 +19609,7 @@ indepth
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18493,7 +19622,7 @@ real
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18504,7 +19633,7 @@ Depth of each box (m)
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18517,7 +19646,7 @@ latitude
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18530,7 +19659,7 @@ real
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18541,7 +19670,7 @@ Latitude of each box
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18554,7 +19683,7 @@ longitude
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18567,7 +19696,7 @@ real
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18578,7 +19707,7 @@ Longitude of each box
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18591,7 +19720,7 @@ maxdelt
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18604,7 +19733,7 @@ real
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18615,7 +19744,7 @@ Maximum timestep duration (s)
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18628,7 +19757,7 @@ mindelt
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18641,7 +19770,7 @@ real
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18652,7 +19781,7 @@ Minimum timestep duration (s)
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18665,7 +19794,7 @@ method
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18678,7 +19807,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -18862,6 +19991,19 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
 \begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="3">
 <features tabularvalignment="middle">
@@ -18869,148 +20011,43 @@ status open
 <column alignment="none" valignment="top" width="2.27546in">
 <column alignment="none" valignment="top" width="2.59696in">
 <row endhead="true">
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
-name 
+name
 \series default
 \shape default
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
  
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
 kind 
 \end_layout
 
-\begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
- 
-\end_layout
-
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
 
 \series bold
 \shape italic
-description 
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
+description
+\series default
+\shape default
  
 \end_layout
 
@@ -19018,7 +20055,7 @@ status collapsed
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19031,7 +20068,7 @@ timefmt
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19044,7 +20081,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" topline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19079,7 +20116,7 @@ simdays only.
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19092,7 +20129,7 @@ MaxN
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19105,7 +20142,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19116,7 +20153,7 @@ Number of iterations in time-loop
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19129,7 +20166,7 @@ simdays
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19142,7 +20179,7 @@ integer
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19153,7 +20190,7 @@ Number of simulation days
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19166,7 +20203,7 @@ start
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19192,7 +20229,7 @@ yyyy-mm-dd hh:mm:ss
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19203,7 +20240,7 @@ Start date
 </cell>
 </row>
 <row>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" leftline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19216,7 +20253,7 @@ stop
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19242,7 +20279,7 @@ yyyy-mm-dd hh:mm:ss
 
 \end_inset
 </cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" rightline="true" usebox="none">
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -19535,9 +20572,13 @@ name "sec:Test-cases"
 \end_layout
 
 \begin_layout Standard
-The most simple test case is found in directory 
+The most simple test case is
 \family typewriter
-run/standalone/co2test
+ CO2TEST
+\family default
+ that generates the run directory
+\family typewriter
+ run/co2test
 \family default
 .
  It simulates a simple carbonate system equilibrium using the routines developed
@@ -19547,7 +20588,7 @@ CalcCO2Method=2
 \family default
  in 
 \family typewriter
-CO2.nml
+Carbonate_Dynamics.nml
 \family default
 ).
  Initial conditions are set for a Mediterranean station with high alkalinity
@@ -21984,7 +23025,7 @@ reference "tab:Source-directory-tree"
 \end_layout
 
 \begin_layout Section
-Memory layout
+Model layout and variable definition
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Memory-layout"
@@ -21997,7 +23038,7 @@ name "sec:Memory-layout"
 \begin_layout Standard
 The BFM is structured similarly as the original ERSEM used to be.
  Pelagic variables are defined as virtually 3-dimensional, while benthic
- variables are 2-dimensional.
+ and sea ice variables are 2-dimensional.
  Only the sea-points are stored in memory, and thus the BFM has no knowledge
  of any land-sea mask or spatial relationships between grid-points in general.
  The same applies for the benthic memory, which is defined only where a
@@ -22035,7 +23076,7 @@ reference "fig:Layout-of-memory"
  They are gathered in a single 2-dimensional array holding the number of
  different variables and the number of ocean grid-points: 
 \begin_inset listings
-lstparams "basicstyle={\footnotesize}"
+lstparams "basicstyle={\normalsize\ttfamily}"
 inline false
 status open
 
@@ -22049,7 +23090,7 @@ D3STATE(NO_D3_BOX_STATES,NO_BOXES)
 and the same is done for the 2-dimensional variables (like for the benthic
  and sea ice ecosystem model):
 \begin_inset listings
-lstparams "basicstyle={\footnotesize}"
+lstparams "basicstyle={\normalsize}"
 inline false
 status open
 
@@ -22105,7 +23146,7 @@ P1c
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\footnotesize}"
+lstparams "basicstyle={\normalsize\ttfamily}"
 inline false
 status open
 
@@ -22175,7 +23216,7 @@ MicroZooDynamics.F90
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\tiny},language=Fortran"
+lstparams "basicstyle={\normalsize\ttfamily},language=Fortran"
 inline false
 status open
 
@@ -22327,7 +23368,7 @@ P1c
  All the rates are defined positive by convention, so that to obtain the
  net rate of change for variable of row j, it is sufficient to compute
 \begin_inset listings
-lstparams "basicstyle={\footnotesize},language=Fortran"
+lstparams "basicstyle={\normalsize\ttfamily},language=Fortran"
 inline false
 status open
 
@@ -22738,7 +23779,7 @@ PelBacDynamics
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\tiny},language=Fortran"
+lstparams "basicstyle={\ttfamily},language=Fortran"
 inline false
 status open
 
@@ -22865,7 +23906,7 @@ reference "sec:Memory-layout"
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\scriptsize},language=Fortran"
+lstparams "basicstyle={\normalsize\ttfamily},language=Fortran"
 inline false
 status open
 
@@ -22906,7 +23947,7 @@ D3SOURCE
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\scriptsize},language=Fortran"
+lstparams "basicstyle={\normalsize\ttfamily},language=Fortran"
 inline false
 status open
 
@@ -23666,7 +24707,7 @@ General/GlobalDefsBFM.model
 \family default
 , by adding the new variable name and long name:
 \begin_inset listings
-lstparams "basicstyle={\tiny},language=Fortran"
+lstparams "basicstyle={\small},language=Fortran"
 inline false
 status open
 
@@ -23722,7 +24763,7 @@ PelagicSystemDynamics
 \family default
 , exactly as already done for Z3 and Z4:
 \begin_inset listings
-lstparams "basicstyle={\tiny},language=Fortran"
+lstparams "basicstyle={\small},language=Fortran"
 inline false
 status open
 
@@ -24731,6 +25772,22 @@ When checking a coupling with an OGCM, it is also important to turn off
  any additional boundary flux (e.g.
  dilution, atmospheric deposition, river input, etc.) because they are not
  taken into account by the standard BFM.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+twocolumn
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
