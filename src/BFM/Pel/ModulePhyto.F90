@@ -69,8 +69,13 @@
   !  p_sheo      [mg C/3]       Half saturation constant for extra lysis
   !  p_pu_ea     [-]            Excreted fraction of primary production
   !  p_pu_ra     [-]            Activity respiration fraction
-  !  p_switchR1R2[0-1]          Switch for R1-R2 excretion
-  !
+  !  p_switchDOC [1-3]          Switch for the type of DOC excretion
+  !                             This choice must be consistent with bacteria
+  !                             1. All DOC is released as R1c (Vichi et al., 2007)
+  !                             2. Activity DOC is released as R2c (Vichi et al., 2004)
+  !                                (there is no nutrient-stress excretion)
+  !                             3. All DOC is released as R2c (Polimene et al., 2006)
+  !                             
   real(RLEN)  :: p_q10(iiPhytoPlankton)
   real(RLEN)  :: p_temp(iiPhytoPlankton)=ZERO
   real(RLEN)  :: p_sum(iiPhytoPlankton)
@@ -81,7 +86,7 @@
   real(RLEN)  :: p_sheo(iiPhytoPlankton)
   real(RLEN)  :: p_pu_ea(iiPhytoPlankton)
   real(RLEN)  :: p_pu_ra(iiPhytoPlankton)
-  real(RLEN)  :: p_switchR1R2(iiPhytoPlankton)
+  integer(RLEN)  :: p_switchDOC(iiPhytoPlankton)
   !
   !              --------- Nutrient parameters in phytoplankton -----------------
   !  p_netgrowth [T or F]       Logical switch for nutrient-limited growth
@@ -182,7 +187,7 @@
                               p_xqn, p_xqp, p_sheo, &
                               p_esNI, p_thdo, p_res, p_lN4, p_chPs, &
                               p_Contois, p_EpEk_or, p_tochl_relt,   &
-                              p_switchR1R2,p_switchSi,p_switchChl,  &
+                              p_switchDOC,p_switchSi,p_switchChl,  &
                               p_alpha_chl, p_sdchl, p_qchlc, p_epsChla
 
 #ifdef INCLUDE_PELFE

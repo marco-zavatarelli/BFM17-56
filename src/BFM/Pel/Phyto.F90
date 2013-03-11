@@ -360,8 +360,8 @@
       ! no other factors needed
     case ( 2 ) ! daylight average is used
       ! recompute r and photsynthesis limitation using daylight scaling
-      fpplim  =   fpplim*SUNQ/HOURS_PER_DAY
-      r(:) = r(:)*HOURS_PER_DAY/SUNQ
+      fpplim  =   fpplim*SUNQ(:)/HOURS_PER_DAY
+      r(:) = r(:)*HOURS_PER_DAY/SUNQ(:)
     case ( 3 ) ! on-off
       fpplim  =   fpplim*ThereIsLight
   end select
@@ -412,18 +412,25 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Production, productivity and C flows
+  ! The release of DOC is controlled by a specific switch.
+  ! Beware that this switch must be consistent with the utilization of DOC 
+  ! by Bacteria. If DOC is released in a form that is not used by 
+  ! Bacteria, it will accumulate infinitely removing carbon from the system
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rugc  =   sum* phytoc  ! gross production
   slc  =   sea + seo + srt+ sdo  ! specific loss terms
-  if (p_netgrowth(phyto)) then
-     ! Activity excretion is assigned to R2
-     flPIR2c  =   sea* phytoc
-  else
-     ! Activity excretion is assigned to R1
-     rr1c = rr1c + p_switchR1R2(phyto)*sea*phytoc
-     ! Nutrient-stress excretion is assigned to R2
-     flPIR2c  =  seo*phytoc + (ONE-p_switchR1R2(phyto))*sea*phytoc
-  end if
+  select case (p_switchDOC(phyto))
+    case (1)
+       ! All activity excretions are assigned to R1
+       rr1c = rr1c + sea*phytoc + seo*phytoc
+       flPIR2c = ZERO
+    case (2)
+       ! Activity excretion is only assigned to R2
+       flPIR2c = sea* phytoc
+    case (3)
+       ! Activity and Nutrient-stress excretions are assigned to R2
+       flPIR2c  =  seo*phytoc + sea*phytoc
+  end select
 
   call sourcesink_flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
   call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )

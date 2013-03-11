@@ -393,7 +393,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_sheo      [mgC/3]        Half saturation constant for extra lysis
 !  p_pu_ea     [-]            Excreted fraction of primary production
 !  p_pu_ra     [-]            Activity respiration fraction
-!  p_switchR1R2[0-1]          Switch for R1-R2 excretion
+!  p_switchDOC [1-3]          Switch for the type of DOC excretion
+!                             This choice must be consistent with bacteria
+!                             1. All DOC is released as R1c (Vichi et al., 2007)
+!                             2. Activity DOC is released as R2c (Vichi et al., 2004)
+!                                (there is no nutrient-stress excretion)
+!                             3. All DOC is released as R2c (Polimene et al., 2006)
 !
 !              --------- Nutrient parameters in phytoplankton -----------------
 !  p_netgrowth [T or F]       Logical switch for nutrient-limited growth
@@ -463,7 +468,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
        p_sheo = 0.0,    0.0,    0.0,    100.0
       p_pu_ea = 0.05,   0.1,    0.1,    0.15
       p_pu_ra = 0.1,    0.1,    0.2,    0.1
- p_switchR1R2 = 1.0,    1.0,    1.0,    1.0
+  p_switchDOC = 1,      1,      1,      1
   p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
      p_limnut = 1,      1,      1,      1
         p_qun = 0.025,  0.025,  0.025,  0.025
