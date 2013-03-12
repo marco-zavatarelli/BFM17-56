@@ -37,7 +37,7 @@
 
    type, public :: ForcingName
       integer           :: init
-      character(LEN=40) :: filename
+      character(LEN=80) :: filename
       logical           :: filetype
       character(LEN=40) :: varname
       character(LEN=40) :: RefTime

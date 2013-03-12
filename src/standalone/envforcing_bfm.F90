@@ -38,6 +38,7 @@
     case (1) ! analytical forcings
       call analytical_forcing
     case (2) ! input data
+      call analytical_forcing
       call external_forcing
     case (3) ! interactive air-sea fluxes
 !      call do_air_sea(timesec,startime)
