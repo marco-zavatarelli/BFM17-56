@@ -20,11 +20,17 @@
 
 #!/bin/bash -e
 
+#logging configuration
 LOGFILE=logfile_$$.log
 LOGDIR="Logs"
-OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
+
+#local paths
+TEMPDIR="build/tmp"
 CONFDIR="build/configurations"
-SCRIPTSDIR="build/scripts/conf"
+SCRIPTSDIR="build/scripts"
+SCRIPTS_CONFDIR="${SCRIPTSDIR}/conf"
+
+#programs
 MKMF="mkmf"
 GMAKE="gmake"
 PERL="perl"
@@ -32,9 +38,16 @@ GENCONF="generate_conf"
 MKNEMO="makenemo"
 BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
+
+#nemo files
 NEMO_FILES="iodef.xml namelist namelist_top xmlio_server.def";
+
+#options
+OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
 OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     )
 OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr )
+
+#error message
 ERROR_MSG="Execute $0 -h for help if you don't know what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
@@ -98,7 +111,7 @@ DESCRIPTION
        -x EXP
                   Name of the experiment for generation of the output folder (Default: "EXP00")
        -l NMLDIR
-                  Input dir where are the namelists to run the experiment (Default: "BFMDIR/build/${PRESET}")
+                  Input dir where are the namelists to run the experiment (Default: "${TEMPDIR}/${PRESET}")
        -r PROC
                   Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
@@ -143,12 +156,11 @@ while getopts "${OPTS}" opt; do
     esac
 done
 
+#check must parameters
 if [[ $LIST ]]; then
     for pre in `ls ${BFMDIR}/${CONFDIR}`; do printf " - $pre\n"; done
     exit
 fi
-
-#check must parameters
 if [[ ! ${DEP} && ! ${CMP} && ! ${GEN} ]]; then
     echo "ERROR: YOU MUST specify one of the \"must\" arguments"
     echo ${ERROR_MSG}
@@ -193,7 +205,7 @@ for option in "${OPTIONS_USR[@]}"; do
 done
 
 #specify build dir of BFM
-blddir="${BFMDIR}/build/${PRESET}"
+blddir="${BFMDIR}/${TEMPDIR}/${PRESET}"
 
 #Check some optional parameter values
 if [[ ! $BFMDIR ]]; then 
@@ -247,7 +259,7 @@ if [ ${GEN} ]; then
     cppdefs=`echo ${CPPDEFS} | sed -e 's/\([a-zA-Z_0-9]*\)/-D\1/g'` 
 
     # generate BFM Memory Layout files and namelists
-    ${PERL} -I${BFMDIR}/${SCRIPTSDIR}/ ${BFMDIR}/${SCRIPTSDIR}/${cmd_gen} \
+    ${PERL} -I${BFMDIR}/${SCRIPTS_CONFDIR}/ ${BFMDIR}/${SCRIPTS_CONFDIR}/${cmd_gen} \
         ${cppdefs} \
         -r ${BFMDIR}/${CONFDIR}/${myGlobalMem}  \
         -n ${BFMDIR}/${CONFDIR}/${myGlobalNml}  \
@@ -276,7 +288,7 @@ if [ ${GEN} ]; then
         fi
 
         # Make makefile
-        ${BFMDIR}/bin/${cmd_mkmf} \
+        ${BFMDIR}/${SCRIPTSDIR}/${cmd_mkmf} \
             -c "${cppdefs}" \
             -o "-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include" \
             -t "${blddir}/${ARCH}" \
@@ -290,7 +302,7 @@ if [ ${GEN} ]; then
         # some macros are default with NEMO
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${CPPDEFS}"
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
-            ${BFMDIR}/${SCRIPTSDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
+            ${BFMDIR}/${SCRIPTS_CONFDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
 
         # Move BFM Layout files to target folders 
@@ -393,7 +405,7 @@ if [ ${DEP} ]; then
             -e "s,_VERBOSE_,${VERBOSE},g" \
             -e "s,_PRESET_,${PRESET},g" \
             -e "s,_QUEUE_,${QUEUE},g"   \
-            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTSDIR}/runscript > ${exedir}/runscript_${EXP}
+            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_CONFDIR}/runscript > ${exedir}/runscript_${EXP}
         printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
     fi
 fi
