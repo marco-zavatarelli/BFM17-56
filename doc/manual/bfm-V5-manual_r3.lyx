@@ -17936,7 +17936,12 @@ status open
 
 \begin_layout LyX-Code
 
-% tar zxvf bfm-<version>.tgz
+% gunzip bfm-<version>.tgz
+\end_layout
+
+\begin_layout LyX-Code
+
+% tar xvf bfm-<version>.tar
 \end_layout
 
 \end_inset
@@ -17980,7 +17985,6 @@ sideways false
 status open
 
 \begin_layout Plain Layout
-
 \begin_inset ERT
 status open
 
@@ -17993,8 +17997,6 @@ centering
 
 \end_inset
 
-
-\lang american
 
 \begin_inset listings
 lstparams "basicstyle={\ttfamily}"
@@ -18204,8 +18206,8 @@ The software requirements are:
 \end_layout
 
 \begin_layout Itemize
-PERL (version 5.8.2 above), used automatically during compilation time to
- generate the code from the model template (see Sec.
+PERL (version 5.8.2 and above), used automatically during compilation time
+ to generate the code from the model template (see Sec.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -18337,14 +18339,107 @@ Go to .../bfm/run/standalone.pelagic and execute command:
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float table
+
+\shape italic
+bfm_configure
+\shape default
+ generates, compiles and/or deploys files needed for BFM model.
+ There are three different steps to have an executable model(see Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bfm_configure-steps"
+
+\end_inset
+
+): 
+\shape italic
+Generation
+\shape default
+ (generate .h , .f90 needed for compilation and .nml files needed for execution),
+ 
+\shape italic
+Compilation
+\shape default
+ (compile and create the executable file) and 
+\shape italic
+Deployment
+\shape default
+ (create experiment folder and copy namelists for execution).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
 wide false
 sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/bfm_configure.png
+	special width=\textwidth
+
+\end_inset
+
+
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:bfm_configure-steps"
+
+\end_inset
+
+Steps for experiment deployment
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+For a full description of the script operation and available options (see
+ Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:bfm_configure-optional-args"
+
+\end_inset
+
+), execute the following command:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
 status open
 
 \begin_layout Plain Layout
 
+./bfm_configure.sh -h
 \end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement h
+wide false
+sideways false
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset ERT
@@ -18891,10 +18986,6 @@ List of optional arguments for bfm_configure
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
@@ -18918,8 +19009,28 @@ The folder containing presets is
 ${BFMDIR}/build/configurations/
 \shape default
 .
- You can list this directory to see what presets are available.
- Presets are loaded using option 
+ Execute the following command to show a list of all available presets:
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -P
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Presets are loaded using option 
 \begin_inset Quotes eld
 \end_inset
 
@@ -18927,7 +19038,25 @@ ${BFMDIR}/build/configurations/
 \begin_inset Quotes erd
 \end_inset
 
-.
+ followed by the preset name.
+ 
+eg:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -p STANDALONE_PELAGIC
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -19039,8 +19168,8 @@ Model and memory layout
 \end_layout
 
 \begin_layout Standard
-Short description here.
- Refer to Sec.
+This file is the template for the memory model.
+ For a detailed description of the memory layout content goes to Sec.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -19048,7 +19177,7 @@ reference "sec:Memory-layout"
 
 \end_inset
 
- for details
+.
 \end_layout
 
 \begin_layout Subsubsection
@@ -19056,95 +19185,37 @@ Namelist file
 \end_layout
 
 \begin_layout Standard
-This file contains all the standard values of the namelists used for the
- experiment.
+This file contains all the standard values of the namelists
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+BFM input namelists follows 
+\begin_inset CommandInset href
+LatexCommand href
+name "F90 namelist standard"
+target "http://publib.boulder.ibm.com/infocenter/comphelp/v101v121/topic/com.ibm.xlf121.aix.doc/language_ref/namelistio.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ used for the experiment.
  Namelists are checked for consistency against the source code at generation
  time and the files effectively used for the simulation will be copied in
  the 
-\family typewriter
-run
-\family default
+\shape italic
+$BFMDIR/run
+\shape default
  directory.
  This check will guarantee an executable file compatible with the namelists
  provided.
  The regular user will generally work with generated namelists and usually
  there is no need to change any keyword in this file besides the values
  in case there is the willingness to generate a new standard set of values.
- 
-\end_layout
-
-\begin_layout Standard
-The effective list of checks is the following:
-\end_layout
-
-\begin_layout Itemize
-Groups in 
-\family typewriter
-layout
-\family default
- file have their related namelist in file 
-\family typewriter
-namelists
-\end_layout
-
-\begin_layout Itemize
-Value for a group in 
-\family typewriter
-namelists
-\family default
- file have the corresponding group in 
-\family typewriter
-layout
-\end_layout
-
-\begin_layout Standard
-Special nomenclature have to be followed in the specification of namelists.
- For each group to be checked we have to have a namelist called with the
- group name followed by 
-\begin_inset Quotes eld
-\end_inset
-
-_parameters
-\begin_inset Quotes erd
-\end_inset
-
- word.
- As an example the PhytoPlankton group namelist has to be called 
-\begin_inset Quotes eld
-\end_inset
-
-Phyto_parameters
-\begin_inset Quotes erd
-\end_inset
-
-.
- In the execution environment each namelist will be copied inside a file
- whose name is specified by the special key 
-\begin_inset Quotes eld
-\end_inset
-
-filename_nml_conf
-\begin_inset Quotes erd
-\end_inset
-
-.
- As an example, for 
-\begin_inset Quotes eld
-\end_inset
-
-Phyto_parameters
-\begin_inset Quotes erd
-\end_inset
-
- we have 
-\begin_inset Quotes eld
-\end_inset
-
-filename_nml_conf = 'Pelagic_Ecology.nml'
-\begin_inset Quotes erd
-\end_inset
-
-.
 \end_layout
 
 \begin_layout Chapter
