@@ -264,10 +264,6 @@
       case (1) ! Pelagic only
          LEVEL2 "Pelagic-only setup (bio_setup=1), Switching off the benthic system"
          CalcBenthicFlag = 0
-#ifndef BFM_GOTM
-         ! force computation of bottom fluxes in the BFM
-         AssignPelBenFluxesInBFMFlag = .TRUE.
-#endif
 #ifdef INCLUDE_BEN
       case (2) ! Benthic only
          LEVEL2 "Benthic-only setup (bio_setup=2), Switching off the pelagic system"

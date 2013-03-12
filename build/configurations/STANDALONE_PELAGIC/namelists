@@ -137,7 +137,7 @@
      CalcMesoZooPlankton(1) = .TRUE.
      CalcMesoZooPlankton(2) = .TRUE.
            CalcPelChemistry = .TRUE.
-AssignPelBenFluxesInBFMFlag = .TRUE.
+AssignPelBenFluxesInBFMFlag = .FALSE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
             ChlDynamicsFlag = 2
             LightPeriodFlag = 1
@@ -742,7 +742,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !			2 = from file
 !			3 = interactive fluxes (not yet implemented)
 !
-!Analytical forcing functions
+!Method 1: Analytical forcing functions
 !lw		real	Sinusoidal light intensity (winter) W m^-2
 !ls		real	Sinusoidal light intensity (summer) W m^-2
 !sw		real	Sinusoidal salinity (winter)
@@ -754,21 +754,12 @@ p_paMEZ(2,:)=   0.0,    1.0
 !ws		real	Sinusoidal wind (summer) m/s
 !CO2inc         real    Linear increase in CO2 air partial pressure [% per year]
 !
-!Bottom boundary conditions for benthic-only simulations
-!(not used in pelagic simulations)
-!botdep_c	real	Organic carbon deposition rate (mg C m^-2 d^-1)
-!botdep_n	real	Organic nitrogen deposition rate (mmol m^-2 d^-1)
-!botdep_p	real	Organic phosphorus deposition rate (mmol m^-2 d^-1)
-!botdep_si	real	Organic silicate deposition rate (mmol m^-2 d^-1)
-!botdep_o	real	Pelagic oxygen ventilation rate (mmol m^-2 d^-1)
+!Method 2: data file
+!forcing_file	char	Filename for external forcings
 !
-!Files for method 2
-!forcing_file	char	filename for external forcings
-!use_external_data logical read external data (user defined)
-!data_file	char	filename for external data
+!use_external_data logical Read external data (user defined)
+!data_file	   char	   Filename for external data
 !
-!Files for sea-ice forcing data
-!seaice_file	char	filename for external sea-ice forcings
 !-------------------------------------------------------------------------!
 &forcings_nml
    forcing_method    = 1,
@@ -782,15 +773,9 @@ p_paMEZ(2,:)=   0.0,    1.0
    tde               = 1.0,
    ww                = 20.0,
    ws                = 10.0,
-   botdep_c          = 0.0
-   botdep_n          = 0.0
-   botdep_p          = 0.0
-   botdep_si         = 0.0
-   botox_o           = 0.0,
    forcing_file      = '',
-   seaice_file       = '',
-   data_file         = '',
    use_external_data = .false.,
+   data_file         = '',
 	filename_nml_conf = 'Standalone.nml',
 /
 

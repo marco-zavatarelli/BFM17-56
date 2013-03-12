@@ -12,8 +12,20 @@
 !   This routine is called after the computation of benthic processes
 !   and assign boundary fluxes
 !
+! COPYING
+!
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2006 P. Ruardij and M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
 ! !INTERFACE
-#ifndef BFM_STANDALONE
   subroutine BentoPelCoupDynamics
 !
 ! !USES:
@@ -38,7 +50,7 @@
   use mem, ONLY: jPIY3c, jZIY3c, ZI_Fc, jRIY3c, jRIY3n, jRIY3p, jRIY3s
 #endif
 #ifdef INCLUDE_PELFE
-  use mem, ONLY: iiF,R6f,ppR6f,jbotR6f
+  use mem, ONLY: iiF,R6f,ppR6f,jbotR6f,R1f,ppR1f,jbotR1f
 #endif
 #if defined INCLUDE_PELCO2 && defined INCLUDE_BENCO2
   use mem, ONLY: ppO3h, ppO3c,jbotO3c,jbotO3h
@@ -139,6 +151,14 @@
                PELBOTTOM(j,BoxNumberXY) =  PELBOTTOM(j,BoxNumberXY)  &
                               -uptake* lcl_PhytoPlankton(kbot)/ Pc
             end if
+#ifdef INCLUDE_PELFE
+            j = ppPhytoPlankton(i,iiF)
+            if ( j> 0) then
+               lcl_PhytoPlankton => PhytoPlankton(i,iiF)
+               PELBOTTOM(j,BoxNumberXY) =  PELBOTTOM(j,BoxNumberXY)  &
+                              -uptake* lcl_PhytoPlankton(kbot)/ Pc
+            end if
+#endif
          end if
       end do
 
@@ -287,6 +307,8 @@
         call flux(kbot, iiPel, ppR1p, ppR1p, ( jbotR1p(BoxNumberXY)/ &
           Depth(kbot)) )
 #ifdef INCLUDE_PELFE
+        call flux(kbot, iiPel, ppR1f, ppR1f, ( jbotR1f(BoxNumberXY)/ &
+          Depth(kbot)) )
         call flux(kbot, iiPel, ppR6f, ppR6f, ( jbotR6f(BoxNumberXY)/ &
           Depth(kbot)) )
 #endif
@@ -294,7 +316,6 @@
    end if ! AssignPelBenFluxesInBFMFlag
 
   end subroutine  BentoPelCoupDynamics
-#endif
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
