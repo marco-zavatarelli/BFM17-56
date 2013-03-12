@@ -20,6 +20,8 @@
 #   GNU General Public License for more details.
 # -----------------------------------------------------
 
+use 5.008_002;
+
 use strict;
 use warnings;
 

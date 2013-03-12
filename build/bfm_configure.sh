@@ -22,7 +22,7 @@
 
 LOGFILE=logfile_$$.log
 LOGDIR="Logs"
-OPTS="hvgcep:m:k:b:n:a:r:ft:x:l:q:"
+OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
 CONFDIR="build/configurations"
 SCRIPTSDIR="build/scripts/conf"
 MKMF="mkmf"
@@ -53,27 +53,29 @@ CLEAN="clean"
 usage(){
     more << EOF
 NAME
-    This script compile and/or execute the BFM model.
+    This script compile and/or deploy the BFM model.
 
 SYNOPSIS
     usage: $0 -h
-    usage: $0 {-g -c -e} [options]
+    usage: $0 -P
+    usage: $0 {-g -c -d} [options]
 
 DESCRIPTION
     MUST specify at least one these OPTIONS:
        -h         Shows this help
+       -P         List all available presets
        -g         Generate ".H" ".F90" and ".NML" files
        -c         Compile
-       -e         Experiment folder creation
+       -d         Deploy the execution environment (experiment folder creation)
 
     alternative COMPILATION OPTIONS are:
        -v
                   Verbose mode to print all messages (Deactivated by default)
        -p PRESET
                   Preset to generate the configuration. (Default: "${PRESET}")
-                  - For other presets, list files *.conf in: BFMDIR/${CONFDIR}
+                  - For other presets, execute $0 -P 
        -m MODE
-                  Mode for compilation and execution. Available models are: (Default: "STANDALONE")
+                  Mode for compilation and deployment. Available models are: (Default: "STANDALONE")
                   - STANDALONE (without NEMO. Compile and run in local machine)
                   - NEMO (with NEMO. Compile and run ONLY in LSF platform)
        -k CPPDEFS
@@ -92,24 +94,15 @@ DESCRIPTION
                   Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
        -t NETCDF
                   Path to netcdf library and header files. (Default: /usr/local)
-    alternative EXECUTION OPTIONS are:
+    alternative DEPLOYMENT OPTIONS are:
        -x EXP
-                  Name of the experiment for generation of the output (Default: "EXP00")
+                  Name of the experiment for generation of the output folder (Default: "EXP00")
        -l NMLDIR
                   Input dir where are the namelists to run the experiment (Default: "BFMDIR/build/${PRESET}")
        -r PROC
-                  Number of procs used for running. Default: 4
+                  Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
                   Name of the queue number of procs used for running. Default
-    NOTE: Options with parameters can be specified inside the PRESET file using the fortran F90 namelist format:
-        &BFM_conf
-          <key>=<value>,
-          ...
-          <key>=<value>
-        /
-        - Available keys: ${OPTIONS[*]}
-        - Options in file override value of command line options
-        - Don't use " to surround values, use ' instead
 EOF
 }
 
@@ -132,8 +125,9 @@ while getopts "${OPTS}" opt; do
       v )                   echo "verbose mode"          ; VERBOSE=1        ;;
       g ) [ ${VERBOSE} ] && echo "generation activated"  ; GEN=1            ;;
       c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1            ;;
-      e ) [ ${VERBOSE} ] && echo "execution activated"   ; EXE=1            ;;
-      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"        ; PRESET=$OPTARG   ;;
+      d ) [ ${VERBOSE} ] && echo "deployment activated"  ; DEP=1            ;;
+      P ) [ ${VERBOSE} ] && echo "list presets"          ; LIST=1           ;;
+      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"        ; PRESET=$OPTARG      ;;
       m ) [ ${VERBOSE} ] && echo "mode $OPTARG"          ; mode_usr=$OPTARG    ;;
       k ) [ ${VERBOSE} ] && echo "key options $OPTARG"   ; cppdefs_usr=$OPTARG ;;
       b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"        ; bfmdir_usr=$OPTARG  ;;
@@ -149,8 +143,13 @@ while getopts "${OPTS}" opt; do
     esac
 done
 
+if [[ $LIST ]]; then
+    for pre in `ls ${BFMDIR}/${CONFDIR}`; do printf " - $pre\n"; done
+    exit
+fi
+
 #check must parameters
-if [[ ! ${EXE} && ! ${CMP} && ! ${GEN} ]]; then
+if [[ ! ${DEP} && ! ${CMP} && ! ${GEN} ]]; then
     echo "ERROR: YOU MUST specify one of the \"must\" arguments"
     echo ${ERROR_MSG}
     exit
@@ -170,9 +169,9 @@ else
     cmd_mknemo="${MKNEMO} -v0"
 fi
 
-myGlobalConf="${PRESET}/${PRESET}.conf"
-myGlobalMem="${PRESET}/${PRESET}.mem"
-myGlobalNml="${PRESET}/${PRESET}.nml"
+myGlobalConf="${PRESET}/configuration"
+myGlobalMem="${PRESET}/layout"
+myGlobalNml="${PRESET}/namelists"
 
 ##### Overwrite options specified in configuration file
 bfmconf=`perl -ne "/BFM_conf/ .. /^\// and print" ../${CONFDIR}/${myGlobalConf}`
@@ -357,7 +356,7 @@ fi
 # -----------------------------------------------------
 
 
-if [ ${EXE} ]; then
+if [ ${DEP} ]; then
     [ ${VERBOSE} ] && echo "creating Experiment ${PRESET}"
 
     if [ ! -d ${blddir} ]; then
