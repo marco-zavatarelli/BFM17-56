@@ -85,7 +85,7 @@
       write(theunit,1) label
     1 format(1x,a40/)
       write(theunit,2) scale
-    2 format('  multiply all values by ',1pe8.2)
+    2 format('  multiply all values by ',1f8.2)
 
       do ib=1,im,cols*iskp
 

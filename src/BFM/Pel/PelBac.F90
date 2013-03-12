@@ -191,6 +191,16 @@
      if (AllocStatus  /= 0) stop "error allocating iNIn"
      allocate(iN(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating iN"
+     allocate(eN1p(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eN1p"
+     allocate(eN4n(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating eN4n"
+     allocate(huln(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating huln"
+     allocate(hulp(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating hulp"
+     allocate(bacc(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating bacc"
   end if
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
