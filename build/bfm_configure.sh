@@ -45,7 +45,7 @@ ARCH="gfortran.inc"
 PROC=4
 EXP="EXP00"
 QUEUE="poe_short"
-CLEAN="clean"
+CLEAN=1
 # --------------------------------------------------------------------
 
 
@@ -133,7 +133,7 @@ while getopts "${OPTS}" opt; do
       b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"        ; bfmdir_usr=$OPTARG  ;;
       n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"       ; nemodir_usr=$OPTARG ;;
       a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"  ; arch_usr=$OPTARG    ;;
-      f ) [ ${VERBOSE} ] && echo "fast mode activated"   ; clean_usr=          ;;
+      f ) [ ${VERBOSE} ] && echo "fast mode activated"   ; clean_usr=0         ;;
       t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"   ; netcdf_usr=$OPTARG  ;;
       x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"    ; exp_usr=$OPTARG     ;;
       l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"  ; nmldir_usr=$OPTARG  ;;
@@ -174,20 +174,22 @@ myGlobalMem="${PRESET}/layout"
 myGlobalNml="${PRESET}/namelists"
 
 ##### Overwrite options specified in configuration file
+[ ${VERBOSE} ] && echo "Conf. file replace:"
 bfmconf=`perl -ne "/BFM_conf/ .. /^\// and print" ../${CONFDIR}/${myGlobalConf}`
 for option in "${OPTIONS[@]}"; do
     value=`perl -e "print ( \"${bfmconf}\" =~ m/\${option}\ *=\ *[\"\']*([^\"\'\,]+)[\"\']*[\,\/]*/ );"`
     if [ "${value}" ]; then 
-        [ ${VERBOSE} ] && echo "replacing ${option}=${value}"
+        [ ${VERBOSE} ] && echo "- replacing ${option}=${value}"
         eval ${option}=\"\${value}\"
     fi
 done
 
 ##### Overwrite options specified in command line by user
+[ ${VERBOSE} ] && echo "Command line replace:"
 for option in "${OPTIONS_USR[@]}"; do
     opt_name=`echo $option | sed -e 's/_usr//' | awk '{print toupper($0)}'`
-    eval [ \"\${$option}\" ] && eval "${opt_name}"=\"\${$option}\" && eval 
-    [ ${VERBOSE} ] && eval [ \"\${$option}\" ]  && eval echo "replacing ${opt_name}="\"\${$option}\"
+    eval [ \"\${$option}\" ] && eval "${opt_name}"=\"\${$option}\"
+    [ ${VERBOSE} ] && eval [ \"\${$option}\" ]  && eval echo "- replacing ${opt_name}="\"\${$option}\"
 done
 
 #specify build dir of BFM
@@ -315,9 +317,9 @@ if [ ${CMP} ]; then
     cd ${blddir}
 
     if [[ ${MODE} == "STANDALONE" ]]; then
-        if [ ${CLEAN} ]; then
+        if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-                ${cmd_gmake} clean
+            ${cmd_gmake} clean
         fi
         echo " "
         echo "Starting ${PRESET} compilation..."
@@ -334,7 +336,7 @@ if [ ${CMP} ]; then
     else
         cd ${NEMODIR}/NEMOGCM/CONFIG/
 
-        if [ ${CLEAN} ]; then
+        if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
             ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
         fi
