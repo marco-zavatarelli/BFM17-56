@@ -34,6 +34,7 @@ use classes;
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
 our @EXPORT= qw(process_namelist check_namelists print_namelists);
+my $reg_array='(\w+)(\w{3})\((\d+)\,\:\)';
 ########### VARIABLES ##########################
 
 
@@ -98,7 +99,6 @@ sub process_namelist{
 
 sub check_namelists{
     my ($lists_ref, $groups_ref, $params_ref, $const_ref, $VERBOSE ) = @_;
-    #my %lookup = map {(lc $_, $$groups_ref{$_})} keys %$groups_ref; #lowecase all the group names
     my @const  = keys %$const_ref;
 
     foreach my $list (@$lists_ref){
@@ -108,20 +108,23 @@ sub check_namelists{
             my $nml_name = $1;
             my $grp_name = "${nml_name}Plankton";
             #check if the group exists in the memory layout for the namelist
-            #if( exists $lookup{$grp_name} ){
             if( exists $$groups_ref{$grp_name} ){
                 if ( $VERBOSE ){ print "\t\tFound correspondance with $grp_name\n"; }
+                my $list_name = $list->name;
                 #check all the parameters which are part of this group
                 my @params_grp = ();
-                foreach my $param (sort keys %$params_ref){
+                foreach my $param ( sort { $$params_ref{$a}->getIndex() cmp $$params_ref{$b}->getIndex() } keys %$params_ref ){
                     my $prm_grp_name = $$params_ref{$param}->getGroup();
-                    #if( $prm_grp_name && lc($prm_grp_name) eq $grp_name ){
                     if( $prm_grp_name && $prm_grp_name eq $grp_name ){
                         push ( @params_grp, $param );
                     }
                 }
                 #add new parameter for output comment with parameters in group
                 $list->add_elements(\@params_grp);
+                my $grp_size = scalar(@params_grp);
+                my %pred_terms  = ();
+                my %pred_line   = ();
+                my %pred_cols   = ();
 
                 #remove external elements in the list or add 0's
                 foreach my $element ( @{$list->slots} ){
@@ -132,20 +135,24 @@ sub check_namelists{
                     if( $element eq "filename_nml_conf" ){
                         #avoid this element
                         $columns = 1;
-                    }elsif( $element =~ /\w+(\w{3})\((\d+)\,\:\)/ ){
+                    }elsif( $element =~ /$reg_array/ ){
                         #element type array "nameACRONYM(number,:) = word , word , word"
-                        my $acro = $1;
-                        my $index_num = $2;
-                        if ( $index_num > scalar(@params_grp) ){ 
-                            print "WARNING: ($index_num > " . scalar(@params_grp) . ") removing element $element in namelist $nml_name\n";
+                        my $prename = "$1$2";
+                        my $prename_index = "$1$2$3";
+                        my $acro = $2;
+                        my $index_num = $3;
+                        #print "$prename - $prename_index - $acro - $index_num\n";
+                        if ( $index_num > $grp_size ){ 
+                            print "WARNING: ($index_num > $grp_size) removing element $element in namelist $nml_name\n";
                             $list->remove($element);  
                         }
+
                         #search for the group which has the acronym
                         foreach my $group_name (keys %$groups_ref){
                             if( $$groups_ref{$group_name}->getAcro() eq $acro ){ 
                                 #calculate the number of elements belong to this group
                                 my @params_grp_inside = ();
-                                foreach my $param (sort keys %$params_ref){
+                                foreach my $param ( sort { $$params_ref{$a}->getIndex() cmp $$params_ref{$b}->getIndex() } keys %$params_ref ){
                                     my $prm_grp_name = $$params_ref{$param}->getGroup();
                                     if( $prm_grp_name && $prm_grp_name eq $group_name ){
                                         push ( @params_grp_inside, $param );
@@ -159,14 +166,20 @@ sub check_namelists{
                             }
                         }
                         if( ! $found_group ){ print "WARNING: in param $element not found group for acronym $acro\n"; last; }
+
+                        $pred_terms{$prename_index}  = $columns;
+                        $pred_line{$prename}         = exists $pred_line{$prename} ? ($pred_line{$prename}+1) : 1;
+                        $pred_cols{$prename}         = $columns;
+                        #print "$prename - $index_num - $prename_index\n";
+
                     }else{
                         #element type normal "name"
-                        $columns = scalar(@params_grp);
+                        $columns = $grp_size;
                     }
 
 
                     #check the number parameters of this group
-                    #which will be the number of columns should exist in namelist params
+                    #should be the number of columns exist in namelist params
                     my $values_num = $#{${$list->hash}{$element}{value}}+1;
                     if( $values_num > $columns ){
                         print "WARNING: ($values_num > $columns) removing element values from $element in namelist $nml_name\n";
@@ -179,8 +192,27 @@ sub check_namelists{
                         push( @{${$list->hash}{$element}{value}} , @temp_new_values );
                         push( @{${$list->hash}{$element}{typesv}}, @temp_new_typesv );
                     }
-
                 }
+
+                #check the number of arrays inside the namelist
+                #should be the number of elements of the group
+                foreach my $pred (keys %pred_line){
+                    my $values_line = $pred_line{$pred};
+                    my $values_cols = $pred_cols{$pred};
+                    #print "$values_line < $grp_size @params_grp\n";
+                    if( $values_line < $grp_size  ){
+                        foreach my $index (1 .. $grp_size ){
+                            my $name = "$pred$index";
+                            my @temp_new_columns = map '0.0', 1..($values_cols);
+                            if ( ! exists $pred_terms{$name} ){
+                                print "WARNING: ($values_line < $grp_size) adding new predator term $pred($index,:) in namelist $nml_name\n";
+                                my $new_line = "&$list_name $pred($index,:) = @temp_new_columns \/";
+                                $list->parse({text => $new_line, merge => 1});
+                            }
+                        }
+                    }
+                }
+
             }
         }
 
@@ -216,7 +248,7 @@ sub print_namelists{
     my $index = 0;
     foreach my $nml (@$lst_nml){
         if ( $nml->hash()->{'filename_nml_conf'} ){
-            #print Dumper ($lst_nml) , "\n";
+            #print Dumper ($nml) , "\n";
             #first get column sizes to print with a beauty format
             #insert all elements in a table
             my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
@@ -238,8 +270,10 @@ sub print_namelists{
                     push( @tbl, [@line_tmp] );
                 }else{
                     #check if is an array to add the comments
-                    if( $line =~ /\w+(\w{3})\(\d+\,\:\)/ ){
-                        my @line_tmp = ( "!", " " ,@{$nml->subElements($1)} );
+                    if( $line =~ /$reg_array/ ){
+                        my $acro  = $2;
+                        my $group = ${$nml->elements}[($3-1)];
+                        my @line_tmp = ( "!   $group", " " ,@{$nml->subElements($acro)} );
                         calculateMaxLen(\@line_tmp, \@max_len_array);
                         push( @tbl, [@line_tmp] );
                     }
