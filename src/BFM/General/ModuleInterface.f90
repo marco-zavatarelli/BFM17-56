@@ -37,25 +37,19 @@
 !
   INTERFACE
 
-  subroutine MesoZooDynamics(zoo, ppzooc, ppzoon, ppzoop)
+  subroutine MesoZooDynamics(zoo)
   use global_mem, ONLY:RLEN
   implicit none
   integer,intent(IN) :: zoo
-  integer,intent(IN) :: ppzooc
-  integer,intent(IN) :: ppzoon
-  integer,intent(IN) :: ppzoop
   end subroutine MesoZooDynamics
   end INTERFACE
 
   INTERFACE
 
-  subroutine MicroZooDynamics(zoo, ppzooc, ppzoon, ppzoop)
+  subroutine MicroZooDynamics(zoo)
   use global_mem, ONLY:RLEN
   implicit none
   integer,intent(IN) :: zoo
-  integer,intent(IN) :: ppzooc
-  integer,intent(IN) :: ppzoon
-  integer,intent(IN) :: ppzoop
   end subroutine MicroZooDynamics
   end INTERFACE
 

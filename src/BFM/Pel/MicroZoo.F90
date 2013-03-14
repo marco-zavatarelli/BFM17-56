@@ -12,7 +12,7 @@
 !  Microzooplankton dynamics
 !
 ! !INTERFACE
-  subroutine MicroZooDynamics(zoo,  ppzooc, ppzoon, ppzoop)
+  subroutine MicroZooDynamics(zoo)
 !
 ! !USES:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -52,9 +52,6 @@
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: zoo
-  integer,intent(IN) :: ppzooc
-  integer,intent(IN) :: ppzoon
-  integer,intent(IN) :: ppzoop
 !
 !
 ! !AUTHORS
@@ -88,6 +85,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer       :: i
+  integer       :: ppzooc, ppzoon, ppzoop
   integer, save :: first =0
   integer       :: AllocStatus, DeallocStatus
   real(RLEN),allocatable,save,dimension(:) :: sut,et,eO2,rumc,rumn,rump,  &
@@ -189,6 +187,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ppzooc = ppMicroZooPlankton(zoo,iiC)
+  ppzoon = ppMicroZooPlankton(zoo,iiN)
+  ppzoop = ppMicroZooPlankton(zoo,iiP)
   zooc = D3STATE(ppzooc,:)
 
   tfluxc=ZERO

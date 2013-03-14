@@ -13,7 +13,7 @@
 !    
 !
 ! !INTERFACE
-  subroutine PelBacDynamics(bac, ppbacc, ppbacn, ppbacp)
+  subroutine PelBacDynamics(bac)
 !
 ! !USES:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -76,14 +76,12 @@
   IMPLICIT NONE
 ! !INPUT:
   integer,intent(IN)  :: bac
-  integer,intent(IN) :: ppbacc
-  integer,intent(IN) :: ppbacn
-  integer,intent(IN) :: ppbacp
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer       :: i
+  integer       :: ppbacc, ppbacn, ppbacp
   integer, save :: first =0
   real(RLEN),allocatable,save,dimension(:) :: runn,runp,et,eO2,r,flN6rPBA,rrc,  &
                                           rd,ruR1c,ruR1n,ruR1p,ruR2c,ruR3c,  &
@@ -206,6 +204,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Copy state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ppbacc = ppPelBacteria(bac,iiC)
+  ppbacn = ppPelBacteria(bac,iiN)
+  ppbacp = ppPelBacteria(bac,iiP)
   bacc = D3STATE(ppbacc,:)
   
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

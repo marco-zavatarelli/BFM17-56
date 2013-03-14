@@ -13,7 +13,7 @@
 !   nutrient dynamics in mesozooplankton 
 !
 ! !INTERFACE
-  subroutine MesoZooDynamics(zoo,  ppzooc, ppzoon, ppzoop)
+  subroutine MesoZooDynamics(zoo)
 !
 ! !USES:
 
@@ -59,9 +59,6 @@
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: zoo
-  integer,intent(IN) :: ppzooc
-  integer,intent(IN) :: ppzoon
-  integer,intent(IN) :: ppzoop
 
 !  
 !
@@ -96,6 +93,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
+  integer  :: ppzooc, ppzoon, ppzoop
   integer,dimension(NO_BOXES)  :: nut_lim
   integer, save :: first =0
   real(RLEN),allocatable,save,dimension(:) :: sut,temp_p,temp_n,rumc,rugc,eo,  &
@@ -223,6 +221,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Copy state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ppzooc = ppMesoZooPlankton(zoo,iiC)
+  ppzoon = ppMesoZooPlankton(zoo,iiN)
+  ppzoop = ppMesoZooPlankton(zoo,iiP)
   zooc = D3STATE(ppzooc,:)
   zoon = D3STATE(ppzoon,:)
   zoop = D3STATE(ppzoop,:)

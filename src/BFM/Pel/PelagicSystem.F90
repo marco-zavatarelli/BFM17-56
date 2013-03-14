@@ -22,9 +22,7 @@
 
   use global_mem, ONLY:RLEN
   use mem, ONLY: iiPhytoPlankton,iiMesoZooPlankton,iiMicroZooPlankton,  &
-                 ppPhytoPlankton,ppMesoZooPlankton,ppMicroZooPlankton, &
-                 iiPelBacteria, ppPelBacteria,                         &
-                 iiC, iiN, iiP, iiS, iiL
+                 iiPelBacteria
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF
 #endif
@@ -115,30 +113,21 @@
   ! Compute MesoZooPlankton dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiMesoZooPlankton
-     if ( CalcMesoZooPlankton(i)) then
-       call MesoZooDynamics( i, ppMesoZooPlankton(i,iiC),  &
-            ppMesoZooPlankton(i,iiN), ppMesoZooPlankton(i,iiP))
-     end if
+     if ( CalcMesoZooPlankton(i)) call MesoZooDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute MicroZooPlankton dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiMicroZooPlankton
-     if ( CalcMicroZooPlankton(i)) then
-       call MicroZooDynamics( i, ppMicroZooPlankton(i,iiC),  &
-            ppMicroZooPlankton(i,iiN), ppMicroZooPlankton(i,iiP))
-     end if
+     if ( CalcMicroZooPlankton(i)) call MicroZooDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute Bacteria dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiPelBacteria
-     if ( CalcPelBacteria(i)) then
-       call PelBacDynamics( i, ppPelBacteria(i,iiC),  &
-            ppPelBacteria(i,iiN), ppPelBacteria(i,iiP))
-     end if
+     if ( CalcPelBacteria(i)) call PelBacDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
