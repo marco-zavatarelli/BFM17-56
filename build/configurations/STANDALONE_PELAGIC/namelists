@@ -44,7 +44,7 @@
 &bfm_nml
    bio_calc     = .TRUE.
    bfm_init     = 0
-   bfm_rstctl   = .TRUE.
+   bfm_rstctl   = .FALSE.
    bio_setup    = 1
    out_fname    = 'BFM_standalone_pelagic'
    out_dir      = '.'
@@ -166,10 +166,10 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !<variablename>0 = <realvalue>
 !-------------------------------------------------------------------------!
 &bfm_init_nml
-   N1p0 = 1.0,
-   N3n0 = 5.0,
-   N4n0 = 1.0,
-   N5s0 = 8.0,
+   N1p0 = 0.3,
+   N3n0 = 2.0,
+   N4n0 = 0.5,
+   N5s0 = 4.0,
    N6r0 = 1.0,
    O2o0 = 300.0,
    O3c0 = 27060.00,
@@ -730,7 +730,7 @@ p_paMEZ(2,:)=   0.0,    1.0
   MaxN=         144,
   simdays=      5760,
   start=        "2000-01-01 00:00:00",
-  stop=         "2020-01-01 00:00:00",
+  stop=         "2010-01-01 00:00:00",
 	filename_nml_conf = 'Standalone.nml',
 /
 

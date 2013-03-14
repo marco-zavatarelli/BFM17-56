@@ -311,8 +311,8 @@ Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Mas
  BFM version 5 (BFM-V5).
  Release 1; BFM Report series N.
  1.
- pp.
- XXX
+ March 2013, Bologna, Italy, http://bfm-community.eu, pp.
+ 85
 \end_layout
 
 \begin_layout Address
@@ -10583,7 +10583,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-f_{_{R^{(j)}}}^{n,p}=\min\left(1,\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{p^{^{opt}}},\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{n^{^{opt}}}\right)\, j=1,6f_{_{R^{(j)}}}^{n,p}\label{Bact_quota}
+f_{_{R^{(j)}}}^{n,p}=\min\left(1,\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{p^{^{opt}}},\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{n^{^{opt}}}\right)\, j=1,6f_{_{R^{(j)}}}^{n,p}\label{eq:Bact_quota}
 \end{equation}
 
 \end_inset
@@ -13131,6 +13131,13 @@ Pelagic_Ecology.nml: MesoZoo_parameters
 
 \begin_layout Subsection
 Food availability
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Zoo-Food-availability"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -17921,25 +17928,26 @@ After downloading the tarball from the website, create a directory for the
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 % mkdir $HOME/BFM 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 % cd $HOME/BFM
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 % gunzip bfm-<version>.tgz
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 % tar xvf bfm-<version>.tar
 \end_layout
@@ -18221,7 +18229,7 @@ reference "sec:Model-structure-changes"
 \begin_layout Itemize
 FORTRAN 90/95 compiler.
  Under linux and Mac OSX the model can be currently compiled with gfortran
- (version 4.5 and above).
+ (version 4.5 and above) and ifort.
  For AIX xlf90 is required.
 \end_layout
 
@@ -18341,10 +18349,10 @@ Go to .../bfm/run/standalone.pelagic and execute command:
 \begin_layout Standard
 
 \shape italic
-bfm_configure
+bfm_configure.sh
 \shape default
- generates, compiles and/or deploys files needed for BFM model.
- There are three different steps to have an executable model(see Fig.
+ generates, compiles and/or deploys files needed for the BFM model.
+ There are three different steps to have an executable model (see Fig.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -18369,15 +18377,44 @@ Deployment
 \end_layout
 
 \begin_layout Standard
+For a full description of the script usage and available options (see Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:bfm_configure-optional-args"
+
+\end_inset
+
+), or execute the following command:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -h
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 placement h
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
 	filename Figures/bfm_configure.png
+	lyxscale 70
 	special width=\textwidth
 
 \end_inset
@@ -18406,40 +18443,11 @@ Steps for experiment deployment
 \end_layout
 
 \begin_layout Standard
-For a full description of the script operation and available options (see
- Tab.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "tab:bfm_configure-optional-args"
-
-\end_inset
-
-), execute the following command:
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-lstparams "basicstyle={\ttfamily}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-./bfm_configure.sh -h
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float table
 placement h
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \begin_inset ERT
@@ -18993,10 +19001,17 @@ List of optional arguments for bfm_configure
 
 \begin_layout Subsection
 Presets
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Presets"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-An experiment is defined by a model structure and initial input values.
+An experiment is defined by a model layout structure and initial input values.
  These definitions put together with compilation and run options is what
  is called a PRESET.
  A preset is contained together in a folder and it is all you need to execute
@@ -19039,8 +19054,7 @@ Presets are loaded using option
 \end_inset
 
  followed by the preset name.
- 
-eg:
+ eg:
 \end_layout
 
 \begin_layout Standard
@@ -19063,47 +19077,17 @@ status open
 Presets are composed of three different main files:
 \end_layout
 
-\begin_layout Labeling
-\labelwidthstring 00.00.0000
+\begin_layout Subsubsection*
 
 \family typewriter
-configuration
+configuration:
 \family default
  compilation and deployment options
 \end_layout
 
-\begin_layout Labeling
-\labelwidthstring 00.00.0000
-
-\family typewriter
-layout
-\family default
- memory layout configuration file
-\end_layout
-
-\begin_layout Labeling
-\labelwidthstring 00.00.0000
-
-\family typewriter
-namelists
-\family default
- namelist file with standard values
-\end_layout
-
-\begin_layout Subsubsection
-Configuration file
-\begin_inset CommandInset label
-LatexCommand label
-name "sub:Configuration-file"
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Standard
-This file uses the f90 namelist format to set values.
- Below a schematic view of configuration file format:
+This file uses the F90 namelist format to set values.
+ Below a schematic view of the configuration file format:
 \end_layout
 
 \begin_layout Standard
@@ -19143,28 +19127,27 @@ status open
 \end_layout
 
 \begin_layout Standard
-Not all the options can be specify in the conf file.
- Available options are: MODE, CPPDEFS, BFMDIR, NEMODIR, ARCH, CLEAN, PROC,
- NETCDF, EXP, NMLDIR, PROC and QUEUE (see 
+Not all the options available in Tab.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:bfm_configure-optional-args"
 
 \end_inset
 
-).
+ can be specified in the configuration file and all the values are overridden
+ by the command line options.
+ Available options are: MODE, CPPDEFS, BFMDIR, NEMODIR, ARCH, CLEAN, PROC,
+ NETCDF, EXP, NMLDIR, PROC and QUEUE.
+ Do not use the character " to surround values, but use ' instead.
 \end_layout
 
-\begin_layout Standard
-For specifying a 
-\shape italic
-value
-\shape default
-, don't use " to surround values, use ' instead.
-\end_layout
+\begin_layout Subsubsection*
 
-\begin_layout Subsubsection
-Model and memory layout
+\family typewriter
+layout:
+\family default
+ memory layout configuration file
 \end_layout
 
 \begin_layout Standard
@@ -19180,8 +19163,12 @@ reference "sec:Memory-layout"
 .
 \end_layout
 
-\begin_layout Subsubsection
-Namelist file
+\begin_layout Subsubsection*
+
+\family typewriter
+namelists:
+\family default
+ namelist file with standard values
 \end_layout
 
 \begin_layout Standard
@@ -19220,6 +19207,13 @@ $BFMDIR/run
 
 \begin_layout Chapter
 Running the STANDALONE model
+\begin_inset CommandInset label
+LatexCommand label
+name "chap:Running-the-STANDALONE"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Section
@@ -19227,10 +19221,14 @@ Description
 \end_layout
 
 \begin_layout Standard
-The standard executable has to be located in the same directory of the namelist
- files.
- A symbolic link is already provided in the directory of the standard test
- case (see Sec.
+The execution of the configuration script described in the previous section
+ creates the executable and the running environment for the default preset
+ of the STANDALONE model (called STANDALONE_PELAGIC).
+ The list of the available presets is obtained with the command 
+\family typewriter
+bfm_configure.sh -P
+\family default
+ and the results of the test cases are detailed in Sec.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -19238,12 +19236,12 @@ reference "sec:Test-cases"
 
 \end_inset
 
-) 
-\family typewriter
-$BFMDIR/bfm-run/ standalone/temperate.pelagic/
-\family default
 .
- The model is run by executing 
+ The generated namelists are copied to the directory 
+\family typewriter
+$BFMDIR/run/standalone.pelagic
+\family default
+ and the model is run by executing 
 \family typewriter
 ./bfm_standalone.x
 \family default
@@ -19257,16 +19255,41 @@ to redirect the output messages to a file in bash
  
 \family default
 Most of the BFM settings can be controlled via namelists.
- The STANDALONE model behaviour is controlled with 3 major namelist files
- in the 
+ The STANDALONE model behaviour is controlled with 2 major namelist files
+ 
 \family typewriter
-temperate.pelagic
+BFM_General.nml
 \family default
  and 
 \family typewriter
-co2test
+Standalone.nml
 \family default
- directory.
+.
+ The first file contains the namelist to control the model setup (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Parameters-bfm"
+
+\end_inset
+
+), model formulation (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Parameters-Param"
+
+\end_inset
+
+) and the parameters for all the functional groups described in Part 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "part:The-BFM-Equations"
+
+\end_inset
+
+.
+ The second fie contains 
 \end_layout
 
 \begin_layout Standard
@@ -19367,16 +19390,19 @@ integer
 STANDALONE configuration:
 \end_layout
 
-\begin_layout Enumerate
-pelagic 
+\begin_layout Plain Layout
+1.
+ pelagic 
 \end_layout
 
-\begin_layout Enumerate
-benthic (not yet available)
+\begin_layout Plain Layout
+2.
+ benthic (not yet available)
 \end_layout
 
-\begin_layout Enumerate
-pelagic and benthic (not yet available)
+\begin_layout Plain Layout
+3.
+ pelagic and benthic (not yet available)
 \end_layout
 
 \end_inset
@@ -19586,13 +19612,20 @@ out_delta
 status open
 
 \begin_layout Plain Layout
-namelist bfm_nml
+namelist bfm_nml in BFM_General.nml
 \end_layout
 
 \end_inset
 
-Parameters that control the model setup and output file (bfm_nml in BFM_General.n
-ml) 
+Parameters that control the model setup and output file (
+\family typewriter
+bfm_nml
+\family default
+ in 
+\family typewriter
+BFM_General.nml
+\family default
+) 
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:Parameters-bfm"
@@ -19612,505 +19645,6 @@ name "tab:Parameters-bfm"
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Float table
-wide true
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-centering
-\end_layout
-
-\end_inset
-
-
-\begin_inset Tabular
-<lyxtabular version="3" rows="8" columns="3">
-<features tabularvalignment="middle">
-<column alignment="none" valignment="top" width="3cm">
-<column alignment="none" valignment="top" width="3cm">
-<column alignment="none" valignment="top" width="5cm">
-<row endhead="true">
-<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-\shape italic
-name 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-\shape italic
-kind 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\series bold
-\shape italic
-description 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" topline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-nboxes
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" topline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-integer
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" topline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Number of water volumes (boxes) 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-indepth
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-real
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Depth of each box (m) 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-latitude
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-real
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Latitude of each box 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-longitude
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-real
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Longitude of each box 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-maxdelt
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-real
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Maximum timestep duration (s) 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-mindelt
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-real
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Minimum timestep duration (s) 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="none" valignment="top" bottomline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-method
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" bottomline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-integer
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="none" valignment="top" bottomline="true" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-Integration method
-\end_layout
-
-\begin_layout Enumerate
-Euler forward 
-\end_layout
-
-\begin_layout Enumerate
-Runge-Kutta 2nd order 
-\end_layout
-
-\begin_layout Enumerate
-Leap-frog 
-\end_layout
-
-\end_inset
-</cell>
-</row>
-</lyxtabular>
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-\begin_inset Argument
-status open
-
-\begin_layout Plain Layout
-namelist standalone_nml
-\end_layout
-
-\end_inset
-
-Main parameters in the 
-\family typewriter
-Standalone.nml
-\family default
- file
-\begin_inset CommandInset label
-LatexCommand label
-name "tab:parameters-standalone"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Section
-
-\family roman
-Numerical integration
-\end_layout
-
-\begin_layout Standard
-Three integration schemes are implemented in the STANDALONE model.
- They can be chosen by the parameter 
-\family typewriter
-method
-\family default
- in the namelist file 
-\family typewriter
-standalone.nml
-\family default
-.
- They are all explicit and use a time step cutting approach to avoid negative
- concentrations.
- In detail, indicating with 
-\begin_inset Formula $S(c_{n})$
-\end_inset
-
- the right-hand-side source term computed with concentration 
-\begin_inset Formula $c_{n}$
-\end_inset
-
-, they are written as:
-\end_layout
-
-\begin_layout Itemize
-the Euler scheme (
-\family typewriter
-method=1
-\family default
-):
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\begin_inset Formula $c_{n+1}=c_{n}+S(c_{n})\Delta t$
-\end_inset
-
- 
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-the Runge-Kutta scheme of 2
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-textsuperscript
-\end_layout
-
-\end_inset
-
-
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-{
-\end_layout
-
-\end_inset
-
-nd
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
- order (
-\family typewriter
-method=2
-\family default
-):
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\begin_inset Formula $c_{n+1}=c_{n}+\frac{1}{2}\left[S(c_{n})+S(c_{n}+S(c_{n})\Delta t)\right]\Delta t$
-\end_inset
-
- 
-\end_layout
-
-\end_deeper
-\begin_layout Itemize
-the leap-frog scheme (
-\family typewriter
-method=3
-\family default
-):
-\end_layout
-
-\begin_deeper
-\begin_layout Standard
-\begin_inset Formula $c_{n+1}=c_{n-1}+S(c_{n})2\Delta t$
-\end_inset
-
- with the Asselin-filter: 
-\begin_inset Formula $c_{n}=c_{n}+\gamma(c_{n-1}-c_{n}+c_{n+1})$
-\end_inset
-
- 
-\end_layout
-
-\end_deeper
 \begin_layout Standard
 \begin_inset Float table
 wide true
@@ -20258,7 +19792,7 @@ integer
 
 \size footnotesize
 Switch for the benthic model (only option 1.
- not yet implemented)
+ is currently allowed)
 \end_layout
 
 \begin_layout Plain Layout
@@ -20803,7 +20337,7 @@ status open
 status open
 
 \begin_layout Plain Layout
-namelist Param_parameters
+namelist Param_parameters in BFM_General.nml
 \end_layout
 
 \end_inset
@@ -20816,6 +20350,510 @@ BFM_General.nml
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:Parameters-Param"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+
+\family roman
+Numerical integration
+\end_layout
+
+\begin_layout Standard
+Three integration schemes are implemented in the STANDALONE model.
+ They can be chosen by the parameter 
+\family typewriter
+method
+\family default
+ in the namelist file 
+\family typewriter
+standalone.nml
+\family default
+.
+ They are all explicit and use a time step cutting approach to avoid negative
+ concentrations.
+ In detail, indicating with 
+\begin_inset Formula $S(c_{n})$
+\end_inset
+
+ the right-hand-side source term computed with concentration 
+\begin_inset Formula $c_{n}$
+\end_inset
+
+, they are written as:
+\end_layout
+
+\begin_layout Itemize
+the Euler scheme (
+\family typewriter
+method=1
+\family default
+):
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Formula $c_{n+1}=c_{n}+S(c_{n})\Delta t$
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+the Runge-Kutta scheme of 2
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+textsuperscript
+\end_layout
+
+\end_inset
+
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+{
+\end_layout
+
+\end_inset
+
+nd
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+ order (
+\family typewriter
+method=2
+\family default
+):
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Formula $c_{n+1}=c_{n}+\frac{1}{2}\left[S(c_{n})+S(c_{n}+S(c_{n})\Delta t)\right]\Delta t$
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+the leap-frog scheme (
+\family typewriter
+method=3
+\family default
+):
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Formula $c_{n+1}=c_{n-1}+S(c_{n})2\Delta t$
+\end_inset
+
+ with the Asselin-filter: 
+\begin_inset Formula $c_{n}=c_{n}+\gamma(c_{n-1}-c_{n}+c_{n+1})$
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+\begin_inset Float table
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+
+\begin_inset Tabular
+<lyxtabular version="3" rows="8" columns="3">
+<features tabularvalignment="middle">
+<column alignment="none" valignment="top" width="3cm">
+<column alignment="none" valignment="top" width="3cm">
+<column alignment="none" valignment="top" width="5cm">
+<row endhead="true">
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\shape italic
+name 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\shape italic
+kind 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\series bold
+\shape italic
+description 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+nboxes
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+integer
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" topline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Number of water volumes (boxes) 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+indepth
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+real
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Depth of each box (m) 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+latitude
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+real
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Latitude of each box 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+longitude
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+real
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Longitude of each box 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+maxdelt
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+real
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum timestep duration (s) 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+mindelt
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+real
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Minimum timestep duration (s) 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+method
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+integer
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Integration method
+\end_layout
+
+\begin_layout Enumerate
+Euler forward 
+\end_layout
+
+\begin_layout Enumerate
+Runge-Kutta 2nd order 
+\end_layout
+
+\begin_layout Enumerate
+Leap-frog 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset Argument
+status open
+
+\begin_layout Plain Layout
+namelist standalone_nml in Standalone.nml
+\end_layout
+
+\end_inset
+
+Main parameters for controlling time marching and integration in the STANDALONE
+ (
+\family typewriter
+standalone_nml
+\family default
+ in 
+\family typewriter
+Standalone.nml
+\family default
+)
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:parameters-standalone"
 
 \end_inset
 
@@ -21196,16 +21234,20 @@ Stop date
 status open
 
 \begin_layout Plain Layout
-
+namelist time_nml in Standalone.nml
 \end_layout
 
 \end_inset
 
-Main parameters in the 
+Main parameters for time management and integration length (
 \family typewriter
 time_nml
 \family default
- namelist
+ in 
+\family typewriter
+Standalone.nml
+\family default
+))
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:parameters-time-manager"
@@ -21251,23 +21293,21 @@ Analytical forcing functions
 \end_layout
 
 \begin_layout Standard
-This option is activated by setting forcing_method=1 in the namelist The
- simple analytical forcing functions are thought of as a first approach
- to realistic forcing functions to give the user a easily accessible and
- quickly usable basic set-up of the physical forcing fields.
- The forcing can be controlled by the user with the parameters in Table
+This option is activated by setting 
+\family typewriter
+forcing_method=1
+\family default
+ in the namelist forcings_nml (Tab.
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "tab:Parameters-forcings"
+reference "tab:parameters-time-manager"
 
 \end_inset
 
- which can be changed in the namelist file 
-\family typewriter
-standalone.nml
-\family default
-.
+).
+ The simple analytical forcing functions give the user a easily accessible
+ and quickly usable basic set-up of the physical forcing fields.
  The basic concept behind all forcing functions is the interpolation of
  some (northern hemisphere) summer and winter values by a sine wave, considering
  them as the two extreme values.
@@ -22108,12 +22148,16 @@ Filename for external data
 status open
 
 \begin_layout Plain Layout
-namelist forcings_nml
+namelist forcings_nml in Standalone.nml
 \end_layout
 
 \end_inset
 
-Parameters for the external forcing functions in 
+Parameters for the external forcing functions (
+\family typewriter
+forcings_nml
+\family default
+ in 
 \family typewriter
 Standalone.nml 
 \family default
@@ -22156,7 +22200,7 @@ The STANDALONE model (but also any other coupled configuration that does
  A time series can be specified as input to the atmospheric mixing ratio
  by setting the file name in 
 \family typewriter
-CO2.nml
+Carbonate_Dynamics.nml
 \family default
  parameters listed in Tab.
  
@@ -22182,7 +22226,7 @@ config
 uration.
  The atmospheric value found in 
 \family typewriter
-CO2.nml
+Carbonate_Dynamics.nml
 \family default
  is given in units of partial pressure (
 \begin_inset Formula $\mu atm$
@@ -22214,8 +22258,12 @@ Environmental data from file
 \end_layout
 
 \begin_layout Standard
-This option allows the user to input the environmental data directly from
- a file.
+The 
+\family typewriter
+forcing_method=2
+\family default
+ option allows the user to input the environmental data directly from a
+ file.
  The required input data are seawater temperature (variable 
 \family typewriter
 ETW
@@ -22261,6 +22309,114 @@ yyyy-mm-dd hh:mm:ss
  
 \end_layout
 
+\begin_layout Subsection
+External event data
+\end_layout
+
+\begin_layout Standard
+The model allows to input event data that force the state variables to certain
+ values.
+ This is useful in the case of a laboratory experiment when for instance
+ phytoplankton is inoculated at given time interval or nutrients are restored
+ to certain values.
+ The syntax of the input file is the same as the environmental data file
+ above and the template file 
+\family typewriter
+standalone/external_data.F90
+\family default
+.
+ must be modified by the user according to the state variables that have
+ to be modified.
+ The subroutine is implemented to overwrite any obtained value of the selected
+ state variable(s) with the input value(s) at the prescribed time(s).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/co2test_NOAA_CO2.eps
+	scale 40
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename Figures/co2test_DIC.eps
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename Figures/co2test_pH_T.eps
+	scale 40
+
+\end_inset
+
+
+\begin_inset Graphics
+	filename Figures/co2test_DIC_T.eps
+	scale 40
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Examples-co2test"
+
+\end_inset
+
+Examples from the 
+\family typewriter
+CO2TEST
+\family default
+ simulation.
+ Top panels: atmospheric CO
+\begin_inset Formula $_{2}$
+\end_inset
+
+ partial pressure from the NOAA marine boundary layer data at 33N () and
+ DIC with temperature set to the constant value of 25 
+\begin_inset Formula $^{o}C$
+\end_inset
+
+ (default run).
+ Bottom panels ) pH and DIC with seasonally varying temperature (
+\family typewriter
+tw=14, ts=27
+\family default
+ in 
+\family typewriter
+Standalone.nml
+\family default
+)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 Test cases
 \begin_inset CommandInset label
@@ -22272,6 +22428,10 @@ name "sec:Test-cases"
 
 \end_layout
 
+\begin_layout Subsection
+CO2TEST: carbonate system model
+\end_layout
+
 \begin_layout Standard
 The most simple test case is
 \family typewriter
@@ -22280,6 +22440,11 @@ The most simple test case is
  that generates the run directory
 \family typewriter
  run/co2test
+\family default
+.
+ if the BFM is configured with 
+\family typewriter
+bfm_configure.sh -gcd -p CO2TEST
 \family default
 .
  It simulates a simple carbonate system equilibrium using the routines developed
@@ -22294,6 +22459,11 @@ Carbonate_Dynamics.nml
 ).
  Initial conditions are set for a Mediterranean station with high alkalinity
  value and output is created every 30 days.
+ The system is forced with observed atmospheric CO
+\begin_inset Formula $_{2}$
+\end_inset
+
+ increase over the period 1979-2009.
  The default simulation prescribes a constant temperature value and it is
  interesting to note the differences shown in Fig.
  
@@ -22303,12 +22473,7 @@ reference "fig:Examples-co2test"
 
 \end_inset
 
- when seasonal variability of temperature is turned on and the atmospheric
- CO
-\begin_inset Formula $_{2}$
-\end_inset
-
- increase is imposed.
+ when seasonal variability of temperature is turned on.
  The seasonal cycle in temperature can be prescribed by changing the winter
  and summer temperature minima and maxima of the analytical forcing functions
  (Sec.
@@ -22323,24 +22488,50 @@ reference "tab:Parameters-forcings"
  
 \end_layout
 
+\begin_layout Subsection
+STANDALONE_PELAGIC: the full pelagic BFM
+\end_layout
+
 \begin_layout Standard
-The standard test case for the full BFM is found in directory 
+The standard test case for the full BFM is created in directory 
 \family typewriter
-run/standalone/temperate.pelagic
+run/standalone.pelagic
 \family default
-.
+ and it is the default preset when the code is generated and compiled without
+ any option.
  It simulates the seasonal cycle of a well-mixed temperate coastal sea,
  with mean depth 5 m.
  This example is to be considered as a template for other applications,
  as it is not meant to describe any real-world application.
  The simulation starts in January 2000 and terminates in 2010 with a maximum
  time step of 8640 s in the adaptive Runge-Kutta solver and with the output
- stored every 10 days.
- After 2010 the system starts showing more chaotic fluctuations typical
- of this kind of non-linear system.
+ stored every 30 days (see namelists in Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:parameters-time-manager"
+
+\end_inset
+
+, 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:parameters-standalone"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Parameters-bfm"
+
+\end_inset
+
+).
  The time evolutions of temperature, irradiance, nutrients (the system is
- sustained with regenerated nutrients only, therefore nitrate goes to 0),
- chlorophyll and secondary gross production are provided in Figs.
+ sustained with regenerated nutrients only, therefore nitrate plot is logarithmi
+c and goes very close to 0), chlorophyll and gross primary production are
+ shown in Figs.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -22351,7 +22542,7 @@ reference "fig:test-case-ETW-EIR"
 -
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:test-case-CHLA-ruZTc"
+reference "fig:test-case-CHLA-ruPPYc"
 
 \end_inset
 
@@ -22456,190 +22647,8 @@ CL{
 
 
 \begin_inset Graphics
-	filename Figures/co2test_DIC_constant.eps
-	scale 40
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-CL{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename Figures/co2test_DIC_seasonal.eps
-	scale 40
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-CL{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Graphics
-	filename Figures/co2test_pH_1percent.eps
-	scale 40
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "fig:Examples-co2test"
-
-\end_inset
-
-Examples from the 
-\family typewriter
-co2test
-\family default
- simulation: a) DIC with temperature set to the constant value of 25 
-\begin_inset Formula $^{o}C$
-\end_inset
-
- (default run); b) DIC with seasonally varying temperature (
-\family typewriter
-tw=14, ts=27
-\family default
- in standalone.nml); c) decrease of pH with 1% increase of CO
-\begin_inset Formula $_{2}$
-\end_inset
-
- (
-\family typewriter
-CO2inc=1.0
-\family default
- in 
-\family typewriter
-standalone.nml
-\family default
-)
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide true
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-CL{
-\end_layout
-
-\end_inset
-
-
-\begin_inset Graphics
 	filename Figures/temperate_pelagic_ETW.eps
 	scale 40
-
-\end_inset
-
-
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-}
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-CL{
-\end_layout
 
 \end_inset
 
@@ -22711,7 +22720,7 @@ CL{
 
 \begin_inset Graphics
 	filename Figures/temperate_pelagic_PO4.eps
-	scale 40
+	scale 60
 
 \end_inset
 
@@ -22745,7 +22754,7 @@ CL{
 
 \begin_inset Graphics
 	filename Figures/temperate_pelagic_NO3.eps
-	scale 40
+	scale 60
 
 \end_inset
 
@@ -22767,7 +22776,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Sample output of the STANDALONE test case temperate.pelagic.
+Sample output of the STANDALONE test case standalone.pelagic.
  a) phosphate; b) nitrate 
 \end_layout
 
@@ -22803,7 +22812,7 @@ CL{
 
 \begin_inset Graphics
 	filename Figures/temperate_pelagic_chla.eps
-	scale 40
+	scale 60
 
 \end_inset
 
@@ -22836,8 +22845,8 @@ CL{
 
 
 \begin_inset Graphics
-	filename Figures/temperate_pelagic_ruZTc.eps
-	scale 40
+	filename Figures/temperate_pelagic_ruPPYc.eps
+	scale 60
 
 \end_inset
 
@@ -22860,10 +22869,10 @@ status open
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE test case temperate.pelagic.
- a) Chlorophyll-a; b) gross secondary production
+ a) Chlorophyll-a; b) gross primary production
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:test-case-CHLA-ruZTc"
+name "fig:test-case-CHLA-ruPPYc"
 
 \end_inset
 
@@ -22884,7 +22893,7 @@ name "fig:test-case-CHLA-ruZTc"
 Structure of the code
 \begin_inset CommandInset label
 LatexCommand label
-name "cha:Structure-code"
+name "chap:Structure-code"
 
 \end_inset
 
@@ -22896,11 +22905,11 @@ Coding rules
 \end_layout
 
 \begin_layout Standard
-The BFM is written in F90 and it can generally be compiled with any F90
- compiler.
+The BFM is written in plain F90 and it can generally be compiled with any
+ F90 (and above) compiler.
  There are no fixed coding rules apart from standard clean programming.
  For historical reasons, the subroutine and symbols of the BFM biogeochemistry
- core are indicated with C-style capitalized long-names (e.g.
+ module are indicated with C-style capitalized long-names (e.g.
  EcologyDynamics), even if F90 does not distinguish capital letters.
  Constants and main memory arrays are generally indicated with capital names,
  to highlight their global static behavior.
@@ -22908,45 +22917,7 @@ The BFM is written in F90 and it can generally be compiled with any F90
 \end_layout
 
 \begin_layout Section
-Directory tree
-\end_layout
-
-\begin_layout Standard
-The BFM is spread over the classical directory tree (
-\family typewriter
-bin/, build/, src/, include/
-\family default
-), which contains the standard set of routines and the scripts for generating
- the BFM code when the Standalone model is compiled (see Chap.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "chap:Advanced-features"
-
-\end_inset
-
- for further details).
- For all the couplings with the general circulation models the user should
- refer to the specific publication from the BFM report series (in preparation).
- The content of the 
-\family typewriter
-src/
-\family default
- directory and a description of the subdirectories is depicted in Tab.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "tab:Source-directory-tree"
-
-\end_inset
-
-.
- The routines for the biogeochemical processes are contained in the BFM
- dir.
-\end_layout
-
-\begin_layout Section
-Model layout and variable definition
+Memory layout and variable definition
 \begin_inset CommandInset label
 LatexCommand label
 name "sec:Memory-layout"
@@ -22962,8 +22933,6 @@ The BFM is structured similarly as the original ERSEM used to be.
  and sea ice variables are 2-dimensional.
  Only the sea-points are stored in memory, and thus the BFM has no knowledge
  of any land-sea mask or spatial relationships between grid-points in general.
- The same applies for the benthic memory, which is defined only where a
- benthic system underlies a water column.
  The number of bottom points is the same as the number of surface points,
  therefore the 2-D arrays can also be used for the surface variables and/or
  surface fluxes.
@@ -22973,11 +22942,11 @@ The BFM is structured similarly as the original ERSEM used to be.
  of vertical layers while the benthic and surface variables have dimension
  1 (the bottom and surface levels, with the index depending on the definitions
  of the physical model).
- In a 0-D setup (as in the STANDALONE test case described in Sec.
+ In a 0-D setup (as in the STANDALONE test case described in Chap.
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sec:Test-cases"
+reference "chap:Running-the-STANDALONE"
 
 \end_inset
 
@@ -23008,10 +22977,10 @@ D3STATE(NO_D3_BOX_STATES,NO_BOXES)
 
 \end_inset
 
-and the same is done for the 2-dimensional variables (like for the benthic
- and sea ice ecosystem model):
+and the same is done for the 2-dimensional variables (defined for the benthic
+ and sea ice ecosystem models):
 \begin_inset listings
-lstparams "basicstyle={\normalsize}"
+lstparams "basicstyle={\normalsize\ttfamily}"
 inline false
 status open
 
@@ -23027,11 +22996,25 @@ D2STATE(NO_D2_BOX_STATES,NO_BOXES_XY)
 
 \begin_layout Standard
 Each variable memory is accessed by means of a pointer to the corresponding
- raw containing all the grid-points value.
+ row containing all the grid-point values.
  This pointer array has the same naming convention of ERSEM.
- The rows are numbered with named constants starting with the letters pp
- (ppP1c for phytoplankton carbon, ppN1n for nitrate or ppR1p for dissolved
- organic phosphorus, etc.).
+ The rows are numbered with named constants starting with the letters 
+\family typewriter
+pp
+\family default
+ (
+\family typewriter
+ppP1c
+\family default
+ for phytoplankton carbon, 
+\family typewriter
+ppN1n
+\family default
+ for nitrate or 
+\family typewriter
+ppR1p
+\family default
+ for dissolved organic phosphorus, etc.).
  When the BFM is coupled to a 3-D model, then a mapping function must be
  taken into account as shown in Fig.
  
@@ -23053,7 +23036,8 @@ group functions
 .
  These functions have been created to allow the addition of any number of
  sub-groups in the same trophic compartment, such as diatoms, nanoflagellates,
- picoplankton and dinoflagellates in the group of phytoplankton.
+ picoplankton, etc.
+ in the group of phytoplankton.
  The group function is in this case called 
 \family typewriter
 PhytoPlankton(no_of_subgroups, no_of_components)
@@ -23082,8 +23066,24 @@ PhytoPlankton(iiP1,iiC)
 \end_layout
 
 \begin_layout Standard
-The components are defined in the model structure file which will be described
- in the chapter of advanced features.
+The model state variables and components are defined in the model layout
+ file of each preset (Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Presets"
+
+\end_inset
+
+) which will be detailed in Chap.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Advanced-features"
+
+\end_inset
+
+.
  It is now only sufficient to list the constants indicating the constituents,
  namely 
 \family typewriter
@@ -23113,24 +23113,14 @@ ii
 iiPhytoPlankton
 \family default
 ).
- The existing groups and the syntax to define new others is also given below
- in Sec.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Model-structure-changes"
-
-\end_inset
-
-.
  
 \end_layout
 
 \begin_layout Standard
 A typical example of the use of groups is to compute the total amount of
- food available to microzooplankton (in 
+ food available to microzooplankton (from 
 \family typewriter
-MicroZooDynamics.F90
+MicroZoo.F90
 \family default
 ):
 \end_layout
@@ -23143,37 +23133,37 @@ status open
 
 \begin_layout Plain Layout
 
-do i = 1 , iiPhytoPlankton
+do i = 1 ,iiPhytoPlankton
 \end_layout
 
 \begin_layout Plain Layout
 
-  rumPIc(:, i) = p_suPI(zoo,i)* PhytoPlankton(i,iiC)* &
+    PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)* &
 \end_layout
 
 \begin_layout Plain Layout
 
-   PhytoPlankton(i,iiC)/(PhytoPlankton(i,iiC)+p_minfood(zoo))
+                MM_vector(PhytoPlankton(i,iiC), p_minfood(zoo))
 \end_layout
 
 \begin_layout Plain Layout
 
-  rumc  =   rumc+ rumPIc(:, i)
+    rumc = rumc + PPYc(:,i)
 \end_layout
 
 \begin_layout Plain Layout
 
-  rumn  =   rumn+ rumPIc(:, i)* qnPc(i,:)
+    rumn = rumn + PPYc(:,i)*qncPPY(i,:)
 \end_layout
 
 \begin_layout Plain Layout
 
-  rump  =   rump+ rumPIc(:, i)* qpPc(i,:)
+    rump = rump + PPYc(:,i)*qpcPPY(i,:)
 \end_layout
 
 \begin_layout Plain Layout
 
-end do
+ end do
 \end_layout
 
 \end_inset
@@ -23184,7 +23174,14 @@ end do
 \begin_layout Standard
 Compare this code with the equation for food availability and capture efficiency
  presented in Sec.
- 2.4.1 of the BFM description and it will show how it is simple to cycle over
+  
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Zoo-Food-availability"
+
+\end_inset
+
+ of the BFM description and it will show how it is simple to cycle over
  all the phytoplankton variables, independently of the number and type of
  the defined subgroups.
 \end_layout
@@ -23234,9 +23231,6 @@ Layout of the main memory array for the pelagic variable (D3STATE) and schematic
 \begin_layout Standard
 The other basic arrays of the memory are the ones containing the time rates
  of change due to each physiological or ecological interaction.
- Their structure partly derives from the methodology proposed by Burchard
- et al.
- (2005), and partly is inherited from ERSEM.
  The rate of mass exchange between two state variables is an element of
  an array 
 \family typewriter
@@ -23276,8 +23270,15 @@ reference "fig:Schematic-of-D3SINK"
 
 ).
  It is clear that the two matrices are symmetrical and a predation (negative)
- rate from variable P1c to Z4c is equivalent to an ingestion rate (positive)
- of 
+ rate from variable 
+\family typewriter
+P1c
+\family default
+ to 
+\family typewriter
+Z4c
+\family default
+ is equivalent to an ingestion rate (positive) of 
 \family typewriter
 Z4c
 \family default
@@ -23304,19 +23305,32 @@ sum(D3SOURCE(j,:,:)-D3SINK(j,:,:))
 \end_layout
 
 \begin_layout Standard
-This separation between positive and negative terms is required in order
- to use positive-definite integration schemes (as when coupling with GOTM,
- Burchard et al., ).
+This separation between positive and negative terms allow to use more sophistica
+ted positive-definite integration schemes although it may result in excessive
+ memory usage.
+ It is therefore possible to combine the two symmetrical matrices into one
+ (
+\family typewriter
+D3SOURCE
+\family default
+), that contains all the source terms in the upper-left part and the sink
+ terms in the lower-right part.
+ It is finally allowed to further shrink the memory by adding all the terms
+ 
 \end_layout
 
 \begin_layout Standard
-Fluxes which involve a variable not defined in the model, such as denitrificatio
-n rates leading to dissolved molecular nitrogen, can be taken into account
- by using the diagonal of the matrix.
- The loss of nitrate due to denitrification is therefore a flux from nitrate
- to nitrate in the sink matrix (
+Fluxes which involve a variable not defined in the model, such as oxygen
+ production from water during photosynthesis can be taken into account by
+ using the diagonal of the matrix.
+ There is a positive flow from 
 \family typewriter
-D3SINK(N3n,N3n,:)
+O2o
+\family default
+ to itself computed stoichiometrically from the gross carbon production
+ rate and inserted in (
+\family typewriter
+D3SOURCE(O2o,O2o,:)
 \family default
 , cfr.
  Fig.
@@ -23328,14 +23342,6 @@ reference "fig:Schematic-of-D3SINK"
 \end_inset
 
 ).
- Similarly, the oxygen production during photosynthesis is a positive flow
- from 
-\family typewriter
-O2o
-\family default
- to itself computed stoichiometrically from the gross carbon production
- rate.
- 
 \end_layout
 
 \begin_layout Standard
@@ -23374,7 +23380,8 @@ NO_D2_BOX_STATES
 \begin_layout Standard
 No direct mass exchanges are allowed between variables from different realms
  (like for instance between pelagic and benthic variables), and therefore
- those fluxes are defined as diagonal fluxes.
+ those fluxes are defined as diagonal fluxes each one within its own realm
+ taking into account any change of units.
  Specialized functions have been written to take into account all the possible
  kind of exchanges and are collected in 
 \family typewriter
@@ -23440,7 +23447,7 @@ name "sec:The-BFM-flow-chart"
 \end_layout
 
 \begin_layout Standard
-The BFM core will be described in its Standalone configuration.
+The BFM core will be described in its STANDALONE configuration.
  The main program (Fig.
  
 \begin_inset CommandInset ref
@@ -23996,12 +24003,20 @@ The BFM is conceived in a modular way and the number of state variables
 \end_layout
 
 \begin_layout Section
-Pre-compilation macros
+Compilation macros
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Compilation-macros"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
-There are 2 major macros that belong to the core BFM source code.
- Both macros are 
+There are 2 major macros that belong to the core of the BFM source code
+ and additional compilation keywords that activates model components.
+ The first 2 macros are 
 \begin_inset Quotes eld
 \end_inset
 
@@ -24027,8 +24042,7 @@ NOT_STANDALONE
 ) all the variables belonging to the main memory are defined as pointers
  and are not allocated during the initialization phase.
  This is the configuration used in combination with hydrodynamical models
- that already defines a memory array for biogeochemical variables (e.g.
- GOTM, see Part II).
+ that already defines a memory array for biogeochemical variables.
 \end_layout
 
 \begin_layout Description
@@ -24056,20 +24070,12 @@ reference "sec:Memory-layout"
 \family typewriter
 P1c(:)
 \family default
- or 
-\family typewriter
-H1c(:)
-\family default
-, which are pointers to the memory address of phytoplankton and benthic
- bacteria carbon contents, are substituted with the name 
+ which are pointers to the memory address of phytoplankton carbon content,
+ are substituted with the name 
 \family typewriter
 D3STATE(ppP1c,:)
 \family default
- and 
-\family typewriter
-D2STATE(ppH1c,:)
-\family default
-, respectively.
+.
  To facilitate this feature, it is requested that all the references to
  the pointers in the code are written with the indication of the number
  of dimensions: 
@@ -24085,7 +24091,68 @@ P1c(:)
 BFM_NOPOINTERS
 \family default
  is defined.
- (Notice that this option is the default when using the NEC-SX architecture).
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+ONESOURCE:
+\family default
+ Join together the elements of 
+\family typewriter
+D3(D2)SOURCE
+\family default
+ and 
+\family typewriter
+D3(D2)SINK 
+\family default
+arrays to reduce memory storage 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+D1SOURCE:
+\family default
+ Further reduce memory storage by defining one source matrix 
+\family typewriter
+D3(D2)SOURCE(NO_BOX_STATES,NO_BOXES)
+\family default
+ where all the right-hand side terms are summed when computed (this is incompati
+ble with macro 
+\family typewriter
+INCLUDE_DIAG3D
+\family default
+)
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+INCLUDE_PELCO2:
+\family default
+ Define and activate the pelagic variables of the carbonate system;
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+INCLUDE_PELFE:
+\family default
+ Add iron dynamics to the system
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+INCLUDE_DIAG3D:
+\family default
+ Activate the customizable diagnostics described in Sec.
+ (this is incompatible with macro 
+\family typewriter
+D1SOURCE
+\family default
+)
 \end_layout
 
 \begin_layout Section
@@ -24095,15 +24162,26 @@ name "sec:Model-structure-changes"
 
 \end_inset
 
-Model structure changes
+Model layout changes
 \end_layout
 
 \begin_layout Standard
-As briefly described in the Introduction, BFM is built in a modular and
- flexible way, because each state variable is not defined directly in the
- code but through a model template (
+BFM is built in a modular and flexible way because each state variable is
+ not defined directly in the code but through a model template 
 \family typewriter
-General/ GlobalDefsBFM.model
+layout
+\family default
+ found in the PRESET directories (Sec.
+  
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Presets"
+
+\end_inset
+
+, 
+\family typewriter
+$BFMDIR/build/configurations
 \family default
 ).
  All the ancillary F90 memory layout files (
@@ -24111,43 +24189,33 @@ General/ GlobalDefsBFM.model
 AllocateMem.F90, INCLUDE.h, ModuleMem.f90, set_var_info_bfm.f90
 \family default
 ) are automatically generated from this meta-data structure by way of a
- script written in 
+ perl script (
 \family typewriter
-tcl
-\family default
- (
-\family typewriter
-script/GenerateGlobalBFMF90Code
+$BFMDIR/build/script
 \family default
 ).
  The prototypes of these files are found in directory 
 \family typewriter
-proto
+$BFMDIR/BFM/proto
 \family default
  and filled in with the user-defined state variables and diagnostics.
  
 \end_layout
 
 \begin_layout Standard
-The structure of the model template is divided in sections with specific
- headings.
- Sections can be repeated many times in the file and there is no fixed sequence.
- It is however suggested to follow a conceptual construction of the model,
- by grouping all the state variables and diagnostics as done in the standard
- released structure.
- Other examples of different model structures are available in the 
-\family typewriter
-General/Configurations
-\family default
- directory (the file with the extension 
-\family typewriter
-.standard
-\family default
- is the one found in the 
-\family typewriter
-General
-\family default
- directory).
+The structure of the model template given in Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "alg:Example-of-layout-pelagic"
+
+\end_inset
+
+ is divided in sections with specific headings.
+ Sections can be repeated many times in the file.
+ For clarity, it is suggested to follow a conceptual construction of the
+ model, by grouping all the state variables and diagnostics as done in the
+ standard released structure.
 \end_layout
 
 \begin_layout Description
@@ -24157,7 +24225,7 @@ General
  An example of state variable definition is shown in Box 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "alg:Example-of-GlobaldefsBFM.model-pelagic"
+reference "alg:Example-of-layout-pelagic"
 
 \end_inset
 
@@ -24167,9 +24235,8 @@ reference "alg:Example-of-GlobaldefsBFM.model-pelagic"
 \end_inset
 
 According to the theoretical model description, variables are defined as
- chemical functional families (CFF) and identified by their main biochemical
- components, which are indicated according to the classical ERSEM syntax
- 
+ functional families and identified by their main biochemical components,
+ which are indicated according to the classical ERSEM syntax 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "blackford95"
@@ -24185,15 +24252,22 @@ key "blackford95"
  Any other new component (either atomical or molecular) can be added, provided
  that the user include the relative dynamics in an appropriate piece of
  code.
- The syntax for a multi-component variable is 
+ The syntax for a multi-component variable is detailed below 
 \family typewriter
 varname[cnp...]
 \family default
-, and it is also possible to define group of state variables, such as PhytoPlank
-ton or PelDetritus as shown in Box 
+, and it is also possible to define group of state variables, such as 
+\family typewriter
+PhytoPlankton
+\family default
+ or 
+\family typewriter
+PelDetritus
+\family default
+ as shown in Box 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "alg:Example-of-GlobaldefsBFM.model-pelagic"
+reference "alg:Example-of-layout-pelagic"
 
 \end_inset
 
@@ -24212,15 +24286,8 @@ reference "sec:Memory-layout"
 
 \begin_layout Description
 2d-state: all the features described above are also valid for the state
- variables belonging to the benthic 2-D system.
- An example of benthic variable definitions is given in Box 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:Example-of-GlobaldefsBFM.model-benthic"
-
-\end_inset
-
-.
+ variables belonging to the benthic or sea ice 2-D system.
+ 
 \end_layout
 
 \begin_layout Description
@@ -24240,70 +24307,514 @@ reference "alg:Example-of-GlobaldefsBFM.model-benthic"
 \end_layout
 
 \begin_layout Description
-3d-variables: this section is used for all the ancillary diagnostic variables
+3d-variable: this section is used for all the ancillary diagnostic variables
  defined in the whole domain.
  Typically, this section is used for temperature, salinity, and other environmen
 tal or diagnostic variables.
  Environmental variables obtained from external data files or hydrodynamical
  models are indicated with capital symbols starting with E (e.g.
- ETW = environmental temperature of water).
+ 
+\family typewriter
+ETW
+\family default
+ = environmental temperature of water).
 \end_layout
 
 \begin_layout Standard
-The configuration can be also modified at compilation time by means of a
- set of macros.
+The syntax of the allowed layout elements is the following
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+[dim]d-state [-if-exist]
+\end_layout
+
+\begin_layout Plain Layout
+
+	GROUP
+\end_layout
+
+\begin_layout Plain Layout
+
+	VARNAME
+\end_layout
+
+\begin_layout Plain Layout
+
+end
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+[dim]d-variable [-if-exist]
+\end_layout
+
+\begin_layout Plain Layout
+
+	VARNAME
+\end_layout
+
+\begin_layout Plain Layout
+
+    ARRAYNAME
+\end_layout
+
+\begin_layout Plain Layout
+
+	QUOTUM
+\end_layout
+
+\begin_layout Plain Layout
+
+end
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+[dim]d-flux [-if-exist]
+\end_layout
+
+\begin_layout Plain Layout
+
+	FLUXNAME
+\end_layout
+
+\begin_layout Plain Layout
+
+end
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+GROUP, like 
+\family typewriter
+PhytoPlankton
+\family default
+ 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+group name[constituents] (acronym) : constituent_units
+\end_layout
+
+\begin_layout Plain Layout
+
+	VARNAME
+\end_layout
+
+\begin_layout Plain Layout
+
+end
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+VARNAME, like 
+\family typewriter
+N1p
+\family default
+ or 
+\family typewriter
+P2[-s]
+\family default
+ (if present, the constituent within brackets are removed from the group
+ list of elements)
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+name[-constituents] : description : units
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+ARRAYNAME, a variable that is defined for each element of a group, like
+ the specific uptake for each phytoplankton 
+\family typewriter
+suPPY(PhytoPlankton)
+\family default
+ 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+name(groupname) : description : units
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+QUOTUM, like 
+\family typewriter
+qncPPY(PhytoPlankton)
+\family default
+ (quotum N:C for each phytoplankton group)
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+q+constituent+constituent+acronym() : description : units
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+FLUXNAME, the named entity for a user-defined flux like 
+\family typewriter
+ruPPYc
+\family default
+ (Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Aggregated-diagnostics-rates"
+
+\end_inset
+
+) 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+name = FLUX : description : units
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+FLUX, an expression combining several variables to store fluxes between
+ components (Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Aggregated-diagnostics-rates"
+
+\end_inset
+
+)
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+(var[+|-]var)[<-|->](var[+|-]var)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+with the following fundamental elements
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+name
+\family default
+\series default
+: an alphanumeric string starting with a non-numeric character
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+constituents
+\family default
+\series default
+: one or several from the list: 
+\shape italic
+c
+\shape default
+ (Carbon), 
+\shape italic
+n
+\shape default
+ (nitrogen), 
+\shape italic
+p
+\shape default
+ (phosphorus), 
+\shape italic
+s
+\shape default
+ (silicon), 
+\shape italic
+f
+\shape default
+ (iron), 
+\shape italic
+l
+\shape default
+ (chlorophyll).
+ They have to be written in lower case and without any separation
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+description
+\family default
+\series default
+: phrase describing the variable, quota or flux
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+\shape italic
+units
+\family default
+\series default
+\shape default
+: units in which the variable, quota or flux are measured
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+\shape italic
+constituents_units
+\family default
+\series default
+\shape default
+: units separated by 
+\begin_inset Quotes eld
+\end_inset
+
+:
+\begin_inset Quotes erd
+\end_inset
+
+.
+ Have to be same number of units as constituents have been specified
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+\shape italic
+groupname
+\family default
+\series default
+\shape default
+: name of a group, also name of the function to access the group components
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+\shape italic
+var
+\family default
+\series default
+\shape default
+: variable name (e.g.
+ 
+\family typewriter
+\shape italic
+R6c
+\family default
+\shape default
+) or first letter of group with constituents for naming all (e.g.
+ 
+\family typewriter
+\shape italic
+P.c
+\family default
+\shape default
+)
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+\shape italic
+acronym
+\family default
+\series default
+\shape default
+: acronym representing the group.
+ Currently accepted acronyms are: 
+\family typewriter
+\shape italic
+PPY
+\shape default
+ (PhytoPlankton), 
+\shape italic
+PBA
+\shape default
+ (PelBacteria), 
+\shape italic
+MEZ
+\shape default
+ (MesoZooPlankton), 
+\shape italic
+MIZ
+\shape default
+ (MicroZooPlankton), 
+\shape italic
+OMT
+\shape default
+ (PelDetritus), 
+\shape italic
+CAR
+\shape default
+ (Inorganic)
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+\series bold
+\shape italic
+dim
+\family default
+\series default
+\shape default
+: dimension of the layout elements inside.
+ Allowed values are: 
+\shape italic
+1
+\shape default
+, 
+\shape italic
+2
+\shape default
+ and 
+\shape italic
+3
+\end_layout
+
+\begin_layout Standard
+The configuration can be also modified at compilation time by means of the
+ set of macros listed in Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Compilation-macros"
+
+\end_inset
+
+.
  The statement 
 \family typewriter
 -if-exist
 \family default
- found after one of the above declarations indicates that the following
- set of variables will be defined when the macro is included in the compilation:
+ found after one of the layout declarations indicates that the following
+ set of variables will be defined only when the macro is included in the
+ compilation:
+\end_layout
+
+\begin_layout Standard
 \begin_inset listings
 lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 3d-variable -if-exist INCLUDE_PELCO2
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   DIC        : Dissolved Inorganic Carbon : umol/kg
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   CO2        : CO2(aq) : umol/kg
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   pCO2       : Oceanic pCO2 : uatm
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   HCO3       : Bicarbonate :  umol/kg
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   CO3        : Carbonate : umol/kg
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   Ac         : Alkalinity : umol eq/kg
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   pH         : pH : -
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 end
 \end_layout
@@ -24318,24 +24829,6 @@ end
 \end_layout
 
 \begin_layout Standard
-This is usually done by changing the values of certain logical flags in
- src/Rules.make that adds the 
-\family typewriter
--DINCLUDE_PELCO2 
-\family default
-statement to the compilation command.
- The currently included macros are the following:
-\end_layout
-
-\begin_layout Description
-INCLUDE_PELCO2 Defines the pelagic variables of the carbonate system;
-\end_layout
-
-\begin_layout Description
-INCLUDE_PELFE Add iron dynamics to the system
-\end_layout
-
-\begin_layout Standard
 \begin_inset Float table
 wide true
 sideways false
@@ -24343,226 +24836,178 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily}"
+lstparams "basicstyle={\small\ttfamily},language=bash"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+#       PELAGIC STATE VARIABLES (volume)
+\end_layout
+
+\begin_layout Plain Layout
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
 
 3d-state
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   #     State Variable(s) for Nutrients
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
    N1p  :       Phosphate : mmol P/m3
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
    N3n  :       Nitrate  : mmol N/m3
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
    N4n  :       Ammonium : mmol N/m3
 \end_layout
 
-\begin_layout LyX-Code
-
-   O4n  :       NitrogenSink : mmol N/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-   N5s  :       Silicate     : mmol Si/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-   N6r  :       Reduction Equivalents : mmol S--/m3
-\end_layout
-
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
- #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
-
-  #     State Variable(s) for Bacteria
-\end_layout
-
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-   B1[cnp]      : Pelagic Bacteria : mg C/m3 : mmol N/m3 : mmol P/m3
+  #     State Variable(s) for Phytoplankton 
 \end_layout
 
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-  #     State Variable(s) for Phytoplankton Species
+   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 :
+ 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
+
+                                       mg Chl/m3 : mmol Si/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+           P1           : Diatoms
+\end_layout
+
+\begin_layout Plain Layout
+
+           P2[-s]       : Flagellates
+\end_layout
+
+\begin_layout Plain Layout
+
+           P3[-s]       : PicoPhytoplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+           P4[-s]       : Large Phytoplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+   end
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-     group PhytoPlankton[cnpls] :  mg C/m3 : mmol N/m3 : mmol P/m3 : 
+  #     State Variable(s) for Detritus (Biogenic Organic Material)
 \end_layout
 
-\begin_layout LyX-Code
-
-                                   mg Chl/m3 : mmmol Si/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-        P1      : Diatoms
-\end_layout
-
-\begin_layout LyX-Code
-
-        P2[-s]  : Flagellates
-\end_layout
-
-\begin_layout LyX-Code
-
-        P3[-s]  : PicoPhytoPlankton
-\end_layout
-
-\begin_layout LyX-Code
-
-        P4[-s]  : Dinoflagellates
-\end_layout
-
-\begin_layout LyX-Code
-
-     end
-\end_layout
-
-\begin_layout LyX-Code
-
-               
-\end_layout
-
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-  #     State Variable(s) for Mesozooplankton
+    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                                    mmol P/m3: mmol Si/m3
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-     group MesoZooPlankton[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3
+      R1[-s]    : Labile Dissolved Organic Matter
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                Z3[-np]         : Carnivorous mesozooplankton
+      R2[-nps]  : Semi-labile Dissolved Organic Carbon
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                Z4[-np]         : Omnivorous mesozooplankton
+      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-     end
+      R6        : Particulate Organic Matter
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
+    end
 \end_layout
 
-\begin_layout LyX-Code
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout LyX-Code
-
-  #     State Variable(s) for Microzooplankton
-\end_layout
-
-\begin_layout LyX-Code
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout LyX-Code
-
-     group MicroZooPlankton[cnp] : mg C/m3 : mmol N/m3 : mmol P/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-                Z5 : Microzooplankton
-\end_layout
-
-\begin_layout LyX-Code
-
-                Z6 : Heterotrophic nanoflagellates (HNAN)
-\end_layout
-
-\begin_layout LyX-Code
-
-     end
-\end_layout
-
-\begin_layout LyX-Code
-
-\end_layout
-
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 end
 \end_layout
@@ -24578,7 +25023,7 @@ end
 \begin_layout Plain Layout
 \begin_inset CommandInset label
 LatexCommand label
-name "alg:Example-of-GlobaldefsBFM.model-pelagic"
+name "alg:Example-of-layout-pelagic"
 
 \end_inset
 
@@ -24587,14 +25032,14 @@ name "alg:Example-of-GlobaldefsBFM.model-pelagic"
 status open
 
 \begin_layout Plain Layout
-Template for model layout
+Example of model layout
 \end_layout
 
 \end_inset
 
 Example of the model template file 
 \family typewriter
-General/GlobalDefsBFM.model
+layout
 \family default
  with the definition of pelagic state variables.
  
@@ -24613,63 +25058,99 @@ General/GlobalDefsBFM.model
 \begin_layout Subsection
 Example 1.
  Adding a subgroup
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Adding-subgroup"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
 This is the most simple example, because it involves a small number of changes.
  Let us assume we want to add another mesozooplankton component to the zooplankt
-on group, such as macrozooplankton.
+on group , such as macrozooplankton 
+\begin_inset CommandInset citation
+LatexCommand citep
+before "as done for instance by"
+key "berline11"
+
+\end_inset
+
+.
  It is also assumed that this group will have exactly the same dynamics
  as the other two subgroups, but different parameter values.
- The first requirement is to edit the appropriate line in the template file
- 
+ It is first suggested to create a new preset by copying the directory 
 \family typewriter
-General/GlobalDefsBFM.model
+STANDALONE_PELAGIC
 \family default
-, by adding the new variable name and long name:
+ to a new name
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+cd $BFMDIR/build/configurations
+\end_layout
+
+\begin_layout Plain Layout
+
+cp -r STANDALONE_PELAGIC STANDALONE_PELAGIC_Z
+\end_layout
+
+\end_inset
+
+and then edit the appropriate line in the template file 
+\family typewriter
+layout
+\family default
+ by adding the new variable name and long name:
 \begin_inset listings
 lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 #     State Variable(s) for Mesozooplankton
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-     group MesoZooPlankton[cnp]:mg C/m3:mmol N/m3:mmol P/m3
+   group MesoZooPlankton[cnp] (MEZ) : mg C/m3 : mmol N/m3 : mmol P/m3
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                Z2         : Macrozooplankton
+               Z2      : Macrozooplankton
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                Z3         : Carnivorous mesozooplankton
+               Z3      : Carnivorous Mesozooplankton
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                Z4         : Omnivorous mesozooplankton
+               Z4      : Omnivorous Mesozooplankton
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-     end
+   end
 \end_layout
 
 \end_inset
@@ -24678,117 +25159,271 @@ status open
 \end_layout
 
 \begin_layout Standard
-The second step is the addition of a call for this new group in 
-\family typewriter
-PelagicSystemDynamics
-\family default
-, exactly as already done for Z3 and Z4:
+It is also suggested to edit the name of the run directory where the namelists
+ will be copied.
+ This is done in the configuration file 
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily},language=Fortran"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-if ( CalcMesoZooPlankton(iiZ2)) then
-\end_layout
-
-\begin_layout LyX-Code
-
-    call MesoZooDynamics( iiZ2, ppZ2c, ppZ2n, ppZ2p)
-\end_layout
-
-\begin_layout LyX-Code
-
-end if  
-\end_layout
-
-\begin_layout LyX-Code
-
-if ( CalcMesoZooPlankton(iiZ3)) then
-\end_layout
-
-\begin_layout LyX-Code
-
-    call MesoZooDynamics( iiZ3, ppZ3c, ppZ3n, ppZ3p)
-\end_layout
-
-\begin_layout LyX-Code
-
-end if  
-\end_layout
-
-\begin_layout LyX-Code
-
-if ( CalcMesoZooPlankton(iiZ4)) then
-\end_layout
-
-\begin_layout LyX-Code
-
-    call MesoZooDynamics( iiZ4, ppZ4c, ppZ4n, ppZ4p)
-\end_layout
-
-\begin_layout LyX-Code
-
-end if
+EXP     = 'standalone.macrozoo'
 \end_layout
 
 \end_inset
 
+Now the configuration can be completed by calling the new preset 
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
 
+\begin_layout Plain Layout
+
+cd $BFMDIR/build
+\end_layout
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -gce -p STANDALONE_PELAGIC_Z
+\end_layout
+
+\end_inset
+
+and the script will take care of the automatic generation of the new memory
+ layout with the required named constants, pointers, initial value, run
+ directory and namelist.
+ Particularly, a new column will be added in the mesozooplankton namelist
+ and filled in with zero (the new column is always the last one, without
+ considering the order in the group).
+ A warning is issued for each added parameter column: 
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+WARNING: (2 < 3) adding zero values to element p_q10 in namelist MesoZoo
+\end_layout
+
+\begin_layout Plain Layout
+
+WARNING: (2 < 3) adding zero values to element p_srs in namelist MesoZoo
+\end_layout
+
+\begin_layout Plain Layout
+
+WARNING: (2 < 3) adding zero values to element p_sum in namelist MesoZoo
+\end_layout
+
+\end_inset
+
+Check the updated file 
+\family typewriter
+tmp/STANDALONE_PELAGIC_Z/ModuleMem.F90
+\family default
+ and search for the new variable 
+\family typewriter
+Z2
+\family default
+ to see the added pieces of code.
 \end_layout
 
 \begin_layout Standard
-The third step is temporarely needed, but will probably be modified and
- made automatic in one of the next release.
- It involves the creation of variables carrying the initial values to be
- read in the 
+The final step before running the new model is the addition of the proper
+ parameter values in the new column of 
 \family typewriter
-bfm.nml
+MesoZoo_parameters
 \family default
- namelist (
+ in 
 \family typewriter
-bfm_init_nml
+run/STANDALONE_PELAGIC_Z/Pelagic_Ecology.nml
 \family default
-) from file 
+
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+!                       Z3       Z4       Z2
+\end_layout
+
+\begin_layout Plain Layout
+
+&MesoZoo_parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_q10            =  2.0      2.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_srs            =  0.01     0.02     0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_sum            =  2.0      2.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_vum            =  0.025    0.025    0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_puI            =  0.6      0.6      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_peI            =  0.3      0.35     0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_sdo            =  0.01     0.01     0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_sd             =  0.02     0.02     0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_sds            =  2.0      2.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_qpcMEZ         =  1.67d-3  1.67d-3  0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_qncMEZ         =  0.015    0.015    0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_clO2o          =  30.0     30.0     0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       P1       P2       P3   P4
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paPPY(1,:)     =  0.0      0.0      0.0  0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       P1       P2       P3   P4
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paPPY(2,:)     =  1.0      0.0      0.0  0.7
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       P1       P2       P3   P4
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paPPY(3,:)     =  0.0      0.0      0.0  0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       Z5       Z6
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paMIZ(1,:)     =  0.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       Z5       Z6
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paMIZ(2,:)     =  1.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       Z5       Z6
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paMIZ(3,:)     =  1.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       Z2       Z3       Z4
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paMEZ(1,:)     =  1.0      1.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       Z2       Z3       Z4
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paMEZ(2,:)     =  0.0      1.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!                       Z2       Z3       Z4
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_paMEZ(3,:)     =  0.0      1.0      0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+ and the initial value in 
 \family typewriter
-share/init_var_bfm.F90
+run/STANDALONE_PELAGIC_Z/BFM_General.nml
+\family default
+ by adding a line 
+\family typewriter
+Z2c0=<value>
 \family default
 .
- One for each component need to be created (in this case 
-\family typewriter
-Z2c0
-\family default
-, 
-\family typewriter
-Z2n0
-\family default
- and 
-\family typewriter
-Z2p0
-\family default
-), in all the places where the variables for the other members of the group
- are defined.
-\end_layout
-
-\begin_layout Standard
-Now the compilation can be done and the script will take care of the automatic
- generation of the new memory layout with the required named constants and
- pointers.
- Check the updated file 
-\family typewriter
-General/ModuleMem.F90
-\family default
- and search for the new variable Z2 to see the added pieces of code.
-\end_layout
-
-\begin_layout Standard
-The final step before running the new model is the addition of a new parameter
- column in 
-\family typewriter
-MesoZoo.nml
-\family default
-, with the required new parameter values.
 \end_layout
 
 \begin_layout Subsection
@@ -24808,36 +25443,36 @@ key "vichi07_part2"
 
 .
  A major requirement to simulate the global ocean ecosystem is the introduction
- of iron control on phytoplankton growth, particularly to capture the high-nutri
-ent low-chlorophyll regions.
- The example below shows how the iron component of phytoplankton and detritus
- can be added to the model structure template in order to prepare the memory
- settings.
- Additional coding from the user is then required to parameterize the fluxes
- between these components and the regulations of plankton physiology.
+ of iron control on phytoplankton growth (Sec.
  
-\end_layout
-
-\begin_layout Standard
-For a description of the iron parameterizations used in PELAGOS, see 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "vichi07_part2"
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Iron-in-phytoplankton"
 
 \end_inset
 
-.
- It is assumed that iron is not contained in zooplankton and bacteria, therefore
-, the dissolved organic iron release from zooplankton is directly done in
- particulate form and a first-order remineralization rate is implemented
- to parameterize bacterial syderophore production.
+), particularly to capture the high-nutrient low-chlorophyll regions.
+ The example below shows how the iron component of phytoplankton and detritus
+ have been added to the model structure template.
+ Additional coding from the user is then required to parameterize the fluxes
+ between these components and the regulations of plankton physiology (this
+ is already included in the 
+\family typewriter
+GYRE_BFM
+\family default
+ preset that requires the usage of the NEMO model and activated with the
+ keyword 
+\family typewriter
+INCLUDE_PELFE
+\family default
+).
 \end_layout
 
 \begin_layout Standard
 To add an iron constituent to a group, it is sufficient to specify a unique
  single-character constant between the square brackets in the 
 \family typewriter
-GlobalDefsBFM.model
+layout
 \family default
  file as shown below:
 \begin_inset listings
@@ -24845,52 +25480,47 @@ lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#     State Variable(s) for Phytoplankton Species
+#     State Variable(s) for Phytoplankton 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-group PhytoPlankton[cnplsf] :mg C/m3:mmol N/m3:mmol P/m3: 
+group PhytoPlankton[cnpls] (PPY) : mg C/m3 : mmol N/m3 : mmol P/m3 : 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                          mg Chl/m3:mmmol Si/m3:umol Fe/m3
+                                  mg Chl/m3 : mmol Si/m3 : umol Fe/m3
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
         P1      : Diatoms
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
         P2[-s]  : Flagellates
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
         P3[-s]  : PicoPhytoPlankton
 \end_layout
 
-\begin_layout LyX-Code
-
-        P4[-s]  : Dinoflagellates
-\end_layout
-
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 end
 \end_layout
@@ -24911,7 +25541,7 @@ mol Fe m
 \end_inset
 
 .
- The 
+ Remember that the 
 \family typewriter
 [-s]
 \family default
@@ -24953,59 +25583,54 @@ lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#     State Variable(s) for Detritus 
+  #     State Variable(s) for Detritus (Biogenic Organic Material)
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#     (Biogenic Organic Material)
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: mmol P/m3: 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-group PelDetritus[cnpsf] : mg C/m3:mmol N/m3:mmiol P/m3: 
+                                    mmol Si/m3 : umol Fe/m3
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-                           mmol Si/m3:umol Fe/m3
+      R1[-s]    : Labile Dissolved Organic Matter
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-      R1[-sf]    : Labile Organic Matter
+      R2[-npsf]  : Semi-labile Dissolved Organic Carbon
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-      R2[-npsf]  : Carbohydrates
+      R3[-npsf]  : Semi-refractory Dissolved Organic Carbon
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-      R6         : Particulate Organic Matter
+      R6        : Particulate Organic Matter
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-      R7[-npsf]  : Refractory DOC
-\end_layout
-
-\begin_layout LyX-Code
-
-end
+    end
 \end_layout
 
 \end_inset
@@ -25027,48 +25652,118 @@ name "sub:Zooplankton-fixed-quota"
 
 \begin_layout Standard
 For certain purposes it is not needed to carry out the computation of variable
- nutrient:carbon quota in selected Living Functional Groups (for instance,
- in the case of the new macrozooplankton gorup added in example 1).
+ nutrient:carbon quota in selected Functional Groups (for instance, in the
+ case of the new macrozooplankton group added in example 1).
  This can be done to save computational resources in the case of low-resolution
  long-term global ocean simulations or with high-resolution coastal models.
  A possible example is the assumption of a fixed quota in zooplankton which
  allows one to reduce the number of standard components of up to 8 state
  variables.
- 
-\end_layout
-
-\begin_layout Standard
-The template for this example is available in 
-\family typewriter
-BFM/General/Configurations/ GlobalDefsBFM.model.Z-np
-\family default
- and should replace the standard 
-\family typewriter
-GlobalDefsBFM.model
-\family default
-.
  The zooplankton group definitions are equal to the one shown in the code
  of Box 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "alg:Example-of-GlobaldefsBFM.model-pelagic"
+reference "alg:Example-of-layout-pelagic"
 
 \end_inset
 
  for MesoZooplankton.
  The additional requirement is the change of value in parameter check_fixed_quot
-a from 0 to 1 in the Param.nml namelist.
+a from 0 to 1 in the Param_parameters namelist.
  Test experiments have shown that the simulation times can be reduced up
  to 30%.
  The physiological assumption is that zooplankton release in inorganic form
  the nutrients in excess of the given fixed quota.
 \end_layout
 
+\begin_layout Subsection
+Example 4.
+ Creating new presets from experiments
+\end_layout
+
+\begin_layout Standard
+After running the experiments, common behavior is to modify generated namelists
+ in the deployed experiment folder ( 
+\family typewriter
+$BFMDIR/run/$EXP
+\family default
+ ).
+ If you want to preserve these changes into a "preset" you can use the tool
+ "
+\family typewriter
+nmlcreator
+\family default
+".
+ This is for instance desired when a new group is added as in Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Adding-subgroup"
+
+\end_inset
+
+ and the parameters of the new group have to become default for the preset.
+ To execute this tool do the following steps 
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+cd $BFMDIR/build/scripts/conf
+\end_layout
+
+\begin_layout Plain Layout
+
+./nmlcreator.pl -i NAMELIST_IN -o NAMELIST_OUT
+\end_layout
+
+\end_inset
+
+where 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+NAMELIST_IN
+\family default
+: Complete path of the file containing namelist/s to read (eg.
+ $BFMDIR/run/standalone.pelagic/Pelagic_Ecology.nml) 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+NAMELIST_OUT
+\family default
+: Complete path of the "namelist" file of the preset where to append at
+ the end of the input (eg: 
+\family typewriter
+$BFMDIR/build/configurations/STANDALONE_PELAGIC_Z/namelists
+\family default
+).
+\end_layout
+
+\begin_layout Standard
+Basically, 
+\family typewriter
+nmlcreator
+\family default
+ adds the "
+\family typewriter
+filename_nml_conf
+\family default
+" key with the name of the file at the end of each namelist read.
+ It is important to note that it will not delete the existing namelists
+ in the target preset, it will only append the new namelist at the end.
+\end_layout
+
 \begin_layout Chapter
 Diagnostics
 \begin_inset CommandInset label
 LatexCommand label
-name "cha:Diagnostics"
+name "chap:Diagnostics"
 
 \end_inset
 
@@ -25081,340 +25776,24 @@ Output
 
 \begin_layout Standard
 The variables that can be stored in the output file are the ones defined
- in 
+ in file 
 \family typewriter
-GlobalDefsBFM.model
+l
 \family default
-.
- A list of the exact names to be used is reported in comment lines in the
- auto-generated file 
-\family typewriter
-ModuleMem.F90
-\family default
- as shown in Box 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "alg:store_variables_ModuleMem"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Standard
-All the state variables can be stored (provided that they have a long name
+ayout.
+ All the state variables can be stored (provided that they have a long name
  and units), both as instantaneous values and as means over the chosen output
  period.
  This behavior is controlled via the namelist 
 \family typewriter
-bfm.nml
+BFM_General.nml
 \family default
  when running the STANDALONE model.
  Other couplings may have different names.
  Additionally, a set of other variables can be saved, such as the ones obtained
  from the physical model and other diagnostics such as total chlorophyll
- and the nutrient quota inside the LFGs.
- The system cannot automatically store 0D variables (with only time dimension
- defined) .
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float table
-wide true
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset listings
-lstparams "basicstyle={\scriptsize\ttfamily}"
-inline false
-status open
-
-\begin_layout LyX-Code
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout LyX-Code
-
-!! GLOBAL definition of Pelagic (D3) variables which can be stored
-\end_layout
-
-\begin_layout LyX-Code
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-
-\end_layout
-
-\begin_layout LyX-Code
-
-!    3d name                                                  description
-            unit
-\end_layout
-
-\begin_layout LyX-Code
-
-! ---------- ------------------------------------------------------------
- ---------------
-\end_layout
-
-\begin_layout LyX-Code
-
-!        ETW                                                  temperature
-               C
-\end_layout
-
-\begin_layout LyX-Code
-
-!        ESW                                                     Salinity
-              --
-\end_layout
-
-\begin_layout LyX-Code
-
-!        EIR                                                   Irradiance
-         uE/m2/s
-\end_layout
-
-\begin_layout LyX-Code
-
-!        ESS                                           Suspended sediment
-            g/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-!       ERHO                                                      density
-            g/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-!      cxoO2                      Temperature-dependent oxygen saturation
-      mmol O2/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-!       XO2o                                      Net O2 conc.
- = O2 - H2S      mmol O2/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-!     eO2mO2                                   Relative Oxygen saturation
-               %
-\end_layout
-
-\begin_layout LyX-Code
-
-!       Chla                                                   Chlorophyl
-       mg Chl/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-! qsPc(iiP1)                             Quotum si/c in P4(PhytoPlankton)
-    mmol Si/mg C
-\end_layout
-
-\begin_layout LyX-Code
-
-! qlPc(iiP1)                            Quotum chl/c in P1(PhytoPlankton)
-    mg Chl /mg C
-\end_layout
-
-\begin_layout LyX-Code
-
-! qlPc(iiP2)                            Quotum chl/c in P2(PhytoPlankton)
-    mg Chl /mg C
-\end_layout
-
-\begin_layout LyX-Code
-
-! qlPc(iiP3)                            Quotum chl/c in P3(PhytoPlankton)
-    mg Chl /mg C
-\end_layout
-
-\begin_layout LyX-Code
-
-! qlPc(iiP4)                            Quotum chl/c in P4(PhytoPlankton)
-    mg Chl /mg C
-\end_layout
-
-\begin_layout LyX-Code
-
-! qpZc(iiZ3)                               Quotum p/c Z3(MesoZooPlankton)
-     mmol P/mg C
-\end_layout
-
-\begin_layout LyX-Code
-
-.....
-\end_layout
-
-\begin_layout LyX-Code
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-\end_layout
-
-\begin_layout LyX-Code
-
-!!  GLOBAL definition of Benthic (D2) variables which can be outputted in
- netcdf
-\end_layout
-
-\begin_layout LyX-Code
-
-!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-\end_layout
-
-\begin_layout LyX-Code
-
-!    2d name                                                  description
-            unit
-\end_layout
-
-\begin_layout LyX-Code
-
-! ---------- ------------------------------------------------------------
- ---------------
-\end_layout
-
-\begin_layout LyX-Code
-
-!      rrBTo                                Total Benthic oxic respiratio
-    mmol O2/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!      rrATo                             Total Benthic anoxic respiration
-    mmol O2/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!      reBTn                                Total Benthic oxic respiratio
-     mmol N/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!      reBTp                                Total Benthic oxic respiratio
-     mmol P/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!      reATn                             Total Benthic anoxic respiration
-     mmol N/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!      reATp                             Total Benthic anoxic respiration
-     mmol P/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!     turenh                      Enhancement factor due to bioirrigation
-               -
-\end_layout
-
-\begin_layout LyX-Code
-
-!     irrenh                       Enhancement factor due to bioturbation
-               -
-\end_layout
-
-\begin_layout LyX-Code
-
-!   shiftD1m                                        Rate of change of D1m
-             m/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!   shiftD2m                                        Rate of change of D2m
-             m/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!     jG2K3o                         Oxygen consumption by nitrification.
-    mmol O2/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!     jG2K7o                     ReOxidation of Red.Equiv.
- in  oxic layer   mmol S--/m2/d
-\end_layout
-
-\begin_layout LyX-Code
-
-!        M1p                                      phosphate in oxic layer
-       mmol P/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-!       M11p                           phosphate in denitrification layer
-       mmol P/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-!       M21p                                    phosphate in anoxic layer
-       mmol P/m3
-\end_layout
-
-\begin_layout LyX-Code
-
-...............
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "alg:store_variables_ModuleMem"
-
-\end_inset
-
-
-\begin_inset Argument
-status open
-
-\begin_layout Plain Layout
-Generated code
-\end_layout
-
-\end_inset
-
-Examples of auto-generated comment lines in ModuleMem.F90 reporting the variables
- that can be stored.
- The list depends on the definitions in 
-\family typewriter
-GlobalDefsBFM.model
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
+ and the nutrient quota.
+ 
 \end_layout
 
 \begin_layout Section
@@ -25436,6 +25815,13 @@ The length of each BFM simulation is controlled by the physical transport
 
 \begin_layout Section
 Aggregated diagnostics and rates
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Aggregated-diagnostics-rates"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -25452,7 +25838,7 @@ D2DIAGNOS
  The dimensions of these arrays change according to the number of model
  elements in the 
 \family typewriter
-GlobalDefsBFM.model
+layout
 \family default
  file, and any diagnostic rate can be easily defined thanks to the automatic
  generation of the memory layout.
@@ -25470,7 +25856,7 @@ D3(D2)SINK
  arrays where all the rates are stored.
  Some examples are already present at the end of the 
 \family typewriter
-GlobalDefsBFM.model
+STANDALONE_PELAGIC/layout
 \family default
  file and are activated with the compilation macros 
 \family typewriter
@@ -25486,17 +25872,17 @@ lstparams "basicstyle={\small\ttfamily},breaklines=true,language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 fP1Z4c=P1c->Z4c: diatom grazing by omnivorous zooplankton: mg C/m3/d
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 ruPTc=P.c<-*: gross primary production: mg C/m3/d
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 ruZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): gross secondary production: mg C/m3/d
 \end_layout
@@ -25517,7 +25903,7 @@ bfm_save_nml
 \family default
  section in 
 \family typewriter
-bfm.nml
+BFM_General.nml
 \family default
 .
  The second line defines the combined rate gross primary production, which
@@ -25536,12 +25922,12 @@ lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 PELSURFACE(NO_D3_BOX_STATES,NO_BOXES_XY) 
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 PELBOTTOM(NO_D3_BOX_STATES,NO_BOXES_XY)
 \end_layout
@@ -25569,27 +25955,27 @@ lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 PELSURFACE => D2DIAGNOS(17+1:17+50,:); PELSURFACE=ZERO     
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 jsurO2o => D2DIAGNOS(17+ppO2o,:); jsurO2o=ZERO     
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 jsurN1p => D2DIAGNOS(17+ppN1p,:); jsurN1p=ZERO     
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 jsurN3n => D2DIAGNOS(17+ppN3n,:); jsurN3n=ZERO     
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 jsurN4n => D2DIAGNOS(17+ppN4n,:); jsurN4n=ZERO
 \end_layout
@@ -25601,7 +25987,15 @@ jsurN4n => D2DIAGNOS(17+ppN4n,:); jsurN4n=ZERO
 
 \begin_layout Standard
 The boundary rates (always in units per day) are accessed in the code by
- means of the PELSURFACE(ppO2o,:) or jsurO2o(:) names.
+ means of the 
+\family typewriter
+PELSURFACE(ppO2o,:)
+\family default
+ or 
+\family typewriter
+jsurO2o(:)
+\family default
+ names.
 \end_layout
 
 \begin_layout Section
@@ -25616,20 +26010,8 @@ The total mass in the system (mass units m
 ) can be checked by means of built-in diagnostic variables.
  There is a variable for each biogeochemical component (C, N, P, Si, etc.)
  both for the pelagic and the benthic systems.
- To activate the diagnostic it is necessary to change the setup to benthic-pelag
-ic (
-\family typewriter
-bio_setup=3
-\family default
-), turn on/off the benthic system if needed (
-\family typewriter
-CalcBenthicFlag
-\family default
- in 
-\family typewriter
-Param.nml
-\family default
-) and then add the following lines to the output namelist in the 
+ To activate the diagnostic it is necessary to add the following lines to
+ the output namelist in the 
 \family typewriter
 var_save
 \family default
@@ -25639,34 +26021,19 @@ lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 var_save = 'totpeln',
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
            'totpelp',
 \end_layout
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
-           'totpels',
-\end_layout
-
-\begin_layout LyX-Code
-
-           'totbenn',
-\end_layout
-
-\begin_layout LyX-Code
-
-           'totbenp',
-\end_layout
-
-\begin_layout LyX-Code
-
-           'totbens'
+           'totpels'
 \end_layout
 
 \end_inset
@@ -25686,10 +26053,7 @@ General/CheckMassConservation.F90
 .
  Note that for technical reasons the total mass variables are multidimensional
  but the value is stored in the first element of the array.
-\end_layout
-
-\begin_layout Standard
-When checking a coupling with an OGCM, it is also important to turn off
+ When checking a coupling with an OGCM, it is also important to turn off
  any additional boundary flux (e.g.
  dilution, atmospheric deposition, river input, etc.) because they are not
  taken into account by the standard BFM.
