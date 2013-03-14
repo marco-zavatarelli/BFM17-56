@@ -312,7 +312,7 @@ Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Mas
  Release 1; BFM Report series N.
  1.
  March 2013, Bologna, Italy, http://bfm-community.eu, pp.
- 85
+ 87
 \end_layout
 
 \begin_layout Address
@@ -3146,6 +3146,13 @@ centerline{
 \end_inset
 
 
+\begin_inset Graphics
+	filename Figures/bfm_scheme_V5_pelagic.eps
+	scale 90
+
+\end_inset
+
+
 \begin_inset ERT
 status collapsed
 
@@ -4325,7 +4332,7 @@ status open
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
-<column alignment="block" valignment="top" width="8cm">
+<column alignment="block" valignment="top" width="9cm">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
@@ -4334,7 +4341,7 @@ status open
 
 \series bold
 \shape italic
-\size footnotesize
+\size scriptsize
 Symbol
 \end_layout
 
@@ -4346,7 +4353,7 @@ Symbol
 \begin_layout Plain Layout
 
 \series bold
-\size footnotesize
+\size scriptsize
 Code
 \end_layout
 
@@ -4358,7 +4365,7 @@ Code
 \begin_layout Plain Layout
 
 \series bold
-\size footnotesize
+\size scriptsize
 Unit
 \end_layout
 
@@ -4370,7 +4377,7 @@ Unit
 \begin_layout Plain Layout
 
 \series bold
-\size footnotesize
+\size scriptsize
 Description
 \end_layout
 
@@ -4383,7 +4390,7 @@ Description
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $Q_{10_{P}}$
 \end_inset
 
@@ -4397,7 +4404,7 @@ Description
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_q10
 \end_layout
 
@@ -4407,6 +4414,8 @@ p_q10
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
@@ -4417,7 +4426,7 @@ p_q10
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Characteristic Q10 coefficient
 \end_layout
 
@@ -4430,7 +4439,7 @@ Characteristic Q10 coefficient
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $c_{_{P}}^{T}$
 \end_inset
 
@@ -4444,7 +4453,7 @@ Characteristic Q10 coefficient
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_temp
 \end_layout
 
@@ -4455,7 +4464,7 @@ p_temp
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 -
 \end_layout
 
@@ -4466,7 +4475,7 @@ p_temp
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Cut-off threshold for temperature regulating factor
 \end_layout
 
@@ -4480,7 +4489,7 @@ Cut-off threshold for temperature regulating factor
 \begin_layout Plain Layout
 
 \series bold
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $r_{0_{P}}$
 \end_inset
 
@@ -4494,7 +4503,7 @@ Cut-off threshold for temperature regulating factor
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_sum
 \end_layout
 
@@ -4505,7 +4514,7 @@ p_sum
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 d
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -4520,7 +4529,7 @@ d
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Maximum specific photosynthetic rate 
 \end_layout
 
@@ -4533,7 +4542,7 @@ Maximum specific photosynthetic rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $b_{_{P}}$
 \end_inset
 
@@ -4547,7 +4556,7 @@ Maximum specific photosynthetic rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_srs
 \end_layout
 
@@ -4558,7 +4567,7 @@ p_srs
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 d
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -4573,7 +4582,7 @@ d
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Basal specific respiration rate
 \end_layout
 
@@ -4586,7 +4595,7 @@ Basal specific respiration rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $d_{0{}_{P}}$
 \end_inset
 
@@ -4600,7 +4609,7 @@ Basal specific respiration rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_sdmo
 \end_layout
 
@@ -4611,7 +4620,7 @@ p_sdmo
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 d
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -4626,7 +4635,7 @@ d
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Maximum specific nutrient-stress lysis rate
 \end_layout
 
@@ -4639,7 +4648,7 @@ Maximum specific nutrient-stress lysis rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $h_{_{P}}^{p,n,s}$
 \end_inset
 
@@ -4653,7 +4662,7 @@ Maximum specific nutrient-stress lysis rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_thdo
 \end_layout
 
@@ -4663,6 +4672,8 @@ p_thdo
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
@@ -4673,7 +4684,7 @@ p_thdo
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Nutrient stress threshold
 \end_layout
 
@@ -4686,7 +4697,7 @@ Nutrient stress threshold
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $d_{_{P}}^{^{x}}$
 \end_inset
 
@@ -4700,7 +4711,7 @@ Nutrient stress threshold
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_seo
 \end_layout
 
@@ -4711,7 +4722,7 @@ p_seo
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 d
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -4726,7 +4737,7 @@ d
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Extra lysis rate
 \end_layout
 
@@ -4739,7 +4750,7 @@ Extra lysis rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $h_{_{P}}^{^{x}}$
 \end_inset
 
@@ -4753,7 +4764,7 @@ Extra lysis rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_sheo
 \end_layout
 
@@ -4764,7 +4775,7 @@ p_sheo
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mg C m
 \begin_inset Formula $^{-3}$
 \end_inset
@@ -4779,7 +4790,7 @@ mg C m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Half saturation constant for extra lysis
 \end_layout
 
@@ -4792,7 +4803,7 @@ Half saturation constant for extra lysis
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\beta_{_{P}}$
 \end_inset
 
@@ -4806,7 +4817,7 @@ Half saturation constant for extra lysis
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_pu_ea
 \end_layout
 
@@ -4816,6 +4827,8 @@ p_pu_ea
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
@@ -4826,7 +4839,7 @@ p_pu_ea
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Excreted fraction of primary production
 \end_layout
 
@@ -4839,7 +4852,7 @@ Excreted fraction of primary production
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\gamma_{_{P}}$
 \end_inset
 
@@ -4853,7 +4866,7 @@ Excreted fraction of primary production
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_pu_ra
 \end_layout
 
@@ -4863,6 +4876,8 @@ p_pu_ra
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
@@ -4873,7 +4888,7 @@ p_pu_ra
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Activity respiration fraction
 \end_layout
 
@@ -4895,7 +4910,7 @@ Activity respiration fraction
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_switchDOC
 \end_layout
 
@@ -4906,7 +4921,7 @@ p_switchDOC
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 1-3
 \end_layout
 
@@ -4917,7 +4932,7 @@ p_switchDOC
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Switch for the type of DOC excretion.
  This choice must be consistent with bacteria parameterization in Sec.
  
@@ -4927,13 +4942,8 @@ reference "sec:Bacterioplankton"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\size footnotesize
-1.
+.
+ 1.
  All DOC is released as 
 \begin_inset Formula $R_{c}^{^{(1)}}$
 \end_inset
@@ -4945,13 +4955,7 @@ key "vichi07_part1"
 
 \end_inset
 
-, consistent with BACT1
-\end_layout
-
-\begin_layout Plain Layout
-
-\size footnotesize
-2.
+, consistent with BACT1; 2.
  Activity DOC is released as 
 \begin_inset Formula $R_{c}^{^{(2)}}$
 \end_inset
@@ -4963,13 +4967,7 @@ key "vichi04"
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\size footnotesize
-3.
+; 3.
  All DOC is released as 
 \begin_inset Formula $R_{c}^{^{(2)}}$
 \end_inset
@@ -5002,7 +5000,7 @@ key "polimene06"
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_netgrowth
 \end_layout
 
@@ -5013,7 +5011,7 @@ p_netgrowth
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 logical
 \end_layout
 
@@ -5024,7 +5022,7 @@ logical
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Switch for parameterization of nutrient limited growth (T or F)
 \end_layout
 
@@ -5046,7 +5044,7 @@ Switch for parameterization of nutrient limited growth (T or F)
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_limnut
 \end_layout
 
@@ -5056,6 +5054,8 @@ p_limnut
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 0-2
 \end_layout
 
@@ -5066,7 +5066,7 @@ p_limnut
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Switch for parameterization of nutrient co-limitation
 \end_layout
 
@@ -5079,7 +5079,7 @@ Switch for parameterization of nutrient co-limitation
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $a_{4}$
 \end_inset
 
@@ -5093,7 +5093,7 @@ Switch for parameterization of nutrient co-limitation
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qun
 \end_layout
 
@@ -5104,7 +5104,7 @@ p_qun
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 m
 \begin_inset Formula $^{3}$
 \end_inset
@@ -5127,7 +5127,7 @@ m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Specific affinity constant for N
 \end_layout
 
@@ -5140,7 +5140,7 @@ Specific affinity constant for N
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $h_{_{P}}^{n}$
 \end_inset
 
@@ -5154,7 +5154,7 @@ Specific affinity constant for N
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_lN4
 \end_layout
 
@@ -5165,7 +5165,7 @@ p_lN4
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mmol N-NH4
 \begin_inset space ~
 \end_inset
@@ -5184,7 +5184,7 @@ m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Half saturation constant for ammonium uptake preference over ammonium
 \end_layout
 
@@ -5197,7 +5197,7 @@ Half saturation constant for ammonium uptake preference over ammonium
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $n_{_{P}}^{min},\, n_{_{P}}^{opt},\, n_{_{P}}^{max}$
 \end_inset
 
@@ -5211,7 +5211,7 @@ Half saturation constant for ammonium uptake preference over ammonium
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qnlc, p_qnRc, p_xqn*p_qnRc
 \end_layout
 
@@ -5222,7 +5222,7 @@ p_qnlc, p_qnRc, p_xqn*p_qnRc
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mmolN
 \begin_inset space ~
 \end_inset
@@ -5241,10 +5241,8 @@ mgC
 
 \begin_layout Plain Layout
 
-\size footnotesize
-Minimum, optimal and maximum nitrogen quota
-\size default
- 
+\size scriptsize
+Minimum, optimal and maximum nitrogen quota 
 \end_layout
 
 \end_inset
@@ -5256,7 +5254,7 @@ Minimum, optimal and maximum nitrogen quota
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $a_{1}$
 \end_inset
 
@@ -5270,7 +5268,7 @@ Minimum, optimal and maximum nitrogen quota
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qup
 \end_layout
 
@@ -5281,7 +5279,7 @@ p_qup
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 m
 \begin_inset Formula $^{3}$
 \end_inset
@@ -5304,7 +5302,7 @@ m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Specific affinity constant for P
 \end_layout
 
@@ -5317,7 +5315,7 @@ Specific affinity constant for P
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $p_{_{P}}^{min},\, p_{_{P}}^{opt},\, p_{_{P}}^{max}$
 \end_inset
 
@@ -5331,7 +5329,7 @@ Specific affinity constant for P
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qplc, p_qpRc, p_xqp*p_qpRc
 \end_layout
 
@@ -5342,7 +5340,7 @@ p_qplc, p_qpRc, p_xqp*p_qpRc
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mmolP
 \begin_inset space ~
 \end_inset
@@ -5361,10 +5359,8 @@ mgC
 
 \begin_layout Plain Layout
 
-\size footnotesize
-Minimum, optimal and maximum phosphorus quota
-\size default
- 
+\size scriptsize
+Minimum, optimal and maximum phosphorus quota 
 \end_layout
 
 \end_inset
@@ -5385,7 +5381,7 @@ Minimum, optimal and maximum phosphorus quota
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_switchSi
 \end_layout
 
@@ -5396,7 +5392,7 @@ p_switchSi
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 1,2
 \end_layout
 
@@ -5407,7 +5403,7 @@ p_switchSi
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Switch for parameterization of silicate limitation (1=external, 2=internal)
 \end_layout
 
@@ -5420,7 +5416,7 @@ Switch for parameterization of silicate limitation (1=external, 2=internal)
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $h_{_{P}}^{s}$
 \end_inset
 
@@ -5434,7 +5430,7 @@ Switch for parameterization of silicate limitation (1=external, 2=internal)
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_chPs
 \end_layout
 
@@ -5445,7 +5441,7 @@ p_chPs
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mmol Si
 \begin_inset space ~
 \end_inset
@@ -5464,7 +5460,7 @@ m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Half saturation constant for Si-limitation
 \end_layout
 
@@ -5477,7 +5473,7 @@ Half saturation constant for Si-limitation
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\varrho_{P}^{s}$
 \end_inset
 
@@ -5491,7 +5487,7 @@ Half saturation constant for Si-limitation
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_Contois
 \end_layout
 
@@ -5501,6 +5497,8 @@ p_Contois
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
@@ -5511,7 +5509,7 @@ p_Contois
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Contois parameter for variable half saturation constant for Si-limitation
  (reverts to Monod if 0)
 \end_layout
@@ -5525,7 +5523,7 @@ Contois parameter for variable half saturation constant for Si-limitation
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $a_{5}$
 \end_inset
 
@@ -5539,7 +5537,7 @@ Contois parameter for variable half saturation constant for Si-limitation
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qus
 \end_layout
 
@@ -5550,7 +5548,7 @@ p_qus
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 m
 \begin_inset Formula $^{3}$
 \end_inset
@@ -5573,7 +5571,7 @@ m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Specific affinity constant for Si
 \end_layout
 
@@ -5586,7 +5584,7 @@ Specific affinity constant for Si
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $s_{_{P}}^{min},s_{_{P}}^{opt}$
 \end_inset
 
@@ -5600,7 +5598,7 @@ Specific affinity constant for Si
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qsRc
 \end_layout
 
@@ -5611,7 +5609,7 @@ p_qsRc
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mmolSi
 \begin_inset space ~
 \end_inset
@@ -5630,7 +5628,7 @@ mg C
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Standard Si:C ratio in silicifiers 
 \end_layout
 
@@ -5643,7 +5641,7 @@ Standard Si:C ratio in silicifiers
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\omega_{_{P}}^{^{sink}}$
 \end_inset
 
@@ -5657,7 +5655,7 @@ Standard Si:C ratio in silicifiers
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_res
 \end_layout
 
@@ -5668,7 +5666,7 @@ p_res
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 m
 \begin_inset space ~
 \end_inset
@@ -5687,7 +5685,7 @@ d
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Maximum sedimentation rate
 \end_layout
 
@@ -5700,7 +5698,7 @@ Maximum sedimentation rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $l_{_{P}}^{^{sink}}$
 \end_inset
 
@@ -5714,7 +5712,7 @@ Maximum sedimentation rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_esNI
 \end_layout
 
@@ -5724,6 +5722,8 @@ p_esNI
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
@@ -5734,7 +5734,7 @@ p_esNI
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Nutrient stress threshold for sinking
 \end_layout
 
@@ -5756,7 +5756,7 @@ Nutrient stress threshold for sinking
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_ChlSynthesis
 \end_layout
 
@@ -5776,7 +5776,7 @@ p_ChlSynthesis
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Choice of the Chl synthesis parameterization 
 \end_layout
 
@@ -5789,7 +5789,7 @@ Choice of the Chl synthesis parameterization
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\alpha_{chl}^{0}$
 \end_inset
 
@@ -5803,7 +5803,7 @@ Choice of the Chl synthesis parameterization
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_alpha_chl
 \end_layout
 
@@ -5814,7 +5814,7 @@ p_alpha_chl
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mgC (mg chl)
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -5836,12 +5836,12 @@ E
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Maximum light utilization coefficient
 \end_layout
 
@@ -5854,7 +5854,7 @@ Maximum light utilization coefficient
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\theta_{chl}^{0}$
 \end_inset
 
@@ -5868,7 +5868,7 @@ Maximum light utilization coefficient
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_qchlc
 \end_layout
 
@@ -5879,7 +5879,7 @@ p_qchlc
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 mg chl mg C
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -5894,7 +5894,7 @@ mg chl mg C
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Maximum chl:C quotum 
 \end_layout
 
@@ -5907,7 +5907,7 @@ Maximum chl:C quotum
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $c_{_{P}}$
 \end_inset
 
@@ -5921,7 +5921,7 @@ Maximum chl:C quotum
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_epsChla
 \end_layout
 
@@ -5932,7 +5932,7 @@ p_epsChla
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 m
 \begin_inset Formula $^{2}$
 \end_inset
@@ -5955,7 +5955,7 @@ m
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Chl-specific light absorption coefficient 
 \end_layout
 
@@ -5968,7 +5968,7 @@ Chl-specific light absorption coefficient
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $d_{_{P}}^{chl}$
 \end_inset
 
@@ -5982,7 +5982,7 @@ Chl-specific light absorption coefficient
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_sdmo
 \end_layout
 
@@ -5993,7 +5993,7 @@ p_sdmo
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 d
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -6003,12 +6003,12 @@ d
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Chlorophyll turn-over rate
 \end_layout
 
@@ -6021,7 +6021,7 @@ Chlorophyll turn-over rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\epsilon^{opt}$
 \end_inset
 
@@ -6035,7 +6035,7 @@ Chlorophyll turn-over rate
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_EpEk_or
 \end_layout
 
@@ -6045,17 +6045,19 @@ p_EpEk_or
 \begin_inset Text
 
 \begin_layout Plain Layout
+
+\size scriptsize
 -
 \end_layout
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" usebox="none">
+<cell alignment="block" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Optimal value of 
 \begin_inset Formula $E_{PAR}/E_{K}$
 \end_inset
@@ -6072,7 +6074,7 @@ Optimal value of
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 \begin_inset Formula $\tau^{opt}$
 \end_inset
 
@@ -6086,7 +6088,7 @@ Optimal value of
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 p_tochl_relt
 \end_layout
 
@@ -6097,7 +6099,7 @@ p_tochl_relt
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 d
 \begin_inset Formula $^{-1}$
 \end_inset
@@ -6112,7 +6114,7 @@ d
 
 \begin_layout Plain Layout
 
-\size footnotesize
+\size scriptsize
 Relaxation rate toward the optimal Chl:C value 
 \end_layout
 
@@ -23197,7 +23199,7 @@ status open
 \align center
 \begin_inset Graphics
 	filename Figures/variable-mapping.eps
-	scale 60
+	scale 80
 
 \end_inset
 
@@ -23214,8 +23216,12 @@ name "fig:Layout-of-memory"
 
 \end_inset
 
-Layout of the main memory array for the pelagic variable (D3STATE) and schematic
- of the remapping into a three-dimensional ocean grid for transport processes.
+Layout of the main memory array for the pelagic variables (
+\family typewriter
+D3STATE
+\family default
+) and schematic of the remapping into a three-dimensional ocean grid for
+ transport processes.
 \end_layout
 
 \end_inset
@@ -23264,7 +23270,7 @@ NO_D3_BOX_STATES
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:Schematic-of-D3SINK"
+reference "fig:Schematic-of-D3SOURCE"
 
 \end_inset
 
@@ -23337,7 +23343,7 @@ D3SOURCE(O2o,O2o,:)
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:Schematic-of-D3SINK"
+reference "fig:Schematic-of-D3SOURCE"
 
 \end_inset
 
@@ -23400,8 +23406,8 @@ status open
 \noindent
 \align center
 \begin_inset Graphics
-	filename Figures/sink-array.eps
-	scale 70
+	filename Figures/D3SOURCE-array.eps
+	scale 80
 
 \end_inset
 
@@ -23414,15 +23420,15 @@ status open
 \begin_layout Plain Layout
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:Schematic-of-D3SINK"
+name "fig:Schematic-of-D3SOURCE"
 
 \end_inset
 
 Schematic of the 
 \family typewriter
-D3SINK
+D3SOURCE
 \family default
- array collecting the sink terms.
+ array collecting the source terms.
 \end_layout
 
 \end_inset
@@ -23456,50 +23462,11 @@ reference "fig:Invocation-tree-main"
 
 \end_inset
 
-) consists of 2 subroutines, one for initialization and one for the time-loop.
- In the coupled configurations, these procuderes are likely to be included
- in the relative sections of the hydrodynamic model (cfr.
- the examples in Part II)
-\end_layout
-
-\begin_layout Subsection
-Initialization procedures
-\end_layout
-
-\begin_layout Standard
-The initialization of the BFM requires 4 different phases: 
-\end_layout
-
-\begin_layout Enumerate
-Initialization of geometric domain (number of boxes/gridpoints).
- This part depends on the configuration: in the Standalone case, this is
- done in standalone.F90[init_standalone] while in the other coupled configuration
- there are specific interface subroutines;
-\end_layout
-
-\begin_layout Enumerate
-Initialization of the set-up via namelist and definition of variable information
- 
-\begin_inset Newline newline
-\end_inset
-
-(
-\family typewriter
-share/api_bfm.F90[init_bfm]
-\family default
- for the Standalone case);
-\end_layout
-
-\begin_layout Enumerate
-Definition of variable information (
-\family typewriter
-BFM/General/set_var_info_bfm.F90
-\family default
-) and allocation/initialization of pelagic and benthic variables;
-\end_layout
-
-\begin_layout Enumerate
-Initialization of netcdf output.
+) consists of 3 subroutines, one for initialization, one for the time-loop
+ and one for closing all active processes.
+ The same structure is likely to be maintained also for all the coupled
+ configurations, but the calls are going to be distributed differently according
+ to the structure of the general circulation model.
 \end_layout
 
 \begin_layout Standard
@@ -23507,6 +23474,43 @@ Initialization of netcdf output.
 wide true
 sideways false
 status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+CL{
+\end_layout
+
+\end_inset
+
+
+
+\begin_inset Graphics
+	filename Figures/CallsGraph-STANDALONE-main.png
+	scale 70
+
+\end_inset
+
+
+\lang american
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
+
+\end_inset
+
+
+\end_layout
 
 \begin_layout Plain Layout
 \begin_inset Caption
@@ -23532,12 +23536,52 @@ Invocation tree of the Standalone main.
 \end_layout
 
 \begin_layout Subsection
+Initialization procedures
+\end_layout
+
+\begin_layout Standard
+The initialization of the BFM requires 4 different phases: 
+\end_layout
+
+\begin_layout Enumerate
+Initialization of geometric domain (number of boxes/gridpoints).
+ This part depends on the configuration: in the STANDALONE case, this is
+ done in 
+\family typewriter
+standalone/standalone.F90[init_standalone]
+\family default
+ while in the other coupled configuration there are specific interface subroutin
+es;
+\end_layout
+
+\begin_layout Enumerate
+Initialization of the set-up via namelist and definition of variable information
+ 
+\begin_inset Newline newline
+\end_inset
+
+(
+\family typewriter
+share/api_bfm.F90[init_bfm]
+\family default
+ for the STANDALONE case);
+\end_layout
+
+\begin_layout Enumerate
+Definition of variable information and allocation/initialization of variables;
+\end_layout
+
+\begin_layout Enumerate
+Initialization of the NetCDF output.
+\end_layout
+
+\begin_layout Subsection
 Time marching
 \end_layout
 
 \begin_layout Standard
 The time marching is driven by the host hydrodynamical model, or in the
- case of the Standalone model, by a specific built-in routine.
+ case of the STANDALONE model, by a specific built-in routine.
  The phases of the time stepping shown in Fig.
  
 \begin_inset CommandInset ref
@@ -23556,7 +23600,7 @@ update of the physical forcing functions needed by the biogeochemical model
 \family typewriter
 envforcing_bfm
 \family default
-, which in the case of the Standalone model computes the analytical values
+, which in the case of the STANDALONE model computes the analytical values
  based on the time of the day/year.
  When coupled with an ocean model, this routine is the contact point between
  the two models.
@@ -23565,7 +23609,7 @@ envforcing_bfm
 \end_layout
 
 \begin_layout Enumerate
-computation of the reaction term for the pelagic and benthic models.
+computation of the reaction term for the BFM module.
  This is done in 
 \family typewriter
 EcologyDynamics,
@@ -23586,9 +23630,16 @@ EcologyDynamics
 \end_layout
 
 \begin_layout Enumerate
-preparation and writing of the NetCDF output, routines calcmean_bfm and
- save_bfm (the names of the routines can be different for each coupling
- according to the ocean model structure and naming conventions).
+preparation and writing of the NetCDF output, routines 
+\family typewriter
+calcmean_bfm
+\family default
+ and 
+\family typewriter
+save_bfm
+\family default
+ (the names of the routines can be different for each coupling according
+ to the ocean model structure and naming conventions).
 \end_layout
 
 \begin_layout Standard
@@ -23598,9 +23649,33 @@ sideways false
 status open
 
 \begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+CL{
+\end_layout
+
+\end_inset
+
+
 \begin_inset Graphics
-	filename Figures/inv_pelagic.png
-	scale 60
+	filename Figures/CallsGraph-PelagicSystemDynamics.png
+	scale 70
+
+\end_inset
+
+
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+}
+\end_layout
 
 \end_inset
 
@@ -23675,20 +23750,36 @@ key "ebenhoeh97"
 
 \end_inset
 
+, see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Light-limitation-and-optimal-light"
+
+\end_inset
+
 , which is done in 
 \family typewriter
-Param.nml
+Param_parameters
 \family default
- by setting 
+ (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Parameters-Param"
+
+\end_inset
+
+) by setting 
 \family typewriter
-ChlLightFlag=1
+ChlDynamicsFlag=1
 \family default
 .
 \end_layout
 
 \begin_layout Standard
-The standard LFGs, phytoplankton, meso- micro-zooplankton and bacteria are
- computed in 
+The standard groups, phytoplankton, meso- micro-zooplankton and bacteria
+ are computed in 
 \family typewriter
 PhytoDynamics
 \family default
@@ -23701,49 +23792,86 @@ Meso- MicroZooDynamics
 PelBacDynamics
 \family default
 , respectively.
- The same routine is modularly used for each sub-group, as in the case of
- phytoplankton
+ The same routine is modularly used for each sub-group, as 
 \end_layout
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\ttfamily},language=Fortran"
+lstparams "basicstyle={\small\ttfamily},language=Fortran"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-do i =1,iiPhytoPlankton
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 \end_layout
 
 \begin_layout Plain Layout
 
-   if ( CalcPhytoPlankton(i)) then
+  ! Compute phytoplankton dynamics
 \end_layout
 
 \begin_layout Plain Layout
 
-     call PhytoDynamics(i, ppPhytoPlankton(i,iiC),     &
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 \end_layout
 
 \begin_layout Plain Layout
 
-       ppPhytoPlankton(i,iiN), ppPhytoPlankton(i,iiP), &
+  do i =1,iiPhytoPlankton
 \end_layout
 
 \begin_layout Plain Layout
 
-       ppPhytoPlankton(i,iiS), ppPhytoPlankton(i,iiL))
+     if ( CalcPhytoPlankton(i)) call PhytoDynamics( i )
 \end_layout
 
 \begin_layout Plain Layout
 
-   end if
+  end do
 \end_layout
 
 \begin_layout Plain Layout
 
-end do
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end_layout
+
+\begin_layout Plain Layout
+
+  ! Compute MesoZooPlankton dynamics
+\end_layout
+
+\begin_layout Plain Layout
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+\end_layout
+
+\begin_layout Plain Layout
+
+  do i =1,iiMesoZooPlankton
+\end_layout
+
+\begin_layout Plain Layout
+
+     if ( CalcMesoZooPlankton(i)) call MesoZooDynamics( i )
+\end_layout
+
+\begin_layout Plain Layout
+
+  end do
 \end_layout
 
 \end_inset
@@ -23838,17 +23966,13 @@ lstparams "basicstyle={\normalsize\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 call flux_vector(iiPel,ppphytoc,ppR1c,rr1c)
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
 where the flux is pelagic (
 \family typewriter
 iiPel
@@ -23879,17 +24003,13 @@ lstparams "basicstyle={\normalsize\ttfamily},language=Fortran"
 inline false
 status open
 
-\begin_layout LyX-Code
+\begin_layout Plain Layout
 
 call flux_vector(iiPel,ppO2o,ppO2o,rugc/MW_C)
 \end_layout
 
 \end_inset
 
-
-\end_layout
-
-\begin_layout Standard
 which concerns a pelagic flux (
 \family typewriter
 iiPel
@@ -23920,7 +24040,7 @@ D3SOURCE
 
 \begin_layout Standard
 The same methodology is applied for all the other pelagic fluxes and also
- in the benthic system.
+ in the benthic and sea ice system.
  After the computation of all the reaction terms for pelagic organisms,
  there is the call to pelagic chemistry (
 \family typewriter
@@ -23948,8 +24068,8 @@ status open
 
 \begin_layout Plain Layout
 \begin_inset Graphics
-	filename Figures/decl_phyto.png
-	width 80page%
+	filename Figures/DeclarationGraph-PhytoDynamics.png
+	scale 40
 
 \end_inset
 
@@ -25705,6 +25825,7 @@ reference "sub:Adding-subgroup"
  and the parameters of the new group have to become default for the preset.
  To execute this tool do the following steps 
 \begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
