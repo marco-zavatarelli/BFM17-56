@@ -22460,7 +22460,7 @@ Carbonate_Dynamics.nml
 \family default
 ).
  Initial conditions are set for a Mediterranean station with high alkalinity
- value and output is created every 30 days.
+ value and output is created every 60 days.
  The system is forced with observed atmospheric CO
 \begin_inset Formula $_{2}$
 \end_inset
@@ -23489,15 +23489,12 @@ CL{
 \end_inset
 
 
-
 \begin_inset Graphics
 	filename Figures/CallsGraph-STANDALONE-main.png
 	scale 70
 
 \end_inset
 
-
-\lang american
 
 \begin_inset ERT
 status open
