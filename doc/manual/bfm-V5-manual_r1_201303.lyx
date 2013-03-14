@@ -227,16 +227,22 @@ Release 1, March 2013
 \begin_inset Newline newline
 \end_inset
 
-BFM Report series N.
- 1
+----- BFM Report series N.
+ 1 -----
 \begin_inset Newline newline
 \end_inset
 
------ DRAFT VERSION: DO NOT DISTRIBUTE ----
+
+\begin_inset space ~
+\end_inset
+
+
 \begin_inset Newline newline
 \end_inset
 
 http://bfm-community.eu
+\emph on
+
 \begin_inset Newline newline
 \end_inset
 
@@ -493,15 +499,18 @@ reference "part:The-BFM-Equations"
 
 \end_inset
 
- are historically mutuated from the pelagic component of ERSEM and represent
+ are historically derived from the pelagic component of ERSEM and represent
  the standard set of transformations for the major chemical constituents.
  The BFM by construction solves the cycles of C, O, N, P, Si in the lower
  trophic levels of marine ecosystems and it also allows the inclusion of
  the Fe cycle and carbonate chemistry by means of user-controlled flags.
  Different parameterizations are proposed for the various functional groups
  as they have been demonstrated valid in certain model applications.
- Given the inherent empirical nature of biogechemical modelling, the proposed
- parameterizations are given 
+ Given the inherent empirical nature of biogeochemical 
+\lang british
+modelling
+\lang american
+, the proposed parameterizations are given 
 \begin_inset Quotes eld
 \end_inset
 
@@ -576,11 +585,15 @@ target "http://www.gnu.org/licenses/gpl.html"
 \end_inset
 
 .
- All files of the BFM core contain the following statement:
+ All files of the BFM contain the following statement:
 \end_layout
 
 \begin_layout Quote
-Copyright 2013, The BFM System Team (info@bfm-community.eu)
+Copyright 2013, The BFM System Team (
+\lang british
+info
+\lang american
+@bfm-community.eu)
 \begin_inset Newline newline
 \end_inset
 
@@ -588,15 +601,15 @@ Copyright 2013, The BFM System Team (info@bfm-community.eu)
 \begin_inset Newline newline
 \end_inset
 
-This file is part of the BFM core.
+This file is part of the BFM.
 \begin_inset Newline newline
 \end_inset
 
-The BFM core is free software: you can redistribute it and/or modify it
- under the terms of the GNU General Public License as published by the Free
- Software Foundation, either version 3 of the License, or (at your option)
- any later version.
- The BFM core is distributed in the hope that it will be useful, but WITHOUT
+The BFM is free software: you can redistribute it and/or modify it under
+ the terms of the GNU General Public License as published by the Free Software
+ Foundation, either version 3 of the License, or (at your option) any later
+ version.
+ The BFM is distributed in the hope that it will be useful, but WITHOUT
  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
  FOR A PARTICULAR PURPOSE.
  See the GNU General Public License for more details.You should have received
@@ -689,7 +702,7 @@ n), 4 for zooplankton
  nanoflagellates), 1 for bacteria, 7 inorganic variables for nutrients and
  gases (phosphate, nitrate, ammonium, silicate, reduction equivalents, oxygen,
  carbon dioxide) and 10 organic non-living components for dissolved and
- particulate detritus (cfr.
+ particulate detritus (cf..
  Tab.
  
 \begin_inset CommandInset ref
@@ -4088,7 +4101,7 @@ picophytoplankton (
 \begin_inset Formula $\mu$
 \end_inset
 
-, procaryotic organism generally indicated as non-diazotrophic autotrophic
+, prokaryotic organism generally indicated as non-diazotrophic autotrophic
  bacteria such as 
 \emph on
 Prochlorococcus
@@ -4239,7 +4252,7 @@ Phytoplankton
 
 \end_inset
 
-Phytoplanton equations
+Phytoplankton equations
 \end_layout
 
 \end_inset
@@ -6581,7 +6594,7 @@ f_{P}^{p}=\min\left(1,\max\left(0,\frac{P_{p}/P_{c}-p_{P}^{min}}{p_{P}^{opt}-p_{
 \end_inset
 
 Note that the ratios between brackets can be larger than 1 because the nutrient
- quota are allowed to reach the maximum values (cfr.
+ quota are allowed to reach the maximum values (cf.
  Sec.
  
 \begin_inset CommandInset ref
@@ -6901,8 +6914,8 @@ Silicate
 \end_layout
 
 \begin_layout Standard
-Silicate is not stored in the cell and therefore the upake is directly proportio
-nal to the net carbon growth (
+Silicate is not stored in the cell and therefore the uptake is directly
+ proportional to the net carbon growth (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_net_growth"
@@ -7457,7 +7470,7 @@ reference "eq:chlsyn_PELAGOS"
 
 \end_inset
 
-) it is assumed that chl lysys is simply linked to the carbon term, while
+) it is assumed that chl lysis is simply linked to the carbon term, while
  in eq.
  (
 \begin_inset CommandInset ref
@@ -7686,7 +7699,7 @@ E_{P}^{^{opt}}=\min\left(E_{P}^{max},\,\max\left(E_{P}^{min},\, E_{PAR}\right)\r
 
 \end_inset
 
-which is a constrained ramp function over the  range of  saturating irradiances.
+which is a constrained ramp function over the  range of  saturating irradiance.
 \end_layout
 
 \begin_layout Standard
@@ -8361,8 +8374,8 @@ key "sunda97"
 \end_layout
 
 \begin_layout Standard
-The regulating factor inhibits carbon fixation, but iron can still be uptaken
- in the cell, progressively increasing the internal quotum.
+The regulating factor inhibits carbon fixation, but iron can still be taken
+ up in the cell, progressively increasing the internal quotum.
  Iron uptake from dissolved pools is computed as for N and P (Sec.
  
 \begin_inset CommandInset ref
@@ -8554,7 +8567,7 @@ semi-refractory
 \end_inset
 
  the DOC fraction more slowly remineralized by bacteria only to avoid confusion
- with the truly refractory DOC (with turnover time of 100-1000 yr) that
+ with the truly refractory DOC (with turnover time of 100-1000 years) that
  is not considered at all in the model.
  
 \end_layout
@@ -10527,7 +10540,7 @@ name "sub:BACT1"
 \end_layout
 
 \begin_layout Standard
-In this parameterisation labile 
+In this parameterization labile 
 \begin_inset Formula $R_{c,n,p}^{(1)}$
 \end_inset
 
@@ -10621,7 +10634,7 @@ name "sub:BACT1-Nutrient-release-uptake"
 \end_layout
 
 \begin_layout Standard
-The mineralisers/phytoplankton competitors behavior is controlled by the
+The mineralizers/phytoplankton competitors behavior is controlled by the
  non-dimensional factors 
 \begin_inset Formula $f_{_{B}}^{p}$
 \end_inset
@@ -10706,7 +10719,7 @@ Excretion
 \end_layout
 
 \begin_layout Standard
-In this parameterisation the release term appearing in eq.
+In this parameterization the release term appearing in eq.
  (
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -10729,7 +10742,7 @@ name "sub:BACT2"
 \end_layout
 
 \begin_layout Standard
-In this parameterisation originally proposed by 
+In this parameterization originally proposed by 
 \begin_inset CommandInset citation
 LatexCommand citet
 key "vichi04"
@@ -10840,7 +10853,7 @@ The uptake dynamics is similar to the one for phytoplankton, with affinity
 \begin_inset Formula $a4_{B}$
 \end_inset
 
- respectively) and also nitrate with a hinibition factor due to ammonium.
+ respectively) and also nitrate with a inhibition factor due to ammonium.
  This flux regulates the direct uptake and the activity uptake based on
  the optimal quota and the net carbon uptake
 \begin_inset Formula 
@@ -10850,7 +10863,7 @@ G_{B}=\sum_{j=1,2,6}\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(j)}}^{upt}-\left.\fr
 
 \end_inset
 
- Remineralisation dynamics occur only when internal quotas are in excess
+ Remineralization dynamics occur only when internal quotas are in excess
  with respect to the 
 \begin_inset Quotes eld
 \end_inset
@@ -10961,7 +10974,7 @@ Nutrient release and uptake
 \end_layout
 
 \begin_layout Standard
-The Nutrient release and uptake parameterisation is the same described for
+The Nutrient release and uptake parameterization is the same described for
  the BACT1 version (see Sec.
  
 \begin_inset CommandInset ref
@@ -13423,7 +13436,7 @@ The released fraction is further divided into particulate (faecal pellets)
 
  (mesozooplankton is assumed to have no dissolved products).
  Mortality is parameterized as senescence with a first-order rate based
- on a costant 
+ on a constant 
 \begin_inset Formula $d_{0_{Z}}$
 \end_inset
 
@@ -14396,7 +14409,7 @@ reference "eq:zooplankton_out"
 
 \end_inset
 
-for microzooplankton is subsiquently partitioned between particulate and
+for microzooplankton is subsequently partitioned between particulate and
  dissolved matter according to the non-dimensional fraction 
 \begin_inset Formula $\varepsilon_{_{Z}}^{i}$
 \end_inset
@@ -14581,7 +14594,7 @@ reference "fig:Scheme-Pelagic"
 
 \end_inset
 
-) is an inorganicstate variable containing all the reduced chemical species
+) is an inorganic state variable containing all the reduced chemical species
  and assumed to be chemically equivalent to the sulphide ion HS
 \begin_inset Formula $^{-}$
 \end_inset
@@ -14771,7 +14784,7 @@ ation reactions.
 
 \begin_layout Standard
 Furthermore, as long as there is some oxygen left, reduction equivalents
- are also quickly reoxidized at the following rate:
+ are also quickly re-oxidized at the following rate:
 \begin_inset Formula 
 \begin{equation}
 \left.\frac{dN^{(6)}}{dt}\right|_{sink_{r}}^{reox}=\Lambda_{_{N^{(6)}}}^{reox}\,\frac{O^{(2)}}{O^{(2)}+h_{_{o}}}N^{(6)}\label{eq:redequiv_reox}
@@ -14783,7 +14796,7 @@ where
 \begin_inset Formula $\Lambda_{_{N^{(6)}}}^{reox}$
 \end_inset
 
- is the (constant) specific daily reoxidation rate, and 
+ is the (constant) specific daily re-oxidation rate, and 
 \begin_inset Formula $h_{_{o}}$
 \end_inset
 
@@ -16911,7 +16924,7 @@ and
 \begin_inset Formula $(H_{3}PO_{4})$
 \end_inset
 
-, dihydrogen phosphate ion 
+, di-hydrogen phosphate ion 
 \begin_inset Formula $(H_{2}PO_{4}^{-})$
 \end_inset
 
@@ -17086,7 +17099,7 @@ This is a five equation system with seven unknown variables: the system
 \end_inset
 
  by means of the Newton-Raphson convergence method.
- A new state variable is also introduced to store the total hydrogen iones
+ A new state variable is also introduced to store the total hydrogen ions
  and to allow the restart of the model from previous simulations.
  The other carbon species are eventually computed from the carbonate equilibrium
  equations.
@@ -19055,8 +19068,7 @@ Presets are loaded using option
 \begin_inset Quotes erd
 \end_inset
 
- followed by the preset name.
- eg:
+ followed by the preset name, eg.:
 \end_layout
 
 \begin_layout Standard
@@ -20066,7 +20078,7 @@ logical
 \begin_layout Plain Layout
 
 \size footnotesize
-Switch to turno on/off the fluxes between the pelagic and the benthic system.
+Switch to turn on/off the fluxes between the pelagic and the benthic system.
  Fluxes are always computed but not integrated if the flag is false 
 \end_layout
 
@@ -23338,7 +23350,7 @@ O2o
 \family typewriter
 D3SOURCE(O2o,O2o,:)
 \family default
-, cfr.
+, cf.
  Fig.
  
 \begin_inset CommandInset ref
@@ -24116,7 +24128,7 @@ The BFM is conceived in a modular way and the number of state variables
  and biogeochemical basic components can be modified according to the modelling
  needs.
  This section addresses the advanced features that are useful to change
- the structure of the model and to opitmize some behaviour at compilation.
+ the structure of the model and to optimize some behaviour at compilation.
 \end_layout
 
 \begin_layout Section
@@ -24168,7 +24180,7 @@ NOT_STANDALONE
 BFM_NOPOINTERS
 \family default
 : by default, all the F90 symbols of the BFM state variables are defined
- as pointers to the main memory (cfr.
+ as pointers to the main memory (cf.
  Sec.
  
 \begin_inset CommandInset ref
@@ -24366,7 +24378,7 @@ key "blackford95"
  Components are indicated by one single letter and currently the following
  are reserved: c=carbon, n=nitrogen, p=phosphorus, s=silica, l=chlorophyll,
  f=iron.
- Any other new component (either atomical or molecular) can be added, provided
+ Any other new component (either atomic or molecular) can be added, provided
  that the user include the relative dynamics in an appropriate piece of
  code.
  The syntax for a multi-component variable is detailed below 
