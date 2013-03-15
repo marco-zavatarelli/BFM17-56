@@ -56,7 +56,7 @@
   public
   integer,private     :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !NAMELIST PelBac_parameters
+  !NAMELIST PelBacteria_parameters
   !-------------------------------------------------------------------------!
   !  PELAGIC BACTERIA
   !
@@ -131,7 +131,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   subroutine InitPelBac()
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /PelBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
+  namelist /PelBacteria_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhR1, &
     p_sulR1, p_suR2, p_suR6, p_sum, p_pu_ra, p_pu_ra_o, p_pu_ea_R3, p_srs, &
     p_suR3, p_qpcPBA, p_qlpc, p_qncPBA, p_qlnc, p_qun, p_qup, p_chn, p_chp, &
     p_ruen, p_ruep, p_rec
@@ -144,7 +144,7 @@
   write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
   write(LOGUNIT,*) "#  Reading PelBac parameters.."
   open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
-  read(NMLUNIT,nml=PelBac_parameters,err=101)
+  read(NMLUNIT,nml=PelBacteria_parameters,err=101)
   close(NMLUNIT)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -176,7 +176,7 @@
   ! Write parameter list to the log
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   write(LOGUNIT,*) "#  Namelist is:"
-  write(LOGUNIT,nml=PelBac_parameters)
+  write(LOGUNIT,nml=PelBacteria_parameters)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
@@ -186,7 +186,7 @@
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 100 call error_msg_prn(NML_OPEN,"InitPelBac.f90","Pelagic_Ecology.nml")
-101 call error_msg_prn(NML_READ,"InitPelBac.f90","PelBac_parameters")
+101 call error_msg_prn(NML_READ,"InitPelBac.f90","PelBacteria_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitPelBac
   end module mem_PelBac

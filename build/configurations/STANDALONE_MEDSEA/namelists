@@ -346,8 +346,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_rec       [1/d]            Relaxation timescale for semi-labile excretion
 ! p_pu_ea_R3  [-]              Excretion of semi-refractory DOC
 !-------------------------------------------------------------------------!
+&PelBacteria_parameters
 !                B1
-&PelBac_parameters
      p_version = 2
          p_q10 = 2.95
         p_chdo = 30.0
@@ -556,11 +556,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    p_minfood =  50.0,   50.0
     p_qpcMIZ =  1.85d-3,1.85d-3
     p_qncMIZ =  1.67d-2,1.67d-2
-! Food matrix parameters: take care of the notation
 !               Z5      Z6
      p_paPBA =  0.1,    1.0
+!               P1      P2      P3      P4
 p_paPPY(1,:) =  0.7,    1.0,    0.1,    0.1
 p_paPPY(2,:) =  0.0,    0.2,    1.0,    0.0
+!               Z5      Z6
 p_paMIZ(1,:) =  1.0,    1.0
 p_paMIZ(2,:) =  0.0,    0.2
 	filename_nml_conf = 'Pelagic_Ecology.nml',

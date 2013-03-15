@@ -175,8 +175,8 @@ p_puMEZ(2,:)=	0.0,	1.0
 !  p_suZI(Z6):  	 /day   #relative Z6 uptake by zoo
 !  p_suB1:  	 /day   #relative B1 uptake by zoo
 
-!       	Z5	Z6
 &MicroZoo_parameters
+!       	Z5	Z6
        p_q10 = 	2.0,	2.0
        p_srs = 	0.02,	0.02
        p_sum = 	2.0,	10.0
@@ -319,7 +319,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_lN4:  	 ammonium conc. at which nutrate uptake are equal (BFM)
 !  p_pu_ea_R7:   excretion of reg. org. met. (-) <POLIMENE>
 
-&PelBac_parameters
+&PelBacteria_parameters
+!                B1
   p_version = 2
       p_q10 = 2.95
      p_chdo = 30.0

@@ -904,12 +904,98 @@ sub add_elements {
 
      return 1;
 }
+
 # ---------------------------------------------------------------------- #
 
 sub elements {
      # return the column elements of the list
      my $self         = shift();
      return $self->{ELEMENTS};
+}
+
+# ---------------------------------------------------------------------- #
+
+sub get_all_parameters {
+     # get values of an existing parameter (line)
+     my $self       = shift();
+
+     return $self->slots;
+}
+
+# ---------------------------------------------------------------------- #
+
+sub get_parameter {
+     # get values of an existing parameter (line)
+     my $self       = shift();
+     my $element    = shift();
+
+     if( exists $self->hash()->{$element} ){
+         return $self->hash()->{$element};
+     }else{
+         return '';
+     }
+}
+
+# ---------------------------------------------------------------------- #
+
+sub get_values {
+     # get values of an existing parameter (line)
+     my $self       = shift();
+     my $element    = shift();
+
+     return ${$self->hash}{$element}{value};
+}
+
+# ---------------------------------------------------------------------- #
+
+sub change_values {
+     # Change values of an existing parameter (line)
+     my $self       = shift();
+     my $element    = shift();
+     my $values_ref = shift();
+
+     my @temp_typesv = map ${${$self->hash}{$element}{typesv}}[0], 1..(scalar(@$values_ref));
+     #push( @{${$self->hash}{$element}{value}} , @$values_ref );
+     #push( @{${$self->hash}{$element}{typesv}}, @temp_typesv );
+     @{${$self->hash}{$element}{value}}  = @$values_ref;
+     @{${$self->hash}{$element}{typesv}} = @temp_typesv;
+     return 1;
+}
+
+# ---------------------------------------------------------------------- #
+
+sub remove_values {
+     # remove values from INI to END
+     my $self    = shift();
+     my $element = shift();
+     my $ini     = shift();
+     my $end     = shift();
+
+     splice(@{${$self->hash}{$element}{value}} , $ini, $end );
+     splice(@{${$self->hash}{$element}{typesv}}, $ini, $end );
+
+     return 1;
+}
+
+# ---------------------------------------------------------------------- #
+
+sub add_subComments {
+     # add the subcomment to the parameter
+     my $self         = shift();
+     my $param        = shift();
+     my $comments_ref = shift();
+
+     ${$self->hash}{$param}{comment} = $comments_ref;
+     return 1;
+}
+
+# ---------------------------------------------------------------------- #
+
+sub subComments {
+     # return the column subElements[i] of the list
+     my $self         = shift();
+     my $param         = shift();
+     return ${$self->hash}{$param}{comment};
 }
 
 # ---------------------------------------------------------------------- #
@@ -926,6 +1012,7 @@ sub add_subElements {
 
      return 1;
 }
+
 # ---------------------------------------------------------------------- #
 
 sub subElements {
