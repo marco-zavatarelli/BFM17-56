@@ -3161,7 +3161,6 @@ centerline{
 
 \begin_inset Graphics
 	filename Figures/bfm_scheme_V5_pelagic.eps
-	scale 90
 
 \end_inset
 
@@ -17959,12 +17958,12 @@ status open
 
 \begin_layout Plain Layout
 
-% gunzip bfm-<version>.tgz
+% gunzip bfm-release-<version>.tgz
 \end_layout
 
 \begin_layout Plain Layout
 
-% tar xvf bfm-<version>.tar
+% tar xvf bfm-release-<version>.tar
 \end_layout
 
 \end_inset
@@ -24284,6 +24283,233 @@ D1SOURCE
 )
 \end_layout
 
+\begin_layout Standard
+\begin_inset Float table
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily},language=bash"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+#       PELAGIC STATE VARIABLES (volume)
+\end_layout
+
+\begin_layout Plain Layout
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+3d-state
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+  #     State Variable(s) for Nutrients
+\end_layout
+
+\begin_layout Plain Layout
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+   N1p  :       Phosphate : mmol P/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+   N3n  :       Nitrate  : mmol N/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+   N4n  :       Ammonium : mmol N/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+  #     State Variable(s) for Phytoplankton 
+\end_layout
+
+\begin_layout Plain Layout
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 :
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                       mg Chl/m3 : mmol Si/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+           P1           : Diatoms
+\end_layout
+
+\begin_layout Plain Layout
+
+           P2[-s]       : Flagellates
+\end_layout
+
+\begin_layout Plain Layout
+
+           P3[-s]       : PicoPhytoplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+           P4[-s]       : Large Phytoplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+   end
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+  #     State Variable(s) for Detritus (Biogenic Organic Material)
+\end_layout
+
+\begin_layout Plain Layout
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: 
+\end_layout
+
+\begin_layout Plain Layout
+
+                                    mmol P/m3: mmol Si/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+      R1[-s]    : Labile Dissolved Organic Matter
+\end_layout
+
+\begin_layout Plain Layout
+
+      R2[-nps]  : Semi-labile Dissolved Organic Carbon
+\end_layout
+
+\begin_layout Plain Layout
+
+      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
+\end_layout
+
+\begin_layout Plain Layout
+
+      R6        : Particulate Organic Matter
+\end_layout
+
+\begin_layout Plain Layout
+
+    end
+\end_layout
+
+\begin_layout Plain Layout
+
+end
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "alg:Example-of-layout-pelagic"
+
+\end_inset
+
+
+\begin_inset Argument
+status open
+
+\begin_layout Plain Layout
+Example of model layout
+\end_layout
+
+\end_inset
+
+Example of the model template file 
+\family typewriter
+layout
+\family default
+ with the definition of pelagic state variables.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 \begin_inset CommandInset label
 LatexCommand label
@@ -24957,233 +25183,6 @@ end
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Float table
-wide true
-sideways false
-status open
-
-\begin_layout Plain Layout
-\begin_inset listings
-lstparams "basicstyle={\small\ttfamily},language=bash"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-#       PELAGIC STATE VARIABLES (volume)
-\end_layout
-
-\begin_layout Plain Layout
-
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-3d-state
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-  #     State Variable(s) for Nutrients
-\end_layout
-
-\begin_layout Plain Layout
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-   N1p  :       Phosphate : mmol P/m3
-\end_layout
-
-\begin_layout Plain Layout
-
-   N3n  :       Nitrate  : mmol N/m3
-\end_layout
-
-\begin_layout Plain Layout
-
-   N4n  :       Ammonium : mmol N/m3
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-  #     State Variable(s) for Phytoplankton 
-\end_layout
-
-\begin_layout Plain Layout
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 :
- 
-\end_layout
-
-\begin_layout Plain Layout
-
-                                       mg Chl/m3 : mmol Si/m3
-\end_layout
-
-\begin_layout Plain Layout
-
-           P1           : Diatoms
-\end_layout
-
-\begin_layout Plain Layout
-
-           P2[-s]       : Flagellates
-\end_layout
-
-\begin_layout Plain Layout
-
-           P3[-s]       : PicoPhytoplankton
-\end_layout
-
-\begin_layout Plain Layout
-
-           P4[-s]       : Large Phytoplankton
-\end_layout
-
-\begin_layout Plain Layout
-
-   end
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-  #     State Variable(s) for Detritus (Biogenic Organic Material)
-\end_layout
-
-\begin_layout Plain Layout
-
-  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: 
-\end_layout
-
-\begin_layout Plain Layout
-
-                                    mmol P/m3: mmol Si/m3
-\end_layout
-
-\begin_layout Plain Layout
-
-      R1[-s]    : Labile Dissolved Organic Matter
-\end_layout
-
-\begin_layout Plain Layout
-
-      R2[-nps]  : Semi-labile Dissolved Organic Carbon
-\end_layout
-
-\begin_layout Plain Layout
-
-      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
-\end_layout
-
-\begin_layout Plain Layout
-
-      R6        : Particulate Organic Matter
-\end_layout
-
-\begin_layout Plain Layout
-
-    end
-\end_layout
-
-\begin_layout Plain Layout
-
-end
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-\begin_inset CommandInset label
-LatexCommand label
-name "alg:Example-of-layout-pelagic"
-
-\end_inset
-
-
-\begin_inset Argument
-status open
-
-\begin_layout Plain Layout
-Example of model layout
-\end_layout
-
-\end_inset
-
-Example of the model template file 
-\family typewriter
-layout
-\family default
- with the definition of pelagic state variables.
- 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
 \begin_layout Subsection
 Example 1.
  Adding a subgroup
@@ -25316,7 +25315,7 @@ cd $BFMDIR/build
 
 \begin_layout Plain Layout
 
-./bfm_configure.sh -gce -p STANDALONE_PELAGIC_Z
+./bfm_configure.sh -gcd -p STANDALONE_PELAGIC_Z
 \end_layout
 
 \end_inset
