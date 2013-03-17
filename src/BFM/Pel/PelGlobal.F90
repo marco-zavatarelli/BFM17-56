@@ -116,7 +116,7 @@
       qlcPPY(i,:)  =   PhytoPlankton(i,iiL)/( p_small+ PhytoPlankton(i,iiC))
 #ifdef INCLUDE_PELFE
     if ( ppPhytoPlankton(i,iiF) > 0 ) &
-      qfPPYc(i,:)  =   PhytoPlankton(i,iiF)/( p_small+ PhytoPlankton(i,iiC))
+      qfcPPY(i,:)  =   PhytoPlankton(i,iiF)/( p_small+ PhytoPlankton(i,iiC))
 #endif
   end do
 

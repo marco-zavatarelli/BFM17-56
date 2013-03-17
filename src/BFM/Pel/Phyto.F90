@@ -33,7 +33,7 @@
   use mem, ONLY: ppO3c
 #endif
 #ifdef INCLUDE_PELFE
-  use mem, ONLY: iiF,N7f,qfPc,ppN7f,ppR6f,ppR1f
+  use mem, ONLY: iiF,N7f,qfcPPY,ppN7f,ppR6f,ppR1f
 #endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
@@ -297,7 +297,7 @@
      fpplim = ONE
   end if
 #ifdef INCLUDE_PELFE
-  iN7f = min( ONE, max( p_small, ( qfPc(phyto,:) &
+  iN7f = min( ONE, max( p_small, ( qfcPPY(phyto,:) &
          - p_qflc(phyto))/( p_qfRc(phyto)- p_qflc(phyto))))
   fpplim = fpplim*iN7f
 #endif

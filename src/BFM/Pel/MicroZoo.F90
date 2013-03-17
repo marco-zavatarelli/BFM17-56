@@ -34,7 +34,7 @@
   use mem, ONLY: ppO3c
 #endif
 #ifdef INCLUDE_PELFE
-  use mem, ONLY: iiF, qfPc, ppR6f
+  use mem, ONLY: iiF, qfcPPY, ppR6f
 #endif
 #endif
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
@@ -282,7 +282,7 @@
 #ifdef INCLUDE_PELFE
     ! Fe constituent is transferred to particulate iron
     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
-       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfPc(i,:))
+       call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
 #endif
   end do
   ! Microzooplankton

@@ -36,12 +36,14 @@
     flux_vector
 #ifdef INCLUDE_PELCO2
   use mem, ONLY: ppO3c
-  use mem_CO2, ONLY: CalcBioAlkFlag
 #endif
 #endif
   use mem_Param,  ONLY: p_qon_nitri, p_qro, p_qon_dentri, p_small
   use mem_PelChem
   use mem_globalfun,   ONLY: MM_vector, eTq_vector, insw_vector
+#ifdef INCLUDE_PELCO2
+  use mem_CO2, ONLY: CalcBioAlkFlag
+#endif
 !  
 !
 ! !AUTHORS

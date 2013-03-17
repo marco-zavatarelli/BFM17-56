@@ -1,0 +1,39 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!------------------------------------------------------------------------------------!
+!Main initialisation and output specifications
+!NAME             KIND    DESCRIPTION
+!chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
+!inp_dir 	  string 	Path to the input files (chunks)
+!out_dir 	  string 	Path to the output file (merged)
+!layout 	  string 	Path to the layout.dat file
+!ln_mask 	  logical       Write global mask specification
+!var_save 	  string 	List of output variables (set according to bfm output) 
+!
+! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting 
+!          the number of output variables with HR model configurations.  
+!------------------------------------------------------------------------------------!
+&bnmerge_nml
+   chunk_fname='NEMO_GYRE_BFM'
+   inp_dir='./'
+   out_dir='./'
+   layout='./layout.dat'
+   ln_mask=.FALSE.
+   var_save='O2o','O3h','DIC','pCO2','pH',
+          'N1p','N3n','N4n','N5s','N7f',
+          'P1c','P1l','P1f','P2c','P2l','P3c','P3l',
+          'Z4c','Z5c','Z6c','B1c',
+          'R1c','R2c','R6c','R6f','Chla','R1n','R1p',
+          'eiPI(iiP1)','eiPI(iiP2)','eiPI(iiP3)',
+          'P1n','P2n','P3n',
+          'P1p','P2p','P3p',
+          'jbotR6c','jsurO2o','jsurO3c','ruPTc',
+          'EICE','ETW','EIR','EWIND','xEPS',
+          'ruPTn','ruPTp','ruPTs','ruPTf','exPP','resZT','ruZTc',
+          'netZTc','rePTn','rePTp','ruBc','ruBn','ruBp','resBc',
+          'R6p','R6n','R6s','B1p','B1n','Z5p','Z6p','Z5n','Z6n'
+/
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

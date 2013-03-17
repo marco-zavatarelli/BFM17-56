@@ -1,22 +1,32 @@
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# BFM - Biogeochemical Flux Model
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#
+# COPYING
+#
+#   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation;
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #  Currently available macros (cppdefs) are:
-#  INCLUDE_PELFE                          : use Iron component to the pelagic system
-#  INCLUDE_PELCO2, INCLUDE_BENCO2         : activate Carbonate System 
-#  INCLUDE_BEN, INCLUDE_BENPROFILES       : Add Benthic compartment
-#  INCLUDE_SILT                           : use Silt component
-#  INCLUDE_SEAICE                         : activate SeaIce Ecology 
-#  INCLUDE_DIAG3D, INCLUDE_DIAG2D         : additional diagnostics available for output
-#  BFM_PARALLEL                           : used to run BFM with MPP
-
-#  Warnings
-# 1. Still not working for benthic BFM don't use DIAG with D1SOURCE and ONESOURCE
-# 2. Using the key DEBUG will add more output information
+#  BFM_STANDALONE   : mandatory when using the STANDALONE model
+#  BFM_PARALLEL     : activate parallel coupling with BFM
+#  INCLUDE_PELFE    : add Iron component to the pelagic system
+#  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics
+#  INCLUDE_DIAG3    : activate flux diagnostics defined in .mem file
 
 &BFM_conf
         MODE    = 'NEMO',
-        CPPDEFS = '-DBFM_PARALLEL -DINCLUDE_PELCO2 -DINCLUDE_DIAG3D',
+        CPPDEFS = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_PELFE INCLUDE_DIAG3D',
         ARCH    = 'openmpif90_osx',
         PROC    = 4,
         EXP     = 'gyre_bfm',
