@@ -1,1 +1,0 @@
-../../../bin/bfm_standalone.x

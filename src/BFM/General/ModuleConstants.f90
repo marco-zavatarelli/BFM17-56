@@ -31,6 +31,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -74,7 +75,6 @@
   real(RLEN),   parameter :: SEC_PER_DAY=86400.0_RLEN  ! Seconds in day
   real(RLEN)              :: DAY_PER_SEC=ZERO  ! Inverse of Seconds in day
   real(RLEN),   parameter :: ONE_PER_DAY=1.0_RLEN  ! rate which is used in cases where implicitly assumed
-  real(RLEN),   parameter :: p_ntoc=1.0_RLEN  ! proportion between H+ production/NH4-->NO3 in nitrification
   integer,      parameter :: NO_BENTHOS=0
   integer,      parameter :: BENTHIC_RETURN=1
   integer,      parameter :: BENTHIC_BIO=2

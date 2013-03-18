@@ -45,7 +45,7 @@
       STDERR '**********************************************'
       STDERR '* Error detected by analytical_profile.F90:  *'
       STDERR '*  anz2 should be larger than anz1.          *'
-      STDERR '*   Please edit bfm.nml or bio_bfm.nml.      *'
+      STDERR '*   Please edit BFM_General.nml or bio_bfm.nml.      *'
       STDERR '**********************************************'
       stop
    end if
@@ -72,5 +72,6 @@
 !EOC
 
 !-----------------------------------------------------------------------
+! Copyright 2013 BFM System Team (bfm_st@lists.cmcc.it)
 ! Copyright by the GOTM-team under the GNU Public License - www.gnu.org
 !-----------------------------------------------------------------------

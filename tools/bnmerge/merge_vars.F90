@@ -58,7 +58,7 @@ subroutine merge_vars
   end do
 
   ! open the output file
-     fname = trim(out_fname)//".nc"
+     fname = trim(out_dir)//"/"//trim(chunk_fname)//".nc"
      status = nf90_open(path = fname, mode = NF90_WRITE, ncid = ncid)
      if (status /= NF90_NOERR) call handle_err(status)
 #ifdef DEBUG
@@ -68,7 +68,7 @@ subroutine merge_vars
 
   do p=1,jpnij
      ! build the file name for each process (start from 0)
-     fname = trim(inp_dir)//"/"//trim(out_fname)//"_"//procname(p)//".nc"
+     fname = trim(inp_dir)//"/"//trim(chunk_fname)//"_"//procname(p)//".nc"
      status = nf90_open(path = fname, mode = NF90_SHARE, ncid = ncbfmid)
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire(ncbfmid, nDims, nVars, nGlobalAtts, IDunlimdim)

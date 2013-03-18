@@ -4,7 +4,7 @@
 !------------------------------------------------------------------------------------!
 !Main initialisation and output specifications
 !NAME             KIND    DESCRIPTION
-!out_fname 	  string 	Name of NetCDF output file (same of input chunks)
+!chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
 !inp_dir 	  string 	Path to the input files (chunks)
 !out_dir 	  string 	Path to the output file (merged)
 !layout 	  string 	Path to the layout.dat file
@@ -15,7 +15,7 @@
 !          the number of output variables with HR model configurations.  
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
-   out_fname='FILENAME'
+   chunk_fname='FILENAME'
    inp_dir='/path/to/inp_dir'
    out_dir='/path/to/out_dir'
    layout='/path/to/layout.dat'

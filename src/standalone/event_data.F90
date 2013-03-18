@@ -52,13 +52,13 @@
    real(RLEN),parameter      :: lc_ratio=0.03_RLEN
 !-----------------------------------------------------------------------
 !BOC
-#ifdef DEBUG
-   LEVEL1 'event_data (jul,sec): ',julianday,secondsofday
-   call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
-   LEVEL2 'Calendar day:',yy,mm,dd
-#endif
 
    if (use_event_data) then
+#ifdef DEBUG
+      LEVEL1 'event_data (jul,sec): ',julianday,secondsofday
+      call  calendar_date(real(julianday,RLEN),yy,mm,dd,jh,jn)
+      LEVEL2 'Calendar day:',yy,mm,dd
+#endif
       if (init_forcing_vars) then
         data_jul2=0
         data_secs2=0
@@ -90,11 +90,6 @@
       end if
 
    end if
-
-#ifdef DEBUG
-   LEVEL2 'P1c: ',P1c,P1n,P1l
-   LEVEL2 'P2c: ',P2c,P2n,P2l
-#endif
 
   return
    end subroutine event_data

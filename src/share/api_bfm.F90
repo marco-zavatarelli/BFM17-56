@@ -129,6 +129,8 @@
    integer,allocatable,dimension(:),public     :: BOTindices,SRFindices
    ! real mask of river points at surface
    real(RLEN),allocatable,dimension(:),public  :: RIVmask
+   ! Total amount for each variable
+   real(RLEN),allocatable,dimension(:),public  :: D3STATE_tot,D2STATE_tot
 
 #ifdef BFM_NEMO
    !---------------------------------------------
@@ -255,7 +257,7 @@ contains
 !  Adapted from GOTM code by Hans Burchard & Karsten Bolding
 !
 ! !LOCAL VARIABLES:
-   integer                   :: rc,i,j,n
+   integer                   :: rc,n
    character(len=PATH_MAX)   :: logfname
 #if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
@@ -282,13 +284,13 @@ contains
    out_title  = 'Another great BFM simulation!'
    out_units  = 0
    out_delta  = 100
-   out_secs   = 100.0
+   out_secs   = 100
    bioshade_feedback=.FALSE.
 
    !---------------------------------------------
    !  Open and read the namelist
    !---------------------------------------------
-   open(namlst,file='bfm.nml',action='read',status='old',err=99)
+   open(namlst,file='BFM_General.nml',action='read',status='old',err=99)
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
@@ -408,9 +410,9 @@ contains
    if (rc /= 0) STOP 'init_bio: Error allocating c1dim'
 
    return
-98 FATAL 'I could not read bfm.nml'
+98 FATAL 'I could not read BFM_General.nml'
    stop 'init_bfm'
-99 LEVEL2 'I could not open bfm.nml'
+99 LEVEL2 'I could not open BFM_General.nml'
    LEVEL2 'Simulation starting without the BFM'
    bio_calc = .false.
 100 FATAL 'Cannot create log file: ',trim(logfname)
@@ -476,5 +478,6 @@ contains
    end module api_bfm
 
 !-----------------------------------------------------------------------
+!Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !Copyright (C) 2006 - Marcello Vichi
 

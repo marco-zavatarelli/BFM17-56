@@ -34,6 +34,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -86,7 +87,7 @@
 
 write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
    write(LOGUNIT,*) "#  Reading Settling parameters.."
-open(NMLUNIT,file='Settling.nml',status='old',action='read',err=100)
+open(NMLUNIT,file='Benthic_Environment.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=Settling_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -98,7 +99,7 @@ open(NMLUNIT,file='Settling.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitSettling.f90","Settling.nml")
+100 call error_msg_prn(NML_OPEN,"InitSettling.f90","Benthic_Environment.nml")
 101 call error_msg_prn(NML_READ,"InitSettling.f90","Settling_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitSettling

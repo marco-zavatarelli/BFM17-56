@@ -71,6 +71,7 @@
 !
 ! COPYING
 !
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij & M.VIchi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !

@@ -37,7 +37,7 @@
 
    type, public :: ForcingName
       integer           :: init
-      character(LEN=40) :: filename
+      character(LEN=80) :: filename
       logical           :: filetype
       character(LEN=40) :: varname
       character(LEN=40) :: RefTime
@@ -274,7 +274,8 @@
    endif
    ! Temporary check to avoid unavailable data structure selection 
    if (FData%init == 1 .OR. FData%init == 3 ) then
-      LEVEL1  'FieldRead Error : initialization flag %init with option 1 and 3 is not yet implemented in the code.'
+      LEVEL1  'FieldRead Error : initialization flag %init ', &
+              'with option 1 and 3 is not yet implemented in the code.'
       STOP
    endif
 

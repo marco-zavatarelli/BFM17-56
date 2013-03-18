@@ -30,7 +30,7 @@
   use mem, ONLY: ppR6c, ppR6n, ppR6p, ppR6s, ppN1p, ppN3n, &
     ppN4n, ppN5s, ppN6r, ppO2o, &
     ETW, ESW, ERHO, ETW_Ben, ESW_Ben, ERHO_Ben, &
-    PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPI_Ben,sediR6_Ben, sediPI, sediR6, &
+    PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPPY_Ben,sediR6_Ben, sediPPY, sediR6, &
     Depth, RI_Fc, ZI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, &
     RI_Fs, N1p_Ben, N3n_Ben, N4n_Ben, N5s_Ben, N6r_Ben, O2o_Ben, ETW_Ben, &
     Depth_Ben, iiP1, iiC, iiN, iiP, iiS, iiBen, iiPel, flux
@@ -38,7 +38,7 @@
     use mem, ONLY: O3c_Ben,O3c,O3h_Ben,O3h
 #endif
 #endif
-  use mem_MicroZoo, ONLY:p_qn_mz,p_qp_mz
+  use mem_MicroZoo, ONLY:p_qncMIZ,p_qpcMIZ
   use mem_Param,  ONLY: p_small
 #ifdef BFM_GOTM
   use bio_var, ONLY: BOTindices
@@ -60,6 +60,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -113,7 +114,7 @@
           PI_Bens(i,:)  =   0.0
         end if
       end do
-      sediPI_Ben(:,:)  =  sediPI(:,BOTindices)    
+      sediPPY_Ben(:,:)  =  sediPPY(:,BOTindices)    
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Compute total microzooplankton conc. used as food for filtereeders
@@ -131,14 +132,14 @@
            lcl_MicroZooPlankton => MicroZooPlankton(i,iiN)
            ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)
         else
-           ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)*p_qn_mz(i)
+           ZI_Fn(:)  =   ZI_Fn(:)+ lcl_MicroZooPlankton(BOTindices)*p_qncMIZ(i)
         endif
         j = ppMicroZooPlankton(i,iiP)
         if ( j> 0) then
           lcl_MicroZooPlankton => MicroZooPlankton(i,iiP)
           ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)
         else
-          ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)*p_qp_mz(i)
+          ZI_Fp(:)  =   ZI_Fp(:)+ lcl_MicroZooPlankton(BOTindices)*p_qpcMIZ(i)
         endif
       enddo
 

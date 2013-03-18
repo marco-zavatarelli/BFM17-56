@@ -34,7 +34,7 @@
   use mem, ONLY: ppR1c, ppR6c, ppR1n, ppR6n, ppR1p, ppR6p, &
     ppR6s, ppPhytoPlankton, &
     NO_BOXES_XY, BoxNumberXY, Depth, jbotR6c, jbotR6n, jbotR6p, &
-    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPI, sediR2, sediR6, iiPhytoPlankton, &
+    jbotR6s, jbotR1c, jbotR1n, jbotR1p, sediPPY, sediR2, sediR6, iiPhytoPlankton, &
     iiC, iiN, iiP, iiL, iiS, iiBen, iiPel, PELBOTTOM, flux
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF,R6f,ppR6f,jbotR6f
@@ -43,7 +43,7 @@
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p
   use mem_Settling
   use mem_PelBac, ONLY: p_suhR1,p_sulR1,p_suR2,p_suR6, &
-                        p_qnBc=>p_qnc,p_qpBc=>p_qpc
+                        p_qncPBA,p_qpcPBA
 #ifdef BFM_GOTM
   use bio_var, ONLY: BOTindices
 #else
@@ -61,6 +61,7 @@
 !
 ! COPYING
 !
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -126,7 +127,7 @@
       do BoxNumberXY = 1,NO_BOXES_XY 
          kbot = BOTindices(BoxNumberXY)
          do i = 1 , ( iiPhytoPlankton)
-            sedi  =   sediPI(i,kbot)
+            sedi  =   sediPPY(i,kbot)
             if ( sedi> ZERO ) then
                ! Phytoplankton carbon
                j=ppPhytoPlankton(i,iiC)
@@ -185,13 +186,13 @@
            ! Calculate how the intermediate degradable R2 has to be redistrubuted 
            ! between R1 and R6 in such a way that the degradability is the same
            ! Calculate first actual degradability of LOC ( dependent of quotum NC,PC)
-           ! and compare with bacterial preferencial quota
-           p = min(ONE, R1n(kbot)/(R1c(kbot)* p_qnBc), &
-                                    R1p(kbot)/(R1c(kbot)*p_qpBc))
+           ! and compare with bacterial preferencial quota (first bacteria group)
+           p = min(ONE, R1n(kbot)/(R1c(kbot)* p_qncPBA(1)), &
+                                    R1p(kbot)/(R1c(kbot)*p_qpcPBA(1)))
            ! Calculate actual degradability of R1
-           s= p_suhR1*p-p_sulR1* (ONE-p)
+           s= p_suhR1(1)*p-p_sulR1(1)* (ONE-p)
            ! Calculate distribution factor for R2 between R1 and R6
-           p=(p_suR2-p_suR6)/(s-p_suR6)
+           p=(p_suR2(1)-p_suR6(1))/(s-p_suR6(1))
            jbotR1c(BoxNumberXY)=jbotR1c(BoxNumberXY)- &
                                             p*sediR2(kbot) * R2c(kbot)
            jbotR6c(BoxNumberXY)=jbotR6c(BoxNumberXY)-&

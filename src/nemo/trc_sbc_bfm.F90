@@ -15,8 +15,8 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    !!         precipitation ) given in kg/m2/s is divided
    !!         by 1000 kg/m3 (density of plain water) to obtain m/s.
    !!
-   !!         Runoff is separated into water flux (included in emps)
-   !!         and mass flux
+   !!         Runoff is treated separately according to the choice 
+   !!         of online/offline coupling and river load
    !!
    !! ** Action  : - Update the 1st level of tra with the trend associated
    !!                with the tracer surface boundary condition 
@@ -40,6 +40,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    use global_mem,only:LOGUNIT
    use sbc_oce, only: ln_rnf
    use constants, only: SEC_PER_DAY
+   use print_functions
  
    ! substitutions
 #  include "top_substitute.h90"
@@ -52,47 +53,46 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    INTEGER  ::   ji, jj, jn             ! dummy loop indices
    REAL(wp) ::   ztra, zsrau, zse3t     ! temporary scalars
    TYPE(FLD), DIMENSION(1) ::   sf_dta  ! temporary array of information on the field to read
-   REAL(wp), POINTER, DIMENSION(:,:  ) :: zemps,field
+   REAL(wp), POINTER, DIMENSION(:,:  ) :: zsfx,field
    CHARACTER (len=25) :: charout
    !!---------------------------------------------------------------------
    !
+   IF( nn_timing == 1 )  CALL timing_start('trc_sbc_bfm')
+   !
    ! Allocate temporary workspace
-   CALL wrk_alloc( jpi, jpj,      zemps  )
+   CALL wrk_alloc( jpi, jpj,      zsfx  )
 #ifdef DEBUG
    CALL wrk_alloc( jpi, jpj,      field  )
-   field = 0.0
+   field = 0.0_wp
 #endif
    !!----------------------------------------------------------------------
    ! initialization of density and scale factor
-   zsrau = 1. / rau0
+   zsrau = 1._wp / rau0
 
    IF( kt == nittrc000 ) THEN
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_sbc_bfm : Surface boundary conditions for BFM variables'
       IF(lwp) WRITE(numout,*) '~~~~~~~ '
    ENDIF
-                                                                                                                                                       
 
-   IF( lk_offline ) THEN          ! emps in dynamical files contains emps - rnf
-      zemps(:,:) = emps(:,:)
-   ELSE                           ! Concentration dilution effect on tracer due to evaporation, precipitation, and river runoff
-      IF( lk_vvl ) THEN                      ! volume variable MAV: need to be checked 
-         zemps(:,:) = emps(:,:) - emp(:,:)
-      ELSE                                   ! linear free surface MAV: OK
-         IF( ln_rnf .AND. ln_trc_cbc(m) ) THEN  
-            zemps(:,:) = emps(:,:) - rnf(:,:)   !  E-P-R
-         ELSE               
-            zemps(:,:) = emps(:,:)              !  E-P
-         ENDIF
-      ENDIF
-   ENDIF
+   ! Coupling online : 
+   ! 1) constant volume: river runoff is added to the horizontal divergence (hdivn) in the subroutine sbc_rnf_div 
+   !    one only consider the concentration/dilution effect due to evaporation minus precipitation + 
+   !    freezing/melting of sea-ice
+   ! 2) variable volume : all freshwater fluxes are added to the volume change (no additional dilution)
+   ! Coupling offline : runoff are in emp which contains E-P-R
+   ! If there is no input of biogeochemical variables associated to the river, it is assumed that
+   ! there is no dilution associated with the river runoff (the freshwater has the same concentration of the sea)
+   zsfx(:,:) = emp(:,:)                                    ! - standard case: on/offline coupling with const vol
+   IF( .NOT. lk_offline .AND. lk_vvl )  zsfx(:,:) = 0._wp  ! - online coupling with variable volume
+   IF( ln_rnf .AND. .NOT. ln_trc_cbc(m) )  &               ! - remove river dilution effect in the absence
+      zsfx(:,:) = zsfx(:,:) + rnf(:,:)                     ! of a river load
 
    ! Concentration and dilution effect on tra 
    DO jj = 2, jpj
       DO ji = fs_2, fs_jpim1   ! vector opt.
            zse3t = 1. / fse3t(ji,jj,1)
-           ! concent./dilut. effect
-           ztra = zsrau * zse3t * tmask(ji,jj,1) * zemps(ji,jj) * trn(ji,jj,1,1) 
+           ztra = zsrau * zse3t * tmask(ji,jj,1) * zsfx(ji,jj) * trn(ji,jj,1,1) 
            ! add the trend to the general tracer trend
            tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
       END DO
@@ -110,7 +110,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
        DO jj = 2, jpj
           DO ji = fs_2, fs_jpim1   ! vector opt.
              zse3t = 1. / fse3t(ji,jj,1)
-             ! MAV: units in input files are assumed to be 1/day
+             ! The units in BFM input files are 1/day
              tra(ji,jj,1,1) = tra(ji,jj,1,1) + rf_trsfac(jn) * sf_trcsbc(jn)%fnow(ji,jj,1) &
                               * zse3t / SEC_PER_DAY 
           END DO
@@ -130,7 +130,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
              DO ji = fs_2, fs_jpim1   ! vector opt.
                 zse3t = 1. / (e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
                 ! Add river loads assuming an istantaneous mixing in the cell volume 
-                ! MAV: units in input files are assumed to be 1/day
+                ! The units in BFM input files are 1/day
                 ztra = rn_rfact * rf_trcfac(jn) * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t / SEC_PER_DAY
                 tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
 #ifdef DEBUG
@@ -145,14 +145,13 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
     WRITE(LOGUNIT,*) ''//charout//' trends in trc_sbc'
     WRITE(LOGUNIT,*)
     WRITE(LOGUNIT,*)'  level = 1'
-    CALL prihre( field/maxval(field), jpi, jpj, 1, jpi, 1, 1, jpj, 1, 1., LOGUNIT )
-    WRITE(LOGUNIT,*)
-    CALL prihre( trn(:,:,1,1), jpi, jpj, 1, jpi, 1, 1, jpj, 1, 1., LOGUNIT )
+    CALL prxy( LOGUNIT, 'trend at level = 1',field(:,:), jpi, 1, jpj, 1, ZERO)
+    CALL prxy( LOGUNIT, 'trn at level = 1',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
     CALL wrk_dealloc( jpi, jpj,      field  )       
 #endif
 
-    CALL wrk_dealloc( jpi, jpj,      zemps  )       
-
+   CALL wrk_dealloc( jpi, jpj,      zsfx  )       
+    IF( nn_timing == 1 )  CALL timing_stop('trc_sbc_bfm')
 
    END SUBROUTINE trc_sbc_bfm
 

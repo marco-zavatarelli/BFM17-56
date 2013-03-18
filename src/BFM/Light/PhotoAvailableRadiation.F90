@@ -10,7 +10,7 @@
 !
 ! DESCRIPTION
 !   This process computes the depth-integrated PAR and expresses
-!	this in eiPI for each compartment (I). The change in EPLi
+!	this in eiPPY for each compartment (I). The change in ELiPPY
 !	(optimal irradiance Iopt) due to daily variations is calculated in 
 !	LightAdaptation.p.
 !	The daily irradiance in each compartment is calculated
@@ -44,10 +44,10 @@
   use mem
 #else
   use mem, ONLY: D3STATE, PhytoPlankton
-  use mem, ONLY: ppPhytoPlankton, D3STATETYPE, EIR, xEPS, Depth, EPLi, eiPI, &
+  use mem, ONLY: ppPhytoPlankton, D3STATETYPE, EIR, xEPS, Depth, ELiPPY, eiPPY, &
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Param,  ONLY: ProductionLightFlag
+  use mem_Param,  ONLY: LightPeriodFlag
   use mem_PhotoAvailableRadiation
 
 
@@ -79,12 +79,13 @@
 ! !REVISION_HISTORY
 !   File created on 8 feb. 1997
 !	Modified by Daji Huang and JWB, 19/6/1998
-!	Scaled the calculation of eiPI to a max. of 1 (at SUNQ of 16h) JWB040930
-!	(Re)introduced the Smith formulations and removed the eiPI scaling JWB041006
+!	Scaled the calculation of eiPPY to a max. of 1 (at SUNQ of 16h) JWB040930
+!	(Re)introduced the Smith formulations and removed the eiPPY scaling JWB041006
 !
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -135,10 +136,10 @@
   select case ( D3STATETYPE( i))
 
     case ( NOTRANSPORT )
-      EPLi(phyto,:)  =   PhytoPlankton(phyto,iiL)
+      ELiPPY(phyto,:)  =   PhytoPlankton(phyto,iiL)
 
     case default
-      EPLi(phyto,:)  =   PhytoPlankton(phyto,iiL)/ PhytoPlankton(phyto,iiC)
+      ELiPPY(phyto,:)  =   PhytoPlankton(phyto,iiL)/ PhytoPlankton(phyto,iiC)
 
   end select
 
@@ -149,9 +150,9 @@
   exfac  =   exp( - xd)
 
 
-  pIRR0  =   EIR(:)/ EPLi(phyto,:)
-  pirr0_noon  =   noon_light/ EPLi(phyto,:)
-  pirr0_afternoon  =   afternoon_light/ EPLi(phyto,:)
+  pIRR0  =   EIR(:)/ ELiPPY(phyto,:)
+  pirr0_noon  =   noon_light/ ELiPPY(phyto,:)
+  pirr0_afternoon  =   afternoon_light/ ELiPPY(phyto,:)
 
   pIRRZ  =   pIRR0* exfac
   pirrz_noon  =   pirr0_noon* exfac
@@ -248,15 +249,15 @@
 
   end select
 
-  select case ( ProductionLightFlag)
+  select case ( LightPeriodFlag)
 
     case ( 1 )
       !rectangular integration:
-      eiPI(phyto,:)  =   min(  ONE,  corr_mean)
+      eiPPY(phyto,:)  =   min(  ONE,  corr_mean)
 
     case ( 3 )
       !   Simpson integration is used as default:
-      eiPI(phyto,:)  =  ( corr_irra+ 4.0E+00_RLEN* corr_irrb)/ 6.0E+00_RLEN
+      eiPPY(phyto,:)  =  ( corr_irra+ 4.0E+00_RLEN* corr_irrb)/ 6.0E+00_RLEN
 
   end select
 

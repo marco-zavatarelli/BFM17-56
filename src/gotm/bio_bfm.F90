@@ -392,7 +392,7 @@ IMPLICIT NONE
 !
 ! !USES
    use mem_param, only: AssignAirPelFluxesInBFMFlag,AssignPelBenFluxesInBFMFlag
-   use mem, only: sediPI, sediR6, sediR2,iiC,iiN,iiP,iiS,iiL, &
+   use mem, only: sediPPY, sediR6, sediR2,iiC,iiN,iiP,iiS,iiL, &
                   ppR2c, ppR6c, ppR6n, ppR6p, ppR6s, NO_BOXES_Z,   &
                   ppR1c, ppR1n, ppR1p,   &
                   ppO2o,ppN1p,ppN3n,ppN4n,ppN5s,ppN6r,  &
@@ -557,8 +557,8 @@ IMPLICIT NONE
 !  This subroutine assign the sinking velocities of BFM variables
 !
 ! !USES
-   use mem, only: sediPI, sediR6, sediR2,iiC,iiN,iiP,iiS,iiL, &
-                  sediMeZ,sediMiZ, &
+   use mem, only: sediPPY, sediR6, sediR2,iiC,iiN,iiP,iiS,iiL, &
+                  sediMEZ,sediMIZ, &
                   ppR2c, ppR6c, ppR6n, ppR6p, ppR6s, NO_BOXES_Z,   &
                   ppR1c, ppR1n, ppR1p,   &
                   NO_D3_BOX_STATES, Depth,              &
@@ -583,11 +583,11 @@ IMPLICIT NONE
    !---------------------------------------------
    if ( bio_setup ==2 ) return
    do i=1,iiPhytoPlankton
-     ll_larger=(maxval(sediPI(i,1:NO_BOXES_Z))> _ZERO_)
+     ll_larger=(maxval(sediPPY(i,1:NO_BOXES_Z))> _ZERO_)
      l=ppPhytoPlankton(i,iiC)
      c1dimz(NO_BOXES_Z)= _ZERO_
-     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediPI(i,1:NO_BOXES_Z-1) &
-                            +Depth(1:NO_BOXES_Z-1)*sediPI(i,2:NO_BOXES_Z))/ &
+     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediPPY(i,1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediPPY(i,2:NO_BOXES_Z))/ &
                                 (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
      corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
 
@@ -612,11 +612,11 @@ IMPLICIT NONE
      endif
    enddo
    do i=1,iiMesoZooPlankton
-     ll_larger=(maxval(abs(sediMeZ(i,1:NO_BOXES_Z)))> 0.001)
+     ll_larger=(maxval(abs(sediMEZ(i,1:NO_BOXES_Z)))> 0.001)
      l=ppMesoZooPlankton(i,iiC)
      c1dimz(NO_BOXES_Z)=0.0;
-     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediMeZ(i,1:NO_BOXES_Z-1) &
-                            +Depth(1:NO_BOXES_Z-1)*sediMeZ(i,2:NO_BOXES_Z))/ &
+     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediMEZ(i,1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediMEZ(i,2:NO_BOXES_Z))/ &
                                 (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
 
      corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
@@ -635,11 +635,11 @@ IMPLICIT NONE
      endif
    enddo
    do i=1,iiMicroZooPlankton
-     ll_larger=(maxval(abs(sediMiZ(i,1:NO_BOXES_Z)))> 0.001)
+     ll_larger=(maxval(abs(sediMIZ(i,1:NO_BOXES_Z)))> 0.001)
      l=ppMesoZooPlankton(i,iiC)
      c1dimz(NO_BOXES_Z)=0.0;
-     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediMiZ(i,1:NO_BOXES_Z-1) &
-                            +Depth(1:NO_BOXES_Z-1)*sediMiZ(i,2:NO_BOXES_Z))/ &
+     c1dimz(1:NO_BOXES_Z-1)=(Depth(2:NO_BOXES_Z)*sediMIZ(i,1:NO_BOXES_Z-1) &
+                            +Depth(1:NO_BOXES_Z-1)*sediMIZ(i,2:NO_BOXES_Z))/ &
                                 (Depth(1:NO_BOXES_Z)+Depth(2:NO_BOXES_Z-1))
      corr=min(cdepth(1)*rel_max_sedi_rate,abs(c1dimz))/(1.0D-80+abs(c1dimz))
 
@@ -1016,6 +1016,7 @@ IMPLICIT NONE
    end module bio_bfm
 
 !-----------------------------------------------------------------------
+! Copyright 2013 BFM System Team (bfm_st@lists.cmcc.it)
 ! Copyright by the GOTM-team and BFM-team under the GNU Public License
 ! www.gnu.org
 !-----------------------------------------------------------------------

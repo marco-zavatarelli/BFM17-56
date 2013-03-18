@@ -36,6 +36,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -64,11 +65,11 @@
   ! LightAdaptation PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: p_isw(iiPhytoPlankton)  ! Switch between parameterizations
-  real(RLEN)  :: p_chEPLi(iiPhytoPlankton)  ! Maximum Iopt (uE/m2/s)
-  real(RLEN)  :: p_clEPLi(iiPhytoPlankton)  ! Minimum Iopt (uE/m2/s)
-  ! p_ruEPLi = 0.25, 0.25, 0.5, 0.125 # Maximum daily shift in &
+  real(RLEN)  :: p_chELiPPY(iiPhytoPlankton)  ! Maximum Iopt (uE/m2/s)
+  real(RLEN)  :: p_clELiPPY(iiPhytoPlankton)  ! Minimum Iopt (uE/m2/s)
+  ! p_ruELiPPY = 0.25, 0.25, 0.5, 0.125 # Maximum daily shift in &
   ! Iopt (1/d)
-  real(RLEN)  :: p_ruEPLi(iiPhytoPlankton)  ! Maximum daily shift in Iopt (1/d)
+  real(RLEN)  :: p_ruELiPPY(iiPhytoPlankton)  ! Maximum daily shift in Iopt (1/d)
   real(RLEN)  :: p_addepth(iiPhytoPlankton)  ! Adaptation depth. Meaningless with high
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -80,8 +81,8 @@
   subroutine InitLightAdaptation()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /LightAdaptation_parameters/ p_isw, p_addepth, p_chEPLi, p_clEPLi, &
-    p_ruEPLi
+  namelist /LightAdaptation_parameters/ p_isw, p_addepth, p_chELiPPY, p_clELiPPY, &
+    p_ruELiPPY
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -92,7 +93,7 @@
 
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
     write(LOGUNIT,*) "#  Reading LightAdaptation parameters.."
-    open(NMLUNIT,file='LightAdaptation.nml',status='old',action='read',err=100)
+    open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=LightAdaptation_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -104,7 +105,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitLightAdaptation.f90","LightAdaptation.nml")
+100 call error_msg_prn(NML_OPEN,"InitLightAdaptation.f90","Pelagic_Ecology.nml")
 101 call error_msg_prn(NML_READ,"InitLightAdaptation.f90","LightAdaptation_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitLightAdaptation

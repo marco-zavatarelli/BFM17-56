@@ -52,6 +52,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -68,12 +69,7 @@
 !BOC
 !
 !
-#ifdef NECSX
-  ! use a vectorized version of the code
-  call CalcCO2System_vector(MethodCalcCO2)
-#else
-  ! use a scalar version of the code
-  ! To use the Presure correction of CSYS here the pr_in=EPS value
+  ! To use the Pressure correction of CSYS here the pr_in=EPS value
   do BoxNumber=1,NO_BOXES
      ! convert DIC and alkalinity from model units to diagnostic output
      ! mg C/m3 --> umol/kg
@@ -87,40 +83,32 @@
               pr_in=EPR(BoxNumber), DIC_in=DIC(BoxNumber),pCO2_out=pCO2(BoxNumber),& 
               omegacal=OCalc(BoxNumber),omegarag=OArag(BoxNumber))
 #ifdef DEBUG
-            write(LOGUNIT,*) "in PelCO2:"
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'ERHO',ERHO(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW',ESW(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'N1p',N1p(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'N5s',N5s(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'DIC',DIC(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'Ac',Ac(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'OCalc',OCalc(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'OArag',OArag(BoxNumber)
-            write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') BoxNumber,pH(BoxNumber)
+     write(LOGUNIT,*) "in PelCO2:"
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'ERHO',ERHO(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'ESW',ESW(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'N1p',N1p(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'N5s',N5s(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'DIC',DIC(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'Ac',Ac(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'OCalc',OCalc(BoxNumber)
+     write(LOGUNIT,'(A,'' ='',f12.6)') 'OArag',OArag(BoxNumber)
+     write(LOGUNIT,'(''layer:'',I4,'' pH='',f12.6)') BoxNumber,pH(BoxNumber)
 #endif
      if ( error > 0 ) then
-#ifdef DEBUG
             write(LOGUNIT,*)" Ph outside range"
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'ERHO',ERHO(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW',ESW(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'EPR',EPR(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'N1p',N1p(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'N5s',N5s(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'DIC',DIC(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'OCalc',OCalc(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'OArag',OArag(BoxNumber)
-            write(LOGUNIT,'(A,'' ='',G12.6)') 'Ac',O3h(BoxNumber)
-            write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') BoxNumber,pH(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'ERHO',ERHO(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'ESW',ESW(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'EPR',EPR(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'N1p',N1p(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'N5s',N5s(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'DIC',DIC(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'OCalc',OCalc(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'OArag',OArag(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'Ac',O3h(BoxNumber)
+            write(LOGUNIT,'(''layer:'',I4,'' pH='',f12.6)') BoxNumber,pH(BoxNumber)
             call BFM_ERROR("PelCO2Dynamics","pH outside range 2-11")
-#endif
-            pH(BoxNUmber)=-1.0;
-            CO2(BoxNUmber)=-1.0;
-            HCO3(BoxNUmber)=-1.0;
-            CO3(BoxNUmber)=-1.0;
-            pCO2(BoxNUmber)=-1.0;
      endif
   end do
-#endif
 
   ! Rough approximation: pCO2 is assumed equal to the mixing ratio of CO2
   if (.not. calcAtmpCO2) EPCO2air = AtmCO2%fnow
@@ -134,13 +122,6 @@
   ! Computes air-sea flux (only at surface points)
   !---------------------------------------------------------------
   call CO2Flux()
-
-#ifdef DEBUG
-!  write(*,"(4A11)") "dic","ta","pH"
-!  write(*,"(3G12.6)") DIC(1),Ac(1),pH(1)
-!  write(*,"(4A11)") "pco2","co2","co3","hco3"
-!  write(*,"(4G12.6)") pco2(1),co2(1),co3(1),hco3(1)
-#endif
 
   end subroutine PelCO2Dynamics
 !EOC

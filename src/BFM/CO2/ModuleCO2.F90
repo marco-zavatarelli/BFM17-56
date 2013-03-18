@@ -28,6 +28,7 @@
 !   T. Lovato (CMCC) 2012
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2007 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -53,61 +54,72 @@
   integer,parameter   :: TOTAL=1
   integer,parameter   :: SWS=2
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! PelCO2 PARAMETERS (read from nml)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-   ! Initial Partial pressure in the air
-   ! pco2air0    : initial constant value 
-   ! calcAtmpCO2 : flag for the computation of Atmospheric pCO2 
-   ! AtmCO2      : structure of data for CO2 atmospheric concentration
-   ! AtmSLP      : structure of data for atmospheric SLP
-   ! AtmTDP      : structure of data for atmospheric Dew Point Temperature
-   ! 
+  !NAMELIST CO2_parameters
+  !-------------------------------------------------------------------------!
+  ! CARBONATE SYSYEM SETTING
+  ! NAME           [UNIT]/KIND             DESCRIPTION
+  ! AtmCO20        [ppmv]           Initial atmospheric concentration of CO2
+  ! calcAtmpCO2    logical          Compute the partial pressure of Atmospheric CO2
+  ! pCO2Method     integer          pCO2 computation method: 1=MixRatio*slp0, 2=Magnus formula
+  ! phstart        [pH]             Initial pH value
+  ! K1K2           integer          Switch for the acidity constants parameterization
+  !                                 1 : Roy et al. (1993); DOE (1994); pH on total scale
+  !                                 2 : Default. OCMIP STANDARD; pH on Sea Water Scale
+  !                                     Mehrbach et al (1973) refit by Dickson & Millero (1987)
+  !                                 3 : Mehrbach et al (1973) refit by Lueker et al. (2000)
+  !                                     pH on total scale
+  !                                 4 : Hansson (1973b) data as refitted by Dickson and 
+  !                                     Millero (1987);  pH on Sea Water Scale 
+  ! MethodCalcCO2  numeric          Switch for the choice of [H+] numerical computation 
+  !                                 1 : Approximate static solution 
+  !                                 2 : Default. Standard OCMIP iteration 
+  !                                 3 : Follows et al., Ocean Modelling 2006 
+  ! CalcBioAlkFlag logical          Compute biological processes corrections on total alkalinity
+  !              ---------  Parameters for MethodCalcCO2=2 -----------
+  ! M2XACC         real             Accuracy of the iterative scheme for OCMIP (default 1.E-10) 
+  ! M2PHDELT       [pH]             Delta of pH for the root search (realized pH+/-DELT)
+  !                                 in the OCMIP scheme (default 0.5)
+  ! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
+  !              ----------------------------------------------------- 
+  ! Caconc0        [mol/m3]         Calcium ion concentration 
+  !                                 ["Seawater : Its composition, properties and behaviour" 
+  !                                 (2nd Edition), Open University Course Team, 1995]
+  !                                 Seawater concentration   = 412 mg / l 
+  !                                                        -> atomic weight = 40.078 g / mol
+  !                                 therefore, concentration = 10.279 mmol / l = 10.279 mol / m3
+  ! Canorm          logical         Normalize Calcium ion concentration by sea water salinity
+  !              ---------  EXTERNAL DATA INPUT STRUCTURES -----------
+  ! AtmCO2_N       structure        Read external data for atmospheric CO2 values
+  ! AtmSLP_N       structure        Read external data for atmospheric sea level pressure
+  ! AtmTDP_N       structure        Read external data for atmospheric dew-point temperature
+  ! Example of general input structure for the data structure:
+  !          ! Read  !   File                               ! NetCDF  !  Var    !
+  !          ! Input !   name                               ! Logical !  name   !
+  !AtmCO2_N  =    0  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'  ,
+  !          !  RefTime          ! Input      !   Time   !
+  !          !  yyyymmdd         ! Frequency  !  interp  !
+  !           '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
+  !
+  ! Convention for Input reading : 0 = use constant value (default if struct is not initialized)
+  !                               2 = read timeseries file ( e.g. CO2 mixing ratios)
+  !                               4 = field from a coupled model (e.g. atmospheric SLP from OGCM)
+  ! NOTE: The file "CMIP5_Historical_GHG_1765_2005.dat" is located in "$BFMDIR/tools" folder
+  !-----------------------------------------------------------------------------------!
    real(RLEN)   :: AtmCO20=365.0_RLEN ! ppm 
    logical      :: calcAtmpCO2=.FALSE. 
    integer      :: pCO2Method=1
-
    type(ForcingName)    :: AtmCO2_N, AtmSLP_N, AtmTDP_N
    type(ForcingField)   :: AtmCO2, AtmSLP, AtmTDP
-
-   ! Choice of the acidity constants parameterization
-   ! K1K2==1 Roy et al. (1993); DOE (1994); pH on total scale
-   ! K1K2==2 Default
-   !         Mehrbach et al (1973) refit by Dickson & Millero (1987)
-   !         OCMIP STANDARD; pH on Sea Water Scale
-   ! K1K2==3 Mehrbach et al (1973) refit by Lueker et al. (2000)
-   !         pH on total scale
-   ! K1K2==4 Hansson (1973b) data as refitted by Dickson and 
-   !         Millero (1987); pH on Sea Water Scale
    integer      :: K1K2=2
-
-   ! Choice of [H+] numerical computation
-   ! MethodCalcCO2=1 Approximate static solution
-   ! MethodCalcCO2=2 Default. Standard OCMIP iteration
-   ! MethodCalcCO2=3 Follows et al., Ocean Modelling 2006
-   !
-   ! Parameters for MethodCalcCO2=2
-   ! M2XACC    :  accuracy of the iterative scheme for OCMIP (default 1.E-10)
-   ! M2PHDELT  :  delta of pH for the root search (realized pH+/-DELT)
-   !              in the OCMIP scheme (default 0.5)
-   ! M2MAXIT   :  maximum number of iterations for OCMIP (default 100 )
-   !
    integer      :: MethodCalcCO2=2 
    real(RLEN)   :: M2XACC=1.E-20_RLEN
    real(RLEN)   :: M2PHDELT=0.5_RLEN
    integer      :: M2MAXIT=100
-   ! Initial pH value (needed for Follows)
    real(RLEN)   :: phstart=8.0_RLEN ! [-]
-
-   ! Choice of pH scale (forced automatically according to K1K2)
-   ! phscale = 1: Total
-   ! phscale = 2: SeaWater Scale (OCMIP default)
    integer      :: phscale = SWS
-   ! Calcium ion concentration 
-   ! Ca seawater concentration [mol/m3], from Seawater : Its composition, properties and behaviour"
-   !                                              (2nd Edition), Open University Course Team, 1995]
-   ! Normalize Calcium ion concentration by sea water salinity 
    real(RLEN)   :: Caconc0 = 10.279E0
    logical      :: Canorm = .TRUE.
+   logical      :: CalcBioAlkFlag = .FALSE.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
   public InitCO2
@@ -127,7 +139,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     namelist /CO2_parameters/ AtmCO20,calcAtmpCO2,pCO2Method,K1K2,MethodCalcCO2,     &
                               phscale,phstart,M2XACC,M2PHDELT,M2MAXIT,         &
-                              Caconc0,Canorm,AtmCO2_N,AtmSLP_N,AtmTDP_N
+                              Caconc0,Canorm,AtmCO2_N,AtmSLP_N,AtmTDP_N, &
+                              CalcBioAlkFlag
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer            ::error=0
   !---------------------------------------------------------------------------
@@ -149,7 +162,7 @@
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
     write(LOGUNIT,*) "#"
     write(LOGUNIT,*) "#  Reading PelCO2 parameters.."
-    open(NMLUNIT,file='CO2.nml',status='old',action='read',err=100)
+    open(NMLUNIT,file='Carbonate_Dynamics.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=CO2_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"
@@ -184,7 +197,7 @@
          ! Use constant
           CALL FieldInit(AtmSLP_N, AtmSLP)
           AtmSLP%fnow = slp0
-          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in Param.nml): ', AtmSLP%fnow(1)
+          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in BFM_General.nml): ', AtmSLP%fnow(1)
           write(LOGUNIT,*) ' '
        else
          CALL FieldInit(AtmSLP_N, AtmSLP)
@@ -224,7 +237,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"ModuleCO2.f90","CO2.nml")
+100 call error_msg_prn(NML_OPEN,"ModuleCO2.f90","Carbonate_Dynamics.nml")
 101 call error_msg_prn(NML_READ,"ModuleCO2.f90","CO2_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitCO2

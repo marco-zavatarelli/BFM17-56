@@ -53,6 +53,7 @@
 !   
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -154,7 +155,7 @@
 #ifdef DEBUG
     write(LOGUNIT,*) ' Oxygen Reareation'
     write(LOGUNIT,*) 'Idx: ', SRFindices(1),'DOSat ',cxoO2(1),' DOwater ',O2o(1)
-    write(LOGUNIT,*) 'O2 flux', jsurO2o(1),' Depth ',Depth(1),' ken ', ken(1)
+    write(LOGUNIT,*) 'O2 flux', jsurO2o(1),' Depth ',Depth(1),' kun ', kun(1)
     write(LOGUNIT,*) 'New Flux ', O2AIRFlux(1), ' wind ', wind(1),' temp ',temp(1)
     write(LOGUNIT,*)
 #endif

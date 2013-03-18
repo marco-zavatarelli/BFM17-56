@@ -2,8 +2,12 @@ MODULE trcini
    !!======================================================================
    !!                         ***  MODULE trcini  ***
    !! TOP :   Manage the passive tracer initialization
-   !!         This is a special version of trcini to be used with the BFM
    !!======================================================================
+   !! History :   -   ! 1991-03 (O. Marti)  original code
+   !!            1.0  ! 2005-03 (O. Aumont, A. El Moussaoui) F90
+   !!            2.0  ! 2005-10 (C. Ethe, G. Madec) revised architecture
+   !!            4.0  ! 2011-01 (A. R. Porter, STFC Daresbury) dynamical allocation
+   !!----------------------------------------------------------------------
 #if defined key_top
    !!----------------------------------------------------------------------
    !!   'key_top'                                                TOP models
@@ -11,21 +15,20 @@ MODULE trcini
    !!   trc_init  :   Initialization for passive tracer
    !!   top_alloc :   allocate the TOP arrays
    !!----------------------------------------------------------------------
-   USE oce_trc
-   USE trc
-   USE trcrst
+   USE oce_trc         ! shared variables between ocean and passive tracers
+   USE trc             ! passive tracers common variables
+   USE trcrst          ! passive tracers restart
    USE trcnam          ! Namelist read
    USE trcini_cfc      ! CFC      initialisation
-   USE trcini_lobster  ! LOBSTER  initialisation
    USE trcini_pisces   ! PISCES   initialisation
    USE trcini_c14b     ! C14 bomb initialisation
    USE trcini_my_trc   ! MY_TRC   initialisation
-   USE trcdta   
-   USE daymod
+   USE trcdta          ! initialisation form files
+   USE daymod          ! calendar manager
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
-   USE trcsub
- 
+   USE trcsub       ! variables to substep passive tracers
+   
    IMPLICIT NONE
    PRIVATE
    
@@ -35,7 +38,6 @@ MODULE trcini
 #  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/TOP 4.0 , NEMO Consortium (2011)
-   !! $Id: trcini.F90 2715 2011-03-30 15:58:35Z rblod $ 
    !! Software governed by the CeCILL licence     (NEMOGCM/NEMO_CeCILL.txt)
    !!----------------------------------------------------------------------
 CONTAINS
@@ -55,6 +57,7 @@ CONTAINS
       INTEGER ::   jk, jn    ! dummy loop indices
       CHARACTER (len=25) :: charout
       !!---------------------------------------------------------------------
+      IF( nn_timing == 1 )   CALL timing_start('trc_init')
 
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_init : initial set up of the passive tracers'
@@ -65,15 +68,11 @@ CONTAINS
 
       !                             ! masked grid volume
       DO jk = 1, jpk
-         cvol(:,:,jk) = e1t(:,:) * e2t(:,:) * fse3t(:,:,jk) * tmask(:,:,jk) 
+         cvol(:,:,jk) = e1e2t(:,:) * fse3t(:,:,jk) * tmask(:,:,jk)
       END DO
-
-      !                             ! total volume of the ocean
-#if ! defined key_degrad
+      IF( lk_degrad ) cvol(:,:,:) = cvol(:,:,:) * facvol(:,:,:)      ! degrad option: reduction by facvol
+      !                                                              ! total volume of the ocean 
       areatot = glob_sum( cvol(:,:,:) )
-#else
-      areatot = glob_sum( cvol(:,:,:) * facvol(:,:,:) )  ! degrad option: reduction by facvol
-#endif
 
       IF( ln_dm2dc )      &
          &       CALL ctl_stop( ' The diurnal cycle is not compatible with PISCES or LOBSTER or BFM ' )
@@ -88,16 +87,14 @@ CONTAINS
            neuler = 0                  ! Set time-step indicator at nit000 (euler)
            CALL day_init               ! set calendar
       ENDIF
-      trb(:,:,:,:) = trn(:,:,:,:)
-      ! 
- 
+      ! Initialize temporary NEMO arrays for tracer transport
+      trn(:,:,:,:) = 0._wp
       tra(:,:,:,:) = 0._wp
-      !
-!      IF( ln_zps .AND. .NOT. lk_c1d )   &              ! Partial steps: before horizontal gradient of passive
-!        &    CALL zps_hde( nit000, jptra, trn, gtru, gtrv )       ! tracers at the bottom ocean level
+      trb(:,:,:,:) = trn(:,:,:,:)
       !
       IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
       !
+      IF( nn_timing == 1 )   CALL timing_stop('trc_init')
       
    END SUBROUTINE trc_init
 
@@ -113,10 +110,7 @@ CONTAINS
       USE trcnxtbfm     , ONLY:   trc_nxt_alloc
       USE trczdf        , ONLY:   trc_zdf_alloc
       USE trdmod_trc_oce, ONLY:   trd_mod_trc_oce_alloc
-#if defined key_trcdmp 
-      USE trcdmp        , ONLY:   trc_dmp_alloc
-#endif
-#if defined key_trdmld_trc   ||   defined key_esopa
+#if defined key_trdmld_trc 
       USE trdmld_trc    , ONLY:   trd_mld_trc_alloc
 #endif
       !
@@ -128,10 +122,7 @@ CONTAINS
       ierr = ierr + trc_nxt_alloc()
       ierr = ierr + trc_zdf_alloc()
       ierr = ierr + trd_mod_trc_oce_alloc()
-#if defined key_trcdmp 
-      ierr = ierr + trc_dmp_alloc()
-#endif
-#if defined key_trdmld_trc   ||   defined key_esopa
+#if defined key_trdmld_trc 
       ierr = ierr + trd_mld_trc_alloc()
 #endif
       !

@@ -8,11 +8,6 @@
 ! DESCRIPTION
 !   Initialization of model
 !   Allocation of memory for variables, reading of data files 
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   SUBROUTINE Initialize
@@ -20,13 +15,12 @@
 ! USES:
   use mem, only: InitializeModel,ppMicroZooplankton,ppMesoZooPlankton, &
                  iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
-                 iiN,iiP,qpZc,qnZc,qp_mz,qn_mz
+                 iiN,iiP,qpcMEZ,qncMEZ,qpcMIZ,qncMIZ
   use mem_Param
-!  use mem_WindOxReaeration_3
   use mem_PelGlobal
   use mem_PelChem
   use mem_PelBac
-  use mem_MesoZoo,p_qnMc=>p_qnc,p_qpMc=>p_qpc
+  use mem_MesoZoo
   use mem_MicroZoo
   use mem_Phyto
   use mem_PhotoAvailableRadiation
@@ -76,6 +70,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -93,10 +88,8 @@
 !
 !
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
-
       InitializeModel=0
+
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Allocate Memory for All global variables
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -161,15 +154,15 @@
       ! In case of variable quota these values are recomputed every time-step
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
        do i = 1 , ( iiMicroZooPlankton)
-         if ( ppMicroZooPlankton(i,iiP) == 0 ) qp_mz(i,:)  =  p_qp_mz(i) 
-         if ( ppMicroZooPlankton(i,iiN) == 0 ) qn_mz(i,:)  =  p_qn_mz(i)
+         if ( ppMicroZooPlankton(i,iiP) == 0 ) qpcMIZ(i,:)  =  p_qpcMIZ(i) 
+         if ( ppMicroZooPlankton(i,iiN) == 0 ) qncMIZ(i,:)  =  p_qncMIZ(i)
        end do
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        ! Nutrient quota in omnivorous and herbivorous mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
-         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpZc(i,:)  =   p_qpMc(i)
-         if ( ppMesoZooPlankton(i,iiN) == 0 ) qnZc(i,:)  =   p_qnMc(i)
+         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpcMEZ(i,:)  =   p_qpcMEZ(i)
+         if ( ppMesoZooPlankton(i,iiN) == 0 ) qncMEZ(i,:)  =   p_qncMEZ(i)
        end do
 
 

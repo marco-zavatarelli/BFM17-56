@@ -32,7 +32,7 @@
   use mem, ONLY: ppY3c, ppY3n, ppY3p, ppQ6c, ppQ6n, ppQ6p, ppQ6s, ppG2o, ppK4n,O2o_Ben, &
     ppK1p, ppD6m, ppD7m, ppD8m, ppD9m, ppD1m, rrBTo, reBTn, reBTp, jbotR6c, jbotR6n, &
     jbotR6p, jbotR6s, jPIY3c, jZIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, &
-    iiPhytoPlankton, PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPI_Ben, sediR6_Ben, & 
+    iiPhytoPlankton, PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPPY_Ben, sediR6_Ben, & 
     ZI_Fc, RI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, RI_Fs, ppG3c, jnetY3c, &
     NO_BOXES_XY, Depth_ben, iiBen, iiPel, flux_vector, sourcesink_flux_vector, &
     jbotO2o,jbotN1p,jbotN4n
@@ -60,6 +60,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -185,7 +186,7 @@
   food_PT=ZERO
   do i=1,iiPhytoPlankton
      r =  PI_Benc(i,:) * MM_vector(  PI_Benc(i,:),  clu)
-     call CorrectConcNearBed(Depth_Ben(:), sediPI_Ben(i,:), p_height, & 
+     call CorrectConcNearBed(Depth_Ben(:), sediPPY_Ben(i,:), p_height, & 
                                     p_max, p_vum*et*Y3c(:), corr)
      food_PIc(i,:)=r*corr*p_PI
      food_PT(:)  =   food_PT(:)+ food_PIc(i,:)

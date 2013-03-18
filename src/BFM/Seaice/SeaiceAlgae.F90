@@ -33,10 +33,10 @@
 #endif
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, SUNQ, ThereIsLight, ETB, EIB, &
-    EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPI, sunPI, NO_BOXES_XY, &
+    EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPPY, sunPPY, NO_BOXES_XY, &
     iiBen, flux_vector, sourcesink_flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlLightFlag, ProductionLightFlag 
+  use mem_Param,  ONLY: p_small, ChlDynamicsFlag, LightPeriodFlag 
   use mem_Seaicealgae
 
 
@@ -68,6 +68,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2007 the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -237,7 +238,7 @@
   eiSI(phyto,:) = ( ONE- exp( - qlSc(phyto, :)* p_alpha_chl(phyto)/ &
       p_sum(phyto)* Irr))
 
-  select case ( ProductionLightFlag)
+  select case ( LightPeriodFlag)
     case ( 1 )
       sum  =   p_sum(phyto)* et* eiSI(phyto,:)   *  eI5s
 
@@ -449,7 +450,7 @@
   call flux_vector( iiBen, ppphytos,ppU6s, flS1U6s(:) )
  endif
 
-  if ( ChlLightFlag== 2) then
+  if ( ChlDynamicsFlag== 2) then
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

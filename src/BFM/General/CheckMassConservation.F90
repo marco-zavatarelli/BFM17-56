@@ -24,8 +24,8 @@
   use mem
 
 
-  use mem_MesoZoo, ONLY: p_qnMc=>p_qnc,p_qpMc=>p_qpc
-  use mem_MicroZoo, ONLY: p_qn_mz,p_qp_mz
+  use mem_MesoZoo, ONLY: p_qncMEZ,p_qpcMEZ
+  use mem_MicroZoo, ONLY: p_qncMIZ,p_qpcMIZ
   use mem_Param,  ONLY: CalcBenthicFlag,p_d_tot
 #ifdef INCLUDE_BEN
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
@@ -45,6 +45,7 @@
 !
 ! COPYING
 !
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -100,14 +101,14 @@
      if ( j /= 0) then
         s = MicroZooplankton(i,iiN)
      else
-        s = MicroZooplankton(i,iiC)*p_qn_mz(i)
+        s = MicroZooplankton(i,iiC)*p_qncMIZ(i)
      end if
      totpeln(:)=totpeln(:) + s
      j=ppMicroZooPlankton(i,iiP)
      if ( j /= 0) then
         s = MicroZooplankton(i,iiP)
      else
-        s = MicroZooplankton(i,iiC)*p_qp_mz(i)
+        s = MicroZooplankton(i,iiC)*p_qpcMIZ(i)
      end if
      totpelp(:)=totpelp(:) + s
   end do
@@ -118,14 +119,14 @@
      if ( j /= 0) then
         s = MesoZooPlankton(i,iiN)
      else
-        s = MesoZooPlankton(i,iiC)*p_qnMc(i)
+        s = MesoZooPlankton(i,iiC)*p_qncMEZ(i)
      end if
      totpeln(:)=totpeln(:) + s
     j=ppMesoZooPlankton(i,iiP)
      if ( j /= 0) then
         s = MesoZooPlankton(i,iiP)
      else
-        s = MesoZooPlankton(i,iiC)*p_qpMc(i)
+        s = MesoZooPlankton(i,iiC)*p_qpcMEZ(i)
      end if
      totpelp(:)=totpelp(:) + s
    end do
@@ -147,19 +148,32 @@
         totpels(:)=totpels(:) + s
      end if
   end do
+  do i=1, iiPelBacteria
+     if ( ppPelBacteria(i,iiC)/=0) then
+        s=PelBacteria(i,iiC)
+        totpelc(:)=totpelc(:) + s
+     end if
+     if ( ppPelBacteria(i,iiN)/=0) then
+        s=PelBacteria(i,iiN)
+        totpeln(:)=totpeln(:) + s
+     end if
+     if ( ppPelBacteria(i,iiP)/=0) then
+        s=PelBacteria(i,iiP)
+        totpelp(:)=totpelp(:) + s
+     end if
+  end do
 
-  totpelc(:) = totpelc(:)+ B1c(:)
 #ifdef INCLUDE_PELCO2
   totpelc(:) = totpelc(:)+ O3c(:)
 #endif
   ! Convert from default units to g and multiply for the water volume
   totpelc(:) = totpelc(:)*Volume(:)/1000.0_RLEN
   ! Convert from default units to g and multiply for the water volume
-  totpeln(:) = (totpeln(:)+ ( B1n(:) + N3n(:) + N4n(:) + O4n(:))) &
+  totpeln(:) = (totpeln(:)+ ( N3n(:) + N4n(:) + O4n(:))) &
                *Volume(:)*MW_N/1000.0_RLEN
-  totpelp(:) = (totpelp(:)+ ( B1p(:) + N1p(:))) &
+  totpelp(:) = (totpelp(:)+ N1p(:)) &
                *Volume(:)*MW_P/1000.0_RLEN
-  totpels(:) = (totpels(:)+ ( N5s(:) )) &
+  totpels(:) = (totpels(:)+ N5s(:)) &
                *Volume(:)*MW_SI/1000.0_RLEN
 
   totsysc(:) = sum(totpelc(:))

@@ -9,38 +9,27 @@
 ! !ROUTINE: Alkalinity
 !
 ! DESCRIPTION
-!   !
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   subroutine AlkalinityDynamics
 !
 ! !USES:
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
 #ifdef INCLUDE_PELCO2
 use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: O3h, N3n
   use mem, ONLY: ppO3h, ppN3n, ppN6r, Source_D3_vector, NO_BOXES, iiBen, iiPel, &
-    flux_vector
+    flux_vector, ppN4n
 #endif
-  use constants,  ONLY: p_ntoc
   use mem_param,  ONLY: p_qro
-
 !  
 !
 ! !AUTHORS
-!   16 March 1999 Original version by H. Thomas
+!   M. Vichi from Wolf-Gladrow et al. (2007)
 !
 !
 !
@@ -49,6 +38,7 @@ use global_mem, ONLY:RLEN
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -74,24 +64,38 @@ use global_mem, ONLY:RLEN
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,save ::first=0 
-  real(RLEN),allocatable,save,dimension(:) :: rateN3n,rateN6r
-  integer :: AllocStatus, DeallocStatus
-                                                                                                                                                          
+  real(RLEN),allocatable,save,dimension(:) :: rateN
+  integer :: AllocStatus
   if (first==0) then
      first=1
-     allocate(rateN3n(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rateN3n"
-     allocate(rateN6r(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating rateN6r"
+     allocate(rateN(NO_BOXES),stat=AllocStatus)
+     if (AllocStatus  /= 0) stop "error allocating rateN in Alkalinity.F90"
   end if
  
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Changes in alkalinity due to N uptake, (de)nitrification
+  ! From Wolf-Gladrow et al. (2007)
+  ! - the assimilation of 1 mole of nitrogen (atoms) leads to 
+  ! (i) an increase of alkalinity by 1 mole when nitrate or 
+  !     nitrite is the N source, 
+  ! (ii) to a decrease of alkalinity by 1 mole when ammonia is used
+  ! (iii) to no change of alkalinity when molecular N is the source
+  ! - Nitrification leads to a decrease of TA by 2 moles per 
+  !   mole of NO3-  formed 
+  ! - Denitrification leads to an increase of TA by 1 mole per 
+  !   mole of nitrate converted
   !
-  ! correction of the alkalinity
-  !
-  rateN3n(:) = Source_D3_vector(ppN3n)
-  rateN6r(:) = Source_D3_vector(ppN6r)
-  call flux_vector( iiPel, ppO3h,ppO3h,- rateN3n* p_ntoc  &
-                                       + rateN6r/ p_qro )
+  ! It is computed this way
+  ! net_uptakeNO3=dNO3/dt+denit-nit
+  ! net_uptakeNH4=dNH4/dt+nit
+  ! dTA/dt = -net_uptakeNO3 + net_uptakeNH4 - 2*nit + denit
+  !        = -dNO3/dt+dNH4/dt 
+  ! Sulfur reactions associated to reduction equivalents are not
+  ! considered as included in the operational TA definition
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  rateN(:) = - Source_D3_vector(ppN3n) +  &
+             Source_D3_vector(ppN4n) 
+  call flux_vector( iiPel, ppO3h,ppO3h, rateN)
 
 #endif
 

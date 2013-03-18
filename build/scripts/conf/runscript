@@ -1,0 +1,31 @@
+#! /bin/sh 
+
+#BSUB -a poe
+#BSUB -J _PRESET_         # Name of the job.
+#BSUB -o _PRESET__%J.out  # Appends std output to file %J.out.
+#BSUB -e _PRESET__%J.err  # Appends std error to file %J.out.
+#BSUB -P nemo
+#BSUB -q _QUEUE_    # queue
+#BSUB -n _PROC_            # Number of CPUs
+##BSUB -x 
+###BSUB -R "span[ptile=32]"
+
+VERBOSE=_VERBOSE_
+if [ $VERBOSE ]; then set -exv; fi
+
+export MP_WAIT_MODE=poll
+export MP_POLLING_INTERVAL=30000000
+export MP_SHARED_MEMORY=yes
+export MP_EUILIB=us
+export MP_EUIDEVICE=sn_all
+export LDR_CNTRL=TEXTPSIZE=64K@STACKPSIZE=64K@DATAPSIZE=64K
+export MP_TASK_AFFINITY=core
+
+exp=_EXP_
+
+# Launch the model
+
+time mpirun.lsf _EXE_
+
+echo " ${EXP} DONEEE!!!"
+

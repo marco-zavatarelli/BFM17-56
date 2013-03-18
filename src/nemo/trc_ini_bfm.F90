@@ -65,7 +65,8 @@
    logical,allocatable  :: mask1d(:)
    integer              :: nc_id ! logical unit for data initialization
    character(len=20)    :: start_time
-   real                 :: julianday
+   real(RLEN)           :: julianday
+   REAL(RLEN)           :: ztraf, zmin, zmax, zmean, zdrift
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -82,7 +83,7 @@
    bfmtime%stepnow  = nit000 - 1
    bfmtime%stepEnd  = nitend
    !-------------------------------------------------------
-   ! Force Euler timestepping in the first timestep
+   ! Force Euler timestepping for the BFM
    !-------------------------------------------------------
    ln_top_euler = .TRUE.
 
@@ -202,22 +203,12 @@
    deallocate(btmp1D)
 
    !-------------------------------------------------------
-   ! Prepares the array containing the 1D mask with
-   ! 1.0 in the location of the river grid points and
-   ! 0.0 elsewhere
+   ! Prepares the array containing the total amount per var
    !-------------------------------------------------------
-   if (ln_rnf) then
-      allocate(RIVmask(NO_BOXES_XY))
-      allocate(rtmp1D(NO_BOXES_XY))
-      rtmp1D = ZERO; RIVmask = ZERO
-      rtmp1D = pack(rnfmsk,SRFmask(:,:,1))
-      where (rtmp1d>ZERO)
-        RIVmask = ONE
-      elsewhere
-        RIVmask = ZERO
-      end where
-      deallocate(rtmp1D)
-   end if
+   allocate(D3STATE_tot(NO_D3_BOX_STATES))
+#ifdef INCLUDE_BEN
+   allocate(D2STATE_tot(NO_D2_BOX_STATES))
+#endif
 
    !---------------------------------------------
    ! Assign the rank of the process
@@ -240,7 +231,7 @@
    ! Allocate memory and give homogeneous initial values
    !-------------------------------------------------------
    ! the argument list is mandatory with BFM
-   call init_var_bfm(namlst,'bfm.nml',unit,bio_setup)
+   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
 
    !-------------------------------------------------------
    ! Prepares the BFM 1D arrays containing the
@@ -268,11 +259,16 @@
       ! initialize the data structure for input fields
       ! found in the top_namelist
       call trc_dta_init(NO_D3_BOX_STATES)
+      if (lwp) then
+         write(numout,*)
+         write(numout,*) '           ---- BFM Initialization ----             '
+         write(numout,*)
+      endif
       do m = 1,NO_D3_BOX_STATES
+         if (lwp) write(numout,*) 'BFM variable ',trim(var_names(stPelStateS+m-1)),' is initialized with:'
          select case (InitVar(m) % init)
          case (1) ! Analytical profile
-            if (lwp) write(numout,*) '            Initializing BFM variable ', &
-                     trim(var_names(stPelStateS+m-1)),' from Analytical profile.'
+            if (lwp) write(numout,*) '--> Analytical profile' 
             rtmp3Da = ZERO
             ! fsdept contains the model depth
             do j = 1,jpj
@@ -283,12 +279,17 @@
             end do
             D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
          case (2) ! from file
-            if (lwp) write(numout,*) '            Initializing BFM variable ', &
-                     trim(var_names(stPelStateS+m-1)),' from file'
+            if (lwp) write(numout,*) '--> Data file' 
             ! mapping index
             ll = n_trc_index(m)
             call trc_dta(nit000,sf_trcdta(ll),rf_trfac(ll))
             D3STATE(m,:)  = pack(sf_trcdta(ll)%fnow(:,:,:),SEAmask)
+         case default 
+            if (bfm_init==0) then
+               if (lwp) write(numout,*) '--> Constant homogeneous value' 
+            else
+               if (lwp) write(numout,*) '--> Restart data file' 
+            end if
          end select
       end do
    end if
@@ -300,7 +301,7 @@
    IF( nb_trcdta > 0 ) THEN
       !==   deallocate data structure   ==! 
       !        data used only for initialisation)
-      IF(lwp) WRITE(numout,*) 'trc_dta: deallocate data arrays as they are only use to initialize the run'
+      IF(lwp) WRITE(numout,*) 'trc_dta: deallocate data arrays as they are only used to initialize the run'
       DO ll = 1, ntra
                                        DEALLOCATE( sf_trcdta(ll)%fnow )     !  arrays in the structure
          IF( sf_trcdta(ll)%ln_tint )   DEALLOCATE( sf_trcdta(ll)%fdta )
@@ -313,6 +314,28 @@
    !-------------------------------------------------------
    call init_netcdf_rst_bfm(rst_fname)
    if (bfm_init == 1) call read_rst_bfm(rst_fname)
+
+   !-------------------------------------------------------
+   ! compute and report global statistics
+   ! in ocean.output
+   !-------------------------------------------------------
+   D3STATE_tot(:) = ZERO
+   do m = 1,NO_D3_BOX_STATES
+         ! compute statistics (need to map to 3D shape for global sum)
+         trn(:,:,:,1) = unpack(D3STATE(m,:),SEAmask,ZEROS)
+         D3STATE_tot(m) = glob_sum( trn(:,:,:,1) * cvol(:,:,:)   )
+         zmin  = minval( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
+         zmax  = maxval( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
+         if (lk_mpp) then
+            call mpp_min( zmin )      ! min over the global domain                                                                
+            call mpp_max( zmax )      ! max over the global domain
+         end if
+         zmean  = D3STATE_tot(m) / areatot
+         if (lwp) write(numout,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax
+         if (lwp) write(numout,*)
+   end do
+9000  FORMAT(' tracer :',i2,'    name :',a10,'    mean :',e18.10,'    min :',e18.10, &
+      &      '    max :',e18.10)
 
    !-------------------------------------------------------
    ! initialise netcdf output

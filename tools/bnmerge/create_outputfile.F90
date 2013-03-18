@@ -36,8 +36,8 @@ subroutine create_outputfile
   character(len = NF90_MAX_NAME) :: DimName,varname,attname
   
 
-     status = nf90_create(trim(out_dir)//"/"//trim(out_fname)//".nc", NF90_NOCLOBBER, ncid)
-     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(out_fname)//".nc already exists!" )
+     status = nf90_create(trim(out_dir)//"/"//trim(chunk_fname)//".nc", NF90_NOCLOBBER, ncid)
+     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(chunk_fname)//".nc already exists!" )
      ! Define the dimensions
      status = nf90_def_dim(ncid, "time", NF90_UNLIMITED, IDtime)
      if(status /= NF90_NOERR) call handle_err(status)
@@ -48,7 +48,7 @@ subroutine create_outputfile
      status = nf90_def_dim(ncid, "depth", jpk, IDz)
      if (status /= NF90_NOERR) call handle_err(status)
      ! read variables from domain 0000 and copy attributes
-     fname = trim(inp_dir)//"/"//trim(out_fname)//"_0000.nc" 
+     fname = trim(inp_dir)//"/"//trim(chunk_fname)//"_0000.nc" 
      status = nf90_open(path = fname, mode = NF90_WRITE, ncid = ncbfmid)
      if (status /= NF90_NOERR) call handle_err(status)     
      status = nf90_inquire(ncbfmid, nDims, nVars, nGlobalAtts, IDunlimdim)
@@ -71,7 +71,7 @@ subroutine create_outputfile
      call handle_err (nf90_put_att(ncid, IDtarget, "axis", "Z"))
      ! copy global attributes
 #ifdef DEBUG
-        write(*,*) "Creating file:",trim(out_fname)//".nc"," containing",ntime,"time frames"
+        write(*,*) "Creating file:",trim(chunk_fname)//".nc"," containing",ntime,"time frames"
         write(*,*) "Start copying global attributes ..."
 #endif
      do IDatt=1,nGlobalAtts
