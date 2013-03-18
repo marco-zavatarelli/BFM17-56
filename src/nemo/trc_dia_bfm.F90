@@ -17,6 +17,14 @@
    use mem
    use api_bfm,    only: out_delta, ave_ctl
    use time,       only: bfmtime
+#ifdef INCLUDE_PELCO2
+   use constants, ONLY:MW_C
+#ifdef NOPOINTERS
+  use mem
+#else
+  use mem, ONLY: O3h, O3c, DIC, Ac, ERHO
+#endif
+#endif
 
    implicit none
 !
@@ -42,13 +50,15 @@
    !---------------------------------------------
    ! Update means
    !---------------------------------------------
+#ifdef INCLUDE_PELCO2
+   ! Update DIC and alkalinity from model units to diagnostic output
+   ! after transport of model state variables O3c and O3h
+   ! mg C/m3 --> umol/kg
+   ! mmol eq/m3 --> umol/kg
+   DIC(:) = O3c(:)/MW_C/ERHO(:)*1000.0_RLEN
+   Ac(:)  = O3h(:)/ERHO(:)*1000.0_RLEN
+#endif
    call calcmean_bfm(ACCUMULATE)
-
-   !---------------------------------------------
-   ! Zoom areas
-   !---------------------------------------------
-   ! Equatorial Pacific: instantaneous, every 5 days (75 ts)
-    ! call ncout_zoom(kt,(/30,103,56,90/),"eqp",75,"ave(only(x))")
 
    !---------------------------------------------
    ! Write diagnostic output

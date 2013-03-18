@@ -1,6 +1,25 @@
-# Notes to developers and users #
----------------------------------
-This is the rootlevel of the BFM structure.
-Users are requested to follow the quickstart instructions provided 
-in Chapter 2 of the User Manual found in the doc/ directory.
+# What is the BFM
+#---------------------------------
+
+The Biogeochemical Flux Model (BFM) is a numerical model for the simulation 
+of the dynamics of major biogeochemical properties in marine ecosystems.
+
+The BFM is open source software freely available under the GNU Public License. 
+The model description is available on the BFM website
+http://www.bfm-community.eu
+and in the doc/ directory
+
+Instructions for compilation and running are available on the web site
+http://www.bfm-community.eu/documentation
+
+# Members of the BFM agreement
+#---------------------------------
+
+The development of the BFM is supported by a system team through a formal agreement. 
+The agreement establishes a program for model development that is discussed 
+and prepared every year by the participants. Model developments are inserted 
+by the system team into the different releases of the model. 
+The agreement is open to entrance of more contributors and more information can be 
+requested to info(at)bfm-community.eu
+Funding members of the consortium are: CMCC, OGS and UNIBO.
 
