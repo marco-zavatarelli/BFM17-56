@@ -48,6 +48,7 @@
 !
 ! COPYING
 !   
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2011 BFM System Team
 !   (marcello.vichi@bo.ingv.it)
 !

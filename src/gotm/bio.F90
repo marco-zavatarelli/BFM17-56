@@ -676,5 +676,6 @@
    end module bio
 
 !-----------------------------------------------------------------------
+! Copyright 2013 BFM System Team (bfm_st@lists.cmcc.it)
 ! Copyright by the GOTM-team under the GNU Public License - www.gnu.org
 !----------------------------------------------------------------------

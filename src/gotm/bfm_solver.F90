@@ -1445,6 +1445,7 @@
   end module bfm_solver
 
 !-----------------------------------------------------------------------
+! Copyright 2013 BFM System Team (bfm_st@lists.cmcc.it)
 ! Copyright by the GOTM-team and BFM-team 
 ! under the GNU Public License - www.gnu.org
 !-----------------------------------------------------------------------
