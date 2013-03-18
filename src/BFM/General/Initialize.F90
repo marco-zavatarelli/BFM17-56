@@ -15,7 +15,8 @@
 ! USES:
   use mem, only: InitializeModel,ppMicroZooplankton,ppMesoZooPlankton, &
                  iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
-                 iiN,iiP,qpcMEZ,qncMEZ,qpcMIZ,qncMIZ
+                 iiN,iiP,qpcMEZ,qncMEZ,qpcMIZ,qncMIZ,D3STATETYPE
+  use global_mem
   use mem_Param
   use mem_PelGlobal
   use mem_PelChem
@@ -87,6 +88,8 @@
 !BOC
 !
 !
+      integer :: i,j
+
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       InitializeModel=0
 
@@ -144,9 +147,15 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      call InitTransportStateTypes
+#ifdef INCLUDE_BEN
       call InitBoxParams
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! Setting of type for transport/integration  Benthic state variables
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      D2STATETYPE(:)=NOTRANSPORT
+#endif
 
+      D3STATETYPE(:)=ALLTRANSPORT
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Initialize nutrient quota in Microzooplankton and Mesozooplankton
       ! with the parameter values in the namelists.
@@ -154,15 +163,31 @@
       ! In case of variable quota these values are recomputed every time-step
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
        do i = 1 , ( iiMicroZooPlankton)
-         if ( ppMicroZooPlankton(i,iiP) == 0 ) qpcMIZ(i,:)  =  p_qpcMIZ(i) 
-         if ( ppMicroZooPlankton(i,iiN) == 0 ) qncMIZ(i,:)  =  p_qncMIZ(i)
+          j = ppMicroZooPlankton(i,iiP)
+          if ( j == 0 ) then
+             qpcMIZ(i,:)  =  p_qpcMIZ(i) 
+             D3STATETYPE(j)=NOTRANSPORT
+          end if
+          j = ppMicroZooPlankton(i,iiN)
+          if ( j == 0 ) then
+             qncMIZ(i,:)  =  p_qncMIZ(i)
+             D3STATETYPE(j)=NOTRANSPORT
+          end if
        end do
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       ! Nutrient quota in omnivorous and herbivorous mesozooplankton
+       ! Nutrient quota in  mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
-         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpcMEZ(i,:)  =   p_qpcMEZ(i)
-         if ( ppMesoZooPlankton(i,iiN) == 0 ) qncMEZ(i,:)  =   p_qncMEZ(i)
+          j = ppMesoZooPlankton(i,iiP) 
+          if ( j == 0 ) then
+             qpcMEZ(i,:)  =   p_qpcMEZ(i)
+             D3STATETYPE(j)=NOTRANSPORT
+          end if
+          j = ppMesoZooPlankton(i,iiN) 
+          if ( j == 0 ) then
+             qncMEZ(i,:)  =   p_qncMEZ(i)
+             D3STATETYPE(j)=NOTRANSPORT
+          end if
        end do
 
 
