@@ -1005,7 +1005,7 @@ sub func_GROUP_FUNCTIONS  {
                     if ( $param->getGroup() && ($param->getGroup() eq $groupname) ){ push(@members, $param); }
                 }
                 #order to show in alpahabetic order
-                @members = sort { $a cmp $b } @members;
+                #@members = sort { $a cmp $b } @members;
 
                 my $line = "\n";
                 $line .= "${SPACE}" ."function $pre${groupname}(n,constituent,cmax)\n";
@@ -1028,7 +1028,7 @@ sub func_GROUP_FUNCTIONS  {
                     my @refers    = ();
                     my @refersMax = ();
                     foreach my $member (@members){
-                        my @components_mem = ( sort { ($$LST_CONST{$a} <=> $$LST_CONST{$b}) } keys %{$member->getComponents()} );
+                        my @components_mem = ( sort { ($$LST_CONST{$a} cmp $$LST_CONST{$b}) } keys %{$member->getComponents()} );
                         my $maxkey = $$LST_CONST{ $components_mem[ $#components_mem ] }; #insert the minimun component
                         my $minkey = $components_mem[0];                                 #insert the index of the maximun component
 
@@ -1043,7 +1043,7 @@ sub func_GROUP_FUNCTIONS  {
                     my @consAdd = (0) x scalar(keys %$LST_CONST);
                     my $num_ele = 0;
                     
-                    foreach my $elem ( sort { ($$LST_CONST{$a} <=> $$LST_CONST{$b}) } keys %{$group->getComponents()} ){
+                    foreach my $elem ( sort { ($$LST_CONST{$a} cmp $$LST_CONST{$b}) } keys %{$group->getComponents()} ){
                         #print "$elem [". ($$LST_CONST{$elem}-1) ."]: $num_ele ";
                         $consAdd[($$LST_CONST{$elem}-1)] = $num_ele++;
                     }
