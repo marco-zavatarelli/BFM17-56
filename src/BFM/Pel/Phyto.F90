@@ -282,14 +282,16 @@
   iNIn = min( ONE, max( p_small, ( qncPPY(phyto,:) &
          - p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
   if (ppphytos > 0) then
-     iN5s = min(ONE, max( p_small, ( qscPPY(phyto,:) &
-            - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
-     eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
      select case (p_switchSi(phyto)) 
        case (1)  ! external control
+         eN5s = min( ONE, N5s(:)/(N5s(:) + p_chPs(phyto)+(p_Contois(phyto)*phytos(:))))
          fpplim = eN5s
+         iN5s   = ONE  
        case (2) ! internal control
+         iN5s = min(ONE, max( p_small, ( qscPPY(phyto,:) &
+                - p_qslc(phyto))/( p_qsRc(phyto)- p_qslc(phyto))))
          fpplim = iN5s
+         eN5s   = ONE  
      end select
   else 
      iN5s   = ONE  
@@ -297,9 +299,13 @@
      fpplim = ONE
   end if
 #ifdef INCLUDE_PELFE
-  iN7f = min( ONE, max( p_small, ( qfcPPY(phyto,:) &
-         - p_qflc(phyto))/( p_qfRc(phyto)- p_qflc(phyto))))
-  fpplim = fpplim*iN7f
+  if (ppphytof > 0) then
+     iN7f = min( ONE, max( p_small, ( qfcPPY(phyto,:) &
+            - p_qflc(phyto))/( p_qfRc(phyto)- p_qflc(phyto))))
+     fpplim = fpplim*iN7f
+  else 
+     iN7f   = ONE  
+  end if
 #endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
