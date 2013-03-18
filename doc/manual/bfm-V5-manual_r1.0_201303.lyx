@@ -223,7 +223,7 @@ Edited by M.
 
 \begin_layout Standard
 \align center
-Release 1, March 2013
+Release 1.0, March 2013
 \begin_inset Newline newline
 \end_inset
 
@@ -315,7 +315,7 @@ Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Mas
  (2013) The Biogeochemical Flux Model (BFM): Equation Description and User
  Manual.
  BFM version 5 (BFM-V5).
- Release 1; BFM Report series N.
+ Release 1.0; BFM Report series N.
  1.
  March 2013, Bologna, Italy, http://bfm-community.eu, pp.
  87
@@ -24679,6 +24679,7 @@ The syntax of the allowed layout elements is the following
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
@@ -24718,7 +24719,7 @@ end
 
 \begin_layout Plain Layout
 
-    ARRAYNAME
+	ARRAYNAME
 \end_layout
 
 \begin_layout Plain Layout
@@ -24762,7 +24763,7 @@ PhytoPlankton
 \family default
  
 \begin_inset listings
-lstparams "basicstyle={\ttfamily}"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
@@ -24798,7 +24799,7 @@ P2[-s]
  (if present, the constituent within brackets are removed from the group
  list of elements)
 \begin_inset listings
-lstparams "basicstyle={\ttfamily}"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
@@ -24820,7 +24821,7 @@ suPPY(PhytoPlankton)
 \family default
  
 \begin_inset listings
-lstparams "basicstyle={\ttfamily}"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
@@ -24841,7 +24842,7 @@ qncPPY(PhytoPlankton)
 \family default
  (quotum N:C for each phytoplankton group)
 \begin_inset listings
-lstparams "basicstyle={\ttfamily}"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
@@ -24870,7 +24871,7 @@ reference "sec:Aggregated-diagnostics-rates"
 
 ) 
 \begin_inset listings
-lstparams "basicstyle={\ttfamily}"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
@@ -24896,7 +24897,7 @@ reference "sec:Aggregated-diagnostics-rates"
 
 )
 \begin_inset listings
-lstparams "basicstyle={\ttfamily}"
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
