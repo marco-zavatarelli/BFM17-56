@@ -18391,7 +18391,7 @@ Deployment
 \end_layout
 
 \begin_layout Standard
-For a full description of the script usage and available options (see Tab.
+For a full description of the script usage and available options, see Tab.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -18399,7 +18399,7 @@ reference "tab:bfm_configure-optional-args"
 
 \end_inset
 
-), or execute the following command:
+ or execute the following command:
 \end_layout
 
 \begin_layout Standard
@@ -24297,6 +24297,15 @@ status open
 
 \begin_layout Plain Layout
 
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
@@ -24419,7 +24428,7 @@ status open
 
 \begin_layout Plain Layout
 
-  #     State Variable(s) for Detritus (Biogenic Organic Material)
+  #     State Variable(s) for Mesozooplankton
 \end_layout
 
 \begin_layout Plain Layout
@@ -24429,37 +24438,26 @@ status open
 
 \begin_layout Plain Layout
 
-    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: 
+   group MesoZooPlankton[cnp] (MEZ) : mg C/m3 : mmol N/m3 : mmol P/m3
 \end_layout
 
 \begin_layout Plain Layout
 
-                                    mmol P/m3: mmol Si/m3
+                Z3      : Carnivorous Mesozooplankton
 \end_layout
 
 \begin_layout Plain Layout
 
-      R1[-s]    : Labile Dissolved Organic Matter
+                Z4      : Omnivorous Mesozooplankton
 \end_layout
 
 \begin_layout Plain Layout
 
-      R2[-nps]  : Semi-labile Dissolved Organic Carbon
+   end
 \end_layout
 
 \begin_layout Plain Layout
 
-      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
-\end_layout
-
-\begin_layout Plain Layout
-
-      R6        : Particulate Organic Matter
-\end_layout
-
-\begin_layout Plain Layout
-
-    end
 \end_layout
 
 \begin_layout Plain Layout
@@ -25867,9 +25865,65 @@ reference "alg:Example-of-layout-pelagic"
 
 \end_inset
 
- for MesoZooplankton.
- The additional requirement is the change of value in parameter check_fixed_quot
-a from 0 to 1 in the Param_parameters namelist.
+ for MesoZooplankton but with the removal of the 
+\family typewriter
+n
+\family default
+ and 
+\family typewriter
+p
+\family default
+ constituents:
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+#     State Variable(s) for Mesozooplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+   group MesoZooPlankton[cnp] (MEZ) : mg C/m3 : mmol N/m3 : mmol P/m3
+\end_layout
+
+\begin_layout Plain Layout
+
+                Z3[-np]      : Carnivorous Mesozooplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+                Z4[-np]      : Omnivorous Mesozooplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+   end
+\end_layout
+
+\end_inset
+
+The additional requirement is the change of value in parameter 
+\family typewriter
+check_fixed_quota
+\family default
+ from 0 to 1 in the 
+\family typewriter
+Param_parameters
+\family default
+ namelist.
  Test experiments have shown that the simulation times can be reduced up
  to 30%.
  The physiological assumption is that zooplankton release in inorganic form

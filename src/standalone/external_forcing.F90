@@ -4,6 +4,9 @@
 !BOP
 !
 ! !IROUTINE: Read forcing data, interpolate in time
+! 
+! NOTE: this is a template file and must be edited by the user 
+!       depending on the type of input forcings
 !
 ! !INTERFACE:
    subroutine external_forcing
@@ -41,7 +44,7 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer,parameter         :: NOBS=6
+   integer,parameter         :: NOBS=4
    integer                   :: yy,mm,dd,hh,min,ss
    real(RLEN)                :: t,alpha,jday
    real(RLEN), save          :: dt
@@ -81,25 +84,18 @@
 
    !  Do the time interpolation
    t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
-!   alpha = (obs2(1)-obs1(1))/dt
-!   ETW(:) = obs1(1) + t*alpha
-!   alpha = (obs2(2)-obs1(2))/dt
-!   ESW(:) = obs1(2) + t*alpha
+   alpha = (obs2(1)-obs1(1))/dt
+   ETW(:) = obs1(1) + t*alpha
+   alpha = (obs2(2)-obs1(2))/dt
+   ESW(:) = obs1(2) + t*alpha
+!-----------------------------------------------------------------------
+! Additional variables may be added as follows:
 !   alpha = (obs2(3)-obs1(3))/dt
-!   ! convert from irradiance (W/m2) to PAR in uE/m2/s
+!   convert from irradiance (W/m2) to PAR in uE/m2/s
 !   EIR(:) = (obs1(3) + t*alpha)*p_PAR/E2W
 !   alpha = (obs2(4)-obs1(4))/dt
 !   EWIND(:) = obs1(4) + t*alpha
-
-! this part is special for Kobbefjord input data
-   alpha = (obs2(2)-obs1(2))/dt
-   ETW(:) = obs1(2) + t*alpha
-   alpha = (obs2(3)-obs1(3))/dt
-   ESW(:) = obs1(3) + t*alpha
-   alpha = (obs2(4)-obs1(4))/dt
-   EWIND(:) = obs1(4) + t*alpha
-   alpha = (obs2(5)-obs1(5))/dt
-   EIR(:) = (obs1(5) + t*alpha)*p_PAR/E2W ! convert from irradiance (W/m2) to PAR in uE/m2/s
+!-----------------------------------------------------------------------
 
    ! leap years not considered (small error)
    SUNQ=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
