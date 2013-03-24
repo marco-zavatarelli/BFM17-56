@@ -176,9 +176,13 @@
     if (AtmCO2%init == 0) then
        ! Use constant  
        CALL FieldInit(AtmCO2_N, AtmCO2)
-       AtmCO2%fnow = AtmCO20
-       write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
-       write(LOGUNIT,*) ' '
+       ! the following check is needed to avoid allocation of empty arrays
+       ! with MPI and land domains
+       if (NO_BOXES_XY > 0) then
+          AtmCO2%fnow = AtmCO20
+          write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
+          write(LOGUNIT,*) ' '
+       end if
     else
        ! read external
        CALL FieldInit(AtmCO2_N, AtmCO2)
