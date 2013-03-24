@@ -1,4 +1,3 @@
-#ifdef INCLUDE_BEN
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -13,6 +12,7 @@
   module mem_FilterFeeder
 !
 ! !USES:
+#ifdef INCLUDE_BEN
 
   use global_mem
 
@@ -151,8 +151,8 @@
 101 call error_msg_prn(NML_READ,"InitFilterFeeder.f90","FilterFeeder_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitFilterFeeder
-  end module mem_FilterFeeder
 #endif
+  end module mem_FilterFeeder
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model
