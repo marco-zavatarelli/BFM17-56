@@ -29,24 +29,45 @@
     real(RLEN)                   :: nc_ratio,pc_ratio,sc_ratio, &
                                     lc_ratio,fc_ratio
 !
+! COPYING
+!
+!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
 !EOP
 !-----------------------------------------------------------------------
 !BOC
 
     nc_ratio = 0.0126_RLEN ! Redfield
-    if ((present(nc)).AND.(nc>ZERO)) nc_ratio = nc
+    if (present(nc)) then
+       if (nc>ZERO) nc_ratio = nc
+    end if
 
     pc_ratio = 0.7862e-3_RLEN ! Redfield
-    if ((present(pc)).AND.(pc>ZERO)) pc_ratio = pc
+    if (present(pc)) then
+       if (pc>ZERO) pc_ratio = pc
+    end if
 
     sc_ratio = 0.0145_RLEN ! Redfield
-    if ((present(sc)).AND.(sc>ZERO)) sc_ratio = sc
+    if (present(sc)) then 
+       if (sc>ZERO) sc_ratio = sc
+    end if
 
     lc_ratio = 0.03_RLEN ! standard diatom value
-    if ((present(lc)).AND.(lc>ZERO)) lc_ratio = lc
+    if (present(lc)) then
+       if (lc>ZERO) lc_ratio = lc
+    end if
 
     fc_ratio = 3.e-04_RLEN ! standard diatom value
-    if ((present(fc)).AND.(fc>ZERO)) fc_ratio = fc
+    if (present(fc)) then
+       if (fc>ZERO) fc_ratio = fc
+    end if
 
     if (present(n)) then
        where (n==ZERO) 
@@ -76,8 +97,5 @@
 
   end subroutine init_constituents
 !EOC
-
-
-
 !-----------------------------------------------------------------------
 
