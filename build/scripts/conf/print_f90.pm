@@ -47,7 +47,7 @@ my $SPACE = "    ";
 my $MAX_CHAR_PER_LINE = 76;
 my $STRING_INDEX=1;
 my %STRING_INDEX_ARRAY=();
-my ( $LST_PARAM, $LST_GROUP, $LST_STA, $LST_CONST );
+my ( $LST_PARAM, $LST_GROUP, $LST_STA, $LST_CONST, $LST_INDEX );
 ########### VARIABLES GLOBAL ##########################
 
 
@@ -116,12 +116,13 @@ my $dispatch = {
 
 sub print_f90 {
 
-    my ($templ_mem, $output, $lst_group, $lst_param, $lst_sta, $lst_const, $verbose) = @_;
+    my ($templ_mem, $output, $lst_group, $lst_param, $lst_sta, $lst_const, $lst_index, $verbose) = @_;
 
     $LST_PARAM = $lst_param;
     $LST_GROUP = $lst_group;
     $LST_STA   = $lst_sta;
     $LST_CONST = $lst_const;
+    $LST_INDEX = $lst_index;
     $VERBOSE   = $verbose;
 
     #open the template file
@@ -1118,6 +1119,7 @@ sub func_STRING  {
                         $line .= "${SPACE}var_names($STRING_INDEX)=\"$nameC\"\n";
                         $line .= "${SPACE}var_long($STRING_INDEX)=\"$comm\"\n";
                         $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
+                        $$LST_INDEX{"$nameC"} = "$STRING_INDEX";
                         $STRING_INDEX++;
                     }
                 }
@@ -1126,6 +1128,7 @@ sub func_STRING  {
                 $line .= "${SPACE}var_names($STRING_INDEX)=\"$name\"\n";
                 $line .= "${SPACE}var_long($STRING_INDEX)=\"$comm\"\n";
                 $line .= "${SPACE}var_units($STRING_INDEX)=\"$unit\"\n";
+                $$LST_INDEX{"$name"} = "$STRING_INDEX";
                 $STRING_INDEX++;
             }
         }
@@ -1199,6 +1202,7 @@ sub func_STRING_FIELD  {
                         $line .= "${SPACE}var_names($STRING_INDEX)=\"j${spec_short}${nameC}\"\n";
                         $line .= "${SPACE}var_long($STRING_INDEX)=\"flux of $comm at $SPEC\"\n";
                         $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
+                        $$LST_INDEX{"j${spec_short}${nameC}"} = "$STRING_INDEX";
                         $STRING_INDEX++;
                     }
                 }
@@ -1207,6 +1211,7 @@ sub func_STRING_FIELD  {
                 $line .= "${SPACE}var_names($STRING_INDEX)=\"j${spec_short}${name}\"\n";
                 $line .= "${SPACE}var_long($STRING_INDEX)=\"flux of $comm at $SPEC\"\n";
                 $line .= "${SPACE}var_units($STRING_INDEX)=\"$unit\"\n";
+                $$LST_INDEX{"j${spec_short}${name}"} = "$STRING_INDEX";
                 $STRING_INDEX++;
             }
         }

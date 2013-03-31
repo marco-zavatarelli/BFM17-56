@@ -36,6 +36,7 @@ our @ISA = qw(Exporter);
 our @EXPORT= qw(process_namelist check_namelists print_namelists);
 my $reg_array='(\w+)(\w{3})\((\d+)\,\:\)';
 my $reg_comm='\s*\!\s*(.+)'; 
+my $MAX_PARAMS_PER_LINE = 9;
 ########### VARIABLES ##########################
 
 
@@ -186,7 +187,7 @@ sub process_namelist{
 
 
 sub check_namelists{
-    my ($lists_ref, $groups_ref, $params_ref, $const_ref, $VERBOSE ) = @_;
+    my ($lists_ref, $groups_ref, $params_ref, $const_ref, $index_ref, $VERBOSE ) = @_;
     my @const  = keys %$const_ref;
 
     foreach my $list (@$lists_ref){
@@ -299,8 +300,9 @@ sub check_namelists{
             }
         }
 
+
         #check bfm_save list
-        if( $list->{NAME} eq "bfm_save_nml" ){
+        elsif( $list->{NAME} eq "bfm_save_nml" ){
             foreach my $element ( @{$list->slots} ){
                 if( $element eq "ave_save" ){
                     foreach my $value ( @{$list->get_values($element)} ){
@@ -321,12 +323,26 @@ sub check_namelists{
                 }
             }
         }
+
+        #check bfm_init list
+        elsif( $list->{NAME} eq "bfm_init_nml" ){
+            foreach my $element ( @{$list->slots} ){
+                if( $element =~ m/InitVar\((\w+)\)\%(\w+)/ ){
+                    my $ele_name = $1;
+                    my $ele_end  = $2;
+                    if( exists $$index_ref{$ele_name} ){ 
+                        my $element_new="InitVar($$index_ref{$ele_name})%${ele_end}";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+            }
+        }
     }
 }
 
 
 sub print_namelists{
-    my ( $lst_nml, $lst_com, $out_dir, $VERBOSE ) = @_ ;
+    my ( $lst_nml, $lst_com, $lst_index, $out_dir, $VERBOSE ) = @_ ;
 
     my $index = 0;
     foreach my $nml (@$lst_nml){
@@ -383,6 +399,21 @@ sub print_namelists{
             #print the formated output to the file
             open  NML_OUT, ">>", "$nml_name" or die "$nml_name cannot be opened: $!";
             print NML_OUT $$lst_com[$index++];
+            if( $nml->name eq 'bfm_init_nml' ){
+                #print the list of param indix
+                print NML_OUT "! ";
+                my $params_per_line = 0;
+                print NML_OUT "Index of parameters for using inside InitVar structure\n!   ";
+                foreach my $par ( sort { $$lst_index{$a} <=> $$lst_index{$b} } keys %$lst_index ){
+                    if ( $params_per_line == $MAX_PARAMS_PER_LINE ){
+                        print NML_OUT "\n!   ";
+                        $params_per_line = 0;
+                    }
+                    print NML_OUT "$par=$$lst_index{$par}, ";
+                    $params_per_line++;
+                }
+                print NML_OUT "\n";
+            }
             my @pad_len = map { "%-${_}s  " } @max_len_array;
             foreach my $line (@tbl){
                 foreach my $idx ( 0..$#{$line} ){

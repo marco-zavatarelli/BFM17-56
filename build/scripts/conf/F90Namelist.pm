@@ -511,7 +511,7 @@ interpretation]), but is way faster on large files.
  $regexp[DOUBLE]    = qr/$numeric_d/;
  $regexp[SINGLE]    = qr/$numeric_e/;
  $regexp[FLOAT]     = qr/$float/;
- $regexp[ID]        = qr/[a-zA-Z](?:[a-zA-Z0-9_])*/; # allowed namelist/var. names
+ $regexp[ID]        = qr/[a-zA-Z](?:[a-zA-Z0-9_\(\)\%])*/; # allowed namelist/var. names
 
 ## Corresponding regexp for compatible type class (numeric, complex, ...)
  my @regexp2 = @regexp;		# same regexp by default
@@ -873,8 +873,29 @@ interpretation]), but is way faster on large files.
  }
 # ---------------------------------------------------------------------- #
 
+ sub change_name {
+     # Remove one element from the list
+     my $self        = shift();
+     my $element     = shift();
+     my $element_new = shift();
+
+     for my $idx (0..$self->{NSLOTS}){
+         if( $self->{SLOTS}[$idx] eq "$element" ){
+             $self->{SLOTS}[$idx] = "$element_new";
+             $self->hash()->{$element_new} = $self->hash()->{$element};
+             delete $self->hash()->{$element};
+             last;
+         }
+         $idx++;
+     }
+     
+     return 1;
+ }
+
+# ---------------------------------------------------------------------- #
+
  sub remove {
-# Remove one element from the list
+     # Remove one element from the list
      my $self    = shift();
      my $element = shift();
 
@@ -1241,7 +1262,8 @@ sub subElements {
                  return undef;
              }
 
-         } elsif ($text =~ s{\s*(/|\$end)\s*}{}) { # string is </> or <$end>
+#         } elsif ($text =~ s{\s*(/|\$end)\s*}{}) { # string is </> or <$end>
+         } elsif ($text =~ /^\//) { # string is </> or <$end>
              $status = NL_END;
              last;		# end of namelist
 

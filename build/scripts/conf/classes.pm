@@ -105,7 +105,24 @@ sub print{
     if($self->{_quota})    { print "Quota: " .  $self->getQuota() . "; ";    }
     print "\n";
 }
-
+sub searchSigla_byIndex{ 
+    my ( $class, $self, $index )  = @_;
+    foreach my $var ( keys %{$self} ){
+        if( $$self{$var}->getIndex() == $index){
+            return $var;
+        }
+    }
+    return '';
+}
+sub searchIndex_bySigla{ 
+    my ( $class, $self, $sigla )  = @_;
+    foreach my $var ( keys %{$self} ){
+        if( $$self{$var}->getSigla() eq $sigla){
+            return $$self{$var}->getIndex();
+        }
+    }
+    return '';
+}
 
 ###############Class Group
 package Group;
@@ -158,7 +175,6 @@ sub print{
     if($self->{_compo})  { print "\tUnits:  " ; while ( my ($k,$v) = each %{$self->getComponents()} ) { print " $k=>$v"; } print "\n"; }
     #print "\n";
 }
-
 
 
 1;

@@ -50,6 +50,7 @@ my %lst_group = ();
 my %lst_param = ();
 my %lst_sta   = ();
 my %lst_const = ();
+my %lst_index = ();
 
 sub usage(){
     print "usage: $0 {-D[cpp_def] -r [mem_layout] -n [namelist] -f [prototype_dir] -t [output_dir]} [-v]\n\n";
@@ -77,18 +78,9 @@ GetOptions(
 if ( $HELP ){ &usage(); exit; }
 if ( !$input_mem || !$input_nml || !$proto_dir || !$out_dir || !@cpp_defs ){ &usage(); exit; }
 
-#process namelists removing them from the input file
-if( $VERBOSE ){ print "Reading namelists...\n"; }
-process_namelist($input_nml, \@lst_nml, \@lst_com);
-if( $VERBOSE ){ foreach my $nml (@lst_nml){ print $nml->output; } }
-
 #read memory layout file
 if( $VERBOSE ){ print "Reading memory layout...\n"; }
 process_memLayout($input_mem, \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs), $VERBOSE );
-
-#check consistency between namelists and memory_layout
-if( $VERBOSE ){ print "Checking namelist and memory layout...\n"; }
-check_namelists( \@lst_nml, \%lst_group, \%lst_param, \%lst_const, $VERBOSE );
 
 #write memory output files
 if( $VERBOSE ){ print "Printing memory layout...\n"; }
@@ -96,17 +88,26 @@ foreach my $idx ( 0 .. $#PROTOS_NAME ){
     my $name = $PROTOS_NAME[$idx];
     my $ext  = $PROTOS_EXT[$idx];
     if( $VERBOSE ){ print "---------- ${name} ini \n"; }
-    print_f90("$proto_dir/${name}.proto", "$out_dir/${name}.${ext}", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, $VERBOSE);
+    print_f90("$proto_dir/${name}.proto", "$out_dir/${name}.${ext}", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, \%lst_index, $VERBOSE);
     if( $VERBOSE ){ print "---------- ${name} end \n\n"; }
 }
 
+#process namelists removing them from the input file
+if( $VERBOSE ){ print "Reading namelists...\n"; }
+process_namelist($input_nml, \@lst_nml, \@lst_com);
+
+#check consistency between namelists and memory_layout
+if( $VERBOSE ){ print "Checking namelist and memory layout...\n"; }
+check_namelists( \@lst_nml, \%lst_group, \%lst_param, \%lst_const, \%lst_index, $VERBOSE );
+
 #write namelists output files
 if( $VERBOSE ){ print "Writing namelists...\n"; }
-print_namelists( \@lst_nml, \@lst_com, $out_dir, $VERBOSE );
+print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $VERBOSE );
 
 
 #foreach my $key (keys %lst_group){ $lst_group{$key}->print(); }
 #foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
+#print Dumper(\%lst_index) , "\n"; 
 
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }
