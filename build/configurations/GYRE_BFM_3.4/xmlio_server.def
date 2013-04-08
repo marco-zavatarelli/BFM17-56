@@ -1,0 +1,35 @@
+! xmlio_server namelist
+!
+! using_server: .TRUE.(.FALSE.) to use(bypass) the io_server
+! using_oasis : .TRUE.(.FALSE.) if nemo is coupled through OASIS
+! client_id   : used only for OASIS, NEMO      id in the namecouple 
+! server_id   : used only for OASIS, io_server id in the namecouple
+!
+&coupling_param
+  using_server = .FALSE.
+  using_oasis  = .FALSE.
+  client_id    = 'nemo.x'
+  server_id    = 'ionemo'
+/
+
+! global_mpi_buffer_size: size in Mo of the MPI buffer used by the io_server
+&mpi_param
+  global_mpi_buffer_size = 512
+/  
+
+!!======================================================================
+!!   namnc4            netcdf4 chunking and compression settings
+!!======================================================================
+!-----------------------------------------------------------------------
+&namnc4         !  netcdf4 chunking and compression settings
+                !  (benign if "key_netcdf4" is not used)
+!-----------------------------------------------------------------------
+   nn_nchunks_i   =   4       !  number of chunks in i-dimension
+   nn_nchunks_j   =   4       !  number of chunks in j-dimension
+   nn_nchunks_k   =   31      !  number of chunks in k-dimension
+                              !  setting nn_nchunks_k = jpk will give a chunk size of 1 in the vertical which
+                              !  is optimal for postprocessing which works exclusively with horizontal slabs
+   ln_nc4zip      =   .TRUE.  !  (T) use netcdf4 chunking and compression
+                              !  (F) ignore chunking information and produce netcdf3-compatible files  
+/
+  

@@ -15,7 +15,7 @@
 !          the number of output variables with HR model configurations.  
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
-   chunk_fname='NEMO_GYRE_BFM'
+   chunk_fname='PELAGOS2'
    inp_dir='./'
    out_dir='./'
    layout='./layout.dat'

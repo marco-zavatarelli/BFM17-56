@@ -40,7 +40,7 @@ BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
 
 #nemo files
-NEMO_FILES="iodef.xml namelist namelist_top xmlio_server.def";
+NEMO_FILES="iodef.xml namelist xmlio_server.def namelist_ice";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
@@ -48,7 +48,7 @@ OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PRO
 OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr )
 
 #error message
-ERROR_MSG="Execute $0 -h for help if you don't know what the hell is going wrong. PLEASE read CAREFULLY before bother someone else"
+ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
 MODE="STANDALONE"
@@ -398,6 +398,9 @@ if [ ${DEP} ]; then
         # copy and link necessary files
         cd "${BFMDIR}/${CONFDIR}/${PRESET}"
         cp ${NEMO_FILES} ${exedir}/
+        # copy and link generated namelist_top
+        if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
+        else cp ${blddir}/namelist_top ${exedir}/; fi
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
         #change values in runscript
         sed -e "s,_EXP_,${EXP},g"       \

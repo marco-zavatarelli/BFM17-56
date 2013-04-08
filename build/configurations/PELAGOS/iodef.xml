@@ -1,0 +1,421 @@
+<?xml version="1.0"?>
+<simulation>
+  
+  <context id="nemo"> 
+    
+    <!-- $id$ -->
+
+    <!-- 
+============================================================================================================
+=                                  definition of all existing variables                                    =
+=                                            DO NOT CHANGE                                                 =
+============================================================================================================
+    -->
+    
+    <field_definition level="1" prec="4" operation="ave(X)" enabled=".TRUE."> <!-- time step automaticaly defined -->
+
+      <!-- T grid -->
+      
+      <group id="grid_T" axis_ref="none" grid_ref="grid_T">
+	<field id="toce"         description="temperature"                               unit="degC" axis_ref="deptht"   />
+       	<field id="soce"         description="salinity"                                  unit="psu"  axis_ref="deptht"   />
+	<field id="sst"          description="sea surface temperature"                   unit="degC"                     />
+	<field id="sst2"         description="square of sea surface temperature"         unit="degC2"                    />
+	<field id="sstgrad"      description="module of sst gradient"                    unit="degC/m"                   />
+	<field id="sstgrad2"     description="square of module of sst gradient"          unit="degC2/m2"                 />
+	<field id="sss"          description="sea surface salinity"                      unit="psu"                      />
+	<field id="sss2"         description="square of sea surface salinity"            unit="psu2"                     />
+	<field id="ssh"          description="sea surface height"                        unit="m"                        />
+	<field id="ssh2"         description="square of sea surface height"              unit="m2"                       />
+	<field id="mldkz5"       description="mixing layer depth (Turbocline)"           unit="m"                        />
+	<field id="mldr10_1"     description="Mixed Layer Depth 0.01 ref.10m"            unit="m"                        />
+       	<field id="rhop"         description="potential density (sigma0)"                unit="kg/m3" axis_ref="deptht"  />
+	<!-- next variables available with key_diahth -->
+	<field id="mlddzt"       description="Thermocline Depth (max dT/dz)"             unit="m"                        />
+	<field id="mldr10_3"     description="Mixed Layer Depth dr=0.03 (ref.10m)"       unit="m"                        />
+	<field id="mldr0_1"      description="Mixed Layer Depth dr=0.01 (ref.surf)"      unit="m"                        />
+	<field id="mldr0_3"      description="Mixed Layer Depth dr=0.03 (ref.surf)"      unit="m"                        />
+	<field id="mld_dt02"     description="Mixed Layer Depth |dt|=0.2 (ref.10m)"      unit="m"                        />
+	<field id="topthdep"     description="Top of the thermocline dt=-0.2 (ref.10m)"  unit="m"                        />
+	<field id="pycndep"      description="Pycnocline depth dr~dt=-0.2 (ref.10m)"     unit="m"                        />
+	<field id="BLT"          description="Barrier Layer Thickness"                   unit="m"                        />
+	<field id="tinv"         description="Max of vertical invertion of temperature"  unit="degC"                     />
+	<field id="depti"        description="Depth of max. vert. inv. of temperature"   unit="m"                        />
+        <field id="20d"          description="Depth of 20C isotherm"                     unit="m"                        />
+	<field id="28d"          description="Depth of 28C isotherm"                     unit="m"                        />
+	<field id="hc300"        description="Heat content 300 m"                        unit="W"                        />
+	<!-- variables available with key_diaar5 -->
+	<field id="botpres"      description="Pressure at sea floor"                     unit="dbar"                     />
+	<field id="cellthc"      description="Cell thickness"                            unit="m"     axis_ref="deptht"  />
+     </group>
+
+      <!-- SBC -->
+      
+      <group id="SBC" axis_ref="none" grid_ref="grid_T" > <!-- time step automaticaly defined based on nn_fsbc -->
+
+	<field id="empmr"        description="Net Upward Water Flux"                                        unit="kg/m2/s"  />
+	<field id="empsmr"       description="concentration/dilution water flux"                            unit="kg/m2/s"  />
+	<field id="snowpre"      description="Snow precipitation"                                           unit="kg/m2/s"  />
+	<field id="runoffs"      description="River Runoffs"                                                unit="Kg/m2/s"  />
+
+	<field id="qt"           description="Net Downward Heat Flux"                                       unit="W/m2"     />
+	<field id="qns"          description="non solar Downward Heat Flux"                                 unit="W/m2"     />
+	<field id="qsr"          description="Shortwave Radiation"                                          unit="W/m2"     />
+	<field id="qsr3d"        description="Shortwave Radiation 3D distribution"        axis_ref="deptht" unit="W/m2"     />
+	<field id="qrp"          description="Surface Heat Flux: Damping"                                   unit="W/m2"     />
+	<field id="erp"          description="Surface Water Flux: Damping"                                  unit="Kg/m2/s"  />
+	<field id="taum"         description="wind stress module"                                           unit="N/m2"     />
+	<field id="wspd"         description="Wind speed module at 10 m"                                    unit="m/s"      />
+	
+        <!-- * variable relative to atmospheric pressure forcing : available with ln_apr_dyn -->
+        <field id="ssh_ib"       description="Inverse barometer sea surface height"                         unit="m"        />
+
+	<!-- *_oce variables available with ln_blk_clio or ln_blk_core -->
+	<field id="qns_oce"      description="Non solar Downward Heat Flux over open ocean"                 unit="W/m2"     />
+	<field id="qlw_oce"      description="Longwave Downward Heat Flux over open ocean"                  unit="W/m2"     />
+	<field id="qsb_oce"      description="Sensible Downward Heat Flux over open ocean"                  unit="W/m2"     />
+	<field id="qla_oce"      description="Latent Downward Heat Flux over open ocean"                    unit="W/m2"     />
+	<field id="taum_oce"     description="wind stress module over open ocean"                           unit="N/m2"     />
+
+	<field id="ice_cover"    description="Ice fraction"                                                 unit="1"        />
+
+	<field id="ioceflxb"     description="Oceanic flux at the ice base"                                 unit="W/m2"     />
+	<field id="qsr_ai_cea"   description="Air-Ice downward solar heat flux (cell average)"              unit="W/m2"     />
+	<field id="qns_ai_cea"   description="Air-Ice downward non-solar heat flux (cell average)"          unit="W/m2"     />
+	<field id="qla_ai_cea"   description="Air-Ice downward Latent heat flux (cell average)"             unit="W/m2"     />
+	
+	<field id="qsr_io_cea"   description="Ice-Oce downward solar heat flux (cell average)"              unit="W/m2"     />
+	<field id="qns_io_cea"   description="Ice-Oce downward non-solar heat flux (cell average)"          unit="W/m2"     />
+	
+	<field id="snowthic_cea" description="Snow thickness (cell average)"                                unit="m"        />
+	<field id="icethic_cea"  description="Ice thickness (cell average)"                                 unit="m"        />
+	<field id="iceprod_cea"  description="Ice production (cell average)"                                unit="m/s"      />
+	
+	<field id="ice_pres"     description="Ice presence"                                                 unit="-"        />
+	<field id="ist_cea"      description="Ice surface temperature (cell average)"                       unit="degC"     />
+	<field id="ist_ipa"      description="Ice surface temperature (ice presence average)"               unit="degC"     />      
+	<field id="uice_ipa"     description="Ice velocity along i-axis at I-point (ice presence average)"  unit="m/s"      />      
+	<field id="vice_ipa"     description="Ice velocity along j-axis at I-point (ice presence average)"  unit="m/s"      />      
+	
+	<field id="utau_ice"     description="Wind stress along i-axis over the ice at i-point"             unit="N/m2"     />
+	<field id="vtau_ice"     description="Wind stress along j-axis over the ice at i-point"             unit="N/m2"     />
+	
+	<field id="u_imasstr"    description="Sea-ice mass transport along i-axis"                          unit="kg/s"     />
+	<field id="v_imasstr"    description="Sea-ice mass transport along j-axis"                          unit="kg/s"     />
+
+	<!-- available key_coupled -->
+	<field id="snow_ao_cea"  description="Snow over ice-free ocean (cell average)"                      unit="kg/m2/s"  />
+	<field id="snow_ai_cea"  description="Snow over sea-ice (cell average)"                             unit="kg/m2/s"  />
+	<field id="subl_ai_cea"  description="Sublimation over sea-ice (cell average)"                      unit="kg/m2/s"  />
+	<field id="icealb_cea"   description="Ice albedo (cell average)"                                    unit="1"        />
+	<field id="calving"      description="Calving"                                                      unit="kg/m2/s"  />
+	<!-- available if key_coupled + conservative method -->
+	<field id="rain"         description="Liquid precipitation"                                         unit="Kg/m2/s"  />
+	<field id="evap_ao_cea"  description="Evaporation over ice-free ocean (cell average)"               unit="kg/m2/s"  />
+	<!-- variables available with key_diaar5 -->
+	<field id="isnwmlt_cea"   description="Snow over Ice melting (cell average)"                        unit="kg/m2/s"  />
+	<field id="fsal_virt_cea" description="Virtual salt flux due to ice formation (cell average)"       unit="kg/m2/s"  />
+	<field id="fsal_real_cea" description="Real salt flux due to ice formation (cell average)"          unit="kg/m2/s"  />
+	<field id="hflx_rain_cea" description="heat flux due to rainfall"                                   unit="W/m2"     />
+	<field id="hflx_evap_cea" description="heat flux due to evaporation"                                unit="W/m2"     />
+	<field id="hflx_snow_cea" description="heat flux due to snow falling over ice-free ocean"           unit="W/m2"     />
+	<field id="hflx_ice_cea"  description="heat flux due to ice thermodynamics"                         unit="W/m2"     />
+	<field id="hflx_rnf_cea"  description="heat flux due to runoffs"                                    unit="W/m2"     />
+	<field id="hflx_cal_cea"  description="heat flux due to calving"                                    unit="W/m2"     />
+	<field id="bicemel_cea"  description="Rate of Melt at Sea Ice Base (cell average)"                  unit="kg/m2/s"  />
+	<field id="licepro_cea"  description="Lateral Sea Ice Growth Rate (cell average)"                   unit="kg/m2/s"  />
+	<field id="snowmel_cea"  description="Snow Melt Rate (cell average)"                                unit="kg/m2/s"  />
+	<field id="sntoice_cea"  description="Snow-Ice Formation Rate (cell average)"                       unit="kg/m2/s"  />
+	<field id="ticemel_cea"  description="Rate of Melt at Upper Surface of Sea Ice (cell average)"      unit="kg/m2/s"  />
+
+      </group>
+
+      <!-- U grid -->
+      
+      <group id="grid_U"  axis_ref="depthu" grid_ref="grid_U">
+	<field id="utau"         description="Wind Stress along i-axis"                    unit="N/m2" axis_ref="none" />
+	<field id="uoce"         description="ocean current along i-axis"                  unit="m/s"                  />
+	<field id="uocetr_eff"   description="Effective ocean transport along i-axis"      unit="m3/s"                  />
+	<!-- uoce_eiv: available with key_traldf_eiv and key_diaeiv -->
+	<field id="uoce_eiv"     description="EIV ocean current along i-axis"              unit="m/s"                  />
+	<!-- uoce_eiv: available with key_trabbl_adv -->
+	<field id="uoce_bbl"     description="BBL ocean current along i-axis"              unit="m/s"                  />
+	<field id="ahu_bbl"      description="BBL diffusive flux along i-axis"             unit="m3/s" axis_ref="none" />
+ 	<!-- variables available with key_diaar5 -->
+	<field id="u_masstr"     description="ocean eulerian mass transport along i-axis"  unit="kg/s"                 />
+	<field id="u_heattr"     description="ocean eulerian heat transport along i-axis"  unit="W"    axis_ref="none" />
+	<field id="ueiv_heattr"  description="ocean bolus heat transport along i-axis"     unit="W"    axis_ref="none" />
+	<field id="udiff_heattr" description="ocean diffusion heat transport along i-axis" unit="W"    axis_ref="none" />
+     </group>
+      
+      <!-- V grid -->
+      
+      <group id="grid_V"  axis_ref="depthv" grid_ref="grid_V">
+	<field id="vtau"         description="Wind Stress along j-axis"                    unit="N/m2" axis_ref="none" />
+	<field id="voce"         description="ocean current along j-axis"                  unit="m/s"                  />
+	<field id="vocetr_eff"   description="Effective ocean transport along j-axis"      unit="m3/s"                  />
+	<!-- voce_eiv: available with key_traldf_eiv and key_diaeiv -->
+	<field id="voce_eiv"     description="EIV ocean current along j-axis"              unit="m/s"                  />
+	<!-- voce_eiv: available with key_trabbl_adv -->
+	<field id="voce_bbl"     description="BBL ocean current along j-axis"              unit="m/s"                  />
+	<field id="ahv_bbl"      description="BBL diffusive flux along j-axis"             unit="m3/s" axis_ref="none" />
+	<!-- variables available with key_diaar5 -->
+	<field id="v_masstr"     description="ocean eulerian mass transport along j-axis"  unit="kg/s"                 />
+	<field id="v_heattr"     description="ocean eulerian heat transport along j-axis"  unit="W"    axis_ref="none" />
+	<field id="veiv_heattr"  description="ocean bolus heat transport along j-axis"     unit="W"    axis_ref="none" />
+	<field id="vdiff_heattr" description="ocean diffusion heat transport along j-axis" unit="W"    axis_ref="none" />
+      </group>
+      
+      <!-- W grid -->
+      
+      <group id="grid_W"  axis_ref="depthw" grid_ref="grid_W">
+	<field id="woce"         description="ocean vertical velocity"                     unit="m/s"                  />
+	<field id="wocetr_eff"   description="effective ocean vertical transport"          unit="m3/s"                 />
+	<!-- woce_eiv: available with key_traldf_eiv and key_diaeiv -->
+	<field id="woce_eiv"     description="EIV ocean vertical velocity"                 unit="m/s"                  />
+	<!-- woce_eiv: available with key_trabbl_adv -->
+	<field id="avt"          description="vertical eddy diffusivity"                   unit="m2/s"                 />
+	<field id="avm"          description="vertical eddy viscosity"                     unit="m2/s"                 />
+	<!-- avs: available with key_zdfddm -->
+	<field id="avs"          description="salt vertical eddy diffusivity"              unit="m2/s"                 />
+	<!-- avt_evd and avm_evd: available with ln_zdfevd -->
+	<field id="avt_evd"      description="enhanced vertical diffusivity"               unit="m2/s"                 />
+	<field id="avm_evd"      description="enhanced vertical viscosity"                 unit="m2/s"                 />
+	<!-- aht2d and  aht2d_eiv: available with key_traldf_eiv and key_traldf_c2d -->
+	<field id="aht2d"        description="lateral eddy diffusivity"                    unit="m2/s" axis_ref="none" />
+	<field id="aht2d_eiv"    description="EIV lateral eddy diffusivity"                unit="m2/s" axis_ref="none" />
+	<!-- avt_tide: available with key_zdftmx -->
+	<field id="av_tide"      description="tidal vertical diffusivity"                  unit="m2/s"                 />
+	<!-- variables available with key_diaar5 -->   
+	<field id="w_masstr"     description="vertical mass trasport"                      unit="kg/s"                 />
+	<field id="w_masstr2"    description="square of vertical mass trasport"            unit="kg2/s2"               />
+      </group>
+          
+      <!-- scalar -->
+      
+      <!-- variables available with key_diaar5 -->
+      <group id="scalar" axis_ref="none" grid_ref="scalarpoint" zoom_ref="1point" >
+	<field id="voltot"     description="global mean volume"                         unit="m3"   />
+	<field id="sshtot"     description="global mean ssh"                            unit="m"    />
+	<field id="sshsteric"  description="global mean ssh steric"                     unit="m"    />
+	<field id="sshthster"  description="global mean ssh thermosteric"               unit="m"    />
+	<field id="masstot"    description="global mean mass"                           unit="kg"   />
+	<field id="temptot"    description="global mean temperature"                    unit="degC" />
+	<field id="saltot"     description="global mean salinity"                       unit="psu"  />
+	<field id="fram_trans" description="Sea Ice Mass Transport Through Fram Strait" unit="kg/s" />
+      </group>
+
+      <!-- ptrc on T grid -->
+
+     <group id="ptrc_T" axis_ref="deptht" grid_ref="grid_T">
+       <field id="DET"      description="Detritus"                                      unit="mmole-N/m3" />
+       <field id="ZOO"      description="Zooplankton Concentration"                     unit="mmole-N/m3" />
+       <field id="PHY"      description="Phytoplankton Concentration"                   unit="mmole-N/m3" />
+       <field id="NO3"      description="Nitrate Concentration"                         unit="mmole-N/m3" />
+       <field id="NH4"      description="Ammonium Concentration"                        unit="mmole-N/m3" />
+       <field id="DOM"      description="Dissolved Organic Matter"                      unit="mmole-N/m3" />
+     </group>
+
+     <!-- diad on T grid -->
+
+     <group id="diad_T" axis_ref="none" grid_ref="grid_T">  
+       <field id="FNO3PHY"  description="FNO3PHY"                             unit="-"  axis_ref="deptht" /> 
+       <field id="FNH4PHY"  description="FNH4PHY"                             unit="-"  axis_ref="deptht" /> 
+       <field id="FNH4NO3"  description="FNH4NO3"                             unit="-"  axis_ref="deptht" /> 
+       <field id="TNO3PHY"  description="TNO3PHY"                             unit="-"  /> 
+       <field id="TNH4PHY"  description="TNH4PHY"                             unit="-"  /> 
+       <field id="TPHYDOM"  description="TPHYDOM"                             unit="-"  /> 
+       <field id="TPHYNH4"  description="TPHYNH4"                             unit="-"  /> 
+       <field id="TPHYZOO"  description="TPHYZOO"                             unit="-"  /> 
+       <field id="TPHYDET"  description="TPHYDET"                             unit="-"  /> 
+       <field id="TDETZOO"  description="TDETZOO"                             unit="-"  /> 
+       <field id="TDETSED"  description="TDETSED"                             unit="-"  /> 
+       <field id="TZOODET"  description="TZOODET"                             unit="-"  /> 
+       <field id="TZOOBOD"  description="TZOOBOD"                             unit="-"  /> 
+       <field id="TZOONH4"  description="TZOONH4"                             unit="-"  /> 
+       <field id="TZOODOM"  description="TZOODOM"                             unit="-"  /> 
+       <field id="TNH4NO3"  description="TNH4NO3"                             unit="-"  /> 
+       <field id="TDOMNH4"  description="TDOMNH4"                             unit="-"  /> 
+       <field id="TDETNH4"  description="TDETNH4"                             unit="-"  /> 
+       <field id="TPHYTOT"  description="TPHYTOT"                             unit="-"  /> 
+       <field id="TZOOTOT"  description="TZOOTOT"                             unit="-"  /> 
+       <field id="TDETDOM"  description="TDETDOM"                             unit="-"  /> 
+       <field id="SEDPOC"   description="SEDPOC"                              unit="-"  /> 
+     </group>
+
+  </field_definition>
+
+    <!-- 
+============================================================================================================
+=                                           output files definition                                        =
+=                                            Define your own files                                         =
+=                                         put the variables you want...                                    =
+============================================================================================================
+    -->
+
+  <file_definition output_level="10" enabled=".TRUE.">
+
+
+      <group id="1h" output_freq="3600"   output_level="10" enabled=".TRUE.">                      <!-- 1h files -->
+      </group>
+
+      <group id="2h" output_freq="7200"   output_level="10" enabled=".TRUE.">                      <!-- 2h files -->
+      </group>
+
+      <group id="3h" output_freq="10800"  output_level="10" enabled=".TRUE.">                      <!-- 3h files -->
+      </group>
+
+      <group id="4h" output_freq="14400"  output_level="10" enabled=".TRUE.">                      <!-- 4h files -->
+      </group>
+
+      <group id="6h" output_freq="21600"  output_level="10" enabled=".TRUE.">                      <!-- 6h files -->
+      </group>
+
+      <group id="1d" output_freq="86400"  output_level="10" enabled=".TRUE.">                      <!-- 1d files -->
+      </group>
+
+      <group id="2d" output_freq="172800" output_level="10" enabled=".TRUE.">                      <!-- 2d files -->
+      </group>
+
+      <group id="5d" output_freq="432000" output_level="10" enabled=".TRUE.">                      <!-- 5d files -->
+
+        <file id="5d_grid_T" name="auto" description="ocean T grid variables" >
+          <field ref="toce"         name="votemper"  />
+          <field ref="soce"         name="vosaline"  />
+          <field ref="sst"          name="sosstsst"  />
+          <field ref="sss"          name="sosaline"  />
+          <field ref="ssh"          name="sossheig"  />
+          <field ref="empmr"        name="sowaflup"  />
+          <field ref="qsr"          name="soshfldo"  />
+          <field ref="empsmr"       name="sowaflcd"  />
+          <field ref="qt"           name="sohefldo"  />
+          <field ref="mldr10_1"     name="somxl010"  />
+          <field ref="mldkz5"       name="somixhgt"  />
+          <field ref="wspd"         name="sowindsp"  />
+          <field ref="qrp"          name="sohefldp"  />
+          <field ref="erp"          name="sowafldp"  />
+          <field ref="mldr10_1"     name="sobowlin"  operation="t_max(X)" />
+          <field ref="mlddzt"       name="sothedep"  />
+          <field ref="20d"          name="so20chgt"  />
+          <field ref="28d"          name="so28chgt"  />
+          <field ref="hc300"        name="sohtc300"  />
+        </file>
+
+        <file id="5d_grid_U" name="auto" description="ocean U grid variables" >
+          <field ref="uoce"         name="vozocrtx"  />
+          <field ref="uoce_eiv"     name="vozoeivu"  />
+          <field ref="utau"         name="sozotaux"  />
+        </file>
+
+        <file id="5d_grid_V" name="auto" description="ocean V grid variables" >
+          <field ref="voce"         name="vomecrty"  />
+          <field ref="voce_eiv"     name="vomeeivv"  />
+          <field ref="vtau"         name="sometauy"  />
+        </file>
+
+        <file id="5d_grid_W" name="auto" description="ocean W grid variables" >
+          <field ref="woce"         name="vovecrtz" />
+          <field ref="woce_eiv"     name="voveeivw" />
+          <field ref="avt"          name="votkeavt" />
+          <field ref="avt_evd"      name="votkeevd" />
+          <field ref="avm"          name="votkeavm" />
+          <field ref="avm_evd"      name="votkeevm" />
+          <field ref="avs"          name="voddmavs" />
+          <field ref="aht2d"        name="soleahtw" />
+          <field ref="aht2d_eiv"    name="soleaeiw" />
+        </file>
+  
+       <file id="5d_ptrc_T" name="auto" description="lobster sms variables" >
+         <field ref="DET"      />
+         <field ref="ZOO"      />
+         <field ref="PHY"      />
+         <field ref="NO3"      />
+         <field ref="NH4"      />
+         <field ref="DOM"      />
+       </file>
+
+       <file id="5d_diad_T" name="auto" description="additional lobster diagnostics" >  
+         <field ref="FNO3PHY"   /> 
+         <field ref="FNH4PHY"   /> 
+         <field ref="FNH4NO3"   /> 
+         <field ref="TNO3PHY"   /> 
+         <field ref="TNH4PHY"   /> 
+         <field ref="TPHYDOM"   /> 
+         <field ref="TPHYNH4"   /> 
+         <field ref="TPHYZOO"   /> 
+         <field ref="TPHYDET"   /> 
+         <field ref="TDETZOO"   /> 
+         <field ref="TDETSED"   /> 
+         <field ref="TZOODET"   /> 
+         <field ref="TZOOBOD"   /> 
+         <field ref="TZOONH4"   /> 
+         <field ref="TZOODOM"   /> 
+         <field ref="TNH4NO3"   /> 
+         <field ref="TDOMNH4"   /> 
+         <field ref="TDETNH4"   /> 
+         <field ref="TPHYTOT"   /> 
+         <field ref="TZOOTOT"   /> 
+         <field ref="TDETDOM"   /> 
+         <field ref="SEDPOC"    /> 
+       </file>
+
+      </group>
+
+      <group id="1m" output_freq="-1"     output_level="10" enabled=".TRUE.">                      <!-- real monthly files -->
+      </group>
+
+      <group id="2m" output_freq="-2"     output_level="10" enabled=".TRUE.">                      <!-- real 2m files -->
+      </group>
+
+      <group id="3m" output_freq="-3"     output_level="10" enabled=".TRUE.">                      <!-- real 3m files -->
+      </group>
+
+      <group id="4m" output_freq="-4"     output_level="10" enabled=".TRUE.">                      <!-- real 4m files -->
+      </group>
+
+      <group id="6m" output_freq="-6"     output_level="10" enabled=".TRUE.">                      <!-- real 6m files -->
+      </group>
+
+      <group id="1y" output_freq="-12"    output_level="10" enabled=".TRUE.">                      <!-- real yearly files -->
+      </group>
+
+      <group id="2y"  output_freq="-24"   output_level="10" enabled=".TRUE.">                      <!-- real 2y files -->
+      </group>
+
+      <group id="5y"  output_freq="-60"   output_level="10" enabled=".TRUE.">                      <!-- real 5y files -->
+      </group>
+
+      <group id="10y" output_freq="-120"  output_level="10" enabled=".TRUE.">                      <!-- real 10y files -->
+      </group>
+
+ 
+  </file_definition>
+
+    <!-- 
+============================================================================================================
+=                                           grid definition                                                =
+=                                            DO NOT CHANGE                                                 =
+============================================================================================================
+    -->
+
+  <axis_definition>  
+     <axis id="deptht" description="Vertical T levels" unit="m" positive=".false." />
+     <axis id="depthu" description="Vertical U levels" unit="m" positive=".false." />
+     <axis id="depthv" description="Vertical V levels" unit="m" positive=".false." />
+     <axis id="depthw" description="Vertical W levels" unit="m" positive=".false." />
+     <axis id="none" description="axe non defini" unit="none" size="1" />
+  </axis_definition> 
+
+  <grid_definition>
+    <grid id="grid_T" description="grid T" />
+    <grid id="grid_U" description="grid U" />
+    <grid id="grid_V" description="grid V" />
+    <grid id="grid_W" description="grid W" />
+    <grid id="scalarpoint" description="scalar" >
+      <zoom id="1point" ibegin="1" jbegin="1" ni="1" nj="1" />
+    </grid>
+  </grid_definition>    
+
+</context>
+
+</simulation>

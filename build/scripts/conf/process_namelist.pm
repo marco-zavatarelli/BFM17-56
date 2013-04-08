@@ -337,6 +337,72 @@ sub check_namelists{
                 }
             }
         }
+        #check namtrc_dta list
+        elsif( $list->{NAME} eq "namtrc_dta" ){
+            foreach my $element ( @{$list->slots} ){
+                if( $element =~ m/sn_trcdta\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="sn_trcdta($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+                elsif( $element =~ m/rn_trfac\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="rn_trfac($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+            }
+        }
+        #check namtrc_bc list
+        elsif( $list->{NAME} eq "namtrc_bc" ){
+            foreach my $element ( @{$list->slots} ){
+                if( $element =~ m/sn_trcsbc\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="sn_trcsbc($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+                elsif( $element =~ m/rn_trsfac\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="rn_trsfac($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+                elsif( $element =~ m/sn_trccbc\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="sn_trccbc($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+                elsif( $element =~ m/rn_trcfac\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="rn_trcfac($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+                elsif( $element =~ m/sn_trcobc\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="sn_trcobc($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+                elsif( $element =~ m/rn_trofac\((\w+)\)/ ){
+                    my $ele_name = $1;
+                    if( exists $$index_ref{$ele_name} ){
+                        my $element_new="rn_trofac($$index_ref{$ele_name})";
+                        $list->change_name($element, $element_new);
+                    }else{ print "WARNING: parameter \"$ele_name\" in \"$element\" does not exists\n";  }
+                }
+            }
+        }
     }
 }
 
