@@ -3,7 +3,7 @@
 #
 # AUTHORS
 #   Esteban Gutierrez esteban.gutierrez@cmcc.it
-#   Tomas Lovato toma.lovato@cmcc.it
+#   Tomas Lovato tomas.lovato@cmcc.it
 #
 # COPYING
 #  
@@ -40,7 +40,7 @@ BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
 
 #nemo files
-NEMO_FILES="iodef.xml namelist xmlio_server.def namelist_ice";
+NEMO_FILES="iodef.xml namelist xmlio_server.def namelist_ice namelist.assim";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
@@ -213,13 +213,13 @@ if [[ ! $BFMDIR ]]; then
     echo ${ERROR_MSG}
     exit
 fi
-if [[ ! $NEMODIR && "$MODE" == "NEMO" ]]; then
+if [[ ! $NEMODIR && ( "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ) ]]; then
     echo "ERROR: NEMODIR not specified in NEMO mode"
     echo ${ERROR_MSG}
     exit
 fi
-if [[ "$MODE" != "STANDALONE" && "$MODE" != "NEMO" ]]; then 
-    echo "ERROR: MODE value not valid ($MODE). Available values are: STANDALONE or NEMO."
+if [[ "$MODE" != "STANDALONE" && "$MODE" != "NEMO" && "$MODE" != "NEMO_3DVAR" ]]; then 
+    echo "ERROR: MODE value not valid ($MODE). Available values are: STANDALONE or NEMO or NEMO_3DVAR."
     echo ${ERROR_MSG}
     exit
 fi
@@ -345,7 +345,7 @@ if [ ${CMP} ]; then
             echo "${PRESET} compilation done!"
             echo " "
         fi
-    else
+    elif [[ ${MODE} == "NEMO" ]]; then
         cd ${NEMODIR}/NEMOGCM/CONFIG/
 
         if [ ${CLEAN} == 1 ]; then
@@ -355,6 +355,22 @@ if [ ${CMP} ]; then
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
         ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
+        if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
+            echo "ERROR in ${PRESET} compilation!" ; 
+            exit 1; 
+        else
+            echo "${PRESET} compilation done!"
+        fi
+    elif [[ ${MODE} == "NEMO_3DVAR" ]]; then
+        cd ${NEMODIR}/NEMOGCM/CONFIG/
+
+        if [ ${CLEAN} == 1 ]; then
+            [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+            ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
+        fi
+        [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
+        rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
+        ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
             exit 1; 
