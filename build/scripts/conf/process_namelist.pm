@@ -414,15 +414,14 @@ sub print_namelists{
     foreach my $nml (@$lst_nml){
         if ( $nml->get_parameter('filename_nml_conf') ){
             #print Dumper ($nml) , "\n";
-            #first get column sizes to print with a beauty format
             #insert all elements in a table
-            #my $nml_name = "$out_dir/" . $nml->hash()->{'filename_nml_conf'}->{'value'}[0];
             my $nml_name = "$out_dir/" . ${$nml->get_values('filename_nml_conf')}[0];
             $nml->remove('filename_nml_conf');
             my @max_len_array = ();
             my @tbl = ();         
             my $pred_terms = '';
 
+            #first get column sizes to print with a beauty format
             foreach my $line ( split(/\n/,$nml->output) ){
                 if( $line =~ "^&.*" ){
                     #print header

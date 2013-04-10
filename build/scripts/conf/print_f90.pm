@@ -452,7 +452,6 @@ sub func_POINT_ALLOC_FIELD  {
     $$LST_STA{"${type} ${dim}d ${spec} index"} = $n;
 
     $line_ini .= "${SPACE}PEL${SPEC} => D2DIAGNOS(${n}+1:${n}+${m},:); PEL${SPEC}=ZERO\n";
-    #foreach my $name (sort keys %$LST_PARAM){
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
@@ -575,6 +574,8 @@ sub func_FLUX_FILL  {
 
     if( $line ){ print $file $line; }
 }
+
+
 
 
 
@@ -1103,7 +1104,6 @@ sub func_STRING  {
 
     $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
 
-    #foreach my $name (sort keys %$LST_PARAM){
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() && $type eq $param->getType() ){
@@ -1119,7 +1119,7 @@ sub func_STRING  {
                         $line .= "${SPACE}var_names($STRING_INDEX)=\"$nameC\"\n";
                         $line .= "${SPACE}var_long($STRING_INDEX)=\"$comm\"\n";
                         $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
-                        $$LST_INDEX{"$nameC"} = "$STRING_INDEX";
+                        if( $type eq 'diagnos' || $type eq 'state'){ $$LST_INDEX{"$nameC"} = "$STRING_INDEX"; }
                         $STRING_INDEX++;
                     }
                 }
@@ -1128,7 +1128,7 @@ sub func_STRING  {
                 $line .= "${SPACE}var_names($STRING_INDEX)=\"$name\"\n";
                 $line .= "${SPACE}var_long($STRING_INDEX)=\"$comm\"\n";
                 $line .= "${SPACE}var_units($STRING_INDEX)=\"$unit\"\n";
-                $$LST_INDEX{"$name"} = "$STRING_INDEX";
+                if( $type eq 'diagnos' || $type eq 'state'){ $$LST_INDEX{"$name"} = "$STRING_INDEX"; }
                 $STRING_INDEX++;
             }
         }
@@ -1202,7 +1202,6 @@ sub func_STRING_FIELD  {
                         $line .= "${SPACE}var_names($STRING_INDEX)=\"j${spec_short}${nameC}\"\n";
                         $line .= "${SPACE}var_long($STRING_INDEX)=\"flux of $comm at $SPEC\"\n";
                         $line .= "${SPACE}var_units($STRING_INDEX)=\"$unitC\"\n";
-                        $$LST_INDEX{"j${spec_short}${nameC}"} = "$STRING_INDEX";
                         $STRING_INDEX++;
                     }
                 }
@@ -1211,7 +1210,6 @@ sub func_STRING_FIELD  {
                 $line .= "${SPACE}var_names($STRING_INDEX)=\"j${spec_short}${name}\"\n";
                 $line .= "${SPACE}var_long($STRING_INDEX)=\"flux of $comm at $SPEC\"\n";
                 $line .= "${SPACE}var_units($STRING_INDEX)=\"$unit\"\n";
-                $$LST_INDEX{"j${spec_short}${name}"} = "$STRING_INDEX";
                 $STRING_INDEX++;
             }
         }
