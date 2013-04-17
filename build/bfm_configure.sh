@@ -40,12 +40,12 @@ BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
 
 #nemo files
-NEMO_FILES="iodef.xml namelist xmlio_server.def namelist_ice namelist.assim";
+NEMONML="";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     )
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr )
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     NEMONML)
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr)
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -413,7 +413,7 @@ if [ ${DEP} ]; then
     else
         # copy and link necessary files
         cd "${BFMDIR}/${CONFDIR}/${PRESET}"
-        cp ${NEMO_FILES} ${exedir}/
+        cp ${NEMONML} ${exedir}/
         # copy and link generated namelist_top
         if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
         else cp ${blddir}/namelist_top ${exedir}/; fi

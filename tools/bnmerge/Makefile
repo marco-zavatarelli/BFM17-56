@@ -1,10 +1,11 @@
 # Makefile created by mkmf $Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ 
 
 # compile for serial queue
-include ../../compilers/gfortran.inc
+#include ../../compilers/gfortran.inc
 
 # compile for parallel queue
 # include ../../compilers/mpxlf90_calypso.inc
+include ../../compilers/ifort_athena.inc
 
 # Macros
 # Xlf

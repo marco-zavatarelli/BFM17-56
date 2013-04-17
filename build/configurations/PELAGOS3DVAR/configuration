@@ -31,6 +31,7 @@
         PROC    = 8,
         EXP     = 'pelagos2_3dvar',
         QUEUE   = 'poe_short',
+        NEMONML  = 'iodef.xml namelist xmlio_server.def namelist namelist_ice namelist.assim'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

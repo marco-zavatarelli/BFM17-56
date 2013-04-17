@@ -24,11 +24,12 @@
 #  INCLUDE_DIAG3    : activate flux diagnostics defined in .mem file
 
 &BFM_conf
-        MODE    = 'NEMO',
-        CPPDEFS = 'BFM_PARALLEL INCLUDE_PELCO2 D1SOURCE USE_MFSBULK',
-        ARCH    = 'ifort_athena',
-        PROC    = 8,
-        EXP     = 'MFS16_BFM',
+        MODE     = 'NEMO',
+        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 D1SOURCE USE_MFSBULK',
+        ARCH     = 'ifort_athena',
+        PROC     = 8,
+        EXP      = 'MFS16_BFM',
+        NEMONML  = 'iodef.xml namelist xmlio_server.def'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
