@@ -184,10 +184,12 @@ SUBROUTINE trc_trp_bfm( kt )
          END IF
          zmean  = ztraf / areatot
          zdrift = ( ( ztraf - D3STATE_tot(m) ) / ( D3STATE_tot(m) + 1.e-12_RLEN )  ) * 100._RLEN
+         IF(lwp .and. m==1) WRITE(LOGUNIT,*) 'Statistics on tracer at step: ' , kt
          IF(lwp) WRITE(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax, zdrift
 
       END DO ! over state vars
-      
+      IF(lwp) WRITE(LOGUNIT,*)       
+
       IF (ln_trcrad) THEN
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Clip negative concentrations (FIX!)

@@ -319,6 +319,7 @@
    ! compute and report global statistics
    ! in ocean.output
    !-------------------------------------------------------
+   if (lwp) write(LOGUNIT,*) 'Statistics at the initial time-step: ' , nit000
    D3STATE_tot(:) = ZERO
    do m = 1,NO_D3_BOX_STATES
          ! compute statistics (need to map to 3D shape for global sum)
@@ -331,9 +332,9 @@
             call mpp_max( zmax )      ! max over the global domain
          end if
          zmean  = D3STATE_tot(m) / areatot
-         if (lwp) write(numout,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax
-         if (lwp) write(numout,*)
+         if (lwp) write(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax
    end do
+   if (lwp) write(LOGUNIT,*)
 9000  FORMAT(' tracer :',i2,'    name :',a10,'    mean :',e18.10,'    min :',e18.10, &
       &      '    max :',e18.10)
 

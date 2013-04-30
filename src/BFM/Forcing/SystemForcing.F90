@@ -135,13 +135,13 @@
    ! ACCESS EXTERNAL INPUT & FIND TIMELINE BOUNDARIES
    IF (FName%filetype) THEN 
       ! NETCDF FILE 
-      call check_err(NF90_OPEN(trim(FName%filename),NF90_NOWRITE,FData%lun ))
+      call check_err(NF90_OPEN(trim(FName%filename),NF90_NOWRITE,FData%lun), FName%filename)
       ! Get unlimited dimension name and length (e.g. time and # of records)
-      call check_err(NF90_INQUIRE(FData%lun , unlimitedDimId = RecordDimID)) 
-      call check_err(NF90_INQUIRE_DIMENSION(FData%lun, RecordDimID, name = RecordDimName, len = nRecords)) 
+      call check_err(NF90_INQUIRE(FData%lun , unlimitedDimId = RecordDimID), FName%filename) 
+      call check_err(NF90_INQUIRE_DIMENSION(FData%lun, RecordDimID, name = RecordDimName, len = nRecords), FName%filename) 
       FData%nrec = nRecords
       ! Get variable ID
-      call check_err(nf90_inq_varid(FData%lun, trim(FName%varname), FData%varID))
+      call check_err(nf90_inq_varid(FData%lun, trim(FName%varname), FData%varID), FName%filename)
       ! Setup centered time for inputs
       select case (FData%cltype)
          case('yearly')
@@ -378,9 +378,9 @@
          case(1) ! Analytic
 
          case(2) ! Timeseries
-            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%nbef/)) ) 
+            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%nbef/)), 'FieldGet') 
             FData%fbef = Val0D
-            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%naft/)) )
+            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%naft/)), 'FieldGet')
             FData%faft = Val0D 
          case(3) ! 1D fields
 

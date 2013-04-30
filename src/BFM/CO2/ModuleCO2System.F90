@@ -78,7 +78,7 @@ module CO2System
 
 
 ! !USES:
-  use global_mem, ONLY: RLEN
+  use global_mem, ONLY: RLEN, LOGUNIT
 
 ! Shared variables
   implicit none
@@ -229,6 +229,7 @@ module CO2System
   tc2 = temp * temp
 #ifdef DEBUG
   LEVEL2 'Entering CO2System...'
+  LEVEL3 'temp',temp,'sal',salt
   LEVEL3 'tk',tk,'way',way,'mode',mode
   LEVEL3 'dic',ldic,'ta',ta
   LEVEL3 'pt',pt,'sit',sit

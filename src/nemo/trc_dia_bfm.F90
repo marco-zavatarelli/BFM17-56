@@ -14,7 +14,6 @@
    use global_mem, only: RLEN, LOGUNIT
    use netcdf_bfm, only: save_bfm, close_ncdf, ncid_bfm
    use netcdf_bfm, only: save_rst_bfm, ncid_rst
-   use mem
    use api_bfm,    only: out_delta, ave_ctl
    use time,       only: bfmtime
 #ifdef INCLUDE_PELCO2

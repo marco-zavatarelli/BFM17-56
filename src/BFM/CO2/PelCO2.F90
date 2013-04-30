@@ -97,6 +97,7 @@
      if ( error > 0 ) then
             write(LOGUNIT,*)" Ph outside range"
             write(LOGUNIT,'(A,'' ='',f12.6)') 'ERHO',ERHO(BoxNumber)
+            write(LOGUNIT,'(A,'' ='',f12.6)') 'ETW',ETW(BoxNumber)
             write(LOGUNIT,'(A,'' ='',f12.6)') 'ESW',ESW(BoxNumber)
             write(LOGUNIT,'(A,'' ='',f12.6)') 'EPR',EPR(BoxNumber)
             write(LOGUNIT,'(A,'' ='',f12.6)') 'N1p',N1p(BoxNumber)

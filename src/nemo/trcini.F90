@@ -92,8 +92,6 @@ CONTAINS
       tra(:,:,:,:) = 0._wp
       trb(:,:,:,:) = trn(:,:,:,:)
       !
-      IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
-      !
       IF( nn_timing == 1 )   CALL timing_stop('trc_init')
       
    END SUBROUTINE trc_init

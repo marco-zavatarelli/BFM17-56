@@ -9,8 +9,8 @@ MODULE trcstp
    !!   trc_stp      : passive tracer system time-stepping
    !!----------------------------------------------------------------------
    USE oce_trc          ! ocean dynamics and active tracers variables
-   USE api_bfm, ONLY: bio_calc
-   use global_mem,only:LOGUNIT
+   USE api_bfm,    ONLY: bio_calc
+   USe global_mem, ONLY: LOGUNIT
 #ifdef key_obcbfm
    USE trcobcdta_bfm
 #endif
@@ -43,7 +43,7 @@ CONTAINS
       CHARACTER (len=25)    ::  charout
       !!-------------------------------------------------------------------
 #ifdef DEBUG
-      write(LOGUNIT,*) 'Timestep: ',kt
+      write(LOGUNIT,*) 'Timestep: ',kt, nit000, nn_dttrc
 #endif
 
       IF( nn_timing == 1 )   CALL timing_start('trc_stp')
@@ -53,7 +53,9 @@ CONTAINS
       !---------------------------------------------
       IF (bio_calc) THEN
 
-          IF ( nn_dttrc /= 1 )     CALL trc_sub_stp( kt )  ! averaging physical variables for sub-stepping
+          IF( (nn_dttrc /= 1 ) .AND. (kt == nit000) )       CALL trc_sub_ini ! Initialize variables for substepping passive tracers
+
+          IF ( nn_dttrc /= 1 )     CALL trc_sub_stp( kt )                    ! Averaging physical variables for sub-stepping
 
           !---------------------------------------------
           ! Proceed only every nn_dttrc
@@ -63,7 +65,7 @@ CONTAINS
                                    CALL trc_bfm( kt )           ! main call to BFM
                                    CALL trc_trp_bfm( kt )       ! transport of BFM tracers
                                    CALL trc_dia_bfm( kt )       ! diagnostic output for BFM
-             IF ( nn_dttrc /= 1 )  CALL trc_sub_reset( kt )     ! resetting physical variables when sub-stepping
+             IF ( nn_dttrc /= 1 )  CALL trc_sub_reset( kt )     ! reset physical variables after sub-stepping
 
           ENDIF 
 
