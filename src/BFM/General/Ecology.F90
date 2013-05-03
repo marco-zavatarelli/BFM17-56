@@ -34,6 +34,7 @@
   use mem,  ONLY: iiBen, iiPel, iiReset, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
   use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag, CalcConservationFlag
+  use api_bfm, ONLY: LOGUNIT
 #ifdef INCLUDE_SEAICE
   use mem_Param,  ONLY: CalcSeaiceFlag
 #endif
@@ -84,7 +85,6 @@
 #endif
 
   if ( CalcPelagicFlag) then
-
     call PelagicSystemDynamics
 
   end if

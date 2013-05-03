@@ -217,8 +217,8 @@
      PBAc(:,i) = p_paPBA(zoo,i)*PelBacteria(i,iiC)* &
                  MM_vector(PelBacteria(i,iiC), p_minfood(zoo))
      rumc = rumc + PBAc(:,i)
-     rumn = rumn + PBAc(:,i)*qncPBA(:,i)
-     rump = rump + PBAc(:,i)*qpcPBA(:,i)
+     rumn = rumn + PBAc(:,i)*qncPBA(i,:)
+     rump = rump + PBAc(:,i)*qpcPBA(i,:)
   end do
 
   do i = 1 ,iiPhytoPlankton

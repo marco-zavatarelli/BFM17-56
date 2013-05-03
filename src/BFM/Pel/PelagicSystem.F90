@@ -31,6 +31,7 @@
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
   use global_interface, ONLY: PhotoAvailableRadiation, &
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
+  use api_bfm, ONLY: LOGUNIT
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 !  
