@@ -46,7 +46,7 @@ subroutine create_outputfile
   ! Define missing value
   fillvalue=(/ NF_FILL_REAL /)
 
-  call handle_err( nfmpi_create(MPI_COMM_WORLD, trim(out_dir)//"/"//trim(chunk_fname)//".nc", NF_CLOBBER, MPI_INFO_NULL, ncid), &
+  call handle_err( nfmpi_create(MPI_COMM_WORLD, trim(out_dir)//"/"//trim(chunk_fname)//".nc", NF_NOCLOBBER, MPI_INFO_NULL, ncid), &
        errstring="A file named "//trim(chunk_fname)//".nc already exists!" )
 
   ! Define the dimensions

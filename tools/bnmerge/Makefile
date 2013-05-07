@@ -24,7 +24,7 @@ read_input.o: src/read_input.F90 mod_bnmerge.o
 SRC = src/${MODE}/create_outputfile.F90 src/${MODE}/mod_bnmerge.F90 src/${MODE}/merge_vars.F90 src/${MODE}/bnmerge.F90 src/read_input.F90
 OBJ = create_outputfile.o mod_bnmerge.o merge_vars.o bnmerge.o read_input.o
 clean: neat
-	-rm -f .cppdefs *.mod $(OBJ) bnmerge LinkerMap
+	-rm -f runscript .cppdefs *.mod $(OBJ) bnmerge LinkerMap
 neat:
 	-rm -f $(TMPFILES)
 bnmerge: $(OBJ) 
