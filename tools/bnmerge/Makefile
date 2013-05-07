@@ -1,8 +1,8 @@
-ifeq ($(MODE),openmp)
+ifeq ($(PARALLEL),yes)
 	MODE=openmp
 	include ../../compilers/ifort_athena_openmp.inc
 else
-	MODE = concurrent
+	MODE=concurrent
 	include ../../compilers/ifort_athena.inc
 endif
 

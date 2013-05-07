@@ -44,7 +44,7 @@ module mod_bnmerge
        nleit , nlejt       !: first, last indoor index for each j-domain
 
   ! masks
-  real(4), public, allocatable, dimension(:,:)                 :: latglo, longlo ! FLOAT
+  real(RLEN), public, allocatable, target, dimension(:,:)   :: latglo, longlo ! FLOAT
   real(RLEN), public, allocatable, target, dimension(:,:,:) :: maskglo
 
   ! no. of ocean points in the whole domain (volume and surface)

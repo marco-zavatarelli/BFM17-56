@@ -25,7 +25,7 @@ subroutine merge_vars
   integer           :: IDx, IDy, IDz, IDocepnt, IDsrfpnt, IDvar, ncid
   integer           :: lenoce, lensrf, ntime
   integer           :: noce, nsrf 
-  integer           :: nimpp, njmpp, nlci, nlcj
+  integer           :: nimpp, njmpp
   real, allocatable, dimension(:,:) :: lat, lon
   real, allocatable, dimension(:,:,:) :: mask
   real, allocatable, dimension(:) :: oceanpoint, depth
@@ -34,6 +34,10 @@ subroutine merge_vars
   real, allocatable, dimension(:,:,:)   :: bfmvar2d
   integer :: vartype,dimids(4),dimlen(4),zflag
   character(len = NF90_MAX_NAME) :: DimName,varname,attname
+
+  integer :: iniI, iniJ, finI, finJ, resI, resJ
+  integer :: Istart, Icount, Jstart, Jcount
+  integer :: step_start_arr3(3), step_count_arr3(3), step_start_arr4(4), step_count_arr4(4)
 
   zflag = 0
 
@@ -45,9 +49,9 @@ subroutine merge_vars
 
   ! Initialisations
   maskglo=NF90_FILL_REAL
-  latglo = 0
-  longlo = 0
-  depth = 0
+  latglo = NF90_FILL_REAL
+  longlo = NF90_FILL_REAL
+  depth = NF90_FILL_REAL
   ocepoints = 0
   srfpoints = 0
 
@@ -149,24 +153,32 @@ subroutine merge_vars
      ! get the coordinates of the sub-domain
      nimpp = nimppt(p)
      njmpp = njmppt(p)
-     nlci  = nlcit(p)
-     nlcj  = nlcjt(p)
+     jpi  = nlcit(p)
+     jpj  = nlcjt(p)
+     !!dont write frame in chunk which overlap the other neighbours chunks
+     iniI = 2 ; iniJ = 2
+     finI = 1 ; finJ = 1
+     if ( nimpp == 1 ) iniI = 1
+     if ( njmpp == 1 ) iniJ = 1
+     if( (nimpp + jpi) > jpiglo ) finI = 0
+     if( (njmpp + jpj) > jpjglo ) finJ = 0 
+     Istart = nimpp+iniI-1      ; Jstart = njmpp+iniJ-1
+     Icount = jpi-finI-(iniI-1) ; Jcount = jpj-finJ-(iniJ-1)
+
      ! insert the subdomain in the global domain
      ! note that mask is double!
-     maskglo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1,:) = mask(:,:,:)
-     latglo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1) = lat(:,:)
-     longlo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1) = lon(:,:)
+     maskglo(Istart:Istart+Icount-1,Jstart:Jstart+Jcount-1,:) = mask(iniI:jpi-finI,iniJ:jpj-finJ,:) 
+     latglo(Istart:Istart+Icount-1,Jstart:Jstart+Jcount-1)    = lat(iniI:jpi-finI,iniJ:jpj-finJ)
+     longlo(Istart:Istart+Icount-1,Jstart:Jstart+Jcount-1)    = lon(iniI:jpi-finI,iniJ:jpj-finJ)
      deallocate(lon)
      deallocate(lat)
 
      ! allocate local 3D and 2D variables
-     jpi = nlci
-     jpj = nlcj
      allocate(bfmvar3d(jpi,jpj,jpk,ntime))
      allocate(bfmvar2d(jpi,jpj,ntime))
 #ifdef DEBUG
-     write(*,*) "domain specifications nimpp,nlci,njmpp,nlcj,jpi,jpj,jpk,ntime:", &
-                nimpp,nlci,njmpp,nlcj,jpi,jpj,jpk,ntime
+     write(*,*) "domain specifications nimpp,jpi,njmpp,jpj,jpi,jpj,jpk,ntime:", &
+                nimpp,jpi,njmpp,jpj,jpi,jpj,jpk,ntime
      write(*,*) "size maskglo:",size(maskglo,1),size(maskglo,2),size(maskglo,3)
      write(*,*) "size latglo:",size(latglo,1),size(latglo,2)
 #endif
@@ -190,6 +202,25 @@ subroutine merge_vars
         write(*,*) "BFM Dimension:",dimlen(1)
 #endif
 
+        iniI = 2
+        iniJ = 2
+        finI = 1
+        finJ = 1
+        if ( nimpp == 1 ) then
+           iniI = 1
+        end if
+        if ( njmpp == 1 ) then
+           iniJ = 1
+        end if
+        if( (nimpp + jpi) > jpiglo ) then
+           finI = 0
+        endif
+        if( (njmpp + jpj) > jpjglo ) then
+           finJ = 0
+        endif
+
+
+
         if (dimlen(1) == lenoce) then ! 3D variable
            bfmvar3d=NF90_FILL_REAL
            ! loop sequence is mandatory
@@ -204,8 +235,10 @@ subroutine merge_vars
                  end do
               end do
            end do
-           status = nf90_put_var(ncid, IDvar, bfmvar3d, &
-                    start = (/ nimpp, njmpp, 1, 1 /), count = (/ jpi, jpj, jpk, ntime /))
+           step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
+           step_count_arr4 = (/ Icount, Jcount, jpk, ntime /)
+           status = nf90_put_var(ncid, IDvar, bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:), &
+                    start = step_start_arr4, count = step_count_arr4)
 #ifdef DEBUG
         write(*,*) "3D var, Dimensions: ",jpi, jpj, jpk, ntime
 #endif
@@ -223,8 +256,10 @@ subroutine merge_vars
                  end if
               end do
            end do
-           status = nf90_put_var(ncid, IDvar, bfmvar2d, &
-                    start = (/ nimpp, njmpp, 1 /), count = (/ jpi, jpj, ntime /))
+           step_start_arr3 = (/ Istart, Jstart, 1 /)
+           step_count_arr3= (/ Icount, Jcount, ntime /)
+           status = nf90_put_var(ncid, IDvar, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
+                    start = step_start_arr3, count = step_count_arr3)
 #ifdef DEBUG
         write(*,*) "2D var, Dimensions: ",jpi, jpj, ntime
 #endif

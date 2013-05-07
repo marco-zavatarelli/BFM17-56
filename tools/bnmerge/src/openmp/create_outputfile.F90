@@ -77,6 +77,7 @@ subroutine create_outputfile
   length = len("degrees_east")
   call handle_err ( nfmpi_put_att_text(ncid, IDtarget, "units", length, "degrees_east") )
   call handle_err ( nfmpi_def_var(ncid, "depth", NF_REAL, 1, (/ IDz /), IDtarget) )
+  call handle_err( nfmpi_put_att_real(ncid, IDtarget, "_FillValue", NF_REAL, 1, fillvalue) )
   length = len("depth_below_sea")
   call handle_err ( nfmpi_put_att_text(ncid, IDtarget, "long_name", length, "depth_below_sea") )
   length = len("m")
@@ -223,7 +224,7 @@ subroutine create_outputfile
         call handle_err( nfmpi_end_indep_data(ncid) )
         !$OMP END CRITICAL
      case default
-        write(*,*) "invalid dimenstion"
+        write(*,'(A,I4)') "invalid dimension size: ",ndims
      end select
   end do
   !$OMP END PARALLEL DO

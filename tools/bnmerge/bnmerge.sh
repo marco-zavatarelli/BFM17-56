@@ -3,11 +3,11 @@
 export OMP_NUM_THREADS=16
 LIST=bnmerge.nml
 LOG_DIR=./
-MODE=openmp
+#PARALLEL=yes
 #DEBUG=-DDEBUG
 
 gmake clean
-gmake DEBUG=${DEBUG} MODE=${MODE}
+gmake DEBUG=${DEBUG} PARALLEL=${PARALLEL}
 
 # cat > runscript <<EOF
 #     #! /bin/sh 

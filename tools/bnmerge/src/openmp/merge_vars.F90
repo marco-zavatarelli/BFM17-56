@@ -30,7 +30,7 @@ subroutine merge_vars
   integer, parameter :: NPARS=IDLAT, NPARSK=LENSRFK
 
   integer :: p, n, id, nthreads=0, nthread=0, d
-  integer :: nimpp, njmpp, nlci, nlcj
+  integer :: nimpp, njmpp
   real(4), allocatable, dimension(:,:) :: lat, lon
   integer(kind=MPI_OFFSET_KIND) :: step_start(1), step_count(1), &
        step_start_arr3(3), step_count_arr3(3), &
@@ -56,11 +56,13 @@ subroutine merge_vars
   integer noce, vardID, i, j, k, vardIDmask, vardIDlat, vardIDlon, vardIDdep
 
   integer iniI, iniJ, finI, finJ, resI, resJ
+  integer(kind=MPI_OFFSET_KIND) :: Istart, Icount, Jstart, Jcount
 
   type ppChunk
      real(4), allocatable, dimension(:,:) :: p
   end type ppChunk
   type(ppChunk), dimension(:,:), allocatable :: A_chunk
+  type(ppChunk), dimension(:),   allocatable :: A_lat, A_lon
   type ppOce
      real(4), dimension(:), allocatable :: p
   end type ppOce
@@ -100,6 +102,8 @@ subroutine merge_vars
   ! Allocate array of pointers
   allocate(A_oceanpoint(jpnij))
   allocate(A_mask(jpnij))
+  allocate(A_lat(jpnij))
+  allocate(A_lon(jpnij))
   allocate(A_chunk(jpnij,n_bfmvar))
 
   ! Allocate arrays
@@ -138,15 +142,15 @@ subroutine merge_vars
 
   ! loop over all the files getting info
   !$OMP PARALLEL DO DEFAULT(NONE) &
-  !$OMP PRIVATE ( id, nthread, nimpp, njmpp, nlci, nlcj, lat, lon )                      &
+  !$OMP PRIVATE ( id, nthread, nimpp, njmpp, lat, lon )                      &
   !$OMP PRIVATE ( step_start, step_count, step_start_arr2, step_count_arr2, step_start_arr3, step_count_arr3, step_start_arr4, step_count_arr4 ) &
   !$OMP SHARED  ( inp_dir, chunk_fname, A_fname )     &
   !$OMP SHARED  ( jpnij, nimppt, njmppt, nlcit, nlcjt, maskglo, latglo, longlo )     &
-  !$OMP SHARED  ( A_infofile, A_infofile_kind, A_oceanpoint, A_chunk, A_procname, A_mask, A_dimlen, A_dimids ) &
+  !$OMP SHARED  ( A_infofile, A_infofile_kind, A_oceanpoint, A_chunk, A_procname, A_mask, A_lon, A_lat, A_dimlen, A_dimids ) &
   !$OMP PRIVATE ( d, jpi,jpj, bfmvar2d, bfmvar3d, varname, vartype, varndims, vardimids, vardimlen, varnatts, tmp_str ) &
   !$OMP SHARED  ( jpiglo, jpjglo, jpk, n_bfmvar, bfmvarid, ncid ) &
   !$OMP PRIVATE ( vardID, noce, i, j, k ) &
-  !$OMP PRIVATE ( iniI, iniJ, finI, finJ, resI, resJ )
+  !$OMP PRIVATE ( iniI, iniJ, finI, finJ, resI, resJ, Istart, Jstart, Icount, Jcount )
   do p=1,jpnij
 #ifdef DEBUG
      !$ nthread = omp_get_thread_num()
@@ -192,8 +196,17 @@ subroutine merge_vars
      ! get the coordinates of the sub-domain
      nimpp = nimppt(p)
      njmpp = njmppt(p)
-     nlci  = nlcit(p)
-     nlcj  = nlcjt(p)
+     jpi  = nlcit(p)
+     jpj  = nlcjt(p)
+     !!dont write frame in chunk which overlap the other neighbours chunks
+     iniI = 2 ; iniJ = 2
+     finI = 1 ; finJ = 1
+     if ( nimpp == 1 ) iniI = 1
+     if ( njmpp == 1 ) iniJ = 1
+     if( (nimpp + jpi) > jpiglo ) finI = 0
+     if( (njmpp + jpj) > jpjglo ) finJ = 0 
+     Istart = nimpp+iniI-1      ; Jstart = njmpp+iniJ-1
+     Icount = jpi-finI-(iniI-1) ; Jcount = jpj-finJ-(iniJ-1)
 
      ! read mask
      allocate( A_mask(p)%p(A_dimlen(p,1),A_dimlen(p,2),A_dimlen(p,3)) )
@@ -201,32 +214,25 @@ subroutine merge_vars
      step_count_arr3 = (/ A_dimlen(p,1),A_dimlen(p,2),A_dimlen(p,3) /)
      call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDMASK), step_start_arr3, step_count_arr3, A_mask(p)%p), &
           errstring="variable: mask get")
-     maskglo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1,:) = A_mask(p)%p(:,:,:)
-
-     ! read lon, lat
-     allocate(lon(A_dimlen(p,1),A_dimlen(p,2)))
+     maskglo(Istart:Istart+Icount-1,Jstart:Jstart+Jcount-1,:) = A_mask(p)%p(iniI:jpi-finI,iniJ:jpj-finJ,:)
+     ! read lon
+     allocate(A_lon(p)%p(A_dimlen(p,1),A_dimlen(p,2)))
      step_start_arr2 = (/ 1, 1 /)
      step_count_arr2 = (/ A_dimlen(p,1),A_dimlen(p,2) /)
-     call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDLON), step_start_arr2, step_count_arr2, lon ), & 
+     call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDLON), step_start_arr2, step_count_arr2, A_lon(p)%p ), & 
           errstring="variable: lon")
-     allocate(lat(A_dimlen(p,1),A_dimlen(p,2)))
+     longlo(Istart:Istart+Icount-1,Jstart:Jstart+Jcount-1) = A_lon(p)%p(iniI:jpi-finI,iniJ:jpj-finJ)
+
+     ! read lat
+     allocate(A_lat(p)%p(A_dimlen(p,1),A_dimlen(p,2)))
      step_start_arr2 = (/ 1, 1 /)
      step_count_arr2 = (/ A_dimlen(p,1), A_dimlen(p,2) /)
-     call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDLAT), step_start_arr2, step_count_arr2, lat ), &
+     call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDLAT), step_start_arr2, step_count_arr2, A_lat(p)%p ), &
           errstring="variable: lat")
-     latglo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1) = lat(:,:)
-     longlo(nimpp:nimpp+nlci-1,njmpp:njmpp+nlcj-1) = lon(:,:)
-     deallocate(lon)
-     deallocate(lat)
+     latglo(Istart:Istart+Icount-1,Jstart:Jstart+Jcount-1) = A_lat(p)%p(iniI:jpi-finI,iniJ:jpj-finJ)
 
-     ! local 3D and 2D variables
-     jpi = nlci
-     jpj = nlcj
      allocate( bfmvar3d(jpi,jpj,jpk,A_infofile_kind(p,NTIMEK)) )
      allocate( bfmvar2d(jpi,jpj,A_infofile_kind(p,NTIMEK)) )
-
-     ! write(*,'(A,I3,A,I3,A,I3)') "START: ", nimpp,     " - ", njmpp,     " - ", p
-     ! write(*,'(A,I3,A,I3,A,I3)') "STOP : ", nimpp+jpi, " - ", njmpp+jpj, " - ", p
 
      ! loop over the variables
      do d=1,n_bfmvar
@@ -258,24 +264,6 @@ subroutine merge_vars
         ! inquire ID in the output file
         call handle_err( nfmpi_inq_varid(ncid, varname, vardID) )
 
-        !!dont write frame in chunk which overlap the other neighbours chunks
-        iniI = 2
-        iniJ = 2
-        finI = 1
-        finJ = 1
-        if ( nimpp == 1 ) then
-           iniI = 1
-        end if
-        if ( njmpp == 1 ) then
-           iniJ = 1
-        end if
-        if( (nimpp + jpi) > jpiglo ) then
-           finI = 0
-        endif
-        if( (njmpp + jpj) > jpjglo ) then
-           finJ = 0
-        endif
-
         !write the variable content to memory
         if ( vardimlen(1) == A_infofile_kind(p,LENOCEK) ) then ! 3D variable
            bfmvar3d=NF_FILL_REAL
@@ -291,8 +279,8 @@ subroutine merge_vars
               end do
            end do
 
-           step_start_arr4 = (/ nimpp+iniI-1, njmpp+iniJ-1, 1, 1 /)
-           step_count_arr4= (/ jpi-finI-(iniI-1), jpj-finJ-(iniJ-1), jpk, A_infofile_kind(p,NTIMEK) /)
+           step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
+           step_count_arr4= (/ Icount, Jcount, jpk, A_infofile_kind(p,NTIMEK) /)
            !$OMP CRITICAL
            call handle_err(  &
                 nfmpi_put_vara_real_all(ncid, vardID, step_start_arr4, step_count_arr4, bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:)), &
@@ -310,8 +298,8 @@ subroutine merge_vars
               end do
            end do
 
-           step_start_arr3 = (/ nimpp+iniI-1, njmpp+iniJ-1, 1 /)
-           step_count_arr3= (/ jpi-finI-(iniI-1), jpj-finJ-(iniJ-1), A_infofile_kind(p,NTIMEK) /)
+           step_start_arr3 = (/ Istart, Jstart, 1 /)
+           step_count_arr3= (/ Icount, Jcount, A_infofile_kind(p,NTIMEK) /)
            !$OMP CRITICAL
            call handle_err( & 
                 nfmpi_put_vara_real_all(ncid, vardID, step_start_arr3, step_count_arr3, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:)), &
@@ -384,8 +372,6 @@ subroutine merge_vars
   WRITE(*,*) 'Deallocating in Merge Vars...'
 #endif
 
-  WRITE(*,*) 'RLEN: ', RLEN
-
   deallocate(maskglo)
   deallocate(longlo)
   deallocate(latglo)
@@ -393,9 +379,13 @@ subroutine merge_vars
   do p=1,jpnij
      if ( allocated(A_oceanpoint(p)%p) ) deallocate(A_oceanpoint(p)%p)
      if ( allocated(A_mask(p)%p) ) deallocate(A_mask(p)%p)
+     if ( allocated(A_lat(p)%p) ) deallocate(A_lat(p)%p)
+     if ( allocated(A_lon(p)%p) ) deallocate(A_lon(p)%p)
   end do
   deallocate(A_oceanpoint)
   deallocate(A_mask)
+  deallocate(A_lat)
+  deallocate(A_lon)
   deallocate(A_chunk)
   deallocate(A_infofile)
   deallocate(A_infofile_kind)
