@@ -594,7 +594,12 @@ end subroutine init_netcdf_rst_bfm
 
       dims(1) = botpoint_dim
       dims(2) = time_dim
-      do n=stBenStateS,stBenFluxE
+      do n=stPelSurS,stBenFluxE
+         ! select appropriate dimension (River is missing, so bottom is used instead)
+         if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
+         if ( n >= stPelBotS .AND. n <= stPelBotE ) dims(1) = botpoint_dim
+         if ( n >= stPelRivS .AND. n <= stPelRivE ) dims(1) = botpoint_dim
+
          if ( var_ids(n) /= 0 )  then 
             iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
                            dims,var_ids(n))
@@ -677,7 +682,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
 
    k = 0
-   do n = stPelStateS , stPelFluxE
+   do n = stPelStateS , stPelRivE
       if ( var_ids(n) > 0 ) then
 
          !-- Store snapshot of pelagic state variables
@@ -697,13 +702,19 @@ end subroutine init_netcdf_rst_bfm
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
          endif
 #endif
+         ! Store snapshot of benthic diagnostics
+         if ( n >= stPelSurS .AND. n <= stPelRivE) then   
+            i = n - stBenDiagS + 1
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+         end if
          if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3ave(k,:))
          endif
- 
       endif
    enddo
+
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
 
    !---------------------------------------------
    ! Benthic variables
@@ -711,17 +722,15 @@ end subroutine init_netcdf_rst_bfm
    k=0
    do n = stBenStateS , stBenFluxE
       if ( var_ids(n) > 0 ) then   
-
-         ! Store snapshot of benthic diagnostics
-         if ( n >= stBenDiagS .AND. n <= stBenDiagE) then   
-            i = n - stBenDiagS + 1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-         end if
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          ! Store snapshot of benthic state variables
          if ( n >= stBenStateS .AND. n <= stBenStateE ) then
             i = n - stBenStateS + 1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
+         end if
+         ! Store snapshot of benthic diagnostics
+         if ( n >= stBenDiagS .AND. n <= stBenDiagE) then   
+            i = n - stBenDiagS + 1
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
          end if
 #ifndef D1SOURCE 
          ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
@@ -736,9 +745,9 @@ end subroutine init_netcdf_rst_bfm
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
          end if
-#endif
       end if
    enddo
+#endif
 
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret, 'Save_bfm: writing output')

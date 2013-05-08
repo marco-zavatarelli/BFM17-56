@@ -53,7 +53,7 @@
          else
             do_3ave = .false.
          endif
-         i=count(var_ave(stBenStateS:stBenFluxE))
+         i=count(var_ave(stPelSurS:stBenFluxE))
          if ( i > 0 ) then
             allocate(D2ave(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D3ave'
@@ -115,6 +115,19 @@
                end if
             end do
 #endif
+            j=0
+            do i=stPelSurS,stPelRivE
+               j=j+1
+               if ( var_ave(i) ) then
+                  k=k+1
+                  if ( ave_count < 1.5 ) then
+                     D2ave(k,:)=D2DIAGNOS(j,:)
+                  else
+                     D2ave(k,:)=D2ave(k,:)+D2DIAGNOS(j,:)
+                  end if
+               end if
+            end do
+
          endif
          if (stBenStateE /= 0 .and. do_2ave) then
             !---------------------------------------------
@@ -134,7 +147,7 @@
                   end if
                end if
             end do
-#endif
+
             j=0
             do i=stBenDiagS,stBenDiagE
                j=j+1
@@ -161,6 +174,7 @@
                   end if
                end if
             end do
+#endif
 #endif
          end if
    end select

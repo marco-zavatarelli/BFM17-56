@@ -33,7 +33,7 @@ use classes;
 ########### REGULAR EXPRESSIONS ##########################
 my $XPR_GLOBAL_COMMENT = '([^#]*)#{0,1}(.*)'; # dont process commentaries
 
-my $XPR_START_BLOCK = '^([123])d-([^-\s\n]+)(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
+my $XPR_START_BLOCK = '^([123])d-([^\s\n]+)(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
 my $XPR_END_BLOCK   = '^end';
 
 #my $XPR_START_GROUP = '^group\s+([^:]*):(.*)'; # group name : units
@@ -296,9 +296,12 @@ sub process_memLayout{
             if( $VERBOSE){ print "Processing PARAM: $line_raw"; }
             if( $blk_is_include ){
                 my ( $units, $size );
-                my ( $obj, $par_name, $par_unit, $par_type, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, @par_const );
+                my ( $obj, $par_name, $par_unit, $par_type, $par_subtype, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, @par_const );
                 
                 if ( ! process_name($1, $blk_dim, \$par_name, \$units, \$par_func , \$par_quota, \$lst_param, \$lst_sta) ){ print "WARNING: Parameter not found: $1\n"; next; }
+                if( $blk_dim == '3' ){ $par_subtype = 'pel'; }
+                if( $blk_dim == '2' ){ $par_subtype = 'ben'; }
+
                 if( $par_quota && $units ){
                     my $par_name_src = $par_name;
                     $par_comm  = trim($2);
@@ -308,12 +311,12 @@ sub process_memLayout{
                     $par_group = $blk_group;
                     if ( $par_group ){ $size = process_units($temp_unit, $units, \$par_unit, \$par_compo, \$par_compoEx, $$lst_group{$par_group}, \@par_const); }
                     else{              $size = process_units($temp_unit, $units, \$par_unit, \$par_compo, \$par_compoEx, undef                  , \@par_const); }
-                    $par_type = 'diaggrp';
+                    $par_type    = 'diaggrp';
 
                     foreach my $compo_tmp ( @compo_array ){
                         $par_name = $par_name_src . $compo_tmp;
 
-                        $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
+                        $obj = new Parameter( $par_name, $blk_dim, $par_type, $par_subtype, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
                         #print " " . $obj->getSigla() . " - " . $obj->getIndex() . "\n";
                         $param_idx++;
                         $$lst_param{$par_name} = $obj;
@@ -327,11 +330,13 @@ sub process_memLayout{
                     if ( $par_group ){ $size = process_units($3, $units, \$par_unit, \$par_compo, \$par_compoEx, $$lst_group{$par_group}, \@par_const); }
                     else{              $size = process_units($3, $units, \$par_unit, \$par_compo, \$par_compoEx, undef                  , \@par_const); }
                     
-                    if( $par_quota )                                                  { $par_type = 'diaggrp'   } #name(quota)
-                    elsif( $3 && ($blk_type eq 'variable') && ( $blk_dim =~ /[23]/ ) ){ $par_type = 'diagnos';  } #if 3d/2d has units and is a variable => insert in diagnos group
-                    else                                                              { $par_type = $blk_type;  };#normal parameter
+                    if( $par_quota )                                                       { $par_type = 'diaggrp'                      } #name(quota)
+                    elsif( $3 && ($blk_type eq 'variable')     && ( $blk_dim =~ /3/ ) )    { $par_type = 'diagnos'; $par_subtype='pel'  } #if 3d/2d has units and is a variable => insert in diagnos group
+                    elsif( $3 && ($blk_type eq 'variable')     && ( $blk_dim =~ /2/ ) )    { $par_type = 'diagnos'; $par_subtype='ben'  } #if 3d/2d has units and is a variable => insert in diagnos group
+                    elsif( $3 && ($blk_type eq 'variable-pel') && ( $blk_dim =~ /2/ ) )    { $par_type = 'diagnos'; $par_subtype='pel'  } #if 3d/2d has units and is a variable => insert in diagnos group
+                    else                                                                   { $par_type = $blk_type;                     };#normal parameter
                     
-                    $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
+                    $obj = new Parameter( $par_name, $blk_dim, $par_type, $par_subtype, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
                     $param_idx++;
                     #print " " . $obj->getSigla() . " - " . $obj->getIndex() . "\n";
                     $$lst_param{$par_name} = $obj;
