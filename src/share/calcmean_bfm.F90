@@ -56,7 +56,7 @@
          i=count(var_ave(stPelSurS:stBenFluxE))
          if ( i > 0 ) then
             allocate(D2ave(1:i,1:NO_BOXES_XY),stat=rc)
-            if (rc /= 0) stop 'init_bio(): Error allocating D3ave'
+            if (rc /= 0) stop 'init_bio(): Error allocating D2ave'
             D2ave=0.0
             do_2ave = .true.
          else
@@ -115,6 +115,10 @@
                end if
             end do
 #endif
+         endif
+
+         if (stPelStateE /= 0 .and. do_2ave) then
+            k=0
             j=0
             do i=stPelSurS,stPelRivE
                j=j+1
@@ -127,15 +131,15 @@
                   end if
                end if
             end do
-
          endif
+
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          if (stBenStateE /= 0 .and. do_2ave) then
             !---------------------------------------------
             ! Compute benthic means
             !---------------------------------------------
-            k=0
+      !TL ! k=count(var_ave(stPelSurS:stPelRivE))
             j=0
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
             do i=stBenStateS,stBenStateE
                j=j+1
                if ( var_ave(i) ) then
@@ -175,8 +179,8 @@
                end if
             end do
 #endif
-#endif
          end if
+#endif
    end select
 
 end subroutine calcmean_bfm

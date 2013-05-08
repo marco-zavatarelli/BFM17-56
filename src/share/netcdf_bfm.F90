@@ -592,13 +592,12 @@ end subroutine init_netcdf_rst_bfm
          end if 
       end do
 
-      dims(1) = botpoint_dim
-      dims(2) = time_dim
       do n=stPelSurS,stBenFluxE
+         dims(1) = botpoint_dim
+         dims(2) = time_dim
+
          ! select appropriate dimension (River is missing, so bottom is used instead)
          if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
-         if ( n >= stPelBotS .AND. n <= stPelBotE ) dims(1) = botpoint_dim
-         if ( n >= stPelRivS .AND. n <= stPelRivE ) dims(1) = botpoint_dim
 
          if ( var_ids(n) /= 0 )  then 
             iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
@@ -680,9 +679,10 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Pelagic variables
    !---------------------------------------------
-
+   ! 3-Dimensional
+   
    k = 0
-   do n = stPelStateS , stPelRivE
+   do n = stPelStateS , stPelFluxE
       if ( var_ids(n) > 0 ) then
 
          !-- Store snapshot of pelagic state variables
@@ -702,24 +702,38 @@ end subroutine init_netcdf_rst_bfm
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
          endif
 #endif
-         ! Store snapshot of benthic diagnostics
-         if ( n >= stPelSurS .AND. n <= stPelRivE) then   
-            i = n - stBenDiagS + 1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-         end if
          if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3ave(k,:))
          endif
       endif
    enddo
+   
+   ! 2-Dimensional
+   k = 0
+   do n = stPelSurS , stPelRivE
+      if ( var_ids(n) > 0 ) then
+
+         ! Store snapshot of Pelagic diagnostics
+         if ( n >= stPelSurS .AND. n <= stPelRivE) then
+            i = n - stPelSurS + 1
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+         end if
+
+         ! Store mean values of (any) benthic entity
+         if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
+            k=k+1
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
+         end if
+
+      end if
+   enddo
 
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-
    !---------------------------------------------
    ! Benthic variables
    !---------------------------------------------
-   k=0
+!TL !k = count(var_ids(stPelSurS:stPelRivE))
    do n = stBenStateS , stBenFluxE
       if ( var_ids(n) > 0 ) then   
          ! Store snapshot of benthic state variables
