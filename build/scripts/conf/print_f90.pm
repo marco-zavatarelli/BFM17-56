@@ -1246,6 +1246,9 @@ sub func_STRING_INDEX  {
     $line .= "${SPACE}stPelFluxS="  . $STRING_INDEX_ARRAY{"flux_pel_3_S"}    . "\n";
     $line .= "${SPACE}stPelFluxE="  . $STRING_INDEX_ARRAY{"flux_pel_3_E"}    . "\n";
 
+    $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_ben_2_S"}   . "\n";
+    $line .= "${SPACE}stBenStateE=" . $STRING_INDEX_ARRAY{"state_ben_2_E"}   . "\n";
+
     $line .= "${SPACE}stPelSurS="  . $STRING_INDEX_ARRAY{"diagnos_pel_2_S"}     ."\n";
     $line .= "${SPACE}stPelSurE="  . $STRING_INDEX_ARRAY{"diagnos_surface_3_E"} ."\n";
     $line .= "${SPACE}stPelBotS="  . $STRING_INDEX_ARRAY{"diagnos_bottom_3_S"}  ."\n";
@@ -1253,8 +1256,6 @@ sub func_STRING_INDEX  {
     $line .= "${SPACE}stPelRivS="  . $STRING_INDEX_ARRAY{"diagnos_river_3_S"}   ."\n";
     $line .= "${SPACE}stPelRivE="  . $STRING_INDEX_ARRAY{"diagnos_river_3_E"}   ."\n";
 
-    $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_ben_2_S"}   . "\n";
-    $line .= "${SPACE}stBenStateE=" . $STRING_INDEX_ARRAY{"state_ben_2_E"}   . "\n";
     $line .= "${SPACE}stBenDiagS="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_S"} . "\n";
     $line .= "${SPACE}stBenDiagE="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_E"} . "\n";
     $line .= "${SPACE}stBenFluxS="  . $STRING_INDEX_ARRAY{"flux_ben_2_S"}    . "\n";

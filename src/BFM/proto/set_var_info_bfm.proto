@@ -55,15 +55,18 @@ subroutine set_var_info_bfm
 
 %! DO NOT CHANGE THE SEQUENCE COMMANDS!. It will results in index change
 !
-! 3d variables descriptions:
+! 3d variables description:
 !
 %3d-state-pel-string 
 %3d-diagnos-pel-string  
 %3d-diaggrp-pel-string  
 %3d-flux-pel-string
-
 !
-!2d Pelagic variables descriptions
+!2d Benthic state variables description
+!
+%2d-state-ben-string
+!
+!2d Pelagic variables description
 !
 ! surface
 !
@@ -79,9 +82,8 @@ subroutine set_var_info_bfm
 %3d-state-field-string river
 
 !
-!2d Benthic variables descriptions
+!2d Benthic variables description
 !
-%2d-state-ben-string 
 %2d-diagnos-ben-string
 %2d-diaggrp-ben-string  
 %2d-flux-ben-string
