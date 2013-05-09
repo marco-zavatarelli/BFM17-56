@@ -53,7 +53,7 @@
          else
             do_3ave = .false.
          endif
-         i=count(var_ave(stPelSurS:stBenFluxE))
+         i=count(var_ave(stBenStateS:stBenFluxE))
          if ( i > 0 ) then
             allocate(D2ave(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D2ave'
@@ -116,9 +116,26 @@
             end do
 #endif
          endif
-
-         if (stPelStateE /= 0 .and. do_2ave) then
+         if (stBenStateE /= 0 .and. do_2ave) then
+            !---------------------------------------------
+            ! Compute benthic means
+            !---------------------------------------------
             k=0
+            j=0
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+            do i=stBenStateS,stBenStateE
+               j=j+1
+               if ( var_ave(i) ) then
+                  k=k+1
+                  if ( ave_count < 1.5 ) then
+                     D2ave(k,:)=D2STATE(j,:)
+                  else
+                     D2ave(k,:)=D2ave(k,:)+D2STATE(j,:)
+                  end if
+               end if
+            end do
+#endif
+
             j=0
             do i=stPelSurS,stPelRivE
                j=j+1
@@ -131,27 +148,7 @@
                   end if
                end if
             end do
-         endif
-
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-         if (stBenStateE /= 0 .and. do_2ave) then
-            !---------------------------------------------
-            ! Compute benthic means
-            !---------------------------------------------
-      !TL ! k=count(var_ave(stPelSurS:stPelRivE))
-            j=0
-            do i=stBenStateS,stBenStateE
-               j=j+1
-               if ( var_ave(i) ) then
-                  k=k+1
-                  if ( ave_count < 1.5 ) then
-                     D2ave(k,:)=D2STATE(j,:)
-                  else
-                     D2ave(k,:)=D2ave(k,:)+D2STATE(j,:)
-                  end if
-               end if
-            end do
-
             j=0
             do i=stBenDiagS,stBenDiagE
                j=j+1
@@ -179,8 +176,8 @@
                end if
             end do
 #endif
-         end if
 #endif
+         end if
    end select
 
 end subroutine calcmean_bfm

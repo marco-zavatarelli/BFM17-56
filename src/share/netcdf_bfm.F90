@@ -592,12 +592,11 @@ end subroutine init_netcdf_rst_bfm
          end if 
       end do
 
-      do n=stPelSurS,stBenFluxE
-         dims(1) = botpoint_dim
-         dims(2) = time_dim
+      dims(2) = time_dim
+      do n=stBenStateS,stBenFluxE
 
-         ! select appropriate dimension (River is missing, so bottom is used instead)
-         if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
+      dims(1) = botpoint_dim 
+      if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
 
          if ( var_ids(n) /= 0 )  then 
             iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
@@ -679,8 +678,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Pelagic variables
    !---------------------------------------------
-   ! 3-Dimensional
-   
+
    k = 0
    do n = stPelStateS , stPelFluxE
       if ( var_ids(n) > 0 ) then
@@ -702,50 +700,46 @@ end subroutine init_netcdf_rst_bfm
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
          endif
 #endif
+         ! Store mean values of (any) 3D entity
          if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3ave(k,:))
          endif
+ 
       endif
    enddo
-   
-   ! 2-Dimensional
-   k = 0
-   do n = stPelSurS , stPelRivE
-      if ( var_ids(n) > 0 ) then
 
-         ! Store snapshot of Pelagic diagnostics
-         if ( n >= stPelSurS .AND. n <= stPelRivE) then
-            i = n - stPelSurS + 1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-         end if
-
-         ! Store mean values of (any) benthic entity
-         if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
-            k=k+1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
-         end if
-
-      end if
-   enddo
-
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    !---------------------------------------------
    ! Benthic variables
    !---------------------------------------------
-!TL !k = count(var_ids(stPelSurS:stPelRivE))
+   k=0
    do n = stBenStateS , stBenFluxE
       if ( var_ids(n) > 0 ) then   
+
+         ! Store snapshot of pelagic 2D diagnostics at surface
+         if ( n >= stPelSurS .AND. n <= stPelSurE) then
+            i = n - stPelSurS + 1
+            iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+         end if
+
+         ! Store snapshot of pelagic 2D diagnostics at bottom
+         if ( n >= stPelBotS .AND. n <= stPelRivE) then
+            i = n - stPelBotS + 1
+            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+         end if
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          ! Store snapshot of benthic state variables
          if ( n >= stBenStateS .AND. n <= stBenStateE ) then
             i = n - stBenStateS + 1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
          end if
+
          ! Store snapshot of benthic diagnostics
          if ( n >= stBenDiagS .AND. n <= stBenDiagE) then   
             i = n - stBenDiagS + 1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
          end if
+
 #ifndef D1SOURCE 
          ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
          if ( n >= stBenFluxS .AND. n <= stBenFluxE ) then
@@ -754,14 +748,14 @@ end subroutine init_netcdf_rst_bfm
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim) 
          end if 
 #endif
-         ! Store mean values of (any) benthic entity
+#endif
+         ! Store mean values of (any) 2D entity
          if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
          end if
       end if
    enddo
-#endif
 
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret, 'Save_bfm: writing output')
