@@ -49,3 +49,13 @@ Compilation
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 Change the the Makefile with the name of the included compiler file 
 from the Compilers directory. Run gmake.
+
+Script (bnmerge.sh)
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Script will help to compile and execute the merging or concurrent (serial) version.
+To execute in parallel:
+   - uncomment PARALLEL=yes
+   - load module pnetcdf (in the shell): module load NETCDF/parallel-netcdf-1.3.1
+To execute in concurrent:
+   - comment PARALLEL=yes
+   - load module netcdf3 (in the shell): module load NETCDF/netcdf-4.2.1.1_netcdf3
