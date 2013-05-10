@@ -127,27 +127,27 @@
             CalcBenthicFlag = 0
        CalcConservationFlag = .FALSE.
           CalcTransportFlag = .TRUE.
-       CalcPhytoPlankton(1) = .FALSE.
-       CalcPhytoPlankton(2) = .FALSE.
-       CalcPhytoPlankton(3) = .FALSE.
-       CalcPhytoPlankton(4) = .FALSE.
-         CalcPelBacteria(1) = .FALSE.
-    CalcMicroZooPlankton(1) = .FALSE.
-    CalcMicroZooPlankton(2) = .FALSE.
-     CalcMesoZooPlankton(1) = .FALSE.
-     CalcMesoZooPlankton(2) = .FALSE.
+       CalcPhytoPlankton(1) = .TRUE.
+       CalcPhytoPlankton(2) = .TRUE.
+       CalcPhytoPlankton(3) = .TRUE.
+       CalcPhytoPlankton(4) = .TRUE.
+         CalcPelBacteria(1) = .TRUE.
+    CalcMicroZooPlankton(1) = .TRUE.
+    CalcMicroZooPlankton(2) = .TRUE.
+     CalcMesoZooPlankton(1) = .TRUE.
+     CalcMesoZooPlankton(2) = .TRUE.
            CalcPelChemistry = .TRUE.
 AssignPelBenFluxesInBFMFlag = .FALSE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
             ChlDynamicsFlag = 2
-            LightPeriodFlag = 2
+            LightPeriodFlag = 1
           LightLocationFlag = 2
           check_fixed_quota = 0
 ! Parameters : 
                     p_small = 1.0e-20
                        slp0 = 1013.25E0
                       p_PAR = 0.50
-                     p_eps0 = 0.10
+                     p_eps0 = 0.04
                     p_epsR6 = 0.1d-3
                    p_epsESS = 0.04d-3
                    p_pe_R1c = 0.60
@@ -217,8 +217,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !var_save: instantaneous value at the output interval
 !-------------------------------------------------------------------------!
 &bfm_save_nml
-   ave_save = 'B1c', 'P1c', 'Z3c','Z5c'
-          'O2o','N1p','N3n','N4n','N5s','N6r',
+   ave_save = 'B1c', 'P1c','P2c', 'P3c','P4c','Chla','Z3c','Z5c'
+          'O2o','N1p','N3n','N4n','N5s','N6r','jsurO2o','jbotR6c',
           'EIR','ETW','EWIND','O3c','O3h','DIC','EPCO2air',
           'pH','CO2','pCO2','HCO3','CO3','CO2airflux',
 	filename_nml_conf = 'BFM_General.nml',

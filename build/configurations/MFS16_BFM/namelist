@@ -269,7 +269,7 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
    sn_t_rnf    = 'runoff_1m_nomask'   ,        -1         , 'rotemper'   ,   .true.     , .true. , 'yearly'  , ''       , ''
    sn_dep_rnf  = 'runoff_1m_nomask'   ,         0         , 'rodepth'    ,   .false.    , .true. , 'yearly'  , ''       , ''
 
-   cn_dir       = './'      !  root directory for the location of the runoff files
+   cn_dir       = '_RIVERDIR_'      !  root directory for the location of the runoff files
    ln_rnf_emp   = .false.   !  runoffs included into precipitation field (T) or into a file (F)
    ln_rnf_mouth =   .true.  !  specific treatment at rivers mouths
    rn_hrnf      =   0.e0    !  depth over which enhanced vertical mixing is used
