@@ -37,14 +37,14 @@ end
   Volume: Gridpoint Volume: m3
   Area  : Gridpoint Area: m2
 end
-2d-variable
+2d-variable-pel
   Area2d  : 2-D Gridpoint Area: m2
 end
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       PHYSICAL VARIABLES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-2d-variable
+2d-variable-pel
   ThereIsLight : Switch for day/night cycle : -
   SUNQ	       : Daylength in hours : h
   EWIND : Wind speed : m/s
@@ -130,7 +130,7 @@ end
   end
 end
 
-2d-variable -if-exist INCLUDE_PELCO2
+2d-variable-pel -if-exist INCLUDE_PELCO2
   EPCO2air   : Atmospheric CO2 Partial Pressure : uatm
   CO2airflux : Sea-air CO2 Flux : mmol/m2/d
 end
@@ -217,7 +217,7 @@ end
     ABIO_eps              : Abiotic Extinction Coefficient : 1/m
 end
 
-2d-variable
+2d-variable-pel
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables to check total mass of C N P Si in the system
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

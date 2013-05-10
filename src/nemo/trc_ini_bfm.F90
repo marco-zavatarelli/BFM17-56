@@ -61,7 +61,7 @@
    integer    :: i,j,k,ll,m
    integer    :: status
    integer,parameter    :: namlst=10,unit=11
-   integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:)
+   integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:),msktmp(:,:)
    logical,allocatable  :: mask1d(:)
    integer              :: nc_id ! logical unit for data initialization
    character(len=20)    :: start_time
@@ -179,10 +179,12 @@
    allocate(surfpoint(NO_BOXES_XY))
    mask1d = reshape(SRFmask,(/NO_BOXES_X*NO_BOXES_Y*NO_BOXES_Z/))
    surfpoint = find(mask1d,NO_BOXES_XY)
+
+   allocate(msktmp(jpi,jpj)); msktmp = 0
+   msktmp = unpack(surfpoint,SRFmask(:,:,1),0)
    allocate(botpoint(NO_BOXES_XY))
-   mask1d = reshape(BOTmask,(/NO_BOXES_X*NO_BOXES_Y*NO_BOXES_Z/))
-   botpoint = find(mask1d,NO_BOXES_XY)
-   deallocate(mask1d)
+   botpoint = pack(SPREAD(msktmp,DIM=3,Ncopies=jpk),BOTmask)
+   deallocate(mask1d,msktmp)
 
    !-------------------------------------------------------
    ! Prepares the array containing the indices of the
