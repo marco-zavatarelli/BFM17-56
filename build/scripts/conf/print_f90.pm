@@ -46,7 +46,7 @@ my $VERBOSE = 0;
 my $SPACE = "    ";
 my $MAX_CHAR_PER_LINE = 76;
 my $STRING_INDEX=1;
-my %STRING_INDEX_ARRAY=();
+my %STRING_INDEX_ARRAY = ();
 my ( $LST_PARAM, $LST_GROUP, $LST_STA, $LST_CONST, $LST_INDEX );
 ########### VARIABLES GLOBAL ##########################
 
@@ -84,8 +84,8 @@ my $dispatch = {
     '\%(3)d-(state)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
     '\%if-exist-header(?:\s|\n)' =>    \&func_HEADER_IF ,
     #STRING
-    '\%(3|2)d-(diagnos|state|flux)-string(?:\s|\n)'=>    \&func_STRING ,
-    '\%(3|2)d-(diaggrp)-string(?:\s|\n)'=>    \&func_STRING_DIAGG ,
+    '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING_DIAGG ,
     '\%(3)d-(state)-field-string\s*(\S*)(?:\s|\n)'=>    \&func_STRING_FIELD ,
     '\%dd-string-index(?:\s|\n)'=>    \&func_STRING_INDEX ,
     #ALLOC
@@ -1097,16 +1097,18 @@ sub func_POINT_Z  {
 
 
 sub func_STRING  {
-    my ( $file, $dim, $type) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING: "; }
+    my ( $file, $dim, $type, $subt ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING: $dim, $type, $subt"; }
 
     my $line  = "";
 
-    $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
+    if( ! defined $STRING_INDEX_ARRAY{"${type}_${subt}_${dim}_S"} ){
+        $STRING_INDEX_ARRAY{"${type}_${subt}_${dim}_S"} = $STRING_INDEX;
+    }
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() && $type eq $param->getType() && ${subt} eq $param->getSubtype()){
             my $comm  = $param->getComment();
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
@@ -1134,23 +1136,27 @@ sub func_STRING  {
         }
     }
 
+    $STRING_INDEX_ARRAY{"${type}_${subt}_${dim}_E"} = $STRING_INDEX - 1;
+
     if( $line ){ print $file $line; }
 }
 
 
 sub func_STRING_DIAGG  {
-    my ( $file, $dim, $type) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING: "; }
+    my ( $file, $dim, $type, $subt ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_DIAGG: $dim, $type, $subt"; }
 
     my $line  = "";
     my $index = 1;
 
-    $STRING_INDEX_ARRAY{"${type}_${dim}"} = $STRING_INDEX;
+    if( ! defined $STRING_INDEX_ARRAY{"${type}_${subt}_${dim}_S"} ){
+        $STRING_INDEX_ARRAY{"${type}_${subt}_${dim}_S"} = $STRING_INDEX;
+    }
 
     #foreach my $name (sort keys %$LST_PARAM){
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $param->getDim() == $dim && $param->getType eq $type ){
+        if( $param->getDim() == $dim && $param->getType eq $type && $param->getSubtype eq $subt){
             my $group_name = $param->getQuota();
             my $unit       = $param->getUnit();
             my $comm       = $param->getComment();
@@ -1171,20 +1177,24 @@ sub func_STRING_DIAGG  {
         }
     }
 
+    $STRING_INDEX_ARRAY{"${type}_${subt}_${dim}_E"} = $STRING_INDEX - 1;
+
     if( $line ){ print $file $line; }
 }
 
 
 sub func_STRING_FIELD  {
-    my ( $file, $dim, $type, $spec) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: "; }
+    my ( $file, $dim, $type, $spec ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $dim, $type, $spec"; }
 
     my $line;
     
     my $SPEC       = uc($spec);
     my $spec_short = substr($spec,0,3);
 
-    $STRING_INDEX_ARRAY{"${type}_${dim}_${spec}"} = $STRING_INDEX;
+    if( ! defined $STRING_INDEX_ARRAY{"diagnos_${spec}_${dim}_S"} ){
+        $STRING_INDEX_ARRAY{"diagnos_${spec}_${dim}_S"} = $STRING_INDEX;
+    }
 
     #foreach my $name (sort keys %$LST_PARAM){
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
@@ -1215,31 +1225,41 @@ sub func_STRING_FIELD  {
         }
     }
 
+    $STRING_INDEX_ARRAY{"diagnos_${spec}_${dim}_E"} = $STRING_INDEX - 1;
+
     if( $line ){ print $file $line; }
 }
 
 
 sub func_STRING_INDEX  {
-    my ( $file, $dim, $type) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX: "; }
+    my ( $file ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX:"; }
 
     my $line;
 
     #print Dumper(\%STRING_INDEX_ARRAY) , "\n";
     
-    $line .= "${SPACE}stPelStateS=" . $STRING_INDEX_ARRAY{"state_3"}           . "\n";
-    $line .= "${SPACE}stPelStateE=" . ( $STRING_INDEX_ARRAY{"diagnos_3"} - 1 ) . "\n";
-    $line .= "${SPACE}stPelDiagS="  . $STRING_INDEX_ARRAY{"diagnos_3"}         . "\n";
-    $line .= "${SPACE}stPelDiagE="  . ( $STRING_INDEX_ARRAY{"flux_3"} - 1 )    . "\n";
-    $line .= "${SPACE}stPelFluxS="  . $STRING_INDEX_ARRAY{"flux_3"}            . "\n";
-    $line .= "${SPACE}stPelFluxE="  . ( $STRING_INDEX_ARRAY{"state_2"} - 1 )   ."\n";
+    $line .= "${SPACE}stPelStateS=" . $STRING_INDEX_ARRAY{"state_pel_3_S"}   . "\n";
+    $line .= "${SPACE}stPelStateE=" . $STRING_INDEX_ARRAY{"state_pel_3_E"}   . "\n";
+    $line .= "${SPACE}stPelDiagS="  . $STRING_INDEX_ARRAY{"diagnos_pel_3_S"} . "\n";
+    $line .= "${SPACE}stPelDiagE="  . $STRING_INDEX_ARRAY{"diaggrp_pel_3_E"} . "\n";
+    $line .= "${SPACE}stPelFluxS="  . $STRING_INDEX_ARRAY{"flux_pel_3_S"}    . "\n";
+    $line .= "${SPACE}stPelFluxE="  . $STRING_INDEX_ARRAY{"flux_pel_3_E"}    . "\n";
 
-    $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_2"}           . "\n";
-    $line .= "${SPACE}stBenStateE=" . ( $STRING_INDEX_ARRAY{"diagnos_2"} - 1 ) . "\n";
-    $line .= "${SPACE}stBenDiagS="  . $STRING_INDEX_ARRAY{"diagnos_2"}         . "\n";
-    $line .= "${SPACE}stBenDiagE="  . ( $STRING_INDEX_ARRAY{"flux_2"} - 1 )    . "\n";
-    $line .= "${SPACE}stBenFluxS="  . $STRING_INDEX_ARRAY{"flux_2"}            . "\n";
-    $line .= "${SPACE}stBenFluxE="  . ( $STRING_INDEX - 1 )                    . "\n";
+    $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_ben_2_S"}   . "\n";
+    $line .= "${SPACE}stBenStateE=" . $STRING_INDEX_ARRAY{"state_ben_2_E"}   . "\n";
+
+    $line .= "${SPACE}stPelSurS="  . $STRING_INDEX_ARRAY{"diagnos_pel_2_S"}     ."\n";
+    $line .= "${SPACE}stPelSurE="  . $STRING_INDEX_ARRAY{"diagnos_surface_3_E"} ."\n";
+    $line .= "${SPACE}stPelBotS="  . $STRING_INDEX_ARRAY{"diagnos_bottom_3_S"}  ."\n";
+    $line .= "${SPACE}stPelBotE="  . $STRING_INDEX_ARRAY{"diagnos_bottom_3_E"}  ."\n";
+    $line .= "${SPACE}stPelRivS="  . $STRING_INDEX_ARRAY{"diagnos_river_3_S"}   ."\n";
+    $line .= "${SPACE}stPelRivE="  . $STRING_INDEX_ARRAY{"diagnos_river_3_E"}   ."\n";
+
+    $line .= "${SPACE}stBenDiagS="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_S"} . "\n";
+    $line .= "${SPACE}stBenDiagE="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_E"} . "\n";
+    $line .= "${SPACE}stBenFluxS="  . $STRING_INDEX_ARRAY{"flux_ben_2_S"}    . "\n";
+    $line .= "${SPACE}stBenFluxE="  . $STRING_INDEX_ARRAY{"flux_ben_2_E"}    . "\n";
 
     print $file $line;
 }

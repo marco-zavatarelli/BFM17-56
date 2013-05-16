@@ -35,6 +35,7 @@ sub new{
        _sigla    => shift,
        _dim      => shift,
        _type     => shift,
+       _subtype  => shift,
        _include  => shift,
        _z        => shift,
        _unit     => shift,
@@ -54,6 +55,7 @@ sub DESTROY{}
 sub getSigla{ my( $self ) = @_; return $self->{_sigla}; }
 sub getDim{ my( $self ) = @_; return $self->{_dim}; }
 sub getType{ my( $self ) = @_; return $self->{_type}; }
+sub getSubtype{ my( $self ) = @_; return $self->{_subtype}; }
 sub getInclude{ my( $self ) = @_; return $self->{_include}; }
 sub getZ{ my( $self ) = @_; return $self->{_z}; }
 sub getUnit{ my( $self ) = @_; return $self->{_unit}; }
@@ -68,6 +70,7 @@ sub getIndex{ my( $self ) = @_; return $self->{_index}; }
 sub setSigla{ my ( $self, $sigla ) = @_; $self->{_sigla} = $sigla if defined($sigla);}
 sub setDim{ my ( $self, $dim ) = @_; $self->{_dim} = $dim if defined($dim);}
 sub setType{ my ( $self, $type ) = @_; $self->{_type} = $type if defined($type);}
+sub setSubtype{ my ( $self, $subtype ) = @_; $self->{_subtype} = $subtype if defined($subtype);}
 sub setInclude{ my ( $self, $include ) = @_; $self->{_include} = $include if defined($include);}
 sub setZ{ my ( $self, $z ) = @_; $self->{_z} = $z if defined($z);}
 sub setUnit{ my ( $self, $unit ) = @_; $self->{_unit} = $unit if defined($unit);}
@@ -82,16 +85,17 @@ sub setIndex{ my ( $self, $index ) = @_; $self->{_index} = $index if defined($in
 sub print{
     my ( $self ) = @_;
     print "PARAMETER => ";
-    if($self->{_sigla})    { print              $self->getSigla() . "; ";    }
-    if($self->{_dim})      { print "Dim: "   .  $self->getDim() . "; ";      }
-    if($self->{_type})     { print "Type: "  .  $self->getType() . "; ";     }
-    if($self->{_include})  { print "Incl: "  .  $self->getInclude() . "; ";  }
-    if($self->{_z})        { print "-Z: "    .  $self->getZ() . "; ";        }
-    if($self->{_index})    { print "Index: " .  $self->getIndex() . "; ";    }
-    if($self->{_unit})     { print "Unit: "  .  $self->getUnit() . "; ";     }
-    if($self->{_compo})    { print "Units:" ;   while ( my ($k,$v) = each %{$self->getComponents()}   ) { print " $k=>$v"; } print "; "; }
-    if($self->{_compo_ex}) { print "Units Ex:"; while ( my ($k,$v) = each %{$self->getComponentsEx()} ) { print " $k=>$v"; } print "; "; }
-    if($self->{_comm})     { print "Comm: "  .  $self->getComment() . "; ";  }
+    if($self->{_sigla})    { print                $self->getSigla() . "; ";    }
+    if($self->{_dim})      { print "Dim: "     .  $self->getDim() . "; ";      }
+    if($self->{_type})     { print "Type: "    .  $self->getType() . "; ";     }
+    if($self->{_subtype})  { print "Subtype: " .  $self->getSubtype() . "; ";  }
+    if($self->{_include})  { print "Incl: "    .  $self->getInclude() . "; ";  }
+    if($self->{_z})        { print "-Z: "      .  $self->getZ() . "; ";        }
+    if($self->{_index})    { print "Index: "   .  $self->getIndex() . "; ";    }
+    if($self->{_unit})     { print "Unit: "    .  $self->getUnit() . "; ";     }
+    if($self->{_compo})    { print "Units:"    ;  while ( my ($k,$v) = each %{$self->getComponents()}   ) { print " $k=>$v"; } print "; "; }
+    if($self->{_compo_ex}) { print "Units Ex:" ;  while ( my ($k,$v) = each %{$self->getComponentsEx()} ) { print " $k=>$v"; } print "; "; }
+    if($self->{_comm})     { print "Comm: "    .  $self->getComment() . "; ";  }
     if($self->{_func})     { 
         print "\n\tFunc\n ";    
         print "\t\txpr:    " . ${$self->getFunction()}{xpr}         . "\n";
