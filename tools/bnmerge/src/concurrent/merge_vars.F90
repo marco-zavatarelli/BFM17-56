@@ -22,22 +22,25 @@ subroutine merge_vars
   character(LEN=4), allocatable, dimension(:)  :: procname
   character(LEN=172) :: fname
   integer           :: ndims, nVars, nGlobalAtts, IDunlimdim, IDmask
-  integer           :: IDx, IDy, IDz, IDocepnt, IDsrfpnt, IDvar, ncid
-  integer           :: lenoce, lensrf, ntime
+  integer           :: IDx, IDy, IDz, IDocepnt, IDsrfpnt, IDbtnpnt, IDvar, ncid
+  integer           :: lenoce, lensrf, lenbtn, ntime
   integer           :: noce, nsrf 
   integer           :: nimpp, njmpp
   real, allocatable, dimension(:,:) :: lat, lon
   real, allocatable, dimension(:,:,:) :: mask
-  real, allocatable, dimension(:) :: oceanpoint, depth
+  real, allocatable, dimension(:) :: oceanpoint, bottompoint, depth
   real, allocatable, dimension(:,:) :: chunk
   real, allocatable, dimension(:,:,:,:) :: bfmvar3d
   real, allocatable, dimension(:,:,:)   :: bfmvar2d
   integer :: vartype,dimids(4),dimlen(4),zflag
-  character(len = NF90_MAX_NAME) :: DimName,varname,attname
+  character(len = NF90_MAX_NAME) :: dimname,varname,attname
 
   integer :: iniI, iniJ, finI, finJ, resI, resJ
   integer :: Istart, Icount, Jstart, Jcount
   integer :: step_start_arr3(3), step_count_arr3(3), step_start_arr4(4), step_count_arr4(4)
+
+  real, allocatable, dimension(:) :: chunktmp
+  real :: bottompointtmp
 
   zflag = 0
 
@@ -62,12 +65,12 @@ subroutine merge_vars
   end do
 
   ! open the output file
-     fname = trim(out_dir)//"/"//trim(chunk_fname)//".nc"
-     status = nf90_open(path = fname, mode = NF90_WRITE, ncid = ncid)
-     if (status /= NF90_NOERR) call handle_err(status)
+  fname = trim(out_dir)//"/"//trim(chunk_fname)//".nc"
+  status = nf90_open(path = fname, mode = NF90_WRITE, ncid = ncid)
+  if (status /= NF90_NOERR) call handle_err(status)
 #ifdef DEBUG
-     write(*,*) "Output file: "   
-     write(*,*) trim(fname)
+  write(*,*) "Output file: "   
+  write(*,*) trim(fname)
 #endif
 
   do p=1,jpnij
@@ -104,20 +107,28 @@ subroutine merge_vars
      status = nf90_inq_dimid(ncbfmid, "surfacepoint", IDsrfpnt)
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire_dimension(ncbfmid, IDsrfpnt, len = lensrf)
+     status = nf90_inq_dimid(ncbfmid, "bottompoint", IDbtnpnt)
+     if (status /= NF90_NOERR) call handle_err(status)
+     status = nf90_inquire_dimension(ncbfmid, IDbtnpnt, len = lenbtn)
 
      ! read oceanpoint data
-     status = nf90_inq_varid(ncbfmid, "oceanpoint", IDvar)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: oceanpoint")
      allocate(oceanpoint(lenoce))
-     status = nf90_get_var(ncbfmid, IDvar, oceanpoint, start = (/ 1 /),     &
-                            count = (/ lenoce /))
+     status = nf90_get_var(ncbfmid, IDocepnt, oceanpoint, start = (/ 1 /),     &
+          count = (/ lenoce /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: oceanpoint")
+     ! read bottompoint data
+     allocate(bottompoint(lenbtn))
+     status = nf90_get_var(ncbfmid, IDbtnpnt, bottompoint, start = (/ 1 /),     &
+          count = (/ lenbtn /))
+     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: bottompoint")
+
+
 
      ! read vertical depths only once
      if (zflag == 0) then 
-     call handle_err(nf90_inq_varid(ncbfmid, "z", IDvar),errstring="Error inquiring depth values")
-     call handle_err(nf90_get_var(ncbfmid, IDvar,depth),errstring="Error in getting depth values")
-     zflag = 1
+        call handle_err(nf90_inq_varid(ncbfmid, "z", IDvar),errstring="Error inquiring depth values")
+        call handle_err(nf90_get_var(ncbfmid, IDvar,depth),errstring="Error in getting depth values")
+        zflag = 1
      endif
      ! read mask and lat-lon data
      status = nf90_inq_varid(ncbfmid, "mask", IDvar)
@@ -131,17 +142,17 @@ subroutine merge_vars
      end do
      allocate(mask(dimlen(1),dimlen(2),dimlen(3)))
      status = nf90_get_var(ncbfmid, IDvar, mask, start = (/ 1, 1, 1 /),     &
-                            count = (/ dimlen(1),dimlen(2),dimlen(3) /))
+          count = (/ dimlen(1),dimlen(2),dimlen(3) /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: mask")
      allocate(lon(dimlen(1),dimlen(2)))
      status = nf90_inq_varid(ncbfmid, "lon", IDvar)
      status = nf90_get_var(ncbfmid, IDvar, lon, start = (/ 1, 1 /),     &
-                            count = (/ dimlen(1),dimlen(2) /))
+          count = (/ dimlen(1),dimlen(2) /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lon")
      allocate(lat(dimlen(1),dimlen(2)))
      status = nf90_inq_varid(ncbfmid, "lat", IDvar)
      status = nf90_get_var(ncbfmid, IDvar, lat, start = (/ 1, 1 /),     &
-                            count = (/ dimlen(1),dimlen(2) /))
+          count = (/ dimlen(1),dimlen(2) /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: lat")
 #ifdef DEBUG
      write(*,*) "Mask type", vartype,NF90_FLOAT
@@ -178,7 +189,7 @@ subroutine merge_vars
      allocate(bfmvar2d(jpi,jpj,ntime))
 #ifdef DEBUG
      write(*,*) "domain specifications nimpp,jpi,njmpp,jpj,jpi,jpj,jpk,ntime:", &
-                nimpp,jpi,njmpp,jpj,jpi,jpj,jpk,ntime
+          nimpp,jpi,njmpp,jpj,jpi,jpj,jpk,ntime
      write(*,*) "size maskglo:",size(maskglo,1),size(maskglo,2),size(maskglo,3)
      write(*,*) "size latglo:",size(latglo,1),size(latglo,2)
 #endif
@@ -188,11 +199,11 @@ subroutine merge_vars
         status=nf90_inquire_variable(ncbfmid, bfmvarid(d), xtype=vartype, ndims=ndims, name=varname)
         if (status /= NF90_NOERR) call handle_err(status,errstring="Inquire variable: "//trim(varname))
         status=nf90_inquire_variable(ncbfmid, bfmvarid(d), dimids=dimids(1:ndims))
-        status = nf90_inquire_dimension(ncbfmid, dimids(1), len = dimlen(1))
+        status = nf90_inquire_dimension(ncbfmid, dimids(1), name=dimname, len = dimlen(1))
         allocate(chunk(dimlen(1),ntime))
         ! read all time stamp of chunk data                                                    
         status = nf90_get_var(ncbfmid, bfmvarid(d), chunk(:,:), start = (/ 1, 1 /),     &            
-                            count = (/ dimlen(1), ntime /))                                 
+             count = (/ dimlen(1), ntime /))                                 
         if (status /= NF90_NOERR) call handle_err(status,errstring="Get variable: "//trim(varname))
         ! inquire ID in the output file
         status = nf90_inq_varid(ncid, varname, IDvar)
@@ -219,9 +230,9 @@ subroutine merge_vars
            finJ = 0
         endif
 
+        select case (dimname)
 
-
-        if (dimlen(1) == lenoce) then ! 3D variable
+        case("oceanpoint")    ! 3D variable
            bfmvar3d=NF90_FILL_REAL
            ! loop sequence is mandatory
            noce = 1
@@ -238,13 +249,14 @@ subroutine merge_vars
            step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
            step_count_arr4 = (/ Icount, Jcount, jpk, ntime /)
            status = nf90_put_var(ncid, IDvar, bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:), &
-                    start = step_start_arr4, count = step_count_arr4)
+                start = step_start_arr4, count = step_count_arr4)
 #ifdef DEBUG
-        write(*,*) "3D var, Dimensions: ",jpi, jpj, jpk, ntime
+           write(*,*) "3D var, Dimensions: ",jpi, jpj, jpk, ntime
 #endif
            if (status /= NF90_NOERR) &
-              call handle_err(status,errstring="Put 3D domain: "//procname(p)//" variable: "//trim(varname))
-        else
+                call handle_err(status,errstring="Put 3D domain: "//procname(p)//" variable: "//trim(varname))
+
+        case ("surfacepoint")  ! 2D variable
            bfmvar2d=NF90_FILL_REAL
            ! loop sequence is mandatory
            noce = 1
@@ -259,13 +271,56 @@ subroutine merge_vars
            step_start_arr3 = (/ Istart, Jstart, 1 /)
            step_count_arr3= (/ Icount, Jcount, ntime /)
            status = nf90_put_var(ncid, IDvar, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
-                    start = step_start_arr3, count = step_count_arr3)
+                start = step_start_arr3, count = step_count_arr3)
 #ifdef DEBUG
-        write(*,*) "2D var, Dimensions: ",jpi, jpj, ntime
+           write(*,*) "2D Surface var, Dimensions: ",jpi, jpj, ntime
 #endif
            if (status /= NF90_NOERR) &
-              call handle_err(status,errstring="Put 2D domain: "//procname(p)//" variable: "//trim(varname))
-        end if
+                call handle_err(status,errstring="Put 2D domain: "//procname(p)//" variable: "//trim(varname))
+
+        case ("bottompoint")   ! 2D variable from the bottom
+
+           ! allocate temporal array for bottompoint
+           allocate(chunktmp(ntime))
+
+           ! reorder bottom data
+           do i=1 , lenbtn-1
+              do j=i+1 , lenbtn
+                 if( bottompoint(i) .gt. bottompoint(j)  ) then
+                    chunktmp(:)   = chunk(i,:)
+                    chunk(i,:)    = chunk(j,:)
+                    chunk(j,:)    = chunktmp(:)
+                    bottompointtmp = bottompoint(i)
+                    bottompoint(i) = bottompoint(j)
+                    bottompoint(j) = bottompointtmp
+                 endif
+              enddo
+           enddo
+
+           deallocate(chunktmp)
+
+           bfmvar2d=NF90_FILL_REAL
+           ! loop sequence is mandatory
+           noce = 1
+           do j=1,jpj
+              do i=1,jpi
+                 if (mask(i,j,1) > 0.0_RLEN) then
+                    bfmvar2d(i,j,:) = chunk(noce,:)
+                    noce = noce+1
+                 end if
+              end do
+           end do
+           step_start_arr3 = (/ Istart, Jstart, 1 /)
+           step_count_arr3= (/ Icount, Jcount, ntime /)
+           status = nf90_put_var(ncid, IDvar, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
+                start = step_start_arr3, count = step_count_arr3)
+#ifdef DEBUG
+           write(*,*) "2D Bottom var, Dimensions: ",jpi, jpj, ntime
+#endif
+           if (status /= NF90_NOERR) &
+                call handle_err(status,errstring="Put 2D domain: "//procname(p)//" variable: "//trim(varname))
+        end select
+
         deallocate(chunk)
      end do ! variables
 
@@ -273,6 +328,7 @@ subroutine merge_vars
      call handle_err(nf90_close(ncbfmid))
      deallocate(mask)
      deallocate(oceanpoint)
+     deallocate(bottompoint)
      deallocate(bfmvar3d)
      deallocate(bfmvar2d)
 
@@ -289,26 +345,26 @@ subroutine merge_vars
   if (ln_mask) then
      status = nf90_inq_varid(ncid, "mask", IDmask)
      status = nf90_put_var(ncid, IDmask, real(maskglo,4), start = (/ 1, 1, 1 /),     &
-                            count = (/ jpiglo, jpjglo, jpk /))
+          count = (/ jpiglo, jpjglo, jpk /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: mask")
   endif
   ! Latitude
-     status = nf90_inq_varid(ncid, "lat", IDmask)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring variable: lat")
-     status = nf90_put_var(ncid, IDmask, real(latglo,4), start = (/ 1, 1 /),     &
-                            count = (/ jpiglo, jpjglo /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: lat")
+  status = nf90_inq_varid(ncid, "lat", IDmask)
+  if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring variable: lat")
+  status = nf90_put_var(ncid, IDmask, real(latglo,4), start = (/ 1, 1 /),     &
+       count = (/ jpiglo, jpjglo /))
+  if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: lat")
   ! Longitude
-     status = nf90_inq_varid(ncid, "lon", IDmask)
-     status = nf90_put_var(ncid, IDmask, real(longlo,4), start = (/ 1, 1 /),     &
-                            count = (/ jpiglo, jpjglo /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: lon")
+  status = nf90_inq_varid(ncid, "lon", IDmask)
+  status = nf90_put_var(ncid, IDmask, real(longlo,4), start = (/ 1, 1 /),     &
+       count = (/ jpiglo, jpjglo /))
+  if (status /= NF90_NOERR) call handle_err(status,errstring="Writing: lon")
   ! Depth levels
   call handle_err(nf90_inq_varid(ncid, "depth", IDmask))
   call handle_err(nf90_put_var(ncid, IDmask, real(depth,4)),errstring="Writing: depth")   
   ! close file
-     status = nf90_close(ncid)
-     if (status /= NF90_NOERR) call handle_err(status)
+  status = nf90_close(ncid)
+  if (status /= NF90_NOERR) call handle_err(status)
 
   ! clean-up memory
   deallocate(maskglo)

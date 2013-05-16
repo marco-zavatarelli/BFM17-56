@@ -25,9 +25,9 @@ subroutine merge_vars
   integer ncid
 
   integer, parameter :: FID=1, NDIMS=FID+1, NVARS=NDIMS+1, NGATTS=NVARS+1
-  integer, parameter :: IDUNDIM=NGATTS+1, IDMASK=IDUNDIM+1, IDOCE=IDMASK+1, IDLON=IDOCE+1, IDLAT=IDLON+1 
-  integer, parameter :: NTIMEK=1, LENOCEK=NTIMEK+1, LENSRFK=LENOCEK+1
-  integer, parameter :: NPARS=IDLAT, NPARSK=LENSRFK
+  integer, parameter :: IDUNDIM=NGATTS+1, IDMASK=IDUNDIM+1, IDOCE=IDMASK+1, IDSRF=IDOCE+1, IDBOT=IDSRF+1, IDLON=IDBOT+1, IDLAT=IDLON+1 
+  integer, parameter :: NTIMEK=1, LENOCEK=NTIMEK+1, LENSRFK=LENOCEK+1, LENBOTK=LENSRFK+1
+  integer, parameter :: NPARS=IDLAT, NPARSK=LENBOTK
 
   integer :: p, n, id, nthreads=0, nthread=0, d
   integer :: nimpp, njmpp
@@ -48,7 +48,7 @@ subroutine merge_vars
   real(4), allocatable, dimension(:,:,:,:) :: bfmvar3d
   real(4), allocatable, dimension(:,:,:)   :: bfmvar2d
 
-  character(len = NF_MAX_NAME) :: varname
+  character(len = NF_MAX_NAME) :: varname, vardimname(4)
   integer :: vartype, varndims, vardimids(4), varnatts
   integer(kind=MPI_OFFSET_KIND) :: vardimlen(4)
 
@@ -58,6 +58,9 @@ subroutine merge_vars
   integer iniI, iniJ, finI, finJ, resI, resJ
   integer(kind=MPI_OFFSET_KIND) :: Istart, Icount, Jstart, Jcount
 
+  real(4), allocatable, dimension(:) :: chunktmp
+  real(4) :: bottompointtmp
+
   type ppChunk
      real(4), allocatable, dimension(:,:) :: p
   end type ppChunk
@@ -66,7 +69,7 @@ subroutine merge_vars
   type ppOce
      real(4), dimension(:), allocatable :: p
   end type ppOce
-  type(ppOce), dimension(:), allocatable :: A_oceanpoint
+  type(ppOce), dimension(:), allocatable :: A_oceanpoint, A_bottompoint
   type ppMask
      real(4), dimension(:,:,:), allocatable :: p
   end type ppMask
@@ -101,6 +104,7 @@ subroutine merge_vars
 
   ! Allocate array of pointers
   allocate(A_oceanpoint(jpnij))
+  allocate(A_bottompoint(jpnij))
   allocate(A_mask(jpnij))
   allocate(A_lat(jpnij))
   allocate(A_lon(jpnij))
@@ -146,8 +150,8 @@ subroutine merge_vars
   !$OMP PRIVATE ( step_start, step_count, step_start_arr2, step_count_arr2, step_start_arr3, step_count_arr3, step_start_arr4, step_count_arr4 ) &
   !$OMP SHARED  ( inp_dir, chunk_fname, A_fname )     &
   !$OMP SHARED  ( jpnij, nimppt, njmppt, nlcit, nlcjt, maskglo, latglo, longlo )     &
-  !$OMP SHARED  ( A_infofile, A_infofile_kind, A_oceanpoint, A_chunk, A_procname, A_mask, A_lon, A_lat, A_dimlen, A_dimids ) &
-  !$OMP PRIVATE ( d, jpi,jpj, bfmvar2d, bfmvar3d, varname, vartype, varndims, vardimids, vardimlen, varnatts, tmp_str ) &
+  !$OMP SHARED  ( A_infofile, A_infofile_kind, A_oceanpoint, A_bottompoint, A_chunk, A_procname, A_mask, A_lon, A_lat, A_dimlen, A_dimids ) &
+  !$OMP PRIVATE ( d, jpi,jpj, bfmvar2d, bfmvar3d, varname, vartype, varndims, vardimids, vardimlen, vardimname, varnatts, tmp_str, chunktmp, bottompointtmp ) &
   !$OMP SHARED  ( jpiglo, jpjglo, jpk, n_bfmvar, bfmvarid, ncid ) &
   !$OMP PRIVATE ( vardID, noce, i, j, k ) &
   !$OMP PRIVATE ( iniI, iniJ, finI, finJ, resI, resJ, Istart, Jstart, Icount, Jcount )
@@ -169,10 +173,15 @@ subroutine merge_vars
      call handle_err(nfmpi_inq_dimid(A_infofile(p,FID), "oceanpoint", A_infofile(p,IDOCE)))
      call handle_err(nfmpi_inq_dimlen(A_infofile(p,FID), A_infofile(p,IDOCE), len = A_infofile_kind(p,LENOCEK)))
 
+
      ! check if we have erroneously included land domains and skip the domain
      if ( A_infofile_kind(p,LENOCEK)==1 ) call handle_err( NF_EBADID, errstring="land domains"  )
-     call handle_err(nfmpi_inq_dimid(A_infofile(p,FID), "surfacepoint", id))
-     call handle_err(nfmpi_inq_dimlen(A_infofile(p,FID), id, len = A_infofile_kind(p,LENSRFK)))
+     call handle_err(nfmpi_inq_dimid(A_infofile(p,FID), "surfacepoint", A_infofile(p,IDSRF)))
+     call handle_err(nfmpi_inq_dimlen(A_infofile(p,FID), A_infofile(p,IDSRF), len = A_infofile_kind(p,LENSRFK)))
+
+     !get the bottom points length
+     call handle_err(nfmpi_inq_dimid(A_infofile(p,FID), "bottompoint", A_infofile(p,IDBOT)))
+     call handle_err(nfmpi_inq_dimlen(A_infofile(p,FID), A_infofile(p,IDBOT), len = A_infofile_kind(p,LENBOTK)))
 
      ! read mask and lat-lon data
      call handle_err(nfmpi_inq_varid(A_infofile(p,FID), "mask", A_infofile(p,IDMASK)),errstring="variable: mask id")
@@ -192,6 +201,15 @@ subroutine merge_vars
      step_count = (/ A_infofile_kind(p,LENOCEK) /)
      call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDOCE), step_start, step_count, A_oceanpoint(p)%p ), &
           errstring="variable: oceanpoint in chunks "//trim(A_procname(p)))
+
+     ! read bottompoint
+     allocate( A_bottompoint(p)%p(A_infofile_kind(p,LENBOTK)) )
+     write(tmp_str,*) "variable: bottompoint in chunks "//trim(A_procname(p))//"A_infofile_kind(p,LENBOTK)",A_infofile_kind(p,LENBOTK)
+     step_start = (/ 1 /)
+     step_count = (/ A_infofile_kind(p,LENBOTK) /)
+     call handle_err(nfmpi_get_vara_real_all(A_infofile(p,FID), A_infofile(p,IDBOT), step_start, step_count, A_bottompoint(p)%p ), &
+          errstring=tmp_str)
+
 
      ! get the coordinates of the sub-domain
      nimpp = nimppt(p)
@@ -239,8 +257,9 @@ subroutine merge_vars
         ! get the info from the variable
         call handle_err( nfmpi_inq_var(A_infofile(p,FID), bfmvarid(d), varname, vartype, varndims, vardimids, varnatts), &
              errstring="Inquire variable: "//trim(varname) )
-        call handle_err( nfmpi_inq_dimlen(A_infofile(p,FID), vardimids(1), vardimlen(1)) )
-        call handle_err( nfmpi_inq_dimlen(A_infofile(p,FID), vardimids(2), vardimlen(2)) )
+        call handle_err( nfmpi_inq_dim(A_infofile(p,FID), vardimids(1), vardimname(1), vardimlen(1)) )
+        call handle_err( nfmpi_inq_dim(A_infofile(p,FID), vardimids(2), vardimname(2), vardimlen(2)) )
+
         if ( vardimlen(2) /= A_infofile_kind(p,NTIMEK) ) then
            write(tmp_str,*)  "Var "//trim(varname)//" not equal times: ", vardimlen(2), "/=", A_infofile_kind(p,NTIMEK)
            call handle_err(123,tmp_str)
@@ -264,49 +283,101 @@ subroutine merge_vars
         ! inquire ID in the output file
         call handle_err( nfmpi_inq_varid(ncid, varname, vardID) )
 
-        !write the variable content to memory
-        if ( vardimlen(1) == A_infofile_kind(p,LENOCEK) ) then ! 3D variable
-           bfmvar3d=NF_FILL_REAL
-           noce = 1
-           do k=1,jpk
+
+
+        select case (vardimname(1))
+           case ("oceanpoint")    ! 3D variable
+#ifdef DEBUG
+              write(*,*) "3d variable(oceanpoint): "//trim(varname)
+#endif 
+              bfmvar3d=NF_FILL_REAL
+              noce = 1
+              do k=1,jpk
+                 do j=1,jpj
+                    do i=1,jpi
+                       if (A_mask(p)%p(i,j,k) > 0.0_RLEN) then
+                          bfmvar3d(i,j,k,:) = A_chunk(p,d)%p(noce,:)
+                          noce = noce+1
+                       end if
+                    end do
+                 end do
+              end do
+
+              step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
+              step_count_arr4= (/ Icount, Jcount, jpk, A_infofile_kind(p,NTIMEK) /)
+              !$OMP CRITICAL
+              call handle_err(  &
+                   nfmpi_put_vara_real_all(ncid, vardID, step_start_arr4, step_count_arr4, bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:)), &
+                   errstring="Put 3D domain: "//A_procname(p)//" variable: "//trim(varname) )
+              !$OMP END CRITICAL                      
+           case ("surfacepoint")  ! 2D variable
+#ifdef DEBUG
+              write(*,*) "2d variable(surfacepoint): "//trim(varname)
+#endif 
+              bfmvar2d=NF_FILL_REAL
+              noce = 1
               do j=1,jpj
                  do i=1,jpi
-                    if (A_mask(p)%p(i,j,k) > 0.0_RLEN) then
-                       bfmvar3d(i,j,k,:) = A_chunk(p,d)%p(noce,:)
+                    if (A_mask(p)%p(i,j,1) > 0.0_RLEN) then
+                       bfmvar2d(i,j,:) = A_chunk(p,d)%p(noce,:)
                        noce = noce+1
                     end if
                  end do
               end do
-           end do
 
-           step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
-           step_count_arr4= (/ Icount, Jcount, jpk, A_infofile_kind(p,NTIMEK) /)
-           !$OMP CRITICAL
-           call handle_err(  &
-                nfmpi_put_vara_real_all(ncid, vardID, step_start_arr4, step_count_arr4, bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:)), &
-                errstring="Put 3D domain: "//A_procname(p)//" variable: "//trim(varname) )
-           !$OMP END CRITICAL                      
-        else
-           bfmvar2d=NF_FILL_REAL
-           noce = 1
-           do j=1,jpj
-              do i=1,jpi
-                 if (A_mask(p)%p(i,j,1) > 0.0_RLEN) then
-                    bfmvar2d(i,j,:) = A_chunk(p,d)%p(noce,:)
-                    noce = noce+1
-                 end if
+              step_start_arr3 = (/ Istart, Jstart, 1 /)
+              step_count_arr3= (/ Icount, Jcount, A_infofile_kind(p,NTIMEK) /)
+              !$OMP CRITICAL
+              call handle_err( & 
+                   nfmpi_put_vara_real_all(ncid, vardID, step_start_arr3, step_count_arr3, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:)), &
+                   errstring="Put 2D domain: "//A_procname(p)//" variable: "//trim(varname))
+              !$OMP END CRITICAL
+           case ("bottompoint")   ! 2D variable from the bottom
+#ifdef DEBUG
+              write(*,*) "2d variable(bottompoint): "//trim(varname)
+#endif 
+
+              ! allocate temporal array for bottompoint
+              allocate(chunktmp(A_infofile_kind(p,NTIMEK)))
+
+              ! reorder bottom data
+              do i=1 , A_infofile_kind(p,LENBOTK)-1
+                 do j=i+1 , A_infofile_kind(p,LENBOTK)
+                    if( A_bottompoint(p)%p(i) .gt. A_bottompoint(p)%p(j)  ) then
+                       chunktmp(:)         = A_chunk(p,d)%p(i,:)
+                       A_chunk(p,d)%p(i,:) = A_chunk(p,d)%p(j,:)
+                       A_chunk(p,d)%p(j,:) = chunktmp(:)
+                       bottompointtmp       = A_bottompoint(p)%p(i)
+                       A_bottompoint(p)%p(i) = A_bottompoint(p)%p(j)
+                       A_bottompoint(p)%p(j) = bottompointtmp
+                    endif
+                 enddo
+              enddo
+              
+              deallocate(chunktmp)
+
+              bfmvar2d=NF_FILL_REAL
+              noce = 1
+              do j=1,jpj
+                 do i=1,jpi
+                    if (A_mask(p)%p(i,j,1) > 0.0_RLEN) then
+                       bfmvar2d(i,j,:) = A_chunk(p,d)%p(noce,:)
+                       noce = noce+1
+                    end if
+                 end do
               end do
-           end do
 
-           step_start_arr3 = (/ Istart, Jstart, 1 /)
-           step_count_arr3= (/ Icount, Jcount, A_infofile_kind(p,NTIMEK) /)
-           !$OMP CRITICAL
-           call handle_err( & 
-                nfmpi_put_vara_real_all(ncid, vardID, step_start_arr3, step_count_arr3, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:)), &
-                errstring="Put 2D domain: "//A_procname(p)//" variable: "//trim(varname))
-           !$OMP END CRITICAL
-        end if
-
+              step_start_arr3 = (/ Istart, Jstart, 1 /)
+              step_count_arr3= (/ Icount, Jcount, A_infofile_kind(p,NTIMEK) /)
+              !$OMP CRITICAL
+              call handle_err( & 
+                   nfmpi_put_vara_real_all(ncid, vardID, step_start_arr3, step_count_arr3, bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:)), &
+                   errstring="Put 2D domain: "//A_procname(p)//" variable: "//trim(varname))
+              !$OMP END CRITICAL
+           case default
+              write(tmp_str,*)  "Var "//trim(varname)//" not correct dimension name: "//trim(vardimname(1))
+              call handle_err(123,tmp_str)
+        end select
         deallocate(A_chunk(p,d)%p)
      end do
 
@@ -378,11 +449,13 @@ subroutine merge_vars
   deallocate(depth)
   do p=1,jpnij
      if ( allocated(A_oceanpoint(p)%p) ) deallocate(A_oceanpoint(p)%p)
+     if ( allocated(A_bottompoint(p)%p) ) deallocate(A_bottompoint(p)%p)
      if ( allocated(A_mask(p)%p) ) deallocate(A_mask(p)%p)
      if ( allocated(A_lat(p)%p) ) deallocate(A_lat(p)%p)
      if ( allocated(A_lon(p)%p) ) deallocate(A_lon(p)%p)
   end do
   deallocate(A_oceanpoint)
+  deallocate(A_bottompoint)
   deallocate(A_mask)
   deallocate(A_lat)
   deallocate(A_lon)
