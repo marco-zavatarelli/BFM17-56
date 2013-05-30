@@ -137,13 +137,6 @@ subroutine merge_vars
   call handle_err( nfmpi_end_indep_data( A_infofile(1,FID)) )
   call handle_err( nfmpi_close(A_infofile(1,FID)) )
 
-  do p=1,jpnij
-     !open chunk file
-     write(A_procname(p),'(I4.4)') p-1
-     A_fname(p) = trim(inp_dir)//"/"//trim(chunk_fname)//"_"//A_procname(p)//".nc"
-     call handle_err( nfmpi_open(MPI_COMM_WORLD, path = A_fname(p), mode = NF_NOWRITE, mpi_info=MPI_INFO_NULL, ncid = A_infofile(p,FID)))
-  end do
-
   ! loop over all the files getting info
   !$OMP PARALLEL DO DEFAULT(NONE) &
   !$OMP PRIVATE ( id, nthread, nimpp, njmpp, lat, lon )                      &
@@ -160,6 +153,13 @@ subroutine merge_vars
      !$ nthread = omp_get_thread_num()
      !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', p
 #endif
+
+     !open chunk file
+     write(A_procname(p),'(I4.4)') p-1
+     A_fname(p) = trim(inp_dir)//"/"//trim(chunk_fname)//"_"//A_procname(p)//".nc"
+     !$OMP CRITICAL
+     call handle_err( nfmpi_open(MPI_COMM_WORLD, path = A_fname(p), mode = NF_NOWRITE, mpi_info=MPI_INFO_NULL, ncid = A_infofile(p,FID)))
+     !$OMP END CRITICAL
 
      ! get attributes
      call handle_err(nfmpi_inq(A_infofile(p,FID), A_infofile(p,NDIMS), A_infofile(p,NVARS), &
@@ -281,8 +281,9 @@ subroutine merge_vars
         !$OMP END CRITICAL
 
         ! inquire ID in the output file
+        !$OMP CRITICAL
         call handle_err( nfmpi_inq_varid(ncid, varname, vardID) )
-
+        !$OMP END CRITICAL
 
 
         select case (vardimname(1))
@@ -384,15 +385,17 @@ subroutine merge_vars
      deallocate(bfmvar3d)
      deallocate(bfmvar2d)
 
-
 #ifdef DEBUG
      !$ nthread = omp_get_thread_num()
      !$ WRITE(*,*) 'END OMP thread: ', nthread, ' ID: ', p
 #endif
+     ! close netcdf chunk file
+     !$OMP CRITICAL
+     call handle_err(nfmpi_close(A_infofile(p,FID)))
+     !$OMP END CRITICAL
 
   end do
   !$OMP END PARALLEL DO
-
 
   ! write global grid specifications 
   ! Oce-land points mask
@@ -430,11 +433,6 @@ subroutine merge_vars
 #ifdef DEBUG
   WRITE(*,*) 'Closing Files...'
 #endif
-
-  ! close netcdf chunk files
-  do p=1,jpnij
-     call handle_err(nfmpi_close(A_infofile(p,FID)))
-  end do
 
   !close the output file
   call handle_err(nfmpi_close(ncid))

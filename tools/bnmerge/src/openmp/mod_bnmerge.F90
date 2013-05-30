@@ -70,8 +70,6 @@ contains
   !   ------------------------------------------------------------------------------
   !
   subroutine handle_err(iret,errstring)
-    use pnetcdf
-    use mpi
 
     implicit none
     integer,intent(in)  :: iret
