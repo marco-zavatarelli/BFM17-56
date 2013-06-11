@@ -14,8 +14,8 @@
    use global_mem, only: RLEN, LOGUNIT
    use netcdf_bfm, only: save_bfm, close_ncdf, ncid_bfm
    use netcdf_bfm, only: save_rst_bfm, ncid_rst
-   use api_bfm,    only: out_delta, ave_ctl
-   use time,       only: bfmtime
+   use api_bfm,    only: out_delta, save_delta, time_delta
+   use time,       only: bfmtime, update_save_delta
 #ifdef INCLUDE_PELCO2
    use constants, ONLY:MW_C
 #ifdef NOPOINTERS
@@ -45,7 +45,6 @@
 !-----------------------------------------------------------------------
 !BOC
 
-   localtime = real((bfmtime%stepnow - bfmtime%step0),RLEN) * rdt
    !---------------------------------------------
    ! Update means
    !---------------------------------------------
@@ -62,14 +61,15 @@
    !---------------------------------------------
    ! Write diagnostic output
    !---------------------------------------------
-   if ( MOD( (bfmtime%stepnow - bfmtime%step0), out_delta ) == 0 ) then
+   if ( bfmtime%stepnow .eq. save_delta ) then
       if ( lwp ) then
          write(numout,*) 'trc_dia_bfm : write NetCDF passive tracer concentrations at ', kt, 'time-step'
          write(numout,*) '~~~~~~ '
       end if
-      if (ave_ctl) localtime = localtime - ( real(out_delta,RLEN) * rdt / 2.0)
+      localtime = real((time_delta - bfmtime%step0),RLEN) * bfmtime%timestep
       call calcmean_bfm(MEAN)
       call save_bfm(localtime)
+      call update_save_delta(out_delta,save_delta,time_delta)
    end if
    !---------------------------------------------
    ! Save Restart and Close the files

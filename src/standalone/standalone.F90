@@ -232,6 +232,11 @@
    ! with GOTM
    call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
    !---------------------------------------------
+   ! Set output stepping
+   !---------------------------------------------
+   save_delta = bfmtime%step0
+   call update_save_delta(out_delta,save_delta,time_delta)
+   !---------------------------------------------
    ! Assign depth
    !---------------------------------------------
    Depth = indepth
@@ -347,7 +352,7 @@
    use global_mem, only:RLEN
    use netcdf_bfm, only: save_bfm
    use mem
-   use api_bfm, only: out_delta
+   use api_bfm, only: out_delta, save_delta , time_delta, update_save_delta
    use time
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
@@ -363,6 +368,7 @@
 !-----------------------------------------------------------------------
 !BOC
 integer :: i
+real    :: localtime
 
    LEVEL1 'timestepping'
    do while (ntime.le.nendtim)
@@ -393,13 +399,21 @@ integer :: i
             call integrationEfw
       end select
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! update internal bfm time 
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      bfmtime%stepnow = ntime
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Compute means and store results
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call calcmean_bfm(ACCUMULATE)
-      if (mod(ntime,out_delta).eq.0) then
-         LEVEL1 'OUTPUT' , timesec/SEC_PER_DAY
+      !if (mod(ntime,save_delta).eq.0) then
+      if ( ntime .eq. save_delta ) then
+         !localtime = timesec/SEC_PER_DAY
+         localtime = ( time_delta - bfmtime%step0) * bfmtime%timestep
+         LEVEL1 'OUTPUT' , localtime
          call calcmean_bfm(MEAN)
-         call save_bfm(timesec)
+         call save_bfm(localtime)
+         call update_save_delta(out_delta,save_delta,time_delta)
       end if
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Reset source-sink arrays, update time

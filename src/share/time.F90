@@ -43,6 +43,7 @@
    public                              :: write_time_string
    public                              :: time_diff
    public                              :: dayofyear
+   public                              :: eomdays, yeardays
 !
 ! !PUBLIC DATA MEMBERS:
    character(len=19), public           :: timestr
@@ -191,9 +192,9 @@
    write(bfmtime%date0,'(i4.4,a1,i2.2,a1,i2.2,1x,I2.2,a1,I2.2)') yy,'-',mm,'-',dd,hh,':',nn
    bfmtime%time0    = jday
    bfmtime%timeEnd  = jday + (float(MaxN) * timestep) / SEC_PER_DAY
-   bfmtime%step0    = MinN
+   bfmtime%step0    = MinN - 1
    bfmtime%timestep = timestep
-   bfmtime%stepnow  = MinN
+   bfmtime%stepnow  = MinN - 1
    bfmtime%stepEnd  = MaxN
    
    LEVEL2 'bfmtime : ', bfmtime
@@ -358,9 +359,7 @@
    fsecs = n*timestep + secs0
    julianday    = jul0 + nsecs/86400
    secondsofday = mod(nsecs,86400)
-  
-   bfmtime%stepnow = n
- 
+
    return
    end subroutine update_time
 !EOC
@@ -524,6 +523,40 @@
    end subroutine dayofyear
 !EOC
 
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ integer function eomdays(Year, Month)
+ ! Adapted from Lin Jensen, 1998
+ ! TL: needs check for leap year computation
+     implicit none
+     integer :: Month, Year
+     SELECT CASE (Month)                       !!Find number of days in a Month
+       CASE (:0, 13:)
+               Stop "eomdays: Invalid month!!"
+       CASE (1, 3, 5, 7:8, 10, 12)
+               eomdays = 31
+       CASE (2)                                !!February
+               eomdays = 28
+               IF (MOD(Year,4) == 0) eomdays = 29  !!Leap year
+       CASE DEFAULT                                    !!September, April, June & November
+               eomdays = 30              !! Thirty days hath ...^
+     END SELECT
+     return
+ end function eomdays
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ integer function yeardays(Year)
+ ! TL:  needs check for leap year computation
+     implicit none
+     integer :: im, Year
+     yeardays = 0
+     do im = 1 , 12
+        yeardays = yeardays + FLOAT(eomdays(Year, im))
+     enddo
+     if (yeardays == 0 .OR. yeardays > 366) stop ' yeardays out of bounds!'
+     return
+ end function yeardays
+!-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 
    end module time

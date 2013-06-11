@@ -235,6 +235,12 @@
    ! the argument list is mandatory with BFM
    call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
 
+   !---------------------------------------------
+   ! Set output stepping
+   !---------------------------------------------
+   save_delta = bfmtime%step0
+   call update_save_delta(out_delta,save_delta,time_delta)
+
    !-------------------------------------------------------
    ! Prepares the BFM 1D arrays containing the
    ! spatial informations (have to be done after allocation

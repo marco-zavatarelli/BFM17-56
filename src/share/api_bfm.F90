@@ -23,7 +23,7 @@
 
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public init_bfm, find
+   public init_bfm, find, update_save_delta
 !
 ! !PUBLIC DATA MEMBERS:
    logical                            :: bio_calc,bioshade_feedback,bfm_rstctl
@@ -35,7 +35,7 @@
    integer                            :: calc_init_bennut_states
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
-   integer                            :: out_delta,out_secs
+   integer                            :: out_delta,out_secs,save_delta,time_delta
    character(len=PATH_MAX)            :: rst_fname
 
    !---------------------------------------------
@@ -426,6 +426,67 @@ contains
    stop 'init_bfm'
 
   end subroutine init_bfm
+!EOC
+
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:
+!
+! !INTERFACE:
+   subroutine update_save_delta(outdelta,savedelta,timedelta)
+!
+! !DESCRIPTION:
+!  Dynamically set the output stepping for saving data 
+!  NOTE: if outdelta is a negative number then outputs the real monthly data
+!
+! !USES:
+   use time
+   use global_mem, only: RLEN,LOGUNIT
+   use constants,  only: SEC_PER_DAY
+ 
+   implicit none
+   integer,intent(IN)     :: outdelta
+   integer,intent(OUT)    :: savedelta
+   integer,intent(OUT)    :: timedelta
+   real(RLEN)             :: julian1, julian2  
+   integer                :: yyyy,mm,dd,hh,nn,tmptime
+
+   if ( bfmtime%stepnow .eq. bfmtime%stepEnd ) return
+ 
+   !
+   ! if outdelta is finite use it as default output stepping
+   if ( outdelta .ge. 0 ) then 
+      tmptime = outdelta
+      savedelta = savedelta + outdelta
+   endif 
+   !
+   ! if outdelta is negative compute dinamically set the output to end of the month
+   if ( outdelta .lt. 0 ) then
+      julian1 = bfmtime%time0 + ( bfmtime%stepnow * bfmtime%timestep / SEC_PER_DAY)
+      call calendar_date(julian1,yyyy,mm,dd,hh,nn)
+      call julian_day(yyyy,mm,eomdays(yyyy,mm),24,0,julian2)
+       
+      tmptime = ( julian2 - julian1 ) * SEC_PER_DAY / bfmtime%timestep
+      savedelta = savedelta + ( julian2 - julian1 ) * SEC_PER_DAY / bfmtime%timestep
+
+      write(LOGUNIT,*) 'bfm time:  Output will be saved as true the monthly value.' 
+      write(LOGUNIT,*) 
+   endif
+   !
+   ! check if output is after the end of simulation and adjust the value
+   if ( bfmtime%stepEnd .lt. savedelta ) then
+      tmptime = bfmtime%stepEnd - ( savedelta - tmptime )  
+      savedelta = bfmtime%stepEnd  
+      write(LOGUNIT,*) 'Warning : Last output saving is beyond the end of the simulation. Set output equal to the end.'
+      write(LOGUNIT,*)
+   endif
+   ! set timestep for time output 
+   timedelta = savedelta
+   if (ave_ctl) timedelta = savedelta - (tmptime / 2) 
+
+   end subroutine  update_save_delta
 !EOC
 
 

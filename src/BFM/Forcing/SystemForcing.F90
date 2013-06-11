@@ -413,39 +413,6 @@
  end function getlun
 !-------------------------------------------------------------------------!
 !-------------------------------------------------------------------------!
- integer function eomdays(Year, Month)
- ! Adapted from Lin Jensen, 1998
- ! tom: needs check for leap year computation
-     implicit none
-     integer :: Month, Year
-     SELECT CASE (Month)                       !!Find number of days in a Month
-       CASE (:0, 13:)
-               Stop "eomdays: Invalid month!!"
-       CASE (1, 3, 5, 7:8, 10, 12)
-               eomdays = 31
-       CASE (2)                                !!February
-               eomdays = 28
-               IF (MOD(Year,4) == 0) eomdays = 29  !!Leap year
-       CASE DEFAULT                                    !!September, April, June & November
-               eomdays = 30              !! Thirty days hath ...^
-     END SELECT 
-     return
- end function eomdays
-!-------------------------------------------------------------------------!
-!-------------------------------------------------------------------------!
- integer function yeardays(Year)
- ! tom: needs check for leap year computation
-     implicit none
-     integer :: im, Year
-     yeardays = 0
-     do im = 1 , 12
-        yeardays = yeardays + FLOAT(eomdays(Year, im))
-     enddo
-     if (yeardays == 0 .OR. yeardays > 366) stop ' yeardays out of bounds!'
-     return
- end function yeardays
-!-------------------------------------------------------------------------!
-!-------------------------------------------------------------------------!
  subroutine halftime(Year, Month, Day, Hour)
  ! This routine compute the month or year central date in mm-dd-hh
      implicit none
