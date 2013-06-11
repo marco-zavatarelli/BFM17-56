@@ -438,7 +438,7 @@ contains
    subroutine update_save_delta(outdelta,savedelta,timedelta)
 !
 ! !DESCRIPTION:
-!  Dynamically set the output stepping for saving data 
+!  Dynamically set the output stepping for saving data based on outdelta value
 !  NOTE: if outdelta is a negative number then outputs the real monthly data
 !
 ! !USES:
@@ -471,7 +471,7 @@ contains
       tmptime = ( julian2 - julian1 ) * SEC_PER_DAY / bfmtime%timestep
       savedelta = savedelta + ( julian2 - julian1 ) * SEC_PER_DAY / bfmtime%timestep
 
-      write(LOGUNIT,*) 'bfm time:  Output will be saved as true the monthly value.' 
+      write(LOGUNIT,*) 'bfm time:  Output will be saved for the real monthly value.' 
       write(LOGUNIT,*) 
    endif
    !

@@ -236,6 +236,9 @@
    !---------------------------------------------
    save_delta = bfmtime%step0
    call update_save_delta(out_delta,save_delta,time_delta)
+
+   if ( out_delta .lt. 0 .and. (timefmt .eq. 1 .or. timefmt .eq. 4) ) &
+      write (LOGUNIT, *) 'WARNING: If timefmt = 1 or 4, Check the start time to save monthly values!!!'
    !---------------------------------------------
    ! Assign depth
    !---------------------------------------------
@@ -406,11 +409,9 @@ real    :: localtime
       ! Compute means and store results
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call calcmean_bfm(ACCUMULATE)
-      !if (mod(ntime,save_delta).eq.0) then
       if ( ntime .eq. save_delta ) then
-         !localtime = timesec/SEC_PER_DAY
-         localtime = ( time_delta - bfmtime%step0) * bfmtime%timestep
-         LEVEL1 'OUTPUT' , localtime
+         localtime = real((time_delta - bfmtime%step0),RLEN) * bfmtime%timestep
+         LEVEL1 'OUTPUT' , localtime / SEC_PER_DAY
          call calcmean_bfm(MEAN)
          call save_bfm(localtime)
          call update_save_delta(out_delta,save_delta,time_delta)

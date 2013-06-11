@@ -527,7 +527,6 @@
 !-------------------------------------------------------------------------!
  integer function eomdays(Year, Month)
  ! Adapted from Lin Jensen, 1998
- ! TL: needs check for leap year computation
      implicit none
      integer :: Month, Year
      SELECT CASE (Month)                       !!Find number of days in a Month
@@ -546,7 +545,6 @@
 !-------------------------------------------------------------------------!
 !-------------------------------------------------------------------------!
  integer function yeardays(Year)
- ! TL:  needs check for leap year computation
      implicit none
      integer :: im, Year
      yeardays = 0

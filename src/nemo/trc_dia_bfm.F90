@@ -14,8 +14,8 @@
    use global_mem, only: RLEN, LOGUNIT
    use netcdf_bfm, only: save_bfm, close_ncdf, ncid_bfm
    use netcdf_bfm, only: save_rst_bfm, ncid_rst
-   use api_bfm,    only: out_delta, save_delta, time_delta
-   use time,       only: bfmtime, update_save_delta
+   use api_bfm,    only: out_delta, save_delta, time_delta, update_save_delta
+   use time,       only: bfmtime
 #ifdef INCLUDE_PELCO2
    use constants, ONLY:MW_C
 #ifdef NOPOINTERS
