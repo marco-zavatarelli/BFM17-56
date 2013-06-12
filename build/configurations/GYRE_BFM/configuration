@@ -27,8 +27,8 @@
 &BFM_conf
         MODE     = 'NEMO',
         CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_PELFE INCLUDE_DIAG3D',
-        ARCH     = 'openmpif90_osx',
-        PROC     = 4,
+        ARCH     = 'ifort_athena',
+        PROC     = 8,
         EXP      = 'gyre_bfm_3.4',
         QUEUE    = 'poe_short',
         NEMONML  = 'iodef.xml namelist xmlio_server.def'

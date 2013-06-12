@@ -468,10 +468,10 @@ contains
       call calendar_date(julian1,yyyy,mm,dd,hh,nn)
       call julian_day(yyyy,mm,eomdays(yyyy,mm),24,0,julian2)
        
-      tmptime = ( julian2 - julian1 ) * SEC_PER_DAY / bfmtime%timestep
-      savedelta = savedelta + ( julian2 - julian1 ) * SEC_PER_DAY / bfmtime%timestep
+      tmptime = int( julian2 - julian1 ) * int(SEC_PER_DAY) / bfmtime%timestep
+      savedelta = savedelta + int( julian2 - julian1 ) * int(SEC_PER_DAY) / bfmtime%timestep
 
-      write(LOGUNIT,*) 'bfm time:  Output will be saved for the real monthly value.' 
+      write(LOGUNIT,*) 'bfm_save : Output will be saved for the real monthly value at step ', savedelta 
       write(LOGUNIT,*) 
    endif
    !
@@ -479,7 +479,8 @@ contains
    if ( bfmtime%stepEnd .lt. savedelta ) then
       tmptime = bfmtime%stepEnd - ( savedelta - tmptime )  
       savedelta = bfmtime%stepEnd  
-      write(LOGUNIT,*) 'Warning : Last output saving is beyond the end of the simulation. Set output equal to the end.'
+      write(LOGUNIT,*) 'bfm_save : Last output saving is beyond the end of the simulation.'
+      write(LOGUNIT,*) 'bfm_save : Output saved at the end of the experiment at ', savedelta
       write(LOGUNIT,*)
    endif
    ! set timestep for time output 
