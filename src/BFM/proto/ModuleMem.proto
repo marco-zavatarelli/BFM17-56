@@ -204,6 +204,12 @@
            integer,    public,dimension(:),allocatable ::flx_CalcIn
            integer,    public,dimension(:),allocatable ::flx_option
            integer,    public                          ::flx_cal_ben_start
+
+#ifdef D1SOURCE
+           byte,    public,dimension(:,:,:),allocatable ::flx_3d_matrix
+           real(RLEN), public,dimension(:,:),allocatable ::flx_3d_func
+           integer,    public ::flx_3d_nr
+#endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! SHARED GLOBAL FUNCTIONS (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

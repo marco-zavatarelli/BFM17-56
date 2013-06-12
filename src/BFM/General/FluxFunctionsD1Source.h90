@@ -37,6 +37,7 @@
             integer,intent(IN) :: destination
             real(RLEN),intent(IN) :: flux(:)
             character(len=8)                   :: D23
+            integer :: j
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -51,6 +52,9 @@
                       flux/SEC_PER_DAY
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
+                  do j=1, NO_D3_BOX_FLUX
+                     flx_3d_func(j,:) = ( flx_3d_matrix(origin, destination, j) * flux ) + flx_3d_func(j,:)
+                  end do
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   D2SOURCE(origin,:) = D2SOURCE(origin,:) - &
@@ -65,6 +69,9 @@
                 case (iiPel)
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
+                  do j=1, NO_D3_BOX_FLUX
+                     flx_3d_func(j,:) = ( flx_3d_matrix(origin, destination, j) * flux ) + flx_3d_func(j,:)
+                  end do
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   D2SOURCE(destination,:) = D2SOURCE(destination,:) + &

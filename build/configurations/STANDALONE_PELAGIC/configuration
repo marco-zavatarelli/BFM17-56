@@ -25,7 +25,7 @@
 
 &BFM_conf
         MODE    = 'STANDALONE',
-        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D',
+        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D D1SOURCE',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
         NETCDF  = '/opt/local/',

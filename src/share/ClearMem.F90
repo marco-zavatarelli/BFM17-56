@@ -35,6 +35,12 @@ subroutine ClearMem
     deallocate(flx_SS)
     deallocate(flx_states)
     deallocate(flx_ostates)
+
+#ifdef D1SOURCE
+    deallocate(flx_3d_matrix)
+    deallocate(flx_3d_func)
+#endif
+
     ! from api_bfm 
     deallocate(var_ids)
     deallocate(var_ave)

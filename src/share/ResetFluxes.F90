@@ -18,6 +18,9 @@ subroutine ResetFluxes
 #else
    use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, D3SINK, &
          PELBOTTOM, PELSURFACE
+#ifdef D1SOURCE
+   use mem,     only: flx_3d_func
+#endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES, D2SINK, D2SOURCE
 #endif
@@ -40,6 +43,8 @@ subroutine ResetFluxes
 #ifdef D1SOURCE
    ! Reset the 1-dimensional source term arrays 
    D3SOURCE(:,:) = ZERO
+   ! Reset the fluxes
+   flx_3d_func(:,:) = ZERO
 #  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    D2SOURCE(:,:) = ZERO
 #  endif

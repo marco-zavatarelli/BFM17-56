@@ -19,6 +19,9 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE
 #endif
+#ifdef D1SOURCE
+   use mem, only: flx_3d_func
+#endif
    use mem, only: NO_BOXES,NO_BOXES_XY
    implicit none
 !
@@ -100,21 +103,28 @@
                   end if
                end if
             end do
-#ifndef D1SOURCE
+
             j=0
             do i=stPelFluxS,stPelFluxE
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
+#ifdef D1SOURCE
+                  if ( ave_count < 1.5 ) then
+                     D3ave(k,:)=flx_3d_func(j,:)
+                  else
+                     D3ave(k,:)=D3ave(k,:)+flx_3d_func(j,:)
+                  end if
+#else
                   call make_flux_output(1,j,1,NO_BOXES,c1dim)
                   if ( ave_count < 1.5 ) then
                      D3ave(k,:)=c1dim
                   else
                      D3ave(k,:)=D3ave(k,:)+c1dim
                   end if
+#endif
                end if
             end do
-#endif
          endif
          if (stBenStateE /= 0 .and. do_2ave) then
             !---------------------------------------------

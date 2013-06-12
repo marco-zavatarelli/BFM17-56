@@ -514,15 +514,46 @@ sub func_FLUX_ALLOC  {
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
 
     my $line = "";    
-    my ($nn, $mm);
-    $nn=0, $mm=0;
+    my ($nn, $mm, $nn2d, $mm2d, $nn3d, $mm3d);
+    $nn=0, $mm=0, $nn2d=0, $mm2d=0, $nn3d=0, $mm3d=0;
+    my $numvars3d = 0;
 
-    foreach my $dim_tmp ( qw(2d 3d) ){
+    foreach my $dim_tmp ( qw(2d) ){
         if( exists $$LST_STA{"flux $dim_tmp"} && exists $$LST_STA{"select $dim_tmp"} ){
-            $nn += $$LST_STA{"flux $dim_tmp"};
-            $mm += $$LST_STA{"select $dim_tmp"};
+            $nn2d += $$LST_STA{"flux $dim_tmp"};
+            $mm2d += $$LST_STA{"select $dim_tmp"};
         }
     }
+
+    foreach my $dim_tmp ( qw(3d) ){
+        if( exists $$LST_STA{"flux $dim_tmp"} && exists $$LST_STA{"select $dim_tmp"} ){
+            $nn3d += $$LST_STA{"flux $dim_tmp"};
+            $mm3d += $$LST_STA{"select $dim_tmp"};
+        }
+    }
+
+    $nn = $nn2d + $nn3d;
+    $mm = $mm2d + $mm3d;
+
+    $numvars3d = $$LST_STA{"state 3d"};
+    $line .= "#ifdef D1SOURCE\n";
+    $line .= "  allocate(flx_3d_matrix(1:$numvars3d, 1:$numvars3d, 1:$nn3d),stat=status)\n";
+    $line .= "  flx_3d_matrix = 0\n";
+    $line .= "  allocate(flx_3d_func(1:$nn3d, 1:NO_BOXES),stat=status)\n";
+    $line .= "  flx_3d_func = 0\n";
+    $line .= "  flx_3d_nr   = $nn3d\n\n";
+    $line .= "#endif\n";
+
+
+    # $line .= "allocate(flx_calc_nr(0:0),stat=status)\n";
+    # $line .= "allocate(flx_CalcIn(1:0),stat=status)\n";
+    # $line .= "allocate(flx_option(1:0),stat=status)\n";
+    # $line .= "allocate(flx_t(1:0),stat=status)\n";
+    # $line .= "allocate(flx_SS(1:0),stat=status)\n";
+    # $line .= "allocate(flx_states(1:0),stat=status)\n";
+    # $line .= "allocate(flx_ostates(1:0),stat=status)\n";
+    # $line .= "flx_calc_nr(0)=0\n";
+    # $line .= "flx_cal_ben_start=0\n";
 
     $line .= "allocate(flx_calc_nr(0:$nn),stat=status)\n";
     $line .= "allocate(flx_CalcIn(1:$nn),stat=status)\n";
@@ -546,6 +577,7 @@ sub func_FLUX_FILL  {
     my $index=1;
     my $jndex=1;
 
+
     if( exists $$LST_STA{"flux ${dim}d"} && exists $$LST_STA{"select ${dim}d"} ){
         #foreach my $key (sort keys %$LST_PARAM) { 
         foreach my $key ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
@@ -562,6 +594,16 @@ sub func_FLUX_FILL  {
                     my $compo1 = $$function{compo1}[$indexC];
                     my $compo2 = $$function{compo2}[$indexC];
                     if( $compo2 eq '*' ){ $compo2 = $compo1; }
+                    if( $dir ){
+                        $line .= "#ifdef D1SOURCE\n";
+                        $line .= "  flx_3d_matrix(pp${compo1}, pp${compo2}, $index)=${sign1}1\n";
+                        $line .= "#endif\n";
+                    }else{
+                        $line .= "#ifdef D1SOURCE\n";
+                        $line .= "  flx_3d_matrix(pp${compo2}, pp${compo1}, $index)=${sign1}1\n";
+                        $line .= "#endif\n";
+                    }
+
                     $line .= "flx_t($jndex)=${sign1}1.00;flx_SS($jndex)=${dir}; ";
                     $line .= "flx_states($jndex)=pp${compo1};flx_ostates($jndex)=pp${compo2}\n";
                     $jndex++;

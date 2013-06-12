@@ -242,7 +242,7 @@ end
   exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
   ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
   netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
-  rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
+  # rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d #TODO: integrate make_flux_output with D1SOURCE+flux
   rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
   rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
   reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
