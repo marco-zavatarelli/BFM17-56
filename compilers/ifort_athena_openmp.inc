@@ -17,10 +17,10 @@
 	ARFLAGS = -r
 	NCDF_LIB = -L${PNETCDF}/lib -lpnetcdf
 	NCDF_INC = -I${PNETCDF}/include
-  MPI_LIB =  -L/opt/intel/impi/4.1.0/lib64 -lmpi -lmpich -lmpiif
-  MPI_INC =  -I/opt/intel/impi/4.1.0/include64
+        MPI_LIB =  -L/opt/intel/impi/4.1.0/lib64 -lmpi -lmpich -lmpiif
+        MPI_INC =  -I/opt/intel/impi/4.1.0/include64
 	CPPFLAGS=
-  FFLAGS  =  -r8 -O3 -xHost -fp-model source -traceback ${NCDF_INC} ${MPI_INC} -openmp
+        FFLAGS  =  -r8 -O3 -xHost -fp-model source -traceback ${NCDF_INC} ${MPI_INC} -openmp
 	LDFLAGS = ${NCDF_INC} ${MPI_INC} ${NCDF_LIB} ${MPI_LIB} -openmp
 
 #NOTE: you have to load module: NETCDF/parallel-netcdf-1.3.1

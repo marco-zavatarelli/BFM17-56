@@ -1,5 +1,10 @@
 #!/bin/bash
 
+set -ex 
+
+# set environment
+module load NETCDF/parallel-netcdf-1.3.1
+
 export OMP_NUM_THREADS=16
 LIST=bnmerge.nml
 LOG_DIR=./
@@ -37,7 +42,7 @@ cat > runscript <<EOF
 
     # Launch the model
 
-    time ./bnmerge -f ${LIST}
+    time ./bnmerge.x -f ${LIST}
 
     echo " bnmerge DONEEE!!!"
 
