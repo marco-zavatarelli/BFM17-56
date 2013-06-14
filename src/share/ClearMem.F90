@@ -27,6 +27,10 @@ subroutine ClearMem
 !-----------------------------------------------------------------------
 !BOC
 !
+
+   integer :: i,j,origin,destination
+
+#ifndef D1SOURCE
     ! from AllocateMem
     deallocate(flx_calc_nr)
     deallocate(flx_CalcIn)
@@ -35,10 +39,19 @@ subroutine ClearMem
     deallocate(flx_SS)
     deallocate(flx_states)
     deallocate(flx_ostates)
-
-#ifdef D1SOURCE
-    deallocate(flx_3d_matrix)
-    deallocate(flx_3d_func)
+#else
+    ! free willy, free the fluxes
+    origin=0
+    do i=stPelStateS,stPelStateE
+       origin=origin+1
+       destination=0
+       do j=stPelStateS,stPelStateE
+          destination=destination+1
+          if( allocated(D3FLUX_MATRIX(origin,destination)%p) ) deallocate(D3FLUX_MATRIX(origin,destination)%p)
+       end do
+    end do
+    deallocate(D3FLUX_MATRIX)
+    deallocate(D3FLUX_FUNC)
 #endif
 
     ! from api_bfm 

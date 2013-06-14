@@ -16,7 +16,7 @@
    use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
 #ifdef D1SOURCE
-   use mem,     only: flx_3d_func
+   use mem,     only: D3FLUX_FUNC
 #endif
    use global_mem, only: RLEN,LOGUNIT,bfm_lwp
    use constants, ONLY: SEC_PER_DAY
@@ -681,7 +681,6 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Pelagic variables
    !---------------------------------------------
-
    k = 0
    do n = stPelStateS , stPelFluxE
       if ( var_ids(n) > 0 ) then
@@ -706,7 +705,7 @@ end subroutine init_netcdf_rst_bfm
          !-- Store snapshot of pelagic fluxes
          if ( n >= stPelFluxS .AND. n <= stPelFluxE ) then 
             i = n - stPelFluxS + 1
-            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=flx_3d_func(i,:))  
+            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3FLUX_FUNC(i,:))  
          endif
 #endif
          ! Store mean values of (any) 3D entity
@@ -714,7 +713,6 @@ end subroutine init_netcdf_rst_bfm
             k=k+1
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3ave(k,:))
          endif
- 
       endif
    enddo
 

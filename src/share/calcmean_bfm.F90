@@ -20,7 +20,7 @@
    use mem, only: D2STATE
 #endif
 #ifdef D1SOURCE
-   use mem, only: flx_3d_func
+   use mem, only: D3FLUX_FUNC
 #endif
    use mem, only: NO_BOXES,NO_BOXES_XY
    implicit none
@@ -111,9 +111,9 @@
                   k=k+1
 #ifdef D1SOURCE
                   if ( ave_count < 1.5 ) then
-                     D3ave(k,:)=flx_3d_func(j,:)
+                     D3ave(k,:)=D3FLUX_FUNC(j,:)
                   else
-                     D3ave(k,:)=D3ave(k,:)+flx_3d_func(j,:)
+                     D3ave(k,:)=D3ave(k,:)+D3FLUX_FUNC(j,:)
                   end if
 #else
                   call make_flux_output(1,j,1,NO_BOXES,c1dim)

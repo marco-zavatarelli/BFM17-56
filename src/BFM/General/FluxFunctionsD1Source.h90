@@ -37,7 +37,7 @@
             integer,intent(IN) :: destination
             real(RLEN),intent(IN) :: flux(:)
             character(len=8)                   :: D23
-            integer :: j
+            integer :: j, signval
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -52,9 +52,14 @@
                       flux/SEC_PER_DAY
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
-                  do j=1, NO_D3_BOX_FLUX
-                     flx_3d_func(j,:) = ( flx_3d_matrix(origin, destination, j) * flux ) + flx_3d_func(j,:)
-                  end do
+                  if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                     do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
+                        signval = SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) )
+                        D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) = &
+                             (flux * signval) + &
+                             D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : )
+                     end do
+                  endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   D2SOURCE(origin,:) = D2SOURCE(origin,:) - &
@@ -69,9 +74,14 @@
                 case (iiPel)
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
-                  do j=1, NO_D3_BOX_FLUX
-                     flx_3d_func(j,:) = ( flx_3d_matrix(origin, destination, j) * flux ) + flx_3d_func(j,:)
-                  end do
+                  if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                     do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
+                        signval = SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) )
+                        D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) = &
+                             (flux * signval) + &
+                             D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : )
+                     end do
+                  endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   D2SOURCE(destination,:) = D2SOURCE(destination,:) + &

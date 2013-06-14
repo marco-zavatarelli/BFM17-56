@@ -29,8 +29,10 @@
             NO_BOXES_Z,BoxNumberX,BoxNumberY,BoxNumberZ,BoxNumberXY , &
             BoxNumber
       use mem, only: iiBen
+#ifndef D1SOURCE
       use mem, only: flx_calc_nr,flx_CalcIn,flx_t,flx_states, &
               flx_ostates,flx_SS,flx_cal_ben_start,flx_option
+#endif
       use mem, only: D3SOURCE,D3STATE
 #ifndef ONESOURCE
       use mem, only: D3SINK
