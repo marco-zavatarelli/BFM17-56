@@ -208,6 +208,7 @@
 #else
            type ppFlux
               integer, allocatable, dimension(:) :: p
+              integer, allocatable, dimension(:) :: dir
            end type ppFlux
            type(ppFlux), public,dimension(:,:),allocatable :: D3FLUX_MATRIX
            real(RLEN)  , public,dimension(:,:),allocatable :: D3FLUX_FUNC

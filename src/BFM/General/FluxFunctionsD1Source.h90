@@ -28,6 +28,7 @@
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             use constants, only: RLEN, ZERO,  SEC_PER_DAY
             use global_mem, only: LOGUNIT
+
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             ! Implicit typing is never allowed
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -37,7 +38,7 @@
             integer,intent(IN) :: destination
             real(RLEN),intent(IN) :: flux(:)
             character(len=8)                   :: D23
-            integer :: j, signval
+            integer :: j
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -54,10 +55,9 @@
                       flux/SEC_PER_DAY
                   if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
                      do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
-                        signval = SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) )
-                        D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) = &
-                             (flux * signval) + &
-                             D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : )
+                        D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =      &
+                             D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + &
+                             (SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) ) * flux )
                      end do
                   endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
@@ -76,10 +76,17 @@
                       flux/SEC_PER_DAY
                   if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
                      do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
-                        signval = SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) )
-                        D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) = &
-                             (flux * signval) + &
-                             D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : )
+                        if( D3FLUX_MATRIX(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D3SINK
+                           where( flux < ZERO )
+                              D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =     &
+                                   D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) - flux
+                           end where
+                        else ! "A<-B" => (in flow) => flux > ZERO => D3SOURCE
+                           where( flux > ZERO )
+                              D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =     &
+                                   D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + flux
+                           end where
+                        end if
                      end do
                   endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE

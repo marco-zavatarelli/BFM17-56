@@ -492,11 +492,15 @@ sub func_FLUX_ALLOC  {
 
     my $line = "";
     my $dim_tmp = "";
-    my %d3flux_matrix = ();
+
+    my %d3flux_matrix     = ();
+    my %d3flux_matrix_dir = ();
+    my $flxindex  = 0;
+
     my ($nn, $mm, $nn2d, $mm2d, $nn3d, $mm3d);
     $nn=0, $mm=0, $nn2d=0, $mm2d=0, $nn3d=0, $mm3d=0;
-    my $numvars3d = 0;
-    my $flxindex  = 0;
+
+
 
     $dim_tmp='2d';
     if( exists $$LST_STA{"$type $dim_tmp"} && exists $$LST_STA{"select $dim_tmp"} ){
@@ -522,6 +526,7 @@ sub func_FLUX_ALLOC  {
         my $param = $$LST_PARAM{$name};
         if( 3 == $param->getDim() && "flux" eq $param->getType() ){
             my $function = $param->getFunction();
+            my $sigla = $param->getSigla();
             for my $indexC ( 0 .. $#{$$function{compo1}} ) {
                 my $sign1  = $$function{sign2}[$indexC];
                 my $dir    = $$function{dir}[$indexC];
@@ -533,24 +538,32 @@ sub func_FLUX_ALLOC  {
                 }else{ # B-> A
                     push( @{$d3flux_matrix{"pp$compo2, pp$compo1"}}, "${sign1}${flxindex}"  );
                 }
+                if( $compo1 eq $compo2 ){ # A == B
+                    push( @{$d3flux_matrix_dir{"pp$compo1, pp$compo2"}}, "${dir}" );
+                }
             }
             $flxindex++;
         }
     }
     #print Dumper(\%d3flux_matrix) , "\n"; 
+    #print Dumper(\%d3flux_matrix_dir) , "\n"; 
 
 
 
-    $numvars3d = $$LST_STA{"state 3d"};
     $line .= "#ifdef D1SOURCE\n";
-    $line .= "  allocate( D3FLUX_MATRIX(1:$numvars3d, 1:$numvars3d),stat=status )\n\n";
+    $line .= "  allocate( D3FLUX_MATRIX(1:NO_D3_BOX_STATES, 1:NO_D3_BOX_STATES),stat=status )\n\n";
     foreach my $key ( keys %d3flux_matrix ){
-        $line .= "  allocate( D3FLUX_MATRIX($key)%p(" . scalar(@{$d3flux_matrix{$key}}) . ") )\n";
-        $line .= "  D3FLUX_MATRIX($key)%p = (/ ". join( ', ', @{$d3flux_matrix{$key}}) ." /)\n";
+        $line .= "  allocate( D3FLUX_MATRIX($key)%p( 1:"   . scalar(@{$d3flux_matrix{$key}}) . " ) )\n";
+        $line .= "  D3FLUX_MATRIX($key)%p = (/ ". join( ', ', @{$d3flux_matrix{$key}} ) ." /)\n";
+        if( exists $d3flux_matrix_dir{$key} ){
+            $line .= "  allocate( D3FLUX_MATRIX($key)%dir( 1:" . scalar(@{$d3flux_matrix{$key}}) . " ) )\n";
+            $line .= "  D3FLUX_MATRIX($key)%dir = (/ ". join( ', ', @{$d3flux_matrix_dir{$key}} ) ." /)\n";
+        }
+        $line .= "\n";        
     }
     $line .= "\n";
 
-    $line .= "  allocate( D3FLUX_FUNC(1:$nn3d, 1:NO_BOXES),stat=status )\n";
+    $line .= "  allocate( D3FLUX_FUNC(1:NO_D3_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
     $line .= "  D3FLUX_FUNC = 0\n";
     $line .= "#else\n";
     $line .= "  allocate(flx_calc_nr(0:$nn),stat=status)\n";
@@ -592,16 +605,6 @@ sub func_FLUX_FILL  {
                     my $compo1 = $$function{compo1}[$indexC];
                     my $compo2 = $$function{compo2}[$indexC];
                     if( $compo2 eq '*' ){ $compo2 = $compo1; }
-                    # if( $dir ){
-                    #     $line .= "#ifdef D1SOURCE\n";
-                    #     $line .= "  D3FLUX_MATRIX(pp${compo1}, pp${compo2}, $index)=${sign1}1\n";
-                    #     $line .= "#endif\n";
-                    # }else{
-                    #     $line .= "#ifdef D1SOURCE\n";
-                    #     $line .= "  D3FLUX_MATRIX(pp${compo2}, pp${compo1}, $index)=${sign1}1\n";
-                    #     $line .= "#endif\n";
-                    # }
-
                     $line .= "  flx_t($jndex)=${sign1}1.00;flx_SS($jndex)=${dir}; ";
                     $line .= "  flx_states($jndex)=pp${compo1};flx_ostates($jndex)=pp${compo2}\n";
                     $jndex++;

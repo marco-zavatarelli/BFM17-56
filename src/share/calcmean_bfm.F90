@@ -109,20 +109,12 @@
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
-#ifdef D1SOURCE
-                  if ( ave_count < 1.5 ) then
-                     D3ave(k,:)=D3FLUX_FUNC(j,:)
-                  else
-                     D3ave(k,:)=D3ave(k,:)+D3FLUX_FUNC(j,:)
-                  end if
-#else
                   call make_flux_output(1,j,1,NO_BOXES,c1dim)
                   if ( ave_count < 1.5 ) then
                      D3ave(k,:)=c1dim
                   else
                      D3ave(k,:)=D3ave(k,:)+c1dim
                   end if
-#endif
                end if
             end do
          endif
