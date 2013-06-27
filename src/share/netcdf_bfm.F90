@@ -694,20 +694,12 @@ end subroutine init_netcdf_rst_bfm
             i = n - stPelDiagS + 1
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3DIAGNOS(i,:))
          endif
-#ifndef D1SOURCE         
          !-- Store snapshot of pelagic fluxes
          if ( n >= stPelFluxS .AND. n <= stPelFluxE ) then 
             i = n - stPelFluxS + 1
             call make_flux_output(1,i,1,NO_BOXES,c1dim)
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
          endif
-#else
-         !-- Store snapshot of pelagic fluxes
-         if ( n >= stPelFluxS .AND. n <= stPelFluxE ) then 
-            i = n - stPelFluxS + 1
-            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=D3FLUX_FUNC(i,:))  
-         endif
-#endif
          ! Store mean values of (any) 3D entity
          if ( var_ave(n) .AND. temp_time /= 0.0_RLEN ) then
             k=k+1
