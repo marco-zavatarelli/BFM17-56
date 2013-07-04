@@ -493,13 +493,8 @@ sub func_FLUX_ALLOC  {
     my $line = "";
     my $dim_tmp = "";
 
-    my %d3flux_matrix     = ();
-    my %d3flux_matrix_dir = ();
-    my $flxindex  = 0;
-
     my ($nn, $mm, $nn2d, $mm2d, $nn3d, $mm3d);
     $nn=0, $mm=0, $nn2d=0, $mm2d=0, $nn3d=0, $mm3d=0;
-
 
 
     $dim_tmp='2d';
@@ -520,49 +515,8 @@ sub func_FLUX_ALLOC  {
     $mm = $mm2d + $mm3d;
     
 
-    #get the fluxes which contain origin-dest
-    $flxindex = 1;
-    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
-        my $param = $$LST_PARAM{$name};
-        if( 3 == $param->getDim() && "flux" eq $param->getType() ){
-            my $function = $param->getFunction();
-            my $sigla = $param->getSigla();
-            for my $indexC ( 0 .. $#{$$function{compo1}} ) {
-                my $sign1  = $$function{sign2}[$indexC];
-                my $dir    = $$function{dir}[$indexC];
-                my $compo1 = $$function{compo1}[$indexC];
-                my $compo2 = $$function{compo2}[$indexC];
-                if( $compo2 eq '*' ){ $compo2 = $compo1; }
-                if( $dir ){ # A-> B
-                    push( @{$d3flux_matrix{"pp$compo1, pp$compo2"}}, "${sign1}${flxindex}" );
-                }else{ # B-> A
-                    push( @{$d3flux_matrix{"pp$compo2, pp$compo1"}}, "${sign1}${flxindex}"  );
-                }
-                if( $compo1 eq $compo2 ){ # A == B
-                    push( @{$d3flux_matrix_dir{"pp$compo1, pp$compo2"}}, "${dir}" );
-                }
-            }
-            $flxindex++;
-        }
-    }
-    #print Dumper(\%d3flux_matrix) , "\n"; 
-    #print Dumper(\%d3flux_matrix_dir) , "\n"; 
-
-
-
     $line .= "#ifdef D1SOURCE\n";
-    $line .= "  allocate( D3FLUX_MATRIX(1:NO_D3_BOX_STATES, 1:NO_D3_BOX_STATES),stat=status )\n\n";
-    foreach my $key ( keys %d3flux_matrix ){
-        $line .= "  allocate( D3FLUX_MATRIX($key)%p( 1:"   . scalar(@{$d3flux_matrix{$key}}) . " ) )\n";
-        $line .= "  D3FLUX_MATRIX($key)%p = (/ ". join( ', ', @{$d3flux_matrix{$key}} ) ." /)\n";
-        if( exists $d3flux_matrix_dir{$key} ){
-            $line .= "  allocate( D3FLUX_MATRIX($key)%dir( 1:" . scalar(@{$d3flux_matrix{$key}}) . " ) )\n";
-            $line .= "  D3FLUX_MATRIX($key)%dir = (/ ". join( ', ', @{$d3flux_matrix_dir{$key}} ) ." /)\n";
-        }
-        $line .= "\n";        
-    }
-    $line .= "\n";
-
+    $line .= "  allocate( D3FLUX_MATRIX(1:NO_D3_BOX_STATES, 1:NO_D3_BOX_STATES),stat=status )\n";
     $line .= "  allocate( D3FLUX_FUNC(1:NO_D3_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
     $line .= "  D3FLUX_FUNC = 0\n";
     $line .= "#else\n";
@@ -584,13 +538,93 @@ sub func_FLUX_ALLOC  {
 sub func_FLUX_FILL  {
     my ( $file, $dim, $type) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
-
     my $line = "";
-    my $index=1;
-    my $jndex=1;
 
 
     if( exists $$LST_STA{"flux ${dim}d"} && exists $$LST_STA{"select ${dim}d"} ){
+
+        $line .= "#ifdef D1SOURCE\n";
+
+        my %d3flux_func             = ();
+        my %d3flux_func_dir         = ();
+        my %d3flux_matrix_index     = ();
+        my %d3flux_matrix_index_dir = ();
+        my $flxindex                = 0;
+
+        #get the fluxes which contain origin-dest
+        $flxindex = 1;
+        foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
+            my $param = $$LST_PARAM{$name};
+            if( 3 == $param->getDim() && "flux" eq $param->getType() ){
+                my $function = $param->getFunction();
+                my $sigla = $param->getSigla();
+                for my $indexC ( 0 .. $#{$$function{compo1}} ) {
+                    my $sign1  = $$function{sign2}[$indexC];
+                    my $dir    = $$function{dir}[$indexC];
+                    my $compo1 = $$function{compo1}[$indexC];
+                    my $compo2 = $$function{compo2}[$indexC];
+                    if( $compo2 eq '*' ){ $compo2 = $compo1; }
+
+                    if( $dir ){ # A-> B
+                        if ( exists $d3flux_matrix_index{"pp$compo1, pp$compo2"} ){ 
+                            $d3flux_matrix_index{"pp$compo1, pp$compo2"}++ } 
+                        else{ 
+                            $d3flux_matrix_index{"pp$compo1, pp$compo2"} = 1  
+                        }
+                        push( @{$d3flux_func{$name}}, "D3FLUX_MATRIX(pp$compo1, pp$compo2)%p(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${sign1}${flxindex}\n " );
+                    }else{ # B-> A
+                        if ( exists $d3flux_matrix_index{"pp$compo2, pp$compo1"} ){ 
+                            $d3flux_matrix_index{"pp$compo2, pp$compo1"}++ } 
+                        else{ 
+                            $d3flux_matrix_index{"pp$compo2, pp$compo1"} = 1
+                        };
+                        push( @{$d3flux_func{$name}}, "D3FLUX_MATRIX(pp$compo2, pp$compo1)%p(" . $d3flux_matrix_index{"pp$compo2, pp$compo1"} . ")=${sign1}${flxindex}\n " );
+                    }
+
+                    if( $compo1 eq $compo2 ){ # A == B
+                        if ( exists $d3flux_matrix_index_dir{"pp$compo1, pp$compo2"} ){ 
+                            $d3flux_matrix_index_dir{"pp$compo1, pp$compo2"}++ } 
+                        else{ 
+                            $d3flux_matrix_index_dir{"pp$compo1, pp$compo2"} = 1  
+                        }
+                        push( @{$d3flux_func_dir{$name}}, "D3FLUX_MATRIX(pp$compo1, pp$compo2)%dir(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${dir}\n " );
+                    }
+                }
+                $flxindex++;
+            }
+        }
+        #print Dumper(\%d3flux_matrix_index_dir) , "\n"; 
+        #print Dumper(\%d3flux_matrix_index) , "\n"; 
+        #print Dumper(\%d3flux_func_dir) , "\n"; 
+        #print Dumper(\%d3flux_func) , "\n"; 
+
+        # allocate
+        foreach my $key ( keys %d3flux_matrix_index ){
+            $line .= "  allocate( D3FLUX_MATRIX($key)%p( 1:$d3flux_matrix_index{$key} ) )\n";
+            if( exists $d3flux_matrix_index_dir{$key} ){
+                $line .= "  allocate( D3FLUX_MATRIX($key)%dir( 1:$d3flux_matrix_index_dir{$key} ) )\n";
+            }
+        }
+
+        $line .= "\n\n";
+
+        #fill by the order of the functions
+        foreach my $key ( keys %d3flux_func ){
+            $line .= "  ! $key = " . ${$$LST_PARAM{$key}->getFunction()}{xpr} . "\n";
+            $line .= "  @{$d3flux_func{$key}} ";
+            if( exists $d3flux_func_dir{$key} ){
+                $line .= "@{$d3flux_func_dir{$key}} ";
+            }
+            $line .= "\n";
+        }
+
+
+        $line .= "#else\n";
+
+        my $index=1;
+        my $jndex=1;
+
+
         foreach my $key ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
             my $param    = $$LST_PARAM{$key};
             my $function = $param->getFunction();
@@ -612,6 +646,8 @@ sub func_FLUX_FILL  {
                 $index++;
             }
         }
+
+        $line .= "#endif\n";
     }
 
 

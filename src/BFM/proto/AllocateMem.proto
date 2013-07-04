@@ -123,10 +123,7 @@
 %! Do not change the sequence of the following lines!!
 
 %dd-flux-alloc
-#ifndef D1SOURCE
- %3d-flux-fill
- %2d-flux-fill
-#endif
+%3d-flux-fill
 
   end subroutine AllocateMem
 
