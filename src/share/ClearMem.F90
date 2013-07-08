@@ -67,7 +67,7 @@ subroutine ClearMem
 #ifndef NOT_STANDALONE
      deallocate(D3STATE)
      deallocate(D3SOURCE)
-#ifndef ONESOURCE
+#ifndef D1SOURCE
      deallocate(D3SINK)
 #endif
      deallocate(D3STATETYPE)

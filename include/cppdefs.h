@@ -66,7 +66,3 @@
 #define _ONE_  1.0d0
 #endif
 
-#ifdef D1SOURCE
-#define ONESOURCE
-#endif
-

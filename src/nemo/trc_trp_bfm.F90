@@ -35,7 +35,7 @@ SUBROUTINE trc_trp_bfm( kt )
    USE global_mem
    USE mem,       ONLY: NO_D3_BOX_STATES,D3STATETYPE, &
                         D3SOURCE,D3STATE,NO_BOXES
-#ifndef ONESOURCE
+#ifndef D1SOURCE
    USE mem,       ONLY: D3SINK
 #endif
    use mem, only: ppO3c
@@ -103,7 +103,7 @@ SUBROUTINE trc_trp_bfm( kt )
 #else
             do k=1,NO_D3_BOX_STATES
                do n=1,NO_BOXES
-#ifdef ONESOURCE
+#ifdef D1SOURCE
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n)
 #else
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n) - D3SINK(m,k,n)

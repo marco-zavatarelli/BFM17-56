@@ -10,7 +10,6 @@
 !  This file contains the helper routines for the assignment
 !  and retrieval of rates from the main source/sink term arrays
 !  This is a special file included when the D1SOURCE key is activated.
-!  It also activates the key ONESOURCE
 !
 ! !REVISION HISTORY:
 !  Author(s): Marcello Vichi

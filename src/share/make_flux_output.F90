@@ -42,12 +42,12 @@
 #endif
 #endif
       use mem, only: D3SOURCE,D3STATE
-#ifndef ONESOURCE
+#ifndef D1SOURCE
       use mem, only: D3SINK
 #endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       use mem, only: D2SOURCE,D2STATE
-#ifndef ONESOURCE
+#ifndef D1SOURCE
       use mem, only: D2SINK
 #endif
 #endif
@@ -127,25 +127,11 @@
           idummy = flx_ostates(i)
           if (idummy == 0) idummy=flx_states(i)
           if (flx_SS(i) ==1 ) then
-#ifdef ONESOURCE
-             ! notice that the negative sign is already included in FluxFunctions.F90
-             ! (l. 80) thus there is a further change of sign here
-             hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D2SOURCE(idummy,flx_states(i),:)
-#else
              hulp(1:klev)= hulp(1:klev) &
                     + flx_t(i) * D2SINK(flx_states(i),idummy,:)
-#endif
           else
-#ifdef ONESOURCE
-             ! notice that the negative sign is already included in FluxFunctions.F90
-             ! (l. 80) thus there is a further change of sign here
-             hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D2SOURCE(idummy,flx_states(i),:)
-#else
              hulp(1:klev)= hulp(1:klev) &
                    + flx_t(i) * D2SOURCE(flx_states(i),idummy,:)
-#endif
           endif
         enddo
 #endif
@@ -157,15 +143,8 @@
           if (idummy == 0) idummy=flx_states(i)
           ! write(LOGUNIT,*) "FUNC_INI     : ",flx_states(i), flx_ostates(i), "HULP", hulp(:)
           if (flx_SS(i) ==1 ) then
-#ifdef ONESOURCE
-             ! notice that the negative sign is already included in FluxFunctions.F90
-             ! (l. 80) thus there is a further change of sign here
-             hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D3SOURCE(idummy,flx_states(i),:)
-#else
              hulp(1:klev)= hulp(1:klev) &
                     + flx_t(i) * D3SINK(flx_states(i),idummy,:)
-#endif
              ! write(LOGUNIT,*) "FUNC_CORR_SS1: ",nr0, flx_states(i), idummy, "HULP", hulp(:)
              ! correcting for fluxes  to other systems
              if ( flx_states(i) == idummy) then
@@ -183,15 +162,8 @@
              endif
 
           else
-#ifdef ONESOURCE
-             ! notice that the negative sign is already included in FluxFunctions.F90
-             ! (l. 80) thus there is a further change of sign here
-             hulp(1:klev)= hulp(1:klev) &
-                    - flx_t(i) * D3SOURCE(idummy,flx_states(i),:)
-#else
              hulp(1:klev)= hulp(1:klev) &
                   + flx_t(i) * D3SOURCE(flx_states(i),idummy,:)
-#endif
              ! write(LOGUNIT,*) "FUNC_CORR_SS0: ",nr0, flx_states(i), idummy, "HULP", hulp(:)
              ! correcting for fluxes  to other systems
              if ( flx_states(i) ==idummy) then

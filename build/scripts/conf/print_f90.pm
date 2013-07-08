@@ -311,11 +311,9 @@ sub func_ALLOC {
         print $file "${SPACE}  allocate(D${dim}SOURCE(1:NO_D${dim}_BOX_STATES,1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j),stat=status)\n";
         print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE\")\n";
         print $file "${SPACE}  D${dim}SOURCE = ZERO\n";
-        print $file "#ifndef ONESOURCE\n";
-        print $file "${SPACE}    allocate(D${dim}SINK(1:NO_D${dim}_BOX_STATES,1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j) ,stat=status)\n";
-        print $file "${SPACE}    if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SINK\")\n";
-        print $file "${SPACE}    D${dim}SINK = ZERO\n";
-        print $file "#endif\n";
+        print $file "${SPACE}  allocate(D${dim}SINK(1:NO_D${dim}_BOX_STATES,1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j) ,stat=status)\n";
+        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SINK\")\n";
+        print $file "${SPACE}  D${dim}SINK = ZERO\n";
         print $file "#endif\n";
         print $file "${SPACE}allocate(D${dim}STATETYPE(1:NO_D${dim}_BOX_${TYPE}S ),stat=status)\n";
         print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D${dim}STATETYPE\")\n";

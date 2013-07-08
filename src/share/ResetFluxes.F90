@@ -49,13 +49,6 @@ subroutine ResetFluxes
    D2SOURCE(:,:) = ZERO
 #  endif
 #else
-#  ifdef  ONESOURCE
-   ! Reset the whole source term array 
-   D3SOURCE(:,:,:) = ZERO
-#  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   D2SOURCE(:,:,:) = ZERO
-#     endif
-#  else
    ! Reset source and sink term arrays 
    D3SOURCE(:,:,:) = ZERO
    D3SINK(:,:,:) = ZERO
@@ -73,7 +66,7 @@ subroutine ResetFluxes
 !   end do
 #    endif
 #  endif
-#endif
+
    ! reset surface and bottom fluxes
    do i=1,NO_D3_BOX_STATES
        PELSURFACE(i,:) = ZERO 
