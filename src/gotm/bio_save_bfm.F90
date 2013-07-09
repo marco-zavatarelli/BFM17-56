@@ -100,7 +100,7 @@
    do n=stPelFluxS,stPelFluxE
       i=i+1
       if (var_ids(n) > 0) then
-         call make_flux_output(1,i,0,nlev, c1dim)
+         call correct_flux_output(1,i,0,nlev, c1dim)
          iret = store_data(ncid,var_ids(n),XYZT_SHAPE,nlev,array=c1dim)
       end if
    end do
@@ -153,7 +153,7 @@
       do n=stBenFluxS,stBenFluxE
          i=i+1
          if (var_ids(n) > 0) then
-            call make_flux_output(2,i,nlev, h, c1dim)
+            call correct_flux_output(2,i,nlev, h, c1dim)
             iret = store_data(ncid,var_ids(n),XYT_SHAPE,1,scalar=c1dim(1))
          endif
       end do 

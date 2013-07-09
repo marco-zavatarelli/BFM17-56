@@ -30,16 +30,6 @@ subroutine ClearMem
 
    integer :: i,j,origin,destination
 
-#ifndef D1SOURCE
-    ! from AllocateMem
-    deallocate(flx_calc_nr)
-    deallocate(flx_CalcIn)
-    deallocate(flx_option)
-    deallocate(flx_t)
-    deallocate(flx_SS)
-    deallocate(flx_states)
-    deallocate(flx_ostates)
-#else
     ! free willy, free the fluxes
     origin=0
     do i=stPelStateS,stPelStateE
@@ -52,7 +42,6 @@ subroutine ClearMem
     end do
     deallocate(D3FLUX_MATRIX)
     deallocate(D3FLUX_FUNC)
-#endif
 
     ! from api_bfm 
     deallocate(var_ids)

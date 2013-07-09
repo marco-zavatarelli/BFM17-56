@@ -490,44 +490,10 @@ sub func_FLUX_ALLOC  {
 
     my $line = "";
     my $dim_tmp = "";
-
-    my ($nn, $mm, $nn2d, $mm2d, $nn3d, $mm3d);
-    $nn=0, $mm=0, $nn2d=0, $mm2d=0, $nn3d=0, $mm3d=0;
-
-
-    $dim_tmp='2d';
-    if( exists $$LST_STA{"$type $dim_tmp"} && exists $$LST_STA{"select $dim_tmp"} ){
-        $nn2d += $$LST_STA{"$type $dim_tmp"};
-        $mm2d += $$LST_STA{"select $dim_tmp"};
-    }
-    
-
-    $dim_tmp='3d';
-    if( exists $$LST_STA{"$type $dim_tmp"} && exists $$LST_STA{"select $dim_tmp"} ){
-        $nn3d += $$LST_STA{"$type $dim_tmp"};
-        $mm3d += $$LST_STA{"select $dim_tmp"};
-    }
-
-
-    $nn = $nn2d + $nn3d;
-    $mm = $mm2d + $mm3d;
-    
-
-    $line .= "#ifdef D1SOURCE\n";
+   
     $line .= "  allocate( D3FLUX_MATRIX(1:NO_D3_BOX_STATES, 1:NO_D3_BOX_STATES),stat=status )\n";
     $line .= "  allocate( D3FLUX_FUNC(1:NO_D3_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
     $line .= "  D3FLUX_FUNC = 0\n";
-    $line .= "#else\n";
-    $line .= "  allocate(flx_calc_nr(0:$nn),stat=status)\n";
-    $line .= "  allocate(flx_CalcIn(1:$nn),stat=status)\n";
-    $line .= "  allocate(flx_option(1:$nn),stat=status)\n";
-    $line .= "  allocate(flx_t(1:$mm),stat=status)\n";
-    $line .= "  allocate(flx_SS(1:$mm),stat=status)\n";
-    $line .= "  allocate(flx_states(1:$mm),stat=status)\n";
-    $line .= "  allocate(flx_ostates(1:$mm),stat=status)\n";
-    $line .= "  flx_calc_nr(0)=0\n";
-    $line .= "  flx_cal_ben_start=$nn\n";
-    $line .= "#endif\n";
 
     if( $line ){ print $file $line; }
 }
@@ -540,8 +506,6 @@ sub func_FLUX_FILL  {
 
 
     if( exists $$LST_STA{"flux ${dim}d"} && exists $$LST_STA{"select ${dim}d"} ){
-
-        $line .= "#ifdef D1SOURCE\n";
 
         my %d3flux_func             = ();
         my %d3flux_func_dir         = ();
@@ -616,36 +580,6 @@ sub func_FLUX_FILL  {
             $line .= "\n";
         }
 
-
-        $line .= "#else\n";
-
-        my $index=1;
-        my $jndex=1;
-
-
-        foreach my $key ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
-            my $param    = $$LST_PARAM{$key};
-            my $function = $param->getFunction();
-            if( $param->getType() eq 'flux' ){ 
-                $line .= "  \n";
-                $line .= "  ! " . $param->getSigla() . "=$$function{xpr}        (normal flux): \n";
-                $line .= "  flx_calc_nr($index)= " . ($#{$$function{compo1}} + $jndex) . "; ";
-                $line .= "  flx_CalcIn($index)=iiPel; flx_option($index)=0\n";
-                for my $indexC ( 0 .. $#{$$function{compo1}} ) {
-                    my $sign1  = $$function{sign2}[$indexC];
-                    my $dir    = $$function{dir}[$indexC];
-                    my $compo1 = $$function{compo1}[$indexC];
-                    my $compo2 = $$function{compo2}[$indexC];
-                    if( $compo2 eq '*' ){ $compo2 = $compo1; }
-                    $line .= "  flx_t($jndex)=${sign1}1.00;flx_SS($jndex)=${dir}; ";
-                    $line .= "  flx_states($jndex)=pp${compo1};flx_ostates($jndex)=pp${compo2}\n";
-                    $jndex++;
-                }
-                $index++;
-            }
-        }
-
-        $line .= "#endif\n";
     }
 
 

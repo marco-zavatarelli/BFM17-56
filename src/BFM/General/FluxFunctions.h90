@@ -36,7 +36,7 @@
             integer,intent(IN) :: origin
             integer,intent(IN) :: destination
             real(RLEN),intent(IN) :: flux(:)
-            integer :: i
+            integer :: i, j
             character(len=8) :: D23
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
@@ -81,6 +81,14 @@
                                flux/SEC_PER_DAY
                 D3SOURCE(destination,origin,:)=  D3SOURCE(destination,origin,:) + &
                                flux/SEC_PER_DAY
+                if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                   do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
+                      D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =      &
+                           D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + &
+                           (SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) ) * flux )
+                   end do
+                endif
+
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                 D2SINK(origin,destination,:) = D2SINK(origin,destination,:) + & 
@@ -100,6 +108,21 @@
                     D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
                       flux/SEC_PER_DAY
                   end where
+                  if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                     do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
+                        if( D3FLUX_MATRIX(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D3SINK
+                           where( flux < ZERO )
+                              D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =     &
+                                   D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) - flux
+                           end where
+                        else ! "A<-B" => (in flow) => flux > ZERO => D3SOURCE
+                           where( flux > ZERO )
+                              D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =     &
+                                   D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + flux
+                           end where
+                        end if
+                     end do
+                  endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
                   where (flux > ZERO )

@@ -181,7 +181,7 @@
 ./share/init_benthic_bfm.o : ./share/init_benthic_bfm.F90 ./share/string_functions.o ./BFM/General/ModuleParam.o ./BFM/Ben/ModuleBenBac.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o ./share/api_bfm.o 
 ./share/init_cnps.o : ./share/init_cnps.F90 ./BFM/General/ModuleGlobalMem.o 
 ./share/init_var_bfm.o : ./share/init_var_bfm.F90 ./share/string_functions.o ./BFM/General/ModuleParam.o ./BFM/General/ModuleConstants.o ./BFM/PelB/ModulePhyto.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o ./share/api_bfm.o 
-./share/make_flux_output.o : ./share/make_flux_output.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o 
+./share/correct_flux_output.o : ./share/correct_flux_output.f90 ./BFM/General/ModuleMem.o ./BFM/General/ModuleConstants.o 
 ./share/netcdf_bfm.o : ./share/netcdf_bfm.F90 ./BFM/General/ModuleMem.o ./share/api_bfm.o 
 ./share/string_functions.o : ./share/string_functions.F90 
 ./standalone/BentoPelCoup_standalone.o : ./standalone/BentoPelCoup_standalone.F90 ./BFM/General/ModuleParam.o ./BFM/General/ModuleConstants.o ./share/api_bfm.o ./BFM/General/ModuleMem.o ./BFM/General/ModuleGlobalMem.o 

@@ -697,7 +697,7 @@ end subroutine init_netcdf_rst_bfm
          !-- Store snapshot of pelagic fluxes
          if ( n >= stPelFluxS .AND. n <= stPelFluxE ) then 
             i = n - stPelFluxS + 1
-            call make_flux_output(1,i,1,NO_BOXES,c1dim)
+            call correct_flux_output(1,i,1,NO_BOXES,c1dim)
             iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
          endif
          ! Store mean values of (any) 3D entity
@@ -743,7 +743,7 @@ end subroutine init_netcdf_rst_bfm
          ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
          if ( n >= stBenFluxS .AND. n <= stBenFluxE ) then
             i = n - stBenFluxS + 1 
-            call make_flux_output(2,i,1,NO_BOXES_XY, c1dim)
+            call correct_flux_output(2,i,1,NO_BOXES_XY, c1dim)
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim) 
          end if 
 #endif
