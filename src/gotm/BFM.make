@@ -44,7 +44,7 @@ GOTMBFM_MOD =\
 	${LIB}(${BFMGOTMSRC}/trace_bdy.o)		\
 	${LIB}(${BFMGOTMSRC}/bio.o)
 
-#	${LIB}(${BFMGOTMSRC}/make_flux_output.o)	
+#	${LIB}(${BFMGOTMSRC}/correct_flux_output.o)	
 GOTMBFM_OBJ   = \
 	${LIB}(${BFMSHARE}/string_functions.o)		\
 	${LIB}(${BFMSHARE}/init_cnps.o)			\
@@ -52,7 +52,7 @@ GOTMBFM_OBJ   = \
 	${LIB}(${BFMSHARE}/init_var_bfm.o)	        \
 	${LIB}(${BFMSHARE}/init_benthic_bfm.o)	        \
 	${LIB}($(BFMSHARE)/ClearMem.o)			\
-	${LIB}(${BFMSHARE}/make_flux_output.o)	\
+	${LIB}(${BFMSHARE}/correct_flux_output.o)	\
 	${LIB}(${BFMGOTMSRC}/bio_save.o)		\
 	${LIB}(${BFMGOTMSRC}/bio_save_bfm.o)		\
 	${LIB}(${BFMGOTMSRC}/bio_fluxes.o)		\

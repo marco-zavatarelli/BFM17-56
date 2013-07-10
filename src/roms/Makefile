@@ -57,7 +57,7 @@ BFMROMS_OBJ   = \
 	${BFMSHARE}/string_functions.o	\
 	${BFMSHARE}/init_cnps.o		\
 	${BFMSHARE}/init_var_bfm.o		\
-	${BFMSHARE}/make_flux_output.o
+	${BFMSHARE}/correct_flux_output.o
 
 BFM_PELOBJ = \
 	${BFMSRC}/General/set_var_info_bfm.o			\

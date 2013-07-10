@@ -32,8 +32,7 @@
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c,ppG13c, ppG2o, ppK16r, ppD6m, &
     ppD7m, ppD8m, ppD1m, ppD2m, ppBenDetritus, ppBenthicAmmonium, &
     ppBenthicPhosphate, rrBTo, reBTn, reBTp, rrATo, reATn, reATp, ETW_Ben, ruHI, &
-    iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, reHI, &
-    sourcesink_flux_vector
+    iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, reHI
 #endif
   use mem_Param,  ONLY: p_d_tot, p_small, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, &
                         p_clD1D2m
@@ -334,7 +333,7 @@
   select case ( hx)
 
     case ( iiH1 )
-      call sourcesink_flux_vector( iiBen, pphxc,ppG3c,rrc )
+      call flux_vector( iiBen, pphxc,ppG3c,rrc )
       call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -345,7 +344,7 @@
       reBTp(:)  =   reBTp(:)+ rep
 
     case ( iiH2 )
-      call sourcesink_flux_vector( iiBen, pphxc,ppG13c,rrc )
+      call flux_vector( iiBen, pphxc,ppG13c,rrc )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Respiration in anoxic circumstances produces reduced material

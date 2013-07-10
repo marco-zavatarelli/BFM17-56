@@ -430,7 +430,7 @@
    use bio_var, only: diag, diagb,var_ids,var_ave
 
    use bio_var,only: c1dim
-   use mem,only:make_flux_output
+   use mem,only:correct_flux_output
 !
 ! !INPUT PARAMETERS: 
 !
@@ -544,14 +544,14 @@
                case(2)
                     cc3d_out(k,ig,jg,0:nlev) = cc3d_out(k,ig,jg,:)+diag(j,0:nlev)
                case(3)
-                   call make_flux_output(1,j,nlev, h, c1dim)
+                   call correct_flux_output(1,j,nlev, h, c1dim)
                    cc3d_out(k,ig,jg,0:nlev) = cc3d_out(k,ig,jg,0:nlev)+ c1dim(0:nlev)
                case(4)
                     ccb3d_out(k,ig,jg,0:1) = ccb3d_out(k,ig,jg,0:1)+ccb(j,0:1)
                case(5)
                     ccb3d_out(k,ig,jg,0:1) = ccb3d_out(k,ig,jg,0:1)+diagb(j,0:1)
                case(6)
-                   call make_flux_output(2,j,nlev, h, c1dim)
+                   call correct_flux_output(2,j,nlev, h, c1dim)
                    ccb3d_out(k,ig,jg,0:1) = ccb3d_out(k,ig,jg,0:1)+ c1dim(0:1)
                end select
             else
@@ -563,14 +563,14 @@
                case(2)
                     cc3d_out(k,ig,jg,0:nlev) = diag(j,0:nlev)
                case(3)
-                   call make_flux_output(1,j,nlev, h, c1dim)
+                   call correct_flux_output(1,j,nlev, h, c1dim)
                    cc3d_out(k,ig,jg,0:nlev) = c1dim(0:nlev)
                case(4)
                     ccb3d_out(k,ig,jg,0:1) = ccb(j,0:1)
                case(5)
                     ccb3d_out(k,ig,jg,0:1) = diagb(j,0:1)
                case(6)
-                   call make_flux_output(2,j,nlev, h, c1dim)
+                   call correct_flux_output(2,j,nlev, h, c1dim)
                    ccb3d_out(k,ig,jg,0:1) = c1dim(0:1)
                end select
             endif

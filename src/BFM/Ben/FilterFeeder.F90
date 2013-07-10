@@ -34,8 +34,7 @@
     jbotR6p, jbotR6s, jPIY3c, jZIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, &
     iiPhytoPlankton, PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPPY_Ben, sediR6_Ben, & 
     ZI_Fc, RI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, RI_Fs, ppG3c, jnetY3c, &
-    NO_BOXES_XY, Depth_ben, iiBen, iiPel, flux_vector, sourcesink_flux_vector, &
-    jbotO2o,jbotN1p,jbotN4n
+    NO_BOXES_XY, Depth_ben, iiBen, iiPel, flux_vector, jbotO2o,jbotN1p,jbotN4n
 #ifdef INCLUDE_BENCO2
   use mem, ONLY: jbotO3c
 #endif
@@ -473,7 +472,7 @@
   jnetY3c(:)=rtY3c(:)- p_pur*( foodpm2* sgu- retR6c- retQ6c)-retQ6c-retR6c
 
 
-  call sourcesink_flux_vector( iiBen, ppY3c,ppG3c, rrc*(ONE-p_pePel) )
+  call flux_vector( iiBen, ppY3c,ppG3c, rrc*(ONE-p_pePel) )
   call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C)* ( ONE-p_pePel))
   call flux_vector(iiBen, ppY3c,ppY3c, -rrc*p_pePel )
 

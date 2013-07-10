@@ -31,7 +31,7 @@
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c, ppG2o, ppK4n, ppK1p,O2o_Ben, &
     ppD6m, ppD7m, ppD8m, ppD1m, ppBenOrganisms, ppBenBacteria, rrBTo, reBTn, &
     reBTp, ETW_Ben, iiBenOrganisms, iiBenBacteria, iiY1, iiY2, iiY4, iiY5, iiC, &
-    iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, sourcesink_flux_vector
+    iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector
 #endif
   use mem_Param,  ONLY: p_d_tot,p_small
   use mem_BenOrganism
@@ -342,7 +342,7 @@
 
   rrc  =   p_sr(y)* yc* et+ p_pur(y)*( sgu* food- rqt6c)
 
-  call sourcesink_flux_vector( iiBen, ppyc, ppG3c, rrc )
+  call flux_vector( iiBen, ppyc, ppG3c, rrc )
   call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ 12.0D+00))
   rtyc  =   rtyc- rrc
 

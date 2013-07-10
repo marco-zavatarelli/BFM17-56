@@ -70,7 +70,7 @@ subroutine prepare_bio_output(mode, nlev, h)
              j=j+1
              if ( var_ave(i) ) then
                 k=k+1
-                call make_flux_output(1,j,0,nlev,c1dim)
+                call correct_flux_output(1,j,0,nlev,c1dim)
                 if ( ave_count < 1.5 ) then
                    cc_ave(k,:)=c1dim
                 else
@@ -110,7 +110,7 @@ subroutine prepare_bio_output(mode, nlev, h)
              j=j+1
              if ( var_ave(i) ) then
                 k=k+1
-                call make_flux_output(2,j,0,nlev,c1dim)
+                call correct_flux_output(2,j,0,nlev,c1dim)
                 if ( ave_count < 1.5 ) then
                    ccb_ave(k,1)=c1dim(1)
                 else

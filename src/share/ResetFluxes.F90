@@ -16,8 +16,11 @@ subroutine ResetFluxes
 #ifdef NOPOINTERS
   use mem
 #else
-   use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, D3SINK, &
-         PELBOTTOM, PELSURFACE
+   use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, &
+         PELBOTTOM, PELSURFACE, D3FLUX_FUNC
+#ifdef EXPLICIT_SINK
+   use mem, ONLY: D3SINK
+#endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES, D2SINK, D2SOURCE
 #endif
@@ -37,23 +40,19 @@ subroutine ResetFluxes
 !-----------------------------------------------------------------------
 !BOC
 !
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
    ! Reset the 1-dimensional source term arrays 
    D3SOURCE(:,:) = ZERO
+   ! Reset the fluxes
+   D3FLUX_FUNC(:,:) = ZERO
 #  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    D2SOURCE(:,:) = ZERO
 #  endif
 #else
-#  ifdef  ONESOURCE
-   ! Reset the whole source term array 
-   D3SOURCE(:,:,:) = ZERO
-#  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   D2SOURCE(:,:,:) = ZERO
-#     endif
-#  else
    ! Reset source and sink term arrays 
    D3SOURCE(:,:,:) = ZERO
    D3SINK(:,:,:) = ZERO
+   D3FLUX_FUNC(:,:) = ZERO
 !tom   ! only the diagonal: Maybe set use with cpp key?
 !   do i=1,NO_D3_BOX_STATES
 !      D3SOURCE(i,i,:) = ZERO
@@ -68,7 +67,7 @@ subroutine ResetFluxes
 !   end do
 #    endif
 #  endif
-#endif
+
    ! reset surface and bottom fluxes
    do i=1,NO_D3_BOX_STATES
        PELSURFACE(i,:) = ZERO 

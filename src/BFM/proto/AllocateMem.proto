@@ -121,9 +121,9 @@
   ! Start the allocation of vars for calculation of combined fluxes for output
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 %! Do not change the sequence of the following lines!!
+
 %dd-flux-alloc
 %3d-flux-fill
-%2d-flux-fill
 
   end subroutine AllocateMem
 

@@ -13,13 +13,13 @@
    use global_mem, ONLY:RLEN
    use mem,  ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
                    D3STATETYPE
-#ifndef ONESOURCE
+#ifdef EXPLICIT_SINK
    use mem,  ONLY: D3SINK
 #endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem,  ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                    D2STATETYPE
-#ifndef ONESOURCE
+#ifdef EXPLICIT_SINK
    use mem,  ONLY: D2SINK
 #endif
 #endif
@@ -54,12 +54,8 @@
    ! Integration step:
       DO j=1,NO_D3_BOX_STATES
          IF (D3STATETYPE(j).ge.0) THEN
-#ifdef ONESOURCE
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
             D3STATE(j,:) = D3STATE(j,:) + delt * D3SOURCE(j,:)
-#else
-            D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:),1)
-#endif
 #else
             D3STATE(j,:) = D3STATE(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
 #endif
@@ -68,8 +64,8 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN
-#ifdef ONESOURCE
-            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:),1)
+#ifndef EXPLICIT_SINK
+            D2STATE(j,:) = D2STATE(j,:) + delt*D2SOURCE(j,:)
 #else
             D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
 #endif
@@ -88,12 +84,8 @@
          IF (nstep.eq.1) THEN
             LEVEL1 'Necessary Time Step too small! Exiting...'
             blccc(:,1)=minloc(D3STATE)
-#ifdef ONESOURCE
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
             bbccc3D = D3SOURCE(:,:)
-#else
-            bbccc3D = sum(D3SOURCE(:,:,:),2)
-#endif
 #else
             bbccc3D = sum(D3SOURCE(:,:,:)-D3SINK(:,:,:),2)
 #endif

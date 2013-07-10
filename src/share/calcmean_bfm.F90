@@ -19,6 +19,9 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE
 #endif
+
+   use mem, only: D3FLUX_FUNC
+
    use mem, only: NO_BOXES,NO_BOXES_XY
    implicit none
 !
@@ -100,13 +103,13 @@
                   end if
                end if
             end do
-#ifndef D1SOURCE
+
             j=0
             do i=stPelFluxS,stPelFluxE
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
-                  call make_flux_output(1,j,1,NO_BOXES,c1dim)
+                  call correct_flux_output(1,j,1,NO_BOXES,c1dim)
                   if ( ave_count < 1.5 ) then
                      D3ave(k,:)=c1dim
                   else
@@ -114,7 +117,6 @@
                   end if
                end if
             end do
-#endif
          endif
          if (stBenStateE /= 0 .and. do_2ave) then
             !---------------------------------------------
@@ -161,13 +163,13 @@
                   end if
                end if
             end do
-#ifndef D1SOURCE
+#ifdef EXPLICIT_SINK
             j=0
             do i=stBenFluxS,stBenFluxE
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
-                  call make_flux_output(2,j,1,NO_BOXES,c1dim)
+                  call correct_flux_output(2,j,1,NO_BOXES,c1dim)
                   if ( ave_count < 1.5 ) then
                      D2ave(k,:)=c1dim(:)
                   else

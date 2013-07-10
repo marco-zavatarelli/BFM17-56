@@ -27,7 +27,7 @@
   use mem, ONLY: ppR1c, ppR6c, ppO2o, ppR2c, ppN3n, ppN4n, ppN1p, ppR1n, &
     ppR6n, ppR1p, ppR6p, ppN5s, ppR6s, SUNQ, ThereIsLight, ETW, EIR, &
     xEPS, Depth, eiPPY, sediPPY, sunPPY, qpcPPY, qncPPY, qscPPY, qlcPPY, NO_BOXES, &
-    iiBen, iiPel, flux_vector, sourcesink_flux_vector
+    iiBen, iiPel, flux_vector
   use mem, ONLY: ppPhytoPlankton
 #ifdef INCLUDE_PELCO2
   use mem, ONLY: ppO3c
@@ -437,11 +437,11 @@
        flPIR2c  =  seo*phytoc + sea*phytoc
   end select
 
-  call sourcesink_flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
+  call flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
   call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )
   call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )
 
-  call sourcesink_flux_vector( iiPel, ppphytoc,ppO3c, rrc )
+  call flux_vector( iiPel, ppphytoc,ppO3c, rrc )
   call flux_vector( iiPel, ppO2o,ppO2o,-( rrc/ MW_C) )
   call flux_vector( iiPel, ppO2o,ppO2o, rugc/ MW_C ) 
 

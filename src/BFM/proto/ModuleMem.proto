@@ -196,19 +196,18 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  variables to generate flux_output 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-           real(RLEN), public,dimension(:),allocatable ::flx_t
-           integer,    public,dimension(:),allocatable ::flx_SS
-           integer,    public,dimension(:),allocatable ::flx_states
-           integer,    public,dimension(:),allocatable ::flx_ostates
-           integer,    public,dimension(:),allocatable ::flx_calc_nr
-           integer,    public,dimension(:),allocatable ::flx_CalcIn
-           integer,    public,dimension(:),allocatable ::flx_option
-           integer,    public                          ::flx_cal_ben_start
+         type ppFlux
+           integer, allocatable, dimension(:) :: p
+           integer, allocatable, dimension(:) :: dir
+         end type ppFlux
+           type(ppFlux), public,dimension(:,:),allocatable :: D3FLUX_MATRIX
+           real(RLEN)  , public,dimension(:,:),allocatable :: D3FLUX_FUNC
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! SHARED GLOBAL FUNCTIONS (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         public flux, flux_vector, Source, Source_D3_vector, &
-               fixed_quota_flux_vector, sourcesink_flux_vector
+               fixed_quota_flux_vector
 %3d-group-function-name
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         public Source_D2_vector
@@ -229,8 +228,8 @@
 
 #ifdef BFM_ROMS
 #include "FluxFunctions.h"
-#elif defined D1SOURCE
-#include "FluxFunctionsD1Source.h90"
+#elif defined EXPLICIT_SINK
+#include "FluxFunctions_sourcesink.h90"
 #else
 #include "FluxFunctions.h90"
 #endif

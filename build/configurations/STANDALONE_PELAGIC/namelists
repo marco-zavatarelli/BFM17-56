@@ -20,7 +20,7 @@
 #-------------------------------------------------------------------------!
 
 
-
+ 
 !-------------------------------------------------------------------------!
 !NAMELIST bfm_nml
 !-------------------------------------------------------------------------!
@@ -216,7 +216,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
           'P1s','R6s',
           'eiPPY(iiP1)','eiPPY(iiP2)','eiPPY(iiP3)','eiPPY(iiP4)',
           'sunPPY(iiP1)','sunPPY(iiP2)','sunPPY(iiP3)','sunPPY(iiP4)',
-          'ruPTc','ruZTc'
+          'ruPTc','resPP','resZT','ruPTn','ruPTp','exPP','ruZTc','netZTc','rePTp','reBn','ruBn','fR2B1c','fP1Z4c', 'rrPTo'
 	filename_nml_conf = 'BFM_General.nml',
 /
 

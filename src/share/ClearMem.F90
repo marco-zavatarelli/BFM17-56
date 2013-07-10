@@ -27,14 +27,22 @@ subroutine ClearMem
 !-----------------------------------------------------------------------
 !BOC
 !
-    ! from AllocateMem
-    deallocate(flx_calc_nr)
-    deallocate(flx_CalcIn)
-    deallocate(flx_option)
-    deallocate(flx_t)
-    deallocate(flx_SS)
-    deallocate(flx_states)
-    deallocate(flx_ostates)
+
+   integer :: i,j,origin,destination
+
+    ! free willy, free the fluxes
+    origin=0
+    do i=stPelStateS,stPelStateE
+       origin=origin+1
+       destination=0
+       do j=stPelStateS,stPelStateE
+          destination=destination+1
+          if( allocated(D3FLUX_MATRIX(origin,destination)%p) ) deallocate(D3FLUX_MATRIX(origin,destination)%p)
+       end do
+    end do
+    deallocate(D3FLUX_MATRIX)
+    deallocate(D3FLUX_FUNC)
+
     ! from api_bfm 
     deallocate(var_ids)
     deallocate(var_ave)
@@ -48,7 +56,7 @@ subroutine ClearMem
 #ifndef NOT_STANDALONE
      deallocate(D3STATE)
      deallocate(D3SOURCE)
-#ifndef ONESOURCE
+#ifdef EXPLICIT_SINK
      deallocate(D3SINK)
 #endif
      deallocate(D3STATETYPE)
