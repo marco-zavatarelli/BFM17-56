@@ -34,7 +34,7 @@
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, SUNQ, ThereIsLight, ETB, EIB, &
     EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPPY, sunPPY, NO_BOXES_XY, &
-    iiBen, flux_vector, sourcesink_flux_vector
+    iiBen, flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlDynamicsFlag, LightPeriodFlag 
   use mem_Seaicealgae
@@ -301,12 +301,12 @@
    end if
 
   !call flux_vector( iiBen, ppphytoc,ppphytoc, rugc )
-  call sourcesink_flux_vector( iiBen,ppF3c,ppphytoc,rugc )
+  call flux_vector( iiBen,ppF3c,ppphytoc,rugc )
   call flux_vector( iiBen, ppphytoc,ppU6c, rr6c )
   call flux_vector( iiBen, ppphytoc,ppU1c, rr1c )
 
   !call flux_vector( iiBen, ppphytoc,ppphytoc, rrc )
-  call sourcesink_flux_vector( iiBen, ppphytoc,ppF3c,rrc )
+  call flux_vector( iiBen, ppphytoc,ppF3c,rrc )
   call flux_vector( iiBen, ppF2o,ppF2o,-( rrc/ MW_C) )
   call flux_vector( iiBen, ppF2o,ppF2o, rugc/ MW_C )
 

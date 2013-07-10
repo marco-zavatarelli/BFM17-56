@@ -31,7 +31,7 @@
   use mem, ONLY: ppT1c, ppU6c, ppT1n, ppU6n, ppT1p, ppU6p, ppU1c, ppF3c, &
     ppU1n, ppU1p, ppF2o, ppN6r, ppI4n, ppI1p, ppI3n, Depth, qpUc, qnUc,&
     ETB, qnTc, qpTc, eO2mO2, qpUc, qnUc, NO_BOXES_XY, iiBen, iiBen, flux_vector, &
-    sourcesink_flux_vector, iiU1, iiU6
+    iiU1, iiU6
 
   use constants,  ONLY: MW_C, ONE_PER_DAY
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, p_small
@@ -293,7 +293,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   rrc  =  ( p_pu_ra(bac)+ p_pu_ra_o(bac)*( ONE- eO2))* rug+ p_srs(bac)* T1c(:)* et
-  call sourcesink_flux_vector( iiBen, ppT1c,ppF3c, rrc )
+  call flux_vector( iiBen, ppT1c,ppF3c, rrc )
   call flux_vector( iiBen, ppF2o,ppF2o,-rrc/ MW_C) 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

@@ -34,14 +34,24 @@
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             implicit none
             integer,intent(IN) :: iiSub
-            integer,intent(IN) :: origin
-            integer,intent(IN) :: destination
-            real(RLEN),intent(IN) :: flux(:)
+            integer :: origin
+            integer :: destination
+            real(RLEN) :: flux(:)
             integer :: i, j
             character(len=8) :: D23
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+            if ( destination ==0 ) then
+               ! call (iiSub,origin,origin,-flux)
+               destination = origin
+               flux        = -flux
+            elseif ( origin ==0 ) then
+              ! call (iiSub,destination,destination,flux)
+               origin = destination
+            endif
+
 #ifdef IFORT
             TESTNANVECTOR(flux,iiSub,origin,destination)
             CHECKFLUX(-1,iiSub,origin,destination)
@@ -236,30 +246,6 @@
           return
           end subroutine flux
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        subroutine sourcesink_flux_vector(iiSub,origin,destination,flux)
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-            ! Implicit typing is never allowed
-            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-            implicit none
-
-            integer,intent(IN) :: iiSub
-            integer,intent(IN) :: origin
-            integer,intent(IN) :: destination
-            real(RLEN),intent(IN) :: flux(:)
-
-            if ( destination ==0 ) then
-              call flux_vector(iiSub,origin,origin,-flux)
-            elseif ( origin ==0 ) then
-              call flux_vector(iiSub,destination,destination,flux)
-            else
-             call  flux_vector(iiSub,origin,destination,flux)
-            endif
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          end subroutine sourcesink_flux_vector
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         function Source_D3_vector(iistate)

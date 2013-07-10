@@ -28,8 +28,7 @@
   use mem, ONLY: iiPelBacteria, ppPelBacteria, iiC, iiN, iiP, ppR6c, &
     ppR6n, ppR6p, ppR1c, ppR1n, ppR1p, &
     ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR3c, flPTN6r, Depth, ETW, &
-    qncPBA, qpcPBA, eO2mO2, qpcOMT, qncOMT, NO_BOXES, iiBen, iiPel, flux_vector, &
-    sourcesink_flux_vector
+    qncPBA, qpcPBA, eO2mO2, qpcOMT, qncOMT, NO_BOXES, iiBen, iiPel, flux_vector
 #ifdef INCLUDE_PELCO2
   use mem, ONLY: ppO3c
 #endif
@@ -343,7 +342,7 @@
   ! consumption (eq 19 Vichi et al., 2004 and PelChem.F90)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rrc = (p_pu_ra(bac)+ p_pu_ra_o(bac)*(ONE-eO2) )*rug + p_srs(bac)* bacc* et
-  call sourcesink_flux_vector( iiPel, ppbacc, ppO3c, rrc )
+  call flux_vector( iiPel, ppbacc, ppO3c, rrc )
   call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
   flN6rPBA = (ONE- eO2)*rrc/ MW_C* p_qro
   call flux_vector( iiPel, ppN6r, ppN6r, flN6rPBA )

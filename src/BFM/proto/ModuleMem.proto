@@ -207,7 +207,7 @@
         !! SHARED GLOBAL FUNCTIONS (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         public flux, flux_vector, Source, Source_D3_vector, &
-               fixed_quota_flux_vector, sourcesink_flux_vector
+               fixed_quota_flux_vector
 %3d-group-function-name
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         public Source_D2_vector
