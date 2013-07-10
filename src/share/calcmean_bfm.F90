@@ -19,9 +19,9 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, only: D2STATE
 #endif
-#ifdef D1SOURCE
+
    use mem, only: D3FLUX_FUNC
-#endif
+
    use mem, only: NO_BOXES,NO_BOXES_XY
    implicit none
 !
@@ -163,7 +163,7 @@
                   end if
                end if
             end do
-#ifndef D1SOURCE
+#ifdef EXPLICIT_SINK
             j=0
             do i=stBenFluxS,stBenFluxE
                j=j+1

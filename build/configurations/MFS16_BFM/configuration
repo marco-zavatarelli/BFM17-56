@@ -22,10 +22,11 @@
 #  INCLUDE_PELFE    : add Iron component to the pelagic system
 #  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics 
 #  INCLUDE_DIAG3    : activate flux diagnostics defined in .mem file
+#  EXPLICIT_SINK    : use of D3SOURCE and D3SINK
 
 &BFM_conf
         MODE     = 'NEMO',
-        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 D1SOURCE USE_MFSBULK',
+        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 USE_MFSBULK',
         ARCH     = 'ifort_athena',
         PROC     = 8,
         EXP      = 'MFS16_BFM',

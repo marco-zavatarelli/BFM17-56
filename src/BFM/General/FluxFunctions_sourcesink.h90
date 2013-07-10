@@ -9,10 +9,12 @@
 ! !DESCRIPTION:
 !  This file contains the helper routines for the assignment
 !  and retrieval of rates from the main source/sink term arrays
-!  This is a special file included when the D1SOURCE key is activated.
+!  (D3SOURCE and D3SINK).
+!  It also includes all the routines for NaN checking (only IFORT)
+!  This is a special file included when the EXPLICIT_SINK key is activated.
 !
 ! !REVISION HISTORY:
-!  Author(s): Marcello Vichi
+!  Author(s): Piet Ruardij & Marcello Vichi
 !
 !EOP
 !-----------------------------------------------------------------------
@@ -27,7 +29,6 @@
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             use constants, only: RLEN, ZERO,  SEC_PER_DAY
             use global_mem, only: LOGUNIT
-
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             ! Implicit typing is never allowed
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -36,8 +37,8 @@
             integer,intent(IN) :: origin
             integer,intent(IN) :: destination
             real(RLEN),intent(IN) :: flux(:)
-            character(len=8)                   :: D23
-            integer :: j
+            integer :: i, j
+            character(len=8) :: D23
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -45,34 +46,69 @@
             TESTNANVECTOR(flux,iiSub,origin,destination)
             CHECKFLUX(-1,iiSub,origin,destination)
 #endif
-            if ( origin /= destination ) then
+
+            if ( origin /= destination )  then
+#ifdef DEBUG
+              if ( minval(flux) < ZERO) then
+                do i=1,size(flux)
+                  if (flux(i)< 0.0D+00) write(LOGUNIT,'(''at level:'',I4)') i
+                enddo
+                D23="Pelagic"
+                if ( iiSub == iiBen) D23="Benthic"
+                write(LOGUNIT,'(''In '',A,'':origin='',i4,'' destination='',i4)') &
+                  D23, origin,destination
+                write(LOGUNIT,'(''flux='',(G16.8))') flux
+                STDERR  "Error in flux_vector function: negative flux !"
+                do i=1,size(flux)
+                  if (flux(i)< 0.0D+00) then
+                    if ( iiSub== iiBen) then
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+                      write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
+                      write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
+#endif
+                    else
+                      write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
+                      write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
+                    endif
+                  endif
+                enddo
+                call BFM_ERROR("flux_vector","negative flux")
+              endif ! minval<0
+#endif
               select case ( iiSub )
                 case (iiPel)
-                  D3SOURCE(origin,:) = D3SOURCE(origin,:) - &
-                      flux/SEC_PER_DAY
-                  D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
-                      flux/SEC_PER_DAY
-                  if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
-                     do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
-                        D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =      &
-                             D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + &
-                             (SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) ) * flux )
-                     end do
-                  endif
+!               write(LOGUNIT,*) origin,destination,flux/SEC_PER_DAY,D3SINK(origin,destination,:),D3SOURCE(destination,origin,:)
+                D3SINK(origin,destination,:)  =  D3SINK(origin,destination,:) + & 
+                               flux/SEC_PER_DAY
+                D3SOURCE(destination,origin,:)=  D3SOURCE(destination,origin,:) + &
+                               flux/SEC_PER_DAY
+                if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                   do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
+                      D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =      &
+                           D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + &
+                           (SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) ) * flux )
+                   end do
+                endif
+
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
-                  D2SOURCE(origin,:) = D2SOURCE(origin,:) - &
-                      flux/SEC_PER_DAY
-                  D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
-                      flux/SEC_PER_DAY
+                D2SINK(origin,destination,:) = D2SINK(origin,destination,:) + & 
+                              flux/SEC_PER_DAY
+                D2SOURCE(destination,origin,:) = D2SOURCE(destination,origin,:) + &
+                              flux/SEC_PER_DAY
 #endif
               end select
             else ! origin==destination
-              ! In this case the flux carries the proper sign
               select case ( iiSub )
                 case (iiPel)
-                  D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
+
+                  where (flux > ZERO )
+                    D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) + &
                       flux/SEC_PER_DAY
+                  elsewhere
+                    D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
+                      flux/SEC_PER_DAY
+                  end where
                   if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
                      do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
                         if( D3FLUX_MATRIX(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D3SINK
@@ -90,11 +126,17 @@
                   endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
                 case (iiBen)
-                  D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
+                  where (flux > ZERO )
+                    D2SOURCE(destination,origin,:) =D2SOURCE(destination,origin,:) + &
                       flux/SEC_PER_DAY
+                  elsewhere
+                    D2SINK(origin,destination,:) =D2SINK(origin,destination,:) - &
+                      flux/SEC_PER_DAY
+                  end where
 #endif
               end select
-            end if !origin <> destination
+
+            endif !origin <> destination
 
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !END compute
@@ -123,31 +165,68 @@
           TESTNAN(flow,grid_nr,iiSub,origin,destination)
           CHECKFLUX(grid_nr,iiSub,origin,destination)
 #endif
+
           if ( origin /= destination ) then
+#ifdef DEBUG
+            if ( flow < ZERO) then
+              D23="Pelagic"
+              if ( iiSub == iiBen) D23="Benthic"
+              write(LOGUNIT,'(''In '',A,'':origin='',i4,'' destination='',i4)') &
+                D23, origin,destination
+              write(LOGUNIT,*) "Error in (scalar) vector  function: negative flux!"
+              write(LOGUNIT,*) "origin,destination:", origin,destination
+              write(LOGUNIT,*) flow
+              if ( iiSub == iiBen)  then
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+                 write(LOGUNIT,*) "state value origin:",D2STATE(origin,grid_nr)
+                 write(LOGUNIT,*) "state value destination:",D2STATE(destination,grid_nr)
+#endif
+              else 
+                 write(LOGUNIT,*) "state value origin:",D3STATE(origin,grid_nr)
+                 write(LOGUNIT,*) "state value destination:",D3STATE(destination,grid_nr)
+              endif
+              STDERR "Error in (scalar)flux function:negative flux !"
+              call BFM_ERROR("flux","negative flux")
+              if ( present(error)) error=1
+            endif ! flow<0
+#endif
             select case ( iiSub )
               case (iiPel)
-                D3SOURCE(origin,grid_nr) =    &
-                         D3SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
-                D3SOURCE(destination,grid_nr) =    &
-                         D3SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
+                D3SINK(origin,destination,grid_nr)=flow/SEC_PER_DAY
+                D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+!tom                D3SINK(origin,destination,grid_nr)= D3SINK(origin,destination,grid_nr) + &
+!not tested                       flow/SEC_PER_DAY
+!                D3SOURCE(destination,origin,grid_nr)= D3SOURCE(destination,origin,grid_nr) + &
+!                       flow/SEC_PER_DAY
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               case (iiBen)
-                D2SOURCE(origin,grid_nr) =    &
-                         D2SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
-                D2SOURCE(destination,grid_nr) =    &
-                         D2SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
+                D2SINK(origin,destination,grid_nr)= flow/SEC_PER_DAY
+                D2SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+!tom             D2SINK(origin,destination,grid_nr)= D2SINK(origin,destination,grid_nr) +&
+!not tested                      flow/SEC_PER_DAY
+!                D2SOURCE(destination,origin,grid_nr)= D2SOURCE(destination,origin,grid_nr)+& 
+!                      flow/SEC_PER_DAY
 #endif
             end select
           else
-            ! In this case the flux carries the proper sign
             select case ( iiSub )
               case (iiPel)
-                 D3SOURCE(destination,grid_nr) = D3SOURCE(destination,grid_nr) + &
-                      flow/SEC_PER_DAY
+                if (flow > ZERO ) then
+                  D3SOURCE(destination,origin,grid_nr)=  &
+                           D3SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                else
+                  D3SINK(origin,destination,grid_nr)=    &
+                         D3SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
               case (iiBen)
-                 D2SOURCE(destination,grid_nr) = D2SOURCE(destination,grid_nr) + &
-                      flow/SEC_PER_DAY
+                if (flow > ZERO ) then
+                  D2SOURCE(destination,origin,grid_nr)=  &
+                           D2SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                else
+                  D2SINK(origin,destination,grid_nr)=    &
+                         D2SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                endif
 #endif
             end select
           endif
@@ -190,10 +269,16 @@
           use constants, only: RLEN, ZERO, SEC_PER_DAY
           implicit none
           integer, intent(IN) ::iistate
-          real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=2))
+          real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=3))
           integer :: i
           Source_D3_vector = ZERO
-          Source_D3_vector(:) = D3SOURCE(iistate,:)*SEC_PER_DAY
+          do i = 1, NO_D3_BOX_STATES 
+               Source_D3_vector(:)=Source_D3_vector(:) + &
+                                    D3SOURCE(iistate,i,:)
+               Source_D3_vector(:)=Source_D3_vector(:) - &
+                                     D3SINK(iistate,i,:)
+          end do
+          Source_D3_vector(:)=Source_D3_vector(:)*SEC_PER_DAY
         end function Source_D3_vector
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -206,10 +291,16 @@
           use constants, only: RLEN, ZERO, SEC_PER_DAY
           implicit none
           integer, intent(IN) ::iistate
-          real(RLEN) ::Source_D2_vector(size(D2SOURCE,DIM=2))
+          real(RLEN) ::Source_D2_vector(size(D2SOURCE,DIM=3))
           integer :: i
           Source_D2_vector = ZERO
-          Source_D2_vector = D2SOURCE(iistate,:)*SEC_PER_DAY 
+          do i = 1,NO_D2_BOX_STATES 
+               Source_D2_vector(:)=Source_D2_vector(:) + &
+                                   D2SOURCE(iistate,i,:) 
+               Source_D2_vector(:)=Source_D2_vector(:) - &
+                                    D2SINK(iistate,i,:)
+          end do
+          Source_D2_vector(:)=Source_D2_vector(:)*SEC_PER_DAY
         end function Source_D2_vector
 #endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -228,10 +319,18 @@
           integer :: i
           Source = ZERO
           if ( iiSub == iiPel )  then
-             Source=D3SOURCE(iistate,iibox)*SEC_PER_DAY
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+             do i = 1, NO_D3_BOX_STATES
+                Source=Source+D3SOURCE(iistate,i,iibox)
+                Source=Source-D3SINK(iistate,i,iibox)
+             end do
+             Source=Source*SEC_PER_DAY
           elseif ( iiSub == iiBen )  then
-             Source=D2SOURCE(iistate,iibox)*SEC_PER_DAY
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+             do i = 1, NO_D2_BOX_STATES
+                Source=Source+D2SOURCE(iistate,i,iibox)
+                Source=Source-D2SINK(iistate,i,iibox)
+             end do
+             Source=Source*SEC_PER_DAY
 #endif
           endif
         end function source
@@ -255,11 +354,40 @@
           character(len=20):: type
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           !BEGIN compute
-          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          !END compute
-          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          select case ( iiSub )
+            case (iiPel)
+              type="D3"
+              if ( grid_nr <=0  ) then
+                tot=sum(D3SINK(origin,destination,:))
+              else
+                tot=D3SINK(origin,destination,grid_nr)
+              endif
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+            case (iiBen)
+              type="D2"
+              if ( grid_nr <=0  ) then
+                tot=sum(D2SINK(origin,destination,:))
+              else
+                tot=D2SINK(origin,destination,grid_nr)
+              endif
+#endif
+            case (iiReset)
+              D3SINK(:,:,:)=0.0D+00
+#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+              D2SINK(:,:,:)=0.0D+00
+#endif
+              return
+          end select
+          if ( tot > 0.0D+00  ) then
+            write(LOGUNIT,'(''Double definition '',A2,''-flux'')')type
+            write(LOGUNIT,'(''origin:'',I3,'' destination:'',I3)') origin, destination
+            if ( origin /= destination ) then
+              STDERR 'double definition of fluxes'
+              stop 1006
+            endif
+          endif
+        !END compute
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         return
       end subroutine unicflux
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -312,6 +440,7 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       end subroutine fixed_quota_flux_vector
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 ! NaN-check routines
@@ -367,7 +496,7 @@
                     write(LOGUNIT,*) "Benthic state value origin:",D2STATE(origin,grid_nr)
                     write(LOGUNIT,*) "Benthic state value destination:",D2STATE(destination,grid_nr)
 #endif
-                 else
+                 else 
                     write(LOGUNIT,*) "Pelagic state value origin:",D3STATE(origin,grid_nr)
                     write(LOGUNIT,*) "Pelagic state value destination:",D3STATE(destination,grid_nr)
                endif

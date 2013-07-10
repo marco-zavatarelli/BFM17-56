@@ -18,7 +18,7 @@ subroutine ResetFluxes
 #else
    use mem, ONLY: NO_D3_BOX_STATES,D3SOURCE, &
          PELBOTTOM, PELSURFACE, D3FLUX_FUNC
-#ifndef D1SOURCE
+#ifdef EXPLICIT_SINK
    use mem, ONLY: D3SINK
 #endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
@@ -40,7 +40,7 @@ subroutine ResetFluxes
 !-----------------------------------------------------------------------
 !BOC
 !
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
    ! Reset the 1-dimensional source term arrays 
    D3SOURCE(:,:) = ZERO
    ! Reset the fluxes

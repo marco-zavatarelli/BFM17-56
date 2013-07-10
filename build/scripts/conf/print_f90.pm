@@ -303,7 +303,7 @@ sub func_ALLOC {
     print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}$TYPE\")\n";
     print $file "${SPACE}D${dim}${TYPE} = ZERO\n";
     if ( $type eq "state" ) {
-        print $file "#ifdef D1SOURCE\n";
+        print $file "#ifndef EXPLICIT_SINK\n";
         print $file "${SPACE}  allocate(D${dim}SOURCE(1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j),stat=status)\n";
         print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE\")\n";
         print $file "${SPACE}  D${dim}SOURCE = ZERO\n";
@@ -671,7 +671,7 @@ sub func_ARRAY  {
 
     my $line = "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . uc($type) . "\n";
     if ( $type eq "state" ) {
-        $line .= "#ifdef D1SOURCE\n";
+        $line .= "#ifndef EXPLICIT_SINK\n";
         $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . "SOURCE\n";
         $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . "SINK\n";
         $line .= "#else\n";

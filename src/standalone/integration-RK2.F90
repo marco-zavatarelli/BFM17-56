@@ -13,13 +13,13 @@
    use global_mem, ONLY:RLEN,ONE
    use mem, ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
                   D3STATETYPE
-#ifndef D1SOURCE
+#ifdef EXPLICIT_SINK
    use mem, ONLY: D3SINK
 #endif
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                   D2STATETYPE
-#ifndef D1SOURCE
+#ifdef EXPLICIT_SINK
    use mem, ONLY: D2SINK
 #endif
 #endif
@@ -54,14 +54,14 @@
 #endif
    TLOOP : DO
    ! Integration step:
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
       bccc3D=D3SOURCE
 #else
       bccc3D=sum(D3SOURCE-D3SINK,2)
 #endif
       ccc_tmp3D=D3STATE
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
       bccc2D=D2SOURCE
 #else
       bccc2D=sum(D2SOURCE-D2SINK,2)
@@ -70,7 +70,7 @@
 #endif
       DO j=1,NO_D3_BOX_STATES
          IF (D3STATETYPE(j).ge.0) THEN
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
             D3STATE(j,:) = ccc_tmp3D(j,:) + delt*D3SOURCE(j,:)
 #else
             D3STATE(j,:) = ccc_tmp3D(j,:) + delt*sum(D3SOURCE(j,:,:)-D3SINK(j,:,:),1)
@@ -80,7 +80,7 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
             D2STATE(j,:) = ccc_tmp2D(j,:) + delt*D2SOURCE(j,:)
 #else
             D2STATE(j,:) = ccc_tmp2D(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
@@ -142,7 +142,7 @@
          call EcologyDynamics
          DO j=1,NO_D3_BOX_STATES
             IF (D3STATETYPE(j).ge.0) THEN
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
                D3STATE(j,:) = ccc_tmp3D(j,:) +.5*delt*(D3SOURCE(j,:)+bccc3D(j,:)) 
 #else
                D3STATE(j,:) = ccc_tmp3D(j,:) + &
@@ -153,7 +153,7 @@
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
-#ifdef D1SOURCE
+#ifndef EXPLICIT_SINK
                D2STATE(j,:) = ccc_tmp2D(j,:) + &
                   .5*delt*(D2SOURCE(j,:)+bccc2D(j,:))
 #else

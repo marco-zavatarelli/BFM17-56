@@ -22,10 +22,11 @@
 #  INCLUDE_PELFE    : add Iron component to the pelagic system
 #  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics 
 #  INCLUDE_DIAG3    : activate flux diagnostics defined in .mem file
+#  EXPLICIT_SINK    : use of D3SOURCE and D3SINK
 
 &BFM_conf
         MODE    = 'STANDALONE',
-        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D D1SOURCE',
+        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D EXPLICIT_SINK',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
         NETCDF  = '/opt/local/',

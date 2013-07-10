@@ -15,9 +15,7 @@
 ! !USES:
    use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
-#ifdef D1SOURCE
    use mem,     only: D3FLUX_FUNC
-#endif
    use global_mem, only: RLEN,LOGUNIT,bfm_lwp
    use constants, ONLY: SEC_PER_DAY
    use netcdf
@@ -739,7 +737,7 @@ end subroutine init_netcdf_rst_bfm
             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
          end if
 
-#ifndef D1SOURCE 
+#ifdef EXPLICIT_SINK 
          ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
          if ( n >= stBenFluxS .AND. n <= stBenFluxE ) then
             i = n - stBenFluxS + 1 
