@@ -98,16 +98,15 @@ SUBROUTINE trc_trp_bfm( kt )
 
             dummy(:) = ZERO
             ! sum all the rates
+#ifndef EXPLICIT_SINK
+            dummy(:) = D3SOURCE(m,:)
+#else 
             do k=1,NO_D3_BOX_STATES
                do n=1,NO_BOXES
-#ifndef EXPLICIT_SINK
-                  dummy(n) = dummy(n) + D3SOURCE(m,k,n)
-#else
                   dummy(n) = dummy(n) + D3SOURCE(m,k,n) - D3SINK(m,k,n)
-#endif
                end do
             end do
-
+#endif
             ! Add biogeochemical trends
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
 #ifdef DEBUG
