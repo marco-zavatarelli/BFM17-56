@@ -312,6 +312,8 @@ sub check_namelists{
                             $tmp = $1;
                         }
 
+                        if ( $tmp =~ /(jbot|jsur|jriv)(.*)/ ){ $tmp = $2; }
+
                         if( ! exists $$params_ref{$tmp} ){
                             #check if it is part of constituent
                             my @parts = ( $tmp =~ /(.*)(\D)/ );
