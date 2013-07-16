@@ -28,7 +28,8 @@ LOGDIR="Logs"
 TEMPDIR="build/tmp"
 CONFDIR="build/configurations"
 SCRIPTSDIR="build/scripts"
-SCRIPTS_CONFDIR="${SCRIPTSDIR}/conf"
+SCRIPTS_BIN="${SCRIPTSDIR}/bin"
+SCRIPTS_PROTO="${SCRIPTSDIR}/proto"
 
 #programs
 MKMF="mkmf"
@@ -259,11 +260,11 @@ if [ ${GEN} ]; then
     cppdefs=`echo ${CPPDEFS} | sed -e 's/\([a-zA-Z_0-9]*\)/-D\1/g'` 
 
     # generate BFM Memory Layout files and namelists
-    ${PERL} -I${BFMDIR}/${SCRIPTS_CONFDIR}/ ${BFMDIR}/${SCRIPTS_CONFDIR}/${cmd_gen} \
+    ${PERL} -I${BFMDIR}/${SCRIPTS_BIN}/ ${BFMDIR}/${SCRIPTS_BIN}/${cmd_gen} \
         ${cppdefs} \
         -r ${BFMDIR}/${CONFDIR}/${myGlobalMem}  \
         -n ${BFMDIR}/${CONFDIR}/${myGlobalNml}  \
-        -f ${BFMDIR}/src/BFM/proto \
+        -f ${BFMDIR}/${SCRIPTS_PROTO} \
         -t ${blddir} || exit
 
     if [[ ${MODE} == "STANDALONE" ]]; then
@@ -288,7 +289,7 @@ if [ ${GEN} ]; then
         fi
 
         # Make makefile
-        ${BFMDIR}/${SCRIPTSDIR}/${cmd_mkmf} \
+        ${BFMDIR}/${SCRIPTS_BIN}/${cmd_mkmf} \
             -c "${cppdefs}" \
             -o "-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include" \
             -t "${blddir}/${ARCH}" \
@@ -302,7 +303,7 @@ if [ ${GEN} ]; then
         # some macros are default with NEMO
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${CPPDEFS}"
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
-            ${BFMDIR}/${SCRIPTS_CONFDIR}/Default_bfm.fcm > ${blddir}/bfm.fcm
+            ${BFMDIR}/${SCRIPTS_PROTO}/Default_bfm.fcm > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
 
         # Move BFM Layout files to target folders 
@@ -424,7 +425,7 @@ if [ ${DEP} ]; then
             -e "s,_VERBOSE_,${VERBOSE},g" \
             -e "s,_PRESET_,${PRESET},g" \
             -e "s,_QUEUE_,${QUEUE},g"   \
-            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_CONFDIR}/runscript > ${exedir}/runscript_${EXP}
+            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/runscript > ${exedir}/runscript_${EXP}
         printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
     fi
 fi
