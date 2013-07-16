@@ -673,7 +673,6 @@ sub func_ARRAY  {
     if ( $type eq "state" ) {
         $line .= "#ifndef EXPLICIT_SINK\n";
         $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . "SOURCE\n";
-        $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . "SINK\n";
         $line .= "#else\n";
         $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:,:) :: D${dim}" . "SOURCE\n";
         $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:,:) :: D${dim}" . "SINK\n";
