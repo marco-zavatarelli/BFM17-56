@@ -62,7 +62,7 @@
 ! Definition of Initial Pelagic (D3) state variables
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-%3d-state-Initpp
+%3d-state-pel-Initpp
 
    namelist /bfm_init_nml/ surface_flux_method,       &
                            bottom_flux_method,        &
@@ -108,7 +108,7 @@
    ! Pelagic variables
    !---------------------------------------------
 
-%3d-state-InitDefault
+%3d-state-pel-InitDefault
 
    !---------------------------------------------
    ! Initialize the structured array that 
@@ -142,7 +142,7 @@
    !---------------------------------------------
    do i=1,NSAVE
       if (.NOT.empty(var_save(i))) then
-            j=getseq_number(var_save(i),var_names,stBenFluxE,.TRUE.)
+            j=getseq_number(var_save(i),var_names,stPelState2dE,.TRUE.)
             if ( j > 0 ) var_ids(j)=-1
       end if
       if ( .NOT.empty(var_save(i)) .AND. j==0 ) then
@@ -151,7 +151,7 @@
    end do
    do i=1,NSAVE
       if (.NOT.empty(ave_save(i))) then
-         j=getseq_number(ave_save(i),var_names,stBenFluxE,.TRUE.)
+         j=getseq_number(ave_save(i),var_names,stPelState2dE,.TRUE.)
          if ( .NOT.empty(ave_save(i)) .AND. j==0 ) then
             STDERR 'Warning: variable ',trim(ave_save(i)),' does not exist!'
          else if ( var_ids(j) <0 ) then
@@ -189,7 +189,7 @@
    ! (for boundary conditions)
    !---------------------------------------------
 
-%3d-state-InitSets
+%3d-state-pel-InitSets
 
       !---------------------------------------------
       ! Initialise other internal components

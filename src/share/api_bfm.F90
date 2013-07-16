@@ -74,22 +74,24 @@
    integer,public                            :: stPelStateS=0
    integer,public                            :: stPelDiagS=0
    integer,public                            :: stPelFluxS=0
+   integer,public                            :: stPelState2dS=0
    integer,public                            :: stPelSurS=0
    integer,public                            :: stPelBotS=0
    integer,public                            :: stPelRivS=0
-   integer,public                            :: stBenStateS=0
-   integer,public                            :: stBenDiagS=0
-   integer,public                            :: stBenFluxS=0
+!   integer,public                            :: stBenStateS=0
+!   integer,public                            :: stBenDiagS=0
+!   integer,public                            :: stBenFluxS=0
 
    integer,public                            :: stPelStateE=0
    integer,public                            :: stPelDiagE=0
    integer,public                            :: stPelFluxE=0
+   integer,public                            :: stPelState2dE=0
    integer,public                            :: stPelSurE=0
    integer,public                            :: stPelBotE=0
    integer,public                            :: stPelRivE=0
-   integer,public                            :: stBenStateE=0
-   integer,public                            :: stBenDiagE=0
-   integer,public                            :: stBenFluxE=0
+!   integer,public                            :: stBenStateE=0
+!   integer,public                            :: stBenDiagE=0
+!   integer,public                            :: stBenFluxE=0
 
    !---------------------------------------------
    ! Additional output variables

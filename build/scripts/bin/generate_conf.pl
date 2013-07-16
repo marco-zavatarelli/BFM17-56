@@ -108,6 +108,7 @@ print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $VERBOSE );
 #foreach my $key (keys %lst_group){ $lst_group{$key}->print(); }
 #foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
 #print Dumper(\%lst_index) , "\n"; 
+#print Dumper(\%lst_sta) , "\n"; 
 
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }

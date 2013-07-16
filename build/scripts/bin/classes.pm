@@ -138,6 +138,7 @@ sub new{
        _acro    => shift,
        _dim     => shift,
        _type    => shift,
+       _subtype => shift,
        _compo   => shift,
        _include => shift,
        _z       => shift,
@@ -152,6 +153,7 @@ sub getSigla{ my( $self ) = @_; return $self->{_sigla}; }
 sub getAcro{ my( $self ) = @_; return $self->{_acro}; }
 sub getDim{ my( $self ) = @_; return $self->{_dim}; }
 sub getType{ my( $self ) = @_; return $self->{_type}; }
+sub getSubtype{ my( $self ) = @_; return $self->{_subtype}; }
 sub getComponents{ my( $self ) = @_; return $self->{_compo}; }
 sub getInclude{ my( $self ) = @_; return $self->{_include}; }
 sub getZ{ my( $self ) = @_; return $self->{_z}; }
@@ -161,6 +163,7 @@ sub setSigla{ my ( $self, $sigla ) = @_; $self->{_sigla} = $sigla if defined($si
 sub setAcro{ my ( $self, $acro ) = @_; $self->{_acro} = $acro if defined($acro);}
 sub setDim{ my ( $self, $dim ) = @_; $self->{_dim} = $dim if defined($dim);}
 sub setType{ my ( $self, $type ) = @_; $self->{_type} = $type if defined($type);}
+sub setSubtype{ my ( $self, $subtype ) = @_; $self->{_subtype} = $subtype if defined($subtype);}
 sub setComponents{ my ( $self, $compo ) = @_; $self->{_compo} = $compo if defined($compo);}
 sub setInclude{ my ( $self, $include ) = @_; $self->{_include} = $include if defined($include);}
 sub setZ{ my ( $self, $z ) = @_; $self->{_z} = $z if defined($z);}
@@ -169,14 +172,15 @@ sub setIndex{ my ( $self, $index ) = @_; $self->{_index} = $index if defined($in
 sub print{ 
     my ( $self ) = @_; 
     print "GROUP => ";
-    if($self->{_sigla})  { print $self->{_sigla} . "\n";                     }
-    if($self->{_acro})   { print "\tAcronym: " . $self->getAcro() . "\n";    }
-    if($self->{_dim})    { print "\tDim:     " . $self->getDim() . "\n";     }
-    if($self->{_type})   { print "\tType:    " . $self->getType() . "\n";    }
-    if($self->{_include}){ print "\tIncl:    " . $self->getInclude() . "\n"; }
-    if($self->{_z})      { print "\t-Z:      " . $self->getZ() . "\n";       }
-    if($self->{_index})  { print "\t-Index:  " . $self->getIndex() . "\n";   }
-    if($self->{_compo})  { print "\tUnits:  " ; while ( my ($k,$v) = each %{$self->getComponents()} ) { print " $k=>$v"; } print "\n"; }
+    if($self->{_sigla})   { print $self->{_sigla} . "\n";                     }
+    if($self->{_acro})    { print "\tAcronym: " . $self->getAcro() . "\n";    }
+    if($self->{_dim})     { print "\tDim:     " . $self->getDim() . "\n";     }
+    if($self->{_type})    { print "\tType:    " . $self->getType() . "\n";    }
+    if($self->{_subtype}) { print "\tSubtype: " . $self->getSubtype() . "\n"; }
+    if($self->{_include}) { print "\tIncl:    " . $self->getInclude() . "\n"; }
+    if($self->{_z})       { print "\t-Z:      " . $self->getZ() . "\n";       }
+    if($self->{_index})   { print "\t-Index:  " . $self->getIndex() . "\n";   }
+    if($self->{_compo})   { print "\tUnits:  " ; while ( my ($k,$v) = each %{$self->getComponents()} ) { print " $k=>$v"; } print "\n"; }
     #print "\n";
 }
 

@@ -193,7 +193,7 @@ sub check_namelists{
     foreach my $list (@$lists_ref){
         #check _parameters lists
         if( $list->name =~ /(.*)_parameters$/ ){
-            if ( $VERBOSE ){ print "\tLIST: $list->name\n"; }
+            if ( $VERBOSE ){ print "\tLIST: " . $list->name . "\n"; }
             my $nml_name = $1;
             my $grp_name = "${nml_name}Plankton";
             my $check = 0;

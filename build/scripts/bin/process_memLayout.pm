@@ -33,7 +33,8 @@ use classes;
 ########### REGULAR EXPRESSIONS ##########################
 my $XPR_GLOBAL_COMMENT = '([^#]*)#{0,1}(.*)'; # dont process commentaries
 
-my $XPR_START_BLOCK = '^([123])d-([^\s\n]+)(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
+#my $XPR_START_BLOCK = '^([123])d-([^\s\n]+)(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
+my $XPR_START_BLOCK = '^([123])d-([^\s\n-]+)(?:-(pel|ben)){0,1}(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
 my $XPR_END_BLOCK   = '^end';
 
 #my $XPR_START_GROUP = '^group\s+([^:]*):(.*)'; # group name : units
@@ -226,6 +227,7 @@ sub process_memLayout{
 
     my $blk_dim;
     my $blk_type;
+    my $blk_subtype;
     my $blk_group;
     my $blk_include;
     my $blk_is_include;
@@ -243,6 +245,7 @@ sub process_memLayout{
     my $const_idx     = 1;
     undef $blk_dim;
     undef $blk_type;
+    $blk_subtype = 'pel';
     undef $blk_group;
     undef $blk_include;
     $blk_is_include = 1;;
@@ -256,25 +259,26 @@ sub process_memLayout{
         if( $line =~ /$XPR_START_BLOCK/ ){ 
             if( $1 ) { $blk_dim        = $1;                                            }
             if( $2 ) { $blk_type       = $2;                                            }
-            if( $3 ) { $blk_is_include = check_directive($3, $cpp_defs, \$blk_include); }
-            if( $4 ) { $blk_z          = $4;                                            } 
+            if( $3 ) { $blk_subtype    = $3;                                            }
+            if( $4 ) { $blk_is_include = check_directive($4, $cpp_defs, \$blk_include); }
+            if( $5 ) { $blk_z          = $5;                                            } 
         }
-        elsif( $line =~ /$XPR_END_BLOCK/ && !$blk_group ){ 
-            undef $blk_dim; undef $blk_type; undef $blk_include; $blk_is_include=1; undef $blk_z; 
+        elsif( $line =~ /$XPR_END_BLOCK/ && !$blk_group ){
+            undef $blk_dim; undef $blk_type; $blk_subtype='pel'; undef $blk_include; $blk_is_include=1; undef $blk_z; 
         }
         elsif( $line =~ /$XPR_START_GROUP/ ){
             #extract name and units
-            if( $VERBOSE){ print "Processing GROUP: $line_raw"; }
+            if( $VERBOSE ){ print "Processing GROUP: $line_raw"; }
             my ( $obj, $name, $units, $par_compo, @par_const );
             my ( $in_name, $in_acro, $in_units ) = ($1, $2, $3);
-            if ( ! process_name($in_name, $blk_dim, \$name, \$units, undef, undef, undef, undef) ){ print "WARNING: Group not found: $in_name\n"; next; }
+            if ( ! process_name($in_name, $blk_dim, $blk_subtype, \$name, \$units, undef, undef, undef, undef) ){ print "WARNING: Group not found: $in_name\n"; next; }
             if( ! ($in_acro =~ /$XPR_ACRO/) ){ print "ERROR: Group \"$name\" has not a valid Acronym: $in_acro \n"; exit 1; }
             process_units($in_units, $units, undef, \$par_compo, undef, undef, \@par_const);
             
             $blk_group=$name;
             #add to groups list
             if( $blk_is_include ){
-                $obj = new Group( $blk_group, $in_acro, $blk_dim, $blk_type, $par_compo, $blk_include, $blk_z, $blk_group_idx);
+                $obj = new Group( $blk_group, $in_acro, $blk_dim, $blk_type, $blk_subtype, $par_compo, $blk_include, $blk_z, $blk_group_idx);
                 $blk_group_idx++;
                 $$lst_group{$blk_group} = $obj;
                 #add constituents to list
@@ -293,14 +297,12 @@ sub process_memLayout{
         }
         elsif( $line =~ /$XPR_PARAM/ ){
             #extract name, comment and units
-            if( $VERBOSE){ print "Processing PARAM: $line_raw"; }
+            if( $VERBOSE ){ print "Processing PARAM: $line_raw"; }
             if( $blk_is_include ){
                 my ( $units, $size );
-                my ( $obj, $par_name, $par_unit, $par_type, $par_subtype, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, @par_const );
+                my ( $obj, $par_name, $par_unit, $par_type, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, @par_const );
                 
-                if ( ! process_name($1, $blk_dim, \$par_name, \$units, \$par_func , \$par_quota, \$lst_param, \$lst_sta) ){ print "WARNING: Parameter not found: $1\n"; next; }
-                if( $blk_dim == '3' ){ $par_subtype = 'pel'; }
-                if( $blk_dim == '2' ){ $par_subtype = 'ben'; }
+                if ( ! process_name($1, $blk_dim, $blk_subtype, \$par_name, \$units, \$par_func , \$par_quota, \$lst_param, \$lst_sta) ){ print "WARNING: Parameter not found: $1\n"; next; }
 
                 if( $par_quota && $units ){
                     my $par_name_src = $par_name;
@@ -316,11 +318,11 @@ sub process_memLayout{
                     foreach my $compo_tmp ( @compo_array ){
                         $par_name = $par_name_src . $compo_tmp;
 
-                        $obj = new Parameter( $par_name, $blk_dim, $par_type, $par_subtype, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
+                        $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_subtype, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
                         #print " " . $obj->getSigla() . " - " . $obj->getIndex() . "\n";
                         $param_idx++;
                         $$lst_param{$par_name} = $obj;
-                        $$lst_sta{"${par_type} ${blk_dim}d"} += $size;
+                        $$lst_sta{"${par_type} ${blk_dim}d ${blk_subtype}"} += $size;
                         #@{$lst_const}{@par_const} = 0; # create the list of constituents
                         if ( $VERBOSE ){ $obj->print(); }
                     }
@@ -331,16 +333,14 @@ sub process_memLayout{
                     else{              $size = process_units($3, $units, \$par_unit, \$par_compo, \$par_compoEx, undef                  , \@par_const); }
                     
                     if( $par_quota )                                                       { $par_type = 'diaggrp'                      } #name(quota)
-                    elsif( $3 && ($blk_type eq 'variable')     && ( $blk_dim =~ /3/ ) )    { $par_type = 'diagnos'; $par_subtype='pel'  } #if 3d/2d has units and is a variable => insert in diagnos group
-                    elsif( $3 && ($blk_type eq 'variable')     && ( $blk_dim =~ /2/ ) )    { $par_type = 'diagnos'; $par_subtype='ben'  } #if 3d/2d has units and is a variable => insert in diagnos group
-                    elsif( $3 && ($blk_type eq 'variable-pel') && ( $blk_dim =~ /2/ ) )    { $par_type = 'diagnos'; $par_subtype='pel'  } #if 3d/2d has units and is a variable => insert in diagnos group
+                    elsif( $3 && ($blk_type eq 'variable') && ( $blk_dim =~ /(2|3)/ ) )    { $par_type = 'diagnos'; } #if 3d/2d has units and is a variable => insert in diagnos group
                     else                                                                   { $par_type = $blk_type;                     };#normal parameter
                     
-                    $obj = new Parameter( $par_name, $blk_dim, $par_type, $par_subtype, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
+                    $obj = new Parameter( $par_name, $blk_dim, $par_type, $blk_subtype, $blk_include, $blk_z, $par_unit, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, $param_idx );
                     $param_idx++;
                     #print " " . $obj->getSigla() . " - " . $obj->getIndex() . "\n";
                     $$lst_param{$par_name} = $obj;
-                    $$lst_sta{"${par_type} ${blk_dim}d"} += $size;
+                    $$lst_sta{"${par_type} ${blk_dim}d ${blk_subtype}"} += $size;
                     #@{$lst_const}{@par_const} = 0; # create the list of constituents
                     if ( $VERBOSE ){ $obj->print(); }
                 }
@@ -358,7 +358,7 @@ sub process_memLayout{
 
 
 sub process_name{
-    my ( $line, $blk_dim, $name_ref, $units_ref, $func_ref, $quota_ref, $lst_param, $lst_sta ) = @_;
+    my ( $line, $blk_dim, $blk_subtype, $name_ref, $units_ref, $func_ref, $quota_ref, $lst_param, $lst_sta ) = @_;
 
     #initialize
     $$name_ref=undef; $$units_ref=undef; $$func_ref=undef; $$quota_ref=undef;
@@ -393,7 +393,7 @@ sub process_name{
         ${$$func_ref}{sign1}  = \@function_sign1;
         ${$$func_ref}{compo2} = \@function_compo2;
         ${$$func_ref}{sign2}  = \@function_sign2;
-        ${$$lst_sta}{"select ${blk_dim}d"} += scalar(@function_compo1); 
+        ${$$lst_sta}{"select ${blk_dim}d ${blk_subtype}"} += scalar(@function_compo1); 
         #print Dumper(\%{$$func_ref}) , "\n";
     }
 

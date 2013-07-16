@@ -61,28 +61,28 @@
   LEVEL1 "# Allocating State Variables and Rates array ..."
 
 #ifndef NOT_STANDALONE
- %3d-state-alloc
- %2d-state-alloc
- %3d-diagnos-alloc
- %2d-diagnos-alloc
+ %3d-state-pel-alloc
+ %2d-state-pel-alloc
+ %3d-diagnos-pel-alloc
+ %2d-diagnos-pel-alloc
 #endif
 
-%1d-variables-alloc
-%1d-intvar-alloc
+%1d-variables-pel-alloc
+%1d-intvar-pel-alloc
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Allocation of Pelagic variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-%3d-state-alloc-pointer
-
+%3d-state-pel-alloc-pointer
+%2d-state-pel-alloc-pointer
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Allocation of Benthic variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%3d-Z-pel-alloc
 
-%2d-state-alloc-pointer
 
-%3d-Z-alloc
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Start the allocation of other pelagic variables which can be outputted
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -90,40 +90,40 @@
   LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
   LEVEL1 "# Allocating Other Global Variables .."
 
-%3d-diaggrp-assign-pp
-%3d-diagnos-alloc-pointer
-%3d-diaggrp-alloc-pointer
+%3d-diaggrp-pel-assign-pp
+%3d-diagnos-pel-alloc-pointer
+%3d-diaggrp-pel-alloc-pointer
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Start the allocation of other benthic vairables which can be outputted 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-%2d-diaggrp-assign-pp
-%2d-diagnos-alloc-pointer
-%2d-diaggrp-alloc-pointer
+%2d-diaggrp-pel-assign-pp
+%2d-diagnos-pel-alloc-pointer
+%2d-diaggrp-pel-alloc-pointer
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-%3d-state-field-alloc-pointer surface
-%3d-state-field-alloc-pointer bottom
-%3d-state-field-alloc-pointer river
+%3d-state-pel-field-alloc-pointer surface
+%3d-state-pel-field-alloc-pointer bottom
+%3d-state-pel-field-alloc-pointer river
 
 
 
 
-%3d-variable-alloc
+%3d-variable-pel-alloc
 
-%2d-variable-alloc
-%2d-intvar-alloc
+%2d-variable-pel-alloc
+%2d-intvar-pel-alloc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Start the allocation of vars for calculation of combined fluxes for output
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 %! Do not change the sequence of the following lines!!
 
-%dd-flux-alloc
-%3d-flux-fill
+%3d-flux-pel-alloc
+%3d-flux-pel-fill
 
   end subroutine AllocateMem
 

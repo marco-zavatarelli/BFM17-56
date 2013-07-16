@@ -57,55 +57,54 @@ my $dispatch = {
     #COMMENT LINE FOR PROGRAMMERS
     '\%\!.*' => \&func_COMMENT,
     #DESCRIPTION
-    '\%(3|2)d-(diagnos|state)-desc(?:\s|\n)'=> \&func_DESC ,
-    '\%(3|2)d-(diaggrp)-desc(?:\s|\n)' => \&func_DESC_DIAGG ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-desc(?:\s|\n)'=> \&func_DESC ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-desc(?:\s|\n)' => \&func_DESC_DIAGG ,
     #NR
-    '([^\%]*)\%(3|2)d-(flux|diagnos|state)-nr(?:\s|\n)'=>    \&func_NR ,
+    '([^\%]*)\%(3|2)d-(flux|diagnos|state)-(pel|ben)-nr(?:\s|\n)'=>    \&func_NR ,
     #ARRAY
-    '\%(3|2)d-(diagnos|state)-array(?:\s|\n)'=>    \&func_ARRAY ,
-    '\%(3)d-(state)-field-array\s*(\S*)(?:\s|\n)'=>    \&func_ARRAY_FIELD ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-array(?:\s|\n)'=>    \&func_ARRAY ,
+    '\%(3)d-(state)-(pel|ben)-field-array\s*(\S*)(?:\s|\n)'=>    \&func_ARRAY_FIELD ,
     #PP
-    '\%(3|2)d-(diagnos|state)-pp(?:\s|\n)'=>    \&func_PP ,
-    '\%(3|2)d-(diaggrp)-pp(?:\s|\n)'=>    \&func_PP_DIAGG ,
-    '\%(3|2)d-(diaggrp)-assign-pp(?:\s|\n)'=>    \&func_PP_ASSIGN ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-pp(?:\s|\n)'=>    \&func_PP ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-pp(?:\s|\n)'=>    \&func_PP_DIAGG ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-assign-pp(?:\s|\n)'=>    \&func_PP_ASSIGN ,
     #POINTER
-    '\%(3|2)d-(diagnos|state)-pointer(?:\s|\n)'=>    \&func_POINT ,
-    '\%(3|2)d-(diaggrp)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
-    '\%(3)d-Z-pointer(?:\s|\n)'=>    \&func_POINT_Z ,
-    '\%(3)d-(state)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
-    '\%(3|2)d-(diagnos|state)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC ,
-    '\%(3|2)d-(diaggrp)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC_DIAGG ,
-    '\%(3)d-(state)-field-alloc-pointer\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
+    '\%(3)d-Z-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_Z ,
+    '\%(3)d-(state)-(pel|ben)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC_DIAGG ,
+    '\%(3)d-(state)-(pel|ben)-field-alloc-pointer\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
     #HEADER
-    '\%(3|2)d-(diagnos|state)-header(?:\s|\n)' =>    \&func_HEADER ,
-    '\%(3|2)d-(diaggrp)-header(?:\s|\n)' =>    \&func_HEADER_DIAGG ,
-    '\%(3)d-(state)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
-    '\%if-exist-header(?:\s|\n)' =>    \&func_HEADER_IF ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-header(?:\s|\n)' =>    \&func_HEADER ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-header(?:\s|\n)' =>    \&func_HEADER_DIAGG ,
+    '\%(3)d-(state)-(pel|ben)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
     #STRING
     '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING ,
     '\%(3|2)d-(diaggrp)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING_DIAGG ,
-    '\%(3)d-(state)-field-string\s*(\S*)(?:\s|\n)'=>    \&func_STRING_FIELD ,
-    '\%dd-string-index(?:\s|\n)'=>    \&func_STRING_INDEX ,
+    '\%(3)d-(state)-(pel|ben)-field-string\s*(\S*)(?:\s|\n)'=>    \&func_STRING_FIELD ,
+    '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string-index\s*(\S*)(?:\s|\n)'=>    \&func_STRING_INDEX ,
     #ALLOC
-    '\%(3|2)d-(diagnos|state)-alloc(?:\s|\n)' => \&func_ALLOC ,
-    '\%(3)d-Z-alloc(?:\s|\n)' => \&func_ALLOC_Z ,
-    '\%(1|3|2)d-(intvar|variable|variables)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc(?:\s|\n)' => \&func_ALLOC ,
+    '\%(3)d-Z-(pel|ben)-alloc(?:\s|\n)' => \&func_ALLOC_Z ,
+    '\%(1|3|2)d-(intvar|variable|variables)-(pel|ben)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
     #FLUX
-    '\%(dd)-(flux)-alloc(?:\s|\n)' => \&func_FLUX_ALLOC ,
-    '\%(3|2)d-(flux)-fill(?:\s|\n)' => \&func_FLUX_FILL ,
+    '\%(3|2)d-(flux)-(pel|ben)-alloc(?:\s|\n)' => \&func_FLUX_ALLOC ,
+    '\%(3|2)d-(flux)-(pel|ben)-fill(?:\s|\n)' => \&func_FLUX_FILL ,
     #CONSTITUENT
     '\%constituent(?:\s|\n)' => \&func_CONSTITUENT ,
     #GROUP    
-    '\%(3|2)d-group-header(?:\s|\n)' => \&func_GROUP_HEADER ,
-    '\%(3|2)d-group-parameter(?:\s|\n)' => \&func_GROUP_PARAMETER ,
-    '\%(3|2)d-group-function-name(?:\s|\n)' => \&func_GROUP_FUNCTION_NAME ,
-    '\%(3|2)d-groupfunctions(?:\s|\n)' => \&func_GROUP_FUNCTIONS ,
+    '\%(3|2)d-group-(pel|ben)-header(?:\s|\n)' => \&func_GROUP_HEADER ,
+    '\%(3|2)d-group-(pel|ben)-parameter(?:\s|\n)' => \&func_GROUP_PARAMETER ,
+    '\%(3|2)d-group-(pel|ben)-function-name(?:\s|\n)' => \&func_GROUP_FUNCTION_NAME ,
+    '\%(3|2)d-groupfunctions-(pel|ben)(?:\s|\n)' => \&func_GROUP_FUNCTIONS ,
     #INTVAR/VARIABLE
-    '\%(3|2|1)d-(intvar|variable)(?:\s|\n)' => \&func_INTVAR ,
+    '\%(3|2|1)d-(intvar|variable)-(pel|ben)(?:\s|\n)' => \&func_INTVAR ,
     #INIT
-    '\%(3)d-(state)-Initpp(?:\s|\n)'      => \&func_INIT_PP ,
-    '\%(3)d-(state)-InitDefault(?:\s|\n)' => \&func_INIT_DEFAULT ,
-    '\%(3)d-(state)-InitSets(?:\s|\n)'    => \&func_INIT_SETS ,
+    '\%(3)d-(state)-(pel|ben)-Initpp(?:\s|\n)'      => \&func_INIT_PP ,
+    '\%(3)d-(state)-(pel|ben)-InitDefault(?:\s|\n)' => \&func_INIT_DEFAULT ,
+    '\%(3)d-(state)-(pel|ben)-InitSets(?:\s|\n)'    => \&func_INIT_SETS ,
 };
 ########### REGULAR EXPRESSIONS ##########################
 
@@ -135,10 +134,10 @@ sub print_f90 {
         my $replaced = 0;
         foreach my $key (sort keys %$dispatch){
             if( $line_raw =~ /$key/ ){
-                my ($dim, $type, $spec);
-                $dim = $1; $type=$2; $spec=$3;
-                if($spec){ &{$$dispatch{$key}}($OUT, $dim, $type, $spec); }
-                else     { &{$$dispatch{$key}}($OUT, $dim, $type);        }
+                my ($dim, $type, $subt, $spec);
+                $dim = $1; $type=$2; $subt=$3; $spec=$4;
+                if($spec){ &{$$dispatch{$key}}($OUT, $dim, $type, $subt, $spec); }
+                else     { &{$$dispatch{$key}}($OUT, $dim, $type, $subt);        }
                 print $OUT "\n";
                 $replaced=1;
                 if( $VERBOSE ){ print " $line_raw"; }
@@ -229,17 +228,20 @@ sub sizeQuota{
 }
 
 sub sizeDimType {
-    my ($dim, $type) = @_;
+    my ($dim, $type, $subt) = @_;
 
     my $size = 0;
 
     foreach my $name (keys %$LST_PARAM){
-        my $param    = $$LST_PARAM{$name};
-        my $dim_var  = $param->getDim();
-        my $type_var = $param->getType();
+        my $param       = $$LST_PARAM{$name};
+        my $dim_var     = $param->getDim();
+        my $type_var    = $param->getType();
+        my $subtype_var = $param->getSubtype();
         if( $type_var eq 'diaggrp' ){ $type_var = 'diagnos'; }
 
-        if( $dim_var && $dim_var == $dim && $type_var eq $type ){ 
+        if( $dim_var && $dim_var == $dim 
+            && $type_var eq $type 
+            && $subt eq $subtype_var ){ 
             my $sizeQuota = sizeQuota($param);
             if( $param->getComponents() ){
                 $size += (keys(%{$param->getComponents()}) * ($sizeQuota));
@@ -263,14 +265,17 @@ sub sizeDimType {
 # }
 
 sub checkDimType {
-    my ($dim, $type) = @_;
+    my ($dim, $type, $subt) = @_;
 
     foreach my $key (keys %$LST_PARAM){
-        my $param    = $$LST_PARAM{$key};
-        my $dim_var  = $param->getDim();
-        my $type_var = $param->getType();
+        my $param       = $$LST_PARAM{$key};
+        my $dim_var     = $param->getDim();
+        my $type_var    = $param->getType();
+        my $subtype_var = $param->getSubtype();
 
-        if( $dim_var && $dim_var == $dim && $type_var eq $type ){ 
+        if( $dim_var == $dim 
+            && $type_var eq $type 
+            && $subtype_var eq $subt ){ 
             #print " $dim_var == $dim && $type_var eq $type\n";
             return 1; 
         }   
@@ -288,11 +293,11 @@ sub func_COMMENT {}
 
 
 sub func_ALLOC {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC: "; }
 
     #if the variable does not exists => dont print anything
-    if( ! checkDimType($dim, $type)  ){ return; }
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
     
     my $j = "";
     my $TYPE = uc($type);
@@ -302,7 +307,7 @@ sub func_ALLOC {
     print $file "${SPACE}allocate(D${dim}${TYPE}(1:NO_D${dim}_BOX_${TYPE}S,1:NO_BOXES$j),stat=status)\n";
     print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}$TYPE\")\n";
     print $file "${SPACE}D${dim}${TYPE} = ZERO\n";
-    if ( $type eq "state" ) {
+    if ( $type eq "state" && $subt eq "pel" ) {
         print $file "#ifndef EXPLICIT_SINK\n";
         print $file "${SPACE}  allocate(D${dim}SOURCE(1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j),stat=status)\n";
         print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE\")\n";
@@ -327,7 +332,7 @@ sub func_ALLOC {
 }
 
 sub func_POINT_ALLOC  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC: "; }
 
     my $line = "";
@@ -335,7 +340,10 @@ sub func_POINT_ALLOC  {
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $param->getSubtype eq $subt ){
+
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -353,7 +361,7 @@ sub func_POINT_ALLOC  {
 }
 
 sub func_PP_ASSIGN  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_PP_ASSIGN: "; }
     
     my $line = "";
@@ -365,12 +373,14 @@ sub func_PP_ASSIGN  {
     #foreach my $root (sort keys %$LST_PARAM){
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
-        if( $dim == $param->getDim() && $param->getQuota() ){
+        if( $dim == $param->getDim() 
+            && $param->getQuota()
+            && $param->getSubtype eq $subt ){
             #print $root . " -> " . $param->getQuota() . "\n";
             foreach my $member ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param2 = $$LST_PARAM{$member};
                 if( defined($param2->getGroup()) && $param2->getGroup() eq $param->getQuota() ){
-                    $line .= "pp${root}(ii${member})=" . ++($$LST_STA{"diagnos ${dim}d"}) . "\n";
+                    $line .= "pp${root}(ii${member})=" . ++($$LST_STA{"diagnos ${dim}d $subt"}) . "\n";
                 }
             }
         }
@@ -380,14 +390,16 @@ sub func_PP_ASSIGN  {
 }
 
 sub func_POINT_ALLOC_DIAGG  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_PP_ALLOC_DIAG: "; }
     
     my $line = "";
 
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
-        if( $dim == $param->getDim() && $param->getQuota() ){
+        if( $dim == $param->getDim() 
+            && $param->getQuota()
+            && $param->getSubtype eq $subt ){
             #print $root . " -> " . $param->getQuota() . "\n";
             my @namesMem = ();
             foreach my $member ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
@@ -410,7 +422,7 @@ sub func_POINT_ALLOC_DIAGG  {
 
 
 sub func_POINT_ALLOC_FIELD  {
-    my ( $file, $dim, $type, $spec) = @_;
+    my ( $file, $dim, $type, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC_FIELD: "; }
 
     my $line_ini = "";
@@ -420,20 +432,23 @@ sub func_POINT_ALLOC_FIELD  {
     my $spec_short = substr($spec,0,3);
 
     my $n = 0;
-    my $m = sizeDimType($dim, $type);
-    if( exists $$LST_STA{"${type} ${dim}d index"} ){
-        $n = $$LST_STA{"${type} ${dim}d index"};
-        $$LST_STA{"${type} ${dim}d index"} += $m;
+    my $m = sizeDimType($dim, $type, $subt);
+    if( exists $$LST_STA{"${type} ${dim}d ${subt} index"} ){
+        $n = $$LST_STA{"${type} ${dim}d ${subt} index"};
+        $$LST_STA{"${type} ${dim}d ${subt} index"} += $m;
     }else{
-        $n = $$LST_STA{'diagnos 2d'};
-        $$LST_STA{"${type} ${dim}d index"} = $n + $m;
+        $n = $$LST_STA{"diagnos 2d ${subt}"};
+        $$LST_STA{"${type} ${dim}d ${subt} index"} = $n + $m;
     }
-    $$LST_STA{"${type} ${dim}d ${spec} index"} = $n;
+    $$LST_STA{"${type} 2d ${subt} ${spec} index"} = $n;
 
     $line_ini .= "${SPACE}PEL${SPEC} => D2DIAGNOS(${n}+1:${n}+${m},:); PEL${SPEC}=ZERO\n";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
+
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -452,7 +467,7 @@ sub func_POINT_ALLOC_FIELD  {
 
 
 sub func_ALLOC_INTVAR  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC_INTVAR: "; }
     
     my $line = "";
@@ -462,7 +477,10 @@ sub func_ALLOC_INTVAR  {
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
+
             my $mode = 0;
             my $l = "";
             my $groupindex = "";
@@ -485,27 +503,29 @@ sub func_ALLOC_INTVAR  {
 
 
 sub func_FLUX_ALLOC  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
 
     my $line = "";
-    my $dim_tmp = "";
    
-    $line .= "  allocate( D3FLUX_MATRIX(1:NO_D3_BOX_STATES, 1:NO_D3_BOX_STATES),stat=status )\n";
-    $line .= "  allocate( D3FLUX_FUNC(1:NO_D3_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
-    $line .= "  D3FLUX_FUNC = 0\n";
+    #if the variable does not exists => dont print anything
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
+
+    $line .= "  allocate( D${dim}FLUX_MATRIX(1:NO_D${dim}_BOX_STATES, 1:NO_D${dim}_BOX_STATES),stat=status )\n";
+    $line .= "  allocate( D${dim}FLUX_FUNC(1:NO_D${dim}_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
+    $line .= "  D${dim}FLUX_FUNC = 0\n";
 
     if( $line ){ print $file $line; }
 }
 
 
 sub func_FLUX_FILL  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
     my $line = "";
 
 
-    if( exists $$LST_STA{"flux ${dim}d"} && exists $$LST_STA{"select ${dim}d"} ){
+    if( exists $$LST_STA{"flux ${dim}d $subt"} && exists $$LST_STA{"select ${dim}d $subt"} ){
 
         my %d3flux_func             = ();
         my %d3flux_func_dir         = ();
@@ -517,7 +537,10 @@ sub func_FLUX_FILL  {
         $flxindex = 1;
         foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
             my $param = $$LST_PARAM{$name};
-            if( 3 == $param->getDim() && "flux" eq $param->getType() ){
+            if( ${dim} == $param->getDim() 
+                && ${type} eq $param->getType()
+                && ${subt} eq $param->getSubtype() ){
+
                 my $function = $param->getFunction();
                 my $sigla = $param->getSigla();
                 for my $indexC ( 0 .. $#{$$function{compo1}} ) {
@@ -533,14 +556,14 @@ sub func_FLUX_FILL  {
                         else{ 
                             $d3flux_matrix_index{"pp$compo1, pp$compo2"} = 1  
                         }
-                        push( @{$d3flux_func{$name}}, "D3FLUX_MATRIX(pp$compo1, pp$compo2)%p(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${sign1}${flxindex}\n " );
+                        push( @{$d3flux_func{$name}}, "D${dim}FLUX_MATRIX(pp$compo1, pp$compo2)%p(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${sign1}${flxindex}\n " );
                     }else{ # B-> A
                         if ( exists $d3flux_matrix_index{"pp$compo2, pp$compo1"} ){ 
                             $d3flux_matrix_index{"pp$compo2, pp$compo1"}++ } 
                         else{ 
                             $d3flux_matrix_index{"pp$compo2, pp$compo1"} = 1
                         };
-                        push( @{$d3flux_func{$name}}, "D3FLUX_MATRIX(pp$compo2, pp$compo1)%p(" . $d3flux_matrix_index{"pp$compo2, pp$compo1"} . ")=${sign1}${flxindex}\n " );
+                        push( @{$d3flux_func{$name}}, "D${dim}FLUX_MATRIX(pp$compo2, pp$compo1)%p(" . $d3flux_matrix_index{"pp$compo2, pp$compo1"} . ")=${sign1}${flxindex}\n " );
                     }
 
                     if( $compo1 eq $compo2 ){ # A == B
@@ -549,7 +572,7 @@ sub func_FLUX_FILL  {
                         else{ 
                             $d3flux_matrix_index_dir{"pp$compo1, pp$compo2"} = 1  
                         }
-                        push( @{$d3flux_func_dir{$name}}, "D3FLUX_MATRIX(pp$compo1, pp$compo2)%dir(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${dir}\n " );
+                        push( @{$d3flux_func_dir{$name}}, "D${dim}FLUX_MATRIX(pp$compo1, pp$compo2)%dir(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${dir}\n " );
                     }
                 }
                 $flxindex++;
@@ -562,9 +585,9 @@ sub func_FLUX_FILL  {
 
         # allocate
         foreach my $key ( keys %d3flux_matrix_index ){
-            $line .= "  allocate( D3FLUX_MATRIX($key)%p( 1:$d3flux_matrix_index{$key} ) )\n";
+            $line .= "  allocate( D${dim}FLUX_MATRIX($key)%p( 1:$d3flux_matrix_index{$key} ) )\n";
             if( exists $d3flux_matrix_index_dir{$key} ){
-                $line .= "  allocate( D3FLUX_MATRIX($key)%dir( 1:$d3flux_matrix_index_dir{$key} ) )\n";
+                $line .= "  allocate( D${dim}FLUX_MATRIX($key)%dir( 1:$d3flux_matrix_index_dir{$key} ) )\n";
             }
         }
 
@@ -591,14 +614,16 @@ sub func_FLUX_FILL  {
 
 
 sub func_ALLOC_Z  {
-    my ( $file, $dim) = @_;
+    my ( $file, $dim, $subt ) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC_Z: "; }
 
     my %z_hash = ();
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $param->getZ() ){
+        if( $dim == $param->getDim() 
+            && $param->getZ()
+            && $subt eq param->getSubtype() ){
             my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
             #get unique values from array
             $z_hash{"$z_array_tmp[0]"} = 0;
@@ -626,7 +651,7 @@ sub func_ALLOC_Z  {
 
 
 sub func_DESC  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_DESC: "; }
 
     my $line     = "";
@@ -641,7 +666,10 @@ sub func_DESC  {
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         my $comment = $param->getComment();
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
+
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -663,14 +691,14 @@ sub func_DESC  {
 
 
 sub func_ARRAY  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_ARRAY: "; }
 
     #if the variable does not exists => dont print anything
-    if( ! checkDimType($dim, $type)  ){ return; }
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
     my $line = "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . uc($type) . "\n";
-    if ( $type eq "state" ) {
+    if ( $type eq "state" && $subt eq "pel" ) {
         $line .= "#ifndef EXPLICIT_SINK\n";
         $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . "SOURCE\n";
         $line .= "#else\n";
@@ -687,15 +715,15 @@ sub func_ARRAY  {
 }
 
 sub func_ARRAY_FIELD  {
-    my ( $file, $dim, $type, $spec) = @_;
+    my ( $file, $dim, $type, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_ARRAY_FIELD: "; }
 
     #if the variable does not exists => dont print anything
-    if( ! checkDimType($dim, $type)  ){ return; }
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
     #save the spec in stadistics for further calculations of number of variables
-    if( ! exists $$LST_STA{'spec num'} ){ $$LST_STA{'spec num'} = 1; }
-    else{ $$LST_STA{'spec num'} += 1; }
+    if( ! exists $$LST_STA{"spec num $subt"} ){ $$LST_STA{"spec num $subt"} = 1; }
+    else{ $$LST_STA{"spec num $subt"} += 1; }
 
     my $SPEC = uc($spec);
     
@@ -703,17 +731,17 @@ sub func_ARRAY_FIELD  {
 }
 
 sub func_NR  {
-    my ( $file, $before, $dim, $type) = @_;
+    my ( $file, $before, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_NR: "; }
 
-    my $title  = "${type} ${dim}d";
+    my $title  = "${type} ${dim}d ${subt}";
     my $number = 0;
     if( exists $$LST_STA{$title} ){
-        if( $title eq 'diagnos 2d' ){
-            $number = $$LST_STA{"${title}"} + sizeGroup($dim) + ( $$LST_STA{'state 3d'} * $$LST_STA{'spec num'} );
+        if( $title eq "diagnos 2d ${subt}" ){
+            $number = $$LST_STA{"${title}"} + sizeGroup($dim) + ( $$LST_STA{"state 3d ${subt}"} * $$LST_STA{"spec num ${subt}"} );
         }
-        elsif( $title eq 'diagnos 3d' ){ 
-            $number=sizeDimType($dim, $type); 
+        elsif( $title eq "diagnos 3d ${subt}" ){ 
+            $number=sizeDimType($dim, $type, $subt); 
         }
         else{ 
             $number=$$LST_STA{$title}; 
@@ -725,7 +753,7 @@ sub func_NR  {
 
 
 sub func_PP  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_PP: "; }
 
     my $line     = "";
@@ -736,7 +764,10 @@ sub func_PP  {
     $line .= "${SPACE}integer,parameter,public :: ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType() 
+            && $subt eq $param->getSubtype() ){
+
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -764,7 +795,7 @@ sub func_PP  {
 
 
 sub func_POINT  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT: "; }
     
     my $line     = "";
@@ -773,7 +804,10 @@ sub func_POINT  {
     $line .= "${SPACE}real(RLEN),public,dimension(:),pointer  :: ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
+
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -808,12 +842,13 @@ sub func_CONSTITUENT  {
 
 
 sub func_GROUP_PARAMETER  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $subt ) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUP_PARAMETER: "; }
 
     foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ) {
         my $group = $$LST_GROUP{$group_name};
-        if( $dim == $group->getDim() ){
+        if( $dim == $group->getDim() 
+            && $subt eq $group->getSubtype() ){
             my @elements = ();
             my $index = 1;
             foreach my $param_name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
@@ -831,7 +866,7 @@ sub func_GROUP_PARAMETER  {
 
 
 sub func_INTVAR  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_INTVAR: "; }
 
     my $line_ini = "";
@@ -843,7 +878,10 @@ sub func_INTVAR  {
 
     foreach my $param_name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$param_name};
-        if( $param->getDim() == $dim && ($param->getType() eq $type) ){
+        if( $param->getDim() == $dim 
+            && ($param->getType() eq $type)
+            && ($param->getSubtype() eq $subt) ){
+
             my $mode  = 0;
             if( $param->getQuota() ){    $mode++; }
             if( $param->getDim () > 1 ){ $mode++; }
@@ -865,12 +903,14 @@ sub func_INTVAR  {
 }
 
 sub func_DESC_DIAGG  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_DESC_DIAGG: "; }
 
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
-        if( $dim == $param->getDim() && $param->getQuota() ){
+        if( $dim == $param->getDim() 
+            && $param->getQuota()
+            && $subt eq $param->getSubtype() ){
             #print $root . " -> " . $param->getQuota() . "\n";
             foreach my $member ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                 my $param2 = $$LST_PARAM{$member};
@@ -884,7 +924,7 @@ sub func_DESC_DIAGG  {
 
 
 sub func_PP_DIAGG  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_PP_DIAGG: "; }
 
     my $line     = "";
@@ -893,7 +933,9 @@ sub func_PP_DIAGG  {
     $line .= "${SPACE}integer,public :: ";
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
-        if( $dim == $param->getDim() && $param->getQuota() ){
+        if( $dim == $param->getDim() 
+            && $subt eq $param->getSubtype() 
+            && $param->getQuota() ){
             push(@line_par,"pp${root}(ii". $param->getQuota() .")" );
         }
     }
@@ -903,7 +945,7 @@ sub func_PP_DIAGG  {
 
 
 sub func_POINT_DIAGG  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT_DIAGG: "; }
     
     my $line     = "";
@@ -912,7 +954,9 @@ sub func_POINT_DIAGG  {
     $line .= "${SPACE}real(RLEN),public,dimension(:,:),pointer  :: ";
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
-        if( $dim == $param->getDim() && $param->getQuota() ){
+        if( $dim == $param->getDim() 
+            && $subt eq $param->getSubtype() 
+            && $param->getQuota() ){
             push( @line_par, "${root}" );
         }
     }
@@ -922,7 +966,7 @@ sub func_POINT_DIAGG  {
 }
 
 sub func_POINT_FIELD  {
-    my ( $file, $dim, $type, $spec) = @_;
+    my ( $file, $dim, $type, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT_FIELD: "; }
 
     my $line     = "";
@@ -932,7 +976,10 @@ sub func_POINT_FIELD  {
     $line .= "${SPACE}real(RLEN),public,dimension(:),pointer  :: ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $param->getDim() == $dim && ($param->getType() eq $type) ){
+        if( $param->getDim() == $dim 
+            && ($param->getType() eq $type) 
+            && ($param->getSubtype() eq $subt) ){
+
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -951,7 +998,7 @@ sub func_POINT_FIELD  {
 
 
 sub func_GROUP_FUNCTION_NAME  {
-    my ( $file, $dim) = @_;
+    my ( $file, $dim, $subt ) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUP_FUNCTION_NAME: "; }
 
     my $line     = "";
@@ -960,7 +1007,8 @@ sub func_GROUP_FUNCTION_NAME  {
     $line .= "${SPACE}public ";
     foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group = $$LST_GROUP{$group_name};
-        if( $group->getDim() == $dim ){
+        if( $group->getDim() == $dim
+            && $group->getSubtype() eq $subt ){
             push( @line_par, "pp${group_name}" );
             push( @line_par, "${group_name}" );
         }
@@ -971,14 +1019,15 @@ sub func_GROUP_FUNCTION_NAME  {
 
 
 sub func_GROUP_FUNCTIONS  {
-    my ( $file, $dim) = @_;
+    my ( $file, $dim, $subt ) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
 
     foreach my $pre ("pp", ""){
         foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
             my $group   = $$LST_GROUP{$groupname};
 
-            if( $group->getDim() == $dim ){
+            if( $group->getDim() == $dim
+                && $subt eq $group->getSubtype()){
                 my @members = ();
                 foreach my $paramname ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
                     my $param = $$LST_PARAM{$paramname};
@@ -1048,14 +1097,16 @@ sub func_GROUP_FUNCTIONS  {
 }
 
 sub func_POINT_Z  {
-    my ( $file, $dim) = @_;
+    my ( $file, $dim, $subt) = @_;
     if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT_Z: "; }
 
     my %z_hash = ();
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $param->getZ() ){
+        if( $dim == $param->getDim() 
+            && $param->getZ() 
+            && $param->getSubtype() eq $subt ){
             my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
             #get unique values from array
             $z_hash{"$z_array_tmp[0]"} = 0;
@@ -1085,7 +1136,10 @@ sub func_STRING  {
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() && ${subt} eq $param->getSubtype()){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType() 
+            && $subt eq $param->getSubtype() ){
+
             my $comm  = $param->getComment();
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
@@ -1129,7 +1183,10 @@ sub func_STRING_DIAGG  {
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $param->getDim() == $dim && $param->getType eq $type && $param->getSubtype eq $subt){
+        if( $param->getDim() == $dim 
+            && $param->getType eq $type 
+            && $param->getSubtype eq $subt ){
+
             my $group_name = $param->getQuota();
             my $unit       = $param->getUnit();
             my $comm       = $param->getComment();
@@ -1156,21 +1213,24 @@ sub func_STRING_DIAGG  {
 
 
 sub func_STRING_FIELD  {
-    my ( $file, $dim, $type, $spec ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $dim, $type, $spec"; }
+    my ( $file, $dim, $type, $subt, $spec ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $dim, $type, $subt, $spec"; }
 
     my $line;
     
     my $SPEC       = uc($spec);
     my $spec_short = substr($spec,0,3);
 
-    if( ! defined $STRING_INDEX_ARRAY{"diagnos_${spec}_${dim}_S"} ){
-        $STRING_INDEX_ARRAY{"diagnos_${spec}_${dim}_S"} = $STRING_INDEX;
+    if( ! defined $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_${dim}_S"} ){
+        $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_2_S"} = $STRING_INDEX;
     }
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType() 
+            && $subt eq $param->getSubtype() ){
+
             my $comm  = $param->getComment();
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
@@ -1193,43 +1253,83 @@ sub func_STRING_FIELD  {
         }
     }
 
-    $STRING_INDEX_ARRAY{"diagnos_${spec}_${dim}_E"} = $STRING_INDEX - 1;
+    $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_2_E"} = $STRING_INDEX - 1;
 
     if( $line ){ print $file $line; }
 }
 
 
 sub func_STRING_INDEX  {
-    my ( $file ) = @_;
+    my ( $file, $dim, $type, $subt, $spec ) = @_;
     if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX:"; }
 
     my $line;
 
-    #print Dumper(\%STRING_INDEX_ARRAY) , "\n";
-    
-    $line .= "${SPACE}stPelStateS=" . $STRING_INDEX_ARRAY{"state_pel_3_S"}   . "\n";
-    $line .= "${SPACE}stPelStateE=" . $STRING_INDEX_ARRAY{"state_pel_3_E"}   . "\n";
-    $line .= "${SPACE}stPelDiagS="  . $STRING_INDEX_ARRAY{"diagnos_pel_3_S"} . "\n";
-    $line .= "${SPACE}stPelDiagE="  . $STRING_INDEX_ARRAY{"diaggrp_pel_3_E"} . "\n";
-    $line .= "${SPACE}stPelFluxS="  . $STRING_INDEX_ARRAY{"flux_pel_3_S"}    . "\n";
-    $line .= "${SPACE}stPelFluxE="  . $STRING_INDEX_ARRAY{"flux_pel_3_E"}    . "\n";
+    my $search_S = "";
+    my $search_E = "";
+    my $out      = "";
 
-    $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_ben_2_S"}   . "\n";
-    $line .= "${SPACE}stBenStateE=" . $STRING_INDEX_ARRAY{"state_ben_2_E"}   . "\n";
+    my $subt_short = ucfirst(substr($subt,0,3));
 
-    $line .= "${SPACE}stPelSurS="  . $STRING_INDEX_ARRAY{"diagnos_pel_2_S"}     ."\n";
-    $line .= "${SPACE}stPelSurE="  . $STRING_INDEX_ARRAY{"diagnos_surface_3_E"} ."\n";
-    $line .= "${SPACE}stPelBotS="  . $STRING_INDEX_ARRAY{"diagnos_bottom_3_S"}  ."\n";
-    $line .= "${SPACE}stPelBotE="  . $STRING_INDEX_ARRAY{"diagnos_bottom_3_E"}  ."\n";
-    $line .= "${SPACE}stPelRivS="  . $STRING_INDEX_ARRAY{"diagnos_river_3_S"}   ."\n";
-    $line .= "${SPACE}stPelRivE="  . $STRING_INDEX_ARRAY{"diagnos_river_3_E"}   ."\n";
+    if( $spec ){
+        my $spec_short = ucfirst(substr($spec,0,3));
+        my $dim = 2; #fix beacuse "specs" are 2d
 
-    $line .= "${SPACE}stBenDiagS="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_S"} . "\n";
-    $line .= "${SPACE}stBenDiagE="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_E"} . "\n";
-    $line .= "${SPACE}stBenFluxS="  . $STRING_INDEX_ARRAY{"flux_ben_2_S"}    . "\n";
-    $line .= "${SPACE}stBenFluxE="  . $STRING_INDEX_ARRAY{"flux_ben_2_E"}    . "\n";
+        $search_S = "${type}_${subt}_${spec}_${dim}_S";
+        $search_E = "${type}_${subt}_${spec}_${dim}_E";
+        $out = "${spec_short}";
 
-    print $file $line;
+        if( $spec eq "surface" ){
+            #fix because "surface" start with "diagnos" values 
+            $search_S = "${type}_${subt}_${dim}_S";
+        }    
+    }else{
+        my $type_short = ucfirst(substr($type,0,4));
+        if( $type_short eq "Stat" ){ $type_short = 'State'; } #fix because "state" has 5 chars
+        if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
+
+        $search_S = "${type}_${subt}_${dim}_S";
+        $search_E = "${type}_${subt}_${dim}_E";
+        $out = "${type_short}";
+
+        if( $type eq "diagnos" ){
+            #fix because "diagnos" ends with "diaggrp" values
+            $search_E = "diaggrp_${subt}_${dim}_E";
+        }
+        if( $subt eq 'pel' && $type eq 'state' && $dim == 2 ){
+            #fix because "Pel state 2D" ends with "Pel diagnos river 2D" values
+            $search_E = "diagnos_${subt}_river_2_E";
+        }
+    }
+
+    if( defined $STRING_INDEX_ARRAY{"${search_S}"} && defined $STRING_INDEX_ARRAY{"${search_E}"} ){
+        $line .= "${SPACE}st${subt_short}${out}S=" . $STRING_INDEX_ARRAY{"${search_S}"} . "\n"; 
+        $line .= "${SPACE}st${subt_short}${out}E=" . $STRING_INDEX_ARRAY{"${search_E}"} . "\n";
+    }
+
+    # $line .= "${SPACE}stPelStateS=" . $STRING_INDEX_ARRAY{"state_pel_3_S"}   . "\n";
+    # $line .= "${SPACE}stPelStateE=" . $STRING_INDEX_ARRAY{"state_pel_3_E"}   . "\n";
+    # $line .= "${SPACE}stPelDiagS="  . $STRING_INDEX_ARRAY{"diagnos_pel_3_S"} . "\n";
+    # $line .= "${SPACE}stPelDiagE="  . $STRING_INDEX_ARRAY{"diaggrp_pel_3_E"} . "\n";
+    # $line .= "${SPACE}stPelFluxS="  . $STRING_INDEX_ARRAY{"flux_pel_3_S"}    . "\n";
+    # $line .= "${SPACE}stPelFluxE="  . $STRING_INDEX_ARRAY{"flux_pel_3_E"}    . "\n";
+
+    # $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_ben_2_S"}   . "\n";
+    # $line .= "${SPACE}stBenStateE=" . $STRING_INDEX_ARRAY{"state_ben_2_E"}   . "\n";
+
+    # $line .= "${SPACE}stPelSurS="  . $STRING_INDEX_ARRAY{"diagnos_pel_2_S"}     ."\n";
+    # $line .= "${SPACE}stPelSurE="  . $STRING_INDEX_ARRAY{"diagnos_pel_surface_3_E"} ."\n";
+    # $line .= "${SPACE}stPelBotS="  . $STRING_INDEX_ARRAY{"diagnos_pel_bottom_3_S"}  ."\n";
+    # $line .= "${SPACE}stPelBotE="  . $STRING_INDEX_ARRAY{"diagnos_pel_bottom_3_E"}  ."\n";
+    # $line .= "${SPACE}stPelRivS="  . $STRING_INDEX_ARRAY{"diagnos_pel_river_3_S"}   ."\n";
+    # $line .= "${SPACE}stPelRivE="  . $STRING_INDEX_ARRAY{"diagnos_pel_river_3_E"}   ."\n";
+
+    # $line .= "${SPACE}stBenDiagS="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_S"} . "\n";
+    # $line .= "${SPACE}stBenDiagE="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_E"} . "\n";
+    # $line .= "${SPACE}stBenFluxS="  . $STRING_INDEX_ARRAY{"flux_ben_2_S"}    . "\n";
+    # $line .= "${SPACE}stBenFluxE="  . $STRING_INDEX_ARRAY{"flux_ben_2_E"}    . "\n";
+
+    if( $line ){ print $file $line; }
 }
 
 
@@ -1237,7 +1337,7 @@ sub func_STRING_INDEX  {
 
 
 sub func_INIT_PP  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_PP: "; }
 
     my @line_par = ();
@@ -1246,7 +1346,9 @@ sub func_INIT_PP  {
     my $line2 = "${SPACE}namelist /bfm_init_nml/ ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -1268,14 +1370,16 @@ sub func_INIT_PP  {
 
 
 sub func_INIT_DEFAULT  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_DEFAULT: "; }
 
     my $line = '';
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -1293,14 +1397,16 @@ sub func_INIT_DEFAULT  {
 
 
 sub func_INIT_SETS  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INITS_SET: "; }
 
     my $line = '';
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -1322,7 +1428,7 @@ sub func_INIT_SETS  {
 
 
 sub func_HEADER  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER: "; }
 
     my $line = '';
@@ -1330,7 +1436,9 @@ sub func_HEADER  {
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -1349,14 +1457,15 @@ sub func_HEADER  {
 
 
 sub func_GROUP_HEADER  {
-    my ( $file, $dim) = @_;
+    my ( $file, $dim, $subt ) = @_;
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_GROUP_HEADER: "; }
 
     my $line = '';
 
     foreach my $name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group   = $$LST_GROUP{$name};
-        if( $dim == $group->getDim() ){
+        if( $dim == $group->getDim() 
+            && $subt eq $group->getSubtype()){
             $line .= "#define " . $name . "(A,B) D" . $dim . "STATE(pp" . $name . "(A,B),:)\n";
         }
     }
@@ -1366,7 +1475,7 @@ sub func_GROUP_HEADER  {
 
 
 sub func_HEADER_FIELD  {
-    my ( $file, $dim, $type, $spec) = @_;
+    my ( $file, $dim, $type, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_FIELD: "; }
 
     my $line_ini = "";
@@ -1376,15 +1485,17 @@ sub func_HEADER_FIELD  {
     my $spec_short = substr($spec,0,3);
 
     my $n = 0;
-    if( exists $$LST_STA{"${type} ${dim}d ${spec} index"} ){
-        $n = $$LST_STA{"${type} ${dim}d ${spec} index"};
+    if( exists $$LST_STA{"${type} 2d $subt ${spec} index"} ){
+        $n = $$LST_STA{"${type} 2d $subt ${spec} index"};
     }
 
 
     $line_ini .= "#define PEL${SPEC}(A,B) D2DIAGNOS($n+A,B)\n";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
@@ -1404,7 +1515,7 @@ sub func_HEADER_FIELD  {
 
 
 sub func_HEADER_DIAGG  {
-    my ( $file, $dim, $type) = @_;
+    my ( $file, $dim, $type, $subt) = @_;
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_DIAGG: "; }
 
     my $line = '';
@@ -1412,17 +1523,12 @@ sub func_HEADER_DIAGG  {
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() && $type eq $param->getType() ){
+        if( $dim == $param->getDim() 
+            && $type eq $param->getType()
+            && $subt eq $param->getSubtype() ){
             $line .= "#define " . $name . "(A,B) D" . $dim . "DIAGNOS(pp" . $name . "(A),B)\n";
         }
     }
 
     if( $line ){ print $file $line; }
 }
-
-
-
-sub func_HEADER_IF  {}
-
-
-1;

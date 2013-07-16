@@ -594,7 +594,7 @@ end subroutine init_netcdf_rst_bfm
       end do
 
       dims(2) = time_dim
-      do n=stBenStateS,stBenFluxE
+      do n=stPelState2dS,stPelState2dE
 
       dims(1) = botpoint_dim 
       if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
@@ -714,7 +714,7 @@ end subroutine init_netcdf_rst_bfm
    ! Benthic variables
    !---------------------------------------------
    k=0
-   do n = stBenStateS , stBenFluxE
+   do n = stPelState2dS , stPelState2dE
       if ( var_ids(n) > 0 ) then   
         IF ( .not. var_ave(n) ) THEN
          ! Store snapshot of pelagic 2D diagnostics at surface

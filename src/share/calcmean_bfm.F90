@@ -56,7 +56,7 @@
          else
             do_3ave = .false.
          endif
-         i=count(var_ave(stBenStateS:stBenFluxE))
+         i=count(var_ave(stPelState2dS:stPelState2dE))
          if ( i > 0 ) then
             allocate(D2ave(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D2ave'
@@ -118,7 +118,7 @@
                end if
             end do
          endif
-         if (stBenStateE /= 0 .and. do_2ave) then
+         if (stPelState2dE /= 0 .and. do_2ave) then
             !---------------------------------------------
             ! Compute benthic means
             !---------------------------------------------
