@@ -190,21 +190,27 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    R6c0 = 1.0,
    InitVar(O2o)%init = 2,
    InitVar(O2o)%sbc  = .false.,
+   InitVar(O2o)%cbc  = .false.,
    InitVar(O2o)%obc  = .false.,
    InitVar(N1p)%init = 2,
    InitVar(N1p)%sbc  = .false.,
+   InitVar(N1p)%cbc  = .true.,
    InitVar(N1p)%obc  = .false.,
    InitVar(N3n)%init = 2,
    InitVar(N3n)%sbc  = .false.,
+   InitVar(N3n)%cbc  = .true.,
    InitVar(N3n)%obc  = .false.,
    InitVar(N5s)%init = 2,
    InitVar(N5s)%sbc  = .false.,
+   InitVar(N5s)%cbc  = .true.,
    InitVar(N5s)%obc  = .false.,
    InitVar(O3c)%init = 2,
    InitVar(O3c)%sbc  = .false.,
+   InitVar(O3c)%cbc  = .true.,
    InitVar(O3c)%obc  = .false.,
    InitVar(O3h)%init = 2,
    InitVar(O3h)%sbc  = .false.,
+   InitVar(O3h)%cbc  = .true.,
    InitVar(O3h)%obc  = .false.,
 	filename_nml_conf = 'BFM_General.nml',
 /
@@ -844,11 +850,21 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   Set input files for surface (s), coastal (c) or open (o) boundary
 !   conditions for each BFM variable
 !   sn_trc?bc(VARNAME): structure with file name and interpolatio
-!   rn_tr?fac(VARNAME): conversion factor
+!   rn_tr?fac(VARNAME): multiplicative conversion factor
 !              ! file name   ! frequency (hr) ! variable ! time interp. ! clim    !'yearly' or ! weights  ! rotation
 !              !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing
 !-----------------------------------------------------------------------
 &namtrc_bc
-   cn_dir = './'
+   sn_trccbc(N1p)  = 'nutrients_MFS_PERSEUS_D43' , -1    ,  'N1p'   , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
+   sn_trccbc(N3n)  = 'nutrients_MFS_PERSEUS_D43' , -1    ,  'N3n'   , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
+   sn_trccbc(N5s)  = 'nutrients_MFS_PERSEUS_D43' , -1    ,  'N5s'   , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
+   sn_trccbc(O3c)  = 'rivcsys_MFS_PERSEUS_D43'   , -1    ,  'TC'    , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
+   sn_trccbc(O3h)  = 'rivcsys_MFS_PERSEUS_D43'   , -1    ,  'TA'    , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
+   rn_trcfac(N1p)  =  1000.    ! data are in mol/day, convert to mmol P
+   rn_trcfac(N3n)  =  1000.    ! data are in mol/day, convert to mmol N
+   rn_trcfac(N5s)  =  1000.    ! data are in mol/day, convert to mmol Si
+   rn_trcfac(O3c)  =  12010.   ! data are in mol/day, convert to mg C
+   rn_trcfac(O3h)  =  1000.    ! data are in mol/day, convert to mmol eq
+   cn_dir =  '_RiverBFM_'
         filename_nml_conf = 'namelist_top',
 /
