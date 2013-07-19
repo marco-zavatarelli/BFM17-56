@@ -984,15 +984,10 @@ sub func_GROUP_FUNCTIONS  {
                     my $param = $$LST_PARAM{$paramname};
                     if ( $param->getGroup() && ($param->getGroup() eq $groupname) ){ push(@members, $param); }
                 }
-                #order to show in alpahabetic order
-                #@members = sort { $a cmp $b } @members;
 
                 my $line = "\n";
                 $line .= "${SPACE}" ."function $pre${groupname}(n,constituent,cmax)\n";
                 $line .= "${SPACE}" ."\n";
-                $line .= "${SPACE}" ."  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-                $line .= "${SPACE}" ."  ! Implicit typing is never allowed\n";
-                $line .= "${SPACE}" ."  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
                 $line .= "${SPACE}" ."  IMPLICIT NONE\n";
                 $line .= "${SPACE}" ."\n";
                 if ( $pre eq "pp" ) {
@@ -1005,36 +1000,42 @@ sub func_GROUP_FUNCTIONS  {
                 $line .= "${SPACE}" ."  integer, intent(IN), optional  :: cmax\n";
                 $line .= "${SPACE}" ."  \n";
                 if ( $pre eq "pp" ) {
-                    my @refers    = ();
+                    my $maxNumberConstituents = scalar( keys %$LST_CONST );
                     my @refersMax = ();
-                    foreach my $member (@members){
-                        my @components_mem = ( sort { ($$LST_CONST{$a} cmp $$LST_CONST{$b}) } keys %{$member->getComponents()} );
-                        my $maxkey = $$LST_CONST{ $components_mem[ $#components_mem ] }; #insert the minimun component
-                        my $minkey = $components_mem[0];                                 #insert the index of the maximun component
 
-                        push( @refers, "pp" . $member->getSigla() . ${minkey} );
+                    my @line_pointers = ();
+                    foreach my $member (@members){
+                        my @refers    = ();
+                        my %const_mem = %{$member->getComponents()};
+                        my $maxkey = scalar(keys %const_mem); #insert the maximun number of components
+
+                        foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+                            if( exists $const_mem{$const}){
+                                push( @refers, "pp" . $member->getSigla() . ${const} . " ");
+                            }else{
+                                push( @refers, "0     " );
+                            }
+                        }
+                        push( @line_pointers, join(",",@refers) );
                         push( @refersMax, ${maxkey} );
                     }
-                    if( scalar(@refers)    == 0 ){ push(@refers,    0); }
-                    if( scalar(@refersMax) == 0 ){ push(@refersMax, 0); }
-                    $line .= "${SPACE}" ."  integer,dimension(" . max(1,scalar(@members))      . ") :: referto=(/"         . join(',',@refers)    . "/)\n";
-                    $line .= "${SPACE}" ."  integer,dimension(" . max(1,scalar(@members))      . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n";
 
-                    my @consAdd = (0) x scalar(keys %$LST_CONST);
-                    my $num_ele = 0;
-                    
-                    foreach my $elem ( sort { ($$LST_CONST{$a} cmp $$LST_CONST{$b}) } keys %{$group->getComponents()} ){
-                        #print "$elem [". ($$LST_CONST{$elem}-1) ."]: $num_ele ";
-                        $consAdd[($$LST_CONST{$elem}-1)] = $num_ele++;
-                    }
-                    $line .= "${SPACE}" ."  integer,dimension(" . scalar(keys %$LST_CONST) . ") :: constituent_add=(/" . join(',',@consAdd)   . "/)\n";
-                    $line .= "${SPACE}" ."\n";
-                    $line .= "${SPACE}" ."  if ( constituent <=const_max(n) ) then\n";
-                    $line .= "${SPACE}" ."   $pre$groupname=referto(n)+ constituent_add(constituent)\n";
-                    $line .= "${SPACE}" ."  else\n";
-                    $line .= "${SPACE}" ."   $pre$groupname=0\n";
-                    $line .= "${SPACE}" ."  endif\n";
-                    $line .= "${SPACE}" ."  if ( present(cmax) ) $pre$groupname = const_max(n)\n";
+                    if( scalar(@refersMax) == 0 ){ push(@refersMax, 0); }
+                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n\n";
+
+                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * " . $maxNumberConstituents . ") :: pointers = (/ & \n";
+                    $line .= "${SPACE}" .    "${SPACE}       " 
+                       . join(", &\n${SPACE}       ", @line_pointers) . "  &\n"
+                       .      "${SPACE}       /)\n\n";
+
+                    $line .= "${SPACE}" ."  IF( constituent > " . $maxNumberConstituents . " .OR. constituent == 0 ) THEN\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
+                    $line .= "${SPACE}" ."  ELSE IF ( present(cmax) ) THEN\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)-1\n";
+                    $line .= "${SPACE}" ."  ELSE\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * $maxNumberConstituents ) + constituent )\n";
+                    $line .= "${SPACE}" ."  ENDIF\n";
+
                 }else{
                     $line .= "${SPACE}" ."  $pre$groupname => D${dim}STATE(pp${groupname}(n,constituent),:)\n";
                 }

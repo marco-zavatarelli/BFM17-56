@@ -305,11 +305,11 @@
    do j = 1,iiPhytoPlankton
       if (.NOT.CalcPhytoPlankton(j)) then
          iiLastElement=ppPhytoPlankton(j,1,cmax=1)
-         do i = 1,iiLastElement
-            D3STATE(ppPhytoPlankton(j,i),:) = p_small
-            D3STATETYPE(ppPhytoPlankton(j,i)) = OFF
+         do i = 0,iiLastElement
+            D3STATE(ppPhytoPlankton(j,1)+i,:) = p_small
+            D3STATETYPE(ppPhytoPlankton(j,1)+i) = OFF
 #if defined key_obcbfm
-            D3STATEOBC(ppPhytoPlankton(j,i)) = NOOBCSTATES
+            D3STATEOBC(ppPhytoPlankton(j,1)+i) = NOOBCSTATES
 #endif
          end do
       end if
@@ -317,11 +317,11 @@
    do j = 1,iiMesoZooPlankton
       if (.NOT.CalcMesoZooPlankton(j)) then
          iiLastElement=ppMesoZooPlankton(j,1,cmax=1)
-         do i = 1,iiLastElement
-            D3STATE(ppMesoZooPlankton(j,i),:) = p_small
-            D3STATETYPE(ppMesoZooPlankton(j,i)) = OFF
+         do i = 0,iiLastElement
+            D3STATE(ppMesoZooPlankton(j,1)+i,:) = p_small
+            D3STATETYPE(ppMesoZooPlankton(j,1)+i) = OFF
 #if defined key_obcbfm
-            D3STATEOBC(ppMesoZooPlankton(j,i)) = NOOBCSTATES
+            D3STATEOBC(ppMesoZooPlankton(j,1)+i) = NOOBCSTATES
 #endif
          end do
       end if
@@ -329,11 +329,11 @@
    do j = 1,iiMicroZooPlankton
       if (.NOT.CalcMicroZooPlankton(j)) then
          iiLastElement=ppMicroZooPlankton(j,1,cmax=1)
-         do i = 1,iiLastElement
-            D3STATE(ppMicroZooPlankton(j,i),:) = p_small
-            D3STATETYPE(ppMicroZooPlankton(j,i)) = OFF
+         do i = 0,iiLastElement
+            D3STATE(ppMicroZooPlankton(j,1)+i,:) = p_small
+            D3STATETYPE(ppMicroZooPlankton(j,1)+i) = OFF
 #if defined key_obcbfm
-            D3STATEOBC(ppMicroZooPlankton(j,i)) = NOOBCSTATES
+            D3STATEOBC(ppMicroZooPlankton(j,1)+i) = NOOBCSTATES
 #endif
          end do
       end if
@@ -342,11 +342,11 @@
   do j = 1,iiPelBacteria
       if (.NOT.CalcPelBacteria(j)) then
          iiLastElement =ppPelBacteria(j,1,cmax=1) 
-         do i = 1,iiLastElement
-            D3STATE(ppPelBacteria(j,i),:) = p_small
-            D3STATETYPE(ppPelBacteria(j,i)) = OFF
+         do i = 0,iiLastElement
+            D3STATE(ppPelBacteria(j,1)+i,:) = p_small
+            D3STATETYPE(ppPelBacteria(j,1)+i) = OFF
 #if defined key_obcbfm
-            D3STATEOBC(ppPelBacteria(j,i)) = NOOBCSTATES
+            D3STATEOBC(ppPelBacteria(j,1)+i) = NOOBCSTATES
 #endif
          end do
       end if
@@ -356,16 +356,16 @@
    do j = 1,iiBenOrganisms
       if (.NOT.CalcBenOrganisms(j)) then
          iiLastElement=ppBenOrganisms(j,1,cmax=1)
-         do i = 1,iiLastElement
-            D2STATE(ppBenOrganisms(j,i),:) = p_small
+         do i = 0,iiLastElement
+            D2STATE(ppBenOrganisms(j,1)+i,:) = p_small
          end do
       end if
    end do
    do j = 1,iiBenBacteria
       if (.NOT.CalcBenBacteria(j)) then
          iiLastElement=ppBenBacteria(j,1,cmax=1)
-         do i = 1,iiLastElement
-            D2STATE(ppBenBacteria(j,i),:) = p_small
+         do i = 0,iiLastElement
+            D2STATE(ppBenBacteria(j,1)+i,:) = p_small
          end do
       end if
    end do
