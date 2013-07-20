@@ -240,7 +240,10 @@
    !---------------------------------------------
    save_delta = bfmtime%step0
    call update_save_delta(out_delta,save_delta,time_delta)
-
+   IF (MOD(save_delta, nn_dttrc) /= 0) THEN
+      if (lwp) write(numout,*) 'BFM : output time step must be a multiple value of the sub-stepping (nn_dttrc).'
+      stop 'Mismatch of output timestep and sub-stepping'
+   ENDIF
    !-------------------------------------------------------
    ! Prepares the BFM 1D arrays containing the
    ! spatial informations (have to be done after allocation
@@ -392,6 +395,8 @@
       if (InitVar(m) % sbc) ln_trc_sbc(m) = .true.
       if (InitVar(m) % cbc) ln_trc_cbc(m) = .true.
    end do
+ 
+   ! Initialize boundary conditions  
    call trc_bc_init
 
    return

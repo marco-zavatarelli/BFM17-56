@@ -201,6 +201,9 @@ CONTAINS
          !                         ! fill sf_trcdta with slf_i and control print
          CALL fld_fill( sf_trcobc, slf_i, cn_dir, 'trc_obc', 'Passive tracer OBC data', 'namtrc_bc' )
          !
+         ! Initialize boundary conditions if sub-stepping is > 1
+         IF ( nn_dttrc /= 1 ) CALL fld_read(nit000,1,sf_trcobc)
+         !
       ENDIF
       !
       ! SURFACE Boundary conditions
@@ -226,6 +229,9 @@ CONTAINS
          !                         ! fill sf_trcsbc with slf_i and control print
          CALL fld_fill( sf_trcsbc, slf_i, cn_dir, 'trc_sbc', 'Passive tracer SBC data', 'namtrc_bc' )
          !
+         ! Initialize boundary conditions if sub-stepping is > 1
+         IF ( nn_dttrc /= 1 ) CALL fld_read(nit000,1,sf_trcsbc)
+         !
       ENDIF
       !
       ! COSTAL Boundary conditions
@@ -250,6 +256,9 @@ CONTAINS
          ENDDO
          !                         ! fill sf_trccbc with slf_i and control print
          CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trccbc', 'Passive tracer CBC data', 'namtrc_bc' )
+         !
+         ! Initialize boundary conditions if sub-stepping is > 1
+         IF ( nn_dttrc /= 1 ) CALL fld_read(nit000,1,sf_trccbc)
          !
       ENDIF
 

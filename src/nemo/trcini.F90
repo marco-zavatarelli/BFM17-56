@@ -27,7 +27,7 @@ MODULE trcini
    USE daymod          ! calendar manager
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
-   USE trcsub       ! variables to substep passive tracers
+   USE trcsub          ! variables to substep passive tracers
    
    IMPLICIT NONE
    PRIVATE
@@ -81,6 +81,10 @@ CONTAINS
          &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
 
       CALL trc_nam                  ! read passive tracers namelists
+
+      IF ( MOD(nitend,nn_dttrc) /= 0 ) &
+                 CALL ctl_stop( 'The length of the experiment (nn_itend) is not a multiple of the tracer step freq. (nn_dttrc)')
+
       CALL trc_ini_bfm              ! Initialize BFM tracers
 
       IF( lk_offline )  THEN

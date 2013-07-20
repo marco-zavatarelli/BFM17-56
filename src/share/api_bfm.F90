@@ -461,7 +461,7 @@ contains
       savedelta = savedelta + outdelta
    endif 
    !
-   ! if outdelta is negative compute dinamically set the output to end of the month
+   ! if outdelta is negative dinamically set the output to end of the month
    if ( outdelta .lt. 0 ) then
       julian1 = bfmtime%time0 + ( (bfmtime%stepnow - bfmtime%step0) * bfmtime%timestep / SEC_PER_DAY)
       call calendar_date(julian1,yyyy,mm,dd,hh,nn)
