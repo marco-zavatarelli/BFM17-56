@@ -20,7 +20,7 @@
    use bio_bfm
 #endif
    use mem
-   use mem_Seaicealgae, ONLY: p_qnRc,p_qpRc,p_qsRc,p_qchlcSI
+   use mem_Seaicealgae, ONLY: p_qncPPY,p_qpcPPY,p_qscPPY,p_qlcPPYSI
    use mem_Param,  ONLY:  p_small, &
                           CalcSeaiceBacteria
    use mem_Param,  ONLY: CalcSeaiceAlgae, CalcSeaiceZoo
@@ -181,14 +181,14 @@
                            p=D2STATE(ppSeaiceAlgae(i,iiP),:), &
                            s=D2STATE(ppSeaiceAlgae(i,iiS),:), &
                            l=D2STATE(ppSeaiceAlgae(i,iiL),:), &
-                           lc=p_qchlcSI(i), nc=p_qnRc(i),         &
-                           pc=p_qpRc(i),  sc=p_qsRc(i))
+                           lc=p_qlcPPYSI(i), nc=p_qncPPY(i),         &
+                           pc=p_qpcPPY(i),  sc=p_qscPPY(i))
          else
             call init_cnps(c=SeaiceAlgae(i,iiC),              &
                            n=D2STATE(ppSeaiceAlgae(i,iiN),:), &
                            p=D2STATE(ppSeaiceAlgae(i,iiP),:), &
                            l=D2STATE(ppSeaiceAlgae(i,iiL),:), &
-                           lc=p_qchlcSI(i), nc=p_qnRc(i), pc=p_qpRc(i))
+                           lc=p_qlcPPYSI(i), nc=p_qncPPY(i), pc=p_qpcPPY(i))
          end if
    end do
 

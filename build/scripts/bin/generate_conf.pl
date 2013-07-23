@@ -82,19 +82,19 @@ if ( !$input_mem || !$input_nml || !$proto_dir || !$out_dir || !@cpp_defs ){ &us
 if( $VERBOSE ){ print "Reading memory layout...\n"; }
 process_memLayout($input_mem, \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs), $VERBOSE );
 
+#process namelists removing them from the input file
+if( $VERBOSE ){ print "Reading namelists...\n"; }
+process_namelist($input_nml, \@lst_nml, \@lst_com);
+
 #write memory output files
 if( $VERBOSE ){ print "Printing memory layout...\n"; }
 foreach my $idx ( 0 .. $#PROTOS_NAME ){
     my $name = $PROTOS_NAME[$idx];
     my $ext  = $PROTOS_EXT[$idx];
     if( $VERBOSE ){ print "---------- ${name} ini \n"; }
-    print_f90("$proto_dir/${name}.proto", "$out_dir/${name}.${ext}", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, \%lst_index, $VERBOSE);
+    print_f90("$proto_dir/${name}.proto", "$out_dir/${name}.${ext}", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, \%lst_index, \@lst_nml, $VERBOSE);
     if( $VERBOSE ){ print "---------- ${name} end \n\n"; }
 }
-
-#process namelists removing them from the input file
-if( $VERBOSE ){ print "Reading namelists...\n"; }
-process_namelist($input_nml, \@lst_nml, \@lst_com);
 
 #check consistency between namelists and memory_layout
 if( $VERBOSE ){ print "Checking namelist and memory layout...\n"; }
@@ -109,6 +109,6 @@ print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $VERBOSE );
 #foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
 #print Dumper(\%lst_index) , "\n"; 
 #print Dumper(\%lst_sta) , "\n"; 
-
+#print Dumper(\@lst_nml) , "\n";
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }

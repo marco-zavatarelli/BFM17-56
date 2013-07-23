@@ -27,7 +27,7 @@
     iiBen, iiPel, flux_vector
 #endif
   use mem_Param,  ONLY: ChlDynamicsFlag
-  use mem_Phyto,  ONLY: p_qchlc
+  use mem_Phyto,  ONLY: p_qlcPPY
 
 !  
 !
@@ -76,7 +76,7 @@
     case ( 1 )
       do i = 1 , ( iiPhytoPlankton)
 
-        Chla(:)  =   Chla(:)+ p_qchlc( i)* PhytoPlankton(i,iiC)
+        Chla(:)  =   Chla(:)+ p_qlcPPY( i)* PhytoPlankton(i,iiC)
       end do
 
 

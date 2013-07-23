@@ -18,15 +18,8 @@
 
   USE global_mem
   USE constants
-  USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, &
-                 iiMicroZooPlankton, iiPelBacteria
-#ifdef INCLUDE_BEN
-  USE mem, ONLY: iiBenOrganisms, iiBenDetritus, iiBenBacteria, &
-                 iiBenthicPhosphate, iiBenthicAmmonium
-#endif
-#ifdef INCLUDE_SEAICE
-  USE mem, ONLY: iiSeaiceAlgae, iiSeaiceZoo, iiSeaiceBacteria
-#endif
+  USE mem
+
 !  
 !
 ! !AUTHORS
@@ -109,21 +102,6 @@
   integer   :: CalcBenthicFlag=0  
   logical   :: CalcTransportFlag=.FALSE.  
   logical   :: CalcConservationFlag=.TRUE.  
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  !  Allocate the logical flags for switch on the LFG
-  !  Initialize to TRUE (overwritten by the namelist values)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   :: CalcPhytoPlankton(iiPhytoPlankton) = .TRUE.
-  logical   :: CalcMicroZooPlankton(iiMicroZooPlankton) = .TRUE.
-  logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
-  logical   :: CalcPelBacteria(iiPelBacteria) = .TRUE. 
-#ifdef INCLUDE_BEN
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Bethic model flags
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
-  logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
-#endif
 #ifdef INCLUDE_SEAICE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sea-ice flags

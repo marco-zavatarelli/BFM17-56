@@ -51,9 +51,6 @@ subroutine set_var_info_bfm
 #endif
  
 
-
-
-%! DO NOT CHANGE THE SEQUENCE COMMANDS!. It will results in index change
 !
 ! 3d variables description:
 !
@@ -61,12 +58,10 @@ subroutine set_var_info_bfm
 %3d-diagnos-pel-string
 %3d-diaggrp-pel-string
 %3d-flux-pel-string
-!
-!2d Benthic state variables description
-!
-%2d-state-pel-string
+
 !
 !2d Pelagic variables description
+%2d-state-pel-string
 !
 ! surface
 !

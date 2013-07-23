@@ -183,9 +183,9 @@
   ! Nutrient limitation (intracellular) N, P
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   iI1p = min( ONE, max( p_small, ( qpSc(phyto, &
-    :)- p_qplc(phyto))/( p_qpRc(phyto)- p_qplc(phyto))))
+    :)- p_qplc(phyto))/( p_qpcPPY(phyto)- p_qplc(phyto))))
   iIIn = min( ONE, max( p_small, ( qnSc(phyto, &
-    :)- p_qnlc(phyto))/( p_qnRc(phyto)- p_qnlc(phyto))))
+    :)- p_qnlc(phyto))/( p_qncPPY(phyto)- p_qnlc(phyto))))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Sea ice algae growth is limited by nitrogen and phosphorus
@@ -218,7 +218,7 @@
       case(2)
         eI5s=ONE
         r = max( p_small, ( qsSc(phyto,:)- p_qslc(phyto))/ &
-                                    (( p_qsRc(phyto)- p_qslc(phyto))))
+                                    (( p_qscPPY(phyto)- p_qslc(phyto))))
         tI=min(r,iI);
       end select
   else
@@ -369,8 +369,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  misn  =   sadap*( p_xqn(phyto)* p_qnRc(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
-  rupn  =   p_xqn(phyto)* p_qnRc(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
+  misn  =   sadap*( p_xqn(phyto)* p_qncPPY(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
+  rupn  =   p_xqn(phyto)* p_qncPPY(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
   runn  =   min(  rumn,  rupn+ misn)  ! actual uptake of II
 
   r  =   insw_vector(  runn)
@@ -383,8 +383,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  misp  =   sadap*( p_xqp(phyto)* p_qpRc(phyto)* phytoc- phytop)  ! intracellular missing amount of P
-  rupp  =   p_xqp(phyto)* run* p_qpRc(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
+  misp  =   sadap*( p_xqp(phyto)* p_qpcPPY(phyto)* phytoc- phytop)  ! intracellular missing amount of P
+  rupp  =   p_xqp(phyto)* run* p_qpcPPY(phyto)-( sdo+ srs)* phytop  ! P uptake based on C uptake
   runp  =   min(  rump,  rupp+ misp)  ! actual uptake
 
   r  =   insw_vector(  runp)
@@ -415,7 +415,7 @@
 
     case (1)
 
-     runs = max(ZERO, p_qsRc(phyto) * run );          ! net uptake
+     runs = max(ZERO, p_qscPPY(phyto) * run );          ! net uptake
      call flux_vector( iiBen, ppI5s,ppphytos, runs)  ! source/sink.c
      ! The fixed loss rate for basal respiration is maintained to have 
      ! constant Si:C quota in the absence of production
@@ -426,8 +426,8 @@
       !  Nutrient uptake
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      miss  =   sadap*( p_xqs(phyto)* p_qsRc(phyto)* phytoc- phytos)  ! intracellular missing Si
-      rups  =   (run* p_qsRc(phyto)-( sdo+ srs)* phytos)  ! Si uptake based on C uptake
+      miss  =   sadap*( p_xqs(phyto)* p_qscPPY(phyto)* phytoc- phytos)  ! intracellular missing Si
+      rups  =   (run* p_qscPPY(phyto)-( sdo+ srs)* phytos)  ! Si uptake based on C uptake
       runs  =   min(  rums,  rups+ miss)  ! actual uptake
 
       call flux_vector( iiBen, ppI5s,ppphytos, runs* insw_vector(runs) )  ! source/sink.c
@@ -454,7 +454,7 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     ! Chl-a synthesis and photoacclimation
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      rho_Chl = p_qchlcSI( phyto)* min(ONE, p_sum(phyto)* eiSI(phyto,:)* phytoc/( &
+      rho_Chl = p_qlcPPYSI( phyto)* min(ONE, p_sum(phyto)* eiSI(phyto,:)* phytoc/( &
           p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
       rate_Chl = rho_Chl*(sum - sea + seo) * phytoc - (srt+ sdo)*phytol
     call flux_vector( iiBen, ppphytol,ppphytol, rate_Chl )

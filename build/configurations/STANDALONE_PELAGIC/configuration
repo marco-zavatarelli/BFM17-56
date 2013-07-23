@@ -29,7 +29,7 @@
         CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
-        NETCDF  = '/usr/',
+        NETCDF  = '/opt/local',
         EXP     = 'standalone.pelagic',
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

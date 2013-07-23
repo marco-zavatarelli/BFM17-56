@@ -62,14 +62,14 @@
 !  p_limnut:  	 switch for nut. limitation (Liebig is default)
 !  p_chPs:  	 half-value of SIO4-lim (mmol Si m-3)
 !  p_qslc:  	 Minimum quotum Si in PI
-!  p_qsRc:  	 Reference quotum Si in PI
+!  p_qscPPY:  	 Reference quotum Si in PI
 !  p_qus:  	 affinity of PI for Si
 !  p_alpha_chl:  	 Initial slope P-I curve
 !  p_sdchl:  	 Specific turnover rate for Chla (d-1)
 !  p_esII:  	 Nutrient stress threshold for Sinking
 !        :  	 p_alpha_chl = 1.0e-5, 0.46e-5*2.0, 2.0e-5, 0.68e-5 # Initial slope P-I curve
 !        :  	 Thalassiosira sp. (0.48-0.63)
-!  p_qchlcSI:    Maximum quotum Chla:C
+!  p_qlcPPYSI:    Maximum quotum Chla:C
 !  p_chlNI:       Nutrient stress threshold for chlorophyll
 !
 
@@ -84,9 +84,9 @@ p_pu_ra = 0.1,0.1,
 p_qnlc = 0.00687,0.00687,
 p_qplc = 0.0004288,0.0004288,
 p_qslc = 0.007,0.0,
-p_qnRc = 0.0126,0.0126,
-p_qpRc = 0.0007862,0.0007862,
-p_qsRc = 0.01,0.0,
+p_qncPPY = 0.0126,0.0126,
+p_qpcPPY = 0.0007862,0.0007862,
+p_qscPPY = 0.01,0.0,
 p_qun = 0.025,0.025,
 p_qup = 0.0025,0.0025,
 p_qus = 0.0025,0.0,
@@ -101,7 +101,7 @@ p_netgrowth = .TRUE.,.TRUE.,
 p_limnut = 1,1,
 p_alpha_chl = 0.5d-05,1.1d-05,
 p_sdchl = 0.2,0.2,
-p_qchlcSI = 0.05,0.03,
+p_qlcPPYSI = 0.05,0.03,
 p_esII = 0.7,0.75,
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

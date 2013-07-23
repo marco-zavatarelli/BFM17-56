@@ -28,7 +28,7 @@
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
   use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlDynamicsFlag
-  use mem_Phyto, ONLY: p_qchlc, p_epsChla
+  use mem_Phyto, ONLY: p_qlcPPY, p_epsChla
 !
 ! !AUTHORS
 !   ERSEM-team
@@ -85,7 +85,7 @@
     case ( 1 )
       do i = 1 , ( iiPhytoPlankton)
         lcl_PhytoPlankton => PhytoPlankton(i,iiC)
-        xEPS(:) = xEPS(:) + p_epsChla(i) * p_qchlc(i) * lcl_PhytoPlankton
+        xEPS(:) = xEPS(:) + p_epsChla(i) * p_qlcPPY(i) * lcl_PhytoPlankton
       end do
 
     case ( 2 )

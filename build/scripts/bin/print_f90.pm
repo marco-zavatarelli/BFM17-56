@@ -41,11 +41,11 @@ our @EXPORT= qw(print_f90);
 
 ########### VARIABLES GLOBAL ##########################
 my $VERBOSE = 0;
-my $SPACE = "    ";
+my $SPACE = "        ";
 my $MAX_CHAR_PER_LINE = 76;
 my $STRING_INDEX=1;
 my %STRING_INDEX_ARRAY = ();
-my ( $LST_PARAM, $LST_GROUP, $LST_STA, $LST_CONST, $LST_INDEX );
+my ( $LST_PARAM, $LST_GROUP, $LST_STA, $LST_CONST, $LST_INDEX, $LST_NML );
 ########### VARIABLES GLOBAL ##########################
 
 
@@ -60,19 +60,17 @@ my $dispatch = {
     '\%(3|2)d-(diagnos|state)-(pel|ben)-desc(?:\s|\n)'=> \&func_DESC ,
     '\%(3|2)d-(diaggrp)-(pel|ben)-desc(?:\s|\n)' => \&func_DESC_DIAGG ,
     #NR
-    '([^\%]*)\%(3|2)d-(flux|diagnos|state)-(pel|ben)-nr(?:\s|\n)'=>    \&func_NR ,
+    '([^\%]*)\%(3|2)d-(flux|diagnos|state)-(pel|ben)-nr(?:\s|\n)'=> \&func_NR ,
     #ARRAY
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-array(?:\s|\n)'=>    \&func_ARRAY ,
-    '\%(3)d-(state)-(pel|ben)-field-array\s*(\S*)(?:\s|\n)'=>    \&func_ARRAY_FIELD ,
+    '([^\%]*)\%3d-(state)-(pel|ben)-field-array\s*(\S*)(?:\s|\n)'=> \&func_ARRAY_FIELD ,
     #PP
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-pp(?:\s|\n)'=>    \&func_PP ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-pp(?:\s|\n)'=>    \&func_PP_DIAGG ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-assign-pp(?:\s|\n)'=>    \&func_PP_ASSIGN ,
+    '([^\%]*)\%(3|2)d-(diagnos|state)-(pel|ben)-pp(?:\s|\n)'=> \&func_PP ,
+    '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben)-pp(?:\s|\n)'=>       \&func_PP_DIAGG ,
+    '\%(3|2)d-(diaggrp)-(pel|ben)-assign-pp(?:\s|\n)'=>        \&func_PP_ASSIGN ,
     #POINTER
     '\%(3|2)d-(diagnos|state)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
-    '\%(3)d-Z-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_Z ,
-    '\%(3)d-(state)-(pel|ben)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
+    '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
+    '([^\%]*)\%3d-(state)-(pel|ben)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
     '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC ,
     '\%(3|2)d-(diaggrp)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC_DIAGG ,
     '\%(3)d-(state)-(pel|ben)-field-alloc-pointer\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
@@ -87,24 +85,28 @@ my $dispatch = {
     '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string-index\s*(\S*)(?:\s|\n)'=>    \&func_STRING_INDEX ,
     #ALLOC
     '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc(?:\s|\n)' => \&func_ALLOC ,
-    '\%(3)d-Z-(pel|ben)-alloc(?:\s|\n)' => \&func_ALLOC_Z ,
     '\%(1|3|2)d-(intvar|variable|variables)-(pel|ben)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
     #FLUX
     '\%(3|2)d-(flux)-(pel|ben)-alloc(?:\s|\n)' => \&func_FLUX_ALLOC ,
     '\%(3|2)d-(flux)-(pel|ben)-fill(?:\s|\n)' => \&func_FLUX_FILL ,
     #CONSTITUENT
-    '\%constituent(?:\s|\n)' => \&func_CONSTITUENT ,
+    '([^\%]*)\%constituent(?:\s|\n)' => \&func_CONSTITUENT ,
     #GROUP    
-    '\%(3|2)d-group-(pel|ben)-header(?:\s|\n)' => \&func_GROUP_HEADER ,
-    '\%(3|2)d-group-(pel|ben)-parameter(?:\s|\n)' => \&func_GROUP_PARAMETER ,
-    '\%(3|2)d-group-(pel|ben)-function-name(?:\s|\n)' => \&func_GROUP_FUNCTION_NAME ,
-    '\%(3|2)d-groupfunctions-(pel|ben)(?:\s|\n)' => \&func_GROUP_FUNCTIONS ,
+    '\%(3|2)d-group-(pel|ben)-header(?:\s|\n)'                => \&func_GROUP_HEADER ,
+    '([^\%]*)\%(3|2)d-group-(pel|ben)-parameter(?:\s|\n)'     => \&func_GROUP_PARAMETER ,
+    '([^\%]*)\%group-(pel|ben)-calc(?:\s|\n)'                 => \&func_GROUP_CALC,
+    '([^\%]*)\%(3|2)d-group-(pel|ben)-function-name(?:\s|\n)' => \&func_GROUP_FUNCTION_NAME ,
+    '\%(3|2)d-groupfunctions-(pel|ben)(?:\s|\n)'              => \&func_GROUP_FUNCTIONS ,
     #INTVAR/VARIABLE
-    '\%(3|2|1)d-(intvar|variable)-(pel|ben)(?:\s|\n)' => \&func_INTVAR ,
+    '([^\%]*)\%(3|2|1)d-(intvar|variable)-(pel|ben)(?:\s|\n)' => \&func_VARIABLE ,
     #INIT
-    '\%(3)d-(state)-(pel|ben)-Initpp(?:\s|\n)'      => \&func_INIT_PP ,
-    '\%(3)d-(state)-(pel|ben)-InitDefault(?:\s|\n)' => \&func_INIT_DEFAULT ,
-    '\%(3)d-(state)-(pel|ben)-InitSets(?:\s|\n)'    => \&func_INIT_SETS ,
+    '\%value-init-calc-(pel|ben)\s*(\S*)(?:\s|\n)'     => \&func_INIT_VALUE_CALC ,
+    '([^\%]*)\%(3)d-(state)-(pel|ben)-Initpp(?:\s|\n)' => \&func_INIT_PP ,
+    '\%init-func-constituents(?:\s|\n)'                => \&func_INIT_FUNC_CONST ,
+    '\%(3)d-state-(pel|ben)-func-zeroing(?:\s|\n)'     => \&func_INIT_FUNC_ZERO ,
+    '\%(3)d-(state)-(pel|ben)-InitDefault(?:\s|\n)'    => \&func_INIT_DEFAULT ,
+    '\%(3)d-(state)-(pel|ben)-InitSets(?:\s|\n)'       => \&func_INIT_SETS ,
+    '\%(3)d-(state)-(pel|ben)-InitInternal(?:\s|\n)'   => \&func_INIT_INTERNAL ,
 };
 ########### REGULAR EXPRESSIONS ##########################
 
@@ -113,13 +115,14 @@ my $dispatch = {
 
 sub print_f90 {
 
-    my ($templ_mem, $output, $lst_group, $lst_param, $lst_sta, $lst_const, $lst_index, $verbose) = @_;
+    my ($templ_mem, $output, $lst_group, $lst_param, $lst_sta, $lst_const, $lst_index, $lst_nml, $verbose) = @_;
 
     $LST_PARAM = $lst_param;
     $LST_GROUP = $lst_group;
     $LST_STA   = $lst_sta;
     $LST_CONST = $lst_const;
     $LST_INDEX = $lst_index;
+    $LST_NML = $lst_nml;
     $VERBOSE   = $verbose;
 
     #open the template file
@@ -134,10 +137,13 @@ sub print_f90 {
         my $replaced = 0;
         foreach my $key (sort keys %$dispatch){
             if( $line_raw =~ /$key/ ){
-                my ($dim, $type, $subt, $spec);
-                $dim = $1; $type=$2; $subt=$3; $spec=$4;
-                if($spec){ &{$$dispatch{$key}}($OUT, $dim, $type, $subt, $spec); }
-                else     { &{$$dispatch{$key}}($OUT, $dim, $type, $subt);        }
+                my ($arg1, $arg2, $arg3, $arg4);
+                $arg1 = $1; $arg2=$2; $arg3=$3; $arg4=$4;
+                if   ($arg4) { &{$$dispatch{$key}}($OUT, $arg1, $arg2, $arg3, $arg4); }
+                elsif($arg3) { &{$$dispatch{$key}}($OUT, $arg1, $arg2, $arg3);        }
+                elsif($arg2) { &{$$dispatch{$key}}($OUT, $arg1, $arg2);               }
+                elsif($arg1) { &{$$dispatch{$key}}($OUT, $arg1);                      }
+                else         { &{$$dispatch{$key}}($OUT);                             }
                 print $OUT "\n";
                 $replaced=1;
                 if( $VERBOSE ){ print " $line_raw"; }
@@ -612,47 +618,12 @@ sub func_FLUX_FILL  {
 
 
 
-
-sub func_ALLOC_Z  {
-    my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC_Z: "; }
-
-    my %z_hash = ();
-
-    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
-        my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() 
-            && $param->getZ()
-            && $subt eq param->getSubtype() ){
-            my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
-            #get unique values from array
-            $z_hash{"$z_array_tmp[0]"} = 0;
-        }
-    }
-
-    if( keys %z_hash ){
-        print $file "${SPACE}!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-        print $file "${SPACE}!Allocations(s) of and assigning values to alternative  Z-axis\n";
-        print $file "${SPACE}\n";
-        foreach my $key (keys %z_hash){
-            print $file "${SPACE}\n";
-            print $file "${SPACE}allocate(${key}(1:NO_BOXES_Z),stat=status)\n";
-            print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"${key}\")\n";
-            print $file "${SPACE}!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-        }
-    }
-
-}
-
-
-
-
 ###########################################  MODULE_MEM FUNCTIONS ######################
 
 
 sub func_DESC  {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_DESC: "; }
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_DESC: "; }
 
     my $line     = "";
     my $line_par = "";
@@ -690,49 +661,23 @@ sub func_DESC  {
 }
 
 
-sub func_ARRAY  {
-    my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_ARRAY: "; }
-
-    #if the variable does not exists => dont print anything
-    if( ! checkDimType($dim, $type, $subt)  ){ return; }
-
-    my $line = "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . uc($type) . "\n";
-    if ( $type eq "state" && $subt eq "pel" ) {
-        $line .= "#ifndef EXPLICIT_SINK\n";
-        $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: D${dim}" . "SOURCE\n";
-        $line .= "#else\n";
-        $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:,:) :: D${dim}" . "SOURCE\n";
-        $line .= "${SPACE}real(RLEN),public,pointer,dimension(:,:,:) :: D${dim}" . "SINK\n";
-        $line .= "#endif\n";
-        $line .= "${SPACE}integer,public,pointer,dimension(:) :: D${dim}" . "STATETYPE\n";
-        $line .= "#ifdef BFM_NEMO\n";
-        $line .= "${SPACE}integer,public,pointer,dimension(:) :: D${dim}" . "STATEOBC\n";
-        $line .= "#endif\n";
-    }
-
-    print $file $line;
-}
-
 sub func_ARRAY_FIELD  {
-    my ( $file, $dim, $type, $subt, $spec) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_ARRAY_FIELD: "; }
-
-    #if the variable does not exists => dont print anything
-    if( ! checkDimType($dim, $type, $subt)  ){ return; }
+    my ( $file, $before, $type, $subt, $spec) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_ARRAY_FIELD: "; }
 
     #save the spec in stadistics for further calculations of number of variables
     if( ! exists $$LST_STA{"spec num $subt"} ){ $$LST_STA{"spec num $subt"} = 1; }
     else{ $$LST_STA{"spec num $subt"} += 1; }
 
-    my $SPEC = uc($spec);
+    my $spec_upper = uc($spec);
+    my $subt_short = uc(substr($subt,0,3));
     
-    print $file "${SPACE}real(RLEN),public,pointer,dimension(:,:) :: PEL${SPEC}\n";
+    print $file "$before ${subt_short}${spec_upper}\n";
 }
 
 sub func_NR  {
     my ( $file, $before, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_NR: "; }
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_NR: "; }
 
     my $title  = "${type} ${dim}d ${subt}";
     my $number = 0;
@@ -748,20 +693,19 @@ sub func_NR  {
         }
     }else{ $number = 0; }
 
-    print $file "${SPACE}$before${number}\n";
+    print $file "$before${number}\n";
 }
 
 
 sub func_PP  {
-    my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_PP: "; }
+    my ( $file, $before, $dim, $type, $subt) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_PP: "; }
 
-    my $line     = "";
     my @line_par = ();
 
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
     my $index = 1;
-    $line .= "${SPACE}integer,parameter,public :: ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() 
@@ -789,17 +733,19 @@ sub func_PP  {
         }
     }
 
-    if( $#line_par >= 0 ){ printList($file, \@line_par, $line); print $file "\n"; }
+    if( $#line_par >= 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
 
 }
 
 
 sub func_POINT  {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT: "; }
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT: "; }
     
     my $line     = "";
     my @line_par = ();
+
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
     $line .= "${SPACE}real(RLEN),public,dimension(:),pointer  :: ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
@@ -826,24 +772,22 @@ sub func_POINT  {
 
 
 sub func_CONSTITUENT  {
-    my ( $file, $dim, $type) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_CONSTITUENT: "; }
+    my ( $file, $before, $dim, $type) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_CONSTITUENT: "; }
     
-    my $line     = "";
     my @line_par = ();
 
-    $line .= "${SPACE}integer,parameter,public :: ";
     foreach my $key ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
         push( @line_par, "ii" . uc($key) . "=" . $$LST_CONST{$key} );
     }
 
-    if( $#line_par > 0 ){ printList($file, \@line_par, $line); print $file "\n"; }
+    if( $#line_par > 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
 }
 
 
 sub func_GROUP_PARAMETER  {
-    my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUP_PARAMETER: "; }
+    my ( $file, $before, $dim, $subt ) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_PARAMETER: "; }
 
     foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ) {
         my $group = $$LST_GROUP{$group_name};
@@ -856,25 +800,41 @@ sub func_GROUP_PARAMETER  {
                 if( $param->getGroup() && $group_name eq $param->getGroup() ){ push(@elements, ("ii$param_name=". $index++ ) ); }
             }
             if( $#elements == -1 ){
-                print $file "${SPACE}integer,parameter,public     :: ii$group_name=". scalar(@elements) . "\n" ;
+                print $file "${before}ii$group_name=". scalar(@elements) . "\n" ;
             }else{
-                print $file "${SPACE}integer,parameter,public     :: ii$group_name=". scalar(@elements) . ", " . join(", ",@elements) . "\n" ;
+                print $file "${before}ii$group_name=". scalar(@elements) . ", " . join(", ",@elements) . "\n" ;
             }
         }
     }
 }
 
 
-sub func_INTVAR  {
-    my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_INTVAR: "; }
+sub func_GROUP_CALC {
+    my ( $file, $before, $subt ) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_CALC: "; }
 
-    my $line_ini = "";
+    my $line = '';
+    my $name = '';
+
+    foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
+        my $group   = $$LST_GROUP{$groupname};
+        if( $subt eq $group->getSubtype()){
+
+            $line .= "${before}Calc" . $group->getSigla() . "(ii" . $group->getSigla() . ") = .TRUE.\n";
+        }
+    }
+
+    if( $line ){ print $file $line; }
+}
+
+
+
+
+sub func_VARIABLE  {
+    my ( $file, $before, $dim, $type, $subt ) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_VARIABLE: "; }
+
     my $line_par = "";
-
-    if    ( $type eq 'variable') { $line_ini = "${SPACE}real(RLEN),public"; } # :: &\n
-    elsif ( $type eq 'intvar'  ) { $line_ini = "${SPACE}integer,public"   ; } # :: &\n
-    else                         { print "ERROR: $type not found\n"; exit 1;  }
 
     foreach my $param_name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$param_name};
@@ -886,9 +846,9 @@ sub func_INTVAR  {
             if( $param->getQuota() ){    $mode++; }
             if( $param->getDim () > 1 ){ $mode++; }
             
-            if    ($mode == 0) { $line_par .= "${line_ini}                             :: $param_name ! "; }
-            elsif ($mode == 1) { $line_par .= "${line_ini},dimension(:),allocatable    :: $param_name ! "; }
-            elsif ($mode == 2) { $line_par .= "${line_ini},dimension(:,:),allocatable  :: $param_name ! "; }
+            if    ($mode == 0) { $line_par .= "${before}                             :: $param_name ! "; }
+            elsif ($mode == 1) { $line_par .= "${before},dimension(:),allocatable    :: $param_name ! "; }
+            elsif ($mode == 2) { $line_par .= "${before},dimension(:,:),allocatable  :: $param_name ! "; }
 
             if( $param->getComment() ){ $line_par .= $param->getComment();           }
             if( $param->getUnit() ){    $line_par .= " (" . $param->getUnit()  . ")";}
@@ -904,7 +864,7 @@ sub func_INTVAR  {
 
 sub func_DESC_DIAGG  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_DESC_DIAGG: "; }
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_DESC_DIAGG: "; }
 
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
@@ -924,13 +884,13 @@ sub func_DESC_DIAGG  {
 
 
 sub func_PP_DIAGG  {
-    my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_PP_DIAGG: "; }
+    my ( $file, $before, $dim, $type, $subt) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_PP_DIAGG: "; }
 
-    my $line     = "";
     my @line_par = ();
 
-    $line .= "${SPACE}integer,public :: ";
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
+
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() 
@@ -940,43 +900,43 @@ sub func_PP_DIAGG  {
         }
     }
 
-    if( $#line_par >= 0 ){ printList($file, \@line_par, $line); print $file "\n"; }
+    if( $#line_par >= 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
 }
 
 
 sub func_POINT_DIAGG  {
-    my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT_DIAGG: "; }
+    my ( $file, $before, $dim, $type, $subt) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT_DIAGG: "; }
     
     my $line     = "";
     my @line_par = ();
 
-    $line .= "${SPACE}real(RLEN),public,dimension(:,:),pointer  :: ";
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
+
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
         if( $dim == $param->getDim() 
             && $subt eq $param->getSubtype() 
             && $param->getQuota() ){
+
             push( @line_par, "${root}" );
         }
     }
 
-    if( $#line_par >= 0 ){ printList($file, \@line_par, $line); print $file "\n"; }
+    if( $#line_par >= 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
 
 }
 
 sub func_POINT_FIELD  {
-    my ( $file, $dim, $type, $subt, $spec) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT_FIELD: "; }
+    my ( $file, $before, $type, $subt, $spec) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT_FIELD: "; }
 
-    my $line     = "";
     my @line_par = ();
 
     my $SPEC = substr($spec,0,3);
-    $line .= "${SPACE}real(RLEN),public,dimension(:),pointer  :: ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $param->getDim() == $dim 
+        if( $param->getDim() == 3
             && ($param->getType() eq $type) 
             && ($param->getSubtype() eq $subt) ){
 
@@ -993,18 +953,16 @@ sub func_POINT_FIELD  {
         }
     }
 
-    if( $#line_par >= 0 ){ printList($file, \@line_par, $line); print $file "\n"; }
+    if( $#line_par >= 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
 }
 
 
 sub func_GROUP_FUNCTION_NAME  {
-    my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUP_FUNCTION_NAME: "; }
+    my ( $file, $before, $dim, $subt ) = @_;
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_FUNCTION_NAME: "; }
 
-    my $line     = "";
     my @line_par = ();
 
-    $line .= "${SPACE}public ";
     foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group = $$LST_GROUP{$group_name};
         if( $group->getDim() == $dim
@@ -1014,13 +972,13 @@ sub func_GROUP_FUNCTION_NAME  {
         }
     }
 
-    if( $#line_par >= 0 ){ printList($file, \@line_par, $line); }
+    if( $#line_par >= 0 ){ printList($file, \@line_par, $before); }
 }
 
 
 sub func_GROUP_FUNCTIONS  {
     my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
+    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
 
     foreach my $pre ("pp", ""){
         foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
@@ -1093,31 +1051,6 @@ sub func_GROUP_FUNCTIONS  {
             }
 
         }
-    }
-}
-
-sub func_POINT_Z  {
-    my ( $file, $dim, $subt) = @_;
-    if ( $VERBOSE ){ print "ModMem -> FUNCTION CALLED func_POINT_Z: "; }
-
-    my %z_hash = ();
-
-    foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
-        my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() 
-            && $param->getZ() 
-            && $param->getSubtype() eq $subt ){
-            my @z_array_tmp = ( $param->getZ() =~ /\s*(.*)=.*/ );
-            #get unique values from array
-            $z_hash{"$z_array_tmp[0]"} = 0;
-        }
-    }
-
-    if( keys %z_hash ){ 
-        print $file "${SPACE}!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-        print $file "${SPACE}! Definition(s) of alternative Z-axis\n";
-        print $file "${SPACE}real(RLEN),public,dimension(:),pointer  :: " . join(", ", keys %z_hash),"\n";
-        print $file "${SPACE}!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
     }
 }
 
@@ -1287,7 +1220,6 @@ sub func_STRING_INDEX  {
         my $type_short = ucfirst(substr($type,0,4));
         if( $type_short eq "Stat" ){ $type_short = 'State'; } #fix because "state" has 5 chars
         if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
-
         $search_S = "${type}_${subt}_${dim}_S";
         $search_E = "${type}_${subt}_${dim}_E";
         $out = "${type_short}";
@@ -1336,14 +1268,36 @@ sub func_STRING_INDEX  {
 ###########################################  INIT_VAR_BFM ######################
 
 
+sub func_INIT_VALUE_CALC {
+    my ( $file, $subt, $value ) = @_;
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_VALUE_CALC: "; }
+
+    my $line = '';
+
+    if ( !$value ){ $value = 0; }
+
+    if($subt eq 'pel' ){ $line = "${SPACE}CalcPelagicFlag = " . ${value} . "\n"; }
+    else               { $line = "${SPACE}CalcBenthicFlag = " . ${value} . "\n"; }
+
+
+    foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
+        my $group   = $$LST_GROUP{$groupname};
+        if( $subt eq $group->getSubtype()){
+
+            $line .= "${SPACE}" . join(',', 'Calc' . $group->getSigla()) . " = " . ${value} . "\n";
+        }
+    }
+
+    if( $line ){ print $file $line; }
+}
+
+
 sub func_INIT_PP  {
-    my ( $file, $dim, $type, $subt ) = @_;
+    my ( $file, $before, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_PP: "; }
 
     my @line_par = ();
 
-    my $line1 = "${SPACE}real(RLEN) :: ";
-    my $line2 = "${SPACE}namelist /bfm_init_nml/ ";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() 
@@ -1363,11 +1317,90 @@ sub func_INIT_PP  {
     }
 
     if( $#line_par >= 0 ){ 
-        printList($file, \@line_par, $line1 ); print $file "\n\n";
-        printList($file, \@line_par, $line2 ); print $file "\n";
+        printList($file, \@line_par, $before ); print $file "\n";
     }
 }
 
+sub func_INIT_FUNC_CONST {
+    my ( $file ) = @_;
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_CONST: "; }
+
+    my $line = '';
+    my @constList = ();
+    my @constNoCList = ();
+    my @constOptionalList = ();
+    my @constOptionalRatioList = ();
+
+    foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+        push(@constList, $const);
+        if($const ne $constList[0]){
+            push( @constNoCList, $const );
+            push( @constOptionalList, $const . $constList[0] );
+            push( @constOptionalRatioList, $const . $constList[0] . '_ratio' );
+        }
+    }
+
+    $line .="   subroutine init_constituents( ". join(',',@constList)  . "," . join( ',', @constOptionalList )    . ")\n";
+    $line .="     use global_mem, only: RLEN,ZERO\n";
+    $line .="     IMPLICIT NONE\n";
+    $line .="     real(RLEN),dimension(:),intent(in)             :: " . $constList[0]                              . "\n";
+    $line .="     real(RLEN),intent(in),optional                 :: " . join( ',', @constOptionalList )            . "\n";
+    $line .="     real(RLEN),dimension(:),intent(inout),optional :: " . join( ',', @constList[1 .. $#constList]  ) . "\n";
+    $line .="     real(RLEN)                                     :: " . join( ',', @constOptionalRatioList       ) . "\n";
+    $line .="     \n";
+
+    foreach my $constOpt (@constOptionalList){
+        $line .= "     " . "    " . $constOpt . "_ratio = " . $constOpt . "_ratio_default\n";
+        $line .= "     " . "    if (present(" . $constOpt . ")) then\n";
+        $line .= "     " . "      if (" . $constOpt . ">ZERO) " . $constOpt . "_ratio = " . $constOpt . "\n";
+        $line .= "     " . "    end if\n\n";
+    }
+
+    foreach my $constNoC (@constNoCList){
+        $line .= "     " . "    if (present(" . $constNoC . ")) then\n";
+        $line .= "     " . "      where (" . $constNoC . "==ZERO)\n";
+        $line .= "     " . "        " . $constNoC . " = " . $constNoC . "c_ratio*c\n";
+        $line .= "     " . "      end where\n";
+        $line .= "     " . "    end if\n";
+    }
+
+    $line .="   end subroutine init_constituents\n";
+
+
+    if( $line ){ print $file $line; }
+}
+
+
+
+sub func_INIT_FUNC_ZERO {
+    my ( $file, $dim, $subt ) = @_;
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_ZERO: "; }
+    my $line = '';
+
+
+    foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
+        my $group   = $$LST_GROUP{$groupname};
+
+        if( $group->getDim() == $dim
+            && $subt eq $group->getSubtype()){
+
+            $line .= "${SPACE}do j = 1, ii" . $group->getSigla()    . "\n";
+            $line .= "${SPACE}  if (.NOT.Calc" . $group->getSigla() ."(j)) then\n";
+            $line .= "${SPACE}    iiLastElement=pp" . $group->getSigla() . "(j,1,cmax=1)\n";
+            $line .= "${SPACE}    do i = 1,iiLastElement\n";
+            $line .= "${SPACE}      D3STATE(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
+            $line .= "${SPACE}      D3STATETYPE(pp" . $group->getSigla() . "(j,i)) = OFF\n";
+            $line .= "#if defined key_obcbfm\n";
+            $line .= "${SPACE}      D3STATEOBC(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
+            $line .= "#endif\n";
+            $line .= "${SPACE}    end do\n";
+            $line .= "${SPACE}  end if\n";
+            $line .= "${SPACE}end do\n\n";
+        }
+    }
+
+    if( $line ){ print $file $line; }
+}
 
 sub func_INIT_DEFAULT  {
     my ( $file, $dim, $type, $subt ) = @_;
@@ -1398,7 +1431,7 @@ sub func_INIT_DEFAULT  {
 
 sub func_INIT_SETS  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INITS_SET: "; }
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INITS_SETS: "; }
 
     my $line = '';
 
@@ -1421,6 +1454,67 @@ sub func_INIT_SETS  {
 
     if( $line ){ print $file $line; }
 }
+
+
+sub func_INIT_INTERNAL {
+    my ( $file, $dim, $type, $subt ) = @_;
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_INTERNAL: "; }
+
+    my $line = '';
+    my @constList         = ();
+    my @constNoC          = ();
+    my @constOptionalList = ();
+
+    foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+        push(@constList, $const);
+        if($const ne $constList[0]){ 
+            push( @constNoC         , $const                 );
+            push( @constOptionalList, $const . $constList[0] ); 
+        }
+    }
+
+
+    foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
+        my $group     = $$LST_GROUP{$groupname};
+        my $groupAcro = $$LST_GROUP{$groupname}->getAcro();
+
+        if( $group->getDim() == $dim
+            && $subt eq $group->getSubtype()){
+
+            $line .= "${SPACE}do i = 1 , ( ii". $groupname ." )\n";
+            $line .= "${SPACE}  call init_constituents( c=" . $groupname  . "(i,iiC), &\n${SPACE}";
+            my @temp_line;
+            foreach my $const (@constNoC){
+                if( exists ${$$LST_GROUP{$groupname}->getComponents()}{$const} ){
+                    push( @temp_line, "    " . $const . "=D3STATE(pp" . $groupname . "(i,ii" . uc($const) . "),:)" );
+                }
+            }
+            my @temp_line2;
+            foreach my $constOpt (@constOptionalList){
+                #get the constituents active inside the group
+                if( exists ${$$LST_GROUP{$groupname}->getComponents()}{ (split('',$constOpt))[0] } ){
+                    my $temp_compo = "p_q" . $constOpt . $groupAcro;
+                    #if the optional initialization element exists in the namelist => add to initialize constituents
+                    foreach my $list (@$LST_NML){
+                        foreach my $param ( @{$list->slots()} ){
+                            if( $param eq $temp_compo){ 
+                                push( @temp_line2, $constOpt . "=" . $temp_compo . "(i)" );
+                            }
+                        }
+                    }
+                }
+            }
+            if( scalar(@temp_line2) ){ push( @temp_line, "    " . join(",  ", @temp_line2 ) ); }
+
+            $line .= join(",  &\n${SPACE}", @temp_line );
+            $line .= " )\n";
+            $line .= "${SPACE}end do\n";
+        }
+    }
+
+    if( $line ){ print $file $line; }
+}
+
 
 
 ###########################################  INCLUDE ######################

@@ -80,13 +80,13 @@
   logical  :: p_netgrowth(iiSeaiceAlgae)=.TRUE.  ! logical switch for nut. limitation growth
   integer  :: p_limnut(iiSeaiceAlgae)  ! switch for nut. limitation (Liebig is default)
   real(RLEN)  :: p_qnlc(iiSeaiceAlgae)
-  real(RLEN)  :: p_qnRc(iiSeaiceAlgae)
+  real(RLEN)  :: p_qncPPY(iiSeaiceAlgae)
   real(RLEN)  :: p_xqn(iiSeaiceAlgae)
   real(RLEN)  :: p_qplc(iiSeaiceAlgae)
-  real(RLEN)  :: p_qpRc(iiSeaiceAlgae)
+  real(RLEN)  :: p_qpcPPY(iiSeaiceAlgae)
   real(RLEN)  :: p_xqp(iiSeaiceAlgae)
   real(RLEN)  :: p_qslc(iiSeaiceAlgae)  ! Minimum quotum Si in PI
-  real(RLEN)  :: p_qsRc(iiSeaiceAlgae)  ! Reference quotum Si in PI
+  real(RLEN)  :: p_qscPPY(iiSeaiceAlgae)  ! Reference quotum Si in PI
   real(RLEN)  :: p_xqs(iiSeaiceAlgae)
   real(RLEN)  :: p_qus(iiSeaiceAlgae)  ! affinity of PI for Si
   real(RLEN)  :: p_qun(iiSeaiceAlgae)
@@ -101,7 +101,7 @@
   real(RLEN)  :: p_alpha_chl(iiSeaiceAlgae)  ! Initial slope P-I curve
   real(RLEN)  :: p_sdchl(iiSeaiceAlgae)  ! Specific turnover rate for Chla [d-1]
   real(RLEN)  :: p_chlII(iiSeaiceAlgae)  ! Nutrient stress threshold for chl turnover
-  real(RLEN)  :: p_qchlcSI(iiSeaiceAlgae)  ! Maximum quotum Chla:C [mg Chla (mg C)-1]
+  real(RLEN)  :: p_qlcPPYSI(iiSeaiceAlgae)  ! Maximum quotum Chla:C [mg Chla (mg C)-1]
   
 
 
@@ -116,9 +116,9 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Seaicealgae_parameters/ p_q10, p_sum, p_srs, p_sdmo, p_seo, p_pu_ea, &
-    p_pu_ra, p_qnlc, p_qplc, p_qslc, p_qnRc, p_qpRc, p_qsRc, p_qun, p_qup, &
+    p_pu_ra, p_qnlc, p_qplc, p_qslc, p_qncPPY, p_qpcPPY, p_qscPPY, p_qun, p_qup, &
     p_qus, p_xqn, p_xqp, p_xqs, p_chlII, p_thdo, p_lN4, p_chPs, &
-    p_netgrowth, p_limnut, p_alpha_chl, p_sdchl, p_qchlcSI, p_esII
+    p_netgrowth, p_limnut, p_alpha_chl, p_sdchl, p_qlcPPYSI, p_esII
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
