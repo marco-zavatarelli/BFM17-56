@@ -62,7 +62,7 @@ my $dispatch = {
     #NR
     '([^\%]*)\%(3|2)d-(flux|diagnos|state)-(pel|ben)-nr(?:\s|\n)'=> \&func_NR ,
     #ARRAY
-    '([^\%]*)\%3d-(state)-(pel|ben)-field-array\s*(\S*)(?:\s|\n)'=> \&func_ARRAY_FIELD ,
+    '([^\%]*)\%(pel|ben)-field-array\s*(\S*)(?:\s|\n)'=> \&func_ARRAY_FIELD ,
     #PP
     '([^\%]*)\%(3|2)d-(diagnos|state)-(pel|ben)-pp(?:\s|\n)'=> \&func_PP ,
     '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben)-pp(?:\s|\n)'=>       \&func_PP_DIAGG ,
@@ -70,19 +70,20 @@ my $dispatch = {
     #POINTER
     '\%(3|2)d-(diagnos|state)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT ,
     '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
-    '([^\%]*)\%3d-(state)-(pel|ben)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
+    '([^\%]*)\%(pel|ben)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
     '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC ,
     '\%(3|2)d-(diaggrp)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC_DIAGG ,
-    '\%(3)d-(state)-(pel|ben)-field-alloc-pointer\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
+    '\%(pel|ben)-alloc-pointer-field\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
     #HEADER
     '\%(3|2)d-(diagnos|state)-(pel|ben)-header(?:\s|\n)' =>    \&func_HEADER ,
     '\%(3|2)d-(diaggrp)-(pel|ben)-header(?:\s|\n)' =>    \&func_HEADER_DIAGG ,
-    '\%(3)d-(state)-(pel|ben)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
+    '\%(pel|ben)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
     #STRING
     '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING ,
     '\%(3|2)d-(diaggrp)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING_DIAGG ,
-    '\%(3)d-(state)-(pel|ben)-field-string\s*(\S*)(?:\s|\n)'=>    \&func_STRING_FIELD ,
-    '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string-index\s*(\S*)(?:\s|\n)'=>    \&func_STRING_INDEX ,
+    '\%(pel|ben)-field-string\s*(\S*)(?:\s|\n)'=>    \&func_STRING_FIELD ,
+    '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string-index(?:\s|\n)'=>    \&func_STRING_INDEX ,
+    '\%(pel|ben)-string-index-field\s*(\S*)(?:\s|\n)'=>    \&func_STRING_INDEX_FIELD ,
     #ALLOC
     '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc(?:\s|\n)' => \&func_ALLOC ,
     '\%(1|3|2)d-(intvar|variable|variables)-(pel|ben)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
@@ -100,13 +101,13 @@ my $dispatch = {
     #INTVAR/VARIABLE
     '([^\%]*)\%(3|2|1)d-(intvar|variable)-(pel|ben)(?:\s|\n)' => \&func_VARIABLE ,
     #INIT
-    '\%value-init-calc-(pel|ben)\s*(\S*)(?:\s|\n)'     => \&func_INIT_VALUE_CALC ,
-    '([^\%]*)\%(3)d-(state)-(pel|ben)-Initpp(?:\s|\n)' => \&func_INIT_PP ,
-    '\%init-func-constituents(?:\s|\n)'                => \&func_INIT_FUNC_CONST ,
-    '\%(3)d-state-(pel|ben)-func-zeroing(?:\s|\n)'     => \&func_INIT_FUNC_ZERO ,
-    '\%(3)d-(state)-(pel|ben)-InitDefault(?:\s|\n)'    => \&func_INIT_DEFAULT ,
-    '\%(3)d-(state)-(pel|ben)-InitSets(?:\s|\n)'       => \&func_INIT_SETS ,
-    '\%(3)d-(state)-(pel|ben)-InitInternal(?:\s|\n)'   => \&func_INIT_INTERNAL ,
+    '\%value-init-calc-(pel|ben)\s*(\S*)(?:\s|\n)'       => \&func_INIT_VALUE_CALC ,
+    '([^\%]*)\%(3|2)d-(state)-(pel|ben)-Initpp(?:\s|\n)' => \&func_INIT_PP ,
+    '\%init-func-constituents(?:\s|\n)'                  => \&func_INIT_FUNC_CONST ,
+    '\%(3|2)d-(state)-(pel|ben)-InitDefault(?:\s|\n)'      => \&func_INIT_DEFAULT ,
+    '\%(3|2)d-(state)-(pel|ben)-InitSets(?:\s|\n)'         => \&func_INIT_SETS ,
+    '\%(3|2)d-(state)-(pel|ben)-InitInternal(?:\s|\n)'     => \&func_INIT_INTERNAL ,
+    '\%(3|2)d-state-(pel|ben)-func-zeroing(?:\s|\n)'       => \&func_INIT_FUNC_ZERO ,
 };
 ########### REGULAR EXPRESSIONS ##########################
 
@@ -428,7 +429,7 @@ sub func_POINT_ALLOC_DIAGG  {
 
 
 sub func_POINT_ALLOC_FIELD  {
-    my ( $file, $dim, $type, $subt, $spec) = @_;
+    my ( $file, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC_FIELD: "; }
 
     my $line_ini = "";
@@ -438,21 +439,21 @@ sub func_POINT_ALLOC_FIELD  {
     my $spec_short = substr($spec,0,3);
 
     my $n = 0;
-    my $m = sizeDimType($dim, $type, $subt);
-    if( exists $$LST_STA{"${type} ${dim}d ${subt} index"} ){
-        $n = $$LST_STA{"${type} ${dim}d ${subt} index"};
-        $$LST_STA{"${type} ${dim}d ${subt} index"} += $m;
+    my $m = sizeDimType(3, 'state', $subt);
+    if( exists $$LST_STA{"state 3d ${subt} index"} ){
+        $n = $$LST_STA{"state 3d ${subt} index"};
+        $$LST_STA{"state 3d ${subt} index"} += $m;
     }else{
         $n = $$LST_STA{"diagnos 2d ${subt}"};
-        $$LST_STA{"${type} ${dim}d ${subt} index"} = $n + $m;
+        $$LST_STA{"state 3d ${subt} index"} = $n + $m;
     }
-    $$LST_STA{"${type} 2d ${subt} ${spec} index"} = $n;
+    $$LST_STA{"state 2d ${subt} ${spec} index"} = $n;
 
     $line_ini .= "${SPACE}PEL${SPEC} => D2DIAGNOS(${n}+1:${n}+${m},:); PEL${SPEC}=ZERO\n";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() 
-            && $type eq $param->getType()
+        if( 3 == $param->getDim() 
+            && 'state' eq $param->getType()
             && $subt eq $param->getSubtype() ){
 
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
@@ -517,9 +518,15 @@ sub func_FLUX_ALLOC  {
     #if the variable does not exists => dont print anything
     if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
-    $line .= "  allocate( D${dim}FLUX_MATRIX(1:NO_D${dim}_BOX_STATES, 1:NO_D${dim}_BOX_STATES),stat=status )\n";
-    $line .= "  allocate( D${dim}FLUX_FUNC(1:NO_D${dim}_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
-    $line .= "  D${dim}FLUX_FUNC = 0\n";
+    if( $dim == 3 ){
+        $line .= "  allocate( D${dim}FLUX_MATRIX(1:NO_D${dim}_BOX_STATES, 1:NO_D${dim}_BOX_STATES),stat=status )\n";
+        $line .= "  allocate( D${dim}FLUX_FUNC(1:NO_D${dim}_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
+        $line .= "  D${dim}FLUX_FUNC = 0\n";
+    }elsif( $dim == 2 ){
+        $line .= "  allocate( D${dim}FLUX_MATRIX(1:NO_D${dim}_BOX_STATES, 1:NO_D${dim}_BOX_STATES),stat=status )\n";
+        $line .= "  allocate( D${dim}FLUX_FUNC(1:NO_D${dim}_BOX_FLUX),stat=status )\n";
+        $line .= "  D${dim}FLUX_FUNC = 0\n";
+    }
 
     if( $line ){ print $file $line; }
 }
@@ -662,7 +669,7 @@ sub func_DESC  {
 
 
 sub func_ARRAY_FIELD  {
-    my ( $file, $before, $type, $subt, $spec) = @_;
+    my ( $file, $before, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_ARRAY_FIELD: "; }
 
     #save the spec in stadistics for further calculations of number of variables
@@ -928,7 +935,7 @@ sub func_POINT_DIAGG  {
 }
 
 sub func_POINT_FIELD  {
-    my ( $file, $before, $type, $subt, $spec) = @_;
+    my ( $file, $before, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT_FIELD: "; }
 
     my @line_par = ();
@@ -937,7 +944,7 @@ sub func_POINT_FIELD  {
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $param->getDim() == 3
-            && ($param->getType() eq $type) 
+            && ($param->getType() eq 'state') 
             && ($param->getSubtype() eq $subt) ){
 
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
@@ -1146,22 +1153,22 @@ sub func_STRING_DIAGG  {
 
 
 sub func_STRING_FIELD  {
-    my ( $file, $dim, $type, $subt, $spec ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $dim, $type, $subt, $spec"; }
+    my ( $file, $subt, $spec ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $subt, $spec"; }
 
     my $line;
     
     my $SPEC       = uc($spec);
     my $spec_short = substr($spec,0,3);
 
-    if( ! defined $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_${dim}_S"} ){
+    if( ! defined $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_2_S"} ){
         $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_2_S"} = $STRING_INDEX;
     }
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() 
-            && $type eq $param->getType() 
+        if( 3 == $param->getDim() 
+            && 'state' eq $param->getType() 
             && $subt eq $param->getSubtype() ){
 
             my $comm  = $param->getComment();
@@ -1193,7 +1200,7 @@ sub func_STRING_FIELD  {
 
 
 sub func_STRING_INDEX  {
-    my ( $file, $dim, $type, $subt, $spec ) = @_;
+    my ( $file, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX:"; }
 
     my $line;
@@ -1204,34 +1211,20 @@ sub func_STRING_INDEX  {
 
     my $subt_short = ucfirst(substr($subt,0,3));
 
-    if( $spec ){
-        my $spec_short = ucfirst(substr($spec,0,3));
-        my $dim = 2; #fix beacuse "specs" are 2d
+    my $type_short = ucfirst(substr($type,0,4));
+    if( $type_short eq "Stat" ){ $type_short = 'State'; } #fix because "state" has 5 chars
+    if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
+    $search_S = "${type}_${subt}_${dim}_S";
+    $search_E = "${type}_${subt}_${dim}_E";
+    $out = "${type_short}";
 
-        $search_S = "${type}_${subt}_${spec}_${dim}_S";
-        $search_E = "${type}_${subt}_${spec}_${dim}_E";
-        $out = "${spec_short}";
-
-        if( $spec eq "surface" ){
-            #fix because "surface" start with "diagnos" values 
-            $search_S = "${type}_${subt}_${dim}_S";
-        }    
-    }else{
-        my $type_short = ucfirst(substr($type,0,4));
-        if( $type_short eq "Stat" ){ $type_short = 'State'; } #fix because "state" has 5 chars
-        if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
-        $search_S = "${type}_${subt}_${dim}_S";
-        $search_E = "${type}_${subt}_${dim}_E";
-        $out = "${type_short}";
-
-        if( $type eq "diagnos" ){
-            #fix because "diagnos" ends with "diaggrp" values
-            $search_E = "diaggrp_${subt}_${dim}_E";
-        }
-        if( $subt eq 'pel' && $type eq 'state' && $dim == 2 ){
-            #fix because "Pel state 2D" ends with "Pel diagnos river 2D" values
-            $search_E = "diagnos_${subt}_river_2_E";
-        }
+    if( $type eq "diagnos" ){
+        #fix because "diagnos" ends with "diaggrp" values
+        $search_E = "diaggrp_${subt}_${dim}_E";
+    }
+    if( $subt eq 'pel' && $type eq 'state' && $dim == 2 ){
+        #fix because "Pel state 2D" ends with "Pel diagnos river 2D" values
+        $search_E = "diagnos_${subt}_river_2_E";
     }
 
     if( defined $STRING_INDEX_ARRAY{"${search_S}"} && defined $STRING_INDEX_ARRAY{"${search_E}"} ){
@@ -1239,27 +1232,37 @@ sub func_STRING_INDEX  {
         $line .= "${SPACE}st${subt_short}${out}E=" . $STRING_INDEX_ARRAY{"${search_E}"} . "\n";
     }
 
-    # $line .= "${SPACE}stPelStateS=" . $STRING_INDEX_ARRAY{"state_pel_3_S"}   . "\n";
-    # $line .= "${SPACE}stPelStateE=" . $STRING_INDEX_ARRAY{"state_pel_3_E"}   . "\n";
-    # $line .= "${SPACE}stPelDiagS="  . $STRING_INDEX_ARRAY{"diagnos_pel_3_S"} . "\n";
-    # $line .= "${SPACE}stPelDiagE="  . $STRING_INDEX_ARRAY{"diaggrp_pel_3_E"} . "\n";
-    # $line .= "${SPACE}stPelFluxS="  . $STRING_INDEX_ARRAY{"flux_pel_3_S"}    . "\n";
-    # $line .= "${SPACE}stPelFluxE="  . $STRING_INDEX_ARRAY{"flux_pel_3_E"}    . "\n";
+    if( $line ){ print $file $line; }
+}
 
-    # $line .= "${SPACE}stBenStateS=" . $STRING_INDEX_ARRAY{"state_ben_2_S"}   . "\n";
-    # $line .= "${SPACE}stBenStateE=" . $STRING_INDEX_ARRAY{"state_ben_2_E"}   . "\n";
+sub func_STRING_INDEX_FIELD  {
+    my ( $file, $subt, $spec ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_FIELD:"; }
 
-    # $line .= "${SPACE}stPelSurS="  . $STRING_INDEX_ARRAY{"diagnos_pel_2_S"}     ."\n";
-    # $line .= "${SPACE}stPelSurE="  . $STRING_INDEX_ARRAY{"diagnos_pel_surface_3_E"} ."\n";
-    # $line .= "${SPACE}stPelBotS="  . $STRING_INDEX_ARRAY{"diagnos_pel_bottom_3_S"}  ."\n";
-    # $line .= "${SPACE}stPelBotE="  . $STRING_INDEX_ARRAY{"diagnos_pel_bottom_3_E"}  ."\n";
-    # $line .= "${SPACE}stPelRivS="  . $STRING_INDEX_ARRAY{"diagnos_pel_river_3_S"}   ."\n";
-    # $line .= "${SPACE}stPelRivE="  . $STRING_INDEX_ARRAY{"diagnos_pel_river_3_E"}   ."\n";
+    my $line;
 
-    # $line .= "${SPACE}stBenDiagS="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_S"} . "\n";
-    # $line .= "${SPACE}stBenDiagE="  . $STRING_INDEX_ARRAY{"diagnos_ben_2_E"} . "\n";
-    # $line .= "${SPACE}stBenFluxS="  . $STRING_INDEX_ARRAY{"flux_ben_2_S"}    . "\n";
-    # $line .= "${SPACE}stBenFluxE="  . $STRING_INDEX_ARRAY{"flux_ben_2_E"}    . "\n";
+    my $search_S = "";
+    my $search_E = "";
+    my $out      = "";
+
+    my $subt_short = ucfirst(substr($subt,0,3));
+
+    my $spec_short = ucfirst(substr($spec,0,3));
+    my $dim = 2; #fix beacuse "specs" are 2d
+
+    $search_S = "diagnos_${subt}_${spec}_${dim}_S";
+    $search_E = "diagnos_${subt}_${spec}_${dim}_E";
+    $out = "${spec_short}";
+
+    if( $spec eq "surface" ){
+        #fix because "surface" start with "diagnos" values 
+        $search_S = "diagnos_${subt}_${dim}_S";
+    }    
+
+    if( defined $STRING_INDEX_ARRAY{"${search_S}"} && defined $STRING_INDEX_ARRAY{"${search_E}"} ){
+        $line .= "${SPACE}st${subt_short}${out}S=" . $STRING_INDEX_ARRAY{"${search_S}"} . "\n"; 
+        $line .= "${SPACE}st${subt_short}${out}E=" . $STRING_INDEX_ARRAY{"${search_E}"} . "\n";
+    }
 
     if( $line ){ print $file $line; }
 }
@@ -1569,7 +1572,7 @@ sub func_GROUP_HEADER  {
 
 
 sub func_HEADER_FIELD  {
-    my ( $file, $dim, $type, $subt, $spec) = @_;
+    my ( $file, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_FIELD: "; }
 
     my $line_ini = "";
@@ -1579,16 +1582,16 @@ sub func_HEADER_FIELD  {
     my $spec_short = substr($spec,0,3);
 
     my $n = 0;
-    if( exists $$LST_STA{"${type} 2d $subt ${spec} index"} ){
-        $n = $$LST_STA{"${type} 2d $subt ${spec} index"};
+    if( exists $$LST_STA{"state 2d $subt ${spec} index"} ){
+        $n = $$LST_STA{"state 2d $subt ${spec} index"};
     }
 
 
     $line_ini .= "#define PEL${SPEC}(A,B) D2DIAGNOS($n+A,B)\n";
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
-        if( $dim == $param->getDim() 
-            && $type eq $param->getType()
+        if( 3 == $param->getDim() 
+            && 'state' eq $param->getType()
             && $subt eq $param->getSubtype() ){
             if( $param->getComponents() && keys(%{$param->getComponents()}) != 0 ){
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){

@@ -53,7 +53,7 @@ ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE 
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
 MODE="STANDALONE"
-CPPDEFS="BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D"
+CPPDEFS="BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG"
 PRESET="STANDALONE_PELAGIC"
 ARCH="gfortran.inc"
 PROC=4
@@ -93,7 +93,7 @@ DESCRIPTION
                   - STANDALONE (without NEMO. Compile and run in local machine)
                   - NEMO (with NEMO. Compile and run ONLY in LSF platform)
        -k CPPDEFS
-                  Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D")                 
+                  Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG")                 
        -b BFMDIR
                   The environmental variable BFMDIR pointing to the root directory of BFM (Default: "${BFMDIR}")
        -n NEMODIR

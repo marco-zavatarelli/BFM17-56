@@ -85,8 +85,10 @@ END MODULE init_var_bfm_local
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
    real(RLEN) :: %3d-state-pel-Initpp
+   real(RLEN) :: %2d-state-pel-Initpp
 
    namelist /bfm_init_nml/ %3d-state-pel-Initpp
+   namelist /bfm_init_nml/ %2d-state-pel-Initpp
 
    namelist /bfm_init_nml/ surface_flux_method,       &
                            bottom_flux_method,        &
@@ -125,6 +127,7 @@ END MODULE init_var_bfm_local
    !---------------------------------------------
 
 %3d-state-pel-InitDefault
+%2d-state-pel-InitDefault
 
    !---------------------------------------------
    ! Initialize the structured array that 
@@ -206,12 +209,14 @@ END MODULE init_var_bfm_local
    !---------------------------------------------
 
 %3d-state-pel-InitSets
+%2d-state-pel-InitSets
 
       !---------------------------------------------
       ! Initialise other internal components
       ! with Redfield
       !---------------------------------------------
 %3d-state-pel-InitInternal
+%2d-state-pel-InitInternal
 
    !---------------------------------------------
    ! Check setup settings
@@ -258,6 +263,7 @@ END MODULE init_var_bfm_local
    !---------------------------------------------
 
 %3d-state-pel-func-zeroing
+%2d-state-pel-func-zeroing
 
    !---------------------------------------------
    ! Write defined variables to stdout

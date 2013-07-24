@@ -106,12 +106,22 @@
        integer,public,pointer,dimension(:)  :: D2STATEOBC
 #endif
 
-        real(RLEN),public,pointer,dimension(:,:) :: %3d-state-pel-field-array surface
-        real(RLEN),public,pointer,dimension(:,:) :: %3d-state-pel-field-array bottom
-        real(RLEN),public,pointer,dimension(:,:) :: %3d-state-pel-field-array river
+        real(RLEN),public,pointer,dimension(:,:) :: %pel-field-array surface
+        real(RLEN),public,pointer,dimension(:,:) :: %pel-field-array bottom
+        real(RLEN),public,pointer,dimension(:,:) :: %pel-field-array river
 
         real(RLEN),public,pointer,dimension(:,:) :: D3DIAGNOS
         real(RLEN),public,pointer,dimension(:,:) :: D2DIAGNOS
+
+        type ppFlux
+          integer, allocatable, dimension(:) :: p
+          integer, allocatable, dimension(:) :: dir
+        end type ppFlux
+        type(ppFlux), public,dimension(:,:),allocatable :: D3FLUX_MATRIX
+        real(RLEN)  , public,dimension(:,:),allocatable :: D3FLUX_FUNC
+        type(ppFlux), public,dimension(:,:),allocatable :: D2FLUX_MATRIX
+        real(RLEN)  , public,dimension(:),allocatable :: D2FLUX_FUNC
+
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! GLOBAL system CONSTANTS
@@ -129,9 +139,10 @@
         integer,public  ::NO_BOXES_Z
         integer,public  ::NO_STATES
         integer,public  ::NO_BOXES_XY
-        integer,parameter,public  ::iiPel= 0
-        integer,parameter,public  ::iiBen= 1000
-        integer,parameter,public  ::iiReset= -1000
+        integer,parameter,public  ::iiPel   = 0
+        integer,parameter,public  ::iiPel2d = 500
+        integer,parameter,public  ::iiBen   = 1000
+        integer,parameter,public  ::iiReset = -1000
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! GLOBAL definition of Pelagic (D3/D2) state variables
@@ -199,16 +210,16 @@
         !  boundary fluxes
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-        real(RLEN),public,dimension(:),pointer  :: %3d-state-pel-field-pointer surface
-        real(RLEN),public,dimension(:),pointer  :: %3d-state-pel-field-pointer bottom
-        real(RLEN),public,dimension(:),pointer  :: %3d-state-pel-field-pointer river
+        real(RLEN),public,dimension(:),pointer  :: %pel-field-pointer surface
+        real(RLEN),public,dimension(:),pointer  :: %pel-field-pointer bottom
+        real(RLEN),public,dimension(:),pointer  :: %pel-field-pointer river
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  Other 3d-Global Variables 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         real(RLEN),public %3d-variable-pel
-
+        integer,public    %3d-intvar-pel
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  Other 2d-Global Variables 
@@ -218,19 +229,6 @@
         integer,public    %2d-intvar-pel
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        !  variables to generate flux_output 
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-         type ppFlux
-           integer, allocatable, dimension(:) :: p
-           integer, allocatable, dimension(:) :: dir
-         end type ppFlux
-         type(ppFlux), public,dimension(:,:),allocatable :: D3FLUX_MATRIX
-         real(RLEN)  , public,dimension(:,:),allocatable :: D3FLUX_FUNC
-         type(ppFlux), public,dimension(:,:),allocatable :: D2FLUX_MATRIX
-         real(RLEN)  , public,dimension(:,:),allocatable :: D2FLUX_FUNC
-
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! SHARED GLOBAL FUNCTIONS (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -238,6 +236,7 @@
                fixed_quota_flux_vector
 
         public %3d-group-pel-function-name
+        public %2d-group-pel-function-name
 
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
         public Source_D2_vector

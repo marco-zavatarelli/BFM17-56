@@ -62,37 +62,36 @@ subroutine set_var_info_bfm
 !
 !2d Pelagic variables description
 %2d-state-pel-string
+%2d-diagnos-pel-string
+%2d-diaggrp-pel-string  
+%2d-flux-pel-string
 !
 ! surface
 !
-%2d-diagnos-pel-string
-%3d-state-pel-field-string surface
+%pel-field-string surface
 !
 ! bottom
 !
-%3d-state-pel-field-string bottom
+%pel-field-string bottom
 !
 ! river
 !
-%3d-state-pel-field-string river
-
-!
-!2d Benthic variables description
-!
-%2d-diagnos-ben-string
-%2d-diaggrp-ben-string  
-%2d-flux-ben-string
-
+%pel-field-string river
 
 !
 !Index
 !
 %3d-state-pel-string-index
-%3d-diagnos-pel-string-index
-%3d-flux-pel-string-index
 %2d-state-pel-string-index
-%3d-diagnos-pel-string-index surface
-%3d-diagnos-pel-string-index bottom
-%3d-diagnos-pel-string-index river
+
+%3d-diagnos-pel-string-index
+%2d-diagnos-pel-string-index
+
+%3d-flux-pel-string-index
+%2d-flux-pel-string-index
+
+%pel-string-index-field surface
+%pel-string-index-field bottom
+%pel-string-index-field river
 
 end subroutine set_var_info_bfm

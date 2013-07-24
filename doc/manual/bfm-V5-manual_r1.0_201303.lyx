@@ -24249,7 +24249,7 @@ D3(D2)SOURCE(NO_BOX_STATES,NO_BOXES)
  where all the right-hand side terms are summed when computed (this is incompati
 ble with macro 
 \family typewriter
-INCLUDE_DIAG3D
+INCLUDE_DIAG
 \family default
 )
 \end_layout
@@ -24273,7 +24273,7 @@ INCLUDE_PELFE:
 \begin_layout Description
 
 \family typewriter
-INCLUDE_DIAG3D:
+INCLUDE_DIAG:
 \family default
  Activate the customizable diagnostics described in Sec.
  (this is incompatible with macro 
@@ -26116,7 +26116,7 @@ STANDALONE_PELAGIC/layout
 \family default
  file and are activated with the compilation macros 
 \family typewriter
-INCLUDE_DIAG3D
+INCLUDE_DIAG
 \family default
  and 
 \family typewriter
