@@ -17,6 +17,7 @@ MODULE trcstp
    USE iom
    USE in_out_manager
    USE trcsub
+   USE trcbc,      ONLY: trc_bc_read
 
    IMPLICIT NONE
    PRIVATE
@@ -53,7 +54,10 @@ CONTAINS
       !---------------------------------------------
       IF (bio_calc) THEN
 
-          IF( (nn_dttrc /= 1 ) .AND. (kt == nit000) )       CALL trc_sub_ini ! Initialize variables for substepping passive tracers
+          IF( (nn_dttrc /= 1 ) .AND. (kt == nit000) ) THEN
+             CALL trc_sub_ini                              ! Initialize variables for substepping passive tracers
+             CALL trc_bc_read( kt )                        ! Read initial Boundary Conditions
+          ENDIF
 
           IF ( nn_dttrc /= 1 )     CALL trc_sub_stp( kt )                    ! Averaging physical variables for sub-stepping
 
@@ -61,7 +65,8 @@ CONTAINS
           ! Proceed only every nn_dttrc
           !---------------------------------------------   
           IF ( MOD( kt , nn_dttrc ) == 0 ) THEN  
-
+ 
+                                   CALL trc_bc_read ( kt )      ! read/update Boundary Conditions
                                    CALL trc_bfm( kt )           ! main call to BFM
                                    CALL trc_trp_bfm( kt )       ! transport of BFM tracers
                                    CALL trc_dia_bfm( kt )       ! diagnostic output for BFM

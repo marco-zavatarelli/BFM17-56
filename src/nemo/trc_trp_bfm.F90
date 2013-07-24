@@ -118,7 +118,7 @@ SUBROUTINE trc_trp_bfm( kt )
             IF (.NOT.CalcConservationFlag) THEN
                ! NOTE: these routines do not conserve mass, because non-dynamical volume is used;
                ! thus, excluded for mass conservation checkings
-                CALL trc_sbc_bfm( kt,m )
+                CALL trc_bc_bfm( kt, m )
             END IF
             ! Add Vertical Sinking 
             CALL trc_set_bfm( kt, m)      ! set other boundary conditions and compute sinking

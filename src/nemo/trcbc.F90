@@ -17,12 +17,12 @@ MODULE trcbc
    USE lib_mpp       !  MPP library
    USE fldread       !  read input fields
 
-   USE mem, ONLY: NO_D3_BOX_STATES
+   USE mem,         ONLY: NO_D3_BOX_STATES
 
    IMPLICIT NONE
    PRIVATE
 
-   PUBLIC   trc_bc_init    ! called in trcini.F90 
+   PUBLIC   trc_bc_init, trc_bc_read 
 
    INTEGER  , SAVE, PUBLIC                             :: nb_trcobc   ! number of tracers with open BC
    INTEGER  , SAVE, PUBLIC                             :: nb_trcsbc   ! number of tracers with surface BC
@@ -199,10 +199,7 @@ CONTAINS
             !   
          ENDDO
          !                         ! fill sf_trcdta with slf_i and control print
-         CALL fld_fill( sf_trcobc, slf_i, cn_dir, 'trc_obc', 'Passive tracer OBC data', 'namtrc_bc' )
-         !
-         ! Initialize boundary conditions if sub-stepping is > 1
-         IF ( nn_dttrc /= 1 ) CALL fld_read(nit000,1,sf_trcobc)
+         CALL fld_fill( sf_trcobc, slf_i, cn_dir, 'trc_bc_init', 'Passive tracer OBC data', 'namtrc_bc' )
          !
       ENDIF
       !
@@ -227,10 +224,7 @@ CONTAINS
             !   
          ENDDO
          !                         ! fill sf_trcsbc with slf_i and control print
-         CALL fld_fill( sf_trcsbc, slf_i, cn_dir, 'trc_sbc', 'Passive tracer SBC data', 'namtrc_bc' )
-         !
-         ! Initialize boundary conditions if sub-stepping is > 1
-         IF ( nn_dttrc /= 1 ) CALL fld_read(nit000,1,sf_trcsbc)
+         CALL fld_fill( sf_trcsbc, slf_i, cn_dir, 'trc_bc_init', 'Passive tracer SBC data', 'namtrc_bc' )
          !
       ENDIF
       !
@@ -255,14 +249,57 @@ CONTAINS
             !   
          ENDDO
          !                         ! fill sf_trccbc with slf_i and control print
-         CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trccbc', 'Passive tracer CBC data', 'namtrc_bc' )
-         !
-         ! Initialize boundary conditions if sub-stepping is > 1
-         IF ( nn_dttrc /= 1 ) CALL fld_read(nit000,1,sf_trccbc)
+         CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trc_bc_init', 'Passive tracer CBC data', 'namtrc_bc' )
          !
       ENDIF
 
    END SUBROUTINE trc_bc_init
+
+
+   SUBROUTINE trc_bc_read(kt)
+      !!----------------------------------------------------------------------
+      !!                   ***  ROUTINE trc_bc_init  ***
+      !!
+      !! ** Purpose :  Read passive tracer Boundary Conditions data
+      !!
+      !! ** Method  :  Read BC inputs and update data structures using fldread
+      !!              
+      !!----------------------------------------------------------------------
+   
+      ! NEMO
+      USE fldread
+      
+      !! * Arguments
+      INTEGER, INTENT( in ) ::   kt      ! ocean time-step index
+
+      !!---------------------------------------------------------------------
+      !
+      IF( kt == nit000 ) THEN
+         IF(lwp) WRITE(numout,*)
+         IF(lwp) WRITE(numout,*) 'trc_bc_read : Surface boundary conditions for passive tracers.'
+         IF(lwp) WRITE(numout,*) '~~~~~~~ '
+      ENDIF
+
+      ! OPEN boundary conditions       
+      IF( nb_trcobc > 0 ) THEN
+        !if (lwp) write(numout,'(a,i5,a,i)') '   BFM: reading OBC data for ', nb_trcobc ,' variables at step ', kt
+        CALL fld_read(kt,1,sf_trcobc)
+      ENDIF
+
+      ! SURFACE boundary conditions       
+      IF( nb_trcsbc > 0 ) THEN
+        !if (lwp) write(numout,'(a,i5,a,i)') '   BFM: reading SBC data for ', nb_trcsbc ,' variables at step ', kt
+        CALL fld_read(kt,1,sf_trcsbc)
+      ENDIF
+
+
+      ! COASTAL boundary conditions       
+      IF( nb_trccbc > 0 ) THEN
+        !if (lwp) write(numout,'(a,i5,a,i)') '   BFM: reading CBC data for ', nb_trccbc ,' variables at step ', kt
+        CALL fld_read(kt,1,sf_trccbc)
+      ENDIF   
+
+   END SUBROUTINE trc_bc_read
 #endif
 
    !!======================================================================

@@ -183,10 +183,16 @@
           write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
           write(LOGUNIT,*) ' '
        end if
-    else
-       ! read external
+    elseif (AtmCO2%init == 2) then
+       ! read external 0-D timeseries
        CALL FieldInit(AtmCO2_N, AtmCO2)
        write(LOGUNIT,*) 'Using variable atmospheric CO2 concentration. Initial value:', AtmCO2%fnow(1)
+       write(LOGUNIT,*) ' '
+    elseif (AtmCO2%init == 4) then
+       ! CO2 concentration is provided by external model
+       CALL FieldInit(AtmCO2_N, AtmCO2)
+       AtmCO2%fnow = AtmCO20
+       write(LOGUNIT,*) 'CO2 conc. provided by external model. Initialize with default uniform value', AtmCO2%fnow(1)
        write(LOGUNIT,*) ' '
     endif
     ! Rough approximation: pCO2 is assumed equal to the mixing ratio of CO2

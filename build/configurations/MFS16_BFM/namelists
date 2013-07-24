@@ -855,16 +855,18 @@ p_paMEZ(2,:)=   0.0,    1.0
 !              !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing
 !-----------------------------------------------------------------------
 &namtrc_bc
-   sn_trccbc(N1p)  = 'nutrients_MFS_PERSEUS_D43' , -1    ,  'N1p'   , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
-   sn_trccbc(N3n)  = 'nutrients_MFS_PERSEUS_D43' , -1    ,  'N3n'   , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
-   sn_trccbc(N5s)  = 'nutrients_MFS_PERSEUS_D43' , -1    ,  'N5s'   , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
-   sn_trccbc(O3c)  = 'rivcsys_MFS_PERSEUS_D43'   , -1    ,  'TC'    , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
-   sn_trccbc(O3h)  = 'rivcsys_MFS_PERSEUS_D43'   , -1    ,  'TA'    , .true. , '_FFCLIM_' , 'yearly'   , ''       , ''
+   sn_trcsbc(O3c)  =  'CO2_NOAA_mbl'              , -1  ,  'CO2' , .true. , '_FFCLIM_' , 'yearly' , 'MFS16_CO2_NOAA_mbl_weights_bicubic'  ''
+   rn_trsfac(O3c)  =  0.   
+   sn_trccbc(N1p)  = 'nutrients_MFS_PERSEUS_D43' , -1  ,  'N1p' , .true. , '_FFCLIM_' , 'yearly' , ''       , ''
+   sn_trccbc(N3n)  = 'nutrients_MFS_PERSEUS_D43' , -1  ,  'N3n' , .true. , '_FFCLIM_' , 'yearly' , ''       , ''
+   sn_trccbc(N5s)  = 'nutrients_MFS_PERSEUS_D43' , -1  ,  'N5s' , .true. , '_FFCLIM_' , 'yearly' , ''       , ''
+   sn_trccbc(O3c)  = 'rivcsys_MFS_PERSEUS_D43'   , -1  ,  'TC'  , .true. , '_FFCLIM_' , 'yearly' , ''       , ''
+   sn_trccbc(O3h)  = 'rivcsys_MFS_PERSEUS_D43'   , -1  ,  'TA'  , .true. , '_FFCLIM_' , 'yearly' , ''       , ''
    rn_trcfac(N1p)  =  1000.    ! data are in mol/day, convert to mmol P
    rn_trcfac(N3n)  =  1000.    ! data are in mol/day, convert to mmol N
    rn_trcfac(N5s)  =  1000.    ! data are in mol/day, convert to mmol Si
    rn_trcfac(O3c)  =  12010.   ! data are in mol/day, convert to mg C
    rn_trcfac(O3h)  =  1000.    ! data are in mol/day, convert to mmol eq
-   cn_dir =  '_RiverBFM_'
+   cn_dir =  '_BFMBCDir_'
         filename_nml_conf = 'namelist_top',
 /

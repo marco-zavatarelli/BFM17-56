@@ -1,6 +1,6 @@
-SUBROUTINE trc_sbc_bfm ( kt, m )
+SUBROUTINE trc_bc_bfm ( kt, m )
    !!----------------------------------------------------------------------
-   !!                  ***  ROUTINE trc_sbc_bfm  ***
+   !!                  ***  ROUTINE trc_bc_bfm  ***
    !!                   
    !! ** Purpose :   Compute the tracer surface boundary condition trend of
    !!      (concentration/dilution effect) and add it to the general 
@@ -37,9 +37,9 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    ! BFM
    use api_bfm
    use mem
-   use global_mem,only:LOGUNIT
-   use sbc_oce, only: ln_rnf
-   use constants, only: SEC_PER_DAY
+   use global_mem,          only: LOGUNIT
+   use sbc_oce,             only: ln_rnf
+   use constants,           only: SEC_PER_DAY
    use print_functions
  
    ! substitutions
@@ -57,7 +57,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    CHARACTER (len=25) :: charout
    !!---------------------------------------------------------------------
    !
-   IF( nn_timing == 1 )  CALL timing_start('trc_sbc_bfm')
+   IF( nn_timing == 1 )  CALL timing_start('trc_bc_bfm')
    !
    ! Allocate temporary workspace
    CALL wrk_alloc( jpi, jpj,      zsfx  )
@@ -68,12 +68,6 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
    !!----------------------------------------------------------------------
    ! initialization of density and scale factor
    zsrau = 1._wp / rau0
-
-   IF( kt == nittrc000 ) THEN
-      IF(lwp) WRITE(numout,*)
-      IF(lwp) WRITE(numout,*) 'trc_sbc_bfm : Surface boundary conditions for BFM variables'
-      IF(lwp) WRITE(numout,*) '~~~~~~~ '
-   ENDIF
 
    ! Coupling online : 
    ! 1) constant volume: river runoff is added to the horizontal divergence (hdivn) in the subroutine sbc_rnf_div 
@@ -100,13 +94,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
 
     ! read and add surface input flux if needed
     IF (ln_trc_sbc(m)) THEN
-       if (lwp) write(numout,*) '   BFM: reading SBC data for variable ', &
-                   TRIM( var_names(stPelStateS+m-1) ),' number:',m
        jn = n_trc_indsbc(m)
-       sf_dta(1) = sf_trcsbc(jn)
-       CALL fld_read( kt, 1, sf_dta )
-       ! return the info (needed because fld_read is stupid!)
-       sf_trcsbc(jn) = sf_dta(1) 
        DO jj = 2, jpj
           DO ji = fs_2, fs_jpim1   ! vector opt.
              zse3t = 1. / fse3t(ji,jj,1)
@@ -118,26 +106,19 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
     END IF
 
     ! Add mass from prescribed river concentration if river values are given
+    ! An istantaneous mixing in the cell volume is assumed, the time unit of BFM input files must be 1/day
     IF (ln_rnf .AND. ln_trc_cbc(m)) THEN 
-          if (lwp) write(numout,*) '   BFM: reading CBC data for variable ', &
-                   TRIM( var_names(stPelStateS+m-1) ),' number:',m
-          jn = n_trc_indcbc(m)
-          sf_dta = sf_trccbc(jn)
-          CALL fld_read( kt, 1, sf_dta )
-          ! return the info (needed because fld_read is stupid!)
-          sf_trccbc(jn) = sf_dta(1) 
-          DO jj = 2, jpj
-             DO ji = fs_2, fs_jpim1   ! vector opt.
-                zse3t = 1. / (e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
-                ! Add river loads assuming an istantaneous mixing in the cell volume 
-                ! The units in BFM input files are 1/day
-                ztra = rn_rfact * rf_trcfac(jn) * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t / SEC_PER_DAY
-                tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
+       jn = n_trc_indcbc(m)
+        DO jj = 2, jpj
+           DO ji = fs_2, fs_jpim1   ! vector opt.
+              zse3t = 1. / (e1t(ji,jj)*e2t(ji,jj)*fse3t(ji,jj,1))
+              ztra = rn_rfact * rf_trcfac(jn) * sf_trccbc(jn)%fnow(ji,jj,1) * zse3t / SEC_PER_DAY
+              tra(ji,jj,1,1) = tra(ji,jj,1,1) + ztra
 #ifdef DEBUG
-                field(ji,jj) = ztra
+              field(ji,jj) = ztra
 #endif
-             END DO
-          END DO
+           END DO
+        END DO
     END IF
 
 #ifdef DEBUG
@@ -151,7 +132,7 @@ SUBROUTINE trc_sbc_bfm ( kt, m )
 #endif
 
    CALL wrk_dealloc( jpi, jpj,      zsfx  )       
-    IF( nn_timing == 1 )  CALL timing_stop('trc_sbc_bfm')
+    IF( nn_timing == 1 )  CALL timing_stop('trc_bc_bfm')
 
-   END SUBROUTINE trc_sbc_bfm
+   END SUBROUTINE trc_bc_bfm
 
