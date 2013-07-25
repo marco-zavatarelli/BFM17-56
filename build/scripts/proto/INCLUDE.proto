@@ -8,9 +8,9 @@
 %2d-group-pel-header
 %3d-diagnos-pel-header
 %2d-diagnos-pel-header
-pel-field-header surface
-pel-field-header bottom
-pel-field-header river
+%pel-field-header surface
+%pel-field-header bottom
+%pel-field-header river
 %3d-diaggrp-pel-header
 %2d-diaggrp-pel-header
 
