@@ -22,16 +22,16 @@
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants,  ONLY:MW_C
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem,  ONLY: D2STATE_ICE
 #else
-  use mem, ONLY: D2STATE, T1c, T1n, T1p, X1c, F2o, F3c, U1c, U6c, U1n, U6n, &
+  use mem, ONLY: D2STATE_ICE, T1c, T1n, T1p, X1c, F2o, F3c, U1c, U6c, U1n, U6n, &
     U1p, U6p, I4n, I1p, SeaiceAlgae, SeaiceZoo, SeaiceBacteria
 #endif
   use mem, ONLY: ppT1c, ppT1n, ppT1p, ppX1c, ppF2o, ppF3c, ppU1c, ppU6c, Depth,&
     ppU1n, ppU6n, ppU1p, ppU6p, ppI4n, ppI1p, ppSeaiceAlgae, ppSeaiceZoo, &
     ETB, eO2mO2, qnTc, qpTc, qnSc, qpSc, qnXc, qpXc, qlSc, qsSc, &
     iiSeaiceBacteria, iiSeaiceAlgae, iiSeaiceZoo, iiS1, iiC, iiN, iiP, iiL, &
-    NO_BOXES_XY, iiBen, iiPel, flux_vector,fixed_quota_flux_vector
+    NO_BOXES_XY_ICE, iiIce, iiPel, flux_vector,fixed_quota_flux_vector
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
   use mem_SeaiceZoo
 
@@ -82,58 +82,58 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY) :: zooc
+  real(RLEN),dimension(NO_BOXES_XY_ICE) :: zooc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
-  real(RLEN),dimension(NO_BOXES_XY)  :: CORROX
-  real(RLEN),dimension(NO_BOXES_XY)  :: put_u
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: eF2
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugp
-  real(RLEN),dimension(NO_BOXES_XY)  :: runc
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY)  :: efood
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrsc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrac
-  real(RLEN),dimension(NO_BOXES_XY)  :: reac
-  real(RLEN),dimension(NO_BOXES_XY)  :: rdc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrtc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruTIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruSIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruXIc
-  real(RLEN),dimension(NO_BOXES_XY,iiSeaiceBacteria)  :: rumTIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rric
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrip
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rep
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrin
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY)  :: pu_ra
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY,iiSeaiceAlgae)  :: rumSIc
-  real(RLEN),dimension(NO_BOXES_XY,iiSeaiceZoo)  :: rumXIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: flS1U6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: tfluxc
-  real(RLEN),dimension(NO_BOXES_XY)  :: tfluxn
-  real(RLEN),dimension(NO_BOXES_XY)  :: tfluxp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: CORROX
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: put_u
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: et
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: eF2
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rump
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rugc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rugn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rugp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: efood
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrsc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrac
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: reac
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rdc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrtc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruTIc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruSIc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruXIc
+  real(RLEN),dimension(NO_BOXES_XY_ICE,iiSeaiceBacteria)  :: rumTIc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rric
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1c
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6c
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrip
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rep
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrin
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ren
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: pu_ra
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: r
+  real(RLEN),dimension(NO_BOXES_XY_ICE,iiSeaiceAlgae)  :: rumSIc
+  real(RLEN),dimension(NO_BOXES_XY_ICE,iiSeaiceZoo)  :: rumXIc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: flS1U6s
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: tfluxc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: tfluxn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: tfluxp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  zooc = D2STATE(ppzooc,:)
+  zooc = D2STATE_ICE(ppzooc,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect
@@ -190,10 +190,10 @@
   do i = 1 , ( iiSeaiceBacteria)
 
    ruTIc  =   put_u* rumTIc(:, i)
-   call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzooc,ppT1c,ppzooc, ruTIc ,tfluxC)
-   call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoon,ppT1n,ppzoon, &
+   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppT1c,ppzooc, ruTIc ,tfluxC)
+   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppT1n,ppzoon, &
                                                        ruTIc* qnTc(i, :),tfluxN)
-   call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoop,ppT1p,ppzoop, &
+   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppT1p,ppzoop, &
                                                        ruTIc* qpTc(i, :),tfluxP)
    rugn  =   ruTIc* qnTc(i, :)
    rugp  =   ruTIc* qpTc(i, :)
@@ -203,14 +203,14 @@
   do i = 1 , ( iiSeaiceAlgae)
 
     ruSIc  =   put_u* rumSIc(:, i)
-    call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzooc,ppSeaiceAlgae(i,iiC),&
+    call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppSeaiceAlgae(i,iiC),&
                                                       ppzooc, ruSIc ,tfluxC)
-    call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoon,ppSeaiceAlgae(i,iiN),&
+    call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppSeaiceAlgae(i,iiN),&
                                            ppzoon, ruSIc* qnSc(i,:) ,tfluxN)
-    call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoop,ppSeaiceAlgae(i,iiP),&
+    call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppSeaiceAlgae(i,iiP),&
                                            ppzoop, ruSIc* qpSc(i,:) ,tfluxP)
     ! Chl is transferred to the sink
-    call flux_vector( iiBen, ppSeaiceAlgae(i,iiL),ppSeaiceAlgae(i,iiL),-( &
+    call flux_vector( iiIce, ppSeaiceAlgae(i,iiL),ppSeaiceAlgae(i,iiL),-( &
       ruSIc* qlSc(i,:)) )
     if ( i== iiS1) then
       ! S1s is directly transferred to U6s
@@ -226,11 +226,11 @@
     ruXIc  =   put_u* rumXIc(:, i)
     ! intra-group predation is not computed
     if ( i/= zoo) then
-      call fixed_quota_flux_vector( check_fixed_quota,iiBen,ppzooc,ppSeaiceZoo(i,iiC),&
+      call fixed_quota_flux_vector( check_fixed_quota,iiIce,ppzooc,ppSeaiceZoo(i,iiC),&
                                                           ppzooc, ruXIc,tfluxC )
-      call fixed_quota_flux_vector( check_fixed_quota,iiBen,ppzoon,ppSeaiceZoo(i,iiN),&
+      call fixed_quota_flux_vector( check_fixed_quota,iiIce,ppzoon,ppSeaiceZoo(i,iiN),&
                                               ppzoon, ruXIc* qnXc(i,:) ,tfluxN)
-      call fixed_quota_flux_vector( check_fixed_quota,iiBen,ppzoop,ppSeaiceZoo(i,iiP),&
+      call fixed_quota_flux_vector( check_fixed_quota,iiIce,ppzoop,ppSeaiceZoo(i,iiP),&
                                               ppzoop, ruXIc* qpXc(i,:) ,tfluxP)
     end if
 
@@ -250,9 +250,9 @@
   rrac  =   rugc* pu_ra
   rrtc  =   rrsc+ rrac
 
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzooc,ppzooc,ppF3c, &
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppzooc,ppF3c, &
                                                   rrtc,tfluxC )
-  call flux_vector( iiBen, ppF2o,ppF2o,-( rrtc/ MW_C) )
+  call flux_vector( iiIce, ppF2o,ppF2o,-( rrtc/ MW_C) )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Mortality (rdc) + Excetion (reac)
@@ -267,8 +267,8 @@
   rr1c  =   rric* p_pe_R1c
   rr6c  =   rric*( ONE- p_pe_R1c)
 
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzooc,ppzooc,ppU1c, rr1c,tfluxC)
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzooc,ppzooc,ppU6c, rr6c,tfluxC)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppzooc,ppU1c, rr1c,tfluxC)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppzooc,ppU6c, rr6c,tfluxC)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   !     Nutrient dynamics in microzooplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -280,8 +280,8 @@
   rr1n  =   rrin* p_pe_R1n
   rr6n  =   rrin- rr1n
 
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoon,ppzoon,ppU1n, rr1n ,tfluxN)
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoon,ppzoon,ppU6n, rr6n ,tfluxN)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppzoon,ppU1n, rr1n ,tfluxN)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppzoon,ppU6n, rr6n ,tfluxN)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Phosphorus dynamics
@@ -290,8 +290,8 @@
   rr1p  =   rrip* p_pe_R1p
   rr6p  =   rrip- rr1p
 
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoop,ppzoop,ppU1p, rr1p ,tfluxP)
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoop,ppzoop,ppU6p, rr6p ,tfluxP)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppzoop,ppU1p, rr1p ,tfluxP)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppzoop,ppU6p, rr6p ,tfluxP)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Dissolved nutrient dynamics
@@ -303,8 +303,8 @@
 
   ren  =   max(  ZERO,  runn/( p_small+ runc)- p_qnXI(zoo))* runc
   rep  =   max(  ZERO,  runp/( p_small+ runc)- p_qpXI(zoo))* runc
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoon,ppzoon,ppI4n, ren ,tfluxN)
-  call fixed_quota_flux_vector( check_fixed_quota,iiBen, ppzoop,ppzoop,ppI1p, rep ,tfluxP)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppzoon,ppI4n, ren ,tfluxN)
+  call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppzoop,ppI1p, rep ,tfluxP)
 
 
   r=tfluxC*p_qnXI(zoo)

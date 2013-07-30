@@ -17,7 +17,16 @@
 #ifdef EXPLICIT_SINK
    use mem, ONLY: D3SINK
 #endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   use mem, ONLY: NO_D2_BOX_STATES_ICE, D2SOURCE_ICE, D2STATE_ICE, &
+        NO_BOXES_XY_ICE, D2STATETYPE_ICE
+#ifdef EXPLICIT_SINK
+   use mem, ONLY: D2SINK_ICE
+#endif
+#endif
+
+#if defined INCLUDE_BEN
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                   D2STATETYPE
 #ifdef EXPLICIT_SINK
@@ -39,10 +48,16 @@
    real(RLEN),parameter    :: eps=0.
    real(RLEN),parameter    :: ass=.05
    real(RLEN)              :: min3D,min2D
+   logical                 :: min
    integer                 :: i,j,n
    integer,dimension(2,2)  :: blccc
    real(RLEN),dimension(NO_D3_BOX_STATES,NO_BOXES)    :: bc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+   real(RLEN)                                                 :: min2D_ice
+   integer,dimension(2,2)                                     :: blccc_ice
+   real(RLEN),dimension(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE) :: bc2D_ice
+#endif
+#if defined INCLUDE_BEN
    real(RLEN),dimension(NO_D2_BOX_STATES,NO_BOXES_XY) :: bc2D
 #endif
 !EOP
@@ -54,7 +69,13 @@
    ! save initial states and additional variables
    bccc3D=D3STATE
    bc3D=bbccc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   bccc2D_ice=D2STATE_ICE
+   bc2D_ice=bbccc2D_ice
+#endif
+
+#if defined INCLUDE_BEN
    bccc2D=D2STATE
    bc2D=bbccc2D
 #endif
@@ -70,7 +91,20 @@
 #endif
          END IF
       END DO
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+      DO j=1,NO_D2_BOX_STATES_ICE
+         IF(D2STATETYPE_ICE(j).ge.0) THEN
+#ifndef EXPLICIT_SINK
+                  ccc_tmp2D_ice(j,:) = bbccc2D_ice(j,:) + delt*D2SOURCE_ICE(j,:)
+#else
+                  ccc_tmp2D_ice(j,:) = bbccc2D_ice(j,:) + delt*sum(D2SOURCE_ICE(j,:,:)-D2SINK_ICE(j,:,:),1)
+#endif
+         END IF
+      END DO
+#endif
+
+#if defined INCLUDE_BEN
       DO j=1,NO_D2_BOX_STATES
          IF(D2STATETYPE(j).ge.0) THEN
 #ifndef EXPLICIT_SINK
@@ -81,21 +115,30 @@
          END IF
       END DO
 #endif
+
       nmin=nmin+nstep 
       ! Check for negative concentrations
       min3D=minval(ccc_tmp3D)
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+      min =  ( min3D.lt.eps )
+#if defined INCLUDE_SEAICE
+      min2D_ice=minval(ccc_tmp2D_ice)
+      min = ( min .OR. ( min2D_ice .lt. eps ) )
+#elif defined INCLUDE_BEN
       min2D=minval(ccc_tmp2D)
-      IF (min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
-#else
-      IF (min3D.lt.eps) THEN ! cut timestep
+      min = ( min .OR. ( min2D .lt. eps ) )
 #endif
+      IF ( min ) THEN ! cut timestep
          IF (nstep.eq.1) THEN
             LEVEL1 'Necessary Time Step too small! Exiting...'
                blccc(1,:)=minloc(ccc_tmp3D)
                LEVEL2 ccc_tmp3D(blccc(1,1),blccc(1,2)), &
                            bbccc3D(blccc(1,1),blccc(1,2))
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+               blccc_ice(2,:)=minloc(ccc_tmp2D_ice)
+               LEVEL2 ccc_tmp2D_ice(blccc_ice(2,1),blccc_ice(2,2)), &
+                           bbccc2D_ice(blccc_ice(2,1),blccc_ice(2,2))
+#endif
+#if defined INCLUDE_BEN
                blccc(2,:)=minloc(ccc_tmp2D)
                LEVEL2 ccc_tmp2D(blccc(2,1),blccc(2,2)), &
                            bbccc2D(blccc(2,1),blccc(2,2))
@@ -106,7 +149,10 @@
          nstep=nstep/2
          nmin=0
          D3STATE=bccc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+         D2STATE_ICE=bccc2D_ice
+#endif
+#if defined INCLUDE_BEN
          D2STATE=bccc2D
 #endif
          dtm1=.5*delt
@@ -123,7 +169,16 @@
             END IF
          END DO
          D3STATE=ccc_tmp3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+         DO j=1,NO_D2_BOX_STATES_ICE
+            IF (D2STATETYPE_ICE(j).ge.0) THEN
+               bbccc2D_ice(j,:) = D2STATE_ICE(j,:) + &
+                     ass*(bbccc2D_ice(j,:)-2.*D2STATE_ICE(j,:)+ccc_tmp2D_ice(j,:))
+            END IF
+         END DO
+         D2STATE_ICE=ccc_tmp2D_ice
+#endif
+#if defined INCLUDE_BEN
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
                bbccc2D(j,:) = D2STATE(j,:) + &
@@ -139,10 +194,21 @@
       IF(nmin.eq.nmaxdelt) EXIT TLOOP
       IF(nmin.eq.0) THEN
          ! 2nd order approximation of backward State from Taylor expansion:
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+#ifndef EXPLICIT_SINK
+         bbccc2D_ice=bc2D_ice/n**2+D2STATE_ICE*(1.-1./n**2) + D2SOURCE_ICE*.5*delt*(1./n**2-1./n)
+#else
+         bbccc2D_ice=bc2D_ice/n**2+D2STATE_ICE*(1.-1./n**2)+ &
+            sum((D2SOURCE_ICE-D2SINK_ICE),2)*.5*delt*(1./n**2-1./n)
+#endif
+#endif
+
+#if defined INCLUDE_BEN
          bbccc2D=bc2D/n**2+D2STATE*(1.-1./n**2)+ &
             sum((D2SOURCE-D2SINK),2)*.5*delt*(1./n**2-1./n)
 #endif
+
 #ifndef EXPLICIT_SINK
          bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2) + D3SOURCE*.5*delt*(1./n**2-1./n)
 #else
@@ -175,7 +241,18 @@
                ass*(bc3D(j,:)-2.*bccc3d(j,:)+D3STATE(j,:))
          END IF
       END DO
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+      bbccc2D_ice=bccc2D_ice
+      DO j=1,NO_D2_BOX_STATES_ICE
+         IF (D2STATETYPE_ICE(j).ge.0) THEN
+            bbccc2d_ice(j,:) = bccc2d_ice(j,:) + &
+               ass*(bc2D_ice(j,:)-2.*bccc2d_ice(j,:)+D2STATE_ICE(j,:))
+         END IF
+      END DO
+#endif
+
+#if defined INCLUDE_BEN
       bbccc2D=bccc2D
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN

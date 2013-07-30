@@ -26,18 +26,18 @@
   use global_mem, ONLY:RLEN,ZERO,ONE
   use constants, ONLY: MW_C
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem,  ONLY: D2STATE_ICE
 #else
-  use mem, ONLY: D2STATE, U1c, U6c, F2o, F3c, &
+  use mem, ONLY: D2STATE_ICE, U1c, U6c, F2o, F3c, &
                  I3n, I4n, I1p, U1n, U6n, U1p, U6p, I5s
 #endif
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, SUNQ, ThereIsLight, ETB, EIB, &
-    EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPPY, sunPPY, NO_BOXES_XY, &
-    iiBen, flux_vector
+    EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPPY, sunPPY, NO_BOXES_XY_ICE, &
+    iiIce, flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlDynamicsFlag, LightPeriodFlag 
-  use mem_Seaicealgae
+  use mem_SeaiceAlgae
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -88,66 +88,66 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY) :: phytoc
-  real(RLEN),dimension(NO_BOXES_XY) :: phyton
-  real(RLEN),dimension(NO_BOXES_XY) :: phytop
-  real(RLEN),dimension(NO_BOXES_XY) :: phytos
-  real(RLEN),dimension(NO_BOXES_XY) :: phytol
+  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytoc
+  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phyton
+  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytop
+  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytos
+  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytol
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer                         :: silica_control
-  integer,dimension(NO_BOXES_XY)     :: i
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: sum
-  real(RLEN),dimension(NO_BOXES_XY)  :: sadap
-  real(RLEN),dimension(NO_BOXES_XY)  :: sea
-  real(RLEN),dimension(NO_BOXES_XY)  :: sdo
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugc
-  real(RLEN),dimension(NO_BOXES_XY)  :: sra
-  real(RLEN),dimension(NO_BOXES_XY)  :: srs
-  real(RLEN),dimension(NO_BOXES_XY)  :: srt
-  real(RLEN),dimension(NO_BOXES_XY)  :: slc
-  real(RLEN),dimension(NO_BOXES_XY)  :: run
-  real(RLEN),dimension(NO_BOXES_XY)  :: pe_U6
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY)  :: misp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn3
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn4
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY)  :: netgrowth
-  real(RLEN),dimension(NO_BOXES_XY)  :: misn
-  real(RLEN),dimension(NO_BOXES_XY)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_XY)  :: rums
-  real(RLEN),dimension(NO_BOXES_XY)  :: rups
-  real(RLEN),dimension(NO_BOXES_XY)  :: miss
-  real(RLEN),dimension(NO_BOXES_XY)  :: tI
-  real(RLEN),dimension(NO_BOXES_XY)  :: iI
-  real(RLEN),dimension(NO_BOXES_XY)  :: iI1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: iIIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: eI5s
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn3
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn4
-  real(RLEN),dimension(NO_BOXES_XY)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY)  :: runs
-  real(RLEN),dimension(NO_BOXES_XY)  :: Irr
-  real(RLEN),dimension(NO_BOXES_XY)  :: rho_Chl
-  real(RLEN),dimension(NO_BOXES_XY)  :: rate_Chl
-  real(RLEN),dimension(NO_BOXES_XY)  :: Photo_max
-  real(RLEN),dimension(NO_BOXES_XY)  :: flSIU2c,flS1U6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: seo
+  integer,dimension(NO_BOXES_XY_ICE)     :: i
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: r
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: et
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sum
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sadap
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sea
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sdo
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rugc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sra
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: srs
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: srt
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: slc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: run
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: pe_U6
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rump
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn3
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn4
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: netgrowth
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cqun3
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rums
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rups
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: miss
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: tI
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iI
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iI1p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iIIn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: eI5s
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1c
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6c
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6s
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn3
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn4
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runs
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: Irr
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rho_Chl
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rate_Chl
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: Photo_max
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: flSIU2c,flS1U6s
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: seo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  silica_control =0 : no silica component present in cell
   !  silica_control =1 : external regulation of silica limitation & limitation of
@@ -173,11 +173,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  phytoc = D2STATE(ppphytoc,:)
-  phyton = D2STATE(ppphyton,:)
-  phytop = D2STATE(ppphytop,:)
-  phytol = D2STATE(ppphytol,:)
-  if ( ppphytos > 0 )  phytos = D2STATE(ppphytos,:)
+  phytoc = D2STATE_ICE(ppphytoc,:)
+  phyton = D2STATE_ICE(ppphyton,:)
+  phytop = D2STATE_ICE(ppphytop,:)
+  phytol = D2STATE_ICE(ppphytol,:)
+  if ( ppphytos > 0 )  phytos = D2STATE_ICE(ppphytos,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient limitation (intracellular) N, P
@@ -300,15 +300,15 @@
       flSIU2c  =   seo*phytoc
    end if
 
-  !call flux_vector( iiBen, ppphytoc,ppphytoc, rugc )
-  call flux_vector( iiBen,ppF3c,ppphytoc,rugc )
-  call flux_vector( iiBen, ppphytoc,ppU6c, rr6c )
-  call flux_vector( iiBen, ppphytoc,ppU1c, rr1c )
+  !call flux_vector( iiIce, ppphytoc,ppphytoc, rugc )
+  call flux_vector( iiIce,ppF3c,ppphytoc,rugc )
+  call flux_vector( iiIce, ppphytoc,ppU6c, rr6c )
+  call flux_vector( iiIce, ppphytoc,ppU1c, rr1c )
 
-  !call flux_vector( iiBen, ppphytoc,ppphytoc, rrc )
-  call flux_vector( iiBen, ppphytoc,ppF3c,rrc )
-  call flux_vector( iiBen, ppF2o,ppF2o,-( rrc/ MW_C) )
-  call flux_vector( iiBen, ppF2o,ppF2o, rugc/ MW_C )
+  !call flux_vector( iiIce, ppphytoc,ppphytoc, rrc )
+  call flux_vector( iiIce, ppphytoc,ppF3c,rrc )
+  call flux_vector( iiIce, ppF2o,ppF2o,-( rrc/ MW_C) )
+  call flux_vector( iiIce, ppF2o,ppF2o, rugc/ MW_C )
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -363,8 +363,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Polysaccharides U2 are not defined in sea ice yet
   ! hence both rr1c and flSIU2c are assigned to U1
-  !call flux_vector( iiBen, ppphytoc, ppU2c, flSIU2c )
-  call flux_vector( iiBen, ppphytoc,ppU1c, rr1c+flSIU2c )
+  !call flux_vector( iiIce, ppphytoc, ppU2c, flSIU2c )
+  call flux_vector( iiIce, ppphytoc,ppU1c, rr1c+flSIU2c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nutrient dynamics: NITROGEN
@@ -376,9 +376,9 @@
   r  =   insw_vector(  runn)
   runn3  =   r* runn* rumn3/( p_small+ rumn)  ! actual uptake of In
   runn4  =   r* runn* rumn4/( p_small+ rumn)  ! actual uptake of In
-  call flux_vector( iiBen, ppI3n,ppphyton, runn3 )  ! source/sink.n
-  call flux_vector( iiBen, ppI4n,ppphyton, runn4 )  ! source/sink.n
-  call flux_vector(iiBen, ppphyton,ppI4n,- runn*( ONE- r))  ! source/sink.n
+  call flux_vector( iiIce, ppI3n,ppphyton, runn3 )  ! source/sink.n
+  call flux_vector( iiIce, ppI4n,ppphyton, runn4 )  ! source/sink.n
+  call flux_vector(iiIce, ppphyton,ppI4n,- runn*( ONE- r))  ! source/sink.n
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Nuttrient dynamics: PHOSPHORUS
@@ -388,8 +388,8 @@
   runp  =   min(  rump,  rupp+ misp)  ! actual uptake
 
   r  =   insw_vector(  runp)
-  call flux_vector( iiBen, ppI1p,ppphytop, runp* r )  ! source/sink.p
-  call flux_vector(iiBen, ppphytop,ppI1p,- runp*( ONE- r))  ! source/sink.p
+  call flux_vector( iiIce, ppI1p,ppphytop, runp* r )  ! source/sink.p
+  call flux_vector(iiIce, ppphytop,ppI1p,- runp*( ONE- r))  ! source/sink.p
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion of N and P to PON and POP
@@ -400,11 +400,11 @@
   rr6p  =   pe_U6* sdo* phytop
   rr1p  =   sdo* phytop- rr6p
 
-  call flux_vector( iiBen, ppphyton,ppU1n, rr1n )  ! source/sink.n
-  call flux_vector( iiBen, ppphyton,ppU6n, rr6n )  ! source/sink.n
+  call flux_vector( iiIce, ppphyton,ppU1n, rr1n )  ! source/sink.n
+  call flux_vector( iiIce, ppphyton,ppU6n, rr6n )  ! source/sink.n
 
-  call flux_vector( iiBen, ppphytop,ppU1p, rr1p )  ! source/sink.p
-  call flux_vector( iiBen, ppphytop,ppU6p, rr6p )  ! source/sink.p
+  call flux_vector( iiIce, ppphytop,ppU1p, rr1p )  ! source/sink.p
+  call flux_vector( iiIce, ppphytop,ppU6p, rr6p )  ! source/sink.p
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -416,7 +416,7 @@
     case (1)
 
      runs = max(ZERO, p_qscPPY(phyto) * run );          ! net uptake
-     call flux_vector( iiBen, ppI5s,ppphytos, runs)  ! source/sink.c
+     call flux_vector( iiIce, ppI5s,ppphytos, runs)  ! source/sink.c
      ! The fixed loss rate for basal respiration is maintained to have 
      ! constant Si:C quota in the absence of production
      flS1U6s(:)  =   flS1U6s(:)+ srs*phytos
@@ -430,8 +430,8 @@
       rups  =   (run* p_qscPPY(phyto)-( sdo+ srs)* phytos)  ! Si uptake based on C uptake
       runs  =   min(  rums,  rups+ miss)  ! actual uptake
 
-      call flux_vector( iiBen, ppI5s,ppphytos, runs* insw_vector(runs) )  ! source/sink.c
-      call flux_vector(iiBen, ppphytos,ppI5s,- runs*insw_vector(-runs))  ! source/sink.c
+      call flux_vector( iiIce, ppI5s,ppphytos, runs* insw_vector(runs) )  ! source/sink.c
+      call flux_vector(iiIce, ppphytos,ppI5s,- runs*insw_vector(-runs))  ! source/sink.c
     end select
               
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -447,7 +447,7 @@
   ! also release biogenic particulate silica
   ! Since there is no zooplankton here, we need to assign the flux
   !call flux_vector( iiPel, ppphytos,ppU6s, flS1U6s(:) )
-  call flux_vector( iiBen, ppphytos,ppU6s, flS1U6s(:) )
+  call flux_vector( iiIce, ppphytos,ppU6s, flS1U6s(:) )
  endif
 
   if ( ChlDynamicsFlag== 2) then
@@ -457,7 +457,7 @@
       rho_Chl = p_qlcPPYSI( phyto)* min(ONE, p_sum(phyto)* eiSI(phyto,:)* phytoc/( &
           p_alpha_chl(phyto)*( phytol+ p_small)* Irr))
       rate_Chl = rho_Chl*(sum - sea + seo) * phytoc - (srt+ sdo)*phytol
-    call flux_vector( iiBen, ppphytol,ppphytol, rate_Chl )
+    call flux_vector( iiIce, ppphytol,ppphytol, rate_Chl )
   end if
 
   ! End of computation section for process PhytoDynamics

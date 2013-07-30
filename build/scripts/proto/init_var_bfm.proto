@@ -5,12 +5,15 @@ MODULE init_var_bfm_local
    USE global_mem,ONLY: RLEN,ZERO
    IMPLICIT NONE
 
-   real(RLEN) :: nc_ratio_default = 0.0126_RLEN    ! Redfield
-   real(RLEN) :: pc_ratio_default = 0.7862e-3_RLEN ! Redfield
-   real(RLEN) :: sc_ratio_default = 0.0145_RLEN    ! Redfield
-   real(RLEN) :: lc_ratio_default = 0.03_RLEN      ! standard diatom value
-   real(RLEN) :: fc_ratio_default = 3.e-04_RLEN    ! standard diatom value
-   real(RLEN) :: hc_ratio_default = ZERO           ! standard diatom value
+   real(RLEN),parameter :: nc_ratio_default = 0.0126_RLEN    ! Redfield
+   real(RLEN),parameter :: pc_ratio_default = 0.7862e-3_RLEN ! Redfield
+   real(RLEN),parameter :: sc_ratio_default = 0.0145_RLEN    ! Redfield
+   real(RLEN),parameter :: lc_ratio_default = 0.03_RLEN      ! standard diatom value
+   real(RLEN),parameter :: fc_ratio_default = 3.e-04_RLEN    ! standard diatom value
+   real(RLEN),parameter :: hc_ratio_default = ZERO           ! standard diatom value
+
+   character(len=*),parameter :: bfm_general_fname = 'BFM_General.nml'
+   character(len=*),parameter :: bfm_seaice_fname  = 'Seaice.nml'
 
    CONTAINS
 
@@ -25,7 +28,7 @@ END MODULE init_var_bfm_local
 ! !ROUTINE: Initialise BFM variables
 !
 ! !INTERFACE:
-   subroutine init_var_bfm(namlst,fname,unit,setup)
+   subroutine init_var_bfm(setup)
 !
 ! !DESCRIPTION:
 !  Allocate BFM variables and give initial values of
@@ -54,8 +57,9 @@ END MODULE init_var_bfm_local
 
    use constants, ONLY: HOURS_PER_DAY
    use mem_Param, ONLY: p_small,          &
-                        CalcPelagicFlag, &
-                        CalcBenthicFlag, &
+                        CalcPelagicFlag,  &
+                        CalcBenthicFlag,  &
+                        CalcSeaiceFlag,   &
                         CalcPelChemistry, &
                         CalcTransportFlag
 
@@ -65,9 +69,6 @@ END MODULE init_var_bfm_local
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
-   integer,          intent(in)        :: namlst
-   character(len=*), intent(in)        :: fname
-   integer,          intent(in)        :: unit
    integer,          intent(in)        :: setup
 
 !
@@ -75,6 +76,7 @@ END MODULE init_var_bfm_local
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
+   integer,parameter    :: namlst=10
    integer              :: icontrol,i,j,iiLastElement,n,Flun
    integer,parameter    :: NSAVE=120  ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
@@ -85,16 +87,21 @@ END MODULE init_var_bfm_local
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
    real(RLEN) :: %3d-state-pel-Initpp
-   real(RLEN) :: %2d-state-pel-Initpp
 
    namelist /bfm_init_nml/ %3d-state-pel-Initpp
-   namelist /bfm_init_nml/ %2d-state-pel-Initpp
 
    namelist /bfm_init_nml/ surface_flux_method,       &
                            bottom_flux_method,        &
                            n_surface_fluxes, InitVar
 
    namelist /bfm_save_nml/ var_save, ave_save
+
+#ifdef INCLUDE_SEAICE
+   real(RLEN) :: %2d-state-ice-Initpp
+
+   namelist /bfm_seaice_init_nml/ %2d-state-ice-Initpp
+#endif
+
 
 ! COPYING
 !
@@ -127,7 +134,15 @@ END MODULE init_var_bfm_local
    !---------------------------------------------
 
 %3d-state-pel-InitDefault
-%2d-state-pel-InitDefault
+
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Seaice variables
+   !---------------------------------------------
+
+%2d-state-ice-InitDefault
+
+#endif
 
    !---------------------------------------------
    ! Initialize the structured array that 
@@ -141,7 +156,7 @@ END MODULE init_var_bfm_local
    ! Open and read the namelist
    !---------------------------------------------
    icontrol=0
-   open(namlst,file=fname,action='read',status='old',err=98)
+   open(namlst,file=bfm_general_fname,action='read',status='old',err=98)
    read(namlst,nml=bfm_init_nml,err=99)
    var_save=""
    ave_save=""
@@ -150,10 +165,22 @@ END MODULE init_var_bfm_local
    close(namlst)
    icontrol=1
 98 if ( icontrol == 0 ) then
-     LEVEL3 'I could not open ',trim(fname)
+     LEVEL3 'I could not open ',trim(bfm_general_fname)
      LEVEL3 'The initial values of the BFM variables are set to ONE'
-     LEVEL3 'If thats not what you want you have to supply ',trim(fname)
+     LEVEL3 'If thats not what you want you have to supply ',trim(bfm_general_fname)
    end if
+#ifdef INCLUDE_SEAICE
+   icontrol=0
+   open(namlst,file=bfm_seaice_fname,action='read',status='old',err=101)
+   read(namlst,nml=bfm_seaice_init_nml,err=102)
+   icontrol=1
+   close(namlst)
+101 if ( icontrol == 0 ) then
+     LEVEL3 'I could not open ',trim(bfm_seaice_fname)
+     LEVEL3 'The initial values of the BFM variables are set to ONE'
+     LEVEL3 'If thats not what you want you have to supply ',trim(bfm_seaice_fname)
+   end if
+#endif
 
    !---------------------------------------------
    ! Check variable to be saved and
@@ -161,7 +188,7 @@ END MODULE init_var_bfm_local
    !---------------------------------------------
    do i=1,NSAVE
       if (.NOT.empty(var_save(i))) then
-            j=getseq_number(var_save(i),var_names,stPelState2dE,.TRUE.)
+            j=getseq_number(var_save(i),var_names,stEnd,.TRUE.)
             if ( j > 0 ) var_ids(j)=-1
       end if
       if ( .NOT.empty(var_save(i)) .AND. j==0 ) then
@@ -170,7 +197,7 @@ END MODULE init_var_bfm_local
    end do
    do i=1,NSAVE
       if (.NOT.empty(ave_save(i))) then
-         j=getseq_number(ave_save(i),var_names,stPelState2dE,.TRUE.)
+         j=getseq_number(ave_save(i),var_names,stEnd,.TRUE.)
          if ( .NOT.empty(ave_save(i)) .AND. j==0 ) then
             STDERR 'Warning: variable ',trim(ave_save(i)),' does not exist!'
          else if ( var_ids(j) <0 ) then
@@ -209,14 +236,34 @@ END MODULE init_var_bfm_local
    !---------------------------------------------
 
 %3d-state-pel-InitSets
-%2d-state-pel-InitSets
 
-      !---------------------------------------------
-      ! Initialise other internal components
-      ! with Redfield
-      !---------------------------------------------
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Initialise seaice state variables
+   ! also if using a seaice-only setup
+   ! (for boundary conditions)
+   !---------------------------------------------
+
+%2d-state-ice-InitSets
+
+#endif
+
+   !---------------------------------------------
+   ! Initialise other pelagic internal components
+   ! with Redfield
+   !---------------------------------------------
+
 %3d-state-pel-InitInternal
-%2d-state-pel-InitInternal
+
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Initialise other seaice internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%2d-state-ice-InitInternal
+
+#endif
 
    !---------------------------------------------
    ! Check setup settings
@@ -225,19 +272,37 @@ END MODULE init_var_bfm_local
    select case (setup)
       case (0)
       case (1) ! Pelagic only
-         LEVEL2 "Pelagic-only setup (bio_setup=1), Switching off the benthic system"
-%value-init-calc-ben 0
-#ifdef INCLUDE_BEN
+         LEVEL2 "Pelagic-only setup (bio_setup=1), Switching off other systems"
+         CalcPelagicFlag = .TRUE.
+         CalcBenthicFlag = 0
+         CalcSeaiceFlag  = .FALSE.
+         %value-init-calc-pel .TRUE.
       case (2) ! Benthic only
-         LEVEL2 "Benthic-only setup (bio_setup=2), Switching off the pelagic system"
-%value-init-calc-pel .FALSE.
+         LEVEL2 "Benthic-only setup (bio_setup=2), Switching off other systems"
+         CalcPelagicFlag = .FALSE.
+         CalcBenthicFlag = 1
+         CalcSeaiceFlag  = .FALSE.
+         %value-init-calc-ben .TRUE.
       case (3) ! Pelagic-Benthic coupling
          LEVEL2 "Pelagic-Benthic coupled setup (bio_setup=3)"
-         if (CalcBenthicFlag == 0) &
-            LEVEL3 'Warning, benthic system is switched off!'
-         if (.NOT.CalcPelagicFlag) &
-            LEVEL3 'Warning, pelagic system is switched off!'
-#endif
+         CalcPelagicFlag = .TRUE.
+         CalcBenthicFlag = 1
+         CalcSeaiceFlag  = .FALSE.
+         %value-init-calc-pel .TRUE.
+         %value-init-calc-ben .TRUE.
+      case (4) ! SeaIce only
+         LEVEL2 "Seaice-only setup (bio_setup=4), Switching off other systems"
+         CalcPelagicFlag = .FALSE.
+         CalcBenthicFlag = 0
+         CalcSeaiceFlag  = .TRUE.
+         %value-init-calc-ice .TRUE.
+      case (5) ! Pelagic-SeaIce coupling
+         LEVEL2 "Pelagic-Seaice coupled setup (bio_setup=5)"
+         CalcPelagicFlag = .TRUE.
+         CalcBenthicFlag = 0
+         CalcSeaiceFlag  = .TRUE.
+         %value-init-calc-pel .TRUE.
+         %value-init-calc-ice .TRUE.
    end select
 
 #if defined key_obcbfm
@@ -258,12 +323,21 @@ END MODULE init_var_bfm_local
    if (.NOT.CalcTransportFlag) D3STATETYPE(:) = NOTRANSPORT
 #endif
 
-   !---------------------------------------------
-   ! Zeroing of the switched off state variables
-   !---------------------------------------------
+   !----------------------------------------------------
+   ! Zeroing of the switched off pelagic state variables
+   !----------------------------------------------------
 
 %3d-state-pel-func-zeroing
-%2d-state-pel-func-zeroing
+
+#ifdef INCLUDE_SEAICE
+   !----------------------------------------------------
+   ! Zeroing of the switched off seaice state variables
+   !----------------------------------------------------
+
+%2d-state-ice-func-zeroing
+
+#endif
+
 
    !---------------------------------------------
    ! Write defined variables to stdout
@@ -276,7 +350,7 @@ END MODULE init_var_bfm_local
    if (setup /= 2) then
       LEVEL3 'Pelagic variables:'
       write(Flun,155) 'ID','Var','Unit','Long Name','Flag'
-      do n=stPelStateS,stPelStateE
+      do n=stStart,stEnd
          write(Flun,156) n,trim(var_names(n)),trim(var_units(n)) &
            ,trim(var_long(n)),D3STATETYPE(n)
       end do
@@ -287,6 +361,8 @@ END MODULE init_var_bfm_local
 99  FATAL 'I could not read bfm_init_nml'
     stop 'init_var_bfm'
 100 FATAL 'I could not read bfm_save_nml'
+    stop 'init_var_bfm'
+102 FATAL 'I could not read bfm_seaice_init_nml'
     stop 'init_var_bfm'
 155 FORMAT(10x,a4,1x,a5,1x,a12,1x,a40,1x,a10)
 156 FORMAT(10x,i4,1x,a5,1x,a12,1x,a40,1x,i6)

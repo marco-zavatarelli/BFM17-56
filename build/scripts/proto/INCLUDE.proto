@@ -2,17 +2,24 @@
 
 
 #define NOPOINTERS 1
+
 %3d-state-pel-header
-%2d-state-pel-header
 %3d-group-pel-header
-%2d-group-pel-header
 %3d-diagnos-pel-header
 %2d-diagnos-pel-header
 %pel-field-header surface
 %pel-field-header bottom
 %pel-field-header river
 %3d-diaggrp-pel-header
-%2d-diaggrp-pel-header
+
+#ifdef SEAICE
+
+%2d-state-ice-header
+%2d-group-ice-header
+%2d-diagnos-ice-header
+%2d-diaggrp-ice-header
+
+#endif
 
 #endif
 

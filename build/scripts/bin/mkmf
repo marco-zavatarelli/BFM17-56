@@ -34,7 +34,7 @@ use vars qw( $opt_a $opt_c $opt_d $opt_f $opt_l $opt_m $opt_o $opt_p $opt_t $opt
 #subroutines
 sub ensureTrailingSlash {
 #ensure trailing slash on directory names
-   local $/ = '/'; chomp @_[0]; @_[0] .= '/';
+    local $/ = '/'; chomp @_[0]; @_[0] .= '/';
 }
 
 my $version = '$Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ ';
@@ -65,14 +65,14 @@ my @inc_suffixes = ( q/\.H/, q/\.fh/, q/\.h/, q/\.inc/, q/\.h90/ );
 my @tgt_suffixes = ( q/\.a/ );
 
 my %compile_cmd = (			# command to create .o file from a given source file suffix
-      q/.F/   => q/$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c/,
-      q/.F90/ => q/$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c/,
-      q/.c/   => q/$(CC) $(CPPDEFS) $(CPPFLAGS) $(CFLAGS) $(OTHERFLAGS) -c/,
-      q/.f/   => q/$(FC) $(FFLAGS) $(OTHERFLAGS) -c/,
-      q/.f90/ => q/$(FC) $(FFLAGS) $(OTHERFLAGS) -c/              );
+                        q/.F/   => q/$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c/,
+                        q/.F90/ => q/$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c/,
+                        q/.c/   => q/$(CC) $(CPPDEFS) $(CPPFLAGS) $(CFLAGS) $(OTHERFLAGS) -c/,
+                        q/.f/   => q/$(FC) $(FFLAGS) $(OTHERFLAGS) -c/,
+                        q/.f90/ => q/$(FC) $(FFLAGS) $(OTHERFLAGS) -c/              );
 my %delim_match = ( q/'/ => q/'/,	# hash to find includefile delimiter pair
-		    q/"/ => q/"/,
-		    q/</ => q/>/ );
+                    q/"/ => q/"/,
+                    q/</ => q/>/ );
 
 #formatting command for MAKEFILE, keeps very long lines to 256 characters
 format MAKEFILE =
@@ -84,13 +84,13 @@ sub print_formatted_list{
 #this routine, in conjunction with the format line above, can be used to break up long lines
 # it is currently used to break up the potentially long defs of SRC, OBJ, CPPDEFS, etc.
 # not used for the dependency lists
-   $line = "@_";
-   local $: = " \t\n";		# the default formatting word boundary includes the hyphen, but not here
-   while ( $opt_f && length $line > 254 ) {
-      write MAKEFILE, $line;
-   }
-   print MAKEFILE $line unless $line eq '';
-   print MAKEFILE "\n";
+    $line = "@_";
+    local $: = " \t\n";		# the default formatting word boundary includes the hyphen, but not here
+    while ( $opt_f && length $line > 254 ) {
+        write MAKEFILE, $line;
+    }
+    print MAKEFILE $line unless $line eq '';
+    print MAKEFILE "\n";
 }
 
 #begin writing makefile
@@ -360,7 +360,7 @@ foreach $object ( sort @objects ) {
 #we need to check target ne '' also below, since it is not mkmf's privilege
 #to complain about modules not found. That should be left to the compiler.
       if( $target and !$is_used{$target} ) {
-	 $is_used{$target} = 1;
+          $is_used{$target} = 1;
 	 push @cmdline, $target;
 	 $used{$target} = 1;
 	 print "   found module $module in object $target ...\n" if $opt_v;

@@ -23,7 +23,7 @@
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem,  ONLY: D2STATE_ICE
 #else
   use mem, ONLY: U6p, U6c, U6n, U6s, T1p, X1n, X1p, X1c, &
     U1p, U1n, U1c, &

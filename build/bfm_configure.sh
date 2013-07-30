@@ -279,6 +279,7 @@ if [ ${GEN} ]; then
         find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Forcing -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
+        find ${BFMDIR}/src/BFM/SeaIce -name "*.?90" -print >> BFM.lst
 
         #change netcdf path in compiler file
         if [ ${NETCDF} ]; then
@@ -286,6 +287,16 @@ if [ ${GEN} ]; then
             sed -e "s,/usr/local,${NETCDF}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
         else
             cp ${BFMDIR}/compilers/${ARCH} ${blddir}/${ARCH}
+        fi
+
+        if [ ${VERBOSE} ]; then
+            echo "Executing: "
+            echo "${BFMDIR}/${SCRIPTS_BIN}/${cmd_mkmf}"
+            echo "    -c \"${cppdefs}\" "
+            echo "    -o \"-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include\" "
+            echo "    -t \"${blddir}/${ARCH}\" "
+            echo "    -p \"${BFMDIR}/bin/bfm_standalone.x\" "
+            echo "    BFM.lst && echo \" "
         fi
 
         # Make makefile

@@ -16,6 +16,11 @@
    use api_bfm
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
    use mem,     only: D3FLUX_FUNC
+#if defined INCLUDE_SEAICE
+   use mem,     only: NO_BOXES_ICE,NO_BOXES_X_ICE,NO_BOXES_Y_ICE,NO_BOXES_XY_ICE
+   use mem,     only: D2FLUX_FUNC_ICE
+#endif
+
    use global_mem, only: RLEN,LOGUNIT,bfm_lwp
    use constants, ONLY: SEC_PER_DAY
    use netcdf
@@ -291,7 +296,11 @@
 !
 ! !USES:
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,    &
-                  NO_BOXES_XY, NO_D2_BOX_STATES
+                  NO_BOXES_XY
+#if defined INCLUDE_SEAICE
+   use mem, only: NO_D2_BOX_STATES_ICE, NO_BOXES_ICE,    &
+                  NO_BOXES_XY_ICE, NO_D2_BOX_STATES_ICE
+#endif
    implicit none
 !
 ! !INPUT/OUTPUT PARAMETERS:
@@ -336,7 +345,23 @@
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATEB',NF90_DOUBLE,dims,d3stateb_rid), fname)
 #endif
  
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   !---------------------------------------------
+   ! define 2D Seaice dimensions and variables
+   !---------------------------------------------
+   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ice', NO_D2_BOX_STATES_ICE, d2vars_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ice', max(NO_BOXES_XY_ICE,1), botpoint_rdim), fname)
+   dims(1) = d2vars_rdim
+   dims(2) = botpoint_rdim
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE',NF90_DOUBLE,dims,d2state_rid), fname)
+#ifdef BFM_POM
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_ICE',NF90_DOUBLE,dims,d2stateb_rid), fname)
+#endif
+#endif
+
+
+#if defined INCLUDE_BEN
    !---------------------------------------------
    ! define 2D dimensions and variables
    !---------------------------------------------
@@ -377,7 +402,15 @@ end subroutine init_netcdf_rst_bfm
 #ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_BOXES_XY_ICE
+#ifdef BFM_POM
+   use api_bfm, only: D2STATEB_ICE
+#endif
+#endif
+
+#if defined INCLUDE_BEN
    use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB
@@ -407,7 +440,17 @@ end subroutine init_netcdf_rst_bfm
 #ifdef BFM_POM
      call check_err(NF90_PUT_VAR(ncid_rst,d3stateb_rid,D3STATEB(:,:),start,edges), restfile)
 #endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+     start(1) = 1;   edges(1) = NO_D2_BOX_STATES_ICE
+     start(2) = 1;   edges(2) = NO_BOXES_XY_ICE
+     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE_ICE(:,:),start,edges), restfile)
+#ifdef BFM_POM
+     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB_ICE(:,:),start,edges), restfile)
+#endif
+#endif
+
+#if defined INCLUDE_BEN
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES_XY
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE(:,:),start,edges), restfile)
@@ -440,7 +483,15 @@ end subroutine init_netcdf_rst_bfm
 #ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_BOXES_XY_ICE
+#ifdef BFM_POM
+   use api_bfm, only: D2STATEB_ICE
+#endif
+#endif
+
+#if defined INCLUDE_BEN
    use mem, only: D2STATE, NO_D2_BOX_STATES, NO_BOXES_XY
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB
@@ -501,7 +552,36 @@ end subroutine init_netcdf_rst_bfm
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D3STATEB(:,:)), fname)
 #endif
 
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Check Seaice 2D dimensions 
+   !---------------------------------------------
+   call check_err(NF90_INQ_DIMID(ncid_rst_in,"d2vars_ice",nstate_id), fname)
+   call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len), fname)
+   call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint_ice",ncomp_id), fname)
+   call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len), fname)
+   if (nstate_len/=NO_D2_BOX_STATES_ICE .OR. ncomp_len/=NO_BOXES_XY_ICE) then
+      LEVEL1 '2D Seaice Dimension mismatch in restart file:'
+      LEVEL2 TRIM(fname)
+      LEVEL3 "NO_D2_BOX_STATES_ICE in model:", NO_D2_BOX_STATES_ICE
+      LEVEL3 "NO_D2_BOX_STATES_ICE in file:", nstate_len
+      LEVEL3 "NO_BOXES_XY_ICE in model:", NO_BOXES_XY_ICE
+      LEVEL3 "NO_BOXES_XY_ICE in file:", ncomp_len
+      stop 'STOP in read_rst_bfm contained in netcdf_bfm.F90'
+   end if
+   !---------------------------------------------
+   ! Initialize 2D variable
+   !---------------------------------------------
+   call check_err(NF90_INQ_VARID(ncid_rst_in,"D2STATE_ICE",nstate_id), fname)
+   call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATE_ICE(:,:)), fname)
+#ifdef BFM_POM
+   call check_err(NF90_INQ_VARID(ncid_rst_in,"D2STATEB_ICE",nstate_id), fname)
+   call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATEB_ICE(:,:)), fname)
+#endif
+#endif
+
+
+#if defined INCLUDE_BEN
    !---------------------------------------------
    ! Check 2D dimensions 
    !---------------------------------------------
@@ -594,19 +674,35 @@ end subroutine init_netcdf_rst_bfm
       end do
 
       dims(2) = time_dim
-      do n=stPelState2dS,stPelState2dE
+      do n=stPelDiag2dS,stPelRivE
 
-      dims(1) = botpoint_dim 
-      if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
+         dims(1) = botpoint_dim 
+         if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
 
          if ( var_ids(n) /= 0 )  then 
             iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
-                           dims,var_ids(n))
+                 dims,var_ids(n))
             iret = set_attributes(ncid_bfm,var_ids(n),            &
-                                 units=var_units(n),         &
-                                 long_name=var_long(n)) 
+                 units=var_units(n),         &
+                 long_name=var_long(n)) 
          endif
-      end do 
+      end do
+
+#if defined INCLUDE_SEAICE
+      dims(2) = time_dim
+      do n=stIceState2dS,stIceFlux2dE
+
+         dims(1) = botpoint_dim
+
+         if ( var_ids(n) /= 0 )  then 
+            iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
+                 dims,var_ids(n))
+            iret = set_attributes(ncid_bfm,var_ids(n),            &
+                 units=var_units(n),         &
+                 long_name=var_long(n)) 
+         endif
+      end do
+#endif
 
    DEALLOCATE(dims)
    iret = define_mode(ncid_bfm,.false.)
@@ -636,8 +732,12 @@ end subroutine init_netcdf_rst_bfm
 ! output of BFM variables 
 !
 ! !USES:
-   use mem, only: D3STATE,D3DIAGNOS,D2DIAGNOS
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+   use mem, only: D3STATE,D3DIAGNOS,D3FLUX_FUNC
+   use mem, only: D2DIAGNOS
+#if defined INCLUDE_SEAICE
+   use mem, only: D2STATE_ICE,D2DIAGNOS_ICE,D2DIAGNOS_ICE,D2FLUX_FUNC_ICE
+#endif
+#if defined INCLUDE_BEN
    use mem, only: D2STATE
 #endif
    implicit none
@@ -681,7 +781,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
 
    k = 0
-   do n = stPelStateS , stPelFluxE
+   do n = stPelStateS , stPelRivE
       if ( var_ids(n) > 0 ) then
         IF ( .not. var_ave(n) ) THEN
          !-- Store snapshot of pelagic state variables
@@ -711,55 +811,104 @@ end subroutine init_netcdf_rst_bfm
    enddo
 
    !---------------------------------------------
-   ! Benthic variables
+   ! 2D variables
    !---------------------------------------------
    k=0
-   do n = stPelState2dS , stPelState2dE
+   do n = stPelDiag2dS , stPelRivE
       if ( var_ids(n) > 0 ) then   
-        IF ( .not. var_ave(n) ) THEN
-         ! Store snapshot of pelagic 2D diagnostics at surface
-         if ( n >= stPelSurS .AND. n <= stPelSurE) then
-            i = n - stPelSurS + 1
-            iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-         end if
+         IF ( .not. var_ave(n) ) THEN
 
-         ! Store snapshot of pelagic 2D diagnostics at bottom
-         if ( n >= stPelBotS .AND. n <= stPelRivE) then
-            i = n - stPelBotS + 1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-         end if
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-         ! Store snapshot of benthic state variables
-         if ( n >= stBenStateS .AND. n <= stBenStateE ) then
-            i = n - stBenStateS + 1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
-         end if
+            ! Store snapshot of pelagic 2D diagnostics
+            if ( n >= stPelDiag2dS .AND. n <= stPelDiag2dE ) then
+               i = n - stPelDiag2dS + 1
+               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+            end if
 
-         ! Store snapshot of benthic diagnostics
-         if ( n >= stBenDiagS .AND. n <= stBenDiagE) then   
-            i = n - stBenDiagS + 1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
-         end if
+            ! Store snapshot of pelagic 2D diagnostics at surface
+            if ( n >= stPelSurS .AND. n <= stPelSurE) then
+               i = n - stPelSurS + 1
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+            end if
 
-#ifdef EXPLICIT_SINK 
-         ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
-         if ( n >= stBenFluxS .AND. n <= stBenFluxE ) then
-            i = n - stBenFluxS + 1 
-            call correct_flux_output(2,i,1,NO_BOXES_XY, c1dim)
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim) 
-         end if 
-#endif
-#endif
-        ELSE
-         ! Store mean values of (any) 2D entity
-          if ( temp_time /= 0.0_RLEN ) then
-            k=k+1
-            iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
-         end if
-        ENDIF
+            ! Store snapshot of pelagic 2D diagnostics at bottom
+            if ( n >= stPelBotS .AND. n <= stPelRivE) then
+               i = n - stPelBotS + 1
+               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+            end if
+
+         ELSE
+            ! Store mean values of (pelagic) 2D entity
+            if ( temp_time /= 0.0_RLEN ) then
+               k=k+1
+               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
+            end if
+         ENDIF
 
       end if
-   enddo
+   end do
+
+#if defined INCLUDE_SEAICE
+   !---------------------------------------------
+   ! 2D Seaice variables
+   !---------------------------------------------
+   k=0
+   do n = stIceState2dS , stIceFlux2dE
+      if ( var_ids(n) > 0 ) then   
+         IF ( .not. var_ave(n) ) THEN
+
+            ! Store snapshot of seaice 2D state
+            if ( n >= stIceState2dS .AND. n <= stIceState2dE) then
+               i = n - stIceState2dS + 1
+               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY_ICE,garray=D2STATE_ICE(i,:))
+            end if
+
+            ! Store snapshot of seaice 2D diagnostics
+            if ( n >= stIceDiag2dS .AND. n <= stIceDiag2dE ) then
+               i = n - stIceDiag2dS + 1
+               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY_ICE,garray=D2DIAGNOS_ICE(i,:))
+            end if
+
+            ! Store snapshot of seaice 2D flux
+            if ( n >= stIceFlux2dS .AND. n <= stIceFlux2dE ) then
+               i = n - stIceFlux2dS + 1
+               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY_ICE,garray=D2FLUX_FUNC_ICE(i))
+            end if
+
+         ELSE
+            ! Store mean values of (any) 2D entity
+            if ( temp_time /= 0.0_RLEN ) then
+               k=k+1
+               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY_ICE,garray=D2ave_ice(k,:))
+            end if
+         ENDIF
+
+      end if
+   end do
+#endif
+
+
+! #if defined INCLUDE_BEN
+!          ! Store snapshot of benthic state variables
+!          if ( n >= stBenStateS .AND. n <= stBenStateE ) then
+!             i = n - stBenStateS + 1
+!             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE(i,:))
+!          end if
+
+!          ! Store snapshot of benthic diagnostics
+!          if ( n >= stBenDiagS .AND. n <= stBenDiagE) then   
+!             i = n - stBenDiagS + 1
+!             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(i,:))
+!          end if
+
+! #ifdef EXPLICIT_SINK 
+!          ! Store snapshot of benthic fluxes and pel. fluxes per square meter!
+!          if ( n >= stBenFluxS .AND. n <= stBenFluxE ) then
+!             i = n - stBenFluxS + 1 
+!             call correct_flux_output(2,i,1,NO_BOXES_XY, c1dim)
+!             iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=c1dim) 
+!          end if 
+! #endif
+! #endif
 
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret, 'Save_bfm: writing output')

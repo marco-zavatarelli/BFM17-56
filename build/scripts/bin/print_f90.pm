@@ -54,60 +54,61 @@ my ( $LST_PARAM, $LST_GROUP, $LST_STA, $LST_CONST, $LST_INDEX, $LST_NML );
 
 ########### REGULAR EXPRESSIONS ##########################
 my $dispatch = {
-    #COMMENT LINE FOR PROGRAMMERS
+    #COMMENT LINE FOR DEVELOPERS
     '\%\!.*' => \&func_COMMENT,
     #DESCRIPTION
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-desc(?:\s|\n)'=> \&func_DESC ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-desc(?:\s|\n)' => \&func_DESC_DIAGG ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben|ice)-desc(?:\s|\n)'=> \&func_DESC ,
+    '\%(3|2)d-(diaggrp)-(pel|ben|ice)-desc(?:\s|\n)' => \&func_DESC_DIAGG ,
     #NR
-    '([^\%]*)\%(3|2)d-(flux|diagnos|state)-(pel|ben)-nr(?:\s|\n)'=> \&func_NR ,
+    '([^\%]*)\%(3|2)d-(flux|diagnos|state)-(pel|ben|ice)-nr(?:\s|\n)'=> \&func_NR ,
     #ARRAY
-    '([^\%]*)\%(pel|ben)-field-array\s*(\S*)(?:\s|\n)'=> \&func_ARRAY_FIELD ,
+    '([^\%]*)\%(pel|ben|ice)-field-array\s*(\S*)(?:\s|\n)'=> \&func_ARRAY_FIELD ,
     #PP
-    '([^\%]*)\%(3|2)d-(diagnos|state)-(pel|ben)-pp(?:\s|\n)'=> \&func_PP ,
-    '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben)-pp(?:\s|\n)'=>       \&func_PP_DIAGG ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-assign-pp(?:\s|\n)'=>        \&func_PP_ASSIGN ,
+    '([^\%]*)\%(3|2)d-(diagnos|state)-(pel|ben|ice)-pp(?:\s|\n)'=> \&func_PP ,
+    '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben|ice)-pp(?:\s|\n)'=>       \&func_PP_DIAGG ,
+    '\%(3|2)d-(diaggrp)-(pel|ben|ice)-assign-pp(?:\s|\n)'=>        \&func_PP_ASSIGN ,
     #POINTER
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT ,
-    '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
-    '([^\%]*)\%(pel|ben)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC_DIAGG ,
-    '\%(pel|ben)-alloc-pointer-field\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben|ice)-pointer(?:\s|\n)'=>    \&func_POINT ,
+    '([^\%]*)\%(3|2)d-(diaggrp)-(pel|ben|ice)-pointer(?:\s|\n)'=>    \&func_POINT_DIAGG ,
+    '([^\%]*)\%(pel|ben|ice)-field-pointer\s*(\S*)(?:\s|\n)'=>    \&func_POINT_FIELD ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben|ice)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC ,
+    '\%(3|2)d-(diaggrp)-(pel|ben|ice)-alloc-pointer(?:\s|\n)' =>    \&func_POINT_ALLOC_DIAGG ,
+    '\%(pel|ben|ice)-alloc-pointer-field\s*(\S*)(?:\s|\n)' =>    \&func_POINT_ALLOC_FIELD ,
     #HEADER
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-header(?:\s|\n)' =>    \&func_HEADER ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-header(?:\s|\n)' =>    \&func_HEADER_DIAGG ,
-    '\%(pel|ben)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben|ice)-header(?:\s|\n)' =>    \&func_HEADER ,
+    '\%(3|2)d-(diaggrp)-(pel|ben|ice)-header(?:\s|\n)' =>    \&func_HEADER_DIAGG ,
+    '\%(pel|ben|ice)-field-header\s*(\S*)(?:\s|\n)' =>    \&func_HEADER_FIELD ,
     #STRING
-    '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING ,
-    '\%(3|2)d-(diaggrp)-(pel|ben)-string(?:\s|\n)'=>    \&func_STRING_DIAGG ,
-    '\%(pel|ben)-field-string\s*(\S*)(?:\s|\n)'=>    \&func_STRING_FIELD ,
-    '\%(3|2)d-(diagnos|state|flux)-(pel|ben)-string-index(?:\s|\n)'=>    \&func_STRING_INDEX ,
-    '\%(pel|ben)-string-index-field\s*(\S*)(?:\s|\n)'=>    \&func_STRING_INDEX_FIELD ,
+    '\%(3|2)d-(diagnos|state|flux)-(pel|ben|ice)-string(?:\s|\n)'       => \&func_STRING ,
+    '\%(3|2)d-(diaggrp)-(pel|ben|ice)-string(?:\s|\n)'                  => \&func_STRING_DIAGG ,
+    '\%(pel|ben|ice)-field-string\s*(\S*)(?:\s|\n)'                     => \&func_STRING_FIELD ,
+    '\%(3|2)d-(diagnos|state|flux)-(pel|ben|ice)-string-index(?:\s|\n)' => \&func_STRING_INDEX ,
+    '\%(pel|ben|ice)-string-index-field\s*(\S*)(?:\s|\n)'               => \&func_STRING_INDEX_FIELD ,
+    '\%startend-string-index(?:\s|\n)'                                  => \&func_STRING_INDEX_STARTEND ,
     #ALLOC
-    '\%(3|2)d-(diagnos|state)-(pel|ben)-alloc(?:\s|\n)' => \&func_ALLOC ,
-    '\%(1|3|2)d-(intvar|variable|variables)-(pel|ben)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
+    '\%(3|2)d-(diagnos|state)-(pel|ben|ice)-alloc(?:\s|\n)' => \&func_ALLOC ,
+    '\%(1|3|2)d-(intvar|variable|variables)-(pel|ben|ice)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
     #FLUX
-    '\%(3|2)d-(flux)-(pel|ben)-alloc(?:\s|\n)' => \&func_FLUX_ALLOC ,
-    '\%(3|2)d-(flux)-(pel|ben)-fill(?:\s|\n)' => \&func_FLUX_FILL ,
+    '\%(3|2)d-(flux)-(pel|ben|ice)-alloc(?:\s|\n)' => \&func_FLUX_ALLOC ,
+    '\%(3|2)d-(flux)-(pel|ben|ice)-fill(?:\s|\n)' => \&func_FLUX_FILL ,
     #CONSTITUENT
     '([^\%]*)\%constituent(?:\s|\n)' => \&func_CONSTITUENT ,
     #GROUP    
-    '\%(3|2)d-group-(pel|ben)-header(?:\s|\n)'                => \&func_GROUP_HEADER ,
-    '([^\%]*)\%(3|2)d-group-(pel|ben)-parameter(?:\s|\n)'     => \&func_GROUP_PARAMETER ,
-    '([^\%]*)\%group-(pel|ben)-calc(?:\s|\n)'                 => \&func_GROUP_CALC,
-    '([^\%]*)\%(3|2)d-group-(pel|ben)-function-name(?:\s|\n)' => \&func_GROUP_FUNCTION_NAME ,
-    '\%(3|2)d-groupfunctions-(pel|ben)(?:\s|\n)'              => \&func_GROUP_FUNCTIONS ,
+    '\%(3|2)d-group-(pel|ben|ice)-header(?:\s|\n)'                => \&func_GROUP_HEADER ,
+    '([^\%]*)\%(3|2)d-group-(pel|ben|ice)-parameter(?:\s|\n)'     => \&func_GROUP_PARAMETER ,
+    '([^\%]*)\%group-(pel|ben|ice)-calc(?:\s|\n)'                 => \&func_GROUP_CALC,
+    '([^\%]*)\%(3|2)d-group-(pel|ben|ice)-function-name(?:\s|\n)' => \&func_GROUP_FUNCTION_NAME ,
+    '\%(3|2)d-groupfunctions-(pel|ben|ice)(?:\s|\n)'              => \&func_GROUP_FUNCTIONS ,
     #INTVAR/VARIABLE
-    '([^\%]*)\%(3|2|1)d-(intvar|variable)-(pel|ben)(?:\s|\n)' => \&func_VARIABLE ,
+    '([^\%]*)\%(3|2|1)d-(intvar|variable)-(pel|ben|ice)(?:\s|\n)' => \&func_VARIABLE ,
     #INIT
-    '\%value-init-calc-(pel|ben)\s*(\S*)(?:\s|\n)'       => \&func_INIT_VALUE_CALC ,
-    '([^\%]*)\%(3|2)d-(state)-(pel|ben)-Initpp(?:\s|\n)' => \&func_INIT_PP ,
-    '\%init-func-constituents(?:\s|\n)'                  => \&func_INIT_FUNC_CONST ,
-    '\%(3|2)d-(state)-(pel|ben)-InitDefault(?:\s|\n)'      => \&func_INIT_DEFAULT ,
-    '\%(3|2)d-(state)-(pel|ben)-InitSets(?:\s|\n)'         => \&func_INIT_SETS ,
-    '\%(3|2)d-(state)-(pel|ben)-InitInternal(?:\s|\n)'     => \&func_INIT_INTERNAL ,
-    '\%(3|2)d-state-(pel|ben)-func-zeroing(?:\s|\n)'       => \&func_INIT_FUNC_ZERO ,
+    '([^\%]*)\%value-init-calc-(pel|ben|ice)\s*(\S*)(?:\s|\n)' => \&func_INIT_VALUE_CALC ,
+    '([^\%]*)\%(3|2)d-(state)-(pel|ben|ice)-Initpp(?:\s|\n)'   => \&func_INIT_PP ,
+    '\%init-func-constituents(?:\s|\n)'                        => \&func_INIT_FUNC_CONST ,
+    '\%(3|2)d-(state)-(pel|ben|ice)-InitDefault(?:\s|\n)'      => \&func_INIT_DEFAULT ,
+    '\%(3|2)d-(state)-(pel|ben|ice)-InitSets(?:\s|\n)'         => \&func_INIT_SETS ,
+    '\%(3|2)d-(state)-(pel|ben|ice)-InitInternal(?:\s|\n)'     => \&func_INIT_INTERNAL ,
+    '\%(3|2)d-state-(pel|ben|ice)-func-zeroing(?:\s|\n)'       => \&func_INIT_FUNC_ZERO ,
 };
 ########### REGULAR EXPRESSIONS ##########################
 
@@ -201,12 +202,12 @@ sub decreaseUnit{
 
 
 sub sizeGroup{
-    my ( $dim ) = @_;
+    my ( $dim, $subt ) = @_;
 
     my $size = 0;
     foreach my $root (keys %$LST_PARAM){
         my $param = $$LST_PARAM{$root};
-        if( $dim == $param->getDim() && $param->getQuota() ){
+        if( $dim == $param->getDim() && $subt eq $param->getSubtype() && $param->getQuota() ){
             #print $root . " -> " . $param->getQuota() . "\n";
             foreach my $member (keys %$LST_PARAM){
                 my $param2 = $$LST_PARAM{$member};
@@ -306,34 +307,36 @@ sub func_ALLOC {
     #if the variable does not exists => dont print anything
     if( ! checkDimType($dim, $type, $subt)  ){ return; }
     
-    my $j = "";
+    my $j = '';
     my $TYPE = uc($type);
-    if ( $dim == 2 ){ $j = "_XY"; }
+    if ( $dim == 2 ){ $j = '_XY'; }
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     print $file "${SPACE} \n";
-    print $file "${SPACE}allocate(D${dim}${TYPE}(1:NO_D${dim}_BOX_${TYPE}S,1:NO_BOXES$j),stat=status)\n";
-    print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}$TYPE\")\n";
-    print $file "${SPACE}D${dim}${TYPE} = ZERO\n";
-    if ( $type eq "state" && $subt eq "pel" ) {
+    print $file "${SPACE}allocate(D${dim}${TYPE}${SUBTYPE}(1:NO_D${dim}_BOX_${TYPE}S${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}),stat=status)\n";
+    print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}${TYPE}${SUBTYPE}\")\n";
+    print $file "${SPACE}D${dim}${TYPE}${SUBTYPE} = ZERO\n";
+    if ( $type eq "state" ) {
         print $file "#ifndef EXPLICIT_SINK\n";
-        print $file "${SPACE}  allocate(D${dim}SOURCE(1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j),stat=status)\n";
-        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE\")\n";
-        print $file "${SPACE}  D${dim}SOURCE = ZERO\n";
+        print $file "${SPACE}  allocate(D${dim}SOURCE${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}),stat=status)\n";
+        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE${SUBTYPE}\")\n";
+        print $file "${SPACE}  D${dim}SOURCE${SUBTYPE} = ZERO\n";
         print $file "#else\n";
-        print $file "${SPACE}  allocate(D${dim}SOURCE(1:NO_D${dim}_BOX_STATES,1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j),stat=status)\n";
-        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE\")\n";
-        print $file "${SPACE}  D${dim}SOURCE = ZERO\n";
-        print $file "${SPACE}  allocate(D${dim}SINK(1:NO_D${dim}_BOX_STATES,1:NO_D${dim}_BOX_STATES,1:NO_BOXES$j) ,stat=status)\n";
-        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SINK\")\n";
-        print $file "${SPACE}  D${dim}SINK = ZERO\n";
+        print $file "${SPACE}  allocate(D${dim}SOURCE${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}),stat=status)\n";
+        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE${SUBTYPE}\")\n";
+        print $file "${SPACE}  D${dim}SOURCE${SUBTYPE} = ZERO\n";
+        print $file "${SPACE}  allocate(D${dim}SINK${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}) ,stat=status)\n";
+        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SINK${SUBTYPE}\")\n";
+        print $file "${SPACE}  D${dim}SINK${SUBTYPE} = ZERO\n";
         print $file "#endif\n";
-        print $file "${SPACE}allocate(D${dim}STATETYPE(1:NO_D${dim}_BOX_${TYPE}S ),stat=status)\n";
-        print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D${dim}STATETYPE\")\n";
-        print $file "${SPACE}D${dim}STATETYPE = ZERO\n";
+        print $file "${SPACE}allocate(D${dim}STATETYPE${SUBTYPE}(1:NO_D${dim}_BOX_${TYPE}S${SUBTYPE} ),stat=status)\n";
+        print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D${dim}STATETYPE${SUBTYPE}\")\n";
+        print $file "${SPACE}D${dim}STATETYPE${SUBTYPE} = ZERO\n";
         print $file "#ifdef BFM_NEMO\n";
-        print $file "${SPACE}  allocate(D${dim}STATEOBC(1:NO_D${dim}_BOX_STATES),stat=status)\n";
-        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D${dim}STATEOBC\")\n";
-        print $file "${SPACE}  D${dim}STATEOBC = ZERO\n";
+        print $file "${SPACE}  allocate(D${dim}STATEOBC${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE}),stat=status)\n";
+        print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\",\"D${dim}STATEOBC${SUBTYPE}\")\n";
+        print $file "${SPACE}  D${dim}STATEOBC${SUBTYPE} = ZERO\n";
         print $file "#endif\n";
     }
 }
@@ -344,6 +347,8 @@ sub func_POINT_ALLOC  {
 
     my $line = "";
     my $TYPE = uc($type);
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
@@ -355,11 +360,11 @@ sub func_POINT_ALLOC  {
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
                         my $nameC = $name . $const;
-                        $line .= "$nameC => D${dim}${TYPE}(pp$nameC,:); $nameC=ZERO\n";
+                        $line .= "$nameC => D${dim}${TYPE}${SUBTYPE}(pp$nameC,:); $nameC=ZERO\n";
                     }
                 }
             }else{
-                $line .= "$name => D${dim}${TYPE}(pp$name,:); $name=ZERO\n";
+                $line .= "$name => D${dim}${TYPE}${SUBTYPE}(pp$name,:); $name=ZERO\n";
             }
         }
     }
@@ -401,6 +406,8 @@ sub func_POINT_ALLOC_DIAGG  {
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_PP_ALLOC_DIAG: "; }
     
     my $line = "";
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
@@ -418,7 +425,7 @@ sub func_POINT_ALLOC_DIAGG  {
             if( $namesMem[0] && $namesMem[$#namesMem]){
                 my $mem1 = $namesMem[0];
                 my $mem2 = $namesMem[$#namesMem];
-                $line .= "$root => D${dim}DIAGNOS(pp${root}(ii${mem1}): pp${root}(ii${mem2}),:)\n";
+                $line .= "$root => D${dim}DIAGNOS${SUBTYPE}(pp${root}(ii${mem1}): pp${root}(ii${mem2}),:)\n";
                 $line .= "$root=ZERO\n";
             }
         }
@@ -431,6 +438,8 @@ sub func_POINT_ALLOC_DIAGG  {
 sub func_POINT_ALLOC_FIELD  {
     my ( $file, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC_FIELD: "; }
+
+    if( $subt ne 'pel' ){ print "ERROR: Subtype can only be \'pel\' for field $spec\n"; exit; }
 
     my $line_ini = "";
     my $line_par = "";
@@ -482,6 +491,9 @@ sub func_ALLOC_INTVAR  {
     my $TYPE = uc($type);
     if ( $dim == 2 ){ $j = "_XY"; }
 
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$name};
         if( $dim == $param->getDim() 
@@ -499,8 +511,8 @@ sub func_ALLOC_INTVAR  {
                 $l = "ii";
             }
 
-            if    ( $mode == 3 ){ $line .= "${SPACE}allocate(${name}(1:${l}${groupindex},1:NO_BOXES${j}),stat=status); ${name} = ZERO\n"; }
-            elsif ( $mode == 2 ){ $line .= "${SPACE}allocate(${name}(1:NO_BOXES${j}),stat=status); ${name} = ZERO\n";                     }
+            if    ( $mode == 3 ){ $line .= "${SPACE}allocate(${name}(1:${l}${groupindex},1:NO_BOXES${j}${SUBTYPE}),stat=status); ${name} = ZERO\n"; }
+            elsif ( $mode == 2 ){ $line .= "${SPACE}allocate(${name}(1:NO_BOXES${j}${SUBTYPE}),stat=status); ${name} = ZERO\n";                     }
             elsif ( $mode == 1 ){ $line .= "${SPACE}allocate(${name}(1:${l}${groupindex}),stat=status); ${name} = ZERO\n";                }
         }
     }
@@ -515,17 +527,20 @@ sub func_FLUX_ALLOC  {
 
     my $line = "";
    
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
     #if the variable does not exists => dont print anything
     if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
     if( $dim == 3 ){
-        $line .= "  allocate( D${dim}FLUX_MATRIX(1:NO_D${dim}_BOX_STATES, 1:NO_D${dim}_BOX_STATES),stat=status )\n";
-        $line .= "  allocate( D${dim}FLUX_FUNC(1:NO_D${dim}_BOX_FLUX, 1:NO_BOXES),stat=status )\n";
-        $line .= "  D${dim}FLUX_FUNC = 0\n";
+        $line .= "  allocate( D${dim}FLUX_MATRIX${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE}, 1:NO_D${dim}_BOX_STATES${SUBTYPE}),stat=status )\n";
+        $line .= "  allocate( D${dim}FLUX_FUNC${SUBTYPE}(1:NO_D${dim}_BOX_FLUX${SUBTYPE}, 1:NO_BOXES${SUBTYPE}),stat=status )\n";
+        $line .= "  D${dim}FLUX_FUNC${SUBTYPE} = 0\n";
     }elsif( $dim == 2 ){
-        $line .= "  allocate( D${dim}FLUX_MATRIX(1:NO_D${dim}_BOX_STATES, 1:NO_D${dim}_BOX_STATES),stat=status )\n";
-        $line .= "  allocate( D${dim}FLUX_FUNC(1:NO_D${dim}_BOX_FLUX),stat=status )\n";
-        $line .= "  D${dim}FLUX_FUNC = 0\n";
+        $line .= "  allocate( D${dim}FLUX_MATRIX${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE}, 1:NO_D${dim}_BOX_STATES${SUBTYPE}),stat=status )\n";
+        $line .= "  allocate( D${dim}FLUX_FUNC${SUBTYPE}(1:NO_D${dim}_BOX_FLUX${SUBTYPE}),stat=status )\n";
+        $line .= "  D${dim}FLUX_FUNC${SUBTYPE} = 0\n";
     }
 
     if( $line ){ print $file $line; }
@@ -537,6 +552,8 @@ sub func_FLUX_FILL  {
     if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
     my $line = "";
 
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     if( exists $$LST_STA{"flux ${dim}d $subt"} && exists $$LST_STA{"select ${dim}d $subt"} ){
 
@@ -569,14 +586,14 @@ sub func_FLUX_FILL  {
                         else{ 
                             $d3flux_matrix_index{"pp$compo1, pp$compo2"} = 1  
                         }
-                        push( @{$d3flux_func{$name}}, "D${dim}FLUX_MATRIX(pp$compo1, pp$compo2)%p(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${sign1}${flxindex}\n " );
+                        push( @{$d3flux_func{$name}}, "D${dim}FLUX_MATRIX${SUBTYPE}(pp$compo1, pp$compo2)%p(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${sign1}${flxindex}\n " );
                     }else{ # B-> A
                         if ( exists $d3flux_matrix_index{"pp$compo2, pp$compo1"} ){ 
                             $d3flux_matrix_index{"pp$compo2, pp$compo1"}++ } 
                         else{ 
                             $d3flux_matrix_index{"pp$compo2, pp$compo1"} = 1
                         };
-                        push( @{$d3flux_func{$name}}, "D${dim}FLUX_MATRIX(pp$compo2, pp$compo1)%p(" . $d3flux_matrix_index{"pp$compo2, pp$compo1"} . ")=${sign1}${flxindex}\n " );
+                        push( @{$d3flux_func{$name}}, "D${dim}FLUX_MATRIX${SUBTYPE}(pp$compo2, pp$compo1)%p(" . $d3flux_matrix_index{"pp$compo2, pp$compo1"} . ")=${sign1}${flxindex}\n " );
                     }
 
                     if( $compo1 eq $compo2 ){ # A == B
@@ -585,7 +602,7 @@ sub func_FLUX_FILL  {
                         else{ 
                             $d3flux_matrix_index_dir{"pp$compo1, pp$compo2"} = 1  
                         }
-                        push( @{$d3flux_func_dir{$name}}, "D${dim}FLUX_MATRIX(pp$compo1, pp$compo2)%dir(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${dir}\n " );
+                        push( @{$d3flux_func_dir{$name}}, "D${dim}FLUX_MATRIX${SUBTYPE}(pp$compo1, pp$compo2)%dir(" . $d3flux_matrix_index{"pp$compo1, pp$compo2"} . ")=${dir}\n " );
                     }
                 }
                 $flxindex++;
@@ -598,9 +615,9 @@ sub func_FLUX_FILL  {
 
         # allocate
         foreach my $key ( keys %d3flux_matrix_index ){
-            $line .= "  allocate( D${dim}FLUX_MATRIX($key)%p( 1:$d3flux_matrix_index{$key} ) )\n";
+            $line .= "  allocate( D${dim}FLUX_MATRIX${SUBTYPE}($key)%p( 1:$d3flux_matrix_index{$key} ) )\n";
             if( exists $d3flux_matrix_index_dir{$key} ){
-                $line .= "  allocate( D${dim}FLUX_MATRIX($key)%dir( 1:$d3flux_matrix_index_dir{$key} ) )\n";
+                $line .= "  allocate( D${dim}FLUX_MATRIX${SUBTYPE}($key)%dir( 1:$d3flux_matrix_index_dir{$key} ) )\n";
             }
         }
 
@@ -690,13 +707,19 @@ sub func_NR  {
     my $number = 0;
     if( exists $$LST_STA{$title} ){
         if( $title eq "diagnos 2d ${subt}" ){
-            $number = $$LST_STA{"${title}"} + sizeGroup($dim) + ( $$LST_STA{"state 3d ${subt}"} * $$LST_STA{"spec num ${subt}"} );
+            #print "TITLE(${title}):" . $$LST_STA{"${title}"} . " + sizeGroup($dim, $subt): " . sizeGroup($dim, $subt) 
+            #    . " + ( state-3d-${subt}: " . $$LST_STA{"state 3d ${subt}"} . " * spec-num-${subt}: " . $$LST_STA{"spec num ${subt}"} . ")\n";
+            if( exists($$LST_STA{"spec num ${subt}"}) ){
+                $number = $$LST_STA{"${title}"} + sizeGroup($dim, $subt) + ( $$LST_STA{"state 3d ${subt}"} * $$LST_STA{"spec num ${subt}"} );
+            }else{
+                $number = $$LST_STA{"${title}"} + sizeGroup($dim, $subt);
+            }
         }
         elsif( $title eq "diagnos 3d ${subt}" ){ 
             $number=sizeDimType($dim, $type, $subt); 
         }
         else{ 
-            $number=$$LST_STA{$title}; 
+            $number=$$LST_STA{$title};
         }
     }else{ $number = 0; }
 
@@ -987,6 +1010,9 @@ sub func_GROUP_FUNCTIONS  {
     my ( $file, $dim, $subt ) = @_;
     if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
 
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
     foreach my $pre ("pp", ""){
         foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
             my $group   = $$LST_GROUP{$groupname};
@@ -1003,10 +1029,6 @@ sub func_GROUP_FUNCTIONS  {
 
                 my $line = "\n";
                 $line .= "${SPACE}" ."function $pre${groupname}(n,constituent,cmax)\n";
-                $line .= "${SPACE}" ."\n";
-                $line .= "${SPACE}" ."  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
-                $line .= "${SPACE}" ."  ! Implicit typing is never allowed\n";
-                $line .= "${SPACE}" ."  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=\n";
                 $line .= "${SPACE}" ."  IMPLICIT NONE\n";
                 $line .= "${SPACE}" ."\n";
                 if ( $pre eq "pp" ) {
@@ -1050,7 +1072,7 @@ sub func_GROUP_FUNCTIONS  {
                     $line .= "${SPACE}" ."  endif\n";
                     $line .= "${SPACE}" ."  if ( present(cmax) ) $pre$groupname = const_max(n)\n";
                 }else{
-                    $line .= "${SPACE}" ."  $pre$groupname => D${dim}STATE(pp${groupname}(n,constituent),:)\n";
+                    $line .= "${SPACE}" ."  $pre$groupname => D${dim}STATE${SUBTYPE}(pp${groupname}(n,constituent),:)\n";
                 }
                 $line .= "${SPACE}" ."\n";
                 $line .= "${SPACE}" ."END function\n";
@@ -1163,6 +1185,7 @@ sub func_STRING_FIELD  {
 
     if( ! defined $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_2_S"} ){
         $STRING_INDEX_ARRAY{"diagnos_${subt}_${spec}_2_S"} = $STRING_INDEX;
+        #print Dumper(\%STRING_INDEX_ARRAY) . "\n";
     }
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
@@ -1222,10 +1245,10 @@ sub func_STRING_INDEX  {
         #fix because "diagnos" ends with "diaggrp" values
         $search_E = "diaggrp_${subt}_${dim}_E";
     }
-    if( $subt eq 'pel' && $type eq 'state' && $dim == 2 ){
-        #fix because "Pel state 2D" ends with "Pel diagnos river 2D" values
-        $search_E = "diagnos_${subt}_river_2_E";
-    }
+    # if( $subt eq 'pel' && $type eq 'state' && $dim == 2 ){
+    #     #fix because "Pel state 2D" ends with "Pel diagnos river 2D" values
+    #     $search_E = "diagnos_${subt}_river_2_E";
+    # }
 
     if( defined $STRING_INDEX_ARRAY{"${search_S}"} && defined $STRING_INDEX_ARRAY{"${search_E}"} ){
         $line .= "${SPACE}st${subt_short}${out}S=" . $STRING_INDEX_ARRAY{"${search_S}"} . "\n"; 
@@ -1254,11 +1277,6 @@ sub func_STRING_INDEX_FIELD  {
     $search_E = "diagnos_${subt}_${spec}_${dim}_E";
     $out = "${spec_short}";
 
-    if( $spec eq "surface" ){
-        #fix because "surface" start with "diagnos" values 
-        $search_S = "diagnos_${subt}_${dim}_S";
-    }    
-
     if( defined $STRING_INDEX_ARRAY{"${search_S}"} && defined $STRING_INDEX_ARRAY{"${search_E}"} ){
         $line .= "${SPACE}st${subt_short}${out}S=" . $STRING_INDEX_ARRAY{"${search_S}"} . "\n"; 
         $line .= "${SPACE}st${subt_short}${out}E=" . $STRING_INDEX_ARRAY{"${search_E}"} . "\n";
@@ -1267,27 +1285,49 @@ sub func_STRING_INDEX_FIELD  {
     if( $line ){ print $file $line; }
 }
 
+sub func_STRING_INDEX_STARTEND  {
+    my ( $file ) = @_;
+    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_STARTEND:"; }
+
+    my $line = '';
+
+    my $max=0;
+    my $min=0;
+    foreach my $key ( keys %STRING_INDEX_ARRAY ){
+        if( $max < $STRING_INDEX_ARRAY{$key} ){ 
+            $max = $STRING_INDEX_ARRAY{$key};
+        }
+        if( !$min || $min > $STRING_INDEX_ARRAY{$key} ){
+            $min = $STRING_INDEX_ARRAY{$key};
+        }
+    }
+
+    if( $min && $max ){
+            $line .= "${SPACE}stStart=". $min . "\n";
+            $line .= "${SPACE}stEnd=". $max . "\n";
+    }
+
+    if( $line ){ print $file $line; }
+}
+
+
 
 ###########################################  INIT_VAR_BFM ######################
 
 
 sub func_INIT_VALUE_CALC {
-    my ( $file, $subt, $value ) = @_;
+    my ( $file, $before, $subt, $value ) = @_;
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_VALUE_CALC: "; }
 
     my $line = '';
 
     if ( !$value ){ $value = 0; }
 
-    if($subt eq 'pel' ){ $line = "${SPACE}CalcPelagicFlag = " . ${value} . "\n"; }
-    else               { $line = "${SPACE}CalcBenthicFlag = " . ${value} . "\n"; }
-
-
     foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group   = $$LST_GROUP{$groupname};
         if( $subt eq $group->getSubtype()){
 
-            $line .= "${SPACE}" . join(',', 'Calc' . $group->getSigla()) . " = " . ${value} . "\n";
+            $line .= "${before}" . join(',', 'Calc' . $group->getSigla()) . " = " . ${value} . "\n";
         }
     }
 
@@ -1298,6 +1338,9 @@ sub func_INIT_VALUE_CALC {
 sub func_INIT_PP  {
     my ( $file, $before, $dim, $type, $subt ) = @_;
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_PP: "; }
+
+    #if the variable does not exists => dont print anything
+    if( ! checkDimType($dim, $type, $subt)  ){ return; }
 
     my @line_par = ();
 
@@ -1380,6 +1423,11 @@ sub func_INIT_FUNC_ZERO {
     if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_ZERO: "; }
     my $line = '';
 
+    #if the variable does not exists => dont print anything
+    if( ! checkDimType($dim, 'state', $subt)  ){ return; }
+
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group   = $$LST_GROUP{$groupname};
@@ -1391,10 +1439,10 @@ sub func_INIT_FUNC_ZERO {
             $line .= "${SPACE}  if (.NOT.Calc" . $group->getSigla() ."(j)) then\n";
             $line .= "${SPACE}    iiLastElement=pp" . $group->getSigla() . "(j,1,cmax=1)\n";
             $line .= "${SPACE}    do i = 1,iiLastElement\n";
-            $line .= "${SPACE}      D3STATE(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
-            $line .= "${SPACE}      D3STATETYPE(pp" . $group->getSigla() . "(j,i)) = OFF\n";
+            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
+            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = OFF\n";
             $line .= "#if defined key_obcbfm\n";
-            $line .= "${SPACE}      D3STATEOBC(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
+            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
             $line .= "#endif\n";
             $line .= "${SPACE}    end do\n";
             $line .= "${SPACE}  end if\n";
@@ -1531,6 +1579,9 @@ sub func_HEADER  {
     my $line = '';
     my $TYPE = uc($type);
 
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() 
@@ -1540,11 +1591,11 @@ sub func_HEADER  {
                 foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                     if( exists ${$param->getComponents()}{$const} ){
                         my $nameC = $name . $const;
-                        $line .= "#define " . $nameC . "(A) D" . $dim . $TYPE . "(pp" . $nameC . ",A)\n";
+                        $line .= "#define ${nameC}(A) D${dim}${TYPE}${SUBTYPE}(pp${nameC},A)\n";
                     }
                 }
             }else{
-                $line .= "#define " . $name . "(A) D" . $dim . $TYPE . "(pp" . $name . ",A)\n";
+                $line .= "#define ${name}(A) D${dim}${TYPE}${SUBTYPE}(pp${name},A)\n";
             }
         }
     }
@@ -1559,11 +1610,14 @@ sub func_GROUP_HEADER  {
 
     my $line = '';
 
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
     foreach my $name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
         my $group   = $$LST_GROUP{$name};
         if( $dim == $group->getDim() 
             && $subt eq $group->getSubtype()){
-            $line .= "#define " . $name . "(A,B) D" . $dim . "STATE(pp" . $name . "(A,B),:)\n";
+            $line .= "#define ${name}(A,B) D${dim}STATE${SUBTYPE}(pp${name}(A,B),:)\n";
         }
     }
 
@@ -1574,6 +1628,8 @@ sub func_GROUP_HEADER  {
 sub func_HEADER_FIELD  {
     my ( $file, $subt, $spec) = @_;
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_FIELD: "; }
+
+    if( $subt ne 'pel' ){ print "ERROR: Subtype can only be \'pel\' for field $spec\n"; exit; }
 
     my $line_ini = "";
     my $line_par = "";
@@ -1616,14 +1672,17 @@ sub func_HEADER_DIAGG  {
     if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_DIAGG: "; }
 
     my $line = '';
+
     my $TYPE = uc($type);
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     foreach my $name ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param   = $$LST_PARAM{$name};
         if( $dim == $param->getDim() 
             && $type eq $param->getType()
             && $subt eq $param->getSubtype() ){
-            $line .= "#define " . $name . "(A,B) D" . $dim . "DIAGNOS(pp" . $name . "(A),B)\n";
+            $line .= "#define ${name}(A,B) D${dim}DIAGNOS${SUBTYPE}(pp${name}(A),B)\n";
         }
     }
 

@@ -21,7 +21,16 @@ subroutine ResetFluxes
 #ifdef EXPLICIT_SINK
    use mem, ONLY: D3SINK
 #endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   use mem, ONLY: NO_D2_BOX_STATES_ICE, D2SOURCE_ICE
+#ifdef EXPLICIT_SINK
+   use mem, ONLY: D2SINK_ICE
+#endif
+#endif
+
+
+#if defined INCLUDE_BEN
    use mem, ONLY: NO_D2_BOX_STATES, D2SINK, D2SOURCE
 #endif
 #endif
@@ -45,7 +54,10 @@ subroutine ResetFluxes
    D3SOURCE(:,:) = ZERO
    ! Reset the fluxes
    D3FLUX_FUNC(:,:) = ZERO
-#  if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#  if defined INCLUDE_SEAICE
+   D2SOURCE_ICE(:,:) = ZERO
+#  endif
+#  if defined INCLUDE_BEN
    D2SOURCE(:,:) = ZERO
 #  endif
 #else
@@ -58,7 +70,14 @@ subroutine ResetFluxes
 !      D3SOURCE(i,i,:) = ZERO
 !      D3SINK(i,i,:) = ZERO
 !   end do
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   D2SOURCE_ICE(:,:,:) = ZERO  
+   D2SINK_ICE(:,:,:) = ZERO
+   D2FLUX_FUNC_ICE(:,:) = ZERO
+#endif
+
+#if defined INCLUDE_BEN
    D2SOURCE(:,:,:) = ZERO  
    D2SINK(:,:,:) = ZERO
 !tom   do i=1,NO_D2_BOX_STATES

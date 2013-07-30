@@ -61,10 +61,7 @@ subroutine set_var_info_bfm
 
 !
 !2d Pelagic variables description
-%2d-state-pel-string
 %2d-diagnos-pel-string
-%2d-diaggrp-pel-string  
-%2d-flux-pel-string
 !
 ! surface
 !
@@ -78,20 +75,39 @@ subroutine set_var_info_bfm
 !
 %pel-field-string river
 
+#ifdef INCLUDE_SEAICE
 !
-!Index
+!2d SeaIce variables description
+%2d-state-ice-string
+%2d-diagnos-ice-string
+%2d-diaggrp-ice-string
+%2d-flux-ice-string
+#endif
+
+
+!
+!Index Pelagic
 !
 %3d-state-pel-string-index
-%2d-state-pel-string-index
-
 %3d-diagnos-pel-string-index
-%2d-diagnos-pel-string-index
-
 %3d-flux-pel-string-index
-%2d-flux-pel-string-index
 
+%2d-diagnos-pel-string-index
 %pel-string-index-field surface
 %pel-string-index-field bottom
 %pel-string-index-field river
+
+!
+!Index SeaIce
+!
+#ifdef INCLUDE_SEAICE
+
+%2d-state-ice-string-index
+%2d-diagnos-ice-string-index
+%2d-flux-ice-string-index
+
+#endif
+
+%startend-string-index
 
 end subroutine set_var_info_bfm

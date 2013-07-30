@@ -56,7 +56,9 @@
    ! arrays for integration routines
    !---------------------------------------------
    real(RLEN),public,dimension(:,:),allocatable :: bbccc3D,bccc3D,ccc_tmp3D
-   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D,bccc2D,ccc_tmp2D
+#if defined INCLUDE_SEAICE
+   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D_ice,bccc2D_ice,ccc_tmp2D_ice
+#endif
    real(RLEN),public                            :: dtm1
    logical,public                               :: sspflag
 
@@ -93,19 +95,20 @@
    use constants, only: E2W
    use mem,   only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,       &
-                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth, D3STATE
+                  NO_BOXES_XY, NO_D2_BOX_DIAGNOSS, &
+                  NO_D3_BOX_DIAGNOSS, NO_STATES, Depth, D3STATE
    use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm,&
                          init_netcdf_rst_bfm,read_rst_bfm
    use time
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   use mem, only: D2STATE
+#if defined INCLUDE_SEAICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_BOXES_XY_ICE, &
+                  NO_D2_BOX_DIAGNOSS_ICE
 #endif
 #ifdef INCLUDE_BEN
+   use mem, only: D2STATE
    use mem, only: Depth_ben
 #endif
 
@@ -167,8 +170,10 @@
    NO_BOXES_Y  = 1
    NO_BOXES    = NO_BOXES_X * NO_BOXES_Y * NO_BOXES_Z
    NO_BOXES_XY = NO_BOXES_X * NO_BOXES_Y
-   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES +   &
-                 NO_D2_BOX_STATES * NO_BOXES_XY
+#ifdef INCLUDE_SEAICE
+   NO_BOXES_XY_ICE = NO_BOXES_X * NO_BOXES_Y
+#endif
+   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES + NO_BOXES_XY
    LEVEL3 'Number of Boxes:',nboxes
    LEVEL3 'Box Depth:',indepth
    ! set where surface and bottom boxes are 
@@ -228,9 +233,7 @@
    ! Allocate memory and give initial values
    ! to the pelagic system
    !---------------------------------------------
-   ! the argument list is kept for compatibility 
-   ! with GOTM
-   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
+   call init_var_bfm(bio_setup)
    !---------------------------------------------
    ! Set output stepping
    !---------------------------------------------
@@ -263,12 +266,6 @@
    ! according to the value of calc_initial_bennut_states
    !---------------------------------------------
    call init_benthic_bfm(namlst,'BFM_General.nml',unit,bio_setup)
-#endif
-#ifdef INCLUDE_SEAICE
-   !---------------------------------------------
-   ! Initialise the sea-ice system
-   !---------------------------------------------
-   call init_seaice_bfm(namlst,'Seaice.nml',unit,bio_setup)
 #endif
 
    !---------------------------------------------
@@ -306,14 +303,20 @@
    allocate(bbccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(bccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(ccc_tmp3D(NO_D3_BOX_STATES,NO_BOXES))
-   allocate(bbccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
-   allocate(bccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
-   allocate(ccc_tmp2D(NO_D2_BOX_STATES,NO_BOXES_XY))
+#if defined INCLUDE_SEAICE
+   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE))
+   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE))
+   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE))
+#endif
    ! Initialize prior time step for leap-frog:
    if (method == 3) then
       bbccc3d = D3STATE
       ccc_tmp3D = D3STATE
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+      bbccc2d_ice = D2STATE_ICE
+      ccc_tmp2D_ice = D2STATE_ICE
+#endif
+#if defined INCLUDE_BEN
       bbccc2d = D2STATE
       ccc_tmp2D = D2STATE
 #endif
@@ -324,7 +327,12 @@
    do i=1,NO_D3_BOX_STATES
      LEVEL1 trim(var_names(stPelStateS+i-1)),D3STATE(i,1)
    end do
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+   do i=1,NO_D2_BOX_STATES_ICE
+     LEVEL1 trim(var_names(stIceState2dS+i-1)),D2STATE_ICE(i,1)
+   end do
+#endif
+#if defined INCLUDE_BEN
    do i=1,NO_D2_BOX_STATES
      LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE(i,1)
    end do

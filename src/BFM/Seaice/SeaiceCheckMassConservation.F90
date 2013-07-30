@@ -30,7 +30,7 @@ use global_mem, ONLY:RLEN,ZERO
      qpXc,qnXc
   use mem, ONLY: flux_vector,ppSeaiceZoo,SeaiceZoo, &
     totseaicec,totseaicep,totseaicen,totseaices, &
-    iiSeaiceZoo,NO_BOXES,iiC,iiN,iiP,iiS,&
+    iiSeaiceZoo,NO_BOXES_ICE,iiC,iiN,iiP,iiS,&
     SeaiceAlgae,iiSeaiceAlgae,ppSeaiceAlgae,SeaiceDetritus,iiSeaiceDetritus,ppSeaiceDetritus
 #endif  
 !
@@ -70,7 +70,7 @@ use global_mem, ONLY:RLEN,ZERO
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES)     :: s
+  real(RLEN),dimension(NO_BOXES_ICE) :: s
   integer                            :: i,j
   
   totseaicec(:)=ZERO

@@ -16,7 +16,16 @@
 #ifdef EXPLICIT_SINK
    use mem, ONLY: D3SINK
 #endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+   use mem, ONLY: NO_D2_BOX_STATES_ICE, D2SOURCE_ICE, D2STATE_ICE, &
+        NO_BOXES_XY_ICE, D2STATETYPE_ICE
+#ifdef EXPLICIT_SINK
+   use mem, ONLY: D2SINK_ICE
+#endif
+#endif
+
+#if defined INCLUDE_BEN
    use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
                   D2STATETYPE
 #ifdef EXPLICIT_SINK
@@ -37,19 +46,26 @@
 ! !LOCAL VARIABLES:
    real(RLEN),parameter    :: eps=0.0_RLEN
    real(RLEN)              :: min3D,min2D
+   logical                 :: min
    integer                 :: i,j,ll
    integer,dimension(2,2)  :: blccc
+#if defined INCLUDE_SEAICE
+   real(RLEN)              :: min2D_ice
+   integer,dimension(2,2)  :: blccc_ice
+#endif
 !
 ! !EOP
 !-----------------------------------------------------------------------
 !BOC
-   min3D =  ONE
-   min2D =  ONE
 #ifdef DEBUG
    LEVEL1 'integration RK: starting delt = ',delt
 #endif
    bbccc3D=D3STATE
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+   min2D_ice =  ONE
+   bbccc2D_ice=D2STATE_ICE
+#endif
+#if defined INCLUDE_BEN
    bbccc2D=D2STATE
 #endif
    TLOOP : DO
@@ -60,7 +76,17 @@
       bccc3D=sum(D3SOURCE-D3SINK,2)
 #endif
       ccc_tmp3D=D3STATE
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+#ifndef EXPLICIT_SINK
+      bccc2D_ice=D2SOURCE_ICE
+#else
+      bccc2D_ice=sum(D2SOURCE_ICE-D2SINK_ICE,2)
+#endif
+      ccc_tmp2D_ice=D2STATE_ICE
+#endif
+
+#if defined INCLUDE_BEN
 #ifndef EXPLICIT_SINK
       bccc2D=D2SOURCE
 #else
@@ -68,6 +94,7 @@
 #endif
       ccc_tmp2D=D2STATE
 #endif
+
       DO j=1,NO_D3_BOX_STATES
          IF (D3STATETYPE(j).ge.0) THEN
 #ifndef EXPLICIT_SINK
@@ -77,7 +104,20 @@
 #endif
          END IF
       END DO
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+      DO j=1,NO_D2_BOX_STATES_ICE
+         IF (D2STATETYPE_ICE(j).ge.0) THEN
+#ifndef EXPLICIT_SINK
+            D2STATE_ICE(j,:) = ccc_tmp2D_ice(j,:) + delt*D2SOURCE_ICE(j,:)
+#else
+            D2STATE_ICE(j,:) = ccc_tmp2D_ice(j,:) + delt*sum(D2SOURCE_ICE(j,:,:)-D2SINK_ICE(j,:,:),1)
+#endif
+         END IF
+      END DO
+#endif
+
+#if defined INCLUDE_BEN
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN
 #ifndef EXPLICIT_SINK
@@ -88,13 +128,20 @@
          END IF
       END DO
 #endif
+
       nmin=nmin+nstep 
       ! Check for negative concentrations
       min3D=minval(D3STATE)
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-      min2D=minval(D2STATE)
+      min =  ( min3D.lt.eps )
+#if defined INCLUDE_SEAICE
+      min2D_ice=minval(D2STATE_ICE)
+      min = ( min .OR. ( min2D_ice .lt. eps ) )
 #endif
-      IF(min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
+#if defined INCLUDE_BEN
+      min2D=minval(D2STATE)
+      min = ( min .OR. ( min2D .lt. eps ) )
+#endif
+      IF( min ) THEN ! cut timestep
          IF (nstep.eq.1) THEN
             LEVEL1 'Necessary Time Step too small! Exiting...'
             blccc(:,1)=minloc(D3STATE)
@@ -102,20 +149,35 @@
             LEVEL1 ccc_tmp3D(blccc(1,1),blccc(2,1)), &
                            bccc3D(blccc(1,1),blccc(2,1))
             D3STATE=bbccc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+            blccc_ice(:,2)=minloc(D2STATE_ICE)
+            LEVEL1 var_names(stIceState2dS+blccc_ice(1,2)-1)
+            LEVEL1 ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
+                           bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
+            D2STATE_ICE=bbccc2D_ice
+#endif
+
+#if defined INCLUDE_BEN
             blccc(:,2)=minloc(D2STATE)
             LEVEL1 var_names(stBenStateS+blccc(1,2)-1)
             LEVEL1 ccc_tmp2D(blccc(1,2),blccc(2,2)), &
                            bccc2D(blccc(1,2),blccc(2,2))
             D2STATE=bbccc2D
 #endif
+
             LEVEL1 'EXIT at time: ',timesec
             STOP
          END IF
          nstep=nstep/2
          nmin=0
          D3STATE=bbccc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+         D2STATE_ICE=bbccc2D_ice
+#endif
+
+#if defined INCLUDE_BEN
          D2STATE=bbccc2D
 #endif
          dtm1=maxdelt
@@ -150,7 +212,22 @@
 #endif
             END IF
          END DO
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+         DO j=1,NO_D2_BOX_STATES_ICE
+            IF (D2STATETYPE_ICE(j).ge.0) THEN
+#ifndef EXPLICIT_SINK
+               D2STATE_ICE(j,:) = ccc_tmp2D_ice(j,:) + &
+                  .5*delt*(D2SOURCE_ICE(j,:)+bccc2D_ice(j,:))
+#else
+               D2STATE_ICE(j,:) = ccc_tmp2D_ice(j,:) + &
+                  .5*delt*(sum(D2SOURCE_ICE(j,:,:)-D2SINK_ICE(j,:,:),1)+bccc2D_ice(j,:))
+#endif
+            END IF
+         END DO
+#endif
+
+#if defined INCLUDE_BEN
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
 #ifndef EXPLICIT_SINK
@@ -164,13 +241,20 @@
          END DO
 #endif
 
+
+
          min3D=minval(D3STATE)
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-         min2D=minval(D2STATE)
-         IF (min3D.lt.eps.OR.min2D.lt.eps) THEN ! cut timestep
-#else
-         IF (min3D.lt.eps) THEN ! cut timestep
+         min =  ( min3D.lt.eps )
+#if defined INCLUDE_SEAICE
+         min2D_ice=minval(D2STATE_ICE)
+         min = ( min .OR. ( min2D_ice .lt. eps ) )
 #endif
+#if defined INCLUDE_BEN
+         min2D=minval(D2STATE)
+         min = ( min .OR. ( min2D .lt. eps ) )
+#endif
+         IF( min ) THEN ! cut timestep
+
             IF (nstep.eq.1) THEN
                LEVEL1 'Necessary Time Step too small! Exiting...'
                blccc(:,1)=minloc(D3STATE)
@@ -178,22 +262,38 @@
                LEVEL1 ccc_tmp3D(blccc(1,1),blccc(2,1)), &
                               bccc3D(blccc(1,1),blccc(2,1))
                D3STATE=bbccc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+               blccc_ice(:,2)=minloc(D2STATE_ICE)
+               LEVEL1 var_names(stIceState2dS+blccc_ice(1,2)-1)
+               LEVEL1 ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
+                              bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
+               D2STATE_ICE=bbccc2D_ice
+#endif
+
+#if defined INCLUDE_BEN
                blccc(:,2)=minloc(D2STATE)
                LEVEL1 var_names(stBenStateS+blccc(1,2)-1)
                LEVEL1 ccc_tmp2D(blccc(1,2),blccc(2,2)), &
                               bccc2D(blccc(1,2),blccc(2,2))
                D2STATE=bbccc2D
 #endif
+
                LEVEL1 'EXIT at time: ',timesec
                STOP 'integration-RK2'
             END IF
             nstep=nstep/2
             nmin=0
             D3STATE=bbccc3D
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+
+#if defined INCLUDE_SEAICE
+            D2STATE_ICE=bbccc2D_ice
+#endif
+
+#if defined INCLUDE_BEN
             D2STATE=bbccc2D
 #endif
+
             dtm1=delt
             delt=nstep*mindelt
             timesec=ntime*maxdelt

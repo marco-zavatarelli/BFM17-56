@@ -208,6 +208,9 @@
    ! Prepares the array containing the total amount per var
    !-------------------------------------------------------
    allocate(D3STATE_tot(NO_D3_BOX_STATES))
+#ifdef INCLUDE_SEAICE
+   allocate(D2STATE_ICE_tot(NO_D2_BOX_STATES_ICE))
+#endif
 #ifdef INCLUDE_BEN
    allocate(D2STATE_tot(NO_D2_BOX_STATES))
 #endif
@@ -232,8 +235,7 @@
    !-------------------------------------------------------
    ! Allocate memory and give homogeneous initial values
    !-------------------------------------------------------
-   ! the argument list is mandatory with BFM
-   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
+   call init_var_bfm(bio_setup)
 
    !---------------------------------------------
    ! Set output stepping
@@ -365,6 +367,12 @@
    !---------------------------------------------
    allocate(D3STATEB(NO_D3_BOX_STATES,NO_BOXES))
    D3STATEB = D3STATE
+
+#ifdef INCLUDE_SEAICE
+      allocate(D2STATEB_ICE(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+      D2STATEB_ICE = D2STATE_ICE
+#endif
+
 
 #ifdef INCLUDE_BEN
       allocate(D2STATEB(NO_D2_BOX_STATES,NO_BOXES))

@@ -27,7 +27,7 @@
    ! seaice forcings
    use mem,        only: EICE,EVB,ETB,ESB,EIB,EHB,ESI,EDH,EDS,F3c, &
                          F2o,I1p,I3n,I4n,I5s,S1l,S2l,U6c
-   use mem,        only: iiBen,ppI1p,N1p,N3n,N4n,N5s,O2o,O3c,P1l,P2l,NO_BOXES_XY, &
+   use mem,        only: iiIce,ppI1p,N1p,N3n,N4n,N5s,O2o,O3c,P1l,P2l,NO_BOXES_XY_ICE, &
                          flux_vector, ppI3n,ppI4n,ppI5s,ppF2o,ppF3c,&
                          ppS1l,ppS2l
    use mem,        only: SeaiceAlgae,ppSeaiceAlgae,PhytoPlankton,ppPhytoPlankton,PELSURFACE, &
@@ -48,14 +48,14 @@
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    IMPLICIT NONE
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_N1,flux_pel_ice_N3
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_N4,flux_pel_ice_N5
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_O2,flux_pel_ice_O3
-   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice, flux_atm_N1, flux_atm_N3
-   real(RLEN), dimension(NO_BOXES_XY) :: I1p_tilde,I3n_tilde,I4n_tilde,I5s_tilde
-   real(RLEN), dimension(NO_BOXES_XY) :: F2o_tilde,F3c_tilde
-   real(RLEN), dimension(NO_BOXES_XY) :: I1p_star,I3n_star,I4n_star,I5s_star
-   real(RLEN), dimension(NO_BOXES_XY) :: F2o_star,F3c_star
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice_N1,flux_pel_ice_N3
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice_N4,flux_pel_ice_N5
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice_O2,flux_pel_ice_O3
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice, flux_atm_N1, flux_atm_N3
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: I1p_tilde,I3n_tilde,I4n_tilde,I5s_tilde
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: F2o_tilde,F3c_tilde
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: I1p_star,I3n_star,I4n_star,I5s_star
+   real(RLEN), dimension(NO_BOXES_XY_ICE) :: F2o_star,F3c_star
 
    integer                            :: i,j,p
    real(RLEN), dimension(:), pointer  :: lcl_PelagicVar,lcl_SeaiceVar
@@ -155,12 +155,12 @@
 
     end where
 
-    call flux_vector( iiBen, ppI1p,ppI1p, flux_pel_ice_N1 + flux_atm_N1) 
-    call flux_vector( iiBen, ppI3n,ppI3n, flux_pel_ice_N3 + flux_atm_N3) 
-    call flux_vector( iiBen, ppI4n,ppI4n, flux_pel_ice_N4 ) 
-    call flux_vector( iiBen, ppI5s,ppI5s, flux_pel_ice_N5 ) 
-    call flux_vector( iiBen, ppF2o,ppF2o, flux_pel_ice_O2 ) 
-    call flux_vector( iiBen, ppF3c,ppF3c, flux_pel_ice_O3 ) 
+    call flux_vector( iiIce, ppI1p,ppI1p, flux_pel_ice_N1 + flux_atm_N1) 
+    call flux_vector( iiIce, ppI3n,ppI3n, flux_pel_ice_N3 + flux_atm_N3) 
+    call flux_vector( iiIce, ppI4n,ppI4n, flux_pel_ice_N4 ) 
+    call flux_vector( iiIce, ppI5s,ppI5s, flux_pel_ice_N5 ) 
+    call flux_vector( iiIce, ppF2o,ppF2o, flux_pel_ice_O2 ) 
+    call flux_vector( iiIce, ppF3c,ppF3c, flux_pel_ice_O3 ) 
 
     ! assign fluxes to boundary variables 
     ! Compute rates for the pelagic variables and assign to D3SOURCES/SINKS
@@ -197,7 +197,7 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
             j = ppSeaiceAlgae(iiS1,i)
-            call flux_vector( iiBen, j,j, flux_pel_ice(:) ) 
+            call flux_vector( iiIce, j,j, flux_pel_ice(:) ) 
             j = ppPhytoPlankton(iiP1,i)
             PELSURFACE(j,:) =  PELSURFACE(j,:) - flux_pel_ice(:)  
             ! map the flux into a 3D temporary array
@@ -220,7 +220,7 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
             j = ppSeaiceAlgae(iiS2,i)
-            call flux_vector( iiBen, j,j, flux_pel_ice(:) )
+            call flux_vector( iiIce, j,j, flux_pel_ice(:) )
             j = ppPhytoPlankton(iiP2,i)
             PELSURFACE(j,:) =  PELSURFACE(j,:) - flux_pel_ice(:)
             ! map the flux into a 3D temporary array
@@ -243,7 +243,7 @@
        end where
        ! add the flux and assign it to the boundary variable of the pelagic system
        j = ppSeaiceDetritus(iiU6,i)
-       call flux_vector( iiBen, j,j, flux_pel_ice(:) ) 
+       call flux_vector( iiIce, j,j, flux_pel_ice(:) ) 
        j = ppPelDetritus(iiR6,i)
        PELSURFACE(j,:) =  PELSURFACE(j,:) - flux_pel_ice(:)  
        ! map the flux into a 3D temporary array
@@ -262,7 +262,7 @@
        end where
        ! add the flux and assign it to the boundary variable of the pelagic system
        j = ppSeaiceDetritus(iiU1,i)
-       call flux_vector( iiBen, j,j, flux_pel_ice(:) )
+       call flux_vector( iiIce, j,j, flux_pel_ice(:) )
        j = ppPelDetritus(iiR1,i)
        PELSURFACE(j,:) =  PELSURFACE(j,:) - flux_pel_ice(:)
        ! map the flux into a 3D temporary array
@@ -285,7 +285,7 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
             j = ppSeaiceBacteria(iiT1,i)
-            call flux_vector( iiBen, j,j, flux_pel_ice(:) ) 
+            call flux_vector( iiIce, j,j, flux_pel_ice(:) ) 
             j = ppPelBacteria(iiB1,i)
             PELSURFACE(j,:) =  PELSURFACE(j,:) - flux_pel_ice(:)  
             ! map the flux into a 3D temporary array
@@ -310,7 +310,7 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
             j = ppSeaiceZoo(iiX1,i)
-            call flux_vector( iiBen, j,j, flux_pel_ice(:) ) 
+            call flux_vector( iiIce, j,j, flux_pel_ice(:) ) 
             j = ppMicroZooPlankton(iiZ5,i)
             PELSURFACE(j,:) =  PELSURFACE(j,:) - flux_pel_ice(:)  
             ! map the flux into a 3D temporary array

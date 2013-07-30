@@ -34,7 +34,7 @@ use classes;
 my $XPR_GLOBAL_COMMENT = '([^#]*)#{0,1}(.*)'; # dont process commentaries
 
 #my $XPR_START_BLOCK = '^([123])d-([^\s\n]+)(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
-my $XPR_START_BLOCK = '^([123])d-([^\s\n-]+)(?:-(pel|ben)){0,1}(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
+my $XPR_START_BLOCK = '^([123])d-([^\s\n-]+)(?:-(pel|ben|ice)){0,1}(?:\s+-if-exist\s+){0,1}([^-\n]*)(?:-Z\s+){0,1}(.*)'; #block to indicate dimension type and other characteristics of the parameter
 my $XPR_END_BLOCK   = '^end';
 
 #my $XPR_START_GROUP = '^group\s+([^:]*):(.*)'; # group name : units

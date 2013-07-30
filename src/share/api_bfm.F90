@@ -65,16 +65,24 @@
    logical                                 :: ave_ctl = .false.
    real(RLEN),allocatable,dimension(:,:)   :: D3ave
    real(RLEN),allocatable,dimension(:,:)   :: D2ave
+#if defined INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:,:)   :: D2ave_ice
+#endif
    character(len=64), dimension(:), allocatable :: var_names
    character(len=64), dimension(:), allocatable :: var_units
    character(len=64), dimension(:), allocatable :: var_long
    !---------------------------------------------
    ! Indices of the various output variables
    !---------------------------------------------
+   integer,public                            :: stStart=0
+   integer,public                            :: stEnd=0
+
    integer,public                            :: stPelStateS=0
    integer,public                            :: stPelDiagS=0
    integer,public                            :: stPelFluxS=0
-   integer,public                            :: stPelState2dS=0
+
+   integer,public                            :: stPelDiag2dS=0
+
    integer,public                            :: stPelSurS=0
    integer,public                            :: stPelBotS=0
    integer,public                            :: stPelRivS=0
@@ -85,13 +93,26 @@
    integer,public                            :: stPelStateE=0
    integer,public                            :: stPelDiagE=0
    integer,public                            :: stPelFluxE=0
-   integer,public                            :: stPelState2dE=0
+
+   integer,public                            :: stPelDiag2dE=0
+
    integer,public                            :: stPelSurE=0
    integer,public                            :: stPelBotE=0
    integer,public                            :: stPelRivE=0
 !   integer,public                            :: stBenStateE=0
 !   integer,public                            :: stBenDiagE=0
 !   integer,public                            :: stBenFluxE=0
+
+#if defined INCLUDE_SEAICE
+   integer,public                            :: stIceState2dS=0
+   integer,public                            :: stIceDiag2dS=0
+   integer,public                            :: stIceFlux2dS=0
+
+   integer,public                            :: stIceState2dE=0
+   integer,public                            :: stIceDiag2dE=0
+   integer,public                            :: stIceFlux2dE=0
+
+#endif
 
    !---------------------------------------------
    ! Additional output variables
@@ -139,7 +160,10 @@
    ! real mask of river points at surface
    real(RLEN),allocatable,dimension(:),public  :: RIVmask
    ! Total amount for each variable
-   real(RLEN),allocatable,dimension(:),public  :: D3STATE_tot,D2STATE_tot
+   real(RLEN),allocatable,dimension(:),public  :: D3STATE_tot
+#ifdef INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:),public  :: D2STATE_ICE_tot
+#endif
 
 #ifdef BFM_NEMO
    !---------------------------------------------
@@ -163,7 +187,9 @@
    ! for leapfrog scheme
    !---------------------------------------------
    real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
-   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB
+#if defined INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_ICE
+#endif
 
    !---------------------------------------------
    ! Additional allocatable temporary arrays
@@ -202,7 +228,10 @@
    ! for leapfrog scheme
    !---------------------------------------------
    real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
-   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB
+#if defined INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_ICE
+#endif
+
 
    !---------------------------------------------
    ! Additional allocatable temporary arrays
@@ -247,10 +276,18 @@ contains
 ! !USES:
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,            &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,    &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,         &
+                  NO_BOXES_XY,                           &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES, Depth, NO_D3_BOX_FLUX,      &
-                  NO_D2_BOX_FLUX
+                  NO_STATES, Depth, NO_D3_BOX_FLUX
+#if defined INCLUDE_SEAICE
+   use mem, only: NO_D2_BOX_STATES_ICE,  &
+                  NO_D2_BOX_DIAGNOSS_ICE, &
+                  NO_D2_BOX_FLUX_ICE, &
+                  NO_BOXES_ICE, NO_BOXES_X_ICE, &
+                  NO_BOXES_Y_ICE, NO_STATES_ICE, &
+                  NO_BOXES_XY_ICE
+#endif
+
    use global_mem, only: LOGUNIT
    use time, only: bfmtime
 #if defined key_obcbfm
@@ -366,6 +403,7 @@ contains
         LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
         LEVEL3 'pelagic transported variables ='
         LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
+#ifdef INCLUDE_BEN
       case (2) ! Benthic only
         LEVEL2 "Using a Benthic-only setup (bio_setup=2)"
         LEVEL3 'benthic variables =',NO_D2_BOX_STATES
@@ -377,6 +415,20 @@ contains
         LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
         LEVEL3 'benthic variables =',NO_D2_BOX_STATES
         LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS
+#endif
+#ifdef INCLUDE_SEAICE
+      case (4) ! SeaIce only
+        LEVEL2 "Using a Seauce-only setup (bio_setup=4)"
+        LEVEL3 'seaice variables =',NO_D2_BOX_STATES_ICE
+        LEVEL3 'seaice diagnostic variables=', NO_D2_BOX_DIAGNOSS_ICE
+      case (5) ! Pelagic-SeaIce coupling
+        LEVEL2 "Using a Pelagic-Seaice coupled setup (bio_setup=5)"
+        LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
+        LEVEL3 'pelagic transported variables ='
+        LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
+        LEVEL3 'seaice variables =',NO_D2_BOX_STATES_ICE
+        LEVEL3 'seaice diagnostic variables=', NO_D2_BOX_DIAGNOSS_ICE
+#endif
    end select
 
    LEVEL2 'Dimensional informations:'
@@ -386,6 +438,14 @@ contains
    LEVEL3 'NO_BOXES=',NO_BOXES
    LEVEL3 'NO_BOXES_XY=',NO_BOXES_XY
    LEVEL3 'NO_STATES=',NO_STATES
+#ifdef INCLUDE_SEAICE
+   LEVEL2 'Dimensional informations:'
+   LEVEL3 'NO_BOXES_X_ICE=',NO_BOXES_X_ICE
+   LEVEL3 'NO_BOXES_Y_ICE=',NO_BOXES_Y_ICE
+   LEVEL3 'NO_BOXES_ICE=',NO_BOXES_ICE
+   LEVEL3 'NO_BOXES_XY_ICE=',NO_BOXES_XY_ICE
+   LEVEL3 'NO_STATES_ICE=',NO_STATES_ICE
+#endif
    LEVEL3 'Step 1 of BFM initialisation done ...'
    ! dimension lengths used in the netcdf output
    lon_len = NO_BOXES_X
@@ -400,8 +460,12 @@ contains
    ! variables
    !---------------------------------------------
    ! total number of output states
-   n = NO_D3_BOX_STATES+NO_D3_BOX_FLUX+NO_D3_BOX_DIAGNOSS+ &
-      NO_D2_BOX_STATES+NO_D2_BOX_FLUX+NO_D2_BOX_DIAGNOSS
+   n =  NO_D3_BOX_STATES     + NO_D3_BOX_FLUX     + NO_D3_BOX_DIAGNOSS  + &
+        NO_D2_BOX_DIAGNOSS
+#ifdef INCLUDE_SEAICE
+   n = n + NO_D2_BOX_STATES_ICE + NO_D2_BOX_FLUX_ICE + NO_D2_BOX_DIAGNOSS_ICE
+#endif
+
    allocate(var_ids(1:n),stat=rc)
    if (rc /= 0) stop 'init_bfm(): Error allocating var_ids'
    var_ids=0;

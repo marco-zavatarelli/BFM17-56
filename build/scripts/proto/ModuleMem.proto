@@ -72,7 +72,7 @@
 
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        ! State variables Info
+        ! State variables Info (pel)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 %3d-state-pel-desc
@@ -82,28 +82,28 @@
 %2d-state-pel-desc
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! State variables Info (ice)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%2d-state-ice-desc
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! Definition of arrays which will hold all state variables and other
         ! global variables  used for exchange between submodels and/or output
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         
         real(RLEN),public,pointer,dimension(:,:) :: D3STATE
-        real(RLEN),public,pointer,dimension(:,:) :: D2STATE
 
 #ifndef EXPLICIT_SINK
         real(RLEN),public,pointer,dimension(:,:)   :: D3SOURCE
-        real(RLEN),public,pointer,dimension(:,:)   :: D2SOURCE
 #else
         real(RLEN),public,pointer,dimension(:,:,:) :: D3SOURCE
         real(RLEN),public,pointer,dimension(:,:,:) :: D3SINK
-        real(RLEN),public,pointer,dimension(:,:,:) :: D2SOURCE
-        real(RLEN),public,pointer,dimension(:,:,:) :: D2SINK
 #endif
 
         integer,public,pointer,dimension(:) :: D3STATETYPE
-        integer,public,pointer,dimension(:) :: D2STATETYPE
 #ifdef BFM_NEMO
        integer,public,pointer,dimension(:)  :: D3STATEOBC
-       integer,public,pointer,dimension(:)  :: D2STATEOBC
 #endif
 
         real(RLEN),public,pointer,dimension(:,:) :: %pel-field-array surface
@@ -119,30 +119,69 @@
         end type ppFlux
         type(ppFlux), public,dimension(:,:),allocatable :: D3FLUX_MATRIX
         real(RLEN)  , public,dimension(:,:),allocatable :: D3FLUX_FUNC
-        type(ppFlux), public,dimension(:,:),allocatable :: D2FLUX_MATRIX
-        real(RLEN)  , public,dimension(:),allocatable :: D2FLUX_FUNC
+
+
+#ifdef INCLUDE_SEAICE
+        real(RLEN),public,pointer,dimension(:,:) :: D2STATE_ICE
+
+#ifndef EXPLICIT_SINK
+        real(RLEN),public,pointer,dimension(:,:)   :: D2SOURCE_ICE
+#else
+        real(RLEN),public,pointer,dimension(:,:,:) :: D2SOURCE_ICE
+        real(RLEN),public,pointer,dimension(:,:,:) :: D2SINK_ICE
+#endif
+
+        integer,public,pointer,dimension(:) :: D2STATETYPE_ICE
+#ifdef BFM_NEMO
+       integer,public,pointer,dimension(:)  :: D2STATEOBC_ICE
+#endif
+
+        real(RLEN),public,pointer,dimension(:,:) :: D2DIAGNOS_ICE
+
+        type(ppFlux), public,dimension(:,:),allocatable :: D2FLUX_MATRIX_ICE
+        real(RLEN)  , public,dimension(:),allocatable :: D2FLUX_FUNC_ICE
+#endif
+
 
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! GLOBAL system CONSTANTS
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-        integer,parameter,public  ::NO_D3_BOX_STATES= %3d-state-pel-nr
-        integer,parameter,public  ::NO_D2_BOX_STATES= %2d-state-pel-nr
-        integer,parameter,public  ::NO_D3_BOX_DIAGNOSS= %3d-diagnos-pel-nr
-        integer,parameter,public  ::NO_D2_BOX_DIAGNOSS= %2d-diagnos-pel-nr
-        integer,parameter,public  ::NO_D3_BOX_FLUX= %3d-flux-pel-nr
-        integer,parameter,public  ::NO_D2_BOX_FLUX= %2d-flux-pel-nr
+        integer,parameter,public  ::iiPel   = 0
+        integer,parameter,public  ::iiIce   = 700
+        integer,parameter,public  ::iiBen   = 1000
+        integer,parameter,public  ::iiReset = -1000
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! GLOBAL system CONSTANTS (pel)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,parameter,public  ::NO_D3_BOX_STATES   = %3d-state-pel-nr
+        integer,parameter,public  ::NO_D3_BOX_DIAGNOSS = %3d-diagnos-pel-nr
+        integer,parameter,public  ::NO_D2_BOX_DIAGNOSS = %2d-diagnos-pel-nr
+        integer,parameter,public  ::NO_D3_BOX_FLUX     = %3d-flux-pel-nr
         integer,public  ::NO_BOXES
         integer,public  ::NO_BOXES_X
         integer,public  ::NO_BOXES_Y
         integer,public  ::NO_BOXES_Z
         integer,public  ::NO_STATES
         integer,public  ::NO_BOXES_XY
-        integer,parameter,public  ::iiPel   = 0
-        integer,parameter,public  ::iiPel2d = 500
-        integer,parameter,public  ::iiBen   = 1000
-        integer,parameter,public  ::iiReset = -1000
+
+#ifdef INCLUDE_SEAICE
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! GLOBAL system CONSTANTS (ice)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,parameter,public  ::NO_D2_BOX_STATES_ICE   = %2d-state-ice-nr
+        integer,parameter,public  ::NO_D2_BOX_DIAGNOSS_ICE = %2d-diagnos-ice-nr
+        integer,parameter,public  ::NO_D2_BOX_FLUX_ICE     = %2d-flux-ice-nr
+        integer,public  ::NO_BOXES_ICE
+        integer,public  ::NO_BOXES_X_ICE
+        integer,public  ::NO_BOXES_Y_ICE
+        integer,public  ::NO_STATES_ICE
+        integer,public  ::NO_BOXES_XY_ICE
+#endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! GLOBAL definition of Pelagic (D3/D2) state variables
@@ -151,10 +190,14 @@
         integer,parameter,public                :: %3d-state-pel-pp
         real(RLEN),public,dimension(:),pointer  :: %3d-state-pel-pointer
 
+#ifdef INCLUDE_SEAICE
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !! GLOBAL definition of SeaIce (D2) state variables
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-        integer,parameter,public                :: %2d-state-pel-pp
-        real(RLEN),public,dimension(:),pointer  :: %2d-state-pel-pointer
+        integer,parameter,public                :: %2d-state-ice-pp
+        real(RLEN),public,dimension(:),pointer  :: %2d-state-ice-pointer
+#endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! Constituent parameters:
@@ -163,16 +206,25 @@
         integer,parameter,public :: %constituent
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        ! Group parameters:
+        ! Group parameters (pel):
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         integer,parameter,public :: %3d-group-pel-parameter
-        integer,parameter,public :: %2d-group-pel-parameter
 
         logical,public :: %group-pel-calc
 
+#ifdef INCLUDE_SEAICE
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        !  Global Variables
+        ! Group parameters (ice):
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,parameter,public :: %2d-group-ice-parameter
+
+        logical,public :: %group-ice-calc
+#endif
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !  Global Variables (pel)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         integer,public  :: BoxNumber
@@ -183,6 +235,20 @@
 
         real(RLEN),public %1d-variable-pel
         integer,public    %1d-intvar-pel
+
+#ifdef INCLUDE_SEAICE
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !  Global Variables (ice)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,public  :: BoxNumber_ice
+        integer,public  :: BoxNumberX_ice
+        integer,public  :: BoxNumberY_ice
+        integer,public  :: BoxNumberXY_ice
+
+        real(RLEN),public %1d-variable-ice
+        integer,public    %1d-intvar-ice
+#endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         !! GLOBAL definition of Pelagic (D3/D2) variables which can be outputted in netcdf
@@ -206,6 +272,19 @@
         real(RLEN),public,dimension(:,:),pointer  :: %2d-diagnos-pel-pointer
         real(RLEN),public,dimension(:,:),pointer  :: %2d-diaggrp-pel-pointer
 
+#ifdef INCLUDE_SEAICE
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !! GLOBAL definition of Seaice (D2) variables which can be outputted in netcdf
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-
+%2d-diagnos-ice-desc
+%2d-diaggrp-ice-desc
+
+        integer,parameter,public :: %2d-diagnos-ice-pp
+        integer,public ::           %2d-diaggrp-ice-pp
+        real(RLEN),public,dimension(:,:),pointer  :: %2d-diagnos-ice-pointer
+        real(RLEN),public,dimension(:,:),pointer  :: %2d-diaggrp-ice-pointer
+#endif
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  boundary fluxes
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -222,14 +301,23 @@
         integer,public    %3d-intvar-pel
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        !  Other 2d-Global Variables 
+        !  Other 2d-Global Variables (pel)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=       
 
         real(RLEN),public %2d-variable-pel
         integer,public    %2d-intvar-pel
 
+#ifdef INCLUDE_SEAICE
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-        !! SHARED GLOBAL FUNCTIONS (must be below contains)
+        !  Other 2d-Global Variables (ice)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=       
+
+        real(RLEN),public %2d-variable-ice
+        integer,public    %2d-intvar-ice
+#endif
+
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !! SHARED GLOBAL FUNCTIONS (pel) (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         public flux, flux_vector, Source, Source_D3_vector, &
@@ -238,9 +326,13 @@
         public %3d-group-pel-function-name
         public %2d-group-pel-function-name
 
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-        public Source_D2_vector
-        public %2d-group-pel-function-name
+#if defined INCLUDE_SEAICE
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !! SHARED GLOBAL FUNCTIONS (ice) (must be below contains)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        public Source_D2_vector_ice
+        public %2d-group-ice-function-name
 #endif
 
         contains
@@ -252,9 +344,17 @@
 %3d-groupfunctions-pel
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          !! Group Benthic (D2) state functions
+          !! Group Pelagic (D2) state functions
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
 %2d-groupfunctions-pel
+
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          !! Group SeaIce (D2) state functions
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%2d-groupfunctions-ice
+
 
 #ifdef BFM_ROMS
 #include "FluxFunctions.h"

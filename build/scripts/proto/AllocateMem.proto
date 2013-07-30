@@ -66,26 +66,34 @@
   LEVEL1 "# Allocating State Variables and Rates array ..."
 
 #ifndef NOT_STANDALONE
- %3d-state-pel-alloc
- %2d-state-pel-alloc
- %3d-diagnos-pel-alloc
- %2d-diagnos-pel-alloc
+%3d-state-pel-alloc
+%3d-diagnos-pel-alloc
+%2d-diagnos-pel-alloc
+#ifdef INCLUDE_SEAICE
+%2d-state-ice-alloc
+%2d-diagnos-ice-alloc
+#endif
 #endif
 
 %1d-variables-pel-alloc
 %1d-intvar-pel-alloc
-
+#ifdef INCLUDE_SEAICE
+%1d-variables-ice-alloc
+%1d-intvar-ice-alloc
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Allocation of Pelagic variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 %3d-state-pel-alloc-pointer
-%2d-state-pel-alloc-pointer
 
+#ifdef INCLUDE_SEAICE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Allocation of Benthic variables
+  ! Allocation of SeaIce variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
+%3d-state-ice-alloc-pointer
+%2d-state-ice-alloc-pointer
+#endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Start the allocation of other pelagic variables which can be outputted
@@ -98,9 +106,7 @@
 %3d-diagnos-pel-alloc-pointer
 %3d-diaggrp-pel-alloc-pointer
 
-%2d-diaggrp-pel-assign-pp
 %2d-diagnos-pel-alloc-pointer
-%2d-diaggrp-pel-alloc-pointer
 
 %pel-alloc-pointer-field surface
 %pel-alloc-pointer-field bottom
@@ -112,14 +118,22 @@
 %3d-intvar-pel-alloc
 %2d-intvar-pel-alloc
 
+#ifdef INCLUDE_SEAICE
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Start the allocation of other benthic vairables which can be outputted 
+  ! Start the allocation of other seaIce vairables which can be outputted 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%2d-diaggrp-ice-assign-pp
+%2d-diagnos-ice-alloc-pointer
+%2d-diaggrp-ice-alloc-pointer
 
+%2d-variable-ice-alloc
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! Start the allocation of vars for calculation of combined fluxes for output
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%2d-intvar-ice-alloc
+#endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of Pelagic vars for calculation of combined fluxes for output
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
   LEVEL1 "# Allocating Fluxes .."
@@ -127,8 +141,14 @@
 %3d-flux-pel-alloc
 %3d-flux-pel-fill
 
-%2d-flux-pel-alloc
-%2d-flux-pel-fill
+#ifdef INCLUDE_SEAICE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of Seaice vars for calculation of combined fluxes for output
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%2d-flux-ice-alloc
+%2d-flux-ice-fill
+#endif
 
   end subroutine AllocateMem
 

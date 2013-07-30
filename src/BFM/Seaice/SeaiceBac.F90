@@ -23,14 +23,14 @@
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem,  ONLY: D2STATE_ICE
 #else
-  use mem, ONLY: D2STATE, T1c, U6c, T1n, U6n, T1p, U6p, U1c, U1n, U1p, F2o, F3c, &
+  use mem, ONLY: D2STATE_ICE, T1c, U6c, T1n, U6n, T1p, U6p, U1c, U1n, U1p, F2o, F3c, &
     I4n, I1p, I3n
 #endif
   use mem, ONLY: ppT1c, ppU6c, ppT1n, ppU6n, ppT1p, ppU6p, ppU1c, ppF3c, &
     ppU1n, ppU1p, ppF2o, ppN6r, ppI4n, ppI1p, ppI3n, Depth, qpUc, qnUc,&
-    ETB, qnTc, qpTc, eO2mO2, qpUc, qnUc, NO_BOXES_XY, iiBen, iiBen, flux_vector, &
+    ETB, qnTc, qpTc, eO2mO2, qpUc, qnUc, NO_BOXES_XY_ICE, iiIce, flux_vector, &
     iiU1, iiU6
 
   use constants,  ONLY: MW_C, ONE_PER_DAY
@@ -80,49 +80,49 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY)  :: bacc
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: eO2
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rd
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruU1c
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruU1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruU1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruU6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruU6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruU6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_XY)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn3
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn4
-  real(RLEN),dimension(NO_BOXES_XY)  :: misp
-  real(RLEN),dimension(NO_BOXES_XY)  :: misn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
-  real(RLEN),dimension(NO_BOXES_XY)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY)  :: rep
-  real(RLEN),dimension(NO_BOXES_XY)  :: rut
-  real(RLEN),dimension(NO_BOXES_XY)  :: rum
-  real(RLEN),dimension(NO_BOXES_XY)  :: run
-  real(RLEN),dimension(NO_BOXES_XY)  :: sun
-  real(RLEN),dimension(NO_BOXES_XY)  :: rug
-  real(RLEN),dimension(NO_BOXES_XY)  :: suU1
-  real(RLEN),dimension(NO_BOXES_XY)  :: suU1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: suU1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: cuU6
-  real(RLEN),dimension(NO_BOXES_XY)  :: cuU1
-  real(RLEN),dimension(NO_BOXES_XY)  :: iI1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: iNIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: iN
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: bacc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: et
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: eO2
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: r
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rd
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU1c
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU1n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU1p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU6c
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU6p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU6n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cqun3
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rump
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn3
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn4
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupp
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ren
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rep
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rut
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rum
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: run
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sun
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rug
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: suU1
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: suU1n
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: suU1p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cuU6
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cuU1
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iI1p
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iNIn
+  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  bacc = D2STATE(ppbacc,:)
+  bacc = D2STATE_ICE(ppbacc,:)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Temperature effect on pelagic bacteria:
@@ -137,13 +137,13 @@
   !   LOC (U1) and detritus (U6) s for phytoplankton and microzooplankton.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rd  =  ( p_sd(bac)* et+( p_sd2(bac)* T1c(:)))* T1c(:)
-  call flux_vector( iiBen, ppT1c,ppU6c, rd*( ONE- p_pe_R1c) )
-  call flux_vector( iiBen, ppT1n,ppU6n, rd* qnTc(bac, :)*( ONE- p_pe_R1n) )
-  call flux_vector( iiBen, ppT1p,ppU6p, rd* qpTc(bac, :)*( ONE- p_pe_R1p) )
+  call flux_vector( iiIce, ppT1c,ppU6c, rd*( ONE- p_pe_R1c) )
+  call flux_vector( iiIce, ppT1n,ppU6n, rd* qnTc(bac, :)*( ONE- p_pe_R1n) )
+  call flux_vector( iiIce, ppT1p,ppU6p, rd* qpTc(bac, :)*( ONE- p_pe_R1p) )
 
-  call flux_vector( iiBen, ppT1c,ppU1c, rd* p_pe_R1c )
-  call flux_vector( iiBen, ppT1n,ppU1n, rd* qnTc(bac, :)* p_pe_R1n )
-  call flux_vector( iiBen, ppT1p,ppU1p, rd* qpTc(bac, :)* p_pe_R1p )
+  call flux_vector( iiIce, ppT1c,ppU1c, rd* p_pe_R1c )
+  call flux_vector( iiIce, ppT1n,ppU1n, rd* qnTc(bac, :)* p_pe_R1n )
+  call flux_vector( iiIce, ppT1p,ppU1p, rd* qpTc(bac, :)* p_pe_R1p )
 
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate quota in U1c
@@ -268,9 +268,9 @@
   !ruU2c  =   rug* ruU2c/ rut
   ruU1c  =   rug* ruU1c/ rut
 
-  call flux_vector( iiBen, ppU6c,ppT1c, ruU6c )
-  !call flux_vector( iiBen, ppU2c,ppT1c, ruU2c )
-  call flux_vector( iiBen, ppU1c,ppT1c, ruU1c )
+  call flux_vector( iiIce, ppU6c,ppT1c, ruU6c )
+  !call flux_vector( iiIce, ppU2c,ppT1c, ruU2c )
+  call flux_vector( iiIce, ppU1c,ppT1c, ruU1c )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Nitrogen and Phosphrous uptake
@@ -279,22 +279,22 @@
   ruU6n  =   qnUc(iiU6,:)* ruU6c
   ruU1n  =   qnUc(iiU1,:)* ruU1c
 
-  call flux_vector( iiBen, ppU6n,ppT1n, ruU6n )
-  call flux_vector( iiBen, ppU1n,ppT1n, ruU1n )
+  call flux_vector( iiIce, ppU6n,ppT1n, ruU6n )
+  call flux_vector( iiIce, ppU1n,ppT1n, ruU1n )
 
   ruU6p  =   qpUc(iiU6,:)* ruU6c
   ruU1p  =   qpUc(iiU1,:)* ruU1c
 
-  call flux_vector( iiBen, ppU6p,ppT1p, ruU6p )
-  call flux_vector( iiBen, ppU1p,ppT1p, ruU1p )
+  call flux_vector( iiIce, ppU6p,ppT1p, ruU6p )
+  call flux_vector( iiIce, ppU1p,ppT1p, ruU1p )
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Aerobic Respiration calculation + flux
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   rrc  =  ( p_pu_ra(bac)+ p_pu_ra_o(bac)*( ONE- eO2))* rug+ p_srs(bac)* T1c(:)* et
-  call flux_vector( iiBen, ppT1c,ppF3c, rrc )
-  call flux_vector( iiBen, ppF2o,ppF2o,-rrc/ MW_C) 
+  call flux_vector( iiIce, ppT1c,ppF3c, rrc )
+  call flux_vector( iiIce, ppF2o,ppF2o,-rrc/ MW_C) 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Production
@@ -315,8 +315,8 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       ren  =  ( qnTc(bac, :)- p_qnc(bac))* T1c(:)* ONE_PER_DAY
-      call flux_vector( iiBen, ppT1n,ppI4n, ren* insw_vector( ren) )
-      call flux_vector(iiBen, ppI4n,ppT1n,- ren* insw_vector( - ren)* I4n(:)/( &
+      call flux_vector( iiIce, ppT1n,ppI4n, ren* insw_vector( ren) )
+      call flux_vector(iiIce, ppI4n,ppT1n,- ren* insw_vector( - ren)* I4n(:)/( &
         ONE+ I4n(:)))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -324,9 +324,9 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       rep  =  ( qpTc(bac, :)- p_qpc(bac))* T1c(:)* ONE_PER_DAY
-      call flux_vector( iiBen, ppT1p,ppI1p,  rep* insw_vector( rep) )
-      call flux_vector( iiBen, ppI1p,ppT1p,- rep* insw_vector( - rep)* I1p(:)/( &
-        0.5D+00+ I1p(:)))
+      call flux_vector( iiIce, ppT1p,ppI1p,  rep* insw_vector( rep) )
+      call flux_vector( iiIce, ppI1p,ppT1p,- rep* insw_vector( - rep)* I1p(:)/( &
+        0.5+ I1p(:)))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Activity exrecetion (defined as reU7c) + stress excetion (defined as &
@@ -386,12 +386,12 @@
 
       ren  =   max(ruU6n+ruU1n-run*p_qnc(bac),-runn) *insw_vector(run)
       ! excess of nutrients : ren > 0
-      call flux_vector( iiBen, ppT1n,ppI4n,  ren*insw_vector(ren) )
+      call flux_vector( iiIce, ppT1n,ppI4n,  ren*insw_vector(ren) )
 
       ! shortage of nutrients : ren < 0 --> Nutrient uptake
       r=-ren*insw_vector(-ren)
-      call flux_vector(iiBen, ppI4n,ppT1n, r* rumn4/( p_small+ rumn))
-      call flux_vector(iiBen, ppI3n,ppT1n, r* rumn3/( p_small+ rumn))
+      call flux_vector(iiIce, ppI4n,ppT1n, r* rumn4/( p_small+ rumn))
+      call flux_vector(iiIce, ppI3n,ppT1n, r* rumn3/( p_small+ rumn))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Phosphorus dynamics
@@ -401,18 +401,18 @@
       rep  =   max(ruU6p+ruU1p-run*p_qpc(bac),-runp) *insw_vector(run)
       
       ! excess of nutrients : rep > 0
-      call flux_vector( iiBen, ppT1p,ppI1p, rep* insw_vector(rep) )
+      call flux_vector( iiIce, ppT1p,ppI1p, rep* insw_vector(rep) )
 
       ! shortage of nutrients : rep < 0 --> Nutrient uptake
-      call flux_vector( iiBen, ppI1p,ppT1p, -rep*insw_vector(-rep) )
+      call flux_vector( iiIce, ppI1p,ppT1p, -rep*insw_vector(-rep) )
 
   end select
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Excretion fluxes + correction net prod.:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  !call flux_vector( iiBen, ppT1c,ppU2c, reU2c )
-  !call flux_vector( iiBen, ppT1c,ppU7c, reU7c )
+  !call flux_vector( iiIce, ppT1c,ppU2c, reU2c )
+  !call flux_vector( iiIce, ppT1c,ppU7c, reU7c )
 
   end subroutine SeaiceBacDynamics
 

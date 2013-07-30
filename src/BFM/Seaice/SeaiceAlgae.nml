@@ -14,7 +14,7 @@
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-! parameter values for mem_Seaicealgae filled by InitSeaicealgae
+! parameter values for mem_SeaiceAlgae filled by InitSeaicealgae
 !
 
 !  

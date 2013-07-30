@@ -99,18 +99,11 @@
   ! check_fixed_quota             numeric Check whether zooplankton have fixed quota
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   logical   :: CalcPelagicFlag=.TRUE.  
-  integer   :: CalcBenthicFlag=0  
+  integer   :: CalcBenthicFlag=0      ! Switch for Benthic system
+  logical   :: CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
+
   logical   :: CalcTransportFlag=.FALSE.  
   logical   :: CalcConservationFlag=.TRUE.  
-#ifdef INCLUDE_SEAICE
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Sea-ice flags
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   :: CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
-  logical   :: CalcSeaiceAlgae(iiSeaiceAlgae) = .TRUE.
-  logical   :: CalcSeaiceZoo(iiSeaiceZoo) = .TRUE.
-  logical   :: CalcSeaiceBacteria(iiSeaiceBacteria)= .TRUE.
-#endif
   logical   :: CalcPelChemistry=.TRUE.
   logical   :: AssignPelBenFluxesInBFMFlag=.TRUE.
   logical   :: AssignAirPelFluxesInBFMFlag=.TRUE.
@@ -130,6 +123,7 @@
   ! p_eps0       [1/m]         Background extinction coefficient
   ! p_epsESS     [m2/g]        Specific attenuation coefficient of
   !                            suspended sediments
+  ! p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
   ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
   !                            detritus
   ! p_pe_R1c     [-]           Fractional content of C in cytoplasm 
@@ -152,6 +146,7 @@
       p_PAR=0.50_RLEN,      &  
       p_eps0=0.04_RLEN  ,  &  
       p_epsESS=0.04e-3_RLEN  ,  &
+      p_epsChla=0.03, &
       p_epsR6=0.1e-3_RLEN , & 
       p_pe_R1c=0.60_RLEN  ,     &
       p_pe_R1n=0.72_RLEN  ,     &
@@ -205,7 +200,7 @@
 #ifdef INCLUDE_SEAICE
     CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
 #endif
-    p_epsR6,check_fixed_quota
+    p_epsR6, p_epsChla, check_fixed_quota
    integer :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute

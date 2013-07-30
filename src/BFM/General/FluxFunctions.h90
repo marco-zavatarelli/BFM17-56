@@ -68,19 +68,21 @@
                              (SIGN( 1, D3FLUX_MATRIX(origin,destination)%p(j) ) * flux )
                      end do
                   endif
-                case (iiPel2d)
-                  D2SOURCE(origin,:) = D2SOURCE(origin,:) - &
+#if defined INCLUDE_SEAICE
+                case (iiIce)
+                  D2SOURCE_ICE(origin,:) = D2SOURCE_ICE(origin,:) - &
                       flux/SEC_PER_DAY
-                  D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
+                  D2SOURCE_ICE(destination,:) = D2SOURCE_ICE(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D2FLUX_MATRIX(origin,destination)%p ) ) then
-                     do j=1, SIZE(D2FLUX_MATRIX(origin,destination)%p)
-                        D2FLUX_FUNC( ABS(D2FLUX_MATRIX(origin,destination)%p(j)) ) =      &
-                             D2FLUX_FUNC( ABS(D2FLUX_MATRIX(origin,destination)%p(j)) ) + &
-                             (SIGN( 1, D2FLUX_MATRIX(origin,destination)%p(j) ) * flux (1) )
+                  if( allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
+                     do j=1, SIZE(D2FLUX_MATRIX_ICE(origin,destination)%p)
+                        D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) =      &
+                             D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) + &
+                             (SIGN( 1, D2FLUX_MATRIX_ICE(origin,destination)%p(j) ) * flux (1) )
                      end do
                   endif
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#endif
+#if defined INCLUDE_BEN
                 case (iiBen)
                   D2SOURCE(origin,:) = D2SOURCE(origin,:) - &
                       flux/SEC_PER_DAY
@@ -109,26 +111,27 @@
                         end if
                      end do
                   endif
-                case (iiPel2d)
-                  D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
+#if defined INCLUDE_SEAICE
+                case (iiIce)
+                  D2SOURCE_ICE(destination,:) = D2SOURCE_ICE(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D2FLUX_MATRIX(origin,destination)%p ) ) then
-                     do j=1, SIZE(D2FLUX_MATRIX(origin,destination)%p)
-                        if( D2FLUX_MATRIX(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D2SINK
+                  if( allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
+                     do j=1, SIZE(D2FLUX_MATRIX_ICE(origin,destination)%p)
+                        if( D2FLUX_MATRIX_ICE(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D2SINK_ICE
                            if( flux(1) < ZERO ) then
-                              D2FLUX_FUNC( ABS(D2FLUX_MATRIX(origin,destination)%p(j)) ) =     &
-                                   D2FLUX_FUNC( ABS(D2FLUX_MATRIX(origin,destination)%p(j)) ) - flux(1)
+                              D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) =     &
+                                   D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) - flux(1)
                            end if
-                        else ! "A<-B" => (in flow) => flux > ZERO => D2SOURCE
+                        else ! "A<-B" => (in flow) => flux > ZERO => D2SOURCE_ICE
                            if( flux(1) > ZERO ) then
-                              D2FLUX_FUNC( ABS(D2FLUX_MATRIX(origin,destination)%p(j)) ) =     &
-                                   D2FLUX_FUNC( ABS(D2FLUX_MATRIX(origin,destination)%p(j)) ) + flux(1)
+                              D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) =     &
+                                   D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) + flux(1)
                            end if
                         end if
                      end do
                   endif
-
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#endif
+#if defined INCLUDE_BEN
                 case (iiBen)
                   D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
@@ -170,12 +173,14 @@
                          D3SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
                 D3SOURCE(destination,grid_nr) =    &
                          D3SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
-              case (iiPel2d)
-                D2SOURCE(origin,grid_nr) =    &
-                         D2SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
-                D2SOURCE(destination,grid_nr) =    &
-                         D2SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+              case (iiIce)
+                D2SOURCE_ICE(origin,grid_nr) =    &
+                         D2SOURCE_ICE(origin,grid_nr)-flow/SEC_PER_DAY
+                D2SOURCE_ICE(destination,grid_nr) =    &
+                         D2SOURCE_ICE(destination,grid_nr)+flow/SEC_PER_DAY
+#endif
+#if defined INCLUDE_BEN
               case (iiBen)
                 D2SOURCE(origin,grid_nr) =    &
                          D2SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
@@ -189,10 +194,12 @@
               case (iiPel)
                  D3SOURCE(destination,grid_nr) = D3SOURCE(destination,grid_nr) + &
                       flow/SEC_PER_DAY
-              case (iiPel2d)
-                 D2SOURCE(destination,grid_nr) = D2SOURCE(destination,grid_nr) + &
+#if defined INCLUDE_SEAICE
+              case (iiIce)
+                 D2SOURCE_ICE(destination,grid_nr) = D2SOURCE_ICE(destination,grid_nr) + &
                       flow/SEC_PER_DAY
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#endif
+#if defined INCLUDE_BEN
               case (iiBen)
                  D2SOURCE(destination,grid_nr) = D2SOURCE(destination,grid_nr) + &
                       flow/SEC_PER_DAY
@@ -222,7 +229,22 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+        function Source_D2_vector_ice(iistate)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! vector function to get actual rate of change in the seaice
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          use constants, only: RLEN, ZERO, SEC_PER_DAY
+          implicit none
+          integer, intent(IN) ::iistate
+          real(RLEN) ::Source_D2_vector_ice(size(D2SOURCE_ICE,DIM=2))
+          integer :: i
+          Source_D2_vector_ice = ZERO
+          Source_D2_vector_ice = D2SOURCE_ICE(iistate,:)*SEC_PER_DAY 
+        end function Source_D2_vector_ice
+#endif
+
+#if defined INCLUDE_BEN
         function Source_D2_vector(iistate)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! vector function to get actual rate of change in the benthic
@@ -253,9 +275,11 @@
           Source = ZERO
           if ( iiSub == iiPel )  then
              Source=D3SOURCE(iistate,iibox)*SEC_PER_DAY
-          elseif ( iiSub == iiPel2d )  then
-             Source=D2SOURCE(iistate,iibox)*SEC_PER_DAY
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+#if defined INCLUDE_SEAICE
+          elseif ( iiSub == iiIce )  then
+             Source=D2SOURCE_ICE(iistate,iibox)*SEC_PER_DAY
+#endif
+#if defined INCLUDE_BEN
           elseif ( iiSub == iiBen )  then
              Source=D2SOURCE(iistate,iibox)*SEC_PER_DAY
 #endif
@@ -359,17 +383,19 @@
                 write(LOGUNIT,'(''at level:'',I4)') i
                 write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') &
                   origin,destination
-                if ( iiSub== iiBen) then
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+                if( iiSub == iiPel ) then
+                    write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
+                    write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
+#if defined INCLUDE_SEAICE
+                elseif ( iiSub == iiIce ) then
+                    write(LOGUNIT,*) "state value origin:",D2STATE_ICE(origin,i)
+                    write(LOGUNIT,*) "state value destination:",D2STATE_ICE(destination,i)
+#endif
+#if defined INCLUDE_BEN
+                elseif ( iiSub == iiBen) then
                     write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
                     write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
 #endif
-                elseif( iiSub == iiPel ) then
-                    write(LOGUNIT,*) "state value origin:",D3STATE(origin,i)
-                    write(LOGUNIT,*) "state value destination:",D3STATE(destination,i)
-                elseif ( iiSub == iiPel2d ) then
-                    write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
-                    write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
                 endif
                 STDERR 'Nan value in flux'
                 stop 1002
@@ -391,17 +417,19 @@
             if (isnan(scalar)) then
                write(LOGUNIT,*) 'Nan value in scalar flux'
                write(LOGUNIT,'(''origin='',i4,'' destination='',i4)') origin,destination
-               if ( iiSub == iiBen)  then
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
+                 if( iiSub == iiPel ) then
+                    write(LOGUNIT,*) "Pelagic state value origin:",D3STATE(origin,grid_nr)
+                    write(LOGUNIT,*) "Pelagic state value destination:",D3STATE(destination,grid_nr)
+#if defined INCLUDE_SEAICE
+               elseif ( iiSub == iiIce )  then
+                    write(LOGUNIT,*) "Benthic state value origin:",D2STATE_ICE(origin,grid_nr)
+                    write(LOGUNIT,*) "Benthic state value destination:",D2STATE_ICE(destination,grid_nr)
+#endif
+#if defined INCLUDE_BEN
+               elseif ( iiSub == iiBen )  then
                     write(LOGUNIT,*) "Benthic state value origin:",D2STATE(origin,grid_nr)
                     write(LOGUNIT,*) "Benthic state value destination:",D2STATE(destination,grid_nr)
 #endif
-                 elseif( iiSub == iiPel ) then
-                    write(LOGUNIT,*) "Pelagic state value origin:",D3STATE(origin,grid_nr)
-                    write(LOGUNIT,*) "Pelagic state value destination:",D3STATE(destination,grid_nr)
-                 elseif ( iiSub == iiPel2d) then
-                    write(LOGUNIT,*) "Pelagic 2D state value origin:",D2STATE(origin,grid_nr)
-                    write(LOGUNIT,*) "Pelagic 2D state value destination:",D2STATE(destination,grid_nr)
                endif
                stop "subroutine TESTNAN forced STOP"
             endif
