@@ -187,18 +187,19 @@
   use global_mem, ONLY: bfm_lwp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,        &
-    p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
+    p_qon_nitri, p_clDxm,                                                     &
+    CalcPelagicFlag, CalcBenthicFlag,CalcSeaiceFlag, CalcTransportFlag,       &
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
     CalcPelChemistry,CalcMesoZooPlankton, CalcPelBacteria,                    &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
-    p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,        &
+    p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,         &
     p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,            &
     p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
 #ifdef INCLUDE_BEN
     CalcBenOrganisms,CalcBenBacteria,                                         & 
 #endif
 #ifdef INCLUDE_SEAICE
-    CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
+    CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
 #endif
     p_epsR6, p_epsChla, check_fixed_quota
    integer :: i

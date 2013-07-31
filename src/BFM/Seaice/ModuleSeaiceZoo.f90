@@ -68,11 +68,11 @@
   real(RLEN)  :: p_chuc(iiSeaiceZoo) ! Food concentration where total uptake rate is 0.5
   real(RLEN)  :: p_minfood(iiSeaiceZoo)  ! Concentration below which feeding on a particular
                                                 !  foodsource is depressed
-  real(RLEN)  :: p_suTI(iiSeaiceZoo,iiSeaiceBacteria) ! /day   #relative B1 uptake by zoo
-  real(RLEN)  :: p_qnXI(iiSeaiceZoo)  ! Maximum quotum P
-  real(RLEN)  :: p_qpXI(iiSeaiceZoo) ! Maximum quotum N
-  real(RLEN)  :: p_suSI(iiSeaiceZoo,iiSeaiceAlgae)    ! /day   #relative P uptake by zoo
-  real(RLEN)  :: p_suXI(iiSeaiceZoo,iiSeaiceZoo)! /day   #relative Z uptake by zoo
+  real(RLEN)  :: p_suSBA(iiSeaiceZoo,iiSeaiceBacteria) ! /day   #relative B1 uptake by zoo
+  real(RLEN)  :: p_qnSZO(iiSeaiceZoo)  ! Maximum quotum P
+  real(RLEN)  :: p_qpSZO(iiSeaiceZoo) ! Maximum quotum N
+  real(RLEN)  :: p_suSAL(iiSeaiceZoo,iiSeaiceAlgae)    ! /day   #relative P uptake by zoo
+  real(RLEN)  :: p_suSZO(iiSeaiceZoo,iiSeaiceZoo)! /day   #relative Z uptake by zoo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -84,7 +84,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /SeaiceZoo_parameters/ p_q10, p_srs, p_sum, p_sdo, p_sd, p_pu_ra, &
-    p_pu_ea, p_chro, p_chuc, p_minfood, p_suSI, p_suXI, p_suTI, p_qpXI, p_qnXI
+    p_pu_ea, p_chro, p_chuc, p_minfood, p_suSAL, p_suSZO, p_suSBA, p_qpSZO, p_qnSZO
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

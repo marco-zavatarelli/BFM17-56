@@ -257,7 +257,7 @@ if [ ${GEN} ]; then
     rm -rf *
     
     #add -D to cppdefs
-    cppdefs=`echo ${CPPDEFS} | sed -e 's/\([a-zA-Z_0-9]*\)/-D\1/g'` 
+    cppdefs=`echo ${CPPDEFS} | sed -e 's/\([a-zA-Z_0-9]*\)/-D\1/g'`
 
     # generate BFM Memory Layout files and namelists
     ${PERL} -I${BFMDIR}/${SCRIPTS_BIN}/ ${BFMDIR}/${SCRIPTS_BIN}/${cmd_gen} \
@@ -279,7 +279,10 @@ if [ ${GEN} ]; then
         find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Forcing -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
-        find ${BFMDIR}/src/BFM/SeaIce -name "*.?90" -print >> BFM.lst
+        if echo "$cppdefs" | grep -q "\-DINCLUDE_SEAICE" ; then
+            [ $VERBOSE ] && echo "include SEAICE in BFM.lst"
+            find ${BFMDIR}/src/BFM/SeaIce -name "*.?90" -print >> BFM.lst
+        fi
 
         #change netcdf path in compiler file
         if [ ${NETCDF} ]; then
@@ -295,7 +298,7 @@ if [ ${GEN} ]; then
             echo "    -c \"${cppdefs}\" "
             echo "    -o \"-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include\" "
             echo "    -t \"${blddir}/${ARCH}\" "
-            echo "    -p \"${BFMDIR}/bin/bfm_standalone.x\" "
+            echo "    -p \"${BFMDIR}/bin/${BFMSTD}\" "
             echo "    BFM.lst && echo \" "
         fi
 
@@ -304,7 +307,7 @@ if [ ${GEN} ]; then
             -c "${cppdefs}" \
             -o "-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include" \
             -t "${blddir}/${ARCH}" \
-            -p "${BFMDIR}/bin/bfm_standalone.x" \
+            -p "${BFMDIR}/bin/${BFMSTD}" \
             BFM.lst && echo ""
 
         # Link to the configuration file

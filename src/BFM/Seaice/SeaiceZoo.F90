@@ -149,7 +149,7 @@
   ! Available food, etc...
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
  do i = 1 , ( iiSeaiceBacteria)
-  rumTIc(:, i)  =   p_suTI(zoo, i)*SeaiceBacteria(i,iiC)* &
+  rumTIc(:, i)  =   p_suSBA(zoo, i)*SeaiceBacteria(i,iiC)* &
     SeaiceBacteria(i,iiC)/( SeaiceBacteria(i,iiC)+ p_minfood(zoo))
   rumc  =   rumTIc(:, i)
   rumn  =   rumTIc(:, i)* qnTc(i, :)
@@ -157,7 +157,7 @@
  end do
 
   do i = 1 , ( iiSeaiceAlgae)
-    rumSIc(:, i) = p_suSI(zoo,i)* SeaiceAlgae(i,iiC)* &
+    rumSIc(:, i) = p_suSAL(zoo,i)* SeaiceAlgae(i,iiC)* &
       SeaiceAlgae(i,iiC)/( SeaiceAlgae(i,iiC)+ p_minfood(zoo))
     rumc  =   rumc+ rumSIc(:, i)
     rumn  =   rumn+ rumSIc(:, i)* qnSc(i,:)
@@ -165,7 +165,7 @@
   end do
 
   do i = 1 , ( iiSeaiceZoo)
-    rumXIc(:, i) = p_suXI(zoo, i)* &
+    rumXIc(:, i) = p_suSZO(zoo, i)* &
       SeaiceZoo(i,iiC)* SeaiceZoo(i,iiC)/( SeaiceZoo(i,iiC) + &
       p_minfood(zoo))
     rumc  =   rumc+ rumXIc(:, i)
@@ -180,7 +180,7 @@
   efood  =   MM_vector(  rumc,  p_chuc(zoo))
   rugc  =   p_sum(zoo)* et* zooc* efood
 
-  r  =   min(  rumn/ p_qnXI(zoo),  rump/p_qpXI(zoo))
+  r  =   min(  rumn/ p_qnSZO(zoo),  rump/p_qpSZO(zoo))
   pu_ra  =   max(  p_pu_ra(zoo),  ONE- r/ (rumc+ p_small))
   put_u  =   rugc/ (rumc+p_small)
 
@@ -301,15 +301,15 @@
   runn  =   max(  ZERO,  rugn*( ONE- p_pu_ea(zoo))+ rrsc* qnXc(zoo, :))
   runp  =   max(  ZERO,  rugp*( ONE- p_pu_ea(zoo))+ rrsc* qpXc(zoo, :))
 
-  ren  =   max(  ZERO,  runn/( p_small+ runc)- p_qnXI(zoo))* runc
-  rep  =   max(  ZERO,  runp/( p_small+ runc)- p_qpXI(zoo))* runc
+  ren  =   max(  ZERO,  runn/( p_small+ runc)- p_qnSZO(zoo))* runc
+  rep  =   max(  ZERO,  runp/( p_small+ runc)- p_qpSZO(zoo))* runc
   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppzoon,ppI4n, ren ,tfluxN)
   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppzoop,ppI1p, rep ,tfluxP)
 
 
-  r=tfluxC*p_qnXI(zoo)
+  r=tfluxC*p_qnSZO(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiN,0,0,0,r,tfluxN)
-  r=tfluxC*p_qpXI(zoo)
+  r=tfluxC*p_qpSZO(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,r,tfluxP)
 
 

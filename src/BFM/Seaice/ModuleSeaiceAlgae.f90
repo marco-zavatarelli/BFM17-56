@@ -141,7 +141,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitSeaicealgae.f90","Seaicealgae.nml")
+100 call error_msg_prn(NML_OPEN,"InitSeaicealgae.f90","SeaiceAlgae.nml")
 101 call error_msg_prn(NML_READ,"InitSeaicealgae.f90","Seaicealgae_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitSeaiceAlgae

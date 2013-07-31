@@ -91,7 +91,6 @@ subroutine set_var_info_bfm
 %3d-state-pel-string-index
 %3d-diagnos-pel-string-index
 %3d-flux-pel-string-index
-
 %2d-diagnos-pel-string-index
 %pel-string-index-field surface
 %pel-string-index-field bottom

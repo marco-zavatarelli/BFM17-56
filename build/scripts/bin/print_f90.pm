@@ -1243,7 +1243,9 @@ sub func_STRING_INDEX  {
 
     if( $type eq "diagnos" ){
         #fix because "diagnos" ends with "diaggrp" values
-        $search_E = "diaggrp_${subt}_${dim}_E";
+        if ( defined $STRING_INDEX_ARRAY{"diaggrp_${subt}_${dim}_E"} ){
+            $search_E = "diaggrp_${subt}_${dim}_E";
+        }
     }
     # if( $subt eq 'pel' && $type eq 'state' && $dim == 2 ){
     #     #fix because "Pel state 2D" ends with "Pel diagnos river 2D" values
@@ -1253,6 +1255,9 @@ sub func_STRING_INDEX  {
     if( defined $STRING_INDEX_ARRAY{"${search_S}"} && defined $STRING_INDEX_ARRAY{"${search_E}"} ){
         $line .= "${SPACE}st${subt_short}${out}S=" . $STRING_INDEX_ARRAY{"${search_S}"} . "\n"; 
         $line .= "${SPACE}st${subt_short}${out}E=" . $STRING_INDEX_ARRAY{"${search_E}"} . "\n";
+    }else{
+        print "WARNING: \"${search_S}\" and \"${search_E}\" do not exist. No print value in set_var_info\n";
+        #print Dumper(\%STRING_INDEX_ARRAY) . "\n";
     }
 
     if( $line ){ print $file $line; }
@@ -1526,8 +1531,9 @@ sub func_INIT_INTERNAL {
 
 
     foreach my $groupname ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ){
-        my $group     = $$LST_GROUP{$groupname};
-        my $groupAcro = $$LST_GROUP{$groupname}->getAcro();
+        my $group         = $$LST_GROUP{$groupname};
+        my $groupAcro     = $$LST_GROUP{$groupname}->getAcro();
+        my $groupname_nml = $groupname; $groupname_nml =~ s/Plankton//; $groupname_nml .= "_parameters";
 
         if( $group->getDim() == $dim
             && $subt eq $group->getSubtype()){
@@ -1547,9 +1553,11 @@ sub func_INIT_INTERNAL {
                     my $temp_compo = "p_q" . $constOpt . $groupAcro;
                     #if the optional initialization element exists in the namelist => add to initialize constituents
                     foreach my $list (@$LST_NML){
-                        foreach my $param ( @{$list->slots()} ){
-                            if( $param eq $temp_compo){ 
-                                push( @temp_line2, $constOpt . "=" . $temp_compo . "(i)" );
+                        if( $list->name() eq $groupname_nml ){
+                            foreach my $param ( @{$list->slots()} ){
+                                if( $param eq $temp_compo){ 
+                                    push( @temp_line2, $constOpt . "=" . $temp_compo . "(i)" );
+                                }
                             }
                         }
                     }

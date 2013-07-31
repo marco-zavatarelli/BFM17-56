@@ -445,14 +445,18 @@ sub print_namelists{
                     #check if is an array to add the comments
                     if( $line =~ /$reg_array/ ){
                         my $acro  = $2;
-                        my $group = ${$nml->elements}[($3-1)];
-                        if ( $pred_terms ne $acro ){
-                            $pred_terms = $acro;
-                            my @line_tmp = ( "! ", " " ,@{$nml->subElements($acro)} );
-                            calculateMaxLen(\@line_tmp, \@max_len_array);
-                            push( @tbl, [@line_tmp] )
-                        };
-                        push( @tbl, [( "!   $group" )] );
+                        if( defined $nml->elements ){ 
+                            my $group = ${$nml->elements}[($3-1)];
+                            if ( $pred_terms ne $acro ){
+                                $pred_terms = $acro;
+                                my @line_tmp = ( "! ", " " ,@{$nml->subElements($acro)} );
+                                calculateMaxLen(\@line_tmp, \@max_len_array);
+                                push( @tbl, [@line_tmp] )
+                            };
+                            push( @tbl, [( "!   $group" )] );
+                        }else{
+                            print "WARNING: Group $2 not defined\n";
+                        }
                     }
 
                     my @parts = ( $line =~ /^\s*(.*)\=(.*)/ );

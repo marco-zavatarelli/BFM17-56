@@ -33,9 +33,13 @@
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
+   logical :: use_seaice_data
+
    namelist /forcings_nml/ forcing_method,ltype,lw,ls,sw,ss,tw,ts,tde, & 
             ww,ws,CO2inc,botdep_c,botdep_n,botdep_p,botdep_si,botox_o,  &
-            forcing_file, seaice_file, use_external_data, data_file, &
+            forcing_file, &
+            use_seaice_data, seaice_file, &
+            use_external_data, data_file, &
             use_event_data, event_file
 !
 ! !LOCAL VARIABLES:
@@ -75,9 +79,13 @@
       !call init_air_sea(data_file,latitude, longitude)
     end select
 #ifdef INCLUDE_SEAICE
-    LEVEL2 'Reading sea-ice forcing data from:'
-    LEVEL3 trim(seaice_file)
-    open(unit_seaice,file=seaice_file,action='read',status='old',err=108)
+    if (use_seaice_data) then
+       LEVEL2 'Reading sea-ice forcing data from:'
+       LEVEL3 trim(seaice_file)
+       open(unit_seaice,file=seaice_file,action='read',status='old',err=108)
+    else
+       LEVEL2 'Skipping sea-ice forcing data'
+    end if
 #endif
     ! Read external data (if activated)
     if (use_external_data) then
