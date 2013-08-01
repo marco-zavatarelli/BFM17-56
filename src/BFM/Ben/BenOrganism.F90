@@ -23,6 +23,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
+  use constants, ONLY: MW_C
 #ifdef NOPOINTERS
   use mem
 #else
@@ -161,13 +162,13 @@
 
   food  =   p_small
 
-  rtyc  =   0.0D+00
-  rtyn  =   0.0D+00
-  rtyp  =   0.0D+00
+  rtyc  =   ZERO
+  rtyn  =   ZERO
+  rtyp  =   ZERO
 
-  rqt6c  =   0.0D+00
-  rqt6n  =   0.0D+00
-  rqt6p  =   0.0D+00
+  rqt6c  =   ZERO
+  rqt6n  =   ZERO
+  rqt6p  =   ZERO
 
   ! For other benthic organisms:
 
@@ -181,7 +182,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   do i = 1 , ( iiBenBacteria)
-    food_src  =   max(0.0D+00,BenBacteria(i,iiC)* p_Hn(y,i))
+    food_src  =   max(ZERO,BenBacteria(i,iiC)* p_Hn(y,i))
     food  =   food+ food_src* MM_vector(  food_src,  p_clu(y))
   end do
 
@@ -190,7 +191,7 @@
   ! and then add it to the total amount of food
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  if ( p_puQ6(y)> 0.0D+00) then
+  if ( p_puQ6(y)> ZERO) then
     clm  =   p_clm(y)
     cm  =   p_cm(y)
     availQ6_c  =   Q6c(:)* PartQ_vector(  D6m(:),  clm,  cm,  p_d_tot)
@@ -200,9 +201,9 @@
     food_src  =   p_puQ6(y)* availQ6_c
     food  =   food+ food_src* MM_vector(  food_src,  p_clu(y))
   else 
-    availQ6_c  =   0.0D+00;
-    availQ6_n  =   0.0D+00;
-    availQ6_p  =   0.0D+00;
+    availQ6_c  =   ZERO;
+    availQ6_n  =   ZERO;
+    availQ6_p  =   ZERO;
   end if
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -221,12 +222,12 @@
 
   ! Relative growth rate corrected for actual amount of food:
 
-  sgu  =  ( sgu_y* yc)/ ( 1.0D-80 + food)
+  sgu  =  ( sgu_y* yc)/ ( p_small + food)
 
   ! Net uptake:
 
-  snu    =   sgu*( 1.0D+00- p_pue(y))
-  snuQ6  =   sgu*( 1.0D+00- p_pueQ6(y))
+  snu    =   sgu*( ONE- p_pue(y))
+  snuQ6  =   sgu*( ONE- p_pueQ6(y))
 
   ! Execreted part:
 
@@ -304,7 +305,7 @@
   ! detritus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  select case ( p_puQ6(y)> 0.0D+00)
+  select case ( p_puQ6(y)> ZERO)
 
     case( .TRUE. )
       choice  =   p_puQ6(y)* MM_vector(  p_puQ6(y)* availQ6_c,  p_clu(y))
@@ -329,9 +330,9 @@
       rqt6p  =   rqt6p+ rq6p
 
     case( .FALSE. )
-      ruQ6c  =   0.0D+00
-      ruQ6n  =   0.0D+00
-      ruQ6p  =   0.0D+00
+      ruQ6c  =   ZERO
+      ruQ6n  =   ZERO
+      ruQ6p  =   ZERO
 
   end select
 
@@ -343,7 +344,7 @@
   rrc  =   p_sr(y)* yc* et+ p_pur(y)*( sgu* food- rqt6c)
 
   call flux_vector( iiBen, ppyc, ppG3c, rrc )
-  call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ 12.0D+00))
+  call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C))
   rtyc  =   rtyc- rrc
 
 
@@ -365,9 +366,9 @@
   ! situation
   ! of startvation and very low biomass values. Check on quota in the food is &
   ! out of order
-  rtyc  =   max(  0.0D+00,  rtyc- rqt6c)
-  rtyn  =   max(  0.0D+00,  rtyn- rqt6n)
-  rtyp  =   max(  0.0D+00,  rtyp- rqt6p)
+  rtyc  =   max(  ZERO,  rtyc- rqt6c)
+  rtyn  =   max(  ZERO,  rtyn- rqt6n)
+  rtyp  =   max(  ZERO,  rtyp- rqt6p)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculation of nutrient release and correction of C:N:P
@@ -376,7 +377,7 @@
   ren  =   rtyn- rtyc* p_qn(y)
   rep  =   rtyp- rtyc* p_qp(y)
 
-  where ( ren< 0.0D+00)
+  where ( ren< ZERO)
     rq6c  =  - ren/ p_qn(y)
     rqt6c  =   rqt6c+ rq6c
     rtyc  =   rtyc- rq6c
@@ -385,7 +386,7 @@
     rep  =   rtyp- rtyc* p_qp(y)
   end where
 
-  where ( rep< 0.0D+00)
+  where ( rep< ZERO)
     rq6c  =  - rep/ p_qp(y)
     rqt6c  =   rqt6c+ rq6c
     rtyc  =   rtyc- rq6c
@@ -400,8 +401,8 @@
   ! Redfield C:N:P. In this way the C:N:P does not become too extreme
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ren = min( max( 0.0D+00, ren), max( 0.0D+00, ren-( p_qn(y)* yc- yn)))
-  rep = min( max( 0.0D+00, rep), max( 0.0D+00, rep-( p_qp(y)* yc- yp)))
+  ren = min( max( ZERO, ren), max( ZERO, ren-( p_qn(y)* yc- yn)))
+  rep = min( max( ZERO, rep), max( ZERO, rep-( p_qp(y)* yc- yp)))
 
 
   call flux_vector( iiBen, ppyn,ppK4n, ren )
@@ -420,7 +421,7 @@
   ! Add respiration and excretion to the benthic totals
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  rrBTo(:)  =   rrBTo(:)+ rrc/ 12.0D+00
+  rrBTo(:)  =   rrBTo(:)+ rrc/ MW_C
   reBTn(:)  =   reBTn(:)+ ren
   reBTp(:)  =   reBTp(:)+ rep
 
@@ -432,16 +433,16 @@
   select case ( y)
 
     case ( iiY1 )
-      cmm  =   0.0D+00
+      cmm  =   ZERO
 
     case ( iiY2 )
-      cmm  =   D6m(:)/ 2.0D+00
+      cmm  =   0.5_RLEN*D6m(:)
 
     case ( iiY4 )
-      cmm  =  ( p_cm(y)+ p_clm(y))/ 2.0D+00
+      cmm  =  0.5_RLEN*(p_cm(y)+ p_clm(y))
 
     case ( iiY5 )
-      cmm  =   D1m(:)/ 2.0D+00
+      cmm  =   0.5_RLEN*D1m(:)
 
   end select
 

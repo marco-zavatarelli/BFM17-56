@@ -25,7 +25,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use bfm_error_msg, ONLY: set_warning_for_getm
-  use global_mem, ONLY:RLEN,LOGUNIT
+  use global_mem, ONLY:RLEN,LOGUNIT,ZERO,ONE
 #ifdef NOPOINTERS
   use mem
 #else
@@ -44,7 +44,7 @@
   use bennut_interface, ONLY: CalculateFromSet
   use constants, ONLY: INTEGRAL,MASS
   use mem_BenSilica, ONLY: p_clD2m,  p_chD2m,  p_chM5s, p_cvM5s,p_q10
-  use mem_Param, ONLY: p_d_tot,p_d_tot_2, p_clD1D2m, p_small,p_poro 
+  use mem_Param, ONLY: p_d_tot,p_d_tot_2, p_clD1D2m, p_small,p_poro,p_small
   use mem_BenDenitriDepth, ONLY:p_cmD2m
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -101,26 +101,24 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   nn=max(10,p_N)
-  LocalDelta  =   1.0/real(nn)
-  BoxNumberXY=1.0;
+  LocalDelta  =   ONE/real(nn)
+  BoxNumberXY=1
 
-  ! Initial caluclation only to gete a reaonable value for D1m and D2m
+  ! Initial calculation only to gete a reasonable value for D1m and D2m
 
-  G2o(1)=0.0D+00
-  jG2K3o(1)=0.0D+00
-  jG2K7o(1)=0.0D+00
+  G2o(BoxNumberXY)=ZERO
+  jG2K3o(BoxNumberXY)=ZERO
+  jG2K7o(BoxNumberXY)=ZERO
   
-
-  
-  D1m(BoxNumberXY)=0.05;
-  D2m(BoxNumberXY)=0.07;
-  alpha=1.0/(1.D-80+D6m(BoxNumberXY));
+  D1m(BoxNumberXY)=0.05_RLEN
+  D2m(BoxNumberXY)=0.07_RLEN
+  alpha=ONE/(p_small+D6m(BoxNumberXY));
   HTc = (H1c(BoxNumberXY)+H2c(BoxNumberXY)) 
   HTn = (H1n(BoxNumberXY)+H2n(BoxNumberXY)) 
   HTp = (H1p(BoxNumberXY)+H2p(BoxNumberXY)) 
-  Q11c(BoxNumberXY)=0.1 * Q1c(BoxNumberXY)
-  Q11n(BoxNumberXY)=0.1 * Q1n(BoxNumberXY)
-  Q11p(BoxNumberXY)=0.1 * Q1p(BoxNumberXY)
+  Q11c(BoxNumberXY)=0.1_RLEN * Q1c(BoxNumberXY)
+  Q11n(BoxNumberXY)=0.1_RLEN * Q1n(BoxNumberXY)
+  Q11p(BoxNumberXY)=0.1_RLEN * Q1p(BoxNumberXY)
   
   do i=1,p_N
     HT_0 = HTc / IntegralExp( - alpha,p_d_tot )
@@ -135,21 +133,20 @@
 
     call BenthicSystemDynamics
 
-
     call BenOxygenDynamics
 
-    D1m(1)=D1m(1) + ShiftD1m(1) * LocalDelta
-    D1m(1)=min(D1m(1), p_d_tot-2.0 * p_clD1D2m)
+    D1m(BoxNumberXY)=D1m(BoxNumberXY) + ShiftD1m(BoxNumberXY) * LocalDelta
+    D1m(BoxNumberXY)=min(D1m(BoxNumberXY), p_d_tot-2.0_RLEN * p_clD1D2m)
 
 
     if ( i== 1 )  then
-       r  =   p_d_tot- D1m(1)
-       D2m(1)=D1m(1)+p_clD1D2m
+       r  =   p_d_tot- D1m(BoxNumberXY)
+       D2m(BoxNumberXY)=D1m(BoxNumberXY)+p_clD1D2m
     else
        call BenDenitriDepthDynamics
 
-       D2m(1)=D2m(1) + ShiftD2m(1)* LocalDelta
-       D2m(1)=min( max( D1m(1)+p_clD1D2m, D2m(1) ), &
+       D2m(BoxNumberXY)=D2m(BoxNumberXY) + ShiftD2m(BoxNumberXY)* LocalDelta
+       D2m(BoxNumberXY)=min( max( D1m(BoxNumberXY)+p_clD1D2m, D2m(BoxNumberXY) ), &
                      p_d_tot-p_clD1D2m)
     endif
 
@@ -163,33 +160,33 @@
 
     call flux(1,iiReset,1,1,0.0)
 
-    if ( reAtn(1) .le. 0.0 .or. reATp(1).le.0.0) then
-       H1c(BoxNumberXY)=0.5*H1c(BoxNumberXY)
-       H2c(BoxNumberXY)=0.5*H2c(BoxNumberXY)
-       HTc=0.5*HTc
-       H1n(BoxNumberXY)=0.5*H1n(BoxNumberXY)
-       H2n(BoxNumberXY)=0.5*H2n(BoxNumberXY)
-       HTn=0.5*HTn
-       H1p(BoxNumberXY)=0.5*H1p(BoxNumberXY)
-       H2p(BoxNumberXY)=0.5*H2p(BoxNumberXY)
-       HTp=0.5*HTp
+    if ( reAtn(1) .le. ZERO .or. reATp(BoxNumberXY).le.0.0) then
+       H1c(BoxNumberXY)=0.5_RLEN*H1c(BoxNumberXY)
+       H2c(BoxNumberXY)=0.5_RLEN*H2c(BoxNumberXY)
+       HTc=0.5_RLEN*HTc
+       H1n(BoxNumberXY)=0.5_RLEN*H1n(BoxNumberXY)
+       H2n(BoxNumberXY)=0.5_RLEN*H2n(BoxNumberXY)
+       HTn=0.5_RLEN*HTn
+       H1p(BoxNumberXY)=0.5_RLEN*H1p(BoxNumberXY)
+       H2p(BoxNumberXY)=0.5_RLEN*H2p(BoxNumberXY)
+       HTp=0.5_RLEN*HTp
     endif
   enddo
 
   do BoxNumberXY=1,NO_BOXES_XY
         K4n(BoxNumberXY) =max(p_small,CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, MASS, &
-                                                0.0D+00, D1m(BoxNumberXY)))
+                                                ZERO, D1m(BoxNumberXY)))
         K14n(BoxNumberXY)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, MASS, &
                                        D1m(BoxNumberXY),D2m(BoxNumberXY)))
         K24n(BoxNumberXY)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, MASS, &
                                        D2m(BoxNumberXY),p_d_tot_2))
         K3n(BoxNumberXY) =max(p_small,CalculateFromSet( KNO3(BoxNumberXY), INTEGRAL, MASS, &
-                                                0.0D+00, D2m(BoxNumberXY)))
+                                                ZERO, D2m(BoxNumberXY)))
         K6r(BoxNumberXY)=max(p_small,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
-                                       0.0D+00,D1m(BoxNumberXY)))
-        K16r(BoxNumberXY)=max(0.1D+00,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
+                                       ZERO,D1m(BoxNumberXY)))
+        K16r(BoxNumberXY)=max(0.1_RLEN,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
                                        D1m(BoxNumberXY),D2m(BoxNUmberXY)))
-        K26r(BoxNumberXY)=max(0.1D+00,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
+        K26r(BoxNumberXY)=max(0.1_RLEN,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
                                        D2m(BoxNumberXY),p_d_tot_2))
   enddo
 
@@ -202,7 +199,7 @@
 
   do BoxNumberXY=1,NO_BOXES_XY
       K1p(BoxNumberXY) =CalculateFromSet( KPO4(BoxNumberXY), INTEGRAL, MASS, &
-                                              0.0D+00, D1m(BoxNumberXY))
+                                              ZERO, D1m(BoxNumberXY))
       K11p(BoxNumberXY)=CalculateFromSet( KPO4(BoxNumberXY), INTEGRAL, MASS, &
                                        D1m(BoxNumberXY),D2m(BoxNumberXY))
       K21p(BoxNumberXY)=CalculateFromSet( KPO4(BoxNumberXY), INTEGRAL, MASS, &
@@ -214,7 +211,7 @@
       call BenAlkalinityDynamics
       do BoxNumberXY=1,NO_BOXES_XY
             G3c(BoxNumberXY) =CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &
-                                              0.0D+00, D1m(BoxNumberXY))
+                                              ZERO, D1m(BoxNumberXY))
             G13c(BoxNumberXY)=CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &
                                        D1m(BoxNumberXY),D2m(boxNUmberXY))
             G23c(BoxNumberXY)=CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &

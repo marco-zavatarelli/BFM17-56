@@ -185,18 +185,30 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Benthic model parameters
+  ! NAME          UNIT          DESCRIPTION
+  ! p_sedlevels   [-]           Number of sigma levels for benthic nutrient
+  ! p_poro0       [-]           Constant porosity for 0D and 1D runs
+  ! p_InitSink    Logical       parameter to Initialize BenthicSInk var.
+  ! p_q10diff     [-]           Temperature-dependency porewater diffusion
+  ! p_clDxm       [m]           minimal value of D?.m for calculation of the alpha
+  ! p_d_tot       [m]           Thickness of modelled benthic sediment layers
+  ! p_clD1D2m     [m]           minimum distance between D1m and D2m
+  ! p_d_tot_2     [m]           maximal Thickness of D2m
+  ! p_sedsigma    [-]           Parameter for sigma level distribution
+  ! p_poro        [-]           Sediment porosity
+  ! p_p_ae        [-]           Adsorption coefficient
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! 0d-parameters 
-  integer      :: p_sedlevels=20 ! - # Number of sigma levels for benthic nutrient
-  real(RLEN)   :: p_poro0=0.4    ! Constant porosity for 0D and 1D runs
+  integer      :: p_sedlevels=20 
+  real(RLEN)   :: p_poro0=0.4    
   real(RLEN)   :: &
-      p_InitSink=100.0_RLEN,  &  ! parameter to Initialize BenthicSInk var.
-      p_q10diff=1.49_RLEN,  &  ! Temperature-dependency porewater diffusion
-      p_clDxm=0.001_RLEN, &  ! minimal value of D?.m for calculation of the alpha
-      p_d_tot=0.30_RLEN,    &  ! m # Thickness of modelled benthic sediment layers
-      p_clD1D2m=0.01_RLEN,    &  ! m # minimum distancebetween D1m and D2m
-      p_d_tot_2=0.35_RLEN,  &  ! m # maximal Thickness of D2m
-      p_sedsigma=2.0_RLEN        ! - # Parameter for sigma level distribution 
+      p_InitSink=100.0_RLEN,  &  
+      p_q10diff=1.49_RLEN,  &  
+      p_clDxm=0.001_RLEN, &  
+      p_d_tot=0.30_RLEN,    &  
+      p_clD1D2m=0.01_RLEN,    &  
+      p_d_tot_2=0.35_RLEN,  &  
+      p_sedsigma=2.0_RLEN        
   ! 1d-parameters
   real(RLEN),public,dimension(:),allocatable   ::  p_p_ae, p_poro
 

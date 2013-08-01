@@ -11,7 +11,7 @@
 !  Leap Frog time-integration with time-step adjustment
 !
 ! !USES
-   use global_mem, ONLY:RLEN
+   use global_mem, ONLY:RLEN, ONE
    use mem, ONLY: NO_D3_BOX_STATES,NO_BOXES,D3SOURCE,D3STATE, &
                   D3STATETYPE
 #ifdef EXPLICIT_SINK
@@ -37,7 +37,7 @@
 !
 ! !LOCAL VARIABLES:
    real(RLEN),parameter    :: eps=0.
-   real(RLEN),parameter    :: ass=.05
+   real(RLEN),parameter    :: ass=.05_RLEN
    real(RLEN)              :: min3D,min2D
    integer                 :: i,j,n
    integer,dimension(2,2)  :: blccc
@@ -103,14 +103,14 @@
                LEVEL2 'EXIT at time: ',timesec
             STOP
          END IF
-         nstep=nstep/2
+         nstep=nstep/2_RLEN
          nmin=0
          D3STATE=bccc3D
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
          D2STATE=bccc2D
 #endif
-         dtm1=.5*delt
-         delt=2.*nstep*mindelt
+         dtm1=.5_RLEN*delt
+         delt=2._RLEN*nstep*mindelt
          timesec=maxdelt*ntime
          n=nmaxdelt/nstep
       ELSE
@@ -119,7 +119,7 @@
          DO j=1,NO_D3_BOX_STATES
             IF (D3STATETYPE(j).ge.0) THEN
                bbccc3D(j,:) = D3STATE(j,:) + &
-                     ass*(bbccc3D(j,:)-2.*D3STATE(j,:)+ccc_tmp3D(j,:))
+                     ass*(bbccc3D(j,:)-2._RLEN*D3STATE(j,:)+ccc_tmp3D(j,:))
             END IF
          END DO
          D3STATE=ccc_tmp3D
@@ -127,7 +127,7 @@
          DO j=1,NO_D2_BOX_STATES
             IF (D2STATETYPE(j).ge.0) THEN
                bbccc2D(j,:) = D2STATE(j,:) + &
-                     ass*(bbccc2D(j,:)-2.*D2STATE(j,:)+ccc_tmp2D(j,:))
+                     ass*(bbccc2D(j,:)-2._RLEN*D2STATE(j,:)+ccc_tmp2D(j,:))
             END IF
          END DO
          D2STATE=ccc_tmp2D
@@ -140,17 +140,22 @@
       IF(nmin.eq.0) THEN
          ! 2nd order approximation of backward State from Taylor expansion:
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-         bbccc2D=bc2D/n**2+D2STATE*(1.-1./n**2)+ &
-            sum((D2SOURCE-D2SINK),2)*.5*delt*(1./n**2-1./n)
+#ifndef EXPLICIT_SINK
+         bbccc2D=bc2D/n**2+D2STATE*(ONE-ONE/n**2)+ &
+            D2SOURCE*.5_RLEN*delt*(ONE/n**2 - ONE/n)
+#else
+         bbccc2D=bc2D/n**2+D2STATE*(ONE-ONE/n**2)+ &
+            sum((D2SOURCE-D2SINK),2)*.5_RLEN*delt*(ONE/n**2 - ONE/n)
+#endif
 #endif
 #ifndef EXPLICIT_SINK
-         bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2) + D3SOURCE*.5*delt*(1./n**2-1./n)
+         bbccc3D=bc3D/n**2+D3STATE*(ONE-ONE/n**2) + D3SOURCE*.5_RLEN*delt*(ONE/n**2-ONE/n)
 #else
-         bbccc3D=bc3D/n**2+D3STATE*(1.-1./n**2)+ &
-            sum((D3SOURCE-D3SINK),2)*.5*delt*(1./n**2-1./n)
+         bbccc3D=bc3D/n**2+D3STATE*(ONE - ONE/n**2)+ &
+            sum((D3SOURCE-D3SINK),2)*.5_RLEN*delt*(ONE/n**2 - ONE/n)
 #endif
 #ifdef DEBUG
-         LEVEL2 'Time Step cut! delt= ',delt/2.,' nstep= ',nstep
+         LEVEL2 'Time Step cut! delt= ',delt/2._RLEN,' nstep= ',nstep
 #endif
       ELSE
 #ifdef DEBUG
@@ -172,7 +177,7 @@
       DO j=1,NO_D3_BOX_STATES
          IF (D3STATETYPE(j).ge.0) THEN
             bbccc3D(j,:) = bccc3d(j,:) + &
-               ass*(bc3D(j,:)-2.*bccc3d(j,:)+D3STATE(j,:))
+               ass*(bc3D(j,:)-2._RLEN*bccc3d(j,:)+D3STATE(j,:))
          END IF
       END DO
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
@@ -180,7 +185,7 @@
       DO j=1,NO_D2_BOX_STATES
          IF (D2STATETYPE(j).ge.0) THEN
             bbccc2d(j,:) = bccc2d(j,:) + &
-               ass*(bc2D(j,:)-2.*bccc2d(j,:)+D2STATE(j,:))
+               ass*(bc2D(j,:)-2._RLEN*bccc2d(j,:)+D2STATE(j,:))
          END IF
       END DO
 #endif
@@ -188,9 +193,9 @@
    nstep=nmaxdelt
    nmin=0
    ntime=ntime+1
-   dtm1=.5*delt
+   dtm1=.5_RLEN*delt
    delt=2*nstep*mindelt
-   timesec=delt/2.*ntime
+   timesec=delt/2._RLEN*ntime
 #ifdef DEBUG
    LEVEL1 'ntime: ',ntime
    LEVEL1 'Integration time: ',timesec

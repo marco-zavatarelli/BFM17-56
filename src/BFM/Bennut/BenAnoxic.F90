@@ -21,13 +21,12 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ONE,ZERO
 #ifdef NOPOINTERS
   use mem
 #else
   use mem,  ONLY: K26r, K16r, K6r, G2o, D6m, D1m, D2m, D2STATE
-  use mem, ONLY: ppK26r, ppK16r, ppK6r, ppG2o, ppD6m, ppD1m, dummy,  &
-      NO_BOXES_XY,    &
+  use mem, ONLY: ppK26r, ppK16r, ppK6r, ppG2o, ppD6m, ppD1m, NO_BOXES_XY,    &
     BoxNumberXY, LocalDelta, InitializeModel, M6r, KRED, jbotN6r, jG2K7o, rrATo, &
     rrBTo, jK36K26r, irrenh, ETW_Ben, KNO3, N6r_Ben,Depth_Ben, &
     shiftD1m, shiftD2m,iiBen, iiPel, flux,jK3G4n
@@ -41,24 +40,9 @@
   use mem_Param,  ONLY: p_poro, p_d_tot,p_d_tot_2, p_clDxm, p_qro, p_q10diff, p_qon_dentri
   use mem_BenthicNutrient3, ONLY:p_max_state_change, p_max_shift_change
   use mem_BenAnoxic
-
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following bennut functions are used:GetInfoFromSet, &
-  ! InitializeSet, DefineSet, CompleteSet, CalculateSet, CalculateTau, &
-  ! CalculateFromSet
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use bennut_interface, ONLY: GetInfoFromSet, InitializeSet, DefineSet, &
     CompleteSet, CalculateSet, CalculateTau, CalculateFromSet
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following global functions are used:eTq
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use global_interface,   ONLY: eTq
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! The following sesame functions are used:IntegralExp, insw
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use mem_globalfun,   ONLY: IntegralExp, insw
 !
 !
@@ -118,18 +102,15 @@
   real(RLEN)  :: r
   real(RLEN)  :: r2
   real(RLEN)  :: Dxm,Dym
+  real(RLEN)  :: dummy
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do BoxNumberXY=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables
       ! (Diagnostic variables, not used in calculations)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      M6r(BoxNumberXY) = K6r(BoxNumberXY)/ p_poro(BoxNumberXY)/( p_p+ 1.0D+00)/( &
+      M6r(BoxNumberXY) = K6r(BoxNumberXY)/ p_poro(BoxNumberXY)/( p_p+ ONE)/( &
         D1m(BoxNumberXY))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -137,7 +118,7 @@
       ! mineralization. D6.m is the average penetration depth for C-detritus
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      alpha  =   1.0D+00/ max(  p_clDxm,  D6m(BoxNumberXY))
+      alpha  =   ONE/ max(  p_clDxm,  D6m(BoxNumberXY))
 
 
       if ( InitializeModel == 0 ) then
@@ -202,8 +183,8 @@
       ! - environmental conditions (diffusion, porosity and adsorption coeff.)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      Dxm=(D1m(BoxNumberXY)+D2m(BoxNumberXY)) *0.5
-      Dym=(D2m(BoxNumberXY)+p_d_tot_2) *0.5
+      Dxm=(D1m(BoxNumberXY)+D2m(BoxNumberXY)) *0.5_RLEN
+      Dym=(D2m(BoxNumberXY)+p_d_tot_2) *0.5_RLEN
 
       KRED(BoxNumberXY) = InitializeSet( KRED(BoxNumberXY), 5, 16)
       call DefineSet(KRED(BoxNumberXY), LAYERS,LAYER1,LAYER2, D1m(BoxNumberXY),Dxm)
@@ -225,7 +206,6 @@
       ! r25
       !    r23, r24 = 0 (boundary condition)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       call DefineSet(KRED(BoxNumberXY), DEFINE, 11, EXPONENTIAL_TERM, -gamma, dummy)
       call DefineSet(KRED(BoxNumberXY), DEFINE, 12, EXPONENTIAL_TERM, gamma, dummy)
       call DefineSet(KRED(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
@@ -260,7 +240,7 @@
 
       !9:
       call CompleteSet( KRED(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-        EQUATION, 0.0D+00, value=N6r_Ben(BoxNumberXY))
+        EQUATION, ZERO, value=N6r_Ben(BoxNumberXY))
 
       !10-11:
       call FixProportionCoeff(KRED(BoxNumberXY),22,32,n21,n31)
@@ -283,10 +263,10 @@
 
       !14
       r= exp(-alpha*(Dxm- D1m(BoxNUmberXY)))
-      call FixProportionCoeff(KRED(BoxNumberXY),21,31,1.0D+00,r)
+      call FixProportionCoeff(KRED(BoxNumberXY),21,31,ONE,r)
       !15
       r= exp(-alpha*(Dym- D2m(BoxNUmberXY)))
-      call FixProportionCoeff(KRED(BoxNumberXY),41,51,1.0D+00,r)
+      call FixProportionCoeff(KRED(BoxNumberXY),41,51,ONE,r)
 
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      ! Calculate for the above defined set of boundary conditions
@@ -311,8 +291,8 @@
          ! Calculate the adaptation time to the steady-state profile
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          cK6r = max( 0.0D+00, CalculateSet( KRED(BoxNumberXY), &
-                 SET_LAYER_INTEGRAL, LAYER1, LAYER1, 0.0D+00 , 0.0D+00))
+          cK6r = max( ZERO, CalculateSet( KRED(BoxNumberXY), &
+                 SET_LAYER_INTEGRAL, LAYER1, LAYER1, ZERO , ZERO))
 
           Tau  =   CalculateTau(  p_sOS,  diff,  p_p,  D1m(BoxNumberXY))
 
@@ -323,7 +303,7 @@
          ! the ''old'' value and the ''equilibrium value''
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-         cK6r = cK6r+( K6r(BoxNumberXY)- cK6r)* IntegralExp( -LocalDelta/Tau, 1.0D+00)
+         cK6r = cK6r+( K6r(BoxNumberXY)- cK6r)* IntegralExp( -LocalDelta/Tau, ONE)
 
          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
          ! Derive the equations for the transient profiles, assuming the same
@@ -342,7 +322,7 @@
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
            jK6G4r= p_qro* p_qon_dentri* jK3G4n(BoxNumberXY)
-           call LimitChange(1,jK6G4r,K16r(BoxNumberXY),1.0D+00)
+           call LimitChange(1,jK6G4r,K16r(BoxNumberXY),ONE)
            call flux(BoxNumberXY, iiBen, ppK16r, ppK16r, -jK6G4r )
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
            ! flux at the D1m
@@ -366,7 +346,7 @@
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
            jbotN6r(BoxNumberXY) = CalculateFromSet( KRED(BoxNumberXY), DERIVATIVE, &
-               RFLUX, 0.0D+00, dummy)
+               RFLUX, ZERO, dummy)
 
            call LimitChange(jbotN6r(BoxNumberXY),N6r_Ben(BoxNumberXY)*Depth_Ben(BoxNumberXY) ,&
                                                          p_max_state_change)
@@ -376,7 +356,7 @@
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
            jK6BTr = p_sOS* CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, &
-             RFLUX, 0.0D+00, D1m(BoxNumberXY))
+             RFLUX, ZERO, D1m(BoxNumberXY))
 
 
            r=jbotN6r(BoxNumberXY)+jK6BTr ; r2=r
@@ -420,7 +400,7 @@
           dummy = CalculateSet( KRED(BoxNumberXY), 0, 0,  0, dummy, dummy)
 
           jK6BTr = p_sOS* CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, &
-                                         RFLUX, 0.0D+00, D1m(BoxNumberXY))
+                                         RFLUX, ZERO, D1m(BoxNumberXY))
           jG2K7o(BoxNumberXY)  =   jK6BTr/ p_qro
       endif
 

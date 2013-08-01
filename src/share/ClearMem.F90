@@ -65,7 +65,9 @@ subroutine ClearMem
 #if defined INCLUDE_BEN || defined INCLUDE_SEAICE
      deallocate(D2STATE)
      deallocate(D2SOURCE)
+#ifdef EXPLICIT_SINK
      deallocate(D2SINK)
+#endif
      deallocate(D2STATETYPE)
 #endif
 
