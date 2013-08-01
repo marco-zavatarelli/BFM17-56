@@ -8,28 +8,19 @@
 ! !ROUTINE: Ecology
 !
 ! DESCRIPTION
-!   !	This submodel calls all other submodels
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+! This is the main interface to call all the other sub-models of the BFM
+! Depending on the choices of macros and parameters this part activates:
+! - the sea-ice model
+! - the pelagic model
+! - the benthic model
 !
 ! !INTERFACE
   subroutine EcologyDynamics
 !
 ! !USES:
-  ! The following 0-d global parameters are used: CalcPelagicFlag, &
-  ! CalcBenthicFlag
-  ! The following global constants are used: RLEN
-  ! The following constants are used: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
   use mem,  ONLY: iiBen, iiPel, iiReset, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
@@ -43,11 +34,6 @@
 !
 ! !AUTHORS
 !   Marcello Vichi & Piet Ruardij
-!
-!
-!
-! !REVISION_HISTORY
-!   !
 !
 ! COPYING
 !   
@@ -85,9 +71,11 @@
 #endif
 
   if ( CalcPelagicFlag) then
+
     call PelagicSystemDynamics
 
   end if
+
 #ifdef INCLUDE_BEN
   if ( CalcBenthicFlag > 0 ) then
 
@@ -122,7 +110,6 @@
        ! only the net sink at the bottom is computed
        call SettlingDynamics
        call BentoPelCoupDynamics
-
   endif
 #else
   ! only the net sink at the bottom is computed

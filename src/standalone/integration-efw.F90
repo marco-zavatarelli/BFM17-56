@@ -142,7 +142,11 @@
 
 #if defined INCLUDE_BEN
             blccc(:,2)=minloc(D2STATE)
+#ifndef EXPLICIT_SINK
+            bbccc2D = D2SOURCE(:,:)
+#else
             bbccc2D = sum(D2SOURCE(:,:,:)-D2SINK(:,:,:),2)
+#endif
             LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
             LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &
                            bbccc2D(blccc(1,2),blccc(2,2))

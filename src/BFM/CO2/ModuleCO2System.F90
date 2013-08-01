@@ -2,7 +2,7 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
 
-#ifdef INCLUDE_PELCO2
+#if defined INCLUDE_PELCO2 || defined INCLUDE_BENCO2
 
 module CO2System
 !/*

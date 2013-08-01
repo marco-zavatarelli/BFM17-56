@@ -3,7 +3,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: BenPhosphate
+! !ROUTINE: BenOxygen
 !
 ! DESCRIPTION
 !   List of parameters values
@@ -14,7 +14,7 @@
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-! parameter values for mem_BenPhosphate filled by InitBenPhosphate
+! parameter values for mem_BenOxygen filled by InitBenOxygen
 !
 
 !  
@@ -27,7 +27,6 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -44,19 +43,19 @@
 !BOC
 !
 !
-!        :  	 All parameter names and values were copied from the .p-file:
-!  p_chD1m:  	 depth above which an exponential diestirbution
-!  p_diff:  	m2/d	# molecular diffusion constant
-!  p_p_an:  	 -	# adsorption distribution coeff.
-!  N_layers:  	 number of layers(/equations)
-!  N_coeff:  	 number of coefficients in the solution
+!  p_exsaf:  	 -  # sensitivity factor
+!  p_xdampingD1m:  	    # parm to damp changes in D1m
+!  p_mD1m:  	    # minimal thickness of oxic layer
+!  p_chD1m:  	 m  # depth at which the changes are
+!        :  	 limited to half of its value
+!        :  	 this parameter inhibits too
+!        :  	 thick oxic layers.
 
-&BenPhosphate_parameters
-p_chD1m = 0.04,
-p_diff = 3.83e-05,
-p_p_an = 2.0,
-N_layers = 4,
-N_coeff = 11
+&BenOxygen_parameters
+p_exsaf = 1.5,
+p_xdampingD1m = 2.0,
+p_mD1m = 0.0001,
+p_chD1m = 0.05
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist

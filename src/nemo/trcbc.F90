@@ -17,12 +17,12 @@ MODULE trcbc
    USE lib_mpp       !  MPP library
    USE fldread       !  read input fields
 
-   USE mem, ONLY: NO_D3_BOX_STATES
+   USE mem,         ONLY: NO_D3_BOX_STATES
 
    IMPLICIT NONE
    PRIVATE
 
-   PUBLIC   trc_bc_init    ! called in trcini.F90 
+   PUBLIC   trc_bc_init, trc_bc_read 
 
    INTEGER  , SAVE, PUBLIC                             :: nb_trcobc   ! number of tracers with open BC
    INTEGER  , SAVE, PUBLIC                             :: nb_trcsbc   ! number of tracers with surface BC
@@ -122,15 +122,15 @@ CONTAINS
       ENDDO
       ntra_obc = MAX( 1, nb_trcobc )   ! To avoid compilation error with bounds checking
       IF( lwp ) WRITE(numout,*) ' '
-      IF( lwp ) WRITE(numout,*) ' number of passive tracers to be initialized with open boundary data :', nb_trcobc
+      IF( lwp ) WRITE(numout,*) ' BFM: number of passive tracers to be initialized with open boundary data :', nb_trcobc
       IF( lwp ) WRITE(numout,*) ' '
       ntra_sbc = MAX( 1, nb_trcsbc )   ! To avoid compilation error with bounds checking
       IF( lwp ) WRITE(numout,*) ' '
-      IF( lwp ) WRITE(numout,*) ' number of passive tracers to be initialized with surface boundary data :', nb_trcsbc
+      IF( lwp ) WRITE(numout,*) ' BFM: number of passive tracers to be initialized with surface boundary data :', nb_trcsbc
       IF( lwp ) WRITE(numout,*) ' '
       ntra_cbc = MAX( 1, nb_trccbc )   ! To avoid compilation error with bounds checking
       IF( lwp ) WRITE(numout,*) ' '
-      IF( lwp ) WRITE(numout,*) ' number of passive tracers to be initialized with coastal boundary data :', nb_trccbc
+      IF( lwp ) WRITE(numout,*) ' BFM: number of passive tracers to be initialized with coastal boundary data :', nb_trccbc
       IF( lwp ) WRITE(numout,*) ' '
 
       ! Initialize the namelists with default values
@@ -148,6 +148,8 @@ CONTAINS
          rn_trcfac(jn) = 1._wp
       END DO
       !
+      ! Read boundary conditions in namelist_top
+      !
       REWIND( numnat )               ! read nattrc
       READ  ( numnat, namtrc_bc )
 
@@ -156,17 +158,17 @@ CONTAINS
          DO jn = 1, NO_D3_BOX_STATES
             IF( ln_trc_obc(jn) )  THEN    
                clndta = TRIM( sn_trcobc(jn)%clvar ) 
-               IF(lwp) WRITE(numout,*) ' preparing to read OBC data file for passive tracer number :', jn, ' name : ', clndta, & 
+               IF(lwp) WRITE(numout,*) 'BFM: preparing to read OBC data file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', rn_trofac(jn)
             ENDIF
             IF( ln_trc_sbc(jn) )  THEN    
                clndta = TRIM( sn_trcsbc(jn)%clvar ) 
-               IF(lwp) WRITE(numout,*) ' preparing to read SBC data file for passive tracer number :', jn, ' name : ', clndta, & 
+               IF(lwp) WRITE(numout,*) 'BFM: preparing to read SBC data file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', rn_trsfac(jn)
             ENDIF
             IF( ln_trc_cbc(jn) )  THEN    
                clndta = TRIM( sn_trccbc(jn)%clvar ) 
-               IF(lwp) WRITE(numout,*) ' preparing to read CBC data file for passive tracer number :', jn, ' name : ', clndta, & 
+               IF(lwp) WRITE(numout,*) 'BFM: preparing to read CBC data file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', rn_trcfac(jn)
             ENDIF
          END DO
@@ -175,10 +177,12 @@ CONTAINS
       ! The following code is written this way to reduce memory usage and repeated for each boundary data
 !MAV: note that this is just a placeholder and the dimensions must be changed according to 
 !     what will be done with BDY. A new structure will probably need to be included
+      !
+      ! OPEN Lateral boundary conditions
       IF( nb_trcobc > 0 ) THEN       !  allocate only if the number of tracer to initialise is greater than zero
          ALLOCATE( sf_trcobc(nb_trcobc), rf_trofac(nb_trcobc), STAT=ierr1 )
          IF( ierr1 > 0 ) THEN
-            CALL ctl_stop( 'trc_bc_init: unable to allocate  sf_trcdta structure' )   ;   RETURN
+            CALL ctl_stop( 'BFM - trc_bc_init: unable to allocate  sf_trcdta structure' )   ;   RETURN
          ENDIF
          !
          DO jn = 1, NO_D3_BOX_STATES
@@ -189,20 +193,21 @@ CONTAINS
                                             ALLOCATE( sf_trcobc(jl)%fnow(jpi,jpj,jpk)   , STAT=ierr2 )
                IF( sn_trcobc(jn)%ln_tint )  ALLOCATE( sf_trcobc(jl)%fdta(jpi,jpj,jpk,2) , STAT=ierr3 )
                IF( ierr2 + ierr3 > 0 ) THEN
-                 CALL ctl_stop( 'trc_bc_init : unable to allocate passive tracer OBC data arrays' )   ;   RETURN
+                 CALL ctl_stop( 'BFM - trc_bc_init : unable to allocate passive tracer OBC data arrays' )   ;   RETURN
                ENDIF
             ENDIF
             !   
          ENDDO
          !                         ! fill sf_trcdta with slf_i and control print
-         CALL fld_fill( sf_trcobc, slf_i, cn_dir, 'trc_obc', 'Passive tracer OBC data', 'namtrc_bc' )
+         CALL fld_fill( sf_trcobc, slf_i, cn_dir, 'trc_bc_init', 'Passive tracer OBC data', 'namtrc_bc' )
          !
       ENDIF
       !
+      ! SURFACE Boundary conditions
       IF( nb_trcsbc > 0 ) THEN       !  allocate only if the number of tracer to initialise is greater than zero
          ALLOCATE( sf_trcsbc(nb_trcsbc), rf_trsfac(nb_trcsbc), STAT=ierr1 )
          IF( ierr1 > 0 ) THEN
-            CALL ctl_stop( 'trc_bc_init: unable to allocate  sf_trcsbc structure' )   ;   RETURN
+            CALL ctl_stop( 'BFM - trc_bc_init: unable to allocate  sf_trcsbc structure' )   ;   RETURN
          ENDIF
          !
          DO jn = 1, NO_D3_BOX_STATES
@@ -213,20 +218,21 @@ CONTAINS
                                             ALLOCATE( sf_trcsbc(jl)%fnow(jpi,jpj,1)   , STAT=ierr2 )
                IF( sn_trcsbc(jn)%ln_tint )  ALLOCATE( sf_trcsbc(jl)%fdta(jpi,jpj,1,2) , STAT=ierr3 )
                IF( ierr2 + ierr3 > 0 ) THEN
-                 CALL ctl_stop( 'trc_bc_init : unable to allocate passive tracer SBC data arrays' )   ;   RETURN
+                 CALL ctl_stop( 'BFM - trc_bc_init : unable to allocate passive tracer SBC data arrays' )   ;   RETURN
                ENDIF
             ENDIF
             !   
          ENDDO
          !                         ! fill sf_trcsbc with slf_i and control print
-         CALL fld_fill( sf_trcsbc, slf_i, cn_dir, 'trc_sbc', 'Passive tracer SBC data', 'namtrc_bc' )
+         CALL fld_fill( sf_trcsbc, slf_i, cn_dir, 'trc_bc_init', 'Passive tracer SBC data', 'namtrc_bc' )
          !
       ENDIF
       !
+      ! COSTAL Boundary conditions
       IF( nb_trccbc > 0 ) THEN       !  allocate only if the number of tracer to initialise is greater than zero
          ALLOCATE( sf_trccbc(nb_trccbc), rf_trcfac(nb_trccbc), STAT=ierr1 )
          IF( ierr1 > 0 ) THEN
-            CALL ctl_stop( 'trc_dta_ini: unable to allocate  sf_trccbc structure' )   ;   RETURN
+            CALL ctl_stop( 'BFM - trc_dta_ini: unable to allocate  sf_trccbc structure' )   ;   RETURN
          ENDIF
          !
          DO jn = 1, NO_D3_BOX_STATES
@@ -237,17 +243,63 @@ CONTAINS
                                             ALLOCATE( sf_trccbc(jl)%fnow(jpi,jpj,1)   , STAT=ierr2 )
                IF( sn_trccbc(jn)%ln_tint )  ALLOCATE( sf_trccbc(jl)%fdta(jpi,jpj,1,2) , STAT=ierr3 )
                IF( ierr2 + ierr3 > 0 ) THEN
-                 CALL ctl_stop( 'trc_bc : unable to allocate passive tracer CBC data arrays' )   ;   RETURN
+                 CALL ctl_stop( 'BFM - trc_bc : unable to allocate passive tracer CBC data arrays' )   ;   RETURN
                ENDIF
             ENDIF
             !   
          ENDDO
          !                         ! fill sf_trccbc with slf_i and control print
-         CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trccbc', 'Passive tracer CBC data', 'namtrc_bc' )
+         CALL fld_fill( sf_trccbc, slf_i, cn_dir, 'trc_bc_init', 'Passive tracer CBC data', 'namtrc_bc' )
          !
       ENDIF
 
    END SUBROUTINE trc_bc_init
+
+
+   SUBROUTINE trc_bc_read(kt)
+      !!----------------------------------------------------------------------
+      !!                   ***  ROUTINE trc_bc_init  ***
+      !!
+      !! ** Purpose :  Read passive tracer Boundary Conditions data
+      !!
+      !! ** Method  :  Read BC inputs and update data structures using fldread
+      !!              
+      !!----------------------------------------------------------------------
+   
+      ! NEMO
+      USE fldread
+      
+      !! * Arguments
+      INTEGER, INTENT( in ) ::   kt      ! ocean time-step index
+
+      !!---------------------------------------------------------------------
+      !
+      IF( kt == nit000 ) THEN
+         IF(lwp) WRITE(numout,*)
+         IF(lwp) WRITE(numout,*) 'trc_bc_read : Surface boundary conditions for passive tracers.'
+         IF(lwp) WRITE(numout,*) '~~~~~~~ '
+      ENDIF
+
+      ! OPEN boundary conditions       
+      IF( nb_trcobc > 0 ) THEN
+        !if (lwp) write(numout,'(a,i5,a,i)') '   BFM: reading OBC data for ', nb_trcobc ,' variables at step ', kt
+        CALL fld_read(kt,1,sf_trcobc)
+      ENDIF
+
+      ! SURFACE boundary conditions       
+      IF( nb_trcsbc > 0 ) THEN
+        !if (lwp) write(numout,'(a,i5,a,i)') '   BFM: reading SBC data for ', nb_trcsbc ,' variables at step ', kt
+        CALL fld_read(kt,1,sf_trcsbc)
+      ENDIF
+
+
+      ! COASTAL boundary conditions       
+      IF( nb_trccbc > 0 ) THEN
+        !if (lwp) write(numout,'(a,i5,a,i)') '   BFM: reading CBC data for ', nb_trccbc ,' variables at step ', kt
+        CALL fld_read(kt,1,sf_trccbc)
+      ENDIF   
+
+   END SUBROUTINE trc_bc_read
 #endif
 
    !!======================================================================

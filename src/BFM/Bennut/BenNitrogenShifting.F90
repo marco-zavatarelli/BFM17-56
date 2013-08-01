@@ -26,14 +26,14 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use global_mem, ONLY:RLEN,LOGUNIT
+  use global_mem, ONLY:RLEN,LOGUNIT,ZERO,ONE
 #ifdef NOPOINTERS
   use mem
 #else
   use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m, D2STATE
   use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppG4n, ppD7m, &
     ppD2m,    NO_BOXES_XY,   &
-     BoxNumberXY, LocalDelta, dummy, shiftD1m, KNH4, reATn, shiftD2m, &
+     BoxNumberXY, LocalDelta, shiftD1m, KNH4, reATn, shiftD2m, &
     KNO3, jK34K24n, jK13K3n, iiBen, iiPel, flux
 #endif
   use constants,  ONLY: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
@@ -89,7 +89,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN)  :: Dnew
+  real(RLEN)  :: Dnew, dummy
   real(RLEN)  :: shiftmass
   real(RLEN)  :: zuD1
   real(RLEN)  :: zuD2
@@ -114,7 +114,7 @@
         D1m(BoxNumberXY), Dnew)/ LocalDelta
 
       jK14K4n = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
-        D1m(BoxNumberXY), 0.0D+00)+ shiftmass
+        D1m(BoxNumberXY), ZERO)+ shiftmass
 
       call LimitShift(jK14K4n,K4n(BoxNumberXY),K14n(boxNumberXY),p_max_shift_change)
       call flux(BoxNumberXY, iiBen, ppK14n, ppK4n,   jK14K4n* insw(  jK14K4n) )
@@ -134,8 +134,8 @@
       !          Anoxic Mineralization at D2.m
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      alpha  =   1.0D+00/ max(  p_clDxm,  D7m(BoxNumberXY))
-      zuD1 = max( 1.D-20, reATn(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
+      alpha  =   ONE/ max(  p_clDxm,  D7m(BoxNumberXY))
+      zuD1 = max( 1.E-20_RLEN, reATn(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
                         IntegralExp( -alpha, p_d_tot- D1m(BoxNumberXY))
       zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY)- D1m(BoxNumberXY)))
 
@@ -152,7 +152,7 @@
       shiftmass = CalculateFromSet( KNH4(BoxNumberXY), SHIFT, LAYER2, &
         D2m(BoxNumberXY), Dnew)/ LocalDelta  &
       + CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, &
-        RFLUX, D2m(BoxNumberXY), 0.0D+00)
+        RFLUX, D2m(BoxNumberXY), ZERO)
 
       call LimitShift(shiftmass,K14n(BoxNumberXY),K24n(boxNumberXY),p_max_shift_change)
       jK24K14n=jK24K14n + shiftmass
@@ -167,7 +167,7 @@
 
       ! Ammonium:
       jK34K24n(BoxNumberXY)  = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
-        p_d_tot, 0.0D+00)
+        p_d_tot, ZERO)
       call flux(BoxNumberXY, iiBen, ppK24n, ppK24n, jK34K24n(BoxNumberXY) )
 
 

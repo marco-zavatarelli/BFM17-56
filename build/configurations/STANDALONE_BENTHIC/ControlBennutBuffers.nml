@@ -1,9 +1,9 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50-g
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !BOP
 !
-! !ROUTINE: BenAnoxic
+! !ROUTINE: ControlBennutBuffers
 !
 ! DESCRIPTION
 !   List of parameters values
@@ -14,7 +14,7 @@
 !   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
-! parameter values for mem_BenAnoxic filled by InitBenAnoxic
+! parameter values for mem_ControlBennutBuffers filled by InitControlBennutBuffers
 !
 
 !  
@@ -27,7 +27,6 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -44,18 +43,16 @@
 !BOC
 !
 !
-!  p_diff:  	m2/d # constant molecular diffusion
-!  p_p:  	  -  #  adsorption distribution coefficient
-!  p_rOS:  	  /d # specific reoxidation rate
-!  N_layers:  	 number of layers(/equations)
-!  N_coeff:  	 number of coefficients in the solution
+!  p_rn:  	 zero order coeff for N
+!  p_s:  	 first order coeff.
 
-&BenAnoxic_parameters
-p_diff = 2.07e-05,
-p_p = 0.0,
-p_rOS = 0.05,
-N_layers = 2,
-N_coeff = 5
+&ControlBennutBuffers_parameters
+p_rn = 0.01,
+p_s = 0.005,
+p_refill_time = 60.0,
+p_control_n = FALSE,
+p_control_p = FALSE,
+p_control_s = TRUE
 /
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !END namelist
@@ -63,5 +60,5 @@ N_coeff = 5
 
 !BOP
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-! MODEL  BFM - Biogeochemical Flux Model version 2.50
+! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

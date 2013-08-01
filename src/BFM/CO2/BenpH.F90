@@ -26,22 +26,20 @@
 #else
   use mem,  ONLY: G13c, G3c, D1m, Q1c, D6m, D2m, D2STATE
   use mem, ONLY: ppG13c, ppG3c, ppD1m, ppQ1c, ppD6m, ppD2m, &
-    dummy,    NO_BOXES_XY,   &
-     BoxNumberXY, DICae,  pHAe, pCO2_ae, DICan,  pHan, pCO2_an,  ETW_Ben, &
+     NO_BOXES_XY,   &
+     BoxNumberXY, DICae,  pHAe, pCO2ae, DICan,  pHan, pCO2an,  ETW_Ben, &
     ESW_Ben, ERHO_Ben, M1p, M5s,AcAe, AcAn,M11p,M21p,D1m,D2m
 #endif
   use bfm_error_msg, ONLY: bfm_error
-  use CO2_System,ONLY: CalcCO2_System
+  use CO2System,ONLY: CalcCO2System
   use mem_Param,  ONLY: p_d_tot 
-  use mem_CO2_, ONLY: DYNAMIC
+  use mem_CO2, ONLY: DYNAMIC ! force dynamic method for CO2 equilibria computation
   IMPLICIT NONE
 !  
 ! !LOCAL VARIABLES
   real(RLEN)  :: r
-  real(RLEN)  :: CO2_
-  real(RLEN)  :: HCO3_
-  real(RLEN)  :: CO3_
   real(RLEN)  :: m1
+  real(RLEN)  :: dummy
   integer     :: error
 !
 ! !AUTHORS
@@ -71,11 +69,11 @@
       ! Only the iterative solution of the carbonate system can be
       ! used
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       error= CalcCO2_System(DYNAMIC,ESW_Ben(BoxNumberXY),& 
+       error= CalcCO2System(DYNAMIC,ESW_Ben(BoxNumberXY),& 
                    ETW_Ben(BoxNumberXY),ERHO_Ben(BoxNumberXY),&
                    M1p(BoxNumberXY),M5s(BoxNumberXY),Acae(BoxNumberXY),&
-                   CO2_,HCO3_,CO3_,pHae(BoxNumberXY),&
-                   DIC_in=DICae(BoxNumberXY),pCO2__out=pCO2_ae(BoxNumberXY))
+                   dummy,dummy,dummy,pHae(BoxNumberXY),&
+                   DIC_in=DICae(BoxNumberXY),pCO2_out=pCO2ae(BoxNumberXY))
        if ( error > 0 ) then
             write(LOGUNIT,*)" Ph outside range"
             write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW_Ben',ESW_Ben(BoxNumberXY)
@@ -88,7 +86,7 @@
             write(LOGUNIT,'('' pHae='',G12.6)') pHae(BoxNumberXY)
             write(LOGUNIT,*) "BenpHDynamics pHae outside range 2-11"
             pHae(BoxNumberXY)=-1
-!           call BFM_ERROR("BenpHDynamics","pHae outside range 2-11")
+           call BFM_ERROR("BenpHDynamics","pHae outside range 2-11")
        endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pH value in anoxic sediments
@@ -97,10 +95,10 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        m1=M11p(BoxNumberXY)*(D2m(BoxNumberXY)-D1m(BoxNumberXY)) + &
        M21p(BoxNumberXY)*(p_d_tot-D2m(BoxNumberXY))/ (p_d_tot-D1m(BoxNumberXY))
-       error= CalcCO2_System(DYNAMIC,ESW_Ben(BoxNumberXY),& 
+       error= CalcCO2System(DYNAMIC,ESW_Ben(BoxNumberXY),& 
                    ETW_Ben(BoxNumberXY),ERHO_Ben(BoxNumberXY),&
                    m1,M5s(BoxNumberXY),Acan(BoxNumberXY),&
-                   CO2_,HCO3_,CO3_,pHan(BoxNumberXY),&
+                   dummy,dummy,dummy,pHan(BoxNumberXY),&
                    DIC_in=DICan(BoxNumberXY),pCO2_out=pCO2an(BoxNumberXY))
        if ( error > 0 ) then
             write(LOGUNIT,*)" Ph outside range"
@@ -109,7 +107,7 @@
             write(LOGUNIT,'('' pHan='',G12.6)') pHan(BoxNumberXY)
             write(LOGUNIT,*) "BenpHDynamics:pHan outside range 2-11"
             pHan(BoxNumberXY)=-1
-!           call BFM_ERROR("BenpHDynamics","pHan outside range 2-11")
+           call BFM_ERROR("BenpHDynamics","pHan outside range 2-11")
        endif
 #ifdef DEBUG
             write(LOGUNIT,*) "in BenpH:"

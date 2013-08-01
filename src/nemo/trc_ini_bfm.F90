@@ -26,7 +26,8 @@
    use mem, only: Volume, Area, Area2d
    use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s
 #ifdef INCLUDE_PELCO2
-   use mem, only: ppO3c,ppO3h
+   use mem,        only: ppO3c,ppO3h
+   use mem_CO2,    only: AtmCO2 
 #endif
    use global_mem, only: RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
                          error_msg_prn,ONE
@@ -242,7 +243,10 @@
    !---------------------------------------------
    save_delta = bfmtime%step0
    call update_save_delta(out_delta,save_delta,time_delta)
-
+   IF (MOD(save_delta, nn_dttrc) /= 0) THEN
+      if (lwp) write(numout,*) 'BFM : output time step must be a multiple value of the sub-stepping (nn_dttrc).'
+      stop 'Mismatch of output timestep and sub-stepping'
+   ENDIF
    !-------------------------------------------------------
    ! Prepares the BFM 1D arrays containing the
    ! spatial informations (have to be done after allocation
@@ -400,7 +404,18 @@
       if (InitVar(m) % sbc) ln_trc_sbc(m) = .true.
       if (InitVar(m) % cbc) ln_trc_cbc(m) = .true.
    end do
+ 
+   ! Initialize boundary conditions  
    call trc_bc_init
+
+#ifdef INCLUDE_PELCO2
+   ! control consistency between namelists setting
+   if (AtmCO2%init .eq. 4 .and. .NOT. ln_trc_sbc(ppO3c)) then
+     write(LOGUNIT,*) 'CO2 data from Nemo are not available in surface BC for O3c (check namelist_top and BFM_General).'
+     stop
+   endif   
+
+#endif
 
    return
 

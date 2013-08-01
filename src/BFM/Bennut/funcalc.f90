@@ -38,7 +38,7 @@
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       REAL(RLEN) FUNCTION funcalc(mode,chterm,coeff,basis,x)
-        USE global_mem, ONLY:RLEN
+        USE global_mem, ONLY:RLEN,ZERO,ONE
         USE bennut_type
         USE constants
         USE bennut_interface,ONLY:BESSK1, BESSK0, BESSI1, BESSI0, &
@@ -50,7 +50,7 @@
         REAL(RLEN),intent(IN) ::basis      ! Specification
         REAL(RLEN),intent(IN) ::x          ! Specification
 
-        REAL(RLEN),parameter :: pi=3.141592D+00
+        REAL(RLEN),parameter :: pi=3.141592_RLEN
         REAL(RLEN) ::r
         REAL(RLEN) ::rx
         REAL(RLEN) ::s
@@ -82,7 +82,7 @@
               !calculation for differention
               j=term+mode
               if (j.lt.0) then
-                funcalc=0.0D+00
+                funcalc=ZERO
               else
                 r=term
                 if (mode == SDERIVATIVE .and. term > 2) r=(term-1)*r
@@ -103,7 +103,7 @@
             case (DERIVATIVE,SDERIVATIVE)
                funcalc=(coeff%labda(1)**(-mode))*r
             case (EXPONENTIAL_INTEGRAL)
-              funcalc=0.0D+00
+              funcalc=ZERO
             case default
               stop 'funcalc EXPONENTIAL_TERM'
           end select 
@@ -114,14 +114,14 @@
           select case (mode)
             case (EXPONENTIAL_INTEGRAL)
               !equation: 11.3.25 :
-              if (r == 0.0D+00) then
-                funcalc=0.0D+00
+              if (r == ZERO) then
+                funcalc=ZERO
               else
                 funcalc=r*bessi1(s)/(coeff%labda(1)*coeff%labda(2))
               endif
             case (INTEGRAL)
-              r=0.0D+00
-              if (rx.ne.0.0D+00)r= QGAUS_EXP(0.0D+00,rx,coeff%labda,bessi0)
+              r=ZERO
+              if (rx.ne.ZERO)r= QGAUS_EXP(ZERO,rx,coeff%labda,bessi0)
               funcalc=r
             case (EQUATION)
                 funcalc=bessi0(s) 
@@ -136,14 +136,14 @@
 
           select case (mode)
             case (EXPONENTIAL_INTEGRAL)
-              if (r == 0.0D+00) then
-                funcalc=0.0D+00
+              if (r == ZERO) then
+                funcalc=ZERO
               else
                 funcalc=r*bessk1(s)/(coeff%labda(1)*coeff%labda(2))
               endif
             case (INTEGRAL)
-              r=0.0D+00
-              if (rx.ne.0.0D+00)r= qgaus_exp(0.0D+00,rx,coeff%labda,bessk0)
+              r=ZERO
+              if (rx.ne.ZERO)r= qgaus_exp(ZERO,rx,coeff%labda,bessk0)
               funcalc=r
             case (EQUATION)
               funcalc=bessk0(s) 

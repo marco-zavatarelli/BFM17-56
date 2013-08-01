@@ -28,8 +28,8 @@
 #else
   use mem,  ONLY: K5s, Q6s, D9m, D1m, D2m, D2STATE
   use mem, ONLY: ppK5s, ppQ6s, ppD9m, ppD1m, ppD2m, &
-    dummy,    NO_BOXES_XY,   &
-    BoxNumberXY, idummy, InitializeModel, LocalDelta, M5s, KSIO3, Depth_Ben, &
+    NO_BOXES_XY,   &
+    BoxNumberXY, InitializeModel, LocalDelta, M5s, KSIO3, Depth_Ben, &
     KSIO3E, jbotN5s, jK15K5s, irrenh, ETW_Ben, N5s_Ben, shiftD2m, iiBen, iiPel, flux
 #endif
   use constants, ONLY: LAYERS, LAYER1, DIFFUSION, &
@@ -41,7 +41,6 @@
   use mem_BenSilica
   use mem_BenthicNutrient3, ONLY:p_max_state_change,p_max_shift_change
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following bennut functions are used:InitializeSet, &
   ! DefineSet, CompleteSet, CalculateSet, CalculateTau, CopySet, &
@@ -50,12 +49,10 @@
   use bennut_interface, ONLY: InitializeSet, DefineSet, CompleteSet, &
     CalculateSet, CalculateTau, CopySet, CalculateFromSet, GetInfoFromSet
 
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following global functions are used:eTq
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use global_interface,   ONLY: eTq
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! The following functions are used:IntegralExp, insw
@@ -117,17 +114,15 @@
   real(RLEN)  :: jQ6K5s
   real(RLEN)  :: jQ6K15s
   real(RLEN)  :: smQ6
+  real(RLEN)  :: dummy
+  integer     :: idummy
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do BoxNumberXY=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Correction due to environmental regulating factors,
       ! saturation value: temperature
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       chM5s = p_chM5s+ p_cvM5s*( eTq( ETW_Ben(BoxNumberXY), p_q10)- &
         ONE)
 
@@ -146,7 +141,6 @@
       ! diffusion coefficient: temperature and bioirrigation
       ! dissolution rate: temperature
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       diff = p_diff* irrenh(BoxNumberXY)* p_poro(BoxNumberXY)* &
         eTq( ETW_Ben(BoxNumberXY), p_q10diff)
       smQ6  =   p_smQ6* eTq(  ETW_Ben(BoxNumberXY),  p_q10diff)
@@ -155,13 +149,11 @@
       ! Calculate coefficient for the e-folding distribution of the anoxic
       ! mineralization. D9.m is the average penetration depth for biogenic Si
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       alpha  =   ONE/ max(  p_clDxm,  D9m(BoxNumberXY))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate total biogenic silica from m2 --> m3 porewater
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       M5b0 = Q6s(BoxNumberXY)/ p_poro(BoxNumberXY)/ IntegralExp( - alpha, &
         p_d_tot)
 
@@ -169,14 +161,12 @@
       ! Average content of Biogenic silica in the oxic layer
       ! and calculation of the zero-order dissolution term
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       M5b_0_d1  =   M5b0* IntegralExp( - alpha,  cD1m)/ cD1m
       zuBT  =   smQ6* M5b_0_d1
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Biogenic silica at cD1m and calculation of the dissolution rate
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       M5bD1  =   M5b0* exp( - alpha* cD1m)
       suD1  =   smQ6* M5bD1/ chM5s
 
@@ -187,7 +177,6 @@
       ! - layer depths
       ! - environmental conditions (diffusion, porosity and adsorption coeff.)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       KSIO3(BoxNumberXY) = InitializeSet( KSIO3(BoxNumberXY), N_layers, N_coeff)
 
       call  DefineSet(  KSIO3(BoxNumberXY),  LAYERS,  LAYER1,  0,  cD1m,  dummy)
@@ -213,7 +202,6 @@
       ! C(z) = c21*I0*exp[-alpha*(z-cD1m
       !    I0 = modified Bessel function of 0-order
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       call DefineSet( KSIO3(BoxNumberXY), DEFINE, 13, QUADRATIC_TERM, dummy, dummy)
       call DefineSet( KSIO3(BoxNumberXY), DEFINE, 14, LINEAR_TERM, dummy, dummy)
       call DefineSet( KSIO3(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
@@ -225,7 +213,6 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Insert other boundary conditions and continuity between layers:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       call CompleteSet( KSIO3(BoxNumberXY), SET_CONTINUITY, STANDARD, idummy, dummy)
 
       call CompleteSet( KSIO3(BoxNumberXY), SET_BOUNDARY, LAYER1, &
@@ -245,7 +232,6 @@
       ! the steady-state profiles and return the average concentration
       ! in the oxic and denitrification layers
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       cM5s = CalculateSet( KSIO3(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, LAYER1, &
         LAYER2, cD2m, ZERO)/ cD2m
 
@@ -253,7 +239,6 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Calculate the adaptation time to the steady-state profile
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         Tau  =   CalculateTau(  ZERO,  diff,  p_p,  cD2m)
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -262,7 +247,6 @@
         ! This value depends on the adaptation time, the actual time step,
         ! the ''old'' value and the ''equilibrium value''
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         cM5s = cM5s+( M5s(BoxNumberXY)- cM5s)* IntegralExp( - &
           LocalDelta/ Tau, ONE)
 
@@ -272,7 +256,6 @@
         ! solution as for the steady-state case and using cM5s as new &
         ! constraint.
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         KSIO3E(BoxNumberXY) = CopySet( KSIO3(BoxNumberXY), &
           KSIO3E(BoxNumberXY))
         dummy = CalculateSet( KSIO3(BoxNumberXY), ADD, 0, 0, dummy, cD2m* cM5s)
@@ -281,8 +264,6 @@
         ! Recalculate the pore-water average concentrations for the standard &
         ! ''D2.n''
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Start calculation of fluxes:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
@@ -290,7 +271,6 @@
         ! Calculate flux at the sediment/water interface:
         ! Flux limitation at very low values of N5s
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jbotN5s(BoxNumberXY) = - CalculateFromSet( KSIO3(BoxNumberXY), &
           DERIVATIVE, RFLUX, ZERO, dummy)
 
@@ -305,7 +285,6 @@
         ! Calculate new depth of the sulphide horizon
         ! and the flux of silicate related to this shifting
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         shiftmass=ZERO
         if ( abs(shiftD2m(BoxNumberXY))> ZERO) then
 
@@ -331,7 +310,6 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! the dissolution fluxes:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jQ6K15s = max( ZERO, suD1* CalculateFromSet( &
           KSIO3E(BoxNumberXY), EXPONENTIAL_INTEGRAL, RFLUX, cD2m, p_d_tot))
         call flux(BoxNumberXY, iiBen, ppQ6s, ppQ6s, -( jQ6K15s) )
@@ -346,7 +324,6 @@
         ! than equilibrium flux of jQ6M5s is limited in such a way that M5s can
         ! never reach a value higher than the chM5s:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         rmQ6s = - GetInfoFromSet( KSIO3E(BoxNumberXY), INTEGRAL, PARAMETER, &
           13, at_x=ZERO, to_x=cD1m)
 
@@ -357,7 +334,7 @@
         call flux(BoxNumberXY, iiBen, ppQ6s, ppK5s, jQ6K5s+ rmQ6s )
 
         ! Determine where the median is of Q6 in the range from clm to D1m
-         cmm  =  -log(0.5*(1.0+exp(- cD2m/D9m(BoxNumberXY))))*D9m(BoxNumberXY)*0.5_RLEN
+         cmm  =  -log(0.5_RLEN*(ONE+exp(- cD2m/D9m(BoxNumberXY))))*D9m(BoxNumberXY)*0.5_RLEN
 
          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( cmm &
             - D9m(BoxNumberXY))*( jQ6K5s+rmQ6s)/( p_small+ Q6s(BoxNumberXY)) )

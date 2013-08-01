@@ -107,21 +107,23 @@ SUBROUTINE trc_trp_bfm( kt )
                end do
             end do
 #endif
-            ! Add biogeochemical trends
+            ! COMPUTE biogeochemical trends
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
 #ifdef DEBUG
             LEVEL2 'trc_trp_bfm at',kt
             CALL prxy( LOGUNIT, 'trn for '//trim(var_names(m)),trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
             CALL prxy( LOGUNIT, 'tra:BIO',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
+            ! Add surface, coastal, and open boundary forcing
             IF (.NOT.CalcConservationFlag) THEN
-               ! NOTE: these routines do not conserve mass,
-               ! because non-dynamical volume is used;
-               ! thus, excluded for mass conservation checkings)
-                CALL trc_sbc_bfm( kt,m )   ! surface boundary condition including rivers
+               ! NOTE: these routines do not conserve mass, because non-dynamical volume is used;
+               ! thus, excluded for mass conservation checkings
+                CALL trc_bc_bfm( kt, m )
             END IF
+            ! Add Vertical Sinking 
             CALL trc_set_bfm( kt, m)      ! set other boundary conditions and compute sinking
 
+            ! Add Physical trends
             IF( lk_trabbl )        CALL trc_bbl( kt )            ! advective (and/or diffusive) bottom boundary layer scheme
 !MAV: still no defined for BFM
 !            IF( lk_trcdmp     )   CALL trc_dmp( kt )            ! internal damping trends
@@ -147,10 +149,11 @@ SUBROUTINE trc_trp_bfm( kt )
             CALL prxy( LOGUNIT, 'tra:ZDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
 
+            ! Compute tracer fields at next time step
             IF (ln_top_euler) THEN
-               CALL trc_nxt_bfm( kt, m )                         ! tracer fields at next time step
+               CALL trc_nxt_bfm( kt, m ) 
             ELSE
-               CALL trc_nxt( kt )                                ! tracer fields at next time step
+               CALL trc_nxt( kt )
             END IF
 
             ! Remap the biochemical variables from 3D

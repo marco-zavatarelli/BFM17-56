@@ -28,8 +28,8 @@
 #else
   use mem,  ONLY: G23c,G13c, G3c, D1m, Q1c, D6m, D2m, D2STATE
   use mem, ONLY: ppG23c, ppG13c, ppG3c, ppD1m, ppQ1c, ppD6m, ppD2m, &
-    dummy,    NO_BOXES_XY,  ERHO_ben, &
-     BoxNumberXY, InitializeModel, LocalDelta, KCO2, jbotO3c, DICae, &
+    NO_BOXES_XY,  ERHO_ben, &
+    BoxNumberXY, InitializeModel, LocalDelta, KCO2, jbotO3c, DICae, &
     DICan, rrBTo, irrenh, ETW_Ben, rrATo, O3c_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
 #endif
@@ -114,6 +114,7 @@
   real(RLEN)  :: Dx
   real(RLEN)  :: Dy
   real(RLEN)  :: rrQ1c
+  real(RLEN)  :: dummy
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do BoxNumberXY=1,NO_BOXES_XY

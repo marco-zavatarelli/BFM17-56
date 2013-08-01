@@ -10,12 +10,6 @@
 !
 ! DESCRIPTION
 !   
-!  
-!   This file is generated from f77 code, using a code generator which
-!   transposes from the F77 code into F90
-!   the code USES module file as used in the BFM model
-!   F90 code generator written by P. Ruardij. 
-!
 ! AUTHORS
 !   
 !
@@ -39,9 +33,8 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      FUNCTION CalculateSet(NUTR, mode,option,input,&
-                                                          xinput,yinput)
-        USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn
+      FUNCTION CalculateSet(NUTR, mode,option,input, xinput,yinput)
+        USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn,ZERO
         USE bennut_variables, ONLY:ns,Y2,C,nutr_seq,nn_boundaries
         USE constants
         USE bennut_constants
@@ -77,7 +70,7 @@
         endif
 
         if ( mode == ADD ) then
-          call CompleteSet(NUTR,ADD,0,0,0.0D+00,value=yinput)
+          call CompleteSet(NUTR,ADD,0,0,ZERO,value=yinput)
           ns%factor(1:nn_boundaries)=Y2(1:nn_boundaries)
           if (ns%imethod == 0) then
             call ludcmp(nn_boundaries,C,iindx,xh,ok)
@@ -107,10 +100,10 @@
           endif
           if ( mode ==0 ) then
             ns%status=READY
-            CalculateSet=0.0D+00
+            CalculateSet=ZERO
           else
             !Set n'th row on zero:
-            Y2(nn_boundaries:nn_boundaries)=0.0D+00
+            Y2(nn_boundaries:nn_boundaries)=ZERO
             nn_boundaries=ns%nn-1
             call re_Store(-nn_boundaries,C,C,ns%nn,ns%nn)
             call CompleteSet(NUTR,mode,option,input,xinput,value=yinput)

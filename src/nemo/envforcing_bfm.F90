@@ -20,13 +20,15 @@
    use api_bfm
    use SystemForcing, only : FieldRead
 #ifdef INCLUDE_PELCO2
+   use mem,        only: ppO3c
    use mem_CO2,    only: AtmCO20, AtmCO2, AtmSLP, AtmTDP
+   USE trcbc,      only: sf_trcsbc, n_trc_indsbc
 #endif
 ! OPA modules
    use oce_trc
    use trc_oce, only: etot3
 ! MFS bulk 
-#if defined  INCLUDE_PELCO2 && defined USE_MFSBULK
+#if defined INCLUDE_PELCO2 && defined USE_MFSBULK
    use sbcblk_mfs, ONLY: sf 
 #endif
 
@@ -44,7 +46,6 @@ IMPLICIT NONE
 !
 ! !LOCAL VARIABLES:
    integer             :: i,j,k,n
-
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -88,9 +89,14 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign atmospheric pCO2
    !---------------------------------------------
-   if (AtmCO2%init .ne. 0) then
-      call FieldRead(AtmCO2)
+   if (AtmCO2%init .gt. 0 .AND. AtmCO2%init .lt. 4) call FieldRead(AtmCO2)
+
+   ! CO2 concentration read in NEMO Boundary Conditions
+   if (AtmCO2%init .eq. 4 ) then
+       n = n_trc_indsbc(ppO3c)
+       AtmCO2%fnow = pack(sf_trcsbc(n)%fnow(:,:,1),SRFmask(:,:,1) )
    endif
+   !
    ! Water column pressure 
    ! (need better approximation to convert from m to dbar)
    EPR = pack(fsdept(:,:,:),SEAmask)

@@ -57,12 +57,12 @@
                            D1m0, D2m0, D6m0, D7m0, D8m0, D9m0, G2o0, &
                            G3c0, G13c0, G23c0, G3h0, G13h0, G23h0
    interface
-      subroutine init_cnps(c,n,p,s,l,nc,pc,sc,lc)
+      subroutine init_constituents(c,n,p,s,l,f,nc,pc,sc,lc,fc)
          use global_mem, only: RLEN
          real(RLEN),dimension(:),intent(in)             :: c
-         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc
-         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l
-      end subroutine init_cnps
+         real(RLEN),intent(in),optional                 :: nc,pc,sc,lc,fc
+         real(RLEN),dimension(:),intent(inout),optional :: n,p,s,l,f
+      end subroutine init_constituents
    end interface
 ! COPYING
 !
@@ -88,63 +88,63 @@
    !---------------------------------------------
    ! Benthic variables
    !---------------------------------------------
-   Y1c0  = _ONE_
-   Y1n0  = _ZERO_
-   Y1p0  = _ZERO_
-   Y2c0  = _ONE_
-   Y2n0  = _ZERO_
-   Y2p0  = _ZERO_
-   Y3c0  = _ONE_
-   Y3n0  = _ZERO_
-   Y3p0  = _ZERO_
-   Y4c0  = _ONE_
-   Y4n0  = _ZERO_
-   Y4p0  = _ZERO_
-   Y5c0  = _ONE_
-   Y5n0  = _ZERO_
-   Y5p0  = _ZERO_
-   Q1c0  = _ONE_
-   Q1n0  = _ZERO_
-   Q1p0  = _ZERO_
-   Q11c0 = _ONE_
-   Q11n0 = _ZERO_
-   Q11p0 = _ZERO_
-   Q6c0  = _ONE_
-   Q6n0  = _ZERO_
-   Q6p0  = _ZERO_
-   Q6s0  = _ZERO_
-   H1c0  = _ONE_
-   H1n0  = _ZERO_
-   H1p0  = _ZERO_
-   H2c0  = _ONE_
-   H2n0  = _ZERO_
-   H2p0  = _ZERO_
-   K1p0  = _ONE_
-   K11p0 = _ONE_
-   K21p0 = _ONE_
-   K3n0  = _ONE_
-   G4n0  = _ONE_
-   K4n0  = _ONE_
-   K14n0 = _ONE_
-   K24n0 = _ONE_
-   K6r0  = _ONE_
-   K5s0  = _ONE_
-   D1m0  = _ONE_
-   D2m0  = _ONE_
-   D6m0  = _ONE_
-   D7m0  = _ONE_
-   D8m0  = _ONE_
-   D9m0  = _ONE_
-   G2o0  = _ONE_
-   G3c0  = _ONE_
-   G13c0  = _ONE_
-   G23c0  = _ONE_
-   G3h0  = _ONE_
-   G13h0  = _ONE_
-   G23h0  = _ONE_
-   p_qpQIc = -_ZERO_
-   p_qnQIc = -_ZERO_
-   p_qsQIc = -_ZERO_
+   Y1c0  = ONE
+   Y1n0  = ZERO
+   Y1p0  = ZERO
+   Y2c0  = ONE
+   Y2n0  = ZERO
+   Y2p0  = ZERO
+   Y3c0  = ONE
+   Y3n0  = ZERO
+   Y3p0  = ZERO
+   Y4c0  = ONE
+   Y4n0  = ZERO
+   Y4p0  = ZERO
+   Y5c0  = ONE
+   Y5n0  = ZERO
+   Y5p0  = ZERO
+   Q1c0  = ONE
+   Q1n0  = ZERO
+   Q1p0  = ZERO
+   Q11c0 = ONE
+   Q11n0 = ZERO
+   Q11p0 = ZERO
+   Q6c0  = ONE
+   Q6n0  = ZERO
+   Q6p0  = ZERO
+   Q6s0  = ZERO
+   H1c0  = ONE
+   H1n0  = ZERO
+   H1p0  = ZERO
+   H2c0  = ONE
+   H2n0  = ZERO
+   H2p0  = ZERO
+   K1p0  = ONE
+   K11p0 = ONE
+   K21p0 = ONE
+   K3n0  = ONE
+   G4n0  = ONE
+   K4n0  = ONE
+   K14n0 = ONE
+   K24n0 = ONE
+   K6r0  = ONE
+   K5s0  = ONE
+   D1m0  = ONE
+   D2m0  = ONE
+   D6m0  = ONE
+   D7m0  = ONE
+   D8m0  = ONE
+   D9m0  = ONE
+   G2o0  = ONE
+   G3c0  = ONE
+   G13c0  = ONE
+   G23c0  = ONE
+   G3h0  = ONE
+   G13h0  = ONE
+   G23h0  = ONE
+   p_qpQIc = -ZERO
+   p_qnQIc = -ZERO
+   p_qsQIc = -ZERO
 
    !---------------------------------------------
    ! Open and read the namelist
@@ -271,13 +271,13 @@
    ! with Redfield
    !---------------------------------------------
    do i = 1,iiBenOrganisms
-      call init_cnps(c=BenOrganisms(i,iiC),     &
+      call init_constituents(c=BenOrganisms(i,iiC),     &
             n=D2STATE(ppBenOrganisms(i,iiN),:), &
             p=D2STATE(ppBenOrganisms(i,iiP),:))
    end do
 
    do i = 1,iiBenBacteria
-      call init_cnps(c=BenOrganisms(i,iiC),     &
+      call init_constituents(c=BenOrganisms(i,iiC),     &
             n=D2STATE(ppBenBacteria(i,iiN),:),  &
             p=D2STATE(ppBenBacteria(i,iiP),:),  &
             nc=p_qnc(i), pc=p_qpc(i))
@@ -287,12 +287,12 @@
    ! Initialise detritus' components  
    !---------------------------------------------
    do i = 1,iiBenDetritus
-      call init_cnps(c=BenDetritus(i,iiC),     &
+      call init_constituents(c=BenDetritus(i,iiC),     &
             n=D2STATE(ppBenDetritus(i,iiN),:), &
             p=D2STATE(ppBenDetritus(i,iiP),:), &
             nc=p_qnQIc, pc=p_qpQIc)
    end do
-   call init_cnps(c=Q6c,n=Q6n,p=Q6p,s=Q6s,  &
+   call init_constituents(c=Q6c,n=Q6n,p=Q6p,s=Q6s,  &
                   nc=p_qnQIc,pc=p_qpQIc,sc=p_qsQIc)
 
    !---------------------------------------------

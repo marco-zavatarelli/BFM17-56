@@ -1,6 +1,6 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
-!	   BFM - Biogeochemical Flux Model 
+!   BFM - Biogeochemical Flux Model 
 !
 ! FUNCTION
 !   calculate_one_term.f90
@@ -10,12 +10,6 @@
 !
 ! DESCRIPTION
 !   
-!  
-!   This file is generated from f77 code, using a code generator which
-!   transposes from the F77 code into F90
-!   the code USES module file as used in the BFM model
-!   F90 code generator written by P. Ruardij. 
-!
 ! AUTHORS
 !   
 !
@@ -39,30 +33,34 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !
 !
-      FUNCTION calculate_one_term(mode,option,xinput, &
-           coeff,b,factor)
-        USE bennut_type
-        USE constants
-        USE bennut_interface,ONLY:funcalc
+      FUNCTION calculate_one_term(mode,option,xinput,coeff,b,factor)
+        use global_mem, ONLY:RLEN,ONE,ZERO
+        use bennut_type
+        use constants
+        use bennut_interface,ONLY:funcalc
         IMPLICIT  NONE
         integer,intent(IN) ::mode ! Specification
         integer,intent(IN) ::option ! Specification
         type (ty_coeff),intent(IN) ::coeff ! Specification
-        REAL(RLEN),intent(IN) ::xinput ! Specification
-        REAL(RLEN),intent(IN) ::b ! Specification
-        REAL(RLEN),intent(IN) ::factor ! Specification
-        REAL(RLEN)            ::calculate_one_term
+        real(RLEN),intent(IN) ::xinput ! Specification
+        real(RLEN),intent(IN) ::b ! Specification
+        real(RLEN),intent(IN) ::factor ! Specification
+        real(RLEN)            ::calculate_one_term
 
-        REAL(RLEN) ::r 
+        real(RLEN) ::r 
         integer ::i
 
         r=factor;
-        if (r /= 0.0D+00) then
-          i=-2* (mode == PARAMETER) 
+        if (r /= ZERO) then
+          if (mode == PARAMETER) then
+             i = -2
+          else
+             i = 0
+          end if
           r=r*funcalc(option,i,coeff,b,xinput)
         endif
-
         calculate_one_term=r
+
         return
       end
 

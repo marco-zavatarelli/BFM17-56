@@ -520,7 +520,6 @@ contains
    integer                :: yyyy,mm,dd,hh,nn,tmptime
 
    if ( bfmtime%stepnow .eq. bfmtime%stepEnd ) return
- 
    !
    ! if outdelta is finite use it as default output stepping
    if ( outdelta .ge. 0 ) then 
@@ -528,9 +527,9 @@ contains
       savedelta = savedelta + outdelta
    endif 
    !
-   ! if outdelta is negative compute dinamically set the output to end of the month
+   ! if outdelta is negative dinamically set the output to end of the month
    if ( outdelta .lt. 0 ) then
-      julian1 = bfmtime%time0 + ( bfmtime%stepnow * bfmtime%timestep / SEC_PER_DAY)
+      julian1 = bfmtime%time0 + ( (bfmtime%stepnow - bfmtime%step0) * bfmtime%timestep / SEC_PER_DAY)
       call calendar_date(julian1,yyyy,mm,dd,hh,nn)
       call julian_day(yyyy,mm,eomdays(yyyy,mm),24,0,julian2)
        

@@ -59,7 +59,7 @@
         real(RLEN)  :: s
 
         r=labda(1)*x
-        r=dexp(r)
+        r=exp(r)
         s=r*labda(2)
 
         BESS_EXP=FN(X)

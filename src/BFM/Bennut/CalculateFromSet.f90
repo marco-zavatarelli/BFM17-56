@@ -46,7 +46,7 @@
 !
 !
       FUNCTION CalculateFromSet(NUTR,mode,input,from,to)
-        USE global_mem, ONLY:RLEN
+        USE global_mem, ONLY:RLEN,ZERO
         USE constants
         USE bennut_interface,ONLY: noutput,CalculateLayer,CalculateShift
         IMPLICIT  NONE
@@ -69,6 +69,7 @@
         REAL(RLEN) ::xb
         REAL(RLEN) ::r
         REAL(RLEN) ::s
+        REAL(RLEN),parameter :: eps=.5E-6_RLEN
         integer ::j
 
         select case (mode)
@@ -76,12 +77,12 @@
             CalculateFromSet = CalculateShift(NUTR,input,from,to);
           case (INTEGRAL,EXPONENTIAL_INTEGRAL)
              s=to-from
-             if (abs(s)/(from+to+.5D-6) < 0.5D-6) then
+             if (abs(s)/(from+to+eps) < eps) then
                !if difference between x and from is less than machine precision &
                ! answer will be 0.
-               CalculateFromSet=0.D+00
+               CalculateFromSet=ZERO
                return
-             elseif ( s < 0.0D+00 ) then
+             elseif ( s < ZERO ) then
                !if integral is asked for negative interval, border of intervales &
                ! are exchanged and answer will be made negative:
                  x_to=from
@@ -95,7 +96,7 @@
              call CalculateLayer(NUTR,0,x_from,j,xb)
              !make x0 equatian to under border....
              xo=x_from
-             r=0.D+00
+             r=ZERO
              do while (x_to > xb)
                !calculate integration (mode=1) of equation for nutrient NUTR,
                !equation nr j between the boundaries xo and xb
@@ -113,7 +114,7 @@
           case (EQUATION,DERIVATIVE,SDERIVATIVE)
              !find layer/equation
              call CalculateLayer(NUTR,0,from,j,xb)
-             CalculateFromSet=noutput(NUTR,j,mode,input,from,0.0D+00)
+             CalculateFromSet=noutput(NUTR,j,mode,input,from,ZERO)
         end select
         return
       end

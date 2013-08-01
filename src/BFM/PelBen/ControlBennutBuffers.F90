@@ -40,7 +40,7 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO
   use mem_Param, ONLY: p_small
   use mem,  ONLY: Q6n, D9m, D7m, Q6p, D8m, Q6s, D2STATE
   use mem, ONLY: ppQ6n, ppD9m, ppD7m, ppQ6p, ppD8m, ppQ6s, &
@@ -97,9 +97,9 @@
           Depth_Ben(BoxNumberXY))
         if ( -jbotR6n(BoxNumberXY)< p_rn .AND. Q6n(BoxNumberXY)/ rate< &
           p_refill_time) then
-          rate  =   max(  0.0D+00,  rate+ jbotR6n(BoxNumberXY))
+          rate  =   max(  ZERO,  rate+ jbotR6n(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6n, ppQ6n, -(- rate) )
-          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
+          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( ZERO- &
             D7m(BoxNumberXY))* rate/( p_small+ Q6n(BoxNumberXY)) )
           jbotN4n(BoxNumberXY)  =   jbotN4n(BoxNumberXY)- rate
         end if
@@ -108,13 +108,13 @@
 
       !----P:----------------------------------------------------------------
       if ( p_control_p) then
-        r  =   p_rn/ 16.0D+00  ! Correct according Redfield.
+        r  =   p_rn/ 16.0_RLEN  ! Correct according Redfield.
         rate  =   min(  r,  p_s* N1p_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY))
         if ( -jbotR6p(BoxNumberXY)< r .AND. Q6p(BoxNumberXY)/ rate< p_refill_time) &
           then
-          rate  =   max(  0.0D+00,  rate+ jbotR6p(BoxNumberXY))
+          rate  =   max(  ZERO,  rate+ jbotR6p(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6p, ppQ6p, -(- rate) )
-          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
+          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( ZERO- &
             D8m(BoxNumberXY))* rate/( p_small+ Q6p(BoxNumberXY)) )
           jbotN1p(BoxNumberXY)  =   jbotN1p(BoxNumberXY)- rate
         end if
@@ -123,13 +123,13 @@
 
       !----Si:---------------------------------------------------------------
       if ( p_control_s) then
-        r  =   p_rn* 22.0D+00/ 16.0D+00  ! Correct according Readfield.
+        r  =   p_rn* 22.0_RLEN/ 16.0_RLEN  ! Correct according Readfield.
         rate  =   min(  r,  p_s* N5s_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY))
         if ( -jbotR6s(BoxNumberXY)< r .AND. Q6s(BoxNumberXY)/ rate< p_refill_time) &
           then
-          rate  =   max(  0.0D+00,  rate+ jbotR6s(BoxNumberXY))
+          rate  =   max(  ZERO,  rate+ jbotR6s(BoxNumberXY))
           call flux(BoxNumberXY, iiBen, ppQ6s, ppQ6s, -(- rate) )
-          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( 0.0D+00- &
+          call flux(BoxNumberXY, iiBen, ppD9m, ppD9m, ( ZERO- &
             D9m(BoxNumberXY))* rate/( p_small+ Q6s(BoxNumberXY)) )
           jbotN5s(BoxNumberXY)  =   jbotN5s(BoxNumberXY)- rate
         end if

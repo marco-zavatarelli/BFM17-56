@@ -27,8 +27,8 @@
 #else
   use mem,  ONLY: K1p, K11p, K21p, D1m, D2m, D8m, D2STATE
   use mem, ONLY: ppK1p, ppK11p, ppK21p, ppD1m, ppD2m, ppD8m, &
-    dummy,    NO_BOXES_XY,   &
-     BoxNumberXY, InitializeModel, LocalDelta, M1p, M11p, M21p, KPO4,KPO4_2, &
+    NO_BOXES_XY,   &
+    BoxNumberXY, InitializeModel, LocalDelta, M1p, M11p, M21p, KPO4,KPO4_2, &
     jbotN1p, reBTp, reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m, &
     jK31K21p, iiBen, iiPel, flux
 #endif
@@ -38,7 +38,7 @@
     FLAG, MASS, SET_BOUNDARY, EQUATION, SET_LAYER_INTEGRAL, &
     SET_LAYER_INTEGRAL_UNTIL, INPUT_TERM,INPUT_ADD_TERM, PARAMETER, START_ADD_TERM, &
     STANDARD, ADD, DERIVATIVE, RFLUX, SHIFT, ONE_PER_DAY,INTEGRAL
-  use mem_Param,  ONLY: p_poro, p_p_ae, p_d_tot,p_d_tot_2, p_clDxm, p_q10diff
+  use mem_Param,  ONLY: p_poro, p_p_ae, p_d_tot,p_d_tot_2, p_clDxm, p_q10diff,p_small
   use mem_BenPhosphate
   use mem_BenthicNutrient3, ONLY:p_max_shift_change,p_InitCondition,p_max_state_change
 
@@ -109,22 +109,19 @@
   real(RLEN)  :: s
   real(RLEN)  :: r
   real(RLEN)  :: dn
+  real(RLEN)  :: dummy
   real(RLEN)  :: Dnew
   real(RLEN)  :: K11p_C
   real(RLEN)  :: K21p_C
   integer  :: i,j,mode
   real(RLEN)  :: ds1,ds2,layer_shift,p_shift,m_shift
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do BoxNumberXY=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate coefficient for the e-folding distribution of the anoxic
       ! mineralization. D8.m is the average penetration depth for P-detritus
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       alpha  =   ONE/ max(  p_clDxm,  D8m(BoxNumberXY))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -134,20 +131,18 @@
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Average in the oxic layer:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-      zuBT = max( 1.079D-6, reBTp(BoxNumberXY))/ &
+      zuBT = max( 1.079E-6_RLEN, reBTp(BoxNumberXY))/ &
             p_poro(BoxNumberXY)/ D1m(BoxNumberXY)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Anoxic Mineralization at D1.m, using the exponential distribution
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       if ( InitializeModel== 0) then
-        zuD1 = max( 1.D-20, reATp(BoxNumberXY))/ p_poro(BoxNumberXY)/ IntegralExp( &
+        zuD1 = max( p_small, reATp(BoxNumberXY))/ p_poro(BoxNumberXY)/ IntegralExp( &
           - alpha, p_d_tot- D1m(BoxNumberXY))
       else
-        zuD1 = max( 1.D-20, reBTp(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
+        zuD1 = max( p_small, reBTp(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
             IntegralExp( - alpha, D1m(BoxNumberXY))*exp(-alpha * D1m(BoxNumberXY))
       endif
 
@@ -162,11 +157,8 @@
       ! Correction due to environmental regulating factors,
       ! diffusion coefficient: temperature and bioirrigation
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       diff = p_diff* irrenh(BoxNumberXY)* p_poro(BoxNumberXY)* &
         eTq( ETW_Ben(BoxNumberXY), p_q10diff)
-
-
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Initialize the set of differential equations giving:
@@ -175,7 +167,6 @@
       ! - layers depths
       ! - environmental conditions (diffusion, porosity and adsorption coeff.)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       mode=0;
       call  BenPhosphateEquation(KPO4(BoxNumberXY),-InitializeModel, &
          N1p_Ben(BoxNumberXY), K1p(BoxNumberXY),K11p(BoxNumberXY), &
@@ -183,13 +174,11 @@
          p_d_tot,p_d_tot_2,p_poro(BoxNumberXY),p_p_ae(BoxNumberXY),p_p_an, p_s_ads, &
          p_shift,m_shift,layer_shift,dn, diff, alpha,zuBT,zuD1,zuD2)
 
-
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate for the above defined set of boundary conditions
       ! the steady-state profiles and return the vertically integrated
       ! concentration in the first layer.
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       cK1p = CalculateSet( KPO4(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER1, &
         LAYER1, dummy, ZERO)
 
@@ -197,7 +186,6 @@
       ! Calculate the pore-water average concentrations from the state variables
       ! (Diagnostic variables, not used in calculations)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
       M1p(BoxNumberXY) = K1p(BoxNumberXY)/ p_poro(BoxNumberXY)/( &
         p_p_ae(BoxNumberXY)+ ONE)/( D1m(BoxNumberXY))
       M11p(BoxNumberXY) =  CalculateFromSet(KPO4(BoxNumberXY),INTEGRAL, &
@@ -206,7 +194,6 @@
         ONE)/( p_d_tot_2- dn )
 
       if ( InitializeModel== 0) then
-
          layer_shift=ShiftD2m(BoxNumberXY)*LocalDelta;
          Dnew =   D2m(BoxNumberXY)+ layer_shift
 
@@ -224,11 +211,9 @@
            cK1p = CalculateSet( KSHIFT, SET_LAYER_INTEGRAL, LAYER1, &
            LAYER1, dummy, ZERO)
 
-
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
            ! Calculate the adaptation time to the steady-state profile
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
            Tau = CalculateTau( p_s_ads, diff, p_p_ae(BoxNumberXY), &
              D1m(BoxNumberXY))
 
@@ -238,7 +223,6 @@
            ! This value depends on the adaptation time, the actual time step,
            ! the ''old'' value and the ''equilibrium value''
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
            cK1p = cK1p+( K1p(BoxNumberXY)- cK1p)* IntegralExp( - LocalDelta/ &
              Tau, ONE)
 
@@ -247,12 +231,13 @@
            ! solution as for the steady-state case and using cK1p as new &
            ! constraint.
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
            dummy = CalculateSet( KSHIFT, ADD, 0, 0, dummy, cK1p)
 
          else
+
            layer_shift=ZERO
            KSHIFT=KPO4(BoxNumberXY)
+
          endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Start calculation of fluxes:
@@ -277,7 +262,6 @@
         ! Check on; to high fluxes from pelagic and on concisteny of gradient
         ! ( only flux of M1p > N1p!)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jK1N1p =  CalculateFromSet( KSHIFT,DERIVATIVE, RFLUX, ZERO, ZERO)
 
         Call LimitShift(jK1N1p, N1p_Ben(BoxNumberXY)* Depth_Ben(BoxNumberXY), &
@@ -288,14 +272,12 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Calculate diffusive flux at the oxic/denitrification interface:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jK11K1p = CalculateFromSet( KSHIFT, DERIVATIVE, RFLUX, &
           D1m(BoxNumberXY), ONE)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Calculate new depth of the oxygen horizon
         ! and the flux of phosphate related to this shifting
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         Dnew  =   D1m(BoxNumberXY)+ shiftD1m(BoxNumberXY)* LocalDelta
         jK11K1p =jK11K1p+  CalculateFromSet( KSHIFT, SHIFT, LAYER1, &
           D1m(BoxNumberXY), Dnew)/ LocalDelta
@@ -313,7 +295,6 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Calculate diffusive flux at the denitrification/anoxic interface:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jK21K11p=CalculateFromSet( KSHIFT, DERIVATIVE, RFLUX,  dn, ONE)
         Dnew  =   dn+ layer_shift
         jK21K11p =jK21K11p+  CalculateFromSet( KSHIFT, SHIFT, LAYER3+mode, &
@@ -325,7 +306,6 @@
         ! However in the model this layer is subdivided and hence a partition
         ! flux is here calculated according to the exponential distribution.
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jK21K11p = jK21K11p - zuD2*exp(-alpha*(dn-D2m(BoxNUmberXY))) &
            * p_poro(BoxNumberXY)* IntegralExp( -alpha, p_d_tot- dn);
 
@@ -337,7 +317,6 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Calculate flux at the lower boundary
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
         jK31K21p(BoxNumberXY) = CalculateFromSet( KSHIFT, DERIVATIVE, RFLUX, p_d_tot_2, ONE)
 
         call LimitChange(1,jK31K21p(BoxNumberXY),K21p(BoxNumberXY),p_max_state_change)
@@ -350,8 +329,6 @@
   end subroutine BenPhosphateDynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
 
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -550,7 +527,7 @@
       call CompleteSet( KPO4, SET_CONTINUITY, FLAG, MASS, dummy)
 
       !9/11
-      call CompleteSet( KPO4, SET_BOUNDARY, LAYER1, EQUATION, 0.0D+00, value=N1p)
+      call CompleteSet( KPO4, SET_BOUNDARY, LAYER1, EQUATION, ZERO, value=N1p)
 
 
       select case ( mode )
@@ -567,7 +544,7 @@
           call CompleteSet( KPO4, INPUT_TERM, 35, STANDARD, dummy, value=r/p_s_ads)
 
           !13:  next two lines one boundary condition!
-          call CompleteSet( KPO4, SET_LAYER_INTEGRAL,  LAYER2, LAYER2,  dummy, value=0.0D+00)
+          call CompleteSet( KPO4, SET_LAYER_INTEGRAL,  LAYER2, LAYER2,  dummy, value=ZERO)
           call CompleteSet( KPO4, SET_LAYER_INTEGRAL, -LAYER4, LAYER4, dummy, value=K11p-p_shift)
 
           !14

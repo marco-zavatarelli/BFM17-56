@@ -33,8 +33,8 @@
 #else
   use mem,  ONLY: G23h,G13h, G3h, D1m, Q1c, D6m, D2m, D2STATE
   use mem, ONLY: ppG23h, ppG13h, ppG3h, ppD1m, ppQ1c, ppD6m, ppD2m,Acae, Acan, &
-    dummy,    NO_BOXES_XY, ERHO_Ben,  &
-     BoxNumberXY, InitializeModel, LocalDelta, KALK, jbotO3h, &
+    NO_BOXES_XY, ERHO_Ben,  &
+    BoxNumberXY, InitializeModel, LocalDelta, KALK, jbotO3h, &
     irrenh, ETW_Ben, jK4K3n,jG2K7o,rrATo, O3h_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
 #endif
@@ -119,6 +119,7 @@
   real(RLEN)  :: jG33G23h
   real(RLEN)  :: Dnew
   real(RLEN)  :: Dx,Dy
+  real(RLEN)  :: dummy
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do BoxNumberXY=1,NO_BOXES_XY
@@ -176,8 +177,8 @@
 
       KALK(BoxNumberXY)  =   InitializeSet(  KALK(BoxNumberXY),  5,  14)
 
-      Dx=(D1m(BoxNumberXY) +D2m(BoxNumberXY)) * 0.5
-      Dy=(D2m(BoxNumberXY) +p_d_tot) * 0.5
+      Dx=(D1m(BoxNumberXY) +D2m(BoxNumberXY)) * 0.5_RLEN
+      Dy=(D2m(BoxNumberXY) +p_d_tot) * 0.5_RLEN
       call DefineSet( KALK(BoxNumberXY), LAYERS, LAYER1, &
                                          LAYER2, D1m(BoxNumberXY),Dx) 
       call DefineSet( KALK(BoxNumberXY), LAYERS, LAYER3, LAYER4, D2m(BoxNumberXY), Dy)

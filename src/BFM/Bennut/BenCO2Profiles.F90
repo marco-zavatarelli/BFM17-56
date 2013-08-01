@@ -1,5 +1,5 @@
-#INCLUDE "DEBUG.h"
-#INCLUDE "INCLUDE.h"
+#include "DEBUG.h"
+#include "INCLUDE.h"
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL
@@ -36,9 +36,8 @@
         USE constants, ONLY: INTEGRAL,STANDARD
         use bennut_interface, ONLY:CalculateFromSet
         use CO2System,ONLY: CalcCO2System
-        use mem_PelCO2,ONLY: MethodCalcCO2
+        use mem_CO2,ONLY: MethodCalcCO2
         USE BFM_ERROR_MSG, ONLY: BFM_ERROR
-
 
         
 !
