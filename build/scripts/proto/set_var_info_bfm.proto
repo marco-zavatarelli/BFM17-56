@@ -84,10 +84,21 @@ subroutine set_var_info_bfm
 %2d-flux-ice-string
 #endif
 
+#ifdef INCLUDE_BEN
+!
+!2d Benthic variables description
+%2d-state-ben-string
+%2d-diagnos-ben-string
+%2d-diaggrp-ben-string
+%2d-flux-ben-string
+#endif
+
 
 !
 !Index Pelagic
 !
+%startend-string-index pel
+
 %3d-state-pel-string-index
 %3d-diagnos-pel-string-index
 %3d-flux-pel-string-index
@@ -96,16 +107,31 @@ subroutine set_var_info_bfm
 %pel-string-index-field bottom
 %pel-string-index-field river
 
+
+#ifdef INCLUDE_SEAICE
 !
 !Index SeaIce
 !
-#ifdef INCLUDE_SEAICE
+%startend-string-index ice
 
 %2d-state-ice-string-index
 %2d-diagnos-ice-string-index
 %2d-flux-ice-string-index
 
 #endif
+
+#ifdef INCLUDE_BEN
+!
+!Index Benthic
+!
+%startend-string-index ben
+
+%2d-state-ben-string-index
+%2d-diagnos-ben-string-index
+%2d-flux-ben-string-index
+
+#endif
+
 
 %startend-string-index
 

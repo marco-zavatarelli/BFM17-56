@@ -26,8 +26,8 @@
 #ifdef NOPOINTERS
         use mem
 #else
-        use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
-           BoxNumberY,NO_BOXES_Y,BoxNumber,BoxNumberXY,seddepth,ETW_Ben,   &
+        use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX_ben, NO_BOXES_X_BEN, &
+           BoxNumberY_ben,NO_BOXES_Y_BEN,BoxNumber_ben,BoxNumberXY_ben,seddepth,ETW_Ben,   &
            PrQ1c,PrM1p,PrM3n,PrM4n,PrM5s,PrM6r,KQ1,KPO4,KNO3,KNH4,KSiO3,KRED, &
            Pr2M1p,KPO4_2
 #endif
@@ -86,28 +86,28 @@
 
         s=ZERO
         do BoxNumberZ= 1,p_sedlevels
-          do BoxNumberY=1,NO_BOXES_Y
-            do BoxNumberX=1,NO_BOXES_X
-             BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-             BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
-             r=abs(seddepth(BoxNumber))
-             if (llM1p) PrM1p(BoxNumber)= &
-                CalculateFromSet(KPO4(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
-             if (ll2M1p) Pr2M1p(BoxNumber)= &
-                CalculateFromSet(KPO4_2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
-             if (llM3n) PrM3n(BoxNumber)= &
-                CalculateFromSet(KNO3(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
-             if (llM4n) PrM4n(BoxNumber)= &
-                CalculateFromSet(KNH4(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
+          do BoxNumberY_ben=1,NO_BOXES_Y_BEN
+            do BoxNumberX_ben=1,NO_BOXES_X_BEN
+             BoxNumber_ben=D3toD1(BoxNumberX_ben,BoxNumberY_ben,BoxNumberZ)
+             BoxNumberXY_ben=D2toD1(BoxNumberX_ben,BoxNumberY_ben)
+             r=abs(seddepth(BoxNumber_ben))
+             if (llM1p) PrM1p(BoxNumber_ben)= &
+                CalculateFromSet(KPO4(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
+             if (ll2M1p) Pr2M1p(BoxNumber_ben)= &
+                CalculateFromSet(KPO4_2(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
+             if (llM3n) PrM3n(BoxNumber_ben)= &
+                CalculateFromSet(KNO3(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
+             if (llM4n) PrM4n(BoxNumber_ben)= &
+                CalculateFromSet(KNH4(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
              if (llM5s) then
-               chM5s = p_chM5s+ p_cvM5s*( eTq( ETW_Ben(BoxNumberXY), p_q10)- 1.0D+00)
-               PrM5s(BoxNumber)= &
-                chM5s- CalculateFromSet(KSIO3(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
+               chM5s = p_chM5s+ p_cvM5s*( eTq( ETW_Ben(BoxNumberXY_ben), p_q10)- 1.0D+00)
+               PrM5s(BoxNumber_ben)= &
+                chM5s- CalculateFromSet(KSIO3(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
              endif
-             if (llM6r) PrM6r(BoxNumber)= &
-                CalculateFromSet(KRED(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
-             if (llQ1c) PrQ1c(BoxNumber)= &
-                CalculateFromSet(KQ1(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)
+             if (llM6r) PrM6r(BoxNumber_ben)= &
+                CalculateFromSet(KRED(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
+             if (llQ1c) PrQ1c(BoxNumber_ben)= &
+                CalculateFromSet(KQ1(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)
              s=r;
             end do
           end do

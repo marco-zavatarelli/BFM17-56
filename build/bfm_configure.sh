@@ -273,16 +273,19 @@ if [ ${GEN} ]; then
         find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/share -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Pel -name "*.?90" -print >> BFM.lst
-        find ${BFMDIR}/src/BFM/PelBen -name "*.?90" -print >> BFM.lst
-        find ${BFMDIR}/src/BFM/Ben -name "*.?90" -print >> BFM.lst
-        find ${BFMDIR}/src/BFM/Bennut -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Light -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Oxygen -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Forcing -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/CO2 -name "*.?90" -print >> BFM.lst
+        find ${BFMDIR}/src/BFM/PelBen -name "*.?90" -print >> BFM.lst
+        if echo "$cppdefs" | grep -q "\-DINCLUDE_BEN" ; then
+            [ $VERBOSE ] && echo "include BENTHIC in BFM.lst"        
+            find ${BFMDIR}/src/BFM/Ben -name "*.?90" -print >> BFM.lst
+            find ${BFMDIR}/src/BFM/Bennut -name "*.?90" -print >> BFM.lst
+        fi
         if echo "$cppdefs" | grep -q "\-DINCLUDE_SEAICE" ; then
             [ $VERBOSE ] && echo "include SEAICE in BFM.lst"
-            find ${BFMDIR}/src/BFM/SeaIce -name "*.?90" -print >> BFM.lst
+            find ${BFMDIR}/src/BFM/Seaice -name "*.?90" -print >> BFM.lst
         fi
 
         #change netcdf path in compiler file

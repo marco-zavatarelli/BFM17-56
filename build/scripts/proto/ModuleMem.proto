@@ -144,6 +144,29 @@
 
 
 
+#ifdef INCLUDE_BEN
+        real(RLEN),public,pointer,dimension(:,:) :: D2STATE_BEN
+
+#ifndef EXPLICIT_SINK
+        real(RLEN),public,pointer,dimension(:,:)   :: D2SOURCE_BEN
+#else
+        real(RLEN),public,pointer,dimension(:,:,:) :: D2SOURCE_BEN
+        real(RLEN),public,pointer,dimension(:,:,:) :: D2SINK_BEN
+#endif
+
+        integer,public,pointer,dimension(:) :: D2STATETYPE_BEN
+#ifdef BFM_NEMO
+       integer,public,pointer,dimension(:)  :: D2STATEOBC_BEN
+#endif
+
+        real(RLEN),public,pointer,dimension(:,:) :: D2DIAGNOS_BEN
+
+        type(ppFlux), public,dimension(:,:),allocatable :: D2FLUX_MATRIX_BEN
+        real(RLEN)  , public,dimension(:),allocatable :: D2FLUX_FUNC_BEN
+#endif
+
+
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! GLOBAL system CONSTANTS
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -183,6 +206,21 @@
         integer,public  ::NO_BOXES_XY_ICE
 #endif
 
+#ifdef INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! GLOBAL system CONSTANTS (ben)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,parameter,public  ::NO_D2_BOX_STATES_BEN   = %2d-state-ben-nr
+        integer,parameter,public  ::NO_D2_BOX_DIAGNOSS_BEN = %2d-diagnos-ben-nr
+        integer,parameter,public  ::NO_D2_BOX_FLUX_BEN     = %2d-flux-ben-nr
+        integer,public  ::NO_BOXES_BEN
+        integer,public  ::NO_BOXES_X_BEN
+        integer,public  ::NO_BOXES_Y_BEN
+        integer,public  ::NO_STATES_BEN
+        integer,public  ::NO_BOXES_XY_BEN
+#endif
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! GLOBAL definition of Pelagic (D3/D2) state variables
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -197,6 +235,15 @@
 
         integer,parameter,public                :: %2d-state-ice-pp
         real(RLEN),public,dimension(:),pointer  :: %2d-state-ice-pointer
+#endif
+
+#ifdef INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !! GLOBAL definition of SeaBen (D2) state variables
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,parameter,public                :: %2d-state-ben-pp
+        real(RLEN),public,dimension(:),pointer  :: %2d-state-ben-pointer
 #endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -221,6 +268,16 @@
         integer,parameter,public :: %2d-group-ice-parameter
 
         logical,public :: %group-ice-calc
+#endif
+
+#ifdef INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        ! Group parameters (ben):
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,parameter,public :: %2d-group-ben-parameter
+
+        logical,public :: %group-ben-calc
 #endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -248,6 +305,20 @@
 
         real(RLEN),public %1d-variable-ice
         integer,public    %1d-intvar-ice
+#endif
+
+#ifdef INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !  Global Variables (ben)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        integer,public  :: BoxNumber_ben
+        integer,public  :: BoxNumberX_ben
+        integer,public  :: BoxNumberY_ben
+        integer,public  :: BoxNumberXY_ben
+
+        real(RLEN),public %1d-variable-ben
+        integer,public    %1d-intvar-ben
 #endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -285,6 +356,19 @@
         real(RLEN),public,dimension(:,:),pointer  :: %2d-diaggrp-ice-pointer
 #endif
 
+#ifdef INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        !! GLOBAL definition of benthic (D2) variables which can be outputted in netcdf
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-=-=-
+%2d-diagnos-ben-desc
+%2d-diaggrp-ben-desc
+
+        integer,parameter,public :: %2d-diagnos-ben-pp
+        integer,public ::           %2d-diaggrp-ben-pp
+        real(RLEN),public,dimension(:,:),pointer  :: %2d-diagnos-ben-pointer
+        real(RLEN),public,dimension(:,:),pointer  :: %2d-diaggrp-ben-pointer
+#endif
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !  boundary fluxes
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -316,6 +400,15 @@
         integer,public    %2d-intvar-ice
 #endif
 
+#ifdef INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !  Other 2d-Global Variables (ben)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=       
+
+        real(RLEN),public %2d-variable-ben
+        integer,public    %2d-intvar-ben
+#endif
+
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         !! SHARED GLOBAL FUNCTIONS (pel) (must be below contains)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -332,7 +425,18 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
         public Source_D2_vector_ice
+
         public %2d-group-ice-function-name
+#endif
+
+#if defined INCLUDE_BEN
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+        !! SHARED GLOBAL FUNCTIONS (ben) (must be below contains)
+        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+        public Source_D2_vector_ben
+
+        public %2d-group-ben-function-name
 #endif
 
         contains
@@ -343,17 +447,21 @@
 
 %3d-groupfunctions-pel
 
+#if defined INCLUDE_SEAICE
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          !! Group Pelagic (D2) state functions
-          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-%2d-groupfunctions-pel
-
-          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          !! Group SeaIce (D2) state functions
+          !! Group Seaice (D2) state functions
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 %2d-groupfunctions-ice
+#endif
+
+#if defined INCLUDE_BEN
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+          !! Group Benthic (D2) state functions
+          !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%2d-groupfunctions-ben
+#endif
 
 
 #ifdef BFM_ROMS

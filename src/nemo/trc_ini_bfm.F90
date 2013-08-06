@@ -20,8 +20,12 @@
                   NO_BOXES_XY, NO_D3_BOX_DIAGNOSS,     &
                   NO_STATES,Depth,D3STATE,PELRIVER
 #ifdef INCLUDE_BEN
-   use mem, only: NO_D2_BOX_STATES, NO_D2_BOX_DIAGNOSS, &
-                  D2STATE
+   use mem, only: NO_D2_BOX_STATES_BEN, &
+                  D2STATE_BEN, NO_BOXES_XY_BEN
+#endif
+#ifdef INCLUDE_BEN
+   use mem, only: NO_D2_BOX_STATES_ICE, &
+                  D2STATE_ICE, NO_BOXES_XY_ICE
 #endif
    use mem, only: Volume, Area, Area2d
    use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s
@@ -142,7 +146,10 @@
    NO_BOXES_XY = count(SRFmask)
    NO_STATES   = NO_D3_BOX_STATES * NO_BOXES
 #ifdef INCLUDE_BEN
-   NO_STATES = NOSTATES + NO_BOXES_XY*NO_D2_BOX_STATES
+   NO_STATES = NOSTATES + NO_BOXES_XY_BEN*NO_D2_BOX_STATES_BEN
+#endif
+#ifdef INCLUDE_SEAICE
+   NO_STATES = NOSTATES + NO_BOXES_XY_ICE*NO_D2_BOX_STATES_ICE
 #endif
 
    !-------------------------------------------------------
@@ -213,7 +220,7 @@
    allocate(D2STATE_ICE_tot(NO_D2_BOX_STATES_ICE))
 #endif
 #ifdef INCLUDE_BEN
-   allocate(D2STATE_tot(NO_D2_BOX_STATES))
+   allocate(D2STATE_BEN_tot(NO_D2_BOX_STATES_BEN))
 #endif
 
    !---------------------------------------------
@@ -379,8 +386,8 @@
 
 
 #ifdef INCLUDE_BEN
-      allocate(D2STATEB(NO_D2_BOX_STATES,NO_BOXES))
-      D2STATEB = D2STATE
+      allocate(D2STATEB_BEN(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
+      D2STATEB_BEN = D2STATE_BEN
 #endif
 
 

@@ -41,7 +41,7 @@ our @EXPORT= qw(print_f90);
 
 ########### VARIABLES GLOBAL ##########################
 my $VERBOSE = 0;
-my $SPACE = "        ";
+my $SPACE = "   ";
 my $MAX_CHAR_PER_LINE = 76;
 my $STRING_INDEX=1;
 my %STRING_INDEX_ARRAY = ();
@@ -84,7 +84,7 @@ my $dispatch = {
     '\%(pel|ben|ice)-field-string\s*(\S*)(?:\s|\n)'                     => \&func_STRING_FIELD ,
     '\%(3|2)d-(diagnos|state|flux)-(pel|ben|ice)-string-index(?:\s|\n)' => \&func_STRING_INDEX ,
     '\%(pel|ben|ice)-string-index-field\s*(\S*)(?:\s|\n)'               => \&func_STRING_INDEX_FIELD ,
-    '\%startend-string-index(?:\s|\n)'                                  => \&func_STRING_INDEX_STARTEND ,
+    '\%startend-string-index\s*(\S*)(?:\s|\n)'                          => \&func_STRING_INDEX_STARTEND ,
     #ALLOC
     '\%(3|2)d-(diagnos|state)-(pel|ben|ice)-alloc(?:\s|\n)' => \&func_ALLOC ,
     '\%(1|3|2)d-(intvar|variable|variables)-(pel|ben|ice)-alloc(?:\s|\n)'=>    \&func_ALLOC_INTVAR ,
@@ -105,6 +105,8 @@ my $dispatch = {
     '([^\%]*)\%value-init-calc-(pel|ben|ice)\s*(\S*)(?:\s|\n)' => \&func_INIT_VALUE_CALC ,
     '([^\%]*)\%(3|2)d-(state)-(pel|ben|ice)-Initpp(?:\s|\n)'   => \&func_INIT_PP ,
     '\%init-func-constituents(?:\s|\n)'                        => \&func_INIT_FUNC_CONST ,
+    '\%init-(pel|ben|ice)-namelist\s*(\d*)\s*(\d*)(?:\s|\n)'   => \&func_INIT_NAMELIST ,
+    '\%(3|2)d-init-(pel|ben|ice)-output-variables(?:\s|\n)'    => \&func_INIT_OUTPUT_VARIABLES ,
     '\%(3|2)d-(state)-(pel|ben|ice)-InitDefault(?:\s|\n)'      => \&func_INIT_DEFAULT ,
     '\%(3|2)d-(state)-(pel|ben|ice)-InitSets(?:\s|\n)'         => \&func_INIT_SETS ,
     '\%(3|2)d-(state)-(pel|ben|ice)-InitInternal(?:\s|\n)'     => \&func_INIT_INTERNAL ,
@@ -1079,7 +1081,7 @@ sub func_GROUP_FUNCTIONS  {
                     $line .= "${SPACE}" ."  ENDIF\n";
 
                 }else{
-                    $line .= "${SPACE}" ."  $pre$groupname => D${dim}STATE(pp${groupname}(n,constituent),:)\n";
+                    $line .= "${SPACE}" ."  $pre$groupname => D${dim}STATE${SUBTYPE}(pp${groupname}(n,constituent),:)\n";
                 }
                 $line .= "${SPACE}" ."\n";
                 $line .= "${SPACE}" ."END function\n";
@@ -1298,25 +1300,30 @@ sub func_STRING_INDEX_FIELD  {
 }
 
 sub func_STRING_INDEX_STARTEND  {
-    my ( $file ) = @_;
+    my ( $file, $subt ) = @_;
     if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_STARTEND:"; }
 
     my $line = '';
+    my $subt_short = '';
+    if( ! $subt ){ $subt = ''; }
+    else{ $subt_short = ucfirst(substr($subt,0,3)); }
 
     my $max=0;
     my $min=0;
     foreach my $key ( keys %STRING_INDEX_ARRAY ){
-        if( $max < $STRING_INDEX_ARRAY{$key} ){ 
-            $max = $STRING_INDEX_ARRAY{$key};
-        }
-        if( !$min || $min > $STRING_INDEX_ARRAY{$key} ){
-            $min = $STRING_INDEX_ARRAY{$key};
+        if( $key =~ m/.*${subt}.*/ ){
+            if( $max < $STRING_INDEX_ARRAY{$key} ){ 
+                $max = $STRING_INDEX_ARRAY{$key};
+            }
+            if( !$min || $min > $STRING_INDEX_ARRAY{$key} ){
+                $min = $STRING_INDEX_ARRAY{$key};
+            }
         }
     }
 
     if( $min && $max ){
-            $line .= "${SPACE}stStart=". $min . "\n";
-            $line .= "${SPACE}stEnd=". $max . "\n";
+            $line .= "${SPACE}st${subt_short}Start=". $min . "\n";
+            $line .= "${SPACE}st${subt_short}End=". $max . "\n";
     }
 
     if( $line ){ print $file $line; }
@@ -1428,6 +1435,54 @@ sub func_INIT_FUNC_CONST {
     if( $line ){ print $file $line; }
 }
 
+
+sub func_INIT_NAMELIST {
+    my ( $file, $subt, $num1, $num2 ) = @_;
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_NAMELIST: "; }
+
+    my $line = '';
+
+    my $subtype= '_' . $subt;
+    if ( $subtype eq '_pel' ){ $subtype = '' } #fix because pel is default and vars has no suffix
+
+    $line .= "${SPACE}icontrol=0\n";
+    $line .= "${SPACE}open(namlst,file=bfm_init_fname${subtype},action='read',status='old',err=${num1})\n";
+    $line .= "${SPACE}read(namlst,nml=bfm_init_nml${subtype},err=${num2})\n";
+    $line .= "${SPACE}close(namlst)\n";
+    $line .= "${SPACE}icontrol=1\n";
+    $line .= "${num1} if ( icontrol == 0 ) then\n";
+    $line .= "${SPACE}  LEVEL3 'I could not open ',trim(bfm_init_fname${subtype})\n";
+    $line .= "${SPACE}  LEVEL3 'The initial values of the BFM variables are set to ZERO'\n";
+    $line .= "${SPACE}  LEVEL3 'If thats not what you want you have to supply ',trim(bfm_init_fname${subtype})\n";
+    $line .= "${SPACE}  icontrol=1\n";
+    $line .= "${SPACE}end if\n";
+    $line .= "${num2} if ( icontrol == 0 ) then\n";
+    $line .= "${SPACE}  FATAL \'I could not read bfm_init_nml${subtype}\'\n";
+    $line .= "${SPACE}  stop \'init_var_bfm\'\n";
+    $line .= "${SPACE}end if\n";
+   
+    if( $line ){ print $file $line; }
+}
+
+
+sub func_INIT_OUTPUT_VARIABLES {
+    my ( $file, $dim, $subt ) = @_;
+    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_OUTPUT_VARIABLES: "; }
+
+    my $line = '';
+
+    my $Subtype= ucfirst($subt);
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
+    $line .= "${SPACE}   write(Flun,155) \'ID\',\'Var\',\'Unit\',\'Long Name\',\'Flag\'\n";
+    $line .= "${SPACE}   do n=st${Subtype}Start,st${Subtype}End\n";
+    $line .= "${SPACE}     write(Flun,156) n,trim(var_names(n)),trim(var_units(n)) &\n";
+    $line .= "${SPACE}       ,trim(var_long(n)),D${dim}STATETYPE${SUBTYPE}(n)\n";
+    $line .= "${SPACE}   end do\n";
+   
+    if( $line ){ print $file $line; }
+}
 
 
 sub func_INIT_FUNC_ZERO {

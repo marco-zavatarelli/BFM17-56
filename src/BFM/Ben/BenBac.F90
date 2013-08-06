@@ -27,12 +27,12 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: D2STATE, Q6c, Q6n, Q6p, G2o, K16r, D6m, &
+  use mem, ONLY: D2STATE_BEN, Q6c, Q6n, Q6p, G2o, K16r, D6m, &
     D7m, D8m, D1m, D2m, BenDetritus, BenthicAmmonium, BenthicPhosphate
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c,ppG13c, ppG2o, ppK16r, ppD6m, &
     ppD7m, ppD8m, ppD1m, ppD2m, ppBenDetritus, ppBenthicAmmonium, &
     ppBenthicPhosphate, rrBTo, reBTn, reBTp, rrATo, reATn, reATp, ETW_Ben, ruHI, &
-    iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector, reHI
+    iiH1, iiH2, iiC, iiN, iiP, NO_BOXES_XY_BEN, iiBen, iiPel, flux_vector, reHI
 #endif
   use mem_Param,  ONLY: p_d_tot, p_small, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_qro, &
                         p_clD1D2m
@@ -91,64 +91,64 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY) :: hxc
-  real(RLEN),dimension(NO_BOXES_XY) :: hxn
-  real(RLEN),dimension(NO_BOXES_XY) :: hxp
+  real(RLEN),dimension(NO_BOXES_XY_BEN) :: hxc
+  real(RLEN),dimension(NO_BOXES_XY_BEN) :: hxn
+  real(RLEN),dimension(NO_BOXES_XY_BEN) :: hxp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY)  :: clm
-  real(RLEN),dimension(NO_BOXES_XY)  :: cm
-  real(RLEN),dimension(NO_BOXES_XY)  :: chm
-  real(RLEN),dimension(NO_BOXES_XY)  :: cmm
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: eN
-  real(RLEN),dimension(NO_BOXES_XY)  :: eo
-  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_c
-  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_p
-  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_n
-  real(RLEN),dimension(NO_BOXES_XY)  :: suQ1
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ1c
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY)  :: sm
-  real(RLEN),dimension(NO_BOXES_XY)  :: misn
-  real(RLEN),dimension(NO_BOXES_XY)  :: misp
-  real(RLEN),dimension(NO_BOXES_XY)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY)  :: rep
-  real(RLEN),dimension(NO_BOXES_XY)  :: sHc
-  real(RLEN),dimension(NO_BOXES_XY)  :: sHn
-  real(RLEN),dimension(NO_BOXES_XY)  :: sHp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rq6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rqt6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rqt6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rqt6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: qnQ6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: qpQ6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rut
-  real(RLEN),dimension(NO_BOXES_XY)  :: rum
-  real(RLEN),dimension(NO_BOXES_XY)  :: run
-  real(RLEN),dimension(NO_BOXES_XY)  :: rug
-  real(RLEN),dimension(NO_BOXES_XY)  :: netgrowth
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
-  integer,dimension(NO_BOXES_XY)  :: i
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: clm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: cm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: chm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: cmm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: et
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eN
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eo
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: suQ1
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ1c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ1n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ1p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rump
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: misn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: misp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ren
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rep
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sHc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sHn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sHp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rq6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rqt6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rqt6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rqt6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: qnQ6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: qpQ6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rut
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rum
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: run
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rug
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: netgrowth
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: r
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: runp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rupp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rupn
+  integer,dimension(NO_BOXES_XY_BEN)  :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  hxc = D2STATE(pphxc,:)
-  hxn = D2STATE(pphxn,:)
-  hxp = D2STATE(pphxp,:)
+  hxc = D2STATE_BEN(pphxc,:)
+  hxn = D2STATE_BEN(pphxn,:)
+  hxp = D2STATE_BEN(pphxp,:)
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

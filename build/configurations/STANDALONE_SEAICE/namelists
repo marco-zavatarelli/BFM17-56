@@ -164,6 +164,18 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 /
 
 !-------------------------------------------------------------------------!
+! NAMELIST Param_parameters_ice
+!-------------------------------------------------------
+! Benthic flags and parameters :
+&Param_parameters_ice
+     CalcSeaiceAlgae    = .TRUE.
+     CalcSeaiceZoo      = .TRUE.
+     CalcSeaiceBacteria = .TRUE.
+	filename_nml_conf = 'BFM_General.nml',
+/
+
+
+!-------------------------------------------------------------------------!
 ! NAMELIST bfm_init_nml
 !-------------------------------------------------------------------------!
 !Pelagic initialisation of standard variables

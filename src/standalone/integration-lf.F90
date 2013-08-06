@@ -27,10 +27,10 @@
 #endif
 
 #if defined INCLUDE_BEN
-   use mem, ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
-                  D2STATETYPE
+   use mem, ONLY: NO_D2_BOX_STATES_BEN, D2SOURCE_BEN, D2STATE_BEN, &
+        NO_BOXES_XY_BEN, D2STATETYPE_BEN
 #ifdef EXPLICIT_SINK
-   use mem, ONLY: D2SINK
+   use mem, ONLY: D2SINK_BEN
 #endif
 #endif
    use standalone
@@ -58,7 +58,9 @@
    real(RLEN),dimension(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE) :: bc2D_ice
 #endif
 #if defined INCLUDE_BEN
-   real(RLEN),dimension(NO_D2_BOX_STATES,NO_BOXES_XY) :: bc2D
+   real(RLEN)                                                 :: min2D_ben
+   integer,dimension(2,2)                                     :: blccc_ben
+   real(RLEN),dimension(NO_D2_BOX_STATES_BEN,NO_BOXES_XY_BEN) :: bc2D_ben
 #endif
 !EOP
 !-----------------------------------------------------------------------
@@ -76,8 +78,8 @@
 #endif
 
 #if defined INCLUDE_BEN
-   bccc2D=D2STATE
-   bc2D=bbccc2D
+   bccc2D_ben=D2STATE_BEN
+   bc2D_ben=bbccc2D_ben
 #endif
 
    TLOOP : DO
@@ -105,12 +107,12 @@
 #endif
 
 #if defined INCLUDE_BEN
-      DO j=1,NO_D2_BOX_STATES
-         IF(D2STATETYPE(j).ge.0) THEN
+      DO j=1,NO_D2_BOX_STATES_BEN
+         IF(D2STATETYPE_BEN(j).ge.0) THEN
 #ifndef EXPLICIT_SINK
-                  ccc_tmp2D(j,:) = bbccc2D(j,:) + delt*D2SOURCE(j,:)
+                  ccc_tmp2D_ben(j,:) = bbccc2D_ben(j,:) + delt*D2SOURCE_BEN(j,:)
 #else
-                  ccc_tmp2D(j,:) = bbccc2D(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
+                  ccc_tmp2D_ben(j,:) = bbccc2D_ben(j,:) + delt*sum(D2SOURCE_BEN(j,:,:)-D2SINK_BEN(j,:,:),1)
 #endif
          END IF
       END DO
@@ -124,8 +126,8 @@
       min2D_ice=minval(ccc_tmp2D_ice)
       min = ( min .OR. ( min2D_ice .lt. eps ) )
 #elif defined INCLUDE_BEN
-      min2D=minval(ccc_tmp2D)
-      min = ( min .OR. ( min2D .lt. eps ) )
+      min2D_ben=minval(ccc_tmp2D_ben)
+      min = ( min .OR. ( min2D_ben .lt. eps ) )
 #endif
       IF ( min ) THEN ! cut timestep
          IF (nstep.eq.1) THEN
@@ -139,9 +141,9 @@
                            bbccc2D_ice(blccc_ice(2,1),blccc_ice(2,2))
 #endif
 #if defined INCLUDE_BEN
-               blccc(2,:)=minloc(ccc_tmp2D)
-               LEVEL2 ccc_tmp2D(blccc(2,1),blccc(2,2)), &
-                           bbccc2D(blccc(2,1),blccc(2,2))
+               blccc_ben(2,:)=minloc(ccc_tmp2D_ben)
+               LEVEL2 ccc_tmp2D_ben(blccc_ben(2,1),blccc_ben(2,2)), &
+                           bbccc2D_ben(blccc_ben(2,1),blccc_ben(2,2))
 #endif
                LEVEL2 'EXIT at time: ',timesec
             STOP
@@ -153,7 +155,7 @@
          D2STATE_ICE=bccc2D_ice
 #endif
 #if defined INCLUDE_BEN
-         D2STATE=bccc2D
+         D2STATE_BEN=bccc2D_ben
 #endif
          dtm1=.5_RLEN*delt
          delt=2._RLEN*nstep*mindelt
@@ -179,13 +181,13 @@
          D2STATE_ICE=ccc_tmp2D_ice
 #endif
 #if defined INCLUDE_BEN
-         DO j=1,NO_D2_BOX_STATES
-            IF (D2STATETYPE(j).ge.0) THEN
-               bbccc2D(j,:) = D2STATE(j,:) + &
-                     ass*(bbccc2D(j,:)-2._RLEN*D2STATE(j,:)+ccc_tmp2D(j,:))
+         DO j=1,NO_D2_BOX_STATES_BEN
+            IF (D2STATETYPE_BEN(j).ge.0) THEN
+               bbccc2D_ben(j,:) = D2STATE_BEN(j,:) + &
+                     ass*(bbccc2D_ben(j,:)-2._RLEN*D2STATE_BEN(j,:)+ccc_tmp2D_ben(j,:))
             END IF
          END DO
-         D2STATE=ccc_tmp2D
+         D2STATE_BEN=ccc_tmp2D_ben
 #endif
          call ResetFluxes
          call envforcing_bfm
@@ -205,15 +207,15 @@
 #endif
 
 #if defined INCLUDE_BEN
-         bbccc2D=bc2D/n**2+D2STATE*(1.-1./n**2)+ &
-            sum((D2SOURCE-D2SINK),2)*.5*delt*(1./n**2-1./n)
-#endif
 #ifndef EXPLICIT_SINK
-         bbccc3D=bc3D/n**2+D3STATE*(ONE-ONE/n**2) + D3SOURCE*.5_RLEN*delt*(ONE/n**2-ONE/n)
+         bbccc2D_ben=bc2D_ben/n**2+D2STATE_BEN*(ONE-ONE/n**2) + &
+            D2SOURCE_BEN*.5_RLEN*delt*(ONE/n**2 - ONE/n)
 #else
-         bbccc3D=bc3D/n**2+D3STATE*(ONE - ONE/n**2)+ &
-            sum((D3SOURCE-D3SINK),2)*.5_RLEN*delt*(ONE/n**2 - ONE/n)
+         bbccc2D_ben=bc2D_ben/n**2+D2STATE_BEN*(ONE-ONE/n**2)+ &
+            sum((D2SOURCE_BEN-D2SINK_BEN),2)*.5_RLEN*delt*(ONE/n**2 - ONE/n)
 #endif
+#endif
+
 #ifdef DEBUG
          LEVEL2 'Time Step cut! delt= ',delt/2._RLEN,' nstep= ',nstep
 #endif
@@ -252,14 +254,15 @@
 #endif
 
 #if defined INCLUDE_BEN
-      bbccc2D=bccc2D
-      DO j=1,NO_D2_BOX_STATES
-         IF (D2STATETYPE(j).ge.0) THEN
-            bbccc2d(j,:) = bccc2d(j,:) + &
-               ass*(bc2D(j,:)-2._RLEN*bccc2d(j,:)+D2STATE(j,:))
+      bbccc2D_ben=bccc2D_ben
+      DO j=1,NO_D2_BOX_STATES_BEN
+         IF (D2STATETYPE_BEN(j).ge.0) THEN
+            bbccc2d_ben(j,:) = bccc2d_ben(j,:) + &
+               ass*(bc2D_ben(j,:)-2._RLEN*bccc2d_ben(j,:)+D2STATE_BEN(j,:))
          END IF
       END DO
 #endif
+
    ENDIF
    nstep=nmaxdelt
    nmin=0

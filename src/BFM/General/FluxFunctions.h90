@@ -84,10 +84,17 @@
 #endif
 #if defined INCLUDE_BEN
                 case (iiBen)
-                  D2SOURCE(origin,:) = D2SOURCE(origin,:) - &
+                  D2SOURCE_BEN(origin,:) = D2SOURCE_BEN(origin,:) - &
                       flux/SEC_PER_DAY
-                  D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
+                  D2SOURCE_BEN(destination,:) = D2SOURCE_BEN(destination,:) + &
                       flux/SEC_PER_DAY
+                  if( allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
+                     do j=1, SIZE(D2FLUX_MATRIX_BEN(origin,destination)%p)
+                        D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) =      &
+                             D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) + &
+                             (SIGN( 1, D2FLUX_MATRIX_BEN(origin,destination)%p(j) ) * flux (1) )
+                     end do
+                  endif
 #endif
               end select
             else ! origin==destination
@@ -133,8 +140,23 @@
 #endif
 #if defined INCLUDE_BEN
                 case (iiBen)
-                  D2SOURCE(destination,:) = D2SOURCE(destination,:) + &
+                  D2SOURCE_BEN(destination,:) = D2SOURCE_BEN(destination,:) + &
                       flux/SEC_PER_DAY
+                  if( allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
+                     do j=1, SIZE(D2FLUX_MATRIX_BEN(origin,destination)%p)
+                        if( D2FLUX_MATRIX_BEN(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D2SINK_BEN
+                           if( flux(1) < ZERO ) then
+                              D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) =     &
+                                   D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) - flux(1)
+                           end if
+                        else ! "A<-B" => (in flow) => flux > ZERO => D2SOURCE_BEN
+                           if( flux(1) > ZERO ) then
+                              D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) =     &
+                                   D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) + flux(1)
+                           end if
+                        end if
+                     end do
+                  endif
 #endif
               end select
             end if !origin <> destination
@@ -182,10 +204,10 @@
 #endif
 #if defined INCLUDE_BEN
               case (iiBen)
-                D2SOURCE(origin,grid_nr) =    &
-                         D2SOURCE(origin,grid_nr)-flow/SEC_PER_DAY
-                D2SOURCE(destination,grid_nr) =    &
-                         D2SOURCE(destination,grid_nr)+flow/SEC_PER_DAY
+                D2SOURCE_BEN(origin,grid_nr) =    &
+                         D2SOURCE_BEN(origin,grid_nr)-flow/SEC_PER_DAY
+                D2SOURCE_BEN(destination,grid_nr) =    &
+                         D2SOURCE_BEN(destination,grid_nr)+flow/SEC_PER_DAY
 #endif
             end select
           else
@@ -201,7 +223,7 @@
 #endif
 #if defined INCLUDE_BEN
               case (iiBen)
-                 D2SOURCE(destination,grid_nr) = D2SOURCE(destination,grid_nr) + &
+                 D2SOURCE_BEN(destination,grid_nr) = D2SOURCE_BEN(destination,grid_nr) + &
                       flow/SEC_PER_DAY
 #endif
             end select
@@ -245,18 +267,18 @@
 #endif
 
 #if defined INCLUDE_BEN
-        function Source_D2_vector(iistate)
+        function Source_D2_vector_ben(iistate)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
         ! vector function to get actual rate of change in the benthic
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           use constants, only: RLEN, ZERO, SEC_PER_DAY
           implicit none
           integer, intent(IN) ::iistate
-          real(RLEN) ::Source_D2_vector(size(D2SOURCE,DIM=2))
+          real(RLEN) ::Source_D2_vector_ben(size(D2SOURCE_BEN,DIM=2))
           integer :: i
-          Source_D2_vector = ZERO
-          Source_D2_vector = D2SOURCE(iistate,:)*SEC_PER_DAY 
-        end function Source_D2_vector
+          Source_D2_vector_ben = ZERO
+          Source_D2_vector_ben = D2SOURCE_BEN(iistate,:)*SEC_PER_DAY 
+        end function Source_D2_vector_ben
 #endif
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -281,7 +303,7 @@
 #endif
 #if defined INCLUDE_BEN
           elseif ( iiSub == iiBen )  then
-             Source=D2SOURCE(iistate,iibox)*SEC_PER_DAY
+             Source=D2SOURCE_BEN(iistate,iibox)*SEC_PER_DAY
 #endif
           endif
         end function source
@@ -392,9 +414,9 @@
                     write(LOGUNIT,*) "state value destination:",D2STATE_ICE(destination,i)
 #endif
 #if defined INCLUDE_BEN
-                elseif ( iiSub == iiBen) then
-                    write(LOGUNIT,*) "state value origin:",D2STATE(origin,i)
-                    write(LOGUNIT,*) "state value destination:",D2STATE(destination,i)
+                elseif ( iiSub == iiBen ) then
+                    write(LOGUNIT,*) "state value origin:",D2STATE_BEN(origin,i)
+                    write(LOGUNIT,*) "state value destination:",D2STATE_BEN(destination,i)
 #endif
                 endif
                 STDERR 'Nan value in flux'
@@ -427,8 +449,8 @@
 #endif
 #if defined INCLUDE_BEN
                elseif ( iiSub == iiBen )  then
-                    write(LOGUNIT,*) "Benthic state value origin:",D2STATE(origin,grid_nr)
-                    write(LOGUNIT,*) "Benthic state value destination:",D2STATE(destination,grid_nr)
+                    write(LOGUNIT,*) "Benthic state value origin:",D2STATE_BEN(origin,grid_nr)
+                    write(LOGUNIT,*) "Benthic state value destination:",D2STATE_BEN(destination,grid_nr)
 #endif
                endif
                stop "subroutine TESTNAN forced STOP"

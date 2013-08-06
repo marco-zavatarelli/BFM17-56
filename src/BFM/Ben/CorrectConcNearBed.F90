@@ -23,18 +23,18 @@
 #ifdef NOPOINTERS
      use mem
 #else
-     use mem,         ONLY: ETAUB,NO_BOXES_XY
+     use mem,         ONLY: ETAUB,NO_BOXES_XY_BEN
 #endif
 
      IMPLICIT NONE
 ! !INPUT PARAMETERS:
-     real(RLEN), intent(IN),dimension(NO_BOXES_XY)   ::DepthLayer
-     real(RLEN), intent(IN),dimension(NO_BOXES_XY)   ::Sedi
-     real(RLEN), intent(IN)                          ::fto
-     real(RLEN), intent(IN)                          ::p_max
-     real(RLEN), intent(IN),dimension(NO_BOXES_XY)   ::wf          ! volumefiltered*Y3c (m/d)
+     real(RLEN), intent(IN),dimension(NO_BOXES_XY_BEN)   ::DepthLayer
+     real(RLEN), intent(IN),dimension(NO_BOXES_XY_BEN)   ::Sedi
+     real(RLEN), intent(IN)                              ::fto
+     real(RLEN), intent(IN)                              ::p_max
+     real(RLEN), intent(IN),dimension(NO_BOXES_XY_BEN)   ::wf          ! volumefiltered*Y3c (m/d)
 ! !OUTPUT PARAMETERS:
-     real(RLEN),dimension(NO_BOXES_XY),intent(OUT)   ::correction
+     real(RLEN),dimension(NO_BOXES_XY_BEN),intent(OUT)   ::correction
 
 !  
 !
@@ -64,9 +64,9 @@
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
      ! Local Variables
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      real(RLEN),dimension(NO_BOXES_XY)                ::b
-      real(RLEN),dimension(NO_BOXES_XY)                ::f
-      real(RLEN),dimension(NO_BOXES_XY)                ::r
+      real(RLEN),dimension(NO_BOXES_XY_BEN)                ::b
+      real(RLEN),dimension(NO_BOXES_XY_BEN)                ::f
+      real(RLEN),dimension(NO_BOXES_XY_BEN)                ::r
 #ifndef BFM_GOTM
       real(RLEN),parameter                             ::kappa=1.0E-5_RLEN
 #endif

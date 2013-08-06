@@ -12,7 +12,7 @@
 %pel-field-header river
 %3d-diaggrp-pel-header
 
-#ifdef SEAICE
+#ifdef INCLUDE_SEAICE
 
 %2d-state-ice-header
 %2d-group-ice-header
@@ -20,6 +20,16 @@
 %2d-diaggrp-ice-header
 
 #endif
+
+#ifdef INCLUDE_BEN
+
+%2d-state-ben-header
+%2d-group-ben-header
+%2d-diagnos-ben-header
+%2d-diaggrp-ben-header
+
+#endif
+
 
 #endif
 

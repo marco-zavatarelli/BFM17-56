@@ -31,10 +31,10 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: G23h,G13h, G3h, D1m, Q1c, D6m, D2m, D2STATE
+  use mem,  ONLY: G23h,G13h, G3h, D1m, Q1c, D6m, D2m, D2STATE_BEN
   use mem, ONLY: ppG23h, ppG13h, ppG3h, ppD1m, ppQ1c, ppD6m, ppD2m,Acae, Acan, &
-    NO_BOXES_XY, ERHO_Ben,  &
-    BoxNumberXY, InitializeModel, LocalDelta, KALK, jbotO3h, &
+    NO_BOXES_XY_BEN, ERHO_Ben,  &
+    BoxNumberXY_ben, InitializeModel, LocalDelta, KALK, jbotO3h, &
     irrenh, ETW_Ben, jK4K3n,jG2K7o,rrATo, O3h_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
 #endif
@@ -122,23 +122,23 @@
   real(RLEN)  :: dummy
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY=1,NO_BOXES_XY
+  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore water Alkalinity
       ! from mmol eq/m2 --> umol eq/kg
       ! Diagnostic variable used to compute pH
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      Acae(BoxNumberXY) = G3h(BoxNumberXY)/ p_poro(BoxNumberXY)/( &
-        p_p+ ONE)/( D1m(BoxNumberXY))/ERHO_Ben(BoxNumberXY)*1000._RLEN
-      Acan(BoxNumberXY) = (G23h(boxNumberXY)+G13h(BoxNumberXY))/ p_poro(BoxNumberXY)/( &
-        p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY))/ERHO_Ben(BoxNumberXY)*1000._RLEN
+      Acae(BoxNumberXY_ben) = G3h(BoxNumberXY_ben)/ p_poro(BoxNumberXY_ben)/( &
+        p_p+ ONE)/( D1m(BoxNumberXY_ben))/ERHO_Ben(BoxNumberXY_ben)*1000._RLEN
+      Acan(BoxNumberXY_ben) = (G23h(BoxNumberXY_ben)+G13h(BoxNumberXY_ben))/ p_poro(BoxNumberXY_ben)/( &
+        p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY_ben))/ERHO_Ben(BoxNumberXY_ben)*1000._RLEN
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! H+-loss  due to nitrification and deoxidation of OH-
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      loss=p_qnh * jK4K3n(BoxNumberXY) + p_qoh * jG2K7o(BoxNumberXY) 
-      sG3 = max(0.01_RLEN,loss/G3h(BoxNumberXY))
+      loss=p_qnh * jK4K3n(BoxNumberXY_ben) + p_qoh * jG2K7o(BoxNumberXY_ben) 
+      sG3 = max(0.01_RLEN,loss/G3h(BoxNumberXY_ben))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Get coefficients describing ammonium in the oxic layer :
@@ -149,8 +149,8 @@
       ! Temperature Correction (diffusion)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      diff = p_diff* irrenh(BoxNumberXY)* p_poro(BoxNumberXY)* &
-        eTq( ETW_Ben(BoxNumberXY), p_q10diff)
+      diff = p_diff* irrenh(BoxNumberXY_ben)* p_poro(BoxNumberXY_ben)* &
+        eTq( ETW_Ben(BoxNumberXY_ben), p_q10diff)
 
       lambda= sqrt(sG3/diff)
 
@@ -158,7 +158,7 @@
       ! Assume Negative Exponential Distribution of Part.Carb. according D6.m
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      alpha  =   ONE/ D6m(BoxNumberXY)
+      alpha  =   ONE/ D6m(BoxNumberXY_ben)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Recalculate Mineralization m2 --> m3 porewater
@@ -166,91 +166,91 @@
 
       ! anoxidation rate at interface D1
 
-      zuD1 = p_qoh * rrATo(BoxNumberXY)/ p_poro(BoxNumberXY)/ IntegralExp( & 
-                                          -alpha, p_d_tot- D1m(BoxNumberXY))
-      zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY)- D1m(BoxNumberXY)))
+      zuD1 = p_qoh * rrATo(BoxNumberXY_ben)/ p_poro(BoxNumberXY_ben)/ IntegralExp( & 
+                                          -alpha, p_d_tot- D1m(BoxNumberXY_ben))
+      zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY_ben)- D1m(BoxNumberXY_ben)))
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Initialize and input physical boundaries and forcing:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      KALK(BoxNumberXY)  =   InitializeSet(  KALK(BoxNumberXY),  5,  14)
+      KALK(BoxNumberXY_ben)  =   InitializeSet(  KALK(BoxNumberXY_ben),  5,  14)
 
-      Dx=(D1m(BoxNumberXY) +D2m(BoxNumberXY)) * 0.5_RLEN
-      Dy=(D2m(BoxNumberXY) +p_d_tot) * 0.5_RLEN
-      call DefineSet( KALK(BoxNumberXY), LAYERS, LAYER1, &
-                                         LAYER2, D1m(BoxNumberXY),Dx) 
-      call DefineSet( KALK(BoxNumberXY), LAYERS, LAYER3, LAYER4, D2m(BoxNumberXY), Dy)
-      call DefineSet( KALK(BoxNumberXY), DIFFUSION, FOR_ALL_LAYERS, 0, diff, dummy)
-      call DefineSet( KALK(BoxNumberXY), POROSITY, FOR_ALL_LAYERS, 0, &
-                                                          p_poro(BoxNumberXY), dummy)
-      call DefineSet( KALK(BoxNumberXY), ADSORPTION, FOR_ALL_LAYERS, 0, p_p, dummy)
+      Dx=(D1m(BoxNumberXY_ben) +D2m(BoxNumberXY_ben)) * 0.5_RLEN
+      Dy=(D2m(BoxNumberXY_ben) +p_d_tot) * 0.5_RLEN
+      call DefineSet( KALK(BoxNumberXY_ben), LAYERS, LAYER1, &
+                                         LAYER2, D1m(BoxNumberXY_ben),Dx) 
+      call DefineSet( KALK(BoxNumberXY_ben), LAYERS, LAYER3, LAYER4, D2m(BoxNumberXY_ben), Dy)
+      call DefineSet( KALK(BoxNumberXY_ben), DIFFUSION, FOR_ALL_LAYERS, 0, diff, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), POROSITY, FOR_ALL_LAYERS, 0, &
+                                                          p_poro(BoxNumberXY_ben), dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), ADSORPTION, FOR_ALL_LAYERS, 0, p_p, dummy)
 
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Give particular solution for all layers:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      call DefineSet( KALK(BoxNumberXY), DOUBLE_DEFINE, 11, &
+      call DefineSet( KALK(BoxNumberXY_ben), DOUBLE_DEFINE, 11, &
                                               EXPONENTIAL_TERM, lambda, sG3)
-      call DefineSet( KALK(BoxNumberXY), DOUBLE_DEFINE, 12, &
+      call DefineSet( KALK(BoxNumberXY_ben), DOUBLE_DEFINE, 12, &
                                               EXPONENTIAL_TERM, - lambda, sG3)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 15, CONSTANT_TERM, dummy, dummy)
 
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 21, ZERO_EXPONENTIAL_TERM, &
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 21, ZERO_EXPONENTIAL_TERM, &
                                                                   -alpha, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 24, LINEAR_TERM, dummy, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 25, CONSTANT_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 24, LINEAR_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 25, CONSTANT_TERM, dummy, dummy)
 
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 31, ZERO_EXPONENTIAL_TERM, &
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 31, ZERO_EXPONENTIAL_TERM, &
                                                                   -alpha, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 34, LINEAR_TERM, dummy, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 35, CONSTANT_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 34, LINEAR_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 35, CONSTANT_TERM, dummy, dummy)
 
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 41, ZERO_EXPONENTIAL_TERM, &
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 41, ZERO_EXPONENTIAL_TERM, &
                                                                   -alpha, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 44, LINEAR_TERM, dummy, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 45, CONSTANT_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 44, LINEAR_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 45, CONSTANT_TERM, dummy, dummy)
 
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 51, ZERO_EXPONENTIAL_TERM, &
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 51, ZERO_EXPONENTIAL_TERM, &
                                                                   -alpha, dummy)
-      call DefineSet( KALK(BoxNumberXY), DEFINE, 55, CONSTANT_TERM, dummy, dummy)
+      call DefineSet( KALK(BoxNumberXY_ben), DEFINE, 55, CONSTANT_TERM, dummy, dummy)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Insert boundary conditions:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       !1-8 boundary conditions:
-      call CompleteSet( KALK(BoxNumberXY), SET_CONTINUITY, FLAG, MASS, dummy, dummy)
+      call CompleteSet( KALK(BoxNumberXY_ben), SET_CONTINUITY, FLAG, MASS, dummy, dummy)
 
       !9th boundary condition:
-      call CompleteSet( KALK(BoxNumberXY), SET_BOUNDARY, LAYER1, &
-                                               EQUATION, ZERO, O3h_Ben(BoxNumberXY))
+      call CompleteSet( KALK(BoxNumberXY_ben), SET_BOUNDARY, LAYER1, &
+                                               EQUATION, ZERO, O3h_Ben(BoxNumberXY_ben))
 
       !10-11th boundary condition:
       select case  ( InitializeModel ) 
         case (0)
-          call CompleteSet( KALK(BoxNumberXY), SET_LAYER_INTEGRAL, &
-                                            LAYER2, LAYER3, dummy, G13h(BoxNumberXY))
-          call CompleteSet( KALK(BoxNumberXY), SET_LAYER_INTEGRAL_UNTIL, &
-                                         LAYER4, LAYER5, p_d_tot_2, G23h(BoxNumberXY))
+          call CompleteSet( KALK(BoxNumberXY_ben), SET_LAYER_INTEGRAL, &
+                                            LAYER2, LAYER3, dummy, G13h(BoxNumberXY_ben))
+          call CompleteSet( KALK(BoxNumberXY_ben), SET_LAYER_INTEGRAL_UNTIL, &
+                                         LAYER4, LAYER5, p_d_tot_2, G23h(BoxNumberXY_ben))
         case(1)
-          r  =   exp( - alpha*( Dx - D1m(BoxNumberXY)))
-          call FixProportionCoeff(KALK(BoxNumberXY),21,31,ONE,r)
-          r  =   exp( - alpha*( D2m(BoxNumberXY)-Dx) )
-          call FixProportionCoeff(KALK(BoxNumberXY),31,41,ONE,r)
+          r  =   exp( - alpha*( Dx - D1m(BoxNumberXY_ben)))
+          call FixProportionCoeff(KALK(BoxNumberXY_ben),21,31,ONE,r)
+          r  =   exp( - alpha*( D2m(BoxNumberXY_ben)-Dx) )
+          call FixProportionCoeff(KALK(BoxNumberXY_ben),31,41,ONE,r)
       end select
 
       !12th boundary condition:
-      r  =   exp( - alpha*( Dy- D2m(BoxNumberXY)))
-      call FixProportionCoeff(KALK(BoxNumberXY),41,51,ONE,r)
+      r  =   exp( - alpha*( Dy- D2m(BoxNumberXY_ben)))
+      call FixProportionCoeff(KALK(BoxNumberXY_ben),41,51,ONE,r)
 
       !13th boundary condition:
-      call CompleteSet( KALK(BoxNumberXY), INPUT_TERM, 21, PARAMETER, dummy, zuD1)
+      call CompleteSet( KALK(BoxNumberXY_ben), INPUT_TERM, 21, PARAMETER, dummy, zuD1)
 
-      r=-loss /D1m(BoxNUmberXY)/p_poro(BoxNumberXY)
-      call CompleteSet( KALK(BoxNumberXY), INPUT_TERM, 15, STANDARD, &
+      r=-loss /D1m(BoxNumberXY_ben)/p_poro(BoxNumberXY_ben)
+      call CompleteSet( KALK(BoxNumberXY_ben), INPUT_TERM, 15, STANDARD, &
              dummy, value=r/sG3)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -261,7 +261,7 @@
       !  the gradient calculated under 1.
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      cG3h = CalculateSet( KALK(BoxNumberXY), SET_LAYER_INTEGRAL, LAYER1, &
+      cG3h = CalculateSet( KALK(BoxNumberXY_ben), SET_LAYER_INTEGRAL, LAYER1, &
         LAYER1, dummy, ZERO)
 
       if ( InitializeModel== 0) then
@@ -269,7 +269,7 @@
         ! Calculate adaptation time absolute and Delta() relative to Tau:
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        Tau  =   CalculateTau(  sG3,  diff,  p_p,  D1m(BoxNumberXY))
+        Tau  =   CalculateTau(  sG3,  diff,  p_p,  D1m(BoxNumberXY_ben))
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! Estimate the average value of K4n during the next time step:
@@ -277,7 +277,7 @@
         ! ''old'' value, and on ''equilibrium value''
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        cG3h = cG3h+( G3h(BoxNumberXY)- cG3h)* IntegralExp( - LocalDelta/ &
+        cG3h = cG3h+( G3h(BoxNumberXY_ben)- cG3h)* IntegralExp( - LocalDelta/ &
           Tau, ONE)
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -286,72 +286,72 @@
         ! for G3h (cG3h)
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        dummy = CalculateSet( KALK(BoxNumberXY), ADD, 0, 0, dummy, cG3h)
+        dummy = CalculateSet( KALK(BoxNumberXY_ben), ADD, 0, 0, dummy, cG3h)
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! loss and gain terms
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-        jG3O3h = CalculateFromSet(KALK(BoxNumberXY),DERIVATIVE,RFLUX, ZERO, ZERO) 
-        s= sG3* CalculateFromSet( KALK(BoxNumberXY), INTEGRAL, &
-             RFLUX, ZERO, D1m(BoxNumberXY))
+        jG3O3h = CalculateFromSet(KALK(BoxNumberXY_ben),DERIVATIVE,RFLUX, ZERO, ZERO) 
+        s= sG3* CalculateFromSet( KALK(BoxNumberXY_ben), INTEGRAL, &
+             RFLUX, ZERO, D1m(BoxNumberXY_ben))
 
         r=-s-jG3O3h
 
-        call LimitChange(2,r,G3h(BoxNumberXY),p_max_state_change)
+        call LimitChange(2,r,G3h(BoxNumberXY_ben),p_max_state_change)
         r=-r/(s+jG3O3h)
-!       if ( loss+jG3o3h .gt.G3h(BoxNumberXY)) then
-!         write(LOGUNIT,*), '>>>',loss+jG3O3h,G3h(BoxNumberXY),r
+!       if ( loss+jG3o3h .gt.G3h(BoxNumberXY_ben)) then
+!         write(LOGUNIT,*), '>>>',loss+jG3O3h,G3h(BoxNumberXY_ben),r
 !       endif
         s=r*s;jG3O3h=jG3O3h*r;
-        call flux(BoxNumberXY, iiBen, ppG3h, ppG3h,  -s  )
-        call flux(BoxNumberXY, iiBen, ppG3h, ppG3h, -jG3O3h)
+        call flux(BoxNumberXY_ben, iiBen, ppG3h, ppG3h,  -s  )
+        call flux(BoxNumberXY_ben, iiBen, ppG3h, ppG3h, -jG3O3h)
         ! to keep a closed budget : all H+ wich cannot removed in the benthic will be removed to pelagic
-        jbotO3h(BoxNumberXY)=jbotO3h(BoxNumberXY)+jG3O3h+(loss-s) 
+        jbotO3h(BoxNumberXY_ben)=jbotO3h(BoxNumberXY_ben)+jG3O3h+(loss-s) 
 
-        r= zuD2 * IntegralExp( -alpha, p_d_tot- D2m(BoxNumberXY))
-        call flux(BoxNumberXY, iiBen, ppG13h, ppG13h,  p_qoh * rrATo(BoxNumberXY)-r)
-        call flux(BoxNumberXY, iiBen, ppG23h, ppG23h,  r)
+        r= zuD2 * IntegralExp( -alpha, p_d_tot- D2m(BoxNumberXY_ben))
+        call flux(BoxNumberXY_ben, iiBen, ppG13h, ppG13h,  p_qoh * rrATo(BoxNumberXY_ben)-r)
+        call flux(BoxNumberXY_ben, iiBen, ppG23h, ppG23h,  r)
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! flux at D1m
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        jG13G3h = CalculateFromSet( KALK(BoxNumberXY), DERIVATIVE, &
-          RFLUX, D1m(BoxNumberXY), dummy)
+        jG13G3h = CalculateFromSet( KALK(BoxNumberXY_ben), DERIVATIVE, &
+          RFLUX, D1m(BoxNumberXY_ben), dummy)
 
-        Dnew  =   D1m(BoxNumberXY)+ LocalDelta* shiftD1m(BoxNumberXY)
-        jG13G3h = jG13G3h+ CalculateFromSet( KALK(BoxNumberXY), SHIFT, &
-          LAYER1, D1m(BoxNumberXY), Dnew)/ LocalDelta
+        Dnew  =   D1m(BoxNumberXY_ben)+ LocalDelta* shiftD1m(BoxNumberXY_ben)
+        jG13G3h = jG13G3h+ CalculateFromSet( KALK(BoxNumberXY_ben), SHIFT, &
+          LAYER1, D1m(BoxNumberXY_ben), Dnew)/ LocalDelta
 
         ! Damp for too large fluxes
 
-        call LimitShift(jG13G3h,G3h(BoxNumberXY)-loss-jG3O3h,G13h(BoxNumberXY),p_max_shift_change)
-        call flux(BoxNumberXY, iiBen, ppG13h, ppG3h,   jG13G3h* insw(  jG13G3h) )
-        call flux(BoxNumberXY, iiBen, ppG3h, ppG13h, - jG13G3h* insw( -jG13G3h) )
+        call LimitShift(jG13G3h,G3h(BoxNumberXY_ben)-loss-jG3O3h,G13h(BoxNumberXY_ben),p_max_shift_change)
+        call flux(BoxNumberXY_ben, iiBen, ppG13h, ppG3h,   jG13G3h* insw(  jG13G3h) )
+        call flux(BoxNumberXY_ben, iiBen, ppG3h, ppG13h, - jG13G3h* insw( -jG13G3h) )
 
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         ! flux at D2m
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-        jG23G13h =  CalculateFromSet( KALK(BoxNumberXY), DERIVATIVE, RFLUX, &
-          D2m(BoxNumberXY), dummy)
+        jG23G13h =  CalculateFromSet( KALK(BoxNumberXY_ben), DERIVATIVE, RFLUX, &
+          D2m(BoxNumberXY_ben), dummy)
 
-        Dnew  =   D2m(BoxNumberXY)+ LocalDelta* shiftD2m(BoxNumberXY)
-        jG23G13h = jG23G13h+ CalculateFromSet( KALK(BoxNumberXY), SHIFT, &
-          LAYER3, D2m(BoxNumberXY), Dnew)/ LocalDelta
+        Dnew  =   D2m(BoxNumberXY_ben)+ LocalDelta* shiftD2m(BoxNumberXY_ben)
+        jG23G13h = jG23G13h+ CalculateFromSet( KALK(BoxNumberXY_ben), SHIFT, &
+          LAYER3, D2m(BoxNumberXY_ben), Dnew)/ LocalDelta
 
         ! Damp for too large fluxes
 
-        call LimitShift(jG23G13h,G13h(BoxNumberXY),G23h(BoxNumberXY),p_max_shift_change)
-        call flux(BoxNumberXY, iiBen, ppG23h, ppG13h,   jG23G13h* insw(  jG23G13h) )
-        call flux(BoxNumberXY, iiBen, ppG13h, ppG23h, - jG23G13h* insw( -jG23G13h) )
+        call LimitShift(jG23G13h,G13h(BoxNumberXY_ben),G23h(BoxNumberXY_ben),p_max_shift_change)
+        call flux(BoxNumberXY_ben, iiBen, ppG23h, ppG13h,   jG23G13h* insw(  jG23G13h) )
+        call flux(BoxNumberXY_ben, iiBen, ppG13h, ppG23h, - jG23G13h* insw( -jG23G13h) )
 
-        jG33G23h = CalculateFromSet( KALK(BoxNumberXY), DERIVATIVE, RFLUX, &
+        jG33G23h = CalculateFromSet( KALK(BoxNumberXY_ben), DERIVATIVE, RFLUX, &
           p_d_tot_2, dummy)
 
-        call LimitChange(1,jG33G23h,G23h(BoxNumberXY),p_max_state_change)
-        call flux(BoxNumberXY, iiBen, ppG23h, ppG23h, jG33G23h )
+        call LimitChange(1,jG33G23h,G23h(BoxNumberXY_ben),p_max_state_change)
+        call flux(BoxNumberXY_ben, iiBen, ppG23h, ppG23h, jG33G23h )
 
       end if
 

@@ -32,13 +32,13 @@
 
   use global_mem, ONLY:RLEN
 #ifdef NOPOINTERS
-  use mem,  ONLY: D2STATE
+  use mem,  ONLY: D2STATE_BEN
 #else
   use mem,  ONLY: Q6c, Q1c, Q6p, Q1p, K1p, Q6n, Q1n, K3n, K4n, Q6s, K5s
 #endif
   use mem, ONLY: ppQ6c, ppQ1c, ppQ6p, ppQ1p, ppK1p, ppQ6n, ppQ1n, &
     ppK3n, ppK4n, ppQ6s, ppK5s, jbotO2o, jbotN1p, jbotN3n, jbotN4n, jbotN5s, &
-    NO_BOXES_XY, iiBen, iiPel, flux_vector
+    NO_BOXES_XY_BEN, iiBen, iiPel, flux_vector
   use mem_BenthicReturn1
   use mem_Param, ONLY: CalcConservationFlag
 
@@ -81,7 +81,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY)  :: rate
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rate
 
   rate  =   p_reminQ6c* Q6c(:)
   call flux_vector( iiBen, ppQ6c,ppQ6c,-( rate) )

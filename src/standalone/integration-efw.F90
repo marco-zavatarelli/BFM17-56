@@ -26,10 +26,10 @@
 #endif
 
 #if defined INCLUDE_BEN
-   use mem,  ONLY: NO_D2_BOX_STATES,D2SOURCE,D2STATE,NO_BOXES_XY, &
-                   D2STATETYPE
+   use mem, ONLY: NO_D2_BOX_STATES_BEN, D2SOURCE_BEN, D2STATE_BEN, &
+        NO_BOXES_XY_BEN, D2STATETYPE_BEN
 #ifdef EXPLICIT_SINK
-   use mem,  ONLY: D2SINK
+   use mem, ONLY: D2SINK_BEN
 #endif
 #endif
    use standalone
@@ -54,6 +54,11 @@
    real(RLEN)                :: min2D_ice
    integer,dimension(2,2)    :: blccc_ice
 #endif
+#if defined INCLUDE_BEN
+   real(RLEN)                :: min2D_ben
+   integer,dimension(2,2)    :: blccc_ben
+#endif
+
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -65,7 +70,7 @@
    bbccc2D_ice=D2STATE_ICE
 #endif
 #if defined INCLUDE_BEN
-   bbccc2D=D2STATE
+   bbccc2D_ben=D2STATE_BEN
 #endif
    TLOOP : DO
    ! Integration step:
@@ -92,12 +97,12 @@
 #endif
 
 #if defined INCLUDE_BEN
-      DO j=1,NO_D2_BOX_STATES
-         IF (D2STATETYPE(j).ge.0) THEN
+      DO j=1,NO_D2_BOX_STATES_BEN
+         IF (D2STATETYPE_BEN(j).ge.0) THEN
 #ifndef EXPLICIT_SINK
-            D2STATE(j,:) = D2STATE(j,:) + delt*D2SOURCE(j,:)
+            D2STATE_BEN(j,:) = D2STATE_BEN(j,:) + delt*D2SOURCE_BEN(j,:)
 #else
-            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
+            D2STATE_BEN(j,:) = D2STATE_BEN(j,:) + delt*sum(D2SOURCE_BEN(j,:,:)-D2SINK_BEN(j,:,:),1)
 #endif
          END IF
       END DO
@@ -111,8 +116,8 @@
       min2D_ice=minval(D2STATE_ICE)
       min = ( min .OR. ( min2D_ice .lt. eps ) )
 #elif defined INCLUDE_BEN
-      min2D=minval(D2STATE)
-      min = ( min .OR. ( min2D .lt. eps ) )
+      min2D_ben=minval(D2STATE_BEN)
+      min = ( min .OR. ( min2D_ben .lt. eps ) )
 #endif
       IF ( min ) THEN ! cut timestep
          IF (nstep.eq.1) THEN
@@ -141,15 +146,15 @@
 #endif
 
 #if defined INCLUDE_BEN
-            blccc(:,2)=minloc(D2STATE)
+            blccc_ben(:,2)=minloc(D2STATE_BEN)
 #ifndef EXPLICIT_SINK
-            bbccc2D = D2SOURCE(:,:)
+            bbccc2D_ben = D2SOURCE_BEN(:,:)
 #else
-            bbccc2D = sum(D2SOURCE(:,:,:)-D2SINK(:,:,:),2)
+            bbccc2D_ben = sum(D2SOURCE_BEN(:,:,:)-D2SINK_BEN(:,:,:),2)
 #endif
-            LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc(1,2)-1))
-            LEVEL1 'Value: ',D2STATE(blccc(1,2),blccc(2,2)),' Rate: ', &
-                           bbccc2D(blccc(1,2),blccc(2,2))
+            LEVEL1 'Benthic Variable:',trim(var_names(stBenState2dS+blccc_ben(1,2)-1))
+            LEVEL1 'Value: ',D2STATE_BEN(blccc_ben(1,2),blccc_ben(2,2)),' Rate: ', &
+                           bbccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
             LEVEL1 'EXIT at  time ',timesec
 #endif
             STOP 'integration-efw'
@@ -161,7 +166,7 @@
          D2STATE_ICE=bbccc2D_ice
 #endif
 #if defined INCLUDE_BEN
-         D2STATE=bbccc2D
+         D2STATE_BEN=bbccc2D_ben
 #endif
          dtm1=delt
          delt=nstep*mindelt

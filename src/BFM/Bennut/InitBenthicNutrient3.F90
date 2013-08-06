@@ -35,8 +35,7 @@
   use mem,  ONLY: KNH4,KNO3,KRED,KPO4,KSIO3
   use mem,  ONLY: ppD1m,ppG2o, ppD2m,reBTn, reBTp, reATn, reATp,ppG3c,rrATo,rrBTo
   use mem,  ONLY: jbotO2o,rrBTo,jG2K3o,jG2K7o,shiftD1m,shiftD2m,ETW_Ben
-  use mem,  ONLY:    NO_BOXES_XY, NO_BOXES_XY, &
-                     BoxNumberXY, ERHO_Ben
+  use mem,  ONLY:    NO_BOXES_XY_BEN, BoxNumberXY_ben, ERHO_Ben
 #ifdef INCLUDE_BENCO2
   use mem,  ONLY:KCO2,G3c,G13c,G23c,KALK,G3h,G13h,G23h,O3h_Ben
 #endif
@@ -87,7 +86,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    real(RLEN)           :: cD2m, HT_0,alpha,HTc,HTn,HTp,chM5s
-   real(RLEN),dimension(NO_BOXES_XY)  :: r
+   real(RLEN),dimension(NO_BOXES_XY_BEN)  :: r
    integer              :: i,nn
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -102,51 +101,51 @@
 
   nn=max(10,p_N)
   LocalDelta  =   ONE/real(nn)
-  BoxNumberXY=1
+  BoxNumberXY_ben=1
 
   ! Initial calculation only to gete a reasonable value for D1m and D2m
 
-  G2o(BoxNumberXY)=ZERO
-  jG2K3o(BoxNumberXY)=ZERO
-  jG2K7o(BoxNumberXY)=ZERO
+  G2o(BoxNumberXY_ben)=ZERO
+  jG2K3o(BoxNumberXY_ben)=ZERO
+  jG2K7o(BoxNumberXY_ben)=ZERO
   
-  D1m(BoxNumberXY)=0.05_RLEN
-  D2m(BoxNumberXY)=0.07_RLEN
-  alpha=ONE/(p_small+D6m(BoxNumberXY));
-  HTc = (H1c(BoxNumberXY)+H2c(BoxNumberXY)) 
-  HTn = (H1n(BoxNumberXY)+H2n(BoxNumberXY)) 
-  HTp = (H1p(BoxNumberXY)+H2p(BoxNumberXY)) 
-  Q11c(BoxNumberXY)=0.1_RLEN * Q1c(BoxNumberXY)
-  Q11n(BoxNumberXY)=0.1_RLEN * Q1n(BoxNumberXY)
-  Q11p(BoxNumberXY)=0.1_RLEN * Q1p(BoxNumberXY)
+  D1m(BoxNumberXY_ben)=0.05_RLEN
+  D2m(BoxNumberXY_ben)=0.07_RLEN
+  alpha=ONE/(p_small+D6m(BoxNumberXY_ben));
+  HTc = (H1c(BoxNumberXY_ben)+H2c(BoxNumberXY_ben)) 
+  HTn = (H1n(BoxNumberXY_ben)+H2n(BoxNumberXY_ben)) 
+  HTp = (H1p(BoxNumberXY_ben)+H2p(BoxNumberXY_ben)) 
+  Q11c(BoxNumberXY_ben)=0.1_RLEN * Q1c(BoxNumberXY_ben)
+  Q11n(BoxNumberXY_ben)=0.1_RLEN * Q1n(BoxNumberXY_ben)
+  Q11p(BoxNumberXY_ben)=0.1_RLEN * Q1p(BoxNumberXY_ben)
   
   do i=1,p_N
     HT_0 = HTc / IntegralExp( - alpha,p_d_tot )
-    H1c(BoxNumberXY)=HT_0*IntegralExp(-alpha,D1m(BoxNumberXY))
-    H2c(BoxNumberXY)= HTc-H1c(BoxNUmberXY)
+    H1c(BoxNumberXY_ben)=HT_0*IntegralExp(-alpha,D1m(BoxNumberXY_ben))
+    H2c(BoxNumberXY_ben)= HTc-H1c(BoxNumberXY_ben)
     HT_0 = HTn / IntegralExp( - alpha,p_d_tot )
-    H1n(BoxNumberXY)=HT_0*IntegralExp(-alpha,D1m(BoxNumberXY))
-    H2n(BoxNumberXY)= HTn-H1n(BoxNUmberXY)
+    H1n(BoxNumberXY_ben)=HT_0*IntegralExp(-alpha,D1m(BoxNumberXY_ben))
+    H2n(BoxNumberXY_ben)= HTn-H1n(BoxNumberXY_ben)
     HT_0 = HTp / IntegralExp( - alpha,p_d_tot )
-    H1p(BoxNumberXY)=HT_0*IntegralExp(-alpha,D1m(BoxNumberXY))
-    H2p(BoxNumberXY)= HTp-H1p(BoxNUmberXY)
+    H1p(BoxNumberXY_ben)=HT_0*IntegralExp(-alpha,D1m(BoxNumberXY_ben))
+    H2p(BoxNumberXY_ben)= HTp-H1p(BoxNumberXY_ben)
 
     call BenthicSystemDynamics
 
     call BenOxygenDynamics
 
-    D1m(BoxNumberXY)=D1m(BoxNumberXY) + ShiftD1m(BoxNumberXY) * LocalDelta
-    D1m(BoxNumberXY)=min(D1m(BoxNumberXY), p_d_tot-2.0_RLEN * p_clD1D2m)
+    D1m(BoxNumberXY_ben)=D1m(BoxNumberXY_ben) + ShiftD1m(BoxNumberXY_ben) * LocalDelta
+    D1m(BoxNumberXY_ben)=min(D1m(BoxNumberXY_ben), p_d_tot-2.0_RLEN * p_clD1D2m)
 
 
     if ( i== 1 )  then
-       r  =   p_d_tot- D1m(BoxNumberXY)
-       D2m(BoxNumberXY)=D1m(BoxNumberXY)+p_clD1D2m
+       r  =   p_d_tot- D1m(BoxNumberXY_ben)
+       D2m(BoxNumberXY_ben)=D1m(BoxNumberXY_ben)+p_clD1D2m
     else
        call BenDenitriDepthDynamics
 
-       D2m(BoxNumberXY)=D2m(BoxNumberXY) + ShiftD2m(BoxNumberXY)* LocalDelta
-       D2m(BoxNumberXY)=min( max( D1m(BoxNumberXY)+p_clD1D2m, D2m(BoxNumberXY) ), &
+       D2m(BoxNumberXY_ben)=D2m(BoxNumberXY_ben) + ShiftD2m(BoxNumberXY_ben)* LocalDelta
+       D2m(BoxNumberXY_ben)=min( max( D1m(BoxNumberXY_ben)+p_clD1D2m, D2m(BoxNumberXY_ben) ), &
                      p_d_tot-p_clD1D2m)
     endif
 
@@ -160,34 +159,34 @@
 
     call flux(1,iiReset,1,1,0.0)
 
-    if ( reAtn(1) .le. ZERO .or. reATp(BoxNumberXY).le.0.0) then
-       H1c(BoxNumberXY)=0.5_RLEN*H1c(BoxNumberXY)
-       H2c(BoxNumberXY)=0.5_RLEN*H2c(BoxNumberXY)
+    if ( reAtn(1) .le. ZERO .or. reATp(BoxNumberXY_ben).le.0.0) then
+       H1c(BoxNumberXY_ben)=0.5_RLEN*H1c(BoxNumberXY_ben)
+       H2c(BoxNumberXY_ben)=0.5_RLEN*H2c(BoxNumberXY_ben)
        HTc=0.5_RLEN*HTc
-       H1n(BoxNumberXY)=0.5_RLEN*H1n(BoxNumberXY)
-       H2n(BoxNumberXY)=0.5_RLEN*H2n(BoxNumberXY)
+       H1n(BoxNumberXY_ben)=0.5_RLEN*H1n(BoxNumberXY_ben)
+       H2n(BoxNumberXY_ben)=0.5_RLEN*H2n(BoxNumberXY_ben)
        HTn=0.5_RLEN*HTn
-       H1p(BoxNumberXY)=0.5_RLEN*H1p(BoxNumberXY)
-       H2p(BoxNumberXY)=0.5_RLEN*H2p(BoxNumberXY)
+       H1p(BoxNumberXY_ben)=0.5_RLEN*H1p(BoxNumberXY_ben)
+       H2p(BoxNumberXY_ben)=0.5_RLEN*H2p(BoxNumberXY_ben)
        HTp=0.5_RLEN*HTp
     endif
   enddo
 
-  do BoxNumberXY=1,NO_BOXES_XY
-        K4n(BoxNumberXY) =max(p_small,CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, MASS, &
-                                                ZERO, D1m(BoxNumberXY)))
-        K14n(BoxNumberXY)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, MASS, &
-                                       D1m(BoxNumberXY),D2m(BoxNumberXY)))
-        K24n(BoxNumberXY)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY), INTEGRAL, MASS, &
-                                       D2m(BoxNumberXY),p_d_tot_2))
-        K3n(BoxNumberXY) =max(p_small,CalculateFromSet( KNO3(BoxNumberXY), INTEGRAL, MASS, &
-                                                ZERO, D2m(BoxNumberXY)))
-        K6r(BoxNumberXY)=max(p_small,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
-                                       ZERO,D1m(BoxNumberXY)))
-        K16r(BoxNumberXY)=max(0.1_RLEN,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
-                                       D1m(BoxNumberXY),D2m(BoxNUmberXY)))
-        K26r(BoxNumberXY)=max(0.1_RLEN,CalculateFromSet( KRED(BoxNumberXY), INTEGRAL, MASS, &
-                                       D2m(BoxNumberXY),p_d_tot_2))
+  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+        K4n(BoxNumberXY_ben) =max(p_small,CalculateFromSet( KNH4(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                                ZERO, D1m(BoxNumberXY_ben)))
+        K14n(BoxNumberXY_ben)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D1m(BoxNumberXY_ben),D2m(BoxNumberXY_ben)))
+        K24n(BoxNumberXY_ben)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D2m(BoxNumberXY_ben),p_d_tot_2))
+        K3n(BoxNumberXY_ben) =max(p_small,CalculateFromSet( KNO3(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                                ZERO, D2m(BoxNumberXY_ben)))
+        K6r(BoxNumberXY_ben)=max(p_small,CalculateFromSet( KRED(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       ZERO,D1m(BoxNumberXY_ben)))
+        K16r(BoxNumberXY_ben)=max(0.1_RLEN,CalculateFromSet( KRED(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D1m(BoxNumberXY_ben),D2m(BoxNumberXY_ben)))
+        K26r(BoxNumberXY_ben)=max(0.1_RLEN,CalculateFromSet( KRED(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D2m(BoxNumberXY_ben),p_d_tot_2))
   enddo
 
   call BenPhosphateDynamics
@@ -197,32 +196,32 @@
   call BenQ1TransportDynamics
 
 
-  do BoxNumberXY=1,NO_BOXES_XY
-      K1p(BoxNumberXY) =CalculateFromSet( KPO4(BoxNumberXY), INTEGRAL, MASS, &
-                                              ZERO, D1m(BoxNumberXY))
-      K11p(BoxNumberXY)=CalculateFromSet( KPO4(BoxNumberXY), INTEGRAL, MASS, &
-                                       D1m(BoxNumberXY),D2m(BoxNumberXY))
-      K21p(BoxNumberXY)=CalculateFromSet( KPO4(BoxNumberXY), INTEGRAL, MASS, &
-                                       D2m(BoxNumberXY),p_d_tot_2)
+  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+      K1p(BoxNumberXY_ben) =CalculateFromSet( KPO4(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                              ZERO, D1m(BoxNumberXY_ben))
+      K11p(BoxNumberXY_ben)=CalculateFromSet( KPO4(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D1m(BoxNumberXY_ben),D2m(BoxNumberXY_ben))
+      K21p(BoxNumberXY_ben)=CalculateFromSet( KPO4(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D2m(BoxNumberXY_ben),p_d_tot_2)
   enddo
 
 #ifdef INCLUDE_BENCO2
       call BenCO2TransportDynamics
       call BenAlkalinityDynamics
-      do BoxNumberXY=1,NO_BOXES_XY
-            G3c(BoxNumberXY) =CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &
-                                              ZERO, D1m(BoxNumberXY))
-            G13c(BoxNumberXY)=CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &
-                                       D1m(BoxNumberXY),D2m(boxNUmberXY))
-            G23c(BoxNumberXY)=CalculateFromSet( KCO2(BoxNumberXY), INTEGRAL, MASS, &
-                                       D2m(BoxNumberXY),p_d_tot)
+      do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+            G3c(BoxNumberXY_ben) =CalculateFromSet( KCO2(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                              ZERO, D1m(BoxNumberXY_ben))
+            G13c(BoxNumberXY_ben)=CalculateFromSet( KCO2(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D1m(BoxNumberXY_ben),D2m(BoxNumberXY_ben))
+            G23c(BoxNumberXY_ben)=CalculateFromSet( KCO2(BoxNumberXY_ben), INTEGRAL, MASS, &
+                                       D2m(BoxNumberXY_ben),p_d_tot)
             ! convert alkalinity from pelagic units (umol/kg) to sediment units (mmol/m2)
-            G3h(BoxNumberXY)=O3h_Ben(BoxNumberXY)*D1m(BoxNumberXY) &
-                             *p_poro(BoxNumberXY)*ERHO_Ben(BoxNumberXY)/1000._RLEN
-            G13h(BoxNumberXY)=O3h_Ben(BoxNumberXY)*(D2m(BoxNumberXY)-D1m(BoxNumberXY)) &
-                              *p_poro(BoxNumberXY)*ERHO_Ben(BoxNumberXY)/1000._RLEN
-            G23h(BoxNumberXY)=O3h_Ben(BoxNumberXY)*(p_d_tot_2-D2m(BoxNumberXY)) &
-                              *p_poro(BoxNumberXY)*ERHO_Ben(BoxNumberXY)/1000._RLEN
+            G3h(BoxNumberXY_ben)=O3h_Ben(BoxNumberXY_ben)*D1m(BoxNumberXY_ben) &
+                             *p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
+            G13h(BoxNumberXY_ben)=O3h_Ben(BoxNumberXY_ben)*(D2m(BoxNumberXY_ben)-D1m(BoxNumberXY_ben)) &
+                              *p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
+            G23h(BoxNumberXY_ben)=O3h_Ben(BoxNumberXY_ben)*(p_d_tot_2-D2m(BoxNumberXY_ben)) &
+                              *p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
       enddo
 #endif
   end subroutine InitBenthicNutrient3Dynamics

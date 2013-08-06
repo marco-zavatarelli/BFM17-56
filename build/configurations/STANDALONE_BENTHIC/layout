@@ -152,7 +152,7 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       Benthic variables
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-2d-state -if-exist INCLUDE_BEN
+2d-state-ben -if-exist INCLUDE_BEN
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Benthic State Vars
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -208,7 +208,7 @@ end
     D9m       : Penetration Depth organic Si  :m
 end
 
-2d-variable -if-exist INCLUDE_BEN
+2d-variable-ben -if-exist INCLUDE_BEN
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables to check totmass of C N P Si in benthic
@@ -260,7 +260,7 @@ end
 
 end
 
-2d-intvar -if-exist INCLUDE_BEN
+2d-intvar-ben -if-exist INCLUDE_BEN
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Profile sequence numbers needed in benthic nutrient model
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -274,7 +274,7 @@ end
       KQ1
 end
 
-2d-variable -if-exist INCLUDE_BEN
+2d-variable-ben -if-exist INCLUDE_BEN
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables for  exchange of info between Pelagic and benthic on
@@ -319,7 +319,7 @@ end
 
 end
 
-3d-variable -if-exist INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
+3d-variable-ben -if-exist INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
     PrM1p : PO4--- in sediment: mmol/m3 pw
     Pr2M1p : PO4--- in sediment: mmol/m3 pw
     PrM3n : NO3- in sediment: mmol/m3 pw
@@ -332,13 +332,13 @@ end
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    #       Benthic carbonate system
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-3d-variable -if-exist INCLUDE_BENCO2 INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
+3d-variable-ben -if-exist INCLUDE_BENCO2 INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
     PrDIC : DIC in sediment: mgC/m3 pw
     PrAc : Alkalinity in sediment: mmol/m3 pw
     PrpH : Ph in sediment: -
 end
 
-2d-state  -if-exist INCLUDE_BENCO2
+2d-state-ben  -if-exist INCLUDE_BENCO2
     group BenthicCO2[ch] (BNC) :mgC/m2:mmol eq/m2
           G3  : TCO2 in aerobic layer  : alkalinity in aerobic layer
           G13 : TCO2 in denitrification layer: alkalinity in denitrification layer
@@ -346,7 +346,7 @@ end
     end
 end
 
-2d-variable -if-exist INCLUDE_BENCO2
+2d-variable-ben -if-exist INCLUDE_BENCO2
       DICae :DIC in aerobic sediment (pore-waters): umol/kg
       DICan :concentration in anaerobic sediment (pore-waters): umol/kg
       O3c_Ben    : DIC at the pelagic-benthic interface :mg C/m3
@@ -359,7 +359,7 @@ end
       pCO2an : CO2 partial pressure in anaerobic layer : uatm
 end
 
-2d-intvar -if-exist INCLUDE_BENCO2
+2d-intvar-ben -if-exist INCLUDE_BENCO2
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Profile sequence numbers needed in benthic model
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -448,13 +448,13 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-3d-flux -if-exist INCLUDE_DIAG3D INCLUDE_PELCO2
+3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
   ruPTc=P.c <- O3c : Gross Primary Production     : mg C/m3/d
   resPP=P.c -> O3c : Respiration of phytoplankton : mg C/m3/d
   resZT=(Z.c->O3c) : Respiration of zooplankton   : mg C/m3/d
 end
 
-3d-flux -if-exist INCLUDE_DIAG3D
+3d-flux -if-exist INCLUDE_DIAG
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
   exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d

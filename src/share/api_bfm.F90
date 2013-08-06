@@ -68,12 +68,16 @@
 #if defined INCLUDE_SEAICE
    real(RLEN),allocatable,dimension(:,:)   :: D2ave_ice
 #endif
+#if defined INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:,:)   :: D2ave_ben
+#endif
    character(len=64), dimension(:), allocatable :: var_names
    character(len=64), dimension(:), allocatable :: var_units
    character(len=64), dimension(:), allocatable :: var_long
    !---------------------------------------------
    ! Indices of the various output variables
    !---------------------------------------------
+
    integer,public                            :: stStart=0
    integer,public                            :: stEnd=0
 
@@ -86,9 +90,6 @@
    integer,public                            :: stPelSurS=0
    integer,public                            :: stPelBotS=0
    integer,public                            :: stPelRivS=0
-!   integer,public                            :: stBenStateS=0
-!   integer,public                            :: stBenDiagS=0
-!   integer,public                            :: stBenFluxS=0
 
    integer,public                            :: stPelStateE=0
    integer,public                            :: stPelDiagE=0
@@ -99,9 +100,9 @@
    integer,public                            :: stPelSurE=0
    integer,public                            :: stPelBotE=0
    integer,public                            :: stPelRivE=0
-!   integer,public                            :: stBenStateE=0
-!   integer,public                            :: stBenDiagE=0
-!   integer,public                            :: stBenFluxE=0
+
+   integer,public                            :: stPelStart=0
+   integer,public                            :: stPelEnd=0
 
 #if defined INCLUDE_SEAICE
    integer,public                            :: stIceState2dS=0
@@ -111,6 +112,23 @@
    integer,public                            :: stIceState2dE=0
    integer,public                            :: stIceDiag2dE=0
    integer,public                            :: stIceFlux2dE=0
+
+   integer,public                            :: stIceStart=0
+   integer,public                            :: stIceEnd=0
+
+#endif
+
+#if defined INCLUDE_BEN
+   integer,public                            :: stBenState2dS=0
+   integer,public                            :: stBenDiag2dS=0
+   integer,public                            :: stBenFlux2dS=0
+
+   integer,public                            :: stBenState2dE=0
+   integer,public                            :: stBenDiag2dE=0
+   integer,public                            :: stBenFlux2dE=0
+
+   integer,public                            :: stBenStart=0
+   integer,public                            :: stBenEnd=0
 
 #endif
 
@@ -164,6 +182,10 @@
 #ifdef INCLUDE_SEAICE
    real(RLEN),allocatable,dimension(:),public  :: D2STATE_ICE_tot
 #endif
+#ifdef INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:),public  :: D2STATE_BEN_tot
+#endif
+
 
 #ifdef BFM_NEMO
    !---------------------------------------------
@@ -189,6 +211,9 @@
    real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
 #if defined INCLUDE_SEAICE
    real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_ICE
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_BEN
 #endif
 
    !---------------------------------------------
@@ -230,6 +255,9 @@
    real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
 #if defined INCLUDE_SEAICE
    real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_ICE
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_BEN
 #endif
 
 
@@ -286,6 +314,14 @@ contains
                   NO_BOXES_ICE, NO_BOXES_X_ICE, &
                   NO_BOXES_Y_ICE, NO_STATES_ICE, &
                   NO_BOXES_XY_ICE
+#endif
+#if defined INCLUDE_BEN
+   use mem, only: NO_D2_BOX_STATES_BEN,  &
+                  NO_D2_BOX_DIAGNOSS_BEN, &
+                  NO_D2_BOX_FLUX_BEN, &
+                  NO_BOXES_BEN, NO_BOXES_X_BEN, &
+                  NO_BOXES_Y_BEN, NO_STATES_BEN, &
+                  NO_BOXES_XY_BEN
 #endif
 
    use global_mem, only: LOGUNIT
@@ -391,11 +427,6 @@ contains
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
    LEVEL3 "Output frequency every ",out_delta,"time-steps"
 
-#ifndef INCLUDE_BEN
-   ! force bio_setup = 1 when benthic memory is disabled with macro
-   bio_setup=1
-#endif
-
    select case (bio_setup)
       case (0)
       case (1) ! Pelagic only
@@ -406,15 +437,15 @@ contains
 #ifdef INCLUDE_BEN
       case (2) ! Benthic only
         LEVEL2 "Using a Benthic-only setup (bio_setup=2)"
-        LEVEL3 'benthic variables =',NO_D2_BOX_STATES
-        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS
+        LEVEL3 'benthic variables =',NO_D2_BOX_STATES_BEN
+        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS_BEN
       case (3) ! Pelagic-Benthic coupling
         LEVEL2 "Using a Pelagic-Benthic coupled setup (bio_setup=3)"
         LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
         LEVEL3 'pelagic transported variables ='
         LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
-        LEVEL3 'benthic variables =',NO_D2_BOX_STATES
-        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS
+        LEVEL3 'benthic variables =',NO_D2_BOX_STATES_BEN
+        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS_BEN
 #endif
 #ifdef INCLUDE_SEAICE
       case (4) ! SeaIce only
@@ -446,6 +477,14 @@ contains
    LEVEL3 'NO_BOXES_XY_ICE=',NO_BOXES_XY_ICE
    LEVEL3 'NO_STATES_ICE=',NO_STATES_ICE
 #endif
+#ifdef INCLUDE_BEN
+   LEVEL2 'Dimensional informations:'
+   LEVEL3 'NO_BOXES_X_BEN=',NO_BOXES_X_BEN
+   LEVEL3 'NO_BOXES_Y_BEN=',NO_BOXES_Y_BEN
+   LEVEL3 'NO_BOXES_BEN=',NO_BOXES_BEN
+   LEVEL3 'NO_BOXES_XY_BEN=',NO_BOXES_XY_BEN
+   LEVEL3 'NO_STATES_BEN=',NO_STATES_BEN
+#endif
    LEVEL3 'Step 1 of BFM initialisation done ...'
    ! dimension lengths used in the netcdf output
    lon_len = NO_BOXES_X
@@ -464,6 +503,9 @@ contains
         NO_D2_BOX_DIAGNOSS
 #ifdef INCLUDE_SEAICE
    n = n + NO_D2_BOX_STATES_ICE + NO_D2_BOX_FLUX_ICE + NO_D2_BOX_DIAGNOSS_ICE
+#endif
+#ifdef INCLUDE_BEN
+   n = n + NO_D2_BOX_STATES_BEN + NO_D2_BOX_FLUX_BEN + NO_D2_BOX_DIAGNOSS_BEN
 #endif
 
    allocate(var_ids(1:n),stat=rc)

@@ -21,12 +21,12 @@
 #  BFM_STANDALONE   : mandatory when using the STANDALONE model
 #  INCLUDE_PELFE    : add Iron component to the pelagic system
 #  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics 
-#  INCLUDE_DIAG3D   : activate flux diagnostics defined in .mem file
+#  INCLUDE_DIAG     : activate flux diagnostics defined in .mem file
 #  EXPLICIT_SINK    : use of D3SOURCE and D3SINK
 
 &BFM_conf
         MODE    = 'STANDALONE',
-        CPPDEFS = 'BFM_STANDALONE INCLUDE_BEN INCLUDE_BENCO2 INCLUDE_PELCO2 INCLUDE_DIAG3D',
+        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG INCLUDE_BEN INCLUDE_BENCO2',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
         NETCDF  = '/usr/local/',

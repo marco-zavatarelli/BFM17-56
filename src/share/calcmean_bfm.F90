@@ -16,15 +16,16 @@
 ! !USES:
    use api_bfm
    use mem, only: D3STATE,D3DIAGNOS,D2DIAGNOS
-#if defined INCLUDE_BEN
-   use mem, only: D2STATE
-#endif
 
    use mem, only: NO_BOXES,NO_BOXES_XY
 
 #if defined INCLUDE_SEAICE
    use mem, only: D2STATE_ICE,D2DIAGNOS_ICE,D2FLUX_FUNC_ICE, &
         NO_BOXES_XY_ICE
+#endif
+#if defined INCLUDE_BEN
+   use mem, only: D2STATE_BEN,D2DIAGNOS_BEN,D2FLUX_FUNC_BEN, &
+        NO_BOXES_XY_BEN
 #endif
 
    implicit none
@@ -45,6 +46,9 @@
 #ifdef INCLUDE_SEAICE
     logical,save                ::do_2ave_ice
 #endif
+#ifdef INCLUDE_BEN
+    logical,save                ::do_2ave_ben
+#endif
 
 !EOP
 !-----------------------------------------------------------------------
@@ -55,7 +59,7 @@
 
    select case (mode)
       case(INIT)   ! initialization
-         i=count(var_ave(stStart:stPelFluxE))
+         i=count(var_ave(stPelStart:stPelFluxE))
          if ( i > 0 ) then
             allocate(D3ave(1:i,1:NO_BOXES),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D3ave'
@@ -64,7 +68,7 @@
          else
             do_3ave = .false.
          endif
-         i=count(var_ave(stPelDiag2dS:stPelRivE))
+         i=count(var_ave(stPelDiag2dS:stPelEnd))
          if ( i > 0 ) then
             allocate(D2ave(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D2ave'
@@ -74,7 +78,7 @@
             do_2ave = .false.
          end if
 #if defined INCLUDE_SEAICE
-         i=count(var_ave(stIceState2dS:stIceFlux2dE))
+         i=count(var_ave(stIceStart:stIceEnd))
          if ( i > 0 ) then
             allocate(D2ave_ice(1:i,1:NO_BOXES_XY_ICE),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D2ave_ice'
@@ -82,6 +86,17 @@
             do_2ave_ice = .true.
          else
             do_2ave_ice = .false.
+         end if
+#endif
+#if defined INCLUDE_BEN
+         i=count(var_ave(stBenStart:stBenEnd))
+         if ( i > 0 ) then
+            allocate(D2ave_ben(1:i,1:NO_BOXES_XY_BEN),stat=rc)
+            if (rc /= 0) stop 'init_bio(): Error allocating D2ave_ben'
+            D2ave_ben=0.0
+            do_2ave_ben = .true.
+         else
+            do_2ave_ben = .false.
          end if
 #endif
          ave_count=0.0
@@ -95,6 +110,9 @@
 #ifdef INCLUDE_SEAICE
          if (do_2ave_ice) D2ave_ice=D2ave_ice/ave_count
 #endif
+#ifdef INCLUDE_BEN
+         if (do_2ave_ben) D2ave_ben=D2ave_ben/ave_count
+#endif
          ave_count=0.0
 
       case(ACCUMULATE)   ! Start of new time-step
@@ -102,7 +120,7 @@
          !---------------------------------------------
          ! Compute 3D pelagic means
          !---------------------------------------------
-         if (stPelStateE /= 0 .and. do_3ave ) then
+         if (stPelEnd /= 0 .and. do_3ave ) then
             k=0
 
             j=0
@@ -178,7 +196,7 @@
 
          end if
 #if defined INCLUDE_SEAICE
-         if (stIceState2dE /= 0 .and. do_2ave_ice) then
+         if (stIceEnd /= 0 .and. do_2ave_ice) then
             !---------------------------------------------
             ! Compute Seaice 2D means
             !---------------------------------------------
@@ -219,6 +237,53 @@
                      D2ave_ice(k,1)=D2FLUX_FUNC_ICE(j)
                   else
                      D2ave_ice(k,1)=D2ave_ice(k,1)+D2FLUX_FUNC_ICE(j)
+                  end if
+               end if
+            end do
+         end if
+#endif
+#if defined INCLUDE_BEN
+         if (stBenEnd /= 0 .and. do_2ave_ben) then
+            !---------------------------------------------
+            ! Compute Benthic 2D means
+            !---------------------------------------------
+            k=0
+
+            j=0
+            do i=stBenState2dS,stBenState2dE
+               j=j+1
+               if ( var_ave(i) ) then
+                  k=k+1
+                  if ( ave_count < 1.5 ) then
+                     D2ave_ben(k,:)=D2STATE_BEN(j,:)
+                  else
+                     D2ave_ben(k,:)=D2ave_ben(k,:)+D2STATE_BEN(j,:)
+                  end if
+               end if
+            end do
+
+            j=0
+            do i=stBenDiag2dS,stBenDiag2dE
+               j=j+1
+               if ( var_ave(i) ) then
+                  k=k+1
+                  if ( ave_count < 1.5 ) then
+                     D2ave_ben(k,:)=D2DIAGNOS_BEN(j,:)
+                  else
+                     D2ave_ben(k,:)=D2ave_ben(k,:)+D2DIAGNOS_BEN(j,:)
+                  end if
+               end if
+            end do
+
+            j=0
+            do i=stBenFlux2dS,stBenFlux2dE
+               j=j+1
+               if ( var_ave(i) ) then
+                  k=k+1
+                  if ( ave_count < 1.5 ) then
+                     D2ave_ben(k,1)=D2FLUX_FUNC_BEN(j)
+                  else
+                     D2ave_ben(k,1)=D2ave_ben(k,1)+D2FLUX_FUNC_BEN(j)
                   end if
                end if
             end do

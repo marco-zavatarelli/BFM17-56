@@ -28,8 +28,8 @@
 #ifdef NOPOINTERS
         use mem
 #else
-        USE mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX, NO_BOXES_X, &
-           BoxNumberY,NO_BOXES_Y,BoxNumber,BoxNumberXY, seddepth
+        USE mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX_ben, NO_BOXES_X_BEN, &
+           BoxNumberY_ben,NO_BOXES_Y_BEN,BoxNumber_ben,BoxNumberXY_ben, seddepth
         use mem,ONLY:PrDIC,PrAc,KHplus,KCO2,PrM1p,PrM5s,PrpH, &
            ESW_Ben,ETW_Ben,ERHO_Ben
 #endif
@@ -87,30 +87,30 @@
 
         s=0.0;
         DO BoxNumberZ= 1,NO_BOXES_Z
-          DO BoxNumberY=1,NO_BOXES_Y
-            DO BoxNumberX=1,NO_BOXES_X
-             BoxNumber=D3toD1(BoxNumberX,BoxNumberY,BoxNumberZ)
-             BoxNumberXY=D2toD1(BoxNumberX,BoxNumberY)
+          DO BoxNumberY_ben=1,NO_BOXES_Y_BEN
+            DO BoxNumberX_ben=1,NO_BOXES_X_BEN
+             BoxNumber_ben=D3toD1(BoxNumberX_ben,BoxNumberY_ben,BoxNumberZ)
+             BoxNumberXY_ben=D2toD1(BoxNumberX_ben,BoxNumberY_ben)
  
-             r=abs(seddepth(BoxNumber))
-             if (llDIC) PrDIC(BoxNumber)= CalculateFromSet &
-                  (KCO2(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)/12.0
-             if (llAc)  PrAc(BoxNumber)= CalculateFromSet&
-                  (KHplus(BoxNumberXY),INTEGRAL,STANDARD,s,r)/(r-s)+2225.0D+00
+             r=abs(seddepth(BoxNumber_ben))
+             if (llDIC) PrDIC(BoxNumber_ben)= CalculateFromSet &
+                  (KCO2(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)/12.0
+             if (llAc)  PrAc(BoxNumber_ben)= CalculateFromSet&
+                  (KHplus(BoxNumberXY_ben),INTEGRAL,STANDARD,s,r)/(r-s)+2225.0D+00
              if (llpH) then
-               error= CalcCO2System(MethodCalcCO2,ESW_Ben(BoxNumberXY), &
-                   ETW_Ben(BoxNumberXY),ERHO_Ben(BoxNumberXY),&
-                   PrM1p(BoxNumber),PrM5s(BoxNumber),PrAc(BoxNumber),&
-                   dumCO2,dumHCO3,dumCO3,PrpH(BoxNumber),&
-                   DIC_in=PrDIC(BoxNumber),pCO2_out=dumpCO2)
+               error= CalcCO2System(MethodCalcCO2,ESW_Ben(BoxNumberXY_ben), &
+                   ETW_Ben(BoxNumberXY_ben),ERHO_Ben(BoxNumberXY_ben),&
+                   PrM1p(BoxNumber_ben),PrM5s(BoxNumber_ben),PrAc(BoxNumber_ben),&
+                   dumCO2,dumHCO3,dumCO3,PrpH(BoxNumber_ben),&
+                   DIC_in=PrDIC(BoxNumber_ben),pCO2_out=dumpCO2)
                if ( error > 0 ) then
                   write(LOGUNIT,*)" Ph outside range"
-                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PrN1p',PrM1p(BoxNumber)
-                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PrN5s',PrM5s(BoxNumber)
-                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PrDIC',PrDIC(BoxNumber)
-                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PRAc',PrAc(BoxNumber)
+                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PrN1p',PrM1p(BoxNumber_ben)
+                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PrN5s',PrM5s(BoxNumber_ben)
+                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PrDIC',PrDIC(BoxNumber_ben)
+                  write(LOGUNIT,'(A,'' ='',G12.6)') 'PRAc',PrAc(BoxNumber_ben)
                   write(LOGUNIT,'(''layer:'',I4,'' pH='',G12.6)') &
-                           BoxNumberXY,PrpH(BoxNumber)
+                           BoxNumberXY_ben,PrpH(BoxNumber_ben)
                   call BFM_ERROR("BenCO2Profiles",&
                            "pH outside range 2-11")
                endif

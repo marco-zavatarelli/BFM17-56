@@ -198,22 +198,25 @@
   use constants
   use global_mem, ONLY: bfm_lwp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,        &
-    p_qon_nitri, p_clDxm,                                                     &
+  namelist /Param_parameters/ p_small, p_qro, p_qon_dentri,                   &
+    p_qon_nitri,                                                              &
     CalcPelagicFlag, CalcBenthicFlag,CalcSeaiceFlag, CalcTransportFlag,       &
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
     CalcPelChemistry,CalcMesoZooPlankton, CalcPelBacteria,                    &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
     p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,         &
-    p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,            &
-    p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
+    p_eps0, p_epsESS, p_sedlevels, p_sedsigma,                                &
+    p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,                                   &
+    p_epsR6, p_epsChla, check_fixed_quota
 #ifdef INCLUDE_BEN
-    CalcBenOrganisms,CalcBenBacteria,                                         & 
+  namelist /Param_parameters_ben/                                             &
+    CalcBenOrganisms,CalcBenBacteria,                                         &
+    p_poro0, p_InitSink, p_d_tot, p_d_tot_2, p_clD1D2m, p_clDxm, p_q10diff
 #endif
 #ifdef INCLUDE_SEAICE
-    CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
+  namelist /Param_parameters_ice/                                             &
+    CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria
 #endif
-    p_epsR6, p_epsChla, check_fixed_quota
    integer :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute
@@ -225,12 +228,24 @@
    LEVEL1 "#  Reading BFM parameters .."
    open(NMLUNIT,file='BFM_General.nml',status='old',action='read',err=100)
    read(NMLUNIT,nml=Param_parameters,err=101)
+#ifdef INCLUDE_BEN
+   read(NMLUNIT,nml=Param_parameters_ben,err=102)
+#endif
+#ifdef INCLUDE_ICE
+   read(NMLUNIT,nml=Param_parameters_ice,err=103)
+#endif
    close(NMLUNIT)
    if (bfm_lwp) then 
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"      
     write(LOGUNIT,*) "#  Reading Param parameters.. "
     write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=Param_parameters)
+#ifdef INCLUDE_BEN
+    write(LOGUNIT,nml=Param_parameters_ben)
+#endif
+#ifdef INCLUDE_ICE
+    write(LOGUNIT,nml=Param_parameters_ice)
+#endif
    endif 
    ! These initializations are done here because some compilers do not
    ! allow the initialization of constants with intrinsic functions
@@ -246,6 +261,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 100 call error_msg_prn(NML_OPEN,"InitParam.f90","BFM_General.nml")
 101 call error_msg_prn(NML_READ,"InitParam.f90","Param_parameters")
+102 call error_msg_prn(NML_READ,"InitParam.f90","Param_parameters_ben")
+103 call error_msg_prn(NML_READ,"InitParam.f90","Param_parameters_ice")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitParam
 

@@ -34,11 +34,11 @@
     jbotR6p, jbotR6s, jPIY3c, jZIY3c, jRIY3c, jRIY3n, jRIY3p, jRIY3s, ETW_Ben, &
     iiPhytoPlankton, PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPPY_Ben, sediR6_Ben, & 
     ZI_Fc, RI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, RI_Fs, ppG3c, &
-    NO_BOXES_XY, Depth_ben, iiBen, iiPel, flux_vector, jbotO2o,jbotN1p,jbotN4n
+    NO_BOXES_XY_BEN, Depth_ben, iiBen, iiPel, flux_vector, jbotO2o,jbotN1p,jbotN4n
 #ifdef INCLUDE_BENCO2
   use mem, ONLY: jbotO3c
 #endif
- use mem,  ONLY: Source_D2_vector
+ use mem,  ONLY: Source_D2_vector_ben
 #endif
   use mem_Param,  ONLY: p_d_tot,p_pe_R1c, p_pe_R1n, p_pe_R1p,p_small
   use mem_FilterFeeder
@@ -86,81 +86,81 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
   real(RLEN) :: clu
-  real(RLEN),dimension(NO_BOXES_XY)  :: corr
-  real(RLEN),dimension(NO_BOXES_XY)  :: fdepth
-  real(RLEN),dimension(NO_BOXES_XY)  :: clm
-  real(RLEN),dimension(NO_BOXES_XY)  :: cmm
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: eO
-  real(RLEN),dimension(NO_BOXES_XY)  :: eNC
-  real(RLEN),dimension(NO_BOXES_XY)  :: ePC
-  real(RLEN),dimension(NO_BOXES_XY)  :: foodpm2
-  real(RLEN),dimension(NO_BOXES_XY)  :: food
-  real(RLEN),dimension(iiPhytoPlankton,NO_BOXES_XY)  :: food_PIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: food_PT
-  real(RLEN),dimension(NO_BOXES_XY)  :: food_ZI
-  real(RLEN),dimension(NO_BOXES_XY)  :: food_RI
-  real(RLEN),dimension(NO_BOXES_XY)  :: food_Q6
-  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_c
-  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_n
-  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_p
-  real(RLEN),dimension(NO_BOXES_XY)  :: eF
-  real(RLEN),dimension(NO_BOXES_XY)  :: sgu
-  real(RLEN),dimension(NO_BOXES_XY)  :: rgu
-  real(RLEN),dimension(NO_BOXES_XY)  :: snuPI
-  real(RLEN),dimension(NO_BOXES_XY)  :: snuZI
-  real(RLEN),dimension(NO_BOXES_XY)  :: snuQ6
-  real(RLEN),dimension(NO_BOXES_XY)  :: se_uPI
-  real(RLEN),dimension(NO_BOXES_XY)  :: se_uZI
-  real(RLEN),dimension(NO_BOXES_XY)  :: se_uQ6
-  real(RLEN),dimension(NO_BOXES_XY)  :: choice
-  real(RLEN),dimension(NO_BOXES_XY)  :: rtY3c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rtY3n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rtY3p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY)  :: sm
-  real(RLEN),dimension(NO_BOXES_XY)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY)  :: rep
-  real(RLEN),dimension(NO_BOXES_XY)  :: retR6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: retR6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: retR6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: retQ6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: retQ6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: retQ6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rePIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rePIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rePIp
-  real(RLEN),dimension(NO_BOXES_XY)  :: reZIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: reZIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: reZIp
-  real(RLEN),dimension(NO_BOXES_XY)  :: reR6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: reR6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: reR6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: reR6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: reQ6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: reQ6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: reQ6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruPIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruPIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruPIp
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruPIs
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruZIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruZIn
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruZIp
-  real(RLEN),dimension(NO_BOXES_XY)  :: RTc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruR6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruR6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruR6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruR6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: su
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY)  :: puf
-  real(RLEN),dimension(NO_BOXES_XY)  :: fsat ! filtering saturation : at high feed levels less filtering 
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: corr
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: fdepth
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: clm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: cmm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: et
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eO
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eNC
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ePC
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: foodpm2
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food
+  real(RLEN),dimension(iiPhytoPlankton,NO_BOXES_XY_BEN)  :: food_PIc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food_PT
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food_ZI
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food_RI
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food_Q6
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eF
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sgu
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rgu
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: snuPI
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: snuZI
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: snuQ6
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: se_uPI
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: se_uZI
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: se_uQ6
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: choice
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rtY3c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rtY3n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rtY3p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sm
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ren
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rep
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: retR6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: retR6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: retR6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: retQ6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: retQ6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: retQ6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rePIc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rePIn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rePIp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reZIc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reZIn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reZIp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reR6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reR6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reR6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reR6s
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reQ6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reQ6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: reQ6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruPIc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruPIn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruPIp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruPIs
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruZIc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruZIn
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruZIp
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: RTc
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruR6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruR6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruR6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruR6s
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6c
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6n
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6p
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: su
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: r
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: puf
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: fsat ! filtering saturation : at high feed levels less filtering 
                                              ! is necessairy 
-  real(RLEN),dimension(NO_BOXES_XY)  :: netto
+  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: netto
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 

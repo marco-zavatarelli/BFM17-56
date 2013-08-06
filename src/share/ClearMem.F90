@@ -55,6 +55,19 @@ subroutine ClearMem
     deallocate(D2FLUX_MATRIX_ICE)
     deallocate(D2FLUX_FUNC_ICE)
 #endif
+#if defined INCLUDE_BEN
+    origin=0
+    do i=stBenState2dS,stBenState2dE
+       origin=origin+1
+       destination=0
+       do j=stBenState2dS,stBenState2dE
+          destination=destination+1
+          if( allocated(D2FLUX_MATRIX_BEN(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_BEN(origin,destination)%p)
+       end do
+    end do
+    deallocate(D2FLUX_MATRIX_BEN)
+    deallocate(D2FLUX_FUNC_BEN)
+#endif
 
     ! from api_bfm 
     deallocate(var_ids)
@@ -73,6 +86,9 @@ subroutine ClearMem
      deallocate(D3SINK)
 #if defined INCLUDE_SEAICE
      deallocate(D2SINK_ICE)
+#endif
+#if defined INCLUDE_BEN
+     deallocate(D2SINK_BEN)
 #endif
 #endif
 
@@ -95,12 +111,14 @@ subroutine ClearMem
 #endif
 
 #if defined INCLUDE_BEN
-     deallocate(D2STATE)
-     deallocate(D2SOURCE)
-#ifdef EXPLICIT_SINK
-     deallocate(D2SINK)
+     if ( allocated(D2ave_ben) ) deallocate(D2ave_ben)
+     deallocate(D2DIAGNOS_BEN)
+     deallocate(D2STATE_BEN)
+     deallocate(D2SOURCE_BEN)
+     deallocate(D2STATETYPE_BEN)
+#ifdef BFM_NEMO
+     deallocate(D2STATEOBC_BEN)
 #endif
-     deallocate(D2STATETYPE)
 #endif
 
 #endif
