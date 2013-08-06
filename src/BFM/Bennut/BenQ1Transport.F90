@@ -23,7 +23,7 @@
 #else
   use mem,  ONLY: Q11c, Q1c, Q11n, Q1n, Q11p, Q1p, D1m, D6m, D2m, D2STATE_BEN
   use mem, ONLY: ppQ11c, ppQ1c, ppQ11n, ppQ1n, ppQ11p, ppQ1p, &
-    ppD1m, ppD6m, ppD2m, NO_BOXES_XY_BEN, &
+    ppD1m, ppD6m, ppD2m, NO_BOXES_XY, &
     BoxNumberXY_ben, LocalDelta, KQ1, irrenh, &
     ETW_Ben, shiftD1m, ruHI, reHI, iiH1, iiH2, iiBen, iiPel, flux
 #endif
@@ -97,7 +97,7 @@
   real(RLEN)  :: Dnew
   real(RLEN)  :: dummy
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Get total Net Benthic DOC (Q1.c)

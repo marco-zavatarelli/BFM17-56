@@ -32,7 +32,7 @@
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c, ppG2o, ppK4n, ppK1p,O2o_Ben, &
     ppD6m, ppD7m, ppD8m, ppD1m, ppBenOrganisms, ppBenBacteria, rrBTo, reBTn, &
     reBTp, ETW_Ben, iiBenOrganisms, iiBenBacteria, iiY1, iiY2, iiY4, iiY5, iiC, &
-    iiN, iiP, NO_BOXES_XY_BEN, iiBen, iiPel, flux_vector
+    iiN, iiP, NO_BOXES_XY, iiBen, iiPel, flux_vector
 #endif
   use mem_Param,  ONLY: p_d_tot,p_small
   use mem_BenOrganism
@@ -87,55 +87,55 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY_BEN) :: yc
-  real(RLEN),dimension(NO_BOXES_XY_BEN) :: yn
-  real(RLEN),dimension(NO_BOXES_XY_BEN) :: yp
+  real(RLEN),dimension(NO_BOXES_XY) :: yc
+  real(RLEN),dimension(NO_BOXES_XY) :: yn
+  real(RLEN),dimension(NO_BOXES_XY) :: yp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: clm
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: cm
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: cmm
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: et
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eO
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: food_src
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: eF
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rgu
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sgu
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sgu_y
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sguQ6
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: snu
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: snuQ6
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: se_u
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: se_uQ6
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: choice
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_c
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_n
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: availQ6_p
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rtyc
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rtyn
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rtyp
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rqt6c
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rqt6n
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rqt6p
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rq6c
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rq6n
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rq6p
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruYIc
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruYIn
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruYIp
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruBIc
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruBIn
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruBIp
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6c
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6n
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ruQ6p
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: sm
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: rep
+  real(RLEN),dimension(NO_BOXES_XY)  :: clm
+  real(RLEN),dimension(NO_BOXES_XY)  :: cm
+  real(RLEN),dimension(NO_BOXES_XY)  :: cmm
+  real(RLEN),dimension(NO_BOXES_XY)  :: et
+  real(RLEN),dimension(NO_BOXES_XY)  :: eO
+  real(RLEN),dimension(NO_BOXES_XY)  :: food
+  real(RLEN),dimension(NO_BOXES_XY)  :: food_src
+  real(RLEN),dimension(NO_BOXES_XY)  :: eF
+  real(RLEN),dimension(NO_BOXES_XY)  :: rgu
+  real(RLEN),dimension(NO_BOXES_XY)  :: sgu
+  real(RLEN),dimension(NO_BOXES_XY)  :: sgu_y
+  real(RLEN),dimension(NO_BOXES_XY)  :: sguQ6
+  real(RLEN),dimension(NO_BOXES_XY)  :: snu
+  real(RLEN),dimension(NO_BOXES_XY)  :: snuQ6
+  real(RLEN),dimension(NO_BOXES_XY)  :: se_u
+  real(RLEN),dimension(NO_BOXES_XY)  :: se_uQ6
+  real(RLEN),dimension(NO_BOXES_XY)  :: choice
+  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_c
+  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_n
+  real(RLEN),dimension(NO_BOXES_XY)  :: availQ6_p
+  real(RLEN),dimension(NO_BOXES_XY)  :: rtyc
+  real(RLEN),dimension(NO_BOXES_XY)  :: rtyn
+  real(RLEN),dimension(NO_BOXES_XY)  :: rtyp
+  real(RLEN),dimension(NO_BOXES_XY)  :: rqt6c
+  real(RLEN),dimension(NO_BOXES_XY)  :: rqt6n
+  real(RLEN),dimension(NO_BOXES_XY)  :: rqt6p
+  real(RLEN),dimension(NO_BOXES_XY)  :: rq6c
+  real(RLEN),dimension(NO_BOXES_XY)  :: rq6n
+  real(RLEN),dimension(NO_BOXES_XY)  :: rq6p
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruYIc
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruYIn
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruYIp
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruBIc
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruBIn
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruBIp
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6c
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6n
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruQ6p
+  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY)  :: sm
+  real(RLEN),dimension(NO_BOXES_XY)  :: ren
+  real(RLEN),dimension(NO_BOXES_XY)  :: rep
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var

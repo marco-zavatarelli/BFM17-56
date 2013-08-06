@@ -28,7 +28,7 @@
 #else
   use mem,  ONLY: G23c,G13c, G3c, D1m, Q1c, D6m, D2m, D2STATE_BEN
   use mem, ONLY: ppG23c, ppG13c, ppG3c, ppD1m, ppQ1c, ppD6m, ppD2m, &
-    NO_BOXES_XY_BEN,  ERHO_ben, &
+    NO_BOXES_XY,  ERHO_ben, &
     BoxNumberXY_ben, InitializeModel, LocalDelta, KCO2, jbotO3c, DICae, &
     DICan, rrBTo, irrenh, ETW_Ben, rrATo, O3c_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
@@ -117,7 +117,7 @@
   real(RLEN)  :: dummy
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations 

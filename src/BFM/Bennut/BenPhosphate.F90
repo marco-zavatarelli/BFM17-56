@@ -27,7 +27,7 @@
 #else
   use mem,  ONLY: K1p, K11p, K21p, D1m, D2m, D8m, D2STATE_BEN
   use mem, ONLY: ppK1p, ppK11p, ppK21p, ppD1m, ppD2m, ppD8m, &
-    NO_BOXES_XY_BEN,   &
+    NO_BOXES_XY,   &
     BoxNumberXY_ben, InitializeModel, LocalDelta, M1p, M11p, M21p, KPO4,KPO4_2, &
     jbotN1p, reBTp, reATp, irrenh, ETW_Ben, N1p_Ben, Depth_Ben, shiftD1m, shiftD2m, &
     jK31K21p, iiBen, iiPel, flux
@@ -116,7 +116,7 @@
   integer  :: i,j,mode
   real(RLEN)  :: ds1,ds2,layer_shift,p_shift,m_shift
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate coefficient for the e-folding distribution of the anoxic

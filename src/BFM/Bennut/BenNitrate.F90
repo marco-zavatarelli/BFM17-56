@@ -34,7 +34,7 @@
 #else
   use mem,  ONLY: K3n, G4n, D2m, D6m, D1m, K16r,K26r, D2STATE_BEN
   use mem, ONLY: ppK3n, ppG4n, ppD2m, ppD6m, ppD1m, ppK16r, &
-    NO_BOXES_XY_BEN,   &
+    NO_BOXES_XY,   &
     BoxNumberXY_ben, InitializeModel, LocalDelta, KNO3, jbotN3n, M3n, jK3G4n,&
     jK4K3n, rrATo, irrenh, ETW_Ben, KNH4, N3n_Ben, iiBen, iiPel, flux,Depth_Ben
 #endif
@@ -121,7 +121,7 @@
   real(RLEN)  :: r
   real(RLEN)  :: dummy
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables

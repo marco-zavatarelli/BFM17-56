@@ -34,7 +34,7 @@
 #else
   use mem,  ONLY: K4n, K3n, G2o, D1m, K14n, D2m, K24n, D7m, D2STATE_BEN
   use mem, ONLY: ppK4n, ppK3n, ppG2o, ppD1m, ppK14n, ppD2m, &
-    ppK24n, ppD7m, NO_BOXES_XY_BEN, &
+    ppK24n, ppD7m, NO_BOXES_XY, &
        BoxNumberXY_ben, InitializeModel, LocalDelta, &
     M4n, KNH4, jG2K3o, jbotN4n, M14n, M24n, reBTn, reATn, irrenh, ETW_Ben, &
     jK4K3n, N4n_Ben, Depth_Ben, iiBen, iiPel, flux
@@ -125,7 +125,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables
       ! (Diagnostic variables, not used in calculations)

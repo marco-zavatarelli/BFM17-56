@@ -26,7 +26,7 @@
 #else
   use mem,  ONLY: D1m, G2o, D2m
   use mem, ONLY: ppD1m, ppG2o, ppD2m, InitializeModel, LocalDelta, shiftD1m, &
-    jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY_BEN, iiBen, &
+    jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
     iiPel, flux_vector,KNO3,M3n, BoxNumberXY_ben
 #endif
   use constants,  ONLY: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO,STANDARD,EQUATION
@@ -68,13 +68,13 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: r
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: diff
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: zmG2o
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: D1mNew
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: G2oNew
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: jG2O2o
-  real(RLEN),dimension(NO_BOXES_XY_BEN)  :: unc_shiftD1m
+  real(RLEN),dimension(NO_BOXES_XY)  :: r
+  real(RLEN),dimension(NO_BOXES_XY)  :: diff
+  real(RLEN),dimension(NO_BOXES_XY)  :: zmG2o
+  real(RLEN),dimension(NO_BOXES_XY)  :: D1mNew
+  real(RLEN),dimension(NO_BOXES_XY)  :: G2oNew
+  real(RLEN),dimension(NO_BOXES_XY)  :: jG2O2o
+  real(RLEN),dimension(NO_BOXES_XY)  :: unc_shiftD1m
   real(RLEN)                             :: dummy
 
 
@@ -112,7 +112,7 @@
      shiftD1m(:) = shiftD1m(:)* (D1m(:)/( D1m(:)+ &
       abs(shiftD1m(:))))**(p_xdampingD1m)*( p_chD1m/( p_chD1m+ D1m(:)))
      if ( CalcBenthicFlag > BENTHIC_BIO) then
-        do BoxNumberXY_ben = 1,NO_BOXES_XY_BEN
+        do BoxNumberXY_ben = 1,NO_BOXES_XY
            r(1) = CalculateFromSet( KNO3(BoxNumberXY_ben), EQUATION, &
                   STANDARD, D1m(BoxNumberXY_ben), dummy)/M3n(BoxNumberXY_ben)
            if ( r(1) .lt.ZERO) then

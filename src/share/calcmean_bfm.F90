@@ -20,12 +20,10 @@
    use mem, only: NO_BOXES,NO_BOXES_XY
 
 #if defined INCLUDE_SEAICE
-   use mem, only: D2STATE_ICE,D2DIAGNOS_ICE,D2FLUX_FUNC_ICE, &
-        NO_BOXES_XY_ICE
+   use mem, only: D2STATE_ICE,D2DIAGNOS_ICE,D2FLUX_FUNC_ICE
 #endif
 #if defined INCLUDE_BEN
-   use mem, only: D2STATE_BEN,D2DIAGNOS_BEN,D2FLUX_FUNC_BEN, &
-        NO_BOXES_XY_BEN
+   use mem, only: D2STATE_BEN,D2DIAGNOS_BEN,D2FLUX_FUNC_BEN
 #endif
 
    implicit none
@@ -80,7 +78,7 @@
 #if defined INCLUDE_SEAICE
          i=count(var_ave(stIceStart:stIceEnd))
          if ( i > 0 ) then
-            allocate(D2ave_ice(1:i,1:NO_BOXES_XY_ICE),stat=rc)
+            allocate(D2ave_ice(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D2ave_ice'
             D2ave_ice=0.0
             do_2ave_ice = .true.
@@ -91,7 +89,7 @@
 #if defined INCLUDE_BEN
          i=count(var_ave(stBenStart:stBenEnd))
          if ( i > 0 ) then
-            allocate(D2ave_ben(1:i,1:NO_BOXES_XY_BEN),stat=rc)
+            allocate(D2ave_ben(1:i,1:NO_BOXES_XY),stat=rc)
             if (rc /= 0) stop 'init_bio(): Error allocating D2ave_ben'
             D2ave_ben=0.0
             do_2ave_ben = .true.

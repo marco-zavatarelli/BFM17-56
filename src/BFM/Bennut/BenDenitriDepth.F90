@@ -29,7 +29,7 @@
 #else
   use mem,  ONLY: D2m, D1m
   use mem, ONLY: K3n,K4n,K6r,ppD2m, ppD1m,    &
-    NO_BOXES_XY_BEN,    BoxNumberXY_ben, &
+    NO_BOXES_XY,    BoxNumberXY_ben, &
     InitializeModel, shiftD1m, shiftD2m, KNO3, KNH4, iiBen, iiPel, flux
   use mem,ONLY: jbotN3n,jbotN4n,N3n_Ben,N4n_Ben,K14n,K24n,D6m,D7m
 #endif
@@ -92,7 +92,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer, external  :: PrintSet
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate concentration of nitrate in porewater in M3n:

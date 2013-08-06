@@ -30,7 +30,7 @@
 #endif
   use mem, ONLY: ppT1c, ppU6c, ppT1n, ppU6n, ppT1p, ppU6p, ppU1c, ppF3c, &
     ppU1n, ppU1p, ppF2o, ppN6r, ppI4n, ppI1p, ppI3n, Depth, qpUc, qnUc,&
-    ETB, qnTc, qpTc, eO2mO2, qpUc, qnUc, NO_BOXES_XY_ICE, iiIce, flux_vector, &
+    ETB, qnTc, qpTc, eO2mO2, qpUc, qnUc, NO_BOXES_XY, iiIce, flux_vector, &
     iiU1, iiU6
 
   use constants,  ONLY: MW_C, ONE_PER_DAY
@@ -80,44 +80,44 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: bacc
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: et
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: eO2
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: r
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rd
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU1c
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU1n
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU1p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU6c
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU6p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ruU6n
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn3
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn4
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misp
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupp
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rep
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rut
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rum
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: run
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sun
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rug
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: suU1
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: suU1n
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: suU1p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cuU6
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cuU1
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iI1p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iNIn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iN
+  real(RLEN),dimension(NO_BOXES_XY)  :: bacc
+  real(RLEN),dimension(NO_BOXES_XY)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY)  :: runp
+  real(RLEN),dimension(NO_BOXES_XY)  :: et
+  real(RLEN),dimension(NO_BOXES_XY)  :: eO2
+  real(RLEN),dimension(NO_BOXES_XY)  :: r
+  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY)  :: rd
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruU1c
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruU1n
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruU1p
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruU6c
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruU6p
+  real(RLEN),dimension(NO_BOXES_XY)  :: ruU6n
+  real(RLEN),dimension(NO_BOXES_XY)  :: cqun3
+  real(RLEN),dimension(NO_BOXES_XY)  :: rump
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn3
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn4
+  real(RLEN),dimension(NO_BOXES_XY)  :: misp
+  real(RLEN),dimension(NO_BOXES_XY)  :: misn
+  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
+  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
+  real(RLEN),dimension(NO_BOXES_XY)  :: ren
+  real(RLEN),dimension(NO_BOXES_XY)  :: rep
+  real(RLEN),dimension(NO_BOXES_XY)  :: rut
+  real(RLEN),dimension(NO_BOXES_XY)  :: rum
+  real(RLEN),dimension(NO_BOXES_XY)  :: run
+  real(RLEN),dimension(NO_BOXES_XY)  :: sun
+  real(RLEN),dimension(NO_BOXES_XY)  :: rug
+  real(RLEN),dimension(NO_BOXES_XY)  :: suU1
+  real(RLEN),dimension(NO_BOXES_XY)  :: suU1n
+  real(RLEN),dimension(NO_BOXES_XY)  :: suU1p
+  real(RLEN),dimension(NO_BOXES_XY)  :: cuU6
+  real(RLEN),dimension(NO_BOXES_XY)  :: cuU1
+  real(RLEN),dimension(NO_BOXES_XY)  :: iI1p
+  real(RLEN),dimension(NO_BOXES_XY)  :: iNIn
+  real(RLEN),dimension(NO_BOXES_XY)  :: iN
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var

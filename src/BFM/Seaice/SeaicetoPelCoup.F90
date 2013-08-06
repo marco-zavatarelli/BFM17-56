@@ -27,7 +27,7 @@
    ! seaice forcings
    use mem,        only: EICE,EVB,ETB,ESB,EIB,EHB,ESI,EDH,EDS,F3c, &
                          F2o,I1p,I3n,I4n,I5s,S1l,S2l,U6c
-   use mem,        only: iiIce,ppI1p,N1p,N3n,N4n,N5s,O2o,O3c,P1l,P2l,NO_BOXES_XY_ICE, &
+   use mem,        only: iiIce,ppI1p,N1p,N3n,N4n,N5s,O2o,O3c,P1l,P2l,NO_BOXES_XY, &
                          flux_vector, ppI3n,ppI4n,ppI5s,ppF2o,ppF3c,&
                          ppS1l,ppS2l
    use mem,        only: SeaiceAlgae,ppSeaiceAlgae,PhytoPlankton,ppPhytoPlankton,PELSURFACE, &
@@ -48,14 +48,14 @@
   ! Implicit typing is never allowed
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    IMPLICIT NONE
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice_N1,flux_pel_ice_N3
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice_N4,flux_pel_ice_N5
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice_O2,flux_pel_ice_O3
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: flux_pel_ice, flux_atm_N1, flux_atm_N3
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: I1p_tilde,I3n_tilde,I4n_tilde,I5s_tilde
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: F2o_tilde,F3c_tilde
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: I1p_star,I3n_star,I4n_star,I5s_star
-   real(RLEN), dimension(NO_BOXES_XY_ICE) :: F2o_star,F3c_star
+   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_N1,flux_pel_ice_N3
+   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_N4,flux_pel_ice_N5
+   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice_O2,flux_pel_ice_O3
+   real(RLEN), dimension(NO_BOXES_XY) :: flux_pel_ice, flux_atm_N1, flux_atm_N3
+   real(RLEN), dimension(NO_BOXES_XY) :: I1p_tilde,I3n_tilde,I4n_tilde,I5s_tilde
+   real(RLEN), dimension(NO_BOXES_XY) :: F2o_tilde,F3c_tilde
+   real(RLEN), dimension(NO_BOXES_XY) :: I1p_star,I3n_star,I4n_star,I5s_star
+   real(RLEN), dimension(NO_BOXES_XY) :: F2o_star,F3c_star
 
    integer                            :: i,j,p
    real(RLEN), dimension(:), pointer  :: lcl_PelagicVar,lcl_SeaiceVar

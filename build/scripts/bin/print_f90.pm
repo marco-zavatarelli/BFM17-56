@@ -316,19 +316,19 @@ sub func_ALLOC {
     if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     print $file "${SPACE} \n";
-    print $file "${SPACE}allocate(D${dim}${TYPE}${SUBTYPE}(1:NO_D${dim}_BOX_${TYPE}S${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}),stat=status)\n";
+    print $file "${SPACE}allocate(D${dim}${TYPE}${SUBTYPE}(1:NO_D${dim}_BOX_${TYPE}S${SUBTYPE},1:NO_BOXES${j}),stat=status)\n";
     print $file "${SPACE}if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}${TYPE}${SUBTYPE}\")\n";
     print $file "${SPACE}D${dim}${TYPE}${SUBTYPE} = ZERO\n";
     if ( $type eq "state" ) {
         print $file "#ifndef EXPLICIT_SINK\n";
-        print $file "${SPACE}  allocate(D${dim}SOURCE${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}),stat=status)\n";
+        print $file "${SPACE}  allocate(D${dim}SOURCE${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}),stat=status)\n";
         print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE${SUBTYPE}\")\n";
         print $file "${SPACE}  D${dim}SOURCE${SUBTYPE} = ZERO\n";
         print $file "#else\n";
-        print $file "${SPACE}  allocate(D${dim}SOURCE${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}),stat=status)\n";
+        print $file "${SPACE}  allocate(D${dim}SOURCE${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}),stat=status)\n";
         print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SOURCE${SUBTYPE}\")\n";
         print $file "${SPACE}  D${dim}SOURCE${SUBTYPE} = ZERO\n";
-        print $file "${SPACE}  allocate(D${dim}SINK${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}${SUBTYPE}) ,stat=status)\n";
+        print $file "${SPACE}  allocate(D${dim}SINK${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_D${dim}_BOX_STATES${SUBTYPE},1:NO_BOXES${j}) ,stat=status)\n";
         print $file "${SPACE}  if (status /= 0) call error_msg_prn(ALLOC,\"AllocateMem\", \"D${dim}SINK${SUBTYPE}\")\n";
         print $file "${SPACE}  D${dim}SINK${SUBTYPE} = ZERO\n";
         print $file "#endif\n";
@@ -513,8 +513,8 @@ sub func_ALLOC_INTVAR  {
                 $l = "ii";
             }
 
-            if    ( $mode == 3 ){ $line .= "${SPACE}allocate(${name}(1:${l}${groupindex},1:NO_BOXES${j}${SUBTYPE}),stat=status); ${name} = ZERO\n"; }
-            elsif ( $mode == 2 ){ $line .= "${SPACE}allocate(${name}(1:NO_BOXES${j}${SUBTYPE}),stat=status); ${name} = ZERO\n";                     }
+            if    ( $mode == 3 ){ $line .= "${SPACE}allocate(${name}(1:${l}${groupindex},1:NO_BOXES${j}),stat=status); ${name} = ZERO\n"; }
+            elsif ( $mode == 2 ){ $line .= "${SPACE}allocate(${name}(1:NO_BOXES${j}),stat=status); ${name} = ZERO\n";                     }
             elsif ( $mode == 1 ){ $line .= "${SPACE}allocate(${name}(1:${l}${groupindex}),stat=status); ${name} = ZERO\n";                }
         }
     }
@@ -537,7 +537,7 @@ sub func_FLUX_ALLOC  {
 
     if( $dim == 3 ){
         $line .= "  allocate( D${dim}FLUX_MATRIX${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE}, 1:NO_D${dim}_BOX_STATES${SUBTYPE}),stat=status )\n";
-        $line .= "  allocate( D${dim}FLUX_FUNC${SUBTYPE}(1:NO_D${dim}_BOX_FLUX${SUBTYPE}, 1:NO_BOXES${SUBTYPE}),stat=status )\n";
+        $line .= "  allocate( D${dim}FLUX_FUNC${SUBTYPE}(1:NO_D${dim}_BOX_FLUX${SUBTYPE}, 1:NO_BOXES),stat=status )\n";
         $line .= "  D${dim}FLUX_FUNC${SUBTYPE} = 0\n";
     }elsif( $dim == 2 ){
         $line .= "  allocate( D${dim}FLUX_MATRIX${SUBTYPE}(1:NO_D${dim}_BOX_STATES${SUBTYPE}, 1:NO_D${dim}_BOX_STATES${SUBTYPE}),stat=status )\n";

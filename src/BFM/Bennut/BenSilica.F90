@@ -28,7 +28,7 @@
 #else
   use mem,  ONLY: K5s, Q6s, D9m, D1m, D2m, D2STATE_BEN
   use mem, ONLY: ppK5s, ppQ6s, ppD9m, ppD1m, ppD2m, &
-    NO_BOXES_XY_BEN,   &
+    NO_BOXES_XY,   &
     BoxNumberXY_ben, InitializeModel, LocalDelta, M5s, KSIO3, Depth_Ben, &
     KSIO3E, jbotN5s, jK15K5s, irrenh, ETW_Ben, N5s_Ben, shiftD2m, iiBen, iiPel, flux
 #endif
@@ -117,7 +117,7 @@
   real(RLEN)  :: dummy
   integer     :: idummy
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Correction due to environmental regulating factors,

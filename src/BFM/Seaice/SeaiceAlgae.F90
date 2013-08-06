@@ -33,7 +33,7 @@
 #endif
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, SUNQ, ThereIsLight, ETB, EIB, &
-    EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPPY, sunPPY, NO_BOXES_XY_ICE, &
+    EHB, eiSI, iiS1, qnSc, qpSc, qsSc, qlSc, sediPPY, sunPPY, NO_BOXES_XY, &
     iiIce, flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small, ChlDynamicsFlag, LightPeriodFlag 
@@ -88,66 +88,66 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytoc
-  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phyton
-  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytop
-  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytos
-  real(RLEN),dimension(NO_BOXES_XY_ICE) :: phytol
+  real(RLEN),dimension(NO_BOXES_XY) :: phytoc
+  real(RLEN),dimension(NO_BOXES_XY) :: phyton
+  real(RLEN),dimension(NO_BOXES_XY) :: phytop
+  real(RLEN),dimension(NO_BOXES_XY) :: phytos
+  real(RLEN),dimension(NO_BOXES_XY) :: phytol
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer                         :: silica_control
-  integer,dimension(NO_BOXES_XY_ICE)     :: i
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: r
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: et
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sum
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sadap
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sea
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sdo
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rugc
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: sra
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: srs
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: srt
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: slc
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: run
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: pe_U6
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupp
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misp
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rupn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn3
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn4
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: netgrowth
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: misn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rums
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rups
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: miss
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: tI
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iI
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iI1p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: iIIn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: eI5s
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1c
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1n
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr1p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6c
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6n
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6p
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rr6s
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn3
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runn4
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: runs
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: Irr
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rho_Chl
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: rate_Chl
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: Photo_max
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: flSIU2c,flS1U6s
-  real(RLEN),dimension(NO_BOXES_XY_ICE)  :: seo
+  integer,dimension(NO_BOXES_XY)     :: i
+  real(RLEN),dimension(NO_BOXES_XY)  :: r
+  real(RLEN),dimension(NO_BOXES_XY)  :: et
+  real(RLEN),dimension(NO_BOXES_XY)  :: sum
+  real(RLEN),dimension(NO_BOXES_XY)  :: sadap
+  real(RLEN),dimension(NO_BOXES_XY)  :: sea
+  real(RLEN),dimension(NO_BOXES_XY)  :: sdo
+  real(RLEN),dimension(NO_BOXES_XY)  :: rugc
+  real(RLEN),dimension(NO_BOXES_XY)  :: sra
+  real(RLEN),dimension(NO_BOXES_XY)  :: srs
+  real(RLEN),dimension(NO_BOXES_XY)  :: srt
+  real(RLEN),dimension(NO_BOXES_XY)  :: slc
+  real(RLEN),dimension(NO_BOXES_XY)  :: run
+  real(RLEN),dimension(NO_BOXES_XY)  :: pe_U6
+  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
+  real(RLEN),dimension(NO_BOXES_XY)  :: rump
+  real(RLEN),dimension(NO_BOXES_XY)  :: misp
+  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn3
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn4
+  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
+  real(RLEN),dimension(NO_BOXES_XY)  :: netgrowth
+  real(RLEN),dimension(NO_BOXES_XY)  :: misn
+  real(RLEN),dimension(NO_BOXES_XY)  :: cqun3
+  real(RLEN),dimension(NO_BOXES_XY)  :: rums
+  real(RLEN),dimension(NO_BOXES_XY)  :: rups
+  real(RLEN),dimension(NO_BOXES_XY)  :: miss
+  real(RLEN),dimension(NO_BOXES_XY)  :: tI
+  real(RLEN),dimension(NO_BOXES_XY)  :: iI
+  real(RLEN),dimension(NO_BOXES_XY)  :: iI1p
+  real(RLEN),dimension(NO_BOXES_XY)  :: iIIn
+  real(RLEN),dimension(NO_BOXES_XY)  :: eI5s
+  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr1c
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr1n
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr1p
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr6c
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr6n
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr6p
+  real(RLEN),dimension(NO_BOXES_XY)  :: rr6s
+  real(RLEN),dimension(NO_BOXES_XY)  :: runn
+  real(RLEN),dimension(NO_BOXES_XY)  :: runn3
+  real(RLEN),dimension(NO_BOXES_XY)  :: runn4
+  real(RLEN),dimension(NO_BOXES_XY)  :: runp
+  real(RLEN),dimension(NO_BOXES_XY)  :: runs
+  real(RLEN),dimension(NO_BOXES_XY)  :: Irr
+  real(RLEN),dimension(NO_BOXES_XY)  :: rho_Chl
+  real(RLEN),dimension(NO_BOXES_XY)  :: rate_Chl
+  real(RLEN),dimension(NO_BOXES_XY)  :: Photo_max
+  real(RLEN),dimension(NO_BOXES_XY)  :: flSIU2c,flS1U6s
+  real(RLEN),dimension(NO_BOXES_XY)  :: seo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  silica_control =0 : no silica component present in cell
   !  silica_control =1 : external regulation of silica limitation & limitation of

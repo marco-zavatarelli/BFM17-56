@@ -35,7 +35,7 @@
   use mem, ONLY: ppQ1p, ppQ6p, ppQ1n, ppQ6n, ppQ6s, ppY1p, ppY2p, &
     ppY3p, ppY4p, ppY5p, ppH1p, ppH2p, ppQ11p, ppK1p, ppK11p, ppY1n, ppY2n, &
     ppY3n, ppY4n, ppY5n, ppH1n, ppH2n, ppQ11n, ppK4n, ppK14n, ppK21p, &
-    ppG4n, ppK3n, ppK24n, ppK5s, totbenp, totbenn, totbens, NO_BOXES_XY_BEN, iiBen, &
+    ppG4n, ppK3n, ppK24n, ppK5s, totbenp, totbenn, totbens, iiBen, &
     iiPel, flux_vector
 #endif
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL

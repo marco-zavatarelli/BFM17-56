@@ -133,11 +133,7 @@
   use mem
 #else
   use mem,          ONLY:EPCO2air,pH
-#ifdef INCLUDE_BENCO2
-  use mem,          ONLY:NO_BOXES_XY_BEN
-#else
   use mem,          ONLY:NO_BOXES_XY
-#endif
 #endif
   use api_bfm, ONLY: bfm_init
   use mem_Param, ONLY: slp0
@@ -183,11 +179,7 @@
        CALL FieldInit(AtmCO2_N, AtmCO2)
        ! the following check is needed to avoid allocation of empty arrays
        ! with MPI and land domains
-#ifdef INCLUDE_BENCO2
-       if (NO_BOXES_XY_BEN > 0) then
-#else
        if (NO_BOXES_XY > 0) then
-#endif
           AtmCO2%fnow = AtmCO20
           write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
           write(LOGUNIT,*) ' '

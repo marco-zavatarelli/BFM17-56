@@ -26,7 +26,7 @@
   use mem
 #else
   use mem,  ONLY: K26r, K16r, K6r, G2o, D6m, D1m, D2m, D2STATE_BEN
-  use mem, ONLY: ppK26r, ppK16r, ppK6r, ppG2o, ppD6m, ppD1m, NO_BOXES_XY_BEN,    &
+  use mem, ONLY: ppK26r, ppK16r, ppK6r, ppG2o, ppD6m, ppD1m, NO_BOXES_XY,    &
     BoxNumberXY_ben, LocalDelta, InitializeModel, M6r, KRED, jbotN6r, jG2K7o, rrATo, &
     rrBTo, jK36K26r, irrenh, ETW_Ben, KNO3, N6r_Ben,Depth_Ben, &
     shiftD1m, shiftD2m,iiBen, iiPel, flux,jK3G4n
@@ -104,7 +104,7 @@
   real(RLEN)  :: Dxm,Dym
   real(RLEN)  :: dummy
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore-water average concentrations from the state variables

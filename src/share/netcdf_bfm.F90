@@ -17,11 +17,9 @@
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
    use mem,     only: D3FLUX_FUNC
 #if defined INCLUDE_SEAICE
-   use mem,     only: NO_BOXES_ICE,NO_BOXES_X_ICE,NO_BOXES_Y_ICE,NO_BOXES_XY_ICE
    use mem,     only: D2FLUX_FUNC_ICE
 #endif
 #if defined INCLUDE_BEN
-   use mem,     only: NO_BOXES_BEN,NO_BOXES_X_BEN,NO_BOXES_Y_BEN,NO_BOXES_XY_BEN
    use mem,     only: D2FLUX_FUNC_BEN
 #endif
 
@@ -302,12 +300,10 @@
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,    &
                   NO_BOXES_XY
 #if defined INCLUDE_SEAICE
-   use mem, only: NO_D2_BOX_STATES_ICE, NO_BOXES_ICE,    &
-                  NO_BOXES_XY_ICE, NO_D2_BOX_STATES_ICE
+   use mem, only: NO_D2_BOX_STATES_ICE
 #endif
 #if defined INCLUDE_BEN
-   use mem, only: NO_D2_BOX_STATES_BEN, NO_BOXES_BEN,    &
-                  NO_BOXES_XY_BEN, NO_D2_BOX_STATES_BEN
+   use mem, only: NO_D2_BOX_STATES_BEN
 #endif
    implicit none
 !
@@ -359,7 +355,7 @@
    ! define 2D Seaice dimensions and variables
    !---------------------------------------------
    call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ice', NO_D2_BOX_STATES_ICE, d2vars_rdim), fname)
-   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ice', max(NO_BOXES_XY_ICE,1), botpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ice', max(NO_BOXES_XY,1), botpoint_rdim), fname)
    dims(1) = d2vars_rdim
    dims(2) = botpoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE',NF90_DOUBLE,dims,d2state_rid), fname)
@@ -374,7 +370,7 @@
    ! define 2D Benthic dimensions and variables
    !---------------------------------------------
    call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ben', NO_D2_BOX_STATES_BEN, d2vars_rdim), fname)
-   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ben', max(NO_BOXES_XY_BEN,1), botpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ben', max(NO_BOXES_XY,1), botpoint_rdim), fname)
    dims(1) = d2vars_rdim
    dims(2) = botpoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN',NF90_DOUBLE,dims,d2state_rid), fname)
@@ -413,14 +409,14 @@ end subroutine init_netcdf_rst_bfm
 #endif
 
 #if defined INCLUDE_SEAICE
-   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_BOXES_XY_ICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB_ICE
 #endif
 #endif
 
 #if defined INCLUDE_BEN
-   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, NO_BOXES_XY_BEN
+   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB_BEN
 #endif
@@ -453,7 +449,7 @@ end subroutine init_netcdf_rst_bfm
 
 #if defined INCLUDE_SEAICE
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES_ICE
-     start(2) = 1;   edges(2) = NO_BOXES_XY_ICE
+     start(2) = 1;   edges(2) = NO_BOXES_XY
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE_ICE(:,:),start,edges), restfile)
 #ifdef BFM_POM
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB_ICE(:,:),start,edges), restfile)
@@ -462,7 +458,7 @@ end subroutine init_netcdf_rst_bfm
 
 #if defined INCLUDE_BEN
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES_BEN
-     start(2) = 1;   edges(2) = NO_BOXES_XY_BEN
+     start(2) = 1;   edges(2) = NO_BOXES_XY
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE_BEN(:,:),start,edges), restfile)
 #ifdef BFM_POM
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB_BEN(:,:),start,edges), restfile)
@@ -495,14 +491,14 @@ end subroutine init_netcdf_rst_bfm
 #endif
 
 #if defined INCLUDE_SEAICE
-   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_BOXES_XY_ICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB_ICE
 #endif
 #endif
 
 #if defined INCLUDE_BEN
-   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, NO_BOXES_XY_BEN
+   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN
 #ifdef BFM_POM
    use api_bfm, only: D2STATEB_BEN
 #endif
@@ -570,13 +566,13 @@ end subroutine init_netcdf_rst_bfm
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len), fname)
    call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint_ice",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len), fname)
-   if (nstate_len/=NO_D2_BOX_STATES_ICE .OR. ncomp_len/=NO_BOXES_XY_ICE) then
+   if (nstate_len/=NO_D2_BOX_STATES_ICE .OR. ncomp_len/=NO_BOXES_XY) then
       LEVEL1 '2D Seaice Dimension mismatch in restart file:'
       LEVEL2 TRIM(fname)
       LEVEL3 "NO_D2_BOX_STATES_ICE in model:", NO_D2_BOX_STATES_ICE
       LEVEL3 "NO_D2_BOX_STATES_ICE in file:", nstate_len
-      LEVEL3 "NO_BOXES_XY_ICE in model:", NO_BOXES_XY_ICE
-      LEVEL3 "NO_BOXES_XY_ICE in file:", ncomp_len
+      LEVEL3 "NO_BOXES_XY in model:", NO_BOXES_XY
+      LEVEL3 "NO_BOXES_XY in file:", ncomp_len
       stop 'STOP in read_rst_bfm contained in netcdf_bfm.F90'
    end if
    !---------------------------------------------
@@ -599,13 +595,13 @@ end subroutine init_netcdf_rst_bfm
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len), fname)
    call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint_ben",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len), fname)
-   if (nstate_len/=NO_D2_BOX_STATES_BEN .OR. ncomp_len/=NO_BOXES_XY_BEN) then
+   if (nstate_len/=NO_D2_BOX_STATES_BEN .OR. ncomp_len/=NO_BOXES_XY) then
       LEVEL1 '2D Benthic Dimension mismatch in restart file:'
       LEVEL2 TRIM(fname)
       LEVEL3 "NO_D2_BOX_STATES_BEN in model:", NO_D2_BOX_STATES_BEN
       LEVEL3 "NO_D2_BOX_STATES_BEN in file:", nstate_len
-      LEVEL3 "NO_BOXES_XY_BEN in model:", NO_BOXES_XY_BEN
-      LEVEL3 "NO_BOXES_XY_BEN in file:", ncomp_len
+      LEVEL3 "NO_BOXES_XY in model:", NO_BOXES_XY
+      LEVEL3 "NO_BOXES_XY in file:", ncomp_len
       stop 'STOP in read_rst_bfm contained in netcdf_bfm.F90'
    end if
    !---------------------------------------------
@@ -872,21 +868,21 @@ end subroutine init_netcdf_rst_bfm
 
             ! Store snapshot of seaice 2D state
             if ( n >= stIceState2dS .AND. n <= stIceState2dE) &
-               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY_ICE,garray=D2STATE_ICE(n,:))
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2STATE_ICE(n,:))
 
             ! Store snapshot of seaice 2D diagnostics
             if ( n >= stIceDiag2dS .AND. n <= stIceDiag2dE ) &
-               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY_ICE,garray=D2DIAGNOS_ICE(n,:))
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS_ICE(n,:))
 
             ! Store snapshot of seaice 2D flux
             if ( n >= stIceFlux2dS .AND. n <= stIceFlux2dE ) &
-               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY_ICE,garray=D2FLUX_FUNC_ICE(n))
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2FLUX_FUNC_ICE(n))
 
          ELSE
             ! Store mean values of (any) 2D entity
             if ( temp_time /= 0.0_RLEN ) then
                k=k+1
-               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY_ICE,garray=D2ave_ice(k,:))
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2ave_ice(k,:))
             end if
          ENDIF
       end if
@@ -904,21 +900,21 @@ end subroutine init_netcdf_rst_bfm
 
             ! Store snapshot of benthic 2D state
             if ( n >= stBenState2dS .AND. n <= stBenState2dE) &
-               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY_BEN,garray=D2STATE_BEN(n,:))
+               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE_BEN(n,:))
 
             ! Store snapshot of benthic 2D diagnostics
             if ( n >= stBenDiag2dS .AND. n <= stBenDiag2dE ) &
-               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY_BEN,garray=D2DIAGNOS_BEN(n,:))
+               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS_BEN(n,:))
 
             ! Store snapshot of benthic 2D flux
             if ( n >= stBenFlux2dS .AND. n <= stBenFlux2dE ) &
-               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY_BEN,garray=D2FLUX_FUNC_BEN(n))
+               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2FLUX_FUNC_BEN(n))
 
          ELSE
             ! Store mean values of (any) 2D entity
             if ( temp_time /= 0.0_RLEN ) then
                k=k+1
-               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY_BEN,garray=D2ave_ben(k,:))
+               iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2ave_ben(k,:))
             end if
          ENDIF
       end if
@@ -1370,7 +1366,7 @@ end subroutine init_netcdf_rst_bfm
                endif
             endif
             ! define coordinate dimension for benthic profile data
-            status=NF90_DEF_DIM(ncid,'benprofpoint',max(NO_BOXES_BEN,1),benprofpoint_dim)
+            status=NF90_DEF_DIM(ncid,'benprofpoint',max(NO_BOXES,1),benprofpoint_dim)
             if (status.eq.NF90_NOERR) then
                status = NF90_DEF_VAR(ncid,'benprofpoint',NF90_INT, &
                        benprofpoint_dim, benprofpoint_id)
@@ -1381,8 +1377,8 @@ end subroutine init_netcdf_rst_bfm
                                           compress='x y ' // altZ)
                   status = NF90_ENDDEF(ncid)
                   !MAV this should be improved
-                  status = store_data(ncid,benprofpoint_id,G_SHAPE,NO_BOXES_BEN, &
-                                      iarray=(/(i,i=1,NO_BOXES_BEN)/))
+                  status = store_data(ncid,benprofpoint_id,G_SHAPE,NO_BOXES, &
+                                      iarray=(/(i,i=1,NO_BOXES)/))
                   status = NF90_REDEF(ncid)
                endif
             endif

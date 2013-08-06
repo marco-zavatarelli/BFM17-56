@@ -310,18 +310,12 @@ contains
 #if defined INCLUDE_SEAICE
    use mem, only: NO_D2_BOX_STATES_ICE,  &
                   NO_D2_BOX_DIAGNOSS_ICE, &
-                  NO_D2_BOX_FLUX_ICE, &
-                  NO_BOXES_ICE, NO_BOXES_X_ICE, &
-                  NO_BOXES_Y_ICE, NO_STATES_ICE, &
-                  NO_BOXES_XY_ICE
+                  NO_D2_BOX_FLUX_ICE
 #endif
 #if defined INCLUDE_BEN
    use mem, only: NO_D2_BOX_STATES_BEN,  &
                   NO_D2_BOX_DIAGNOSS_BEN, &
-                  NO_D2_BOX_FLUX_BEN, &
-                  NO_BOXES_BEN, NO_BOXES_X_BEN, &
-                  NO_BOXES_Y_BEN, NO_STATES_BEN, &
-                  NO_BOXES_XY_BEN
+                  NO_D2_BOX_FLUX_BEN
 #endif
 
    use global_mem, only: LOGUNIT
@@ -470,20 +464,10 @@ contains
    LEVEL3 'NO_BOXES_XY=',NO_BOXES_XY
    LEVEL3 'NO_STATES=',NO_STATES
 #ifdef INCLUDE_SEAICE
-   LEVEL2 'Dimensional informations:'
-   LEVEL3 'NO_BOXES_X_ICE=',NO_BOXES_X_ICE
-   LEVEL3 'NO_BOXES_Y_ICE=',NO_BOXES_Y_ICE
-   LEVEL3 'NO_BOXES_ICE=',NO_BOXES_ICE
-   LEVEL3 'NO_BOXES_XY_ICE=',NO_BOXES_XY_ICE
-   LEVEL3 'NO_STATES_ICE=',NO_STATES_ICE
+   LEVEL2 'Dimensional benthic informations:'
 #endif
 #ifdef INCLUDE_BEN
-   LEVEL2 'Dimensional informations:'
-   LEVEL3 'NO_BOXES_X_BEN=',NO_BOXES_X_BEN
-   LEVEL3 'NO_BOXES_Y_BEN=',NO_BOXES_Y_BEN
-   LEVEL3 'NO_BOXES_BEN=',NO_BOXES_BEN
-   LEVEL3 'NO_BOXES_XY_BEN=',NO_BOXES_XY_BEN
-   LEVEL3 'NO_STATES_BEN=',NO_STATES_BEN
+   LEVEL2 'Dimensional seaice informations:'
 #endif
    LEVEL3 'Step 1 of BFM initialisation done ...'
    ! dimension lengths used in the netcdf output

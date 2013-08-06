@@ -33,7 +33,7 @@
 #else
   use mem,  ONLY: G23h,G13h, G3h, D1m, Q1c, D6m, D2m, D2STATE_BEN
   use mem, ONLY: ppG23h, ppG13h, ppG3h, ppD1m, ppQ1c, ppD6m, ppD2m,Acae, Acan, &
-    NO_BOXES_XY_BEN, ERHO_Ben,  &
+    NO_BOXES_XY, ERHO_Ben,  &
     BoxNumberXY_ben, InitializeModel, LocalDelta, KALK, jbotO3h, &
     irrenh, ETW_Ben, jK4K3n,jG2K7o,rrATo, O3h_Ben, shiftD1m, shiftD2m, ruHI, iiH1, &
     Depth_Ben,iiBen, iiPel, flux
@@ -122,7 +122,7 @@
   real(RLEN)  :: dummy
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pore water Alkalinity

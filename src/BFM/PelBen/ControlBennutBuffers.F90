@@ -44,7 +44,7 @@
   use mem_Param, ONLY: p_small
   use mem,  ONLY: Q6n, D9m, D7m, Q6p, D8m, Q6s, D2STATE_BEN
   use mem, ONLY: ppQ6n, ppD9m, ppD7m, ppQ6p, ppD8m, ppQ6s, &
-    NO_BOXES_XY_BEN, BoxNumberXY_ben, jbotN4n, jbotN1p, jbotN5s, N4n_Ben, Depth_Ben, &
+    NO_BOXES_XY, BoxNumberXY_ben, jbotN4n, jbotN1p, jbotN5s, N4n_Ben, Depth_Ben, &
     jbotR6n, N1p_Ben, jbotR6p, N5s_Ben, jbotR6s, iiBen, iiPel, flux
   use mem_ControlBennutBuffers
 
@@ -89,7 +89,7 @@
   real(RLEN)  :: rate
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+    do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !----N:----------------------------------------------------------------
       if ( p_control_n) then

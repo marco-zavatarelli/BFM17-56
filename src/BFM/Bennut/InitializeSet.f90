@@ -33,7 +33,7 @@
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       integer function InitializeSet(NUTR,option,input)
         USE global_mem, ONLY:RLEN,ALLOC,error_msg_prn
-        use mem, ONLY:NO_BOXES_XY_BEN
+        use mem, ONLY:NO_BOXES_XY
         USE bennut_variables, ONLY:nutr_seq,nutr_control,ns,sets,fflag
         USE constants, ONLY:LAYERS,NUMBER_OF_PROFILES
 
@@ -46,13 +46,13 @@
 
         if (NUTR == 0 ) then
           if ( nutr_control <=0) then
-            allocate(fflag(NUMBER_OF_PROFILES * NO_BOXES_XY_BEN), stat=i)
+            allocate(fflag(NUMBER_OF_PROFILES * NO_BOXES_XY), stat=i)
             if (i /= 0) call error_msg_prn(ALLOC,"AllocateMem", "fflag")
-            allocate(sets(NUMBER_OF_PROFILES * NO_BOXES_XY_BEN), stat=i)
+            allocate(sets(NUMBER_OF_PROFILES * NO_BOXES_XY), stat=i)
             if (i /= 0) call error_msg_prn(ALLOC,"AllocateMem", "Sets")
             nutr_control=1
             NUTo=nutr_control
-          elseif ( nutr_control > NUMBER_OF_PROFILES * NO_BOXES_XY_BEN ) then
+          elseif ( nutr_control > NUMBER_OF_PROFILES * NO_BOXES_XY ) then
             stop "InitializeSet:number used profiles>NUMBER_OF_PROFILES"
           else
             nutr_control=nutr_control+1

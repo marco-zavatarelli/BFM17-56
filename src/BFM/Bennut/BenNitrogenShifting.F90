@@ -32,7 +32,7 @@
 #else
   use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m
   use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppG4n, ppD7m, &
-    ppD2m,    NO_BOXES_XY_BEN,   &
+    ppD2m,    NO_BOXES_XY,   &
      BoxNumberXY_ben, LocalDelta, shiftD1m, KNH4, reATn, shiftD2m, &
     KNO3, jK34K24n, jK13K3n, iiBen, iiPel, flux
 #endif
@@ -101,7 +101,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium Fluxes at the oxic/denitrification boundary

@@ -145,7 +145,7 @@
 
       integer FUNCTION io_coeff(mode,option,input) 
         USE global_mem, ONLY:RLEN
-        USE mem, ONLY:NO_BOXES_XY_BEN
+        USE mem, ONLY:NO_BOXES_XY
         USE bennut_type
         USE bennut_variables
         USE bennut_constants
@@ -159,7 +159,7 @@
         integer ::j
 
 
-        nmax=NUMBER_OF_PROFILES * NO_BOXES_XY_BEN
+        nmax=NUMBER_OF_PROFILES * NO_BOXES_XY
         IF (mode == WRITE_COEFF) then
           !write.....
           !write head

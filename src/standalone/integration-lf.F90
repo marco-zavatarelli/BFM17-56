@@ -19,16 +19,16 @@
 #endif
 
 #if defined INCLUDE_SEAICE
-   use mem, ONLY: NO_D2_BOX_STATES_ICE, D2SOURCE_ICE, D2STATE_ICE, &
-        NO_BOXES_XY_ICE, D2STATETYPE_ICE
+   use mem, ONLY: NO_D2_BOX_STATES_ICE, D2SOURCE_ICE, &
+        NO_BOXES_XY, D2STATE_ICE, D2STATETYPE_ICE
 #ifdef EXPLICIT_SINK
    use mem, ONLY: D2SINK_ICE
 #endif
 #endif
 
 #if defined INCLUDE_BEN
-   use mem, ONLY: NO_D2_BOX_STATES_BEN, D2SOURCE_BEN, D2STATE_BEN, &
-        NO_BOXES_XY_BEN, D2STATETYPE_BEN
+   use mem, ONLY: NO_D2_BOX_STATES_BEN, D2SOURCE_BEN, &
+        NO_BOXES_XY, D2STATE_BEN, D2STATETYPE_BEN
 #ifdef EXPLICIT_SINK
    use mem, ONLY: D2SINK_BEN
 #endif
@@ -55,12 +55,12 @@
 #if defined INCLUDE_SEAICE
    real(RLEN)                                                 :: min2D_ice
    integer,dimension(2,2)                                     :: blccc_ice
-   real(RLEN),dimension(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE) :: bc2D_ice
+   real(RLEN),dimension(NO_D2_BOX_STATES_ICE,NO_BOXES_XY) :: bc2D_ice
 #endif
 #if defined INCLUDE_BEN
    real(RLEN)                                                 :: min2D_ben
    integer,dimension(2,2)                                     :: blccc_ben
-   real(RLEN),dimension(NO_D2_BOX_STATES_BEN,NO_BOXES_XY_BEN) :: bc2D_ben
+   real(RLEN),dimension(NO_D2_BOX_STATES_BEN,NO_BOXES_XY) :: bc2D_ben
 #endif
 !EOP
 !-----------------------------------------------------------------------

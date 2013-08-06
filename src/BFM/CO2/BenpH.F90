@@ -26,7 +26,7 @@
 #else
   use mem,  ONLY: G13c, G3c, D1m, Q1c, D6m, D2m, D2STATE_BEN
   use mem, ONLY: ppG13c, ppG3c, ppD1m, ppQ1c, ppD6m, ppD2m, &
-     NO_BOXES_XY_BEN,   &
+     NO_BOXES_XY,   &
      BoxNumberXY_ben, DICae,  pHAe, pCO2ae, DICan,  pHan, pCO2an,  ETW_Ben, &
     ESW_Ben, ERHO_Ben, M1p, M5s,AcAe, AcAn,M11p,M21p,D1m,D2m
 #endif
@@ -63,7 +63,7 @@
 !-------------------------------------------------------------------------!
 !BOC
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate the pH value in oxic sediments
       ! Only the iterative solution of the carbonate system can be

@@ -35,7 +35,7 @@
   use mem,  ONLY: KNH4,KNO3,KRED,KPO4,KSIO3
   use mem,  ONLY: ppD1m,ppG2o, ppD2m,reBTn, reBTp, reATn, reATp,ppG3c,rrATo,rrBTo
   use mem,  ONLY: jbotO2o,rrBTo,jG2K3o,jG2K7o,shiftD1m,shiftD2m,ETW_Ben
-  use mem,  ONLY:    NO_BOXES_XY_BEN, BoxNumberXY_ben, ERHO_Ben
+  use mem,  ONLY:    NO_BOXES_XY, BoxNumberXY_ben, ERHO_Ben
 #ifdef INCLUDE_BENCO2
   use mem,  ONLY:KCO2,G3c,G13c,G23c,KALK,G3h,G13h,G23h,O3h_Ben
 #endif
@@ -86,7 +86,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
    real(RLEN)           :: cD2m, HT_0,alpha,HTc,HTn,HTp,chM5s
-   real(RLEN),dimension(NO_BOXES_XY_BEN)  :: r
+   real(RLEN),dimension(NO_BOXES_XY)  :: r
    integer              :: i,nn
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -172,7 +172,7 @@
     endif
   enddo
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
         K4n(BoxNumberXY_ben) =max(p_small,CalculateFromSet( KNH4(BoxNumberXY_ben), INTEGRAL, MASS, &
                                                 ZERO, D1m(BoxNumberXY_ben)))
         K14n(BoxNumberXY_ben)=max(p_small,CalculateFromSet( KNH4(BoxNumberXY_ben), INTEGRAL, MASS, &
@@ -196,7 +196,7 @@
   call BenQ1TransportDynamics
 
 
-  do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+  do BoxNumberXY_ben=1,NO_BOXES_XY
       K1p(BoxNumberXY_ben) =CalculateFromSet( KPO4(BoxNumberXY_ben), INTEGRAL, MASS, &
                                               ZERO, D1m(BoxNumberXY_ben))
       K11p(BoxNumberXY_ben)=CalculateFromSet( KPO4(BoxNumberXY_ben), INTEGRAL, MASS, &
@@ -208,7 +208,7 @@
 #ifdef INCLUDE_BENCO2
       call BenCO2TransportDynamics
       call BenAlkalinityDynamics
-      do BoxNumberXY_ben=1,NO_BOXES_XY_BEN
+      do BoxNumberXY_ben=1,NO_BOXES_XY
             G3c(BoxNumberXY_ben) =CalculateFromSet( KCO2(BoxNumberXY_ben), INTEGRAL, MASS, &
                                               ZERO, D1m(BoxNumberXY_ben))
             G13c(BoxNumberXY_ben)=CalculateFromSet( KCO2(BoxNumberXY_ben), INTEGRAL, MASS, &

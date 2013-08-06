@@ -26,8 +26,8 @@
 #ifdef NOPOINTERS
         use mem
 #else
-        use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX_ben, NO_BOXES_X_BEN, &
-           BoxNumberY_ben,NO_BOXES_Y_BEN,BoxNumber_ben,BoxNumberXY_ben, seddepth
+        use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX_ben, NO_BOXES_X, &
+           BoxNumberY_ben,NO_BOXES_Y,BoxNumber_ben,BoxNumberXY_ben, seddepth
         use mem,ONLY:PrDIC,PrAc,KALK,KCO2,PrM1p,PrM5s,PrpH, &
            ESW_Ben,ETW_Ben,ERHO_Ben
 #endif
@@ -83,8 +83,8 @@
 
         s=0.0;
         DO BoxNumberZ= 1,NO_BOXES_Z
-          DO BoxNumberY_ben=1,NO_BOXES_Y_BEN
-            DO BoxNumberX_ben=1,NO_BOXES_X_BEN
+          DO BoxNumberY_ben=1,NO_BOXES_Y
+            DO BoxNumberX_ben=1,NO_BOXES_X
              BoxNumber_ben=D3toD1(BoxNumberX_ben,BoxNumberY_ben,BoxNumberZ)
              BoxNumberXY_ben=D2toD1(BoxNumberX_ben,BoxNumberY_ben)
  

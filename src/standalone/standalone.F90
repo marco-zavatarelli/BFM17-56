@@ -108,14 +108,10 @@
                          init_netcdf_rst_bfm,read_rst_bfm
    use time
 #if defined INCLUDE_SEAICE
-   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, &
-        NO_BOXES_X_ICE, NO_BOXES_Y_ICE, NO_BOXES_XY_ICE, &
-        NO_D2_BOX_DIAGNOSS_ICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_D2_BOX_DIAGNOSS_ICE
 #endif
 #ifdef INCLUDE_BEN
-   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, &
-                NO_BOXES_X_BEN, NO_BOXES_Y_BEN, NO_BOXES_XY_BEN, &
-                  NO_D2_BOX_DIAGNOSS_BEN
+   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, NO_D2_BOX_DIAGNOSS_BEN
 #endif
 
    IMPLICIT NONE
@@ -167,24 +163,23 @@
    !---------------------------------------------
 #ifdef INCLUDE_BENPROFILES
    ! Dirty method to cheat the standalone model
-   NO_BOXES_X_BEN  = 1
+   NO_BOXES_X  = 1
    NO_BOXES_Z  = nboxes
 #else
    NO_BOXES_X  = nboxes
    NO_BOXES_Z  = 1
 #endif
-
    NO_BOXES_Y  = 1
    NO_BOXES    = NO_BOXES_X * NO_BOXES_Y * NO_BOXES_Z
    NO_BOXES_XY = NO_BOXES_X * NO_BOXES_Y
-#ifdef INCLUDE_SEAICE
-   NO_BOXES_XY_ICE = NO_BOXES_X_ICE * NO_BOXES_Y_ICE
-#endif
+   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES + NO_BOXES_XY
 #ifdef INCLUDE_BEN
-   NO_BOXES_XY_BEN = NO_BOXES_X_BEN * NO_BOXES_Y_BEN
+   NO_STATES = NO_STATES + NO_BOXES_XY*NO_D2_BOX_STATES_BEN
+#endif
+#ifdef INCLUDE_SEAICE
+   NO_STATES = NO_STATES + NO_BOXES_XY*NO_D2_BOX_STATES_ICE
 #endif
 
-   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES + NO_BOXES_XY
    LEVEL3 'Number of Boxes:',nboxes
    LEVEL3 'Box Depth:',indepth
    ! set where surface and bottom boxes are 
@@ -303,14 +298,14 @@
    allocate(bccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(ccc_tmp3D(NO_D3_BOX_STATES,NO_BOXES))
 #if defined INCLUDE_SEAICE
-   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE))
-   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE))
-   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY_ICE))
+   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY))
+   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY))
+   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY))
 #endif
 #if defined INCLUDE_BEN
-   allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY_BEN))
-   allocate(bbccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY_BEN))
-   allocate(ccc_tmp2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY_BEN))
+   allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
+   allocate(bbccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
+   allocate(ccc_tmp2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
 #endif
 
    ! Initialize prior time step for leap-frog:
