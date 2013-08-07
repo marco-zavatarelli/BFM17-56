@@ -464,10 +464,10 @@ contains
    LEVEL3 'NO_BOXES_XY=',NO_BOXES_XY
    LEVEL3 'NO_STATES=',NO_STATES
 #ifdef INCLUDE_SEAICE
-   LEVEL2 'Dimensional benthic informations:'
+   LEVEL2 'Dimensional seaice informations:'
 #endif
 #ifdef INCLUDE_BEN
-   LEVEL2 'Dimensional seaice informations:'
+   LEVEL2 'Dimensional benthic informations:'
 #endif
    LEVEL3 'Step 1 of BFM initialisation done ...'
    ! dimension lengths used in the netcdf output

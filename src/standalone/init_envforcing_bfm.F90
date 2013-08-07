@@ -13,15 +13,8 @@
 !
 !
 ! !USES:
-   use constants, only: E2W
-   use mem,   only: NO_D3_BOX_STATES, NO_BOXES,          &
-                  NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
-                  NO_BOXES_XY, NO_D2_BOX_DIAGNOSS, & 
-                  NO_D3_BOX_DIAGNOSS, NO_STATES,Depth
-   use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
-   use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use time
    use envforcing
 
