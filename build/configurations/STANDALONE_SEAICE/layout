@@ -191,21 +191,21 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     totseaice[cnps]  : total mass present in sea ice: g C: g N: g P: g Si
 
-    eiSI(SeaiceAlgae)  : Regulating factor for light in SeaiceAlgae : -
-    qpSc(SeaiceAlgae)  : Quotum p/c in SeaiceAlgae   : mmol P/mg C
-    qnSc(SeaiceAlgae)  : Quotum n/c in SeaiceAlgae   : mmol N/mg C
-    qsSc(SeaiceAlgae)  : Quotum si/c in SeaiceAlgae  : mmol Si/mg C
-    qlSc(SeaiceAlgae)  : Quotum chl/c in SeaiceAlgae : mg Chl /mg C
+    eiSAL(SeaiceAlgae)   : Regulating factor for light in SeaiceAlgae : -
+    qpcSAL(SeaiceAlgae)  : Quotum P/C in Sea ice Algae   : mmol P/mg C
+    qncSAL(SeaiceAlgae)  : Quotum N/C in Sea ice Algae   : mmol N/mg C
+    qscSAL(SeaiceAlgae)  : Quotum Si/C in Sea ice Algae  : mmol Si/mg C
+    qlcSAL(SeaiceAlgae)  : Quotum Chl/C in Sea ice Algae : mg Chl /mg C
 
-    qpXc(SeaiceZoo)   : Quotum p/c Sea ice Fauna :mmol P/mg C
-    qnXc(SeaiceZoo)   : Quotum n/c Sea ice Fauna :mmol N/mg C
+    qpcSZO(SeaiceZoo)   : Quotum P/C in Sea ice Fauna :mmol P/mg C
+    qncSZO(SeaiceZoo)   : Quotum N/C in Sea ice Fauna :mmol N/mg C
     
-    qpUc(SeaiceDetritus)    : Quotum p/c in Sea ice Detritus:mmol N/mg C  
-    qnUc(SeaiceDetritus)    : Quotum n/c in Sea ice Detritus:mmol P/mg C  
-    qsUc(SeaiceDetritus)    : Quotum si/c in Sea ice Detritus:mmol Si/mg C 
+    qpcSDE(SeaiceDetritus)  : Quotum P/C in Sea ice Detritus:mmol N/mg C  
+    qncSDE(SeaiceDetritus)  : Quotum N/C in Sea ice Detritus:mmol P/mg C  
+    qscSDE(SeaiceDetritus)  : Quotum Si/C in Sea ice Detritus:mmol Si/mg C 
     
-    qpTc(SeaiceBacteria)   : Quotum p/c in Sea ice Bacteria :mmol N/mg C
-    qnTc(SeaiceBacteria)   : Quotum n/c in Sea ice Bacteria :mmol P/mg C  
+    qpcSBA(SeaiceBacteria)   : Quotum P/C in Sea ice Bacteria :mmol N/mg C
+    qncSBA(SeaiceBacteria)   : Quotum N/C in Sea ice Bacteria :mmol P/mg C  
 end
 
 
@@ -322,26 +322,26 @@ end
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 2d-flux-ice -if-exist INCLUDE_DIAG INCLUDE_SEAICE
-  testF1= X1c -> T1c : Gross Primary Consumption     : mg C/m3/d
+  ruSALc=S.c  <- F3c : Gross Primary Production in Sea ice   : mg C/m2/d
 end
 
 3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
-  ruPTc=P.c <- O3c : Gross Primary Production     : mg C/m3/d
-  resPP=P.c -> O3c : Respiration of phytoplankton : mg C/m3/d
-  resZT=(Z.c->O3c) : Respiration of zooplankton   : mg C/m3/d
+  ruPPYc=P.c  <- O3c : Gross Primary Production    : mg C/m3/d
+  resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
+  resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
+  resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
 end
 
 3d-flux -if-exist INCLUDE_DIAG
-  ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
-  ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
-  exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
-  ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
-  netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
-  rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
-  rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
-  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
-  reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
-  ruBn=(N4n->B1n): bacterial uptake : mmol N/m3/d
-  fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
-  fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
+  ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
+  ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
+  ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
+  ruPPYf=P.f <- N7f : Net Iron Uptake : umol Fe/m3/d
+  exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
+  ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross/Net Secondary Production:mg C/m3/d
+  resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
+  remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
+  remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
+  remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
+  remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
 end

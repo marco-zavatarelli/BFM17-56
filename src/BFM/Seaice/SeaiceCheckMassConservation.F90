@@ -27,11 +27,12 @@ use global_mem, ONLY:RLEN,ZERO
   use mem, ONLY: T1c, T1p, T1n, I1p, I3n, I4n, I5s
   use mem, ONLY: ppT1c,ppT1p,ppT1n, &
      ppI1p, ppI3n, ppI4n, ppI5s, ppF3c, &
-     qpXc,qnXc
+     qpcSZO,qncSZO
   use mem, ONLY: flux_vector,ppSeaiceZoo,SeaiceZoo, &
     totseaicec,totseaicep,totseaicen,totseaices, &
-    iiSeaiceZoo,NO_BOXES_ICE,iiC,iiN,iiP,iiS,&
-    SeaiceAlgae,iiSeaiceAlgae,ppSeaiceAlgae,SeaiceDetritus,iiSeaiceDetritus,ppSeaiceDetritus
+    iiSeaiceZoo,NO_BOXES_XY,iiC,iiN,iiP,iiS,&
+    SeaiceAlgae,iiSeaiceAlgae,ppSeaiceAlgae, &
+    SeaiceDetritus,iiSeaiceDetritus,ppSeaiceDetritus
 #endif  
 !
 ! !AUTHORS
@@ -70,7 +71,7 @@ use global_mem, ONLY:RLEN,ZERO
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_ICE) :: s
+  real(RLEN),dimension(NO_BOXES_XY) :: s
   integer                            :: i,j
   
   totseaicec(:)=ZERO
@@ -93,11 +94,11 @@ use global_mem, ONLY:RLEN,ZERO
   do i=1, iiSeaiceZoo
      j=max(1,ppSeaiceZoo(i,iiN))
      s=SeaiceZoo(i,j)
-     if ( j==1) s=s*qnXc(i, :)
+     if ( j==1) s=s*qncSZO(i, :)
      totseaicen(:)=totseaicen(:) + s
      j=max(1,ppSeaiceZoo(i,iiP))
      s=SeaiceZoo(i,j)
-     if ( j==1) s=s*qpXc(i, :)
+     if ( j==1) s=s*qpcSZO(i, :)
      totseaicep(:)=totseaicep(:) + s
   end do
   do i=1, iiSeaiceDetritus

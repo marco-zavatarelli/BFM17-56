@@ -29,7 +29,7 @@
 #endif
   use mem, ONLY: ppT1c, ppT1n, ppT1p, ppX1c, ppF2o, ppF3c, ppU1c, ppU6c, Depth,&
     ppU1n, ppU6n, ppU1p, ppU6p, ppI4n, ppI1p, ppSeaiceAlgae, ppSeaiceZoo, &
-    ETB, eO2mO2, qnTc, qpTc, qnSc, qpSc, qnXc, qpXc, qlSc, qsSc, &
+    ETB, eO2mO2, qncSBA, qpcSBA, qncSAL, qpcSAL, qncSZO, qpcSZO, qlcSAL, qscSAL, &
     iiSeaiceBacteria, iiSeaiceAlgae, iiSeaiceZoo, iiS1, iiC, iiN, iiP, iiL, &
     NO_BOXES_XY, iiIce, iiPel, flux_vector,fixed_quota_flux_vector
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
@@ -152,16 +152,16 @@
   rumTIc(:, i)  =   p_suSBA(zoo, i)*SeaiceBacteria(i,iiC)* &
     SeaiceBacteria(i,iiC)/( SeaiceBacteria(i,iiC)+ p_minfood(zoo))
   rumc  =   rumTIc(:, i)
-  rumn  =   rumTIc(:, i)* qnTc(i, :)
-  rump  =   rumTIc(:, i)* qpTc(i, :)
+  rumn  =   rumTIc(:, i)* qncSBA(i, :)
+  rump  =   rumTIc(:, i)* qpcSBA(i, :)
  end do
 
   do i = 1 , ( iiSeaiceAlgae)
     rumSIc(:, i) = p_suSAL(zoo,i)* SeaiceAlgae(i,iiC)* &
       SeaiceAlgae(i,iiC)/( SeaiceAlgae(i,iiC)+ p_minfood(zoo))
     rumc  =   rumc+ rumSIc(:, i)
-    rumn  =   rumn+ rumSIc(:, i)* qnSc(i,:)
-    rump  =   rump+ rumSIc(:, i)* qpSc(i,:)
+    rumn  =   rumn+ rumSIc(:, i)* qncSAL(i,:)
+    rump  =   rump+ rumSIc(:, i)* qpcSAL(i,:)
   end do
 
   do i = 1 , ( iiSeaiceZoo)
@@ -169,8 +169,8 @@
       SeaiceZoo(i,iiC)* SeaiceZoo(i,iiC)/( SeaiceZoo(i,iiC) + &
       p_minfood(zoo))
     rumc  =   rumc+ rumXIc(:, i)
-    rumn  =   rumn+ rumXIc(:, i)* qnXc(i, :)
-    rump  =   rump+ rumXIc(:, i)* qpXc(i, :)
+    rumn  =   rumn+ rumXIc(:, i)* qncSZO(i, :)
+    rump  =   rump+ rumXIc(:, i)* qpcSZO(i, :)
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -180,7 +180,7 @@
   efood  =   MM_vector(  rumc,  p_chuc(zoo))
   rugc  =   p_sum(zoo)* et* zooc* efood
 
-  r  =   min(  rumn/ p_qnSZO(zoo),  rump/p_qpSZO(zoo))
+  r  =   min(  rumn/ p_qncSZO(zoo),  rump/p_qpcSZO(zoo))
   pu_ra  =   max(  p_pu_ra(zoo),  ONE- r/ (rumc+ p_small))
   put_u  =   rugc/ (rumc+p_small)
 
@@ -192,11 +192,11 @@
    ruTIc  =   put_u* rumTIc(:, i)
    call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppT1c,ppzooc, ruTIc ,tfluxC)
    call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppT1n,ppzoon, &
-                                                       ruTIc* qnTc(i, :),tfluxN)
+                                                       ruTIc* qncSBA(i, :),tfluxN)
    call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppT1p,ppzoop, &
-                                                       ruTIc* qpTc(i, :),tfluxP)
-   rugn  =   ruTIc* qnTc(i, :)
-   rugp  =   ruTIc* qpTc(i, :)
+                                                       ruTIc* qpcSBA(i, :),tfluxP)
+   rugn  =   ruTIc* qncSBA(i, :)
+   rugp  =   ruTIc* qpcSBA(i, :)
 
   end do
 
@@ -206,19 +206,19 @@
     call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzooc,ppSeaiceAlgae(i,iiC),&
                                                       ppzooc, ruSIc ,tfluxC)
     call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppSeaiceAlgae(i,iiN),&
-                                           ppzoon, ruSIc* qnSc(i,:) ,tfluxN)
+                                           ppzoon, ruSIc* qncSAL(i,:) ,tfluxN)
     call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppSeaiceAlgae(i,iiP),&
-                                           ppzoop, ruSIc* qpSc(i,:) ,tfluxP)
+                                           ppzoop, ruSIc* qpcSAL(i,:) ,tfluxP)
     ! Chl is transferred to the sink
     call flux_vector( iiIce, ppSeaiceAlgae(i,iiL),ppSeaiceAlgae(i,iiL),-( &
-      ruSIc* qlSc(i,:)) )
+      ruSIc* qlcSAL(i,:)) )
     if ( i== iiS1) then
       ! S1s is directly transferred to U6s
-      flS1U6s(:)  =   flS1U6s(:)+ ruSIc* qsSc(i,:)
+      flS1U6s(:)  =   flS1U6s(:)+ ruSIc* qscSAL(i,:)
     end if
 
-    rugn  =   rugn+ ruSIc* qnSc(i,:)
-    rugp  =   rugp+ ruSIc* qpSc(i,:)
+    rugn  =   rugn+ ruSIc* qncSAL(i,:)
+    rugp  =   rugp+ ruSIc* qpcSAL(i,:)
   end do
 
   do i = 1 , ( iiSeaiceZoo)
@@ -229,13 +229,13 @@
       call fixed_quota_flux_vector( check_fixed_quota,iiIce,ppzooc,ppSeaiceZoo(i,iiC),&
                                                           ppzooc, ruXIc,tfluxC )
       call fixed_quota_flux_vector( check_fixed_quota,iiIce,ppzoon,ppSeaiceZoo(i,iiN),&
-                                              ppzoon, ruXIc* qnXc(i,:) ,tfluxN)
+                                              ppzoon, ruXIc* qncSZO(i,:) ,tfluxN)
       call fixed_quota_flux_vector( check_fixed_quota,iiIce,ppzoop,ppSeaiceZoo(i,iiP),&
-                                              ppzoop, ruXIc* qpXc(i,:) ,tfluxP)
+                                              ppzoop, ruXIc* qpcSZO(i,:) ,tfluxP)
     end if
 
-    rugn  =   rugn+ ruXIc* qnXc(i,:)
-    rugp  =   rugp+ ruXIc* qpXc(i,:)
+    rugn  =   rugn+ ruXIc* qncSZO(i,:)
+    rugp  =   rugp+ ruXIc* qpcSZO(i,:)
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -276,7 +276,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Nitrogen dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rrin  =   rugn* p_pu_ea(zoo)+ rdc* qnXc(zoo,:)
+  rrin  =   rugn* p_pu_ea(zoo)+ rdc* qncSZO(zoo,:)
   rr1n  =   rrin* p_pe_R1n
   rr6n  =   rrin- rr1n
 
@@ -286,7 +286,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Organic Phosphorus dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  rrip  =   rugp* p_pu_ea(zoo)+ rdc* qpXc(zoo,:)
+  rrip  =   rugp* p_pu_ea(zoo)+ rdc* qpcSZO(zoo,:)
   rr1p  =   rrip* p_pe_R1p
   rr6p  =   rrip- rr1p
 
@@ -298,18 +298,18 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   runc  =   max(  ZERO,  rugc*( ONE- p_pu_ea(zoo))- rrac)
-  runn  =   max(  ZERO,  rugn*( ONE- p_pu_ea(zoo))+ rrsc* qnXc(zoo, :))
-  runp  =   max(  ZERO,  rugp*( ONE- p_pu_ea(zoo))+ rrsc* qpXc(zoo, :))
+  runn  =   max(  ZERO,  rugn*( ONE- p_pu_ea(zoo))+ rrsc* qncSZO(zoo, :))
+  runp  =   max(  ZERO,  rugp*( ONE- p_pu_ea(zoo))+ rrsc* qpcSZO(zoo, :))
 
-  ren  =   max(  ZERO,  runn/( p_small+ runc)- p_qnSZO(zoo))* runc
-  rep  =   max(  ZERO,  runp/( p_small+ runc)- p_qpSZO(zoo))* runc
+  ren  =   max(  ZERO,  runn/( p_small+ runc)- p_qncSZO(zoo))* runc
+  rep  =   max(  ZERO,  runp/( p_small+ runc)- p_qpcSZO(zoo))* runc
   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoon,ppzoon,ppI4n, ren ,tfluxN)
   call fixed_quota_flux_vector( check_fixed_quota,iiIce, ppzoop,ppzoop,ppI1p, rep ,tfluxP)
 
 
-  r=tfluxC*p_qnSZO(zoo)
+  r=tfluxC*p_qncSZO(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiN,0,0,0,r,tfluxN)
-  r=tfluxC*p_qpSZO(zoo)
+  r=tfluxC*p_qpcSZO(zoo)
   call fixed_quota_flux_vector( check_fixed_quota,-iiP,0,0,0,r,tfluxP)
 
 

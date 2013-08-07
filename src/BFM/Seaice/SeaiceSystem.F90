@@ -46,7 +46,6 @@
 ! COPYING
 !   
 !   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!   Copyright (C) 2007 the BFM team
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by

@@ -29,8 +29,8 @@
     I4n, I1p, I3n
 #endif
   use mem, ONLY: ppT1c, ppU6c, ppT1n, ppU6n, ppT1p, ppU6p, ppU1c, ppF3c, &
-    ppU1n, ppU1p, ppF2o, ppN6r, ppI4n, ppI1p, ppI3n, Depth, qpUc, qnUc,&
-    ETB, qnTc, qpTc, eO2mO2, qpUc, qnUc, NO_BOXES_XY, iiIce, flux_vector, &
+    ppU1n, ppU1p, ppF2o, ppN6r, ppI4n, ppI1p, ppI3n, Depth, qpcSDE, qncSDE,&
+    ETB, qncSBA, qpcSBA, eO2mO2, qpcSDE, qncSDE, NO_BOXES_XY, iiIce, flux_vector, &
     iiU1, iiU6
 
   use constants,  ONLY: MW_C, ONE_PER_DAY
@@ -138,19 +138,19 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rd  =  ( p_sd(bac)* et+( p_sd2(bac)* T1c(:)))* T1c(:)
   call flux_vector( iiIce, ppT1c,ppU6c, rd*( ONE- p_pe_R1c) )
-  call flux_vector( iiIce, ppT1n,ppU6n, rd* qnTc(bac, :)*( ONE- p_pe_R1n) )
-  call flux_vector( iiIce, ppT1p,ppU6p, rd* qpTc(bac, :)*( ONE- p_pe_R1p) )
+  call flux_vector( iiIce, ppT1n,ppU6n, rd* qncSBA(bac, :)*( ONE- p_pe_R1n) )
+  call flux_vector( iiIce, ppT1p,ppU6p, rd* qpcSBA(bac, :)*( ONE- p_pe_R1p) )
 
   call flux_vector( iiIce, ppT1c,ppU1c, rd* p_pe_R1c )
-  call flux_vector( iiIce, ppT1n,ppU1n, rd* qnTc(bac, :)* p_pe_R1n )
-  call flux_vector( iiIce, ppT1p,ppU1p, rd* qpTc(bac, :)* p_pe_R1p )
+  call flux_vector( iiIce, ppT1n,ppU1n, rd* qncSBA(bac, :)* p_pe_R1n )
+  call flux_vector( iiIce, ppT1p,ppU1p, rd* qpcSBA(bac, :)* p_pe_R1p )
 
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate quota in U1c
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  qnUc (iiU1, :) =   U1n(:)/ (p_small + U1c(:))
-  qpUc (iiU1, :) =   U1p(:)/ (p_small + U1c(:))
+  qncSDE (iiU1, :) =   U1n(:)/ (p_small + U1c(:))
+  qpcSDE (iiU1, :) =   U1p(:)/ (p_small + U1c(:))
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -171,7 +171,7 @@
       ! No correction of food avilabilities:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      cuU1  =   min(  ONE, qpUc(iiU1,:)/ p_qpc(bac),  qnUc(iiU1,:)/ p_qnc(bac))
+      cuU1  =   min(  ONE, qpcSDE(iiU1,:)/ p_qpc(bac),  qncSDE(iiU1,:)/ p_qnc(bac))
       cuU6  =   ONE
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -187,8 +187,8 @@
       ! Nutrient limitation (intracellular)
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      iNIn  =   min(  ONE,  max(  ZERO,   qnTc(bac, :)/ p_qnc(bac)))  !Nitrogen
-      iI1p  =   min(  ONE,  max(  ZERO,   qpTc(bac, :)/ p_qpc(bac)))  !Phosphorus
+      iNIn  =   min(  ONE,  max(  ZERO,   qncSBA(bac, :)/ p_qnc(bac)))  !Nitrogen
+      iI1p  =   min(  ONE,  max(  ZERO,   qpcSBA(bac, :)/ p_qpc(bac)))  !Phosphorus
 
       iN  =   min(  iI1p,  iNIn)
 
@@ -201,8 +201,8 @@
       ! correction of food avilabilities dependent on internal quota
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-      cuU1  =   min(  ONE, qpUc(iiU1,:)/ p_qpc(bac),  qnUc(iiU1,:)/ p_qnc(bac))
-      cuU6  =   min(  ONE, qpUc(iiU6,:)/ p_qpc(bac),  qnUc(iiU6,:)/ p_qnc(bac))
+      cuU1  =   min(  ONE, qpcSDE(iiU1,:)/ p_qpc(bac),  qncSDE(iiU1,:)/ p_qnc(bac))
+      cuU6  =   min(  ONE, qpcSDE(iiU6,:)/ p_qpc(bac),  qncSDE(iiU6,:)/ p_qnc(bac))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! oxygen environment:
@@ -276,14 +276,14 @@
   ! Organic Nitrogen and Phosphrous uptake
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  ruU6n  =   qnUc(iiU6,:)* ruU6c
-  ruU1n  =   qnUc(iiU1,:)* ruU1c
+  ruU6n  =   qncSDE(iiU6,:)* ruU6c
+  ruU1n  =   qncSDE(iiU1,:)* ruU1c
 
   call flux_vector( iiIce, ppU6n,ppT1n, ruU6n )
   call flux_vector( iiIce, ppU1n,ppT1n, ruU1n )
 
-  ruU6p  =   qpUc(iiU6,:)* ruU6c
-  ruU1p  =   qpUc(iiU1,:)* ruU1c
+  ruU6p  =   qpcSDE(iiU6,:)* ruU6c
+  ruU1p  =   qpcSDE(iiU1,:)* ruU1c
 
   call flux_vector( iiIce, ppU6p,ppT1p, ruU6p )
   call flux_vector( iiIce, ppU1p,ppT1p, ruU1p )
@@ -314,7 +314,7 @@
       ! Only uptake of ammonium possible
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      ren  =  ( qnTc(bac, :)- p_qnc(bac))* T1c(:)* ONE_PER_DAY
+      ren  =  ( qncSBA(bac, :)- p_qnc(bac))* T1c(:)* ONE_PER_DAY
       call flux_vector( iiIce, ppT1n,ppI4n, ren* insw_vector( ren) )
       call flux_vector(iiIce, ppI4n,ppT1n,- ren* insw_vector( - ren)* I4n(:)/( &
         ONE+ I4n(:)))
@@ -323,7 +323,7 @@
       ! Dissolved Phosphorus dynamics
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      rep  =  ( qpTc(bac, :)- p_qpc(bac))* T1c(:)* ONE_PER_DAY
+      rep  =  ( qpcSBA(bac, :)- p_qpc(bac))* T1c(:)* ONE_PER_DAY
       call flux_vector( iiIce, ppT1p,ppI1p,  rep* insw_vector( rep) )
       call flux_vector( iiIce, ppI1p,ppT1p,- rep* insw_vector( - rep)* I1p(:)/( &
         0.5+ I1p(:)))
@@ -335,7 +335,7 @@
 
       !reU7c  =   p_pu_ea_R7* run
 
-      r  =   max(  ONE- qpTc(bac, :)/ p_qpc(bac),  ONE- qnTc(bac, :)/ p_qnc(bac))
+      r  =   max(  ONE- qpcSBA(bac, :)/ p_qpc(bac),  ONE- qncSBA(bac, :)/ p_qnc(bac))
       !reU2c  =   ONE_PER_DAY* r* insw_vector(  r)* T1c(:)
 
       !run  =   run- reU7c- reU2c

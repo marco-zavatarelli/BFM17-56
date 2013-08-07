@@ -35,6 +35,8 @@
 !                        1. pelagic
 !                        2. benthic
 !                        3. pelagic and benthic
+!                        4. sea ice
+!                        5. pelagic and sea ice
 ! out_fname      string  Name of NetCDF output file
 ! out_dir        string  Path to the output file
 ! out_title      string  Name of the experiment in NetCDF file
@@ -168,9 +170,10 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !-------------------------------------------------------
 ! Benthic flags and parameters :
 &Param_parameters_ice
-     CalcSeaiceAlgae    = .TRUE.
-     CalcSeaiceZoo      = .TRUE.
-     CalcSeaiceBacteria = .TRUE.
+     CalcSeaiceAlgae(1) = .TRUE.
+     CalcSeaiceAlgae(2) = .FALSE.
+     CalcSeaiceZoo      = .FALSE.
+     CalcSeaiceBacteria = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -216,23 +219,28 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !-------------------------------------------------------------------------!
 &bfm_save_nml
    ave_save = 'ETW','O2o','DIC',
-          'EIR',
-          'xEPS',
-          'Chla',
-          'N1p','N3n','N4n','N5s',
-          'B1c',
-          'P1c','P2c','P3c','P4c',
-          'P1l','P2l','P3l','P4l',
-          'P1n','P2n','P3n','P4n',
-          'P1p','P2p','P3p','P4p',
-          'Z3c','Z4c','Z5c','Z6c',
-          'R1c','R2c','R6c',
-          'R1n','R6n',
-          'R1p','R6p',
-          'P1s','R6s',
-          'eiPPY(iiP1)','eiPPY(iiP2)','eiPPY(iiP3)','eiPPY(iiP4)',
-          'sunPPY(iiP1)','sunPPY(iiP2)','sunPPY(iiP3)','sunPPY(iiP4)',
-          'ruPTc','resPP','resZT','ruPTn','ruPTp','exPP','ruZTc','netZTc','rePTp','reBn','ruBn','fR2B1c','fP1Z4c', 'rrPTo'
+   'EIR',
+   'xEPS',
+   'Chla',
+   'N1p','N3n','N4n','N5s',
+   'B1c',
+   'P1c','P2c',
+   'P1l','P2l',
+   'P1n','P2n',
+   'P1p','P2p',
+   'Z3c','Z4c','Z5c','Z6c',
+   'R1c','R2c','R6c',
+   'R1n','R6n',
+   'R1p','R6p',
+   'P1s','R6s',
+   'EICE','EIB','EVB','ETB','ESB','ESI','EHB','EDH','EDS',
+   'S1c', 'S1l', 'S2c', 'S2l', 
+   'U1c', 'U1n', 'U1p', 
+   'U6c', 'U6n', 'U6p', 'U6s',
+   'X1c', 'X1n', 'X1p',
+   'T1c', 'T1n', 'T1p',
+   'I1p', 'I3n', 'I4n', 'I5s',
+   'F2o', 'F3c',
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -716,11 +724,11 @@ p_paMEZ(2,:)=   0.0,    1.0
 !-------------------------------------------------------------------------
 &standalone_nml
    nboxes      = 1,
-   indepth     = 5.0,
-   latitude    = 45.0,
-   longitude   = 13.5,
+   indepth     = 15.0,
+   latitude    = 65.0,
+   longitude   = -55.0,
    maxdelt     = 8640.0,
-   mindelt     = 1.0,
+   mindelt     = 0.01,
    method      = 2,
 	filename_nml_conf = 'Standalone.nml',
 /
@@ -743,8 +751,8 @@ p_paMEZ(2,:)=   0.0,    1.0
   timefmt=      2,
   MaxN=         144,
   simdays=      5760,
-  start=        "2000-01-01 00:00:00",
-  stop=         "2010-01-01 00:00:00",
+  start=        "2000-01-12 00:00:00",
+  stop=         "2010-04-07 00:00:00",
 	filename_nml_conf = 'Standalone.nml',
 /
 
@@ -769,11 +777,16 @@ p_paMEZ(2,:)=   0.0,    1.0
 !CO2inc         real    Linear increase in CO2 air partial pressure [% per year]
 !
 !Method 2: data file
-!forcing_file	char	Filename for external forcings
+!forcing_file	   char	   Filename for external forcings
+!use_external_data logical Read external forcings (user defined)
 !
-!use_external_data logical Read external data (user defined)
+!Files for external events
 !data_file	   char	   Filename for external data
+!use_event_data    logical Read external data (user defined)
 !
+!Files for sea-ice forcing data
+!seaice_file       char    Filename for external sea-ice forcings
+!use_seaice_data   logical Read external data (user defined)
 !-------------------------------------------------------------------------!
 &forcings_nml
    forcing_method    = 1,
@@ -787,11 +800,12 @@ p_paMEZ(2,:)=   0.0,    1.0
    tde               = 1.0,
    ww                = 20.0,
    ws                = 10.0,
-   forcing_file      = '',
-   use_external_data = .false.,
-   use_event_data    = .false.,
-   use_seaice_data   = .false.,
+   forcing_file      = '../inputs/seaice/STANDALONE_SEAICE_S0_ocean.dat',
+   use_external_data = .TRUE.,
    data_file         = '',
+   use_event_data    = .FALSE.,
+   seaice_file       = '../inputs/seaice/STANDALONE_SEAICE_S0_seaice.dat',
+   use_seaice_data   = .TRUE.,
 	filename_nml_conf = 'Standalone.nml',
 /
 
@@ -816,48 +830,41 @@ p_paMEZ(2,:)=   0.0,    1.0
 !  p_limnut:  	 switch for nut. limitation (Liebig is default)
 !  p_chPs:  	 half-value of SIO4-lim (mmol Si m-3)
 !  p_qslc:  	 Minimum quotum Si in PI
-!  p_qscPPY:  	 Reference quotum Si in PI
+!  p_qscSAL:  	 Reference quotum Si in PI
 !  p_qus:  	 affinity of PI for Si
 !  p_alpha_chl:  	 Initial slope P-I curve
 !  p_sdchl:  	 Specific turnover rate for Chla (d-1)
 !  p_esII:  	 Nutrient stress threshold for Sinking
 !        :  	 p_alpha_chl = 1.0e-5, 0.46e-5*2.0, 2.0e-5, 0.68e-5 # Initial slope P-I curve
 !        :  	 Thalassiosira sp. (0.48-0.63)
-!  p_qlcPPYSI:    Maximum quotum Chla:C
+!  p_qlcSAL:    Maximum quotum Chla:C
 !  p_chlNI:       Nutrient stress threshold for chlorophyll
 !
 &Seaicealgae_parameters
-!           S1  S2
-   p_q10 = 2.0,2.0,
-   p_sum = 2.5,3.0,
-   p_srs = 0.1,0.05,
-   p_sdmo = 0.0,0.0,
-   p_seo = 0.0,0.0,
-   p_pu_ea = 0.05,0.1,
-   p_pu_ra = 0.1,0.1,
-   p_qnlc = 0.00687,0.00687,
-   p_qplc = 0.0004288,0.0004288,
-   p_qslc = 0.007,0.0,
-   p_qncPPY = 0.0126,0.0126,
-   p_qpcPPY = 0.0007862,0.0007862,
-   p_qscPPY = 0.01,0.0,
-   p_qun = 0.025,0.025,
-   p_qup = 0.0025,0.0025,
-   p_qus = 0.0025,0.0,
-   p_xqn = 2.0,2.0,
-   p_xqp = 2.0,2.0,
-   p_xqs = 1.0,0.0,
-   p_chlII  = 0.7,0.75
-   p_thdo = 0.0,0.0,
-   p_lN4 = 1.0,0.5,
-   p_chPs = 1.0,0.0,
-   p_netgrowth = .TRUE.,.TRUE.,
-   p_limnut = 1,1,
-   p_alpha_chl = 0.5d-05,1.1d-05,
-   p_sdchl = 0.2,0.2,
-   p_qlcPPYSI = 0.05,0.03,
-   p_esII = 0.7,0.75,
-	filename_nml_conf = 'SeaiceAlgae.nml',
+!           	S1	S2
+      p_q10 = 2.0,	2.0,
+      p_sum = 1.5,	2.0,
+      p_srs = 0.05,	0.1,
+     p_sdmo = 0.0,	0.0,
+     p_thdo = 0.1,	0.1,
+    p_pu_ea = 0.2,	0.2,
+    p_pu_ra = 0.2,	0.2,
+   p_limnut = 1,	1,
+      p_qun = 0.025,	0.025,
+      p_lN4 = 1.0,	0.5,
+     p_qnlc = 0.00687,	0.00687,
+   p_qncSAL = 0.0126,	0.0126,
+      p_xqn = 2.0,	2.0,
+      p_qup = 0.0025,	0.0025,
+     p_qplc = 0.0004288,0.0004288,
+   p_qpcSAL = 0.0007862,0.0007862,
+      p_xqp = 2.0,2.0,
+   p_chsSAL = 0.03,	0.0,
+   p_qscSAL = 0.0085,	0.0,
+p_alpha_chl = 1.4e-4,	1.6e-5,
+   p_qlcSAL = 0.03,	0.015,
+  p_epsSAL  = 0.03,	0.03,
+	filename_nml_conf = 'Seaice_Ecology.nml',
 /
 
 !-------------------------------------------------------------------------!
@@ -910,7 +917,7 @@ p_paMEZ(2,:)=   0.0,    1.0
    p_qun = 0.05,
    p_qup = 0.005,
    p_lI4 = 0.05,
-	filename_nml_conf = 'SeaiceBac.nml',
+	filename_nml_conf = 'Seaice_Ecology.nml',
 /
 
 !-------------------------------------------------------------------------!
@@ -957,5 +964,5 @@ p_paMEZ(2,:)=   0.0,    1.0
 !            T1
 ! X1
    p_suSBA(1,:) = 0.1,
-	filename_nml_conf = 'SeaiceZoo.nml',
+	filename_nml_conf = 'Seaice_Ecology.nml',
 /

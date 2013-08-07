@@ -69,8 +69,8 @@
   real(RLEN)  :: p_minfood(iiSeaiceZoo)  ! Concentration below which feeding on a particular
                                                 !  foodsource is depressed
   real(RLEN)  :: p_suSBA(iiSeaiceZoo,iiSeaiceBacteria) ! /day   #relative B1 uptake by zoo
-  real(RLEN)  :: p_qnSZO(iiSeaiceZoo)  ! Maximum quotum P
-  real(RLEN)  :: p_qpSZO(iiSeaiceZoo) ! Maximum quotum N
+  real(RLEN)  :: p_qncSZO(iiSeaiceZoo)  ! Maximum quotum P
+  real(RLEN)  :: p_qpcSZO(iiSeaiceZoo) ! Maximum quotum N
   real(RLEN)  :: p_suSAL(iiSeaiceZoo,iiSeaiceAlgae)    ! /day   #relative P uptake by zoo
   real(RLEN)  :: p_suSZO(iiSeaiceZoo,iiSeaiceZoo)! /day   #relative Z uptake by zoo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -84,7 +84,7 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /SeaiceZoo_parameters/ p_q10, p_srs, p_sum, p_sdo, p_sd, p_pu_ra, &
-    p_pu_ea, p_chro, p_chuc, p_minfood, p_suSAL, p_suSZO, p_suSBA, p_qpSZO, p_qnSZO
+    p_pu_ea, p_chro, p_chuc, p_minfood, p_suSAL, p_suSZO, p_suSBA, p_qpcSZO, p_qncSZO
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

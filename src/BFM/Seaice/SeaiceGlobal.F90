@@ -25,15 +25,13 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE_ICE
 #else
-  use mem, ONLY: U6p, U6c, U6n, U6s, T1p, X1n, X1p, X1c, &
-    U1p, U1n, U1c, &
-    T1c, T1n, T1c, SeaiceZoo, SeaiceAlgae, SeaiceDetritus, ppSeaiceDetritus, &
+  use mem, ONLY: SeaiceZoo, SeaiceAlgae, SeaiceDetritus, ppSeaiceDetritus, &
     iiSeaiceZoo, iiSeaiceAlgae, iiSeaiceBacteria, iiSeaiceDetritus, &
     ppSeaiceZoo, ppSeaiceAlgae, ppSeaiceBacteria, SeaiceBacteria, &
-    iiC, iiP, iiN, iiS, iiL, iiU6, iiU1
+    iiC, iiP, iiN, iiS, iiL
 #endif
-  use mem, ONLY: qnSc, qpSc, qsSc, qlSc, qpXc, qnXc, &
-                 qpUc, qnUc, qsUc, qpTc, qnTc
+  use mem, ONLY: qncSAL, qpcSAL, qscSAL, qlcSAL, qpcSZO, qncSZO, &
+                 qpcSBA, qncSBA, qpcSDE, qncSDE, qscSDE
   use mem_Param,  ONLY: p_small
   use mem_PelGlobal
 
@@ -47,8 +45,6 @@
 ! COPYING
 !   
 !   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!   Copyright (C) 2007 the BFM team
-!   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -77,20 +73,22 @@
   ! Compute nutrient quota in seaice detritus
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiSeaiceDetritus)
-    qpUc(i,:)  =   SeaiceDetritus(i,iiP)/( p_small+ SeaiceDetritus(i,iiC))
-    qnUc(i,:)  =   SeaiceDetritus(i,iiN)/( p_small+ SeaiceDetritus(i,iiC))
+    if ( ppSeaiceDetritus(i,iiP) > 0 ) &
+      qpcSDE(i,:)  =   SeaiceDetritus(i,iiP)/( p_small+ SeaiceDetritus(i,iiC))
+    if ( ppSeaiceDetritus(i,iiN) > 0 ) &
+      qncSDE(i,:)  =   SeaiceDetritus(i,iiN)/( p_small+ SeaiceDetritus(i,iiC))
+    if ( ppSeaiceDetritus(i,iiS) > 0 ) &
+      qscSDE(i,:)  =   SeaiceDetritus(i,iiS)/( p_small+ SeaiceDetritus(i,iiC))
   end do
-
-  qsUc(iiU6,:)  =   U6s(:)/( p_small+ U6c(:))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in seaicezoo
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiSeaiceZoo)
      if ( ppSeaiceZoo(i,iiP) > 0 ) &
-        qpXc(i,:)  =   SeaiceZoo(i,iiP)/( p_small+ SeaiceZoo(i,iiC))
+        qpcSZO(i,:)  =   SeaiceZoo(i,iiP)/( p_small+ SeaiceZoo(i,iiC))
      if ( ppSeaiceZoo(i,iiN) > 0 ) &
-        qnXc(i,:)  =   SeaiceZoo(i,iiN)/( p_small+ SeaiceZoo(i,iiC))
+        qncSZO(i,:)  =   SeaiceZoo(i,iiN)/( p_small+ SeaiceZoo(i,iiC))
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -100,10 +98,14 @@
   ! GlobalDefs file)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiSeaiceAlgae)
-    qpSc(i,:)  =   SeaiceAlgae(i,iiP)/( p_small+ SeaiceAlgae(i,iiC))
-    qnSc(i,:)  =   SeaiceAlgae(i,iiN)/( p_small+ SeaiceAlgae(i,iiC))
-    qlSc(i,:)  =   SeaiceAlgae(i,iiL)/( p_small+ SeaiceAlgae(i,iiC))
-    qsSc(i,:)  =   SeaiceAlgae(i,iiS)/( p_small+ SeaiceAlgae(i,iiC))
+     if ( ppSeaiceAlgae(i,iiP) > 0 ) &
+        qpcSAL(i,:)  =   SeaiceAlgae(i,iiP)/( p_small+ SeaiceAlgae(i,iiC))
+     if ( ppSeaiceAlgae(i,iiN) > 0 ) &
+        qncSAL(i,:)  =   SeaiceAlgae(i,iiN)/( p_small+ SeaiceAlgae(i,iiC))
+     if ( ppSeaiceAlgae(i,iiL) > 0 ) &
+        qlcSAL(i,:)  =   SeaiceAlgae(i,iiL)/( p_small+ SeaiceAlgae(i,iiC))
+     if ( ppSeaiceAlgae(i,iiS) > 0 ) &
+        qscSAL(i,:)  =   SeaiceAlgae(i,iiS)/( p_small+ SeaiceAlgae(i,iiC))
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -111,9 +113,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiSeaiceBacteria)
      if ( ppSeaiceBacteria(i,iiP) > 0 ) &
-        qpTc(i,:)  =   SeaiceBacteria(i,iiP)/( p_small+ SeaiceBacteria(i,iiC))
+        qpcSBA(i,:)  =   SeaiceBacteria(i,iiP)/( p_small+ SeaiceBacteria(i,iiC))
      if ( ppSeaiceZoo(i,iiN) > 0 ) &
-        qnTc(i,:)  =   SeaiceBacteria(i,iiN)/( p_small+ SeaiceBacteria(i,iiC))
+        qncSBA(i,:)  =   SeaiceBacteria(i,iiN)/( p_small+ SeaiceBacteria(i,iiC))
   end do
 
   end
