@@ -433,7 +433,7 @@ END MODULE init_var_bfm_local
       !---------------------------------------------
       LEVEL2 'Initialize the vertical grid for benthic profile diagnostics'
       LEVEL3 'Vertical sediment grid forced equal to model grid'
-      p_sedlevels = NO_BOXES_Z
+      p_sedlevels = NO_BOXES_Z_BEN
       call calc_sigma_depth(p_sedlevels,p_sedsigma,p_d_tot,seddepth)
       do n=1,p_sedlevels
          LEVEL3 n,seddepth(n)
