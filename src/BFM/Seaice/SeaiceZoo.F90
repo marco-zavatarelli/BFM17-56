@@ -31,7 +31,7 @@
     ppU1n, ppU6n, ppU1p, ppU6p, ppI4n, ppI1p, ppSeaiceAlgae, ppSeaiceZoo, &
     ETB, eO2mO2, qncSBA, qpcSBA, qncSAL, qpcSAL, qncSZO, qpcSZO, qlcSAL, qscSAL, &
     iiSeaiceBacteria, iiSeaiceAlgae, iiSeaiceZoo, iiS1, iiC, iiN, iiP, iiL, &
-    NO_BOXES_XY, iiIce, iiPel, flux_vector,fixed_quota_flux_vector
+    NO_BOXES_ICE, iiIce, iiPel, flux_vector,fixed_quota_flux_vector
   use mem_Param,  ONLY: p_pe_R1c, p_pe_R1n, p_pe_R1p, p_small,check_fixed_quota
   use mem_SeaiceZoo
 
@@ -82,53 +82,53 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY) :: zooc
+  real(RLEN),dimension(NO_BOXES_ICE) :: zooc
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
-  real(RLEN),dimension(NO_BOXES_XY)  :: CORROX
-  real(RLEN),dimension(NO_BOXES_XY)  :: put_u
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: eF2
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugp
-  real(RLEN),dimension(NO_BOXES_XY)  :: runc
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY)  :: efood
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrsc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrac
-  real(RLEN),dimension(NO_BOXES_XY)  :: reac
-  real(RLEN),dimension(NO_BOXES_XY)  :: rdc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrtc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruTIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruSIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: ruXIc
-  real(RLEN),dimension(NO_BOXES_XY,iiSeaiceBacteria)  :: rumTIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rric
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrip
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rep
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrin
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: ren
-  real(RLEN),dimension(NO_BOXES_XY)  :: pu_ra
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY,iiSeaiceAlgae)  :: rumSIc
-  real(RLEN),dimension(NO_BOXES_XY,iiSeaiceZoo)  :: rumXIc
-  real(RLEN),dimension(NO_BOXES_XY)  :: flS1U6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: tfluxc
-  real(RLEN),dimension(NO_BOXES_XY)  :: tfluxn
-  real(RLEN),dimension(NO_BOXES_XY)  :: tfluxp
+  real(RLEN),dimension(NO_BOXES_ICE)  :: CORROX
+  real(RLEN),dimension(NO_BOXES_ICE)  :: put_u
+  real(RLEN),dimension(NO_BOXES_ICE)  :: et
+  real(RLEN),dimension(NO_BOXES_ICE)  :: eF2
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rumc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rump
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rugc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rugn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rugp
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runp
+  real(RLEN),dimension(NO_BOXES_ICE)  :: efood
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rrsc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rrac
+  real(RLEN),dimension(NO_BOXES_ICE)  :: reac
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rdc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rrtc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: ruTIc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: ruSIc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: ruXIc
+  real(RLEN),dimension(NO_BOXES_ICE,iiSeaiceBacteria)  :: rumTIc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rric
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr1c
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6c
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr1p
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr1n
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rrip
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6p
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rep
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rrin
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6n
+  real(RLEN),dimension(NO_BOXES_ICE)  :: ren
+  real(RLEN),dimension(NO_BOXES_ICE)  :: pu_ra
+  real(RLEN),dimension(NO_BOXES_ICE)  :: r
+  real(RLEN),dimension(NO_BOXES_ICE,iiSeaiceAlgae)  :: rumSIc
+  real(RLEN),dimension(NO_BOXES_ICE,iiSeaiceZoo)  :: rumXIc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: flS1U6s
+  real(RLEN),dimension(NO_BOXES_ICE)  :: tfluxc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: tfluxn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: tfluxp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var

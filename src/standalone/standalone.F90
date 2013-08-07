@@ -108,7 +108,9 @@
                          init_netcdf_rst_bfm,read_rst_bfm
    use time
 #if defined INCLUDE_SEAICE
-   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, NO_D2_BOX_DIAGNOSS_ICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, &
+                  NO_D2_BOX_DIAGNOSS_ICE, NO_BOXES_ICE, NO_BOXES_Z_ICE, &
+                  NO_STATES_ICE
 #endif
 #ifdef INCLUDE_BEN
    use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, NO_D2_BOX_DIAGNOSS_BEN
@@ -161,23 +163,27 @@
    !---------------------------------------------
    ! set the dimensions
    !---------------------------------------------
-#ifdef INCLUDE_BENPROFILES
-   ! Dirty method to cheat the standalone model
-   NO_BOXES_X  = 1
-   NO_BOXES_Z  = nboxes
-#else
    NO_BOXES_X  = nboxes
-   NO_BOXES_Z  = 1
-#endif
    NO_BOXES_Y  = 1
+   NO_BOXES_Z  = 1
    NO_BOXES    = NO_BOXES_X * NO_BOXES_Y * NO_BOXES_Z
    NO_BOXES_XY = NO_BOXES_X * NO_BOXES_Y
    NO_STATES   = NO_D3_BOX_STATES * NO_BOXES + NO_BOXES_XY
 #ifdef INCLUDE_BEN
-   NO_STATES = NO_STATES + NO_BOXES_XY*NO_D2_BOX_STATES_BEN
+#  ifdef INCLUDE_BENPROFILES
+   ! Dirty method to cheat the standalone model
+   NO_BOXES_Z_BEN  = nboxes
+   NO_BOXES_BEN = NO_BOXES_XY 
+#  else
+   NO_BOXES_Z_BEN  = 1
+   NO_BOXES_BEN = NO_BOXES_XY * NO_BOXES_Z_BEN
+#  endif
+   NO_STATES_BEN = NO_BOXES_BEN * NO_D2_BOX_STATES_BEN
 #endif
 #ifdef INCLUDE_SEAICE
-   NO_STATES = NO_STATES + NO_BOXES_XY*NO_D2_BOX_STATES_ICE
+   NO_BOXES_Z_ICE  = 1
+   NO_BOXES_ICE = NO_BOXES_XY * NO_BOXES_Z_ICE
+   NO_STATES_ICE = NO_BOXES_ICE * NO_D2_BOX_STATES_ICE
 #endif
 
    LEVEL3 'Number of Boxes:',nboxes
@@ -298,9 +304,9 @@
    allocate(bccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(ccc_tmp3D(NO_D3_BOX_STATES,NO_BOXES))
 #if defined INCLUDE_SEAICE
-   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY))
-   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY))
-   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_XY))
+   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
 #endif
 #if defined INCLUDE_BEN
    allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))

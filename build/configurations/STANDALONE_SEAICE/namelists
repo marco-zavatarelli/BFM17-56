@@ -133,16 +133,16 @@
        CalcConservationFlag = .FALSE.
           CalcTransportFlag = .FALSE.
        CalcPhytoPlankton(1) = .TRUE.
-       CalcPhytoPlankton(2) = .TRUE.
-       CalcPhytoPlankton(3) = .TRUE.
-       CalcPhytoPlankton(4) = .TRUE.
+       CalcPhytoPlankton(2) = .FALSE.
+       CalcPhytoPlankton(3) = .FALSE.
+       CalcPhytoPlankton(4) = .FALSE.
          CalcPelBacteria(1) = .TRUE.
-    CalcMicroZooPlankton(1) = .TRUE.
-    CalcMicroZooPlankton(2) = .TRUE.
-     CalcMesoZooPlankton(1) = .TRUE.
+    CalcMicroZooPlankton(1) = .FALSE.
+    CalcMicroZooPlankton(2) = .FALSE.
+     CalcMesoZooPlankton(1) = .FALSE.
      CalcMesoZooPlankton(2) = .TRUE.
            CalcPelChemistry = .TRUE.
-AssignPelBenFluxesInBFMFlag = .FALSE.
+AssignPelBenFluxesInBFMFlag = .TRUE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
             ChlDynamicsFlag = 2
             LightPeriodFlag = 1
@@ -150,12 +150,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
           check_fixed_quota = 0
 ! Parameters : 
                     p_small   = 1.0e-20
-                       slp0   = 1013.25E0
+                       slp0   = 1013.25
                       p_PAR   = 0.50
                      p_eps0   = 0.10
-                    p_epsR6   = 0.1d-3
+                    p_epsR6   = 0.1e-3
                     p_epsChla = 0.03
-                   p_epsESS   = 0.04d-3
+                   p_epsESS   = 0.04e-3
                    p_pe_R1c   = 0.60
                    p_pe_R1n   = 0.72
                    p_pe_R1p   = 0.832
@@ -185,17 +185,17 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !<variablename>0 = <realvalue>
 !-------------------------------------------------------------------------!
 &bfm_init_nml
-   N1p0 = 0.3,
-   N3n0 = 2.0,
-   N4n0 = 0.5,
-   N5s0 = 4.0,
-   N6r0 = 1.0,
-   O2o0 = 300.0,
-   O3c0 = 27060.00,
-   O3h0 = 2660.0,
-   O4n0 = 200.0,
+   N1p0 = 1.e6
+   N3n0 = 1.e6
+   N4n0 = 1.e6
+   N5s0 = 8.0 
+   N6r0 = 1.0
+   O2o0 = 300.0
+   O3c0 = 27060.00
+   O3h0 = 2660.0
+   O4n0 = 200.0
    P1c0 = 1.0,
-   P2c0 = 1.0,
+   P2c0 = 2.0,
    P3c0 = 1.0,
    P4c0 = 1.0,
    Z3c0 = 1.0,
@@ -205,7 +205,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    B1c0 = 1.0,
    R1c0 = 1.0,
    R2c0 = 0.1,
-   R3c0 = 1.0,
+   R3c0 = 0.1,
    R6c0 = 1.0,
 	filename_nml_conf = 'BFM_General.nml',
 /
@@ -763,7 +763,7 @@ p_paMEZ(2,:)=   0.0,    1.0
   MaxN=         144,
   simdays=      5760,
   start=        "2000-01-12 00:00:00",
-  stop=         "2010-04-07 00:00:00",
+  stop=         "2000-04-07 00:00:00",
 	filename_nml_conf = 'Standalone.nml',
 /
 
@@ -800,7 +800,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !use_seaice_data   logical Read external data (user defined)
 !-------------------------------------------------------------------------!
 &forcings_nml
-   forcing_method    = 1,
+   forcing_method    = 2,
    ltype             = 1,
    lw                = 20.0,
    ls                = 300.0,
@@ -964,8 +964,8 @@ p_alpha_chl = 1.4e-4,	1.6e-5,
    p_chro = 7.8,
    p_chuc = 5.0,
    p_minfood = 3.0,
-   p_qpSZO = 0.00185,
-   p_qnSZO = 0.0167,
+   p_qpcSZO = 0.00185,
+   p_qncSZO = 0.0167,
 !            S1  S2
 ! X1
    p_suSAL(1,:) = 0.2, 0.1

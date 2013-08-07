@@ -20,10 +20,12 @@
                   NO_BOXES_XY, NO_D3_BOX_DIAGNOSS,     &
                   NO_STATES,Depth,D3STATE,PELRIVER
 #ifdef INCLUDE_BEN
-   use mem, only: NO_D2_BOX_STATES_BEN, D2STATE_BEN
+   use mem, only: NO_D2_BOX_STATES_BEN, D2STATE_BEN, &
+                  NO_BOXES_Z_BEN, NO_BOXES_BEN, NO_STATES_BEN
 #endif
 #ifdef INCLUDE_SEAICE
-   use mem, only: NO_D2_BOX_STATES_ICE, D2STATE_ICE
+   use mem, only: NO_D2_BOX_STATES_ICE, D2STATE_ICE, &
+                  NO_BOXES_Z_ICE, NO_BOXES_ICE, NO_STATES_ICE
 #endif
    use mem, only: Volume, Area, Area2d
    use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s
@@ -144,10 +146,14 @@
    NO_BOXES_XY = count(SRFmask)
    NO_STATES   = NO_D3_BOX_STATES * NO_BOXES
 #ifdef INCLUDE_BEN
-   NO_STATES = NO_STATES + NO_BOXES_XY*NO_D2_BOX_STATES_BEN
+   NO_BOXES_Z_BEN  = 1
+   NO_BOXES_BEN = NO_BOXES_XY * NO_BOXES_Z_BEN
+   NO_STATES_BEN = NO_BOXES_BEN * NO_D2_BOX_STATES_BEN
 #endif
 #ifdef INCLUDE_SEAICE
-   NO_STATES = NO_STATES + NO_BOXES_XY*NO_D2_BOX_STATES_ICE
+   NO_BOXES_Z_ICE  = 1
+   NO_BOXES_ICE = NO_BOXES_XY * NO_BOXES_Z_ICE
+   NO_STATES_ICE = NO_BOXES_ICE * NO_D2_BOX_STATES_ICE
 #endif
 
    !-------------------------------------------------------

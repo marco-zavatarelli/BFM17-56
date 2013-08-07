@@ -40,7 +40,7 @@
                          iiX1,iiZ5
    use mem,        only: iiC,iiN,iiP,iiS,iiL
    use mem,        only: jsurN1p,jsurN3n,jsurN4n,jsurN5s,jsurO3c, &
-                         jsurO2o,jsurP1l,jsurP2l,Depth,NO_BOXES,ppN1p,ppN3n,ppN4n,ppN5s,ppO2o
+                         jsurO2o,jsurP1l,jsurP2l,Depth,NO_BOXES_ICE,ppN1p,ppN3n,ppN4n,ppN5s,ppO2o
    use mem,        only: ESW,EIR
    use api_bfm,    only: SRFindices
 
@@ -59,7 +59,7 @@
 
    integer                            :: i,j,p
    real(RLEN), dimension(:), pointer  :: lcl_PelagicVar,lcl_SeaiceVar
-   real(RLEN)                         :: tmpflux(NO_BOXES)
+   real(RLEN)                         :: tmpflux(NO_BOXES_ICE)
    real(RLEN)                         :: localdelta
    real(RLEN), external               :: GetDelta
 !

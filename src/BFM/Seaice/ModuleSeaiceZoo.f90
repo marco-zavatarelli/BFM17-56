@@ -89,17 +89,16 @@
 
   !BEGIN compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-   write(LOGUNIT,*) "#  Reading SeaiceZoo parameters.."
-open(NMLUNIT,file='SeaiceZoo.nml',status='old',action='read',err=100)
-    read(NMLUNIT,nml=SeaiceZoo_parameters,err=101)
-    close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
-    write(LOGUNIT,nml=SeaiceZoo_parameters)
+  write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
+  write(LOGUNIT,*) "#  Reading SeaiceZoo parameters.."
+  open(NMLUNIT,file='Seaice_Ecology.nml',status='old',action='read',err=100)
+  read(NMLUNIT,nml=SeaiceZoo_parameters,err=101)
+  close(NMLUNIT)
+  write(LOGUNIT,*) "#  Namelist is:"
+  write(LOGUNIT,nml=SeaiceZoo_parameters)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -107,8 +106,8 @@ open(NMLUNIT,file='SeaiceZoo.nml',status='old',action='read',err=100)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Error Messages
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-100 call error_msg_prn(NML_OPEN,"InitSeaiceZoo.f90","SeaiceZoo.nml")
-101 call error_msg_prn(NML_READ,"InitSeaiceZoo.f90","SeaiceZoo_parameters")
+100 call error_msg_prn(NML_OPEN,"ModuleSeaiceZoo.f90","Seaice_Ecology.nml")
+101 call error_msg_prn(NML_READ,"ModuleSeaiceZoo.f90","SeaiceZoo_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitSeaiceZoo
   end module mem_SeaiceZoo

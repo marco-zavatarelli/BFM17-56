@@ -32,7 +32,7 @@
 #endif
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, ETB, EIB, &
-    EHB, eiSAL, iiS1, qncSAL, qpcSAL, qscSAL, qlcSAL, NO_BOXES_XY, &
+    EHB, eiSAL, iiS1, qncSAL, qpcSAL, qscSAL, qlcSAL, NO_BOXES_ICE, &
     iiIce, flux_vector
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small
@@ -86,63 +86,63 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN),dimension(NO_BOXES_XY) :: algc
-  real(RLEN),dimension(NO_BOXES_XY) :: algn
-  real(RLEN),dimension(NO_BOXES_XY) :: algp
-  real(RLEN),dimension(NO_BOXES_XY) :: algs
-  real(RLEN),dimension(NO_BOXES_XY) :: algl
+  real(RLEN),dimension(NO_BOXES_ICE) :: algc
+  real(RLEN),dimension(NO_BOXES_ICE) :: algn
+  real(RLEN),dimension(NO_BOXES_ICE) :: algp
+  real(RLEN),dimension(NO_BOXES_ICE) :: algs
+  real(RLEN),dimension(NO_BOXES_ICE) :: algl
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer,dimension(NO_BOXES_XY)     :: i
-  real(RLEN),dimension(NO_BOXES_XY)  :: r
-  real(RLEN),dimension(NO_BOXES_XY)  :: et
-  real(RLEN),dimension(NO_BOXES_XY)  :: sum
-  real(RLEN),dimension(NO_BOXES_XY)  :: sadap
-  real(RLEN),dimension(NO_BOXES_XY)  :: sea
-  real(RLEN),dimension(NO_BOXES_XY)  :: sdo
-  real(RLEN),dimension(NO_BOXES_XY)  :: rugc
-  real(RLEN),dimension(NO_BOXES_XY)  :: sra
-  real(RLEN),dimension(NO_BOXES_XY)  :: srs
-  real(RLEN),dimension(NO_BOXES_XY)  :: srt
-  real(RLEN),dimension(NO_BOXES_XY)  :: slc
-  real(RLEN),dimension(NO_BOXES_XY)  :: run
-  real(RLEN),dimension(NO_BOXES_XY)  :: pe_U6
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rump
-  real(RLEN),dimension(NO_BOXES_XY)  :: misp
-  real(RLEN),dimension(NO_BOXES_XY)  :: rupn
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn3
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn4
-  real(RLEN),dimension(NO_BOXES_XY)  :: rumn
-  real(RLEN),dimension(NO_BOXES_XY)  :: misn
-  real(RLEN),dimension(NO_BOXES_XY)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_XY)  :: rums
-  real(RLEN),dimension(NO_BOXES_XY)  :: rups
-  real(RLEN),dimension(NO_BOXES_XY)  :: miss
-  real(RLEN),dimension(NO_BOXES_XY)  :: iI
-  real(RLEN),dimension(NO_BOXES_XY)  :: iI1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: iINn
-  real(RLEN),dimension(NO_BOXES_XY)  :: eI5s
-  real(RLEN),dimension(NO_BOXES_XY)  :: rrc
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr1p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6c
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6n
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6p
-  real(RLEN),dimension(NO_BOXES_XY)  :: rr6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn3
-  real(RLEN),dimension(NO_BOXES_XY)  :: runn4
-  real(RLEN),dimension(NO_BOXES_XY)  :: runp
-  real(RLEN),dimension(NO_BOXES_XY)  :: runs
-  real(RLEN),dimension(NO_BOXES_XY)  :: Irr
-  real(RLEN),dimension(NO_BOXES_XY)  :: rho_Chl
-  real(RLEN),dimension(NO_BOXES_XY)  :: rate_Chl
-  real(RLEN),dimension(NO_BOXES_XY)  :: Photo_max
-  real(RLEN),dimension(NO_BOXES_XY)  :: flSIU2c,flS1U6s
-  real(RLEN),dimension(NO_BOXES_XY)  :: seo
+  integer,dimension(NO_BOXES_ICE)     :: i
+  real(RLEN),dimension(NO_BOXES_ICE)  :: r
+  real(RLEN),dimension(NO_BOXES_ICE)  :: et
+  real(RLEN),dimension(NO_BOXES_ICE)  :: sum
+  real(RLEN),dimension(NO_BOXES_ICE)  :: sadap
+  real(RLEN),dimension(NO_BOXES_ICE)  :: sea
+  real(RLEN),dimension(NO_BOXES_ICE)  :: sdo
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rugc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: sra
+  real(RLEN),dimension(NO_BOXES_ICE)  :: srs
+  real(RLEN),dimension(NO_BOXES_ICE)  :: srt
+  real(RLEN),dimension(NO_BOXES_ICE)  :: slc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: run
+  real(RLEN),dimension(NO_BOXES_ICE)  :: pe_U6
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rupp
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rump
+  real(RLEN),dimension(NO_BOXES_ICE)  :: misp
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rupn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn3
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn4
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: misn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: cqun3
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rums
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rups
+  real(RLEN),dimension(NO_BOXES_ICE)  :: miss
+  real(RLEN),dimension(NO_BOXES_ICE)  :: iI
+  real(RLEN),dimension(NO_BOXES_ICE)  :: iI1p
+  real(RLEN),dimension(NO_BOXES_ICE)  :: iINn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: eI5s
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rrc
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr1c
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr1n
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr1p
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6c
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6n
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6p
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rr6s
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runn
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runn3
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runn4
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runp
+  real(RLEN),dimension(NO_BOXES_ICE)  :: runs
+  real(RLEN),dimension(NO_BOXES_ICE)  :: Irr
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rho_Chl
+  real(RLEN),dimension(NO_BOXES_ICE)  :: rate_Chl
+  real(RLEN),dimension(NO_BOXES_ICE)  :: Photo_max
+  real(RLEN),dimension(NO_BOXES_ICE)  :: flSIU2c,flS1U6s
+  real(RLEN),dimension(NO_BOXES_ICE)  :: seo
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Reset flux to biogenic silica
