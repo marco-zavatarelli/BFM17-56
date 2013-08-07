@@ -10,7 +10,6 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 !
 !
- use mem, only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z
  IMPLICIT NONE
  integer,intent(IN) :: x,y,z
  integer            :: D3toD1

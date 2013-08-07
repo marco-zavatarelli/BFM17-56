@@ -26,7 +26,7 @@
 #ifdef NOPOINTERS
         use mem
 #else
-        use mem, ONLY:BoxNumberZ, NO_BOXES_Z, BoxNumberX_ben, NO_BOXES_X, &
+        use mem, ONLY:BoxNumberZ, BoxNumberX_ben, NO_BOXES_X, &
            BoxNumberY_ben,NO_BOXES_Y,BoxNumber_ben,BoxNumberXY_ben,seddepth,ETW_Ben,   &
            PrQ1c,PrM1p,PrM3n,PrM4n,PrM5s,PrM6r,KQ1,KPO4,KNO3,KNH4,KSiO3,KRED, &
            Pr2M1p,KPO4_2

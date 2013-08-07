@@ -22,7 +22,7 @@
 #ifdef INCLUDE_BEN
    use mem, only: NO_D2_BOX_STATES_BEN, D2STATE_BEN
 #endif
-#ifdef INCLUDE_BEN
+#ifdef INCLUDE_SEAICE
    use mem, only: NO_D2_BOX_STATES_ICE, D2STATE_ICE
 #endif
    use mem, only: Volume, Area, Area2d

@@ -199,6 +199,10 @@
         integer,parameter,public  ::NO_D2_BOX_STATES_ICE   = %2d-state-ice-nr
         integer,parameter,public  ::NO_D2_BOX_DIAGNOSS_ICE = %2d-diagnos-ice-nr
         integer,parameter,public  ::NO_D2_BOX_FLUX_ICE     = %2d-flux-ice-nr
+
+        integer,public  ::NO_BOXES_ICE
+        integer,public  ::NO_BOXES_Z_ICE
+        integer,public  ::NO_STATES_ICE
 #endif
 
 #ifdef INCLUDE_BEN
@@ -209,6 +213,10 @@
         integer,parameter,public  ::NO_D2_BOX_STATES_BEN   = %2d-state-ben-nr
         integer,parameter,public  ::NO_D2_BOX_DIAGNOSS_BEN = %2d-diagnos-ben-nr
         integer,parameter,public  ::NO_D2_BOX_FLUX_BEN     = %2d-flux-ben-nr
+
+        integer,public  ::NO_BOXES_BEN
+        integer,public  ::NO_BOXES_Z_BEN
+        integer,public  ::NO_STATES_BEN
 #endif
 
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

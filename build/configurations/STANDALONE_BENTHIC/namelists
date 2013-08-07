@@ -156,6 +156,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_qro = 0.5
                p_qon_dentri = 1.25
                 p_qon_nitri = 1.5
+                    p_poro0 = 0.7
+                    p_d_tot = 0.30
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -171,13 +173,16 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
         CalcBenOrganisms(5) = .FALSE.
          CalcBenBacteria(1) = .FALSE.
          CalcBenBacteria(2) = .FALSE.
-                    p_poro0 = 0.7
                  p_InitSink = 100.0
-                    p_d_tot = 0.30
                   p_d_tot_2 = 0.35
                   p_clD1D2m = 0.01
                     p_clDxm = 0.001
                   p_q10diff = 1.49
+    calc_init_bennut_states = 0 
+                    p_qnQIc = 0.11155
+                    p_qpQIc = 0.010255
+                    p_qsQIc = 0.0221
+
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -214,16 +219,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 /
 
 !-------------------------------------------------------------------------!
-! NAMELIST bfm_ben_init_nml
+! NAMELIST bfm_init_nml_ben
 !-------------------------------------------------------------------------!
 !Benthic initialisation of standard variables
 !<variablename>0 = <realvalue>
 !-------------------------------------------------------------------------!
-&bfm_ben_init_nml
-   calc_init_bennut_states=0,
-   p_qnQIc =0.11155,
-   p_qpQIc =0.010255,
-   p_qsQIc =0.0221,
+&bfm_init_nml_ben
    Y1c0  = 160.0,
    Y2c0  = 470,
    Y3c0  = 310.0,

@@ -173,17 +173,31 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! 0d-parameters 
   integer      :: p_sedlevels=20 
-  real(RLEN)   :: p_poro0=0.4    
+  real(RLEN)   :: &
+      p_sedsigma=2.0_RLEN, &
+      p_d_tot=0.30_RLEN , &
+      p_poro0=0.4
+  ! 1d-parameters
+  real(RLEN),public,dimension(:),allocatable   ::  p_p_ae, p_poro      
+#ifdef INCLUDE_BEN
+      integer   :: calc_init_bennut_states
   real(RLEN)   :: &
       p_InitSink=100.0_RLEN,  &  
       p_q10diff=1.49_RLEN,  &  
       p_clDxm=0.001_RLEN, &  
-      p_d_tot=0.30_RLEN,    &  
       p_clD1D2m=0.01_RLEN,    &  
-      p_d_tot_2=0.35_RLEN,  &  
-      p_sedsigma=2.0_RLEN        
-  ! 1d-parameters
-  real(RLEN),public,dimension(:),allocatable   ::  p_p_ae, p_poro
+      p_d_tot_2=0.35_RLEN,  &
+      p_qnQIc, &
+      p_qpQIc, &
+      p_qsQIc
+#endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Seaice model parameters
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#ifdef INCLUDE_SEAICE
+#endif
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -207,11 +221,13 @@
     p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,         &
     p_eps0, p_epsESS, p_sedlevels, p_sedsigma,                                &
     p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,                                   &
-    p_epsR6, p_epsChla, check_fixed_quota
+    p_epsR6, p_epsChla, check_fixed_quota, &
+    p_d_tot, p_poro0 
 #ifdef INCLUDE_BEN
   namelist /Param_parameters_ben/                                             &
     CalcBenOrganisms,CalcBenBacteria,                                         &
-    p_poro0, p_InitSink, p_d_tot, p_d_tot_2, p_clD1D2m, p_clDxm, p_q10diff
+    calc_init_bennut_states, p_qnQIc, p_qpQIc, p_qsQIc,                       &
+    p_InitSink, p_d_tot_2, p_clD1D2m, p_clDxm, p_q10diff
 #endif
 #ifdef INCLUDE_SEAICE
   namelist /Param_parameters_ice/                                             &
