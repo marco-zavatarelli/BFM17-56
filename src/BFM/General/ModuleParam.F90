@@ -247,7 +247,7 @@
 #ifdef INCLUDE_BEN
    read(NMLUNIT,nml=Param_parameters_ben,err=102)
 #endif
-#ifdef INCLUDE_ICE
+#ifdef INCLUDE_SEAICE
    read(NMLUNIT,nml=Param_parameters_ice,err=103)
 #endif
    close(NMLUNIT)
@@ -259,7 +259,7 @@
 #ifdef INCLUDE_BEN
     write(LOGUNIT,nml=Param_parameters_ben)
 #endif
-#ifdef INCLUDE_ICE
+#ifdef INCLUDE_SEAICE
     write(LOGUNIT,nml=Param_parameters_ice)
 #endif
    endif 

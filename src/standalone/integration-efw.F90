@@ -139,7 +139,7 @@
 #else
             bbccc2D_ice = sum(D2SOURCE_ICE(:,:,:)-D2SINK_ICE(:,:,:),2)
 #endif
-            LEVEL1 'Seaice Variable:',trim(var_names(stIceState2dS+blccc_ice(1,2)-1))
+            LEVEL1 'Seaice Variable:',trim(var_names(stIceStateS+blccc_ice(1,2)-1))
             LEVEL1 'Value: ',D2STATE_ICE(blccc_ice(1,2),blccc_ice(2,2)),' Rate: ', &
                            bbccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
             LEVEL1 'EXIT at  time ',timesec
@@ -152,7 +152,7 @@
 #else
             bbccc2D_ben = sum(D2SOURCE_BEN(:,:,:)-D2SINK_BEN(:,:,:),2)
 #endif
-            LEVEL1 'Benthic Variable:',trim(var_names(stBenState2dS+blccc_ben(1,2)-1))
+            LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc_ben(1,2)-1))
             LEVEL1 'Value: ',D2STATE_BEN(blccc_ben(1,2),blccc_ben(2,2)),' Rate: ', &
                            bbccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
             LEVEL1 'EXIT at  time ',timesec

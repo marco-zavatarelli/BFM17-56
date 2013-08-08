@@ -157,7 +157,7 @@
 
 #if defined INCLUDE_SEAICE
             blccc_ice(:,2)=minloc(D2STATE_ICE)
-            LEVEL1 var_names(stIceState2dS+blccc_ice(1,2)-1)
+            LEVEL1 var_names(stIceStateS+blccc_ice(1,2)-1)
             LEVEL1 ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
                            bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
             D2STATE_ICE=bbccc2D_ice
@@ -165,7 +165,7 @@
 
 #if defined INCLUDE_BEN
             blccc_ben(:,2)=minloc(D2STATE_BEN)
-            LEVEL1 var_names(stBenState2dS+blccc_ben(1,2)-1)
+            LEVEL1 var_names(stBenStateS+blccc_ben(1,2)-1)
             LEVEL1 ccc_tmp2D_ben(blccc_ben(1,2),blccc_ben(2,2)), &
                            bccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
             D2STATE_BEN=bbccc2D_ben
@@ -270,7 +270,7 @@
 
 #if defined INCLUDE_SEAICE
                blccc_ice(:,2)=minloc(D2STATE_ICE)
-               LEVEL1 var_names(stIceState2dS+blccc_ice(1,2)-1)
+               LEVEL1 var_names(stIceStateS+blccc_ice(1,2)-1)
                LEVEL1 ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
                               bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
                D2STATE_ICE=bbccc2D_ice
@@ -278,7 +278,7 @@
 
 #if defined INCLUDE_BEN
                blccc_ben(:,2)=minloc(D2STATE_BEN)
-               LEVEL1 var_names(stBenState2dS+blccc_ben(1,2)-1)
+               LEVEL1 var_names(stBenStateS+blccc_ben(1,2)-1)
                LEVEL1 ccc_tmp2D_ben(blccc_ben(1,2),blccc_ben(2,2)), &
                               bccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
                D2STATE_BEN=bbccc2D_ben

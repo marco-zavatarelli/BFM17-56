@@ -867,7 +867,7 @@ end subroutine init_netcdf_rst_bfm
          IF ( .not. var_ave(n) ) THEN
 
             ! Store snapshot of seaice 2D state
-            if ( n >= stIceState2dS .AND. n <= stIceState2dE) &
+            if ( n >= stIceStateS .AND. n <= stIceStateE) &
                iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2STATE_ICE(n,:))
 
             ! Store snapshot of seaice 2D diagnostics
@@ -899,7 +899,7 @@ end subroutine init_netcdf_rst_bfm
          IF ( .not. var_ave(n) ) THEN
 
             ! Store snapshot of benthic 2D state
-            if ( n >= stBenState2dS .AND. n <= stBenState2dE) &
+            if ( n >= stBenStateS .AND. n <= stBenStateE) &
                iret = store_data(ncid_bfm,var_ids(n),BOTT_SHAPE,NO_BOXES_XY,garray=D2STATE_BEN(n,:))
 
             ! Store snapshot of benthic 2D diagnostics
@@ -1040,7 +1040,7 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
    iret = NF90_DEF_VAR(ncid,name,data_type,dimids,id)
-   call check_err(iret, ('new_nc_variable'//trim(name)))
+   call check_err(iret, ('caller: new_nc_variable with input '//trim(name)))
    new_nc_variable = iret
    return
    end function new_nc_variable

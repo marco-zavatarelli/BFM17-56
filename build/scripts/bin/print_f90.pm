@@ -1244,8 +1244,11 @@ sub func_STRING_INDEX  {
     my $subt_short = ucfirst(substr($subt,0,3));
 
     my $type_short = ucfirst(substr($type,0,4));
-    if( $type_short eq "Stat" ){ $type_short = 'State'; } #fix because "state" has 5 chars
-    if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
+    if( $type_short eq "Stat" ){ 
+        $type_short = 'State';  #fix because "state" has 5 chars
+    }else{
+        if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
+    }
     $search_S = "${type}_${subt}_${dim}_S";
     $search_E = "${type}_${subt}_${dim}_E";
     $out = "${type_short}";
@@ -1476,9 +1479,9 @@ sub func_INIT_OUTPUT_VARIABLES {
     if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     $line .= "${SPACE}   write(Flun,155) \'ID\',\'Var\',\'Unit\',\'Long Name\',\'Flag\'\n";
-    $line .= "${SPACE}   do n=st${Subtype}Start,st${Subtype}End\n";
+    $line .= "${SPACE}   do n=st${Subtype}StateS,st${Subtype}StateE\n";
     $line .= "${SPACE}     write(Flun,156) n,trim(var_names(n)),trim(var_units(n)) &\n";
-    $line .= "${SPACE}       ,trim(var_long(n)),D${dim}STATETYPE${SUBTYPE}(n)\n";
+    $line .= "${SPACE}       ,trim(var_long(n)),D${dim}STATETYPE${SUBTYPE}(n-st${Subtype}StateS+1)\n";
     $line .= "${SPACE}   end do\n";
    
     if( $line ){ print $file $line; }
@@ -1506,10 +1509,10 @@ sub func_INIT_FUNC_ZERO {
             $line .= "${SPACE}  if (.NOT.Calc" . $group->getSigla() ."(j)) then\n";
             $line .= "${SPACE}    iiLastElement=pp" . $group->getSigla() . "(j,1,cmax=1)\n";
             $line .= "${SPACE}    do i = 0,iiLastElement\n";
-            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)+i,:) = p_small\n";
-            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)+i) = OFF\n";
+            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i+1),:) = p_small\n";
+            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i+1)) = OFF\n";
             $line .= "#if defined key_obcbfm\n";
-            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)+i) = NOOBCSTATES\n";
+            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i+1)) = NOOBCSTATES\n";
             $line .= "#endif\n";
             $line .= "${SPACE}    end do\n";
             $line .= "${SPACE}  end if\n";

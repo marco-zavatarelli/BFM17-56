@@ -44,10 +44,10 @@ subroutine ClearMem
     deallocate(D3FLUX_FUNC)
 #if defined INCLUDE_SEAICE
     origin=0
-    do i=stIceState2dS,stIceState2dE
+    do i=stIceStateS,stIceStateE
        origin=origin+1
        destination=0
-       do j=stIceState2dS,stIceState2dE
+       do j=stIceStateS,stIceStateE
           destination=destination+1
           if( allocated(D2FLUX_MATRIX_ICE(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_ICE(origin,destination)%p)
        end do
@@ -57,10 +57,10 @@ subroutine ClearMem
 #endif
 #if defined INCLUDE_BEN
     origin=0
-    do i=stBenState2dS,stBenState2dE
+    do i=stBenStateS,stBenStateE
        origin=origin+1
        destination=0
-       do j=stBenState2dS,stBenState2dE
+       do j=stBenStateS,stBenStateE
           destination=destination+1
           if( allocated(D2FLUX_MATRIX_BEN(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_BEN(origin,destination)%p)
        end do

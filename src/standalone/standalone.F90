@@ -335,12 +335,12 @@
    end do
 #if defined INCLUDE_SEAICE
    do i=1,NO_D2_BOX_STATES_ICE
-     LEVEL1 trim(var_names(stIceState2dS+i-1)),D2STATE_ICE(i,1)
+     LEVEL1 trim(var_names(stIceStateS+i-1)),D2STATE_ICE(i,1)
    end do
 #endif
 #if defined INCLUDE_BEN
    do i=1,NO_D2_BOX_STATES_BEN
-     LEVEL1 trim(var_names(stBenState2dS+i-1)),D2STATE_BEN(i,1)
+     LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE_BEN(i,1)
    end do
 #endif
 #endif

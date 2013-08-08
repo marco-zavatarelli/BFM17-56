@@ -201,7 +201,7 @@
             k=0
 
             j=0
-            do i=stIceState2dS,stIceState2dE
+            do i=stIceStateS,stIceStateE
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
@@ -248,7 +248,7 @@
             k=0
 
             j=0
-            do i=stBenState2dS,stBenState2dE
+            do i=stBenStateS,stBenStateE
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1

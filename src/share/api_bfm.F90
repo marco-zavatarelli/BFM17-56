@@ -105,11 +105,11 @@
    integer,public                            :: stPelEnd=0
 
 #if defined INCLUDE_SEAICE
-   integer,public                            :: stIceState2dS=0
+   integer,public                            :: stIceStateS=0
    integer,public                            :: stIceDiag2dS=0
    integer,public                            :: stIceFlux2dS=0
 
-   integer,public                            :: stIceState2dE=0
+   integer,public                            :: stIceStateE=0
    integer,public                            :: stIceDiag2dE=0
    integer,public                            :: stIceFlux2dE=0
 
@@ -119,11 +119,11 @@
 #endif
 
 #if defined INCLUDE_BEN
-   integer,public                            :: stBenState2dS=0
+   integer,public                            :: stBenStateS=0
    integer,public                            :: stBenDiag2dS=0
    integer,public                            :: stBenFlux2dS=0
 
-   integer,public                            :: stBenState2dE=0
+   integer,public                            :: stBenStateE=0
    integer,public                            :: stBenDiag2dE=0
    integer,public                            :: stBenFlux2dE=0
 
