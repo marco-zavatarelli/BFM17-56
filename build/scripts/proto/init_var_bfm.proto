@@ -13,7 +13,7 @@ MODULE init_var_bfm_local
    real(RLEN),parameter :: hc_ratio_default = ZERO           ! standard diatom value
 
    character(len=*),parameter :: bfm_init_fname      = 'BFM_General.nml'
-   character(len=*),parameter :: bfm_init_fname_ice  = 'Seaice.nml'
+   character(len=*),parameter :: bfm_init_fname_ice  = 'BFM_General.nml'
    character(len=*),parameter :: bfm_init_fname_ben  = 'BFM_General.nml'
 
    CONTAINS
@@ -69,6 +69,11 @@ END MODULE init_var_bfm_local
    
 #if defined INCLUDE_BEN && defined INCLUDE_BENPROFILES
    use mem_Param, ONLY: p_d_tot, p_sedlevels,p_sedsigma
+#endif 
+#ifdef INCLUDE_SEAICE
+   use mem_SeaiceAlgae
+   use mem_SeaiceBac
+   use mem_SeaiceZoo
 #endif 
 
    IMPLICIT NONE
@@ -319,33 +324,32 @@ END MODULE init_var_bfm_local
          CalcPelagicFlag = .TRUE.
          CalcBenthicFlag = 0
          CalcSeaiceFlag  = .FALSE.
-         %value-init-calc-pel .TRUE.
+         %value-init-calc-ben .FALSE.
+         %value-init-calc-ice .FALSE.
       case (2) ! Benthic only
          LEVEL2 "Benthic-only setup (bio_setup=2), Switching off other systems"
          CalcPelagicFlag = .FALSE.
-         CalcBenthicFlag = 1
          CalcSeaiceFlag  = .FALSE.
-         %value-init-calc-ben .TRUE.
+         %value-init-calc-pel .FALSE.
+         %value-init-calc-ice .FALSE.
       case (3) ! Pelagic-Benthic coupling
          LEVEL2 "Pelagic-Benthic coupled setup (bio_setup=3)"
          CalcPelagicFlag = .TRUE.
-         CalcBenthicFlag = 1
          CalcSeaiceFlag  = .FALSE.
-         %value-init-calc-pel .TRUE.
-         %value-init-calc-ben .TRUE.
+         %value-init-calc-ice .FALSE.
       case (4) ! SeaIce only
          LEVEL2 "Seaice-only setup (bio_setup=4), Switching off other systems"
          CalcPelagicFlag = .FALSE.
          CalcBenthicFlag = 0
          CalcSeaiceFlag  = .TRUE.
-         %value-init-calc-ice .TRUE.
+         %value-init-calc-pel .FALSE.
+         %value-init-calc-ben .FALSE.
       case (5) ! Pelagic-SeaIce coupling
          LEVEL2 "Pelagic-Seaice coupled setup (bio_setup=5)"
          CalcPelagicFlag = .TRUE.
          CalcBenthicFlag = 0
          CalcSeaiceFlag  = .TRUE.
-         %value-init-calc-pel .TRUE.
-         %value-init-calc-ice .TRUE.
+         %value-init-calc-ben .FALSE.
    end select
 
 #if defined INCLUDE_BEN
@@ -417,7 +421,7 @@ END MODULE init_var_bfm_local
    Flun = stderr
 #endif
 
-   if (setup == 0 .OR. setup == 1 .OR. setup < 3 .OR. setup < 5 ) then
+   if (setup == 0 .OR. setup == 1 .OR. setup == 3 .OR. setup == 5 ) then
       LEVEL3 'Pelagic variables:'
 %3d-init-pel-output-variables
    endif
