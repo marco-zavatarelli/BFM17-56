@@ -789,15 +789,19 @@ p_paMEZ(2,:)=   0.0,    1.0
 !
 !Method 2: data file
 !forcing_file	   char	   Filename for external forcings
-!use_external_data logical Read external forcings (user defined)
-!
-!Files for external events
-!data_file	   char	   Filename for external data
-!use_event_data    logical Read external data (user defined)
 !
 !Files for sea-ice forcing data
 !seaice_file       char    Filename for external sea-ice forcings
 !use_seaice_data   logical Read external data (user defined)
+!
+!Files for external input data
+!data_file         char    Filename for external data
+!use_external_data logical Read external forcings (user defined)
+!
+!Files for events
+!event_file        char    Filename for event data
+!use_event_data    logical Read event data (user defined)
+!
 !-------------------------------------------------------------------------!
 &forcings_nml
    forcing_method    = 2,
@@ -812,11 +816,12 @@ p_paMEZ(2,:)=   0.0,    1.0
    ww                = 20.0,
    ws                = 10.0,
    forcing_file      = '../inputs/seaice/STANDALONE_SEAICE_S0_ocean.dat',
-   use_external_data = .TRUE.,
-   data_file         = '',
-   use_event_data    = .FALSE.,
    seaice_file       = '../inputs/seaice/STANDALONE_SEAICE_S0_seaice.dat',
    use_seaice_data   = .TRUE.,
+   data_file         = '',
+   use_external_data = .FALSE.,
+   event_file        = '',
+   use_event_data    = .FALSE.,
 	filename_nml_conf = 'Standalone.nml',
 /
 

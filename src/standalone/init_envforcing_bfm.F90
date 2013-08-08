@@ -82,8 +82,8 @@
 #endif
     ! Read external data (if activated)
     if (use_external_data) then
-       LEVEL2 'Reading forcing data from:'
-       LEVEL3 trim(forcing_file)
+       LEVEL2 'Reading external data from:'
+       LEVEL3 trim(data_file)
        open(unit_data,file=data_file,action='read',status='old',err=107)
     end if
     ! Read event data (if activated)
