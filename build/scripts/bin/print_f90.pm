@@ -1071,11 +1071,13 @@ sub func_GROUP_FUNCTIONS  {
                     $line .= "${SPACE}" .    "${SPACE}       " 
                        . join(", &\n${SPACE}       ", @line_pointers) . "  &\n"
                        .      "${SPACE}       /)\n\n";
-                    
-                    $line .= "${SPACE}" ."  IF( constituent > " . $maxNumberConstituents . " .OR. constituent == 0 ) THEN\n";
+
+                    $line .= "${SPACE}" ."  IF( n > " . max(1,scalar(@members)) . " .OR. n == 0 ) THEN\n";                    
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
+                    $line .= "${SPACE}" ."  ELSE IF( constituent > " . $maxNumberConstituents . " .OR. constituent == 0 ) THEN\n";
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
                     $line .= "${SPACE}" ."  ELSE IF ( present(cmax) ) THEN\n";
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)-1\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)\n";
                     $line .= "${SPACE}" ."  ELSE\n";
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * $maxNumberConstituents ) + constituent )\n";
                     $line .= "${SPACE}" ."  ENDIF\n";
@@ -1508,11 +1510,11 @@ sub func_INIT_FUNC_ZERO {
             $line .= "${SPACE}do j = 1, ii" . $group->getSigla()    . "\n";
             $line .= "${SPACE}  if (.NOT.Calc" . $group->getSigla() ."(j)) then\n";
             $line .= "${SPACE}    iiLastElement=pp" . $group->getSigla() . "(j,1,cmax=1)\n";
-            $line .= "${SPACE}    do i = 0,iiLastElement\n";
-            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i+1),:) = p_small\n";
-            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i+1)) = OFF\n";
+            $line .= "${SPACE}    do i = 1,iiLastElement\n";
+            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
+            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = OFF\n";
             $line .= "#if defined key_obcbfm\n";
-            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i+1)) = NOOBCSTATES\n";
+            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
             $line .= "#endif\n";
             $line .= "${SPACE}    end do\n";
             $line .= "${SPACE}  end if\n";
