@@ -47,16 +47,18 @@
 ! !LOCAL VARIABLES:
    real(RLEN),parameter      :: eps=0.
    real(RLEN)                :: min3D,min2D
-   logical                   :: min
+   logical                   :: cut,cut_pel
    integer                   :: i,j,ll
    integer,dimension(2,2)    :: blccc
 #if defined INCLUDE_SEAICE
    real(RLEN)                :: min2D_ice
    integer,dimension(2,2)    :: blccc_ice
+   logical                   :: cut_ice
 #endif
 #if defined INCLUDE_BEN
    real(RLEN)                :: min2D_ben
    integer,dimension(2,2)    :: blccc_ben
+   logical                   :: cut_ben
 #endif
 
 !EOP
@@ -111,52 +113,61 @@
       nmin=nmin+nstep 
    !  Check for negative concentrations
       min3D=minval(D3STATE)
-      min = ( min3D.lt.eps )
+      cut_pel = ( min3D.lt.eps )
+      cut = cut_pel
 #if defined INCLUDE_SEAICE
       min2D_ice=minval(D2STATE_ICE)
-      min = ( min .OR. ( min2D_ice .lt. eps ) )
-#elif defined INCLUDE_BEN
+      cut_ice = ( min2D_ice .lt. eps )
+      cut = ( cut .OR. cut_ice )
+#endif
+#if defined INCLUDE_BEN
       min2D_ben=minval(D2STATE_BEN)
-      min = ( min .OR. ( min2D_ben .lt. eps ) )
+      cut_ben = ( min2D_ben .lt. eps )
+      cut = ( cut .OR. cut_ben )
 #endif
-      IF ( min ) THEN ! cut timestep
+      IF ( cut ) THEN ! cut timestep
          IF (nstep.eq.1) THEN
-            LEVEL1 'Necessary Time Step too small! Exiting...'
-            blccc(:,1)=minloc(D3STATE)
+            LEVEL1 'Necessary Time Step too small! Exiting from the following systems:'
+            if ( cut_pel) then
+               blccc(:,1)=minloc(D3STATE)
 #ifndef EXPLICIT_SINK
-            bbccc3D = D3SOURCE(:,:)
+               bbccc3D = D3SOURCE(:,:)
 #else
-            bbccc3D = sum(D3SOURCE(:,:,:)-D3SINK(:,:,:),2)
+               bbccc3D = sum(D3SOURCE(:,:,:)-D3SINK(:,:,:),2)
 #endif
-            LEVEL1 'Pelagic Variable:',trim(var_names(stPelStateS+blccc(1,1)-1))
-            LEVEL1 'Value: ',D3STATE(blccc(1,1),blccc(2,1)),' Rate: ', &
+               LEVEL1 'Pelagic Variable:',trim(var_names(stPelStateS+blccc(1,1)-1))
+               LEVEL1 'Value: ',D3STATE(blccc(1,1),blccc(2,1)),' Rate: ', &
                         bbccc3D(blccc(1,1),blccc(2,1))
+            end if
 
 #if defined INCLUDE_SEAICE
-            blccc_ice(:,2)=minloc(D2STATE_ICE)
+            if (cut_ice) then
+               blccc_ice(:,2)=minloc(D2STATE_ICE)
 #ifndef EXPLICIT_SINK
-            bbccc2D_ice = D2SOURCE_ICE(:,:)
+               bbccc2D_ice = D2SOURCE_ICE(:,:)
 #else
-            bbccc2D_ice = sum(D2SOURCE_ICE(:,:,:)-D2SINK_ICE(:,:,:),2)
+               bbccc2D_ice = sum(D2SOURCE_ICE(:,:,:)-D2SINK_ICE(:,:,:),2)
 #endif
-            LEVEL1 'Seaice Variable:',trim(var_names(stIceStateS+blccc_ice(1,2)-1))
-            LEVEL1 'Value: ',D2STATE_ICE(blccc_ice(1,2),blccc_ice(2,2)),' Rate: ', &
+               LEVEL1 'Sea ice Variable:',trim(var_names(stIceStateS+blccc_ice(1,2)-1))
+               LEVEL1 'Value: ',D2STATE_ICE(blccc_ice(1,2),blccc_ice(2,2)),' Rate: ', &
                            bbccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
-            LEVEL1 'EXIT at  time ',timesec
+            end if
 #endif
 
 #if defined INCLUDE_BEN
-            blccc_ben(:,2)=minloc(D2STATE_BEN)
+            if (cut_ben) then
+               blccc_ben(:,2)=minloc(D2STATE_BEN)
 #ifndef EXPLICIT_SINK
-            bbccc2D_ben = D2SOURCE_BEN(:,:)
+               bbccc2D_ben = D2SOURCE_BEN(:,:)
 #else
-            bbccc2D_ben = sum(D2SOURCE_BEN(:,:,:)-D2SINK_BEN(:,:,:),2)
+               bbccc2D_ben = sum(D2SOURCE_BEN(:,:,:)-D2SINK_BEN(:,:,:),2)
 #endif
-            LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc_ben(1,2)-1))
-            LEVEL1 'Value: ',D2STATE_BEN(blccc_ben(1,2),blccc_ben(2,2)),' Rate: ', &
+               LEVEL1 'Benthic Variable:',trim(var_names(stBenStateS+blccc_ben(1,2)-1))
+               LEVEL1 'Value: ',D2STATE_BEN(blccc_ben(1,2),blccc_ben(2,2)),' Rate: ', &
                            bbccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
-            LEVEL1 'EXIT at  time ',timesec
+            end if
 #endif
+            LEVEL1 'EXIT at  time ',timesec
             STOP 'integration-efw'
          END IF
          nstep=nstep/2

@@ -46,16 +46,18 @@
 ! !LOCAL VARIABLES:
    real(RLEN),parameter    :: eps=0.0_RLEN
    real(RLEN)              :: min3D,min2D
-   logical                 :: min
+   logical                 :: cut,cut_pel
    integer                 :: i,j,ll
    integer,dimension(2,2)  :: blccc
 #if defined INCLUDE_SEAICE
    real(RLEN)              :: min2D_ice
    integer,dimension(2,2)  :: blccc_ice
+   logical                 :: cut_ice
 #endif
 #if defined INCLUDE_BEN
    real(RLEN)              :: min2D_ben
    integer,dimension(2,2)  :: blccc_ben
+   logical                 :: cut_ben
 #endif
 !
 ! !EOP
@@ -137,42 +139,51 @@
       nmin=nmin+nstep 
       ! Check for negative concentrations
       min3D=minval(D3STATE)
-      min =  ( min3D.lt.eps )
+      cut_pel = ( min3D.lt.eps )
+      cut = cut_pel
 #if defined INCLUDE_SEAICE
       min2D_ice=minval(D2STATE_ICE)
-      min = ( min .OR. ( min2D_ice .lt. eps ) )
+      cut_ice = ( min2D_ice .lt. eps ) 
+      cut = ( cut .OR. cut_ice )
 #endif
 #if defined INCLUDE_BEN
       min2D_ben=minval(D2STATE_BEN)
-      min = ( min .OR. ( min2D_ben .lt. eps ) )
+      cut_ben = ( min2D_ben .lt. eps )
+      cut = ( cut .OR. cut_ben )
 #endif
-      IF( min ) THEN ! cut timestep
+      IF( cut ) THEN ! cut timestep
          IF (nstep.eq.1) THEN
-            LEVEL1 'Necessary Time Step too small! Exiting...'
-            blccc(:,1)=minloc(D3STATE)
-            LEVEL1 var_names(stPelStateS+blccc(1,1)-1)
-            LEVEL1 ccc_tmp3D(blccc(1,1),blccc(2,1)), &
-                           bccc3D(blccc(1,1),blccc(2,1))
-            D3STATE=bbccc3D
+            LEVEL1 'Necessary Time Step too small! Exiting from the following systems:'
+            if ( cut_pel) then
+               blccc(:,1)=minloc(D3STATE)
+               LEVEL1 'Pelagic variable: ',var_names(stPelStateS+blccc(1,1)-1)
+               LEVEL1 'Value=',ccc_tmp3D(blccc(1,1),blccc(2,1)), &
+                              'Rate=',bccc3D(blccc(1,1),blccc(2,1))
+               D3STATE=bbccc3D
+            end if
 
 #if defined INCLUDE_SEAICE
-            blccc_ice(:,2)=minloc(D2STATE_ICE)
-            LEVEL1 var_names(stIceStateS+blccc_ice(1,2)-1)
-            LEVEL1 ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
-                           bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
-            D2STATE_ICE=bbccc2D_ice
+            if ( cut_ice) then
+               blccc_ice(:,2)=minloc(D2STATE_ICE)
+               LEVEL1 'Sea ice variable: ', var_names(stIceStateS+blccc_ice(1,2)-1)
+               LEVEL1 'Value=',ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
+                              'Rate=',bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
+               D2STATE_ICE=bbccc2D_ice
+            end if
 #endif
 
 #if defined INCLUDE_BEN
-            blccc_ben(:,2)=minloc(D2STATE_BEN)
-            LEVEL1 var_names(stBenStateS+blccc_ben(1,2)-1)
-            LEVEL1 ccc_tmp2D_ben(blccc_ben(1,2),blccc_ben(2,2)), &
-                           bccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
-            D2STATE_BEN=bbccc2D_ben
+            if ( cut_ben) then
+               blccc_ben(:,2)=minloc(D2STATE_BEN)
+               LEVEL1 'Benthic Variable: ', var_names(stBenStateS+blccc_ben(1,2)-1)
+               LEVEL1 'Value=',ccc_tmp2D_ben(blccc_ben(1,2),blccc_ben(2,2)), &
+                              'Rate=',bccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
+               D2STATE_BEN=bbccc2D_ben
+            end if
 #endif
 
             LEVEL1 'EXIT at time: ',timesec
-            STOP
+            STOP 'integration-RK'
          END IF
          nstep=nstep/2
          nmin=0
@@ -247,46 +258,55 @@
 #endif
 
 
-
+         ! check for negative values
          min3D=minval(D3STATE)
-         min =  ( min3D.lt.eps )
+         cut_pel = ( min3D.lt.eps )
+         cut = cut_pel
 #if defined INCLUDE_SEAICE
          min2D_ice=minval(D2STATE_ICE)
-         min = ( min .OR. ( min2D_ice .lt. eps ) )
+         cut_ice = ( min2D_ice .lt. eps ) 
+         cut = ( cut .OR. cut_ice )
 #endif
 #if defined INCLUDE_BEN
          min2D_ben=minval(D2STATE_BEN)
-         min = ( min .OR. ( min2D_ben .lt. eps ) )
+         cut_ben = ( min2D_ben .lt. eps )
+         cut = ( cut .OR. cut_ben )
 #endif
-         IF( min ) THEN ! cut timestep
-
+         IF( cut ) THEN ! cut timestep
             IF (nstep.eq.1) THEN
-               LEVEL1 'Necessary Time Step too small! Exiting...'
-               blccc(:,1)=minloc(D3STATE)
-               LEVEL1 var_names(stPelStateS+blccc(1,1)-1)
-               LEVEL1 ccc_tmp3D(blccc(1,1),blccc(2,1)), &
-                              bccc3D(blccc(1,1),blccc(2,1))
-               D3STATE=bbccc3D
+               LEVEL1 'Necessary Time Step too small! Exiting from the following systems:'
+               if ( cut_pel) then
+                  blccc(:,1)=minloc(D3STATE)
+                  LEVEL1 'Pelagic variable: ',var_names(stPelStateS+blccc(1,1)-1)
+                  LEVEL1 'value=',ccc_tmp3D(blccc(1,1),blccc(2,1)), &
+                                 'rate=',bccc3D(blccc(1,1),blccc(2,1))
+                  D3STATE=bbccc3D
+               end if
 
 #if defined INCLUDE_SEAICE
-               blccc_ice(:,2)=minloc(D2STATE_ICE)
-               LEVEL1 var_names(stIceStateS+blccc_ice(1,2)-1)
-               LEVEL1 ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
-                              bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
-               D2STATE_ICE=bbccc2D_ice
+               if ( cut_ice) then
+                  blccc_ice(:,2)=minloc(D2STATE_ICE)
+                  LEVEL1 'Sea ice variable: ', var_names(stIceStateS+blccc_ice(1,2)-1)
+                  LEVEL1 'value=',ccc_tmp2D_ice(blccc_ice(1,2),blccc_ice(2,2)), &
+                                 'rate=',bccc2D_ice(blccc_ice(1,2),blccc_ice(2,2))
+                  D2STATE_ICE=bbccc2D_ice
+               end if
 #endif
 
 #if defined INCLUDE_BEN
-               blccc_ben(:,2)=minloc(D2STATE_BEN)
-               LEVEL1 var_names(stBenStateS+blccc_ben(1,2)-1)
-               LEVEL1 ccc_tmp2D_ben(blccc_ben(1,2),blccc_ben(2,2)), &
-                              bccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
-               D2STATE_BEN=bbccc2D_ben
+               if ( cut_ben) then
+                  blccc_ben(:,2)=minloc(D2STATE_BEN)
+                  LEVEL1 'Benthic variable: ', var_names(stBenStateS+blccc_ben(1,2)-1)
+                  LEVEL1 'value=',ccc_tmp2D_ben(blccc_ben(1,2),blccc_ben(2,2)), &
+                                 'rate=',bccc2D_ben(blccc_ben(1,2),blccc_ben(2,2))
+                  D2STATE_BEN=bbccc2D_ben
+               end if
 #endif
 
                LEVEL1 'EXIT at time: ',timesec
-               STOP 'integration-RK2'
+               STOP 'integration-RK'
             END IF
+
             nstep=nstep/2
             nmin=0
             D3STATE=bbccc3D
