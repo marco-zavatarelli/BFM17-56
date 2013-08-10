@@ -30,6 +30,7 @@
   use mem_Param, ONLY:  CalcSeaiceAlgae
   use mem_Param, ONLY:  CalcSeaiceBacteria
   use mem_Param, ONLY:  CalcSeaiceZoo
+  use mem_SeaicetoPel, ONLY: SeaicetoPelCoup
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Global interface

@@ -106,7 +106,13 @@ for i = 1:numel(vars)
 end
 %
 result = vars;
-%
+% change time to the matlab format
+time=nc_varget(theNetCDFFile,'time');
+vinfo=nc_getvarinfo(theNetCDFFile,'time');
+time_att=vinfo.Attribute;
+start=datenum(time_att.Value(15:end));
+time_num=start+time/86400.;
+assignin('caller','time_num',time_num)
 %
 if nargout > 0
    theResult=result;

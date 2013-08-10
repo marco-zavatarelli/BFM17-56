@@ -8,13 +8,6 @@
 ! DESCRIPTION
 !   Parameter values for the sea ice algae group
 !
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   module mem_SeaiceAlgae
 !
@@ -25,7 +18,7 @@
 !
 !
 ! !AUTHORS
-!   Letizia Tedesco and Marcello Vichi (CMCC)
+!   Letizia Tedesco and Marcello Vichi
 !
 !
 !
@@ -36,8 +29,6 @@
 ! COPYING
 !
 !   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!   Copyright (C) 2007 the BFM team
-!   (vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by

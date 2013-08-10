@@ -28,7 +28,7 @@
 #endif
 #endif
    use time,       only: julianday, secondsofday, time_diff, &
-                         julian_day,calendar_date
+                         julian_day,calendar_date,dayofyear
    use envforcing, only: init_forcing_vars, daylength, density, &
                          unit_forcing, read_obs
    use standalone, only: latitude
@@ -44,8 +44,14 @@
 !EOP
 !
 ! !LOCAL VARIABLES:
-   integer,parameter         :: NOBS=4
-   integer                   :: yy,mm,dd,hh,min,ss
+! --------- to be edited by user --------------------------------------
+   integer,parameter         :: NOBS=4 ! no of coulumns
+   integer,parameter         :: iETW=1 ! column for temperature [degC]
+   integer,parameter         :: iESW=2 ! column for salinity [-]
+   integer,parameter         :: iWND=3 ! column for wind speed [m/s]
+   integer,parameter         :: iEIR=4 ! column for irradiance [W/m2]
+! --------- end part edited by user -----------------------------------
+   integer                   :: yy,mm,dd,hh,min,ss,dyear
    real(RLEN)                :: t,alpha,jday
    real(RLEN), save          :: dt
    integer, save             :: data_jul1,data_secs1
@@ -84,22 +90,29 @@
 
    !  Do the time interpolation
    t  = time_diff(julianday,secondsofday,data_jul1,data_secs1)
-   alpha = (obs2(1)-obs1(1))/dt
-   ETW(:) = obs1(1) + t*alpha
-   alpha = (obs2(2)-obs1(2))/dt
-   ESW(:) = obs1(2) + t*alpha
 !-----------------------------------------------------------------------
-! Additional variables may be added as follows:
-!   alpha = (obs2(3)-obs1(3))/dt
-!   convert from irradiance (W/m2) to PAR in uE/m2/s
-!   EIR(:) = (obs1(3) + t*alpha)*p_PAR/E2W
-!   alpha = (obs2(4)-obs1(4))/dt
-!   EWIND(:) = obs1(4) + t*alpha
+! This is an example with required forcing variables
+! Additional ones can be added updating the NOBS parameter and 
+! adding lines like:
+!   alpha = (obs2(iOBS)-obs1(iOBS))/dt
+!   OBS(:) = obs1(OBS) + t*alpha
 !-----------------------------------------------------------------------
+   alpha = (obs2(iETW)-obs1(iETW))/dt
+   ETW(:) = obs1(iETW) + t*alpha
+   alpha = (obs2(iESW)-obs1(iESW))/dt
+   ESW(:) = obs1(iESW) + t*alpha
+   alpha = (obs2(iWND)-obs1(iWND))/dt
+   EWIND(:) = obs1(iWND) + t*alpha
+   ! Irradiance is assumed to be at the top of the box
+   ! convert from irradiance (W/m2) to PAR in uE/m2/s
+   alpha = (obs2(iEIR)-obs1(iEIR))/dt
+   EIR(:) = (obs1(iEIR) + t*alpha)*p_PAR/E2W 
 
-   ! leap years not considered (small error)
-   SUNQ=daylength(real(julianday,RLEN),latitude,ylength=365.0_RLEN)
-   ERHO(:) = density(ETW,ESW,Depth/2.0_RLEN)
+   ! Compute day length: leap years not considered (small error)
+   call dayofyear(julianday,dyear)
+   SUNQ=daylength(real(dyear,RLEN),latitude,ylength=365.0_RLEN)
+   ! Compute density at the middle of the layer with simplified equation of state
+   ERHO(:) = density(ETW(:),ESW(:),Depth(:)/2.0_RLEN)
 #ifdef DEBUG
    LEVEL2 'ETW=',ETW(:)
    LEVEL2 'ESW=',ESW(:)

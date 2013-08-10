@@ -58,6 +58,7 @@
   use mem_SeaiceAlgae
   use mem_SeaiceBac
   use mem_SeaiceZoo
+  use mem_SeaicetoPel
 #endif
 
 !  
@@ -145,6 +146,7 @@
       call InitSeaiceAlgae
       call InitSeaiceBac
       call InitSeaiceZoo
+      call InitSeaicetoPel
 #endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files
