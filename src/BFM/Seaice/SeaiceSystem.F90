@@ -76,31 +76,21 @@
   ! Compute sea-ice algae dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiSeaiceAlgae
-     if ( CalcSeaiceAlgae(i)) then
-       call SeaiceAlgaeDynamics( i, ppSeaiceAlgae(i,iiC),       &
-                 ppSeaiceAlgae(i,iiN), ppSeaiceAlgae(i,iiP),    &
-                 ppSeaiceAlgae(i,iiS), ppSeaiceAlgae(i,iiL))
-     end if
+     if ( CalcSeaiceAlgae(i)) call SeaiceAlgaeDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute sea ice bacteria dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiSeaiceBacteria
-     if ( CalcSeaiceBacteria(i)) then
-        call SeaiceBacDynamics( i, ppSeaiceBacteria(i,iiC),  &
-             ppSeaiceBacteria(i,iiN), ppSeaiceBacteria(i,iiP))
-     end if
+     if ( CalcSeaiceBacteria(i)) call SeaiceBacDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Compute sea ice zooplankton dynamics
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   do i =1,iiSeaiceZoo
-     if ( CalcSeaiceZoo(i)) then
-        call SeaiceZooDynamics( i, ppSeaiceZoo(i,iiC),  &
-             ppSeaiceZoo(i,iiN), ppSeaiceZoo(i,iiP))
-     end if
+     if ( CalcSeaiceZoo(i)) call SeaiceZooDynamics( i )
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

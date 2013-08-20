@@ -14,7 +14,7 @@
 !    are expressed by differences in parameter-values only.
 !    
 ! !INTERFACE
-  subroutine SeaiceAlgaeDynamics(alg, ppalgc, ppalgn, ppalgp, ppalgs, ppalgl)
+  subroutine SeaiceAlgaeDynamics(alg)
 !
 ! !USES:
 
@@ -27,13 +27,14 @@
 #ifdef NOPOINTERS
   use mem,  ONLY: D2STATE_ICE
 #else
+  use mem, ONLY: iiC,iiN,iiP,iiS,iiL
   use mem, ONLY: D2STATE_ICE, U1c, U6c, F2o, F3c, &
                  I3n, I4n, I1p, U1n, U6n, U1p, U6p, I5s
-#endif
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, ETB, EIB, &
     EHB, eiSAL, iiS1, qncSAL, qpcSAL, qscSAL, qlcSAL, NO_BOXES_ICE, &
-    iiIce, flux_vector
+    iiIce, flux_vector,ppSeaiceAlgae
+#endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
   use mem_Param,  ONLY: p_small
   use mem_SeaiceAlgae
@@ -53,11 +54,6 @@
 ! !INPUT:
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer,intent(IN)  :: alg
-  integer,intent(IN) :: ppalgc
-  integer,intent(IN) :: ppalgn
-  integer,intent(IN) :: ppalgp
-  integer,intent(IN) :: ppalgs
-  integer,intent(IN) :: ppalgl
 
 !  
 !
@@ -86,6 +82,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set up Local Variable for copy of state var. object
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  integer :: ppalgc, ppalgn, ppalgp, ppalgs, ppalgl
   real(RLEN),dimension(NO_BOXES_ICE) :: algc
   real(RLEN),dimension(NO_BOXES_ICE) :: algn
   real(RLEN),dimension(NO_BOXES_ICE) :: algp
@@ -94,7 +91,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer,dimension(NO_BOXES_ICE)     :: i
   real(RLEN),dimension(NO_BOXES_ICE)  :: r
   real(RLEN),dimension(NO_BOXES_ICE)  :: et
   real(RLEN),dimension(NO_BOXES_ICE)  :: sum
@@ -152,6 +148,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ppalgc = ppSeaiceAlgae(alg,iiC)
+  ppalgn = ppSeaiceAlgae(alg,iiN)
+  ppalgp = ppSeaiceAlgae(alg,iiP)
+  ppalgs = ppSeaiceAlgae(alg,iiS)
+  ppalgl = ppSeaiceAlgae(alg,iiL)
   algc = D2STATE_ICE(ppalgc,:)
   algn = D2STATE_ICE(ppalgn,:)
   algp = D2STATE_ICE(ppalgp,:)

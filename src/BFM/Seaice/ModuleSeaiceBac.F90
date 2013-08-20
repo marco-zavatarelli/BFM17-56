@@ -28,8 +28,6 @@
 ! COPYING
 !   
 !   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!   Copyright (C) 2009 M. Vichi and L. Tedesco
-!   (vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -53,32 +51,52 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   public
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  ! SeaiceBac PARAMETERS (read from nml)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer  :: p_version  ! Switch for DOM uptake parameterization
-  !  p_version=1 <LUCA> Polimenes version
-  !  p_version=2 <BFM> version
-  real(RLEN)  :: p_q10(iiSeaiceBacteria)  ! Q10-value (temperature dependency)
-  real(RLEN)  :: p_chdo(iiSeaiceBacteria)  ! Michaelis const for O2 dependence (mmol/m3)
-  real(RLEN)  :: p_sd(iiSeaiceBacteria)  ! Independent specific mortality (1/d)
-  real(RLEN)  :: p_sd2(iiSeaiceBacteria)  ! Density dependent mortality (value: 0.009) (1/d)
-  real(RLEN)  :: p_suhU1(iiSeaiceBacteria)  ! Specific potential of rich DOM availability (1/d)
-  real(RLEN)  :: p_sulU1(iiSeaiceBacteria)  ! Specific potential sugar availability (1/d)
-  real(RLEN)  :: p_suU6(iiSeaiceBacteria)  ! Availability of POM (1/d)
-  real(RLEN)  :: p_sum(iiSeaiceBacteria)  ! Specific potential uptake (1/d)
-  real(RLEN)  :: p_pu_ra(iiSeaiceBacteria)  ! Activity respiration (-)
-  real(RLEN)  :: p_pu_ra_o(iiSeaiceBacteria)  ! Decrease in Ass. efficiency at low O2 conc (-).
-  real(RLEN)  :: p_srs(iiSeaiceBacteria)  ! Specific rest respiration (1/day)
-  real(RLEN)  :: p_qnc(iiSeaiceBacteria)  ! Optimal N/C ratio (model units) 45:9:1
-  real(RLEN)  :: p_qpc(iiSeaiceBacteria)  ! Optimal P/C ratio (model units) C:N:P
-  real(RLEN)  :: p_qlnc(iiSeaiceBacteria)  ! Minimal N/C ratio (model units) 45:9:1 <BFM>
-  real(RLEN)  :: p_qlpc(iiSeaiceBacteria)  ! Minimal P/C ratio (model units) C:N:P (BFM>
-  real(RLEN)  :: p_qun(iiSeaiceBacteria)  ! nutrient affinity ( mmol/mgC/day) <BFM>
-  real(RLEN)  :: p_qup(iiSeaiceBacteria)  ! nutrient affinity ( mmol/mgC/day) <BFM>
-  real(RLEN)  :: p_lI4(iiSeaiceBacteria)  ! ammonium conc. at which nutrate uptake are equal (BFM)
+  !NAMELIST SeaiceBacteria_parameters
+  !-------------------------------------------------------------------------!
+  !  SEAICE BACTERIA
+  !
+  ! NAME         [UNIT]/KIND            DESCRIPTION
+  ! p_version   integer         Switch for bacteria parameterization
+  !                              1 : Baretta-Bekker et al. 1995;
+  !                                  Vichi et al., 2007
+  ! p_q10                        Q10-value (temperature dependency)
+  ! p_chdo      [mmol/m3]        Half-saturation constant for O2 limitation
+  ! p_sd        [1/d]            Specific mortality rate
+  ! p_sd2       [1/d]            Density dependent specific mortality rate
+  ! p_suhU1     [1/d]            Specific potential uptake for nutrient-rich DOM
+  ! p_sulU1     [1/d]            Specific potential uptake for nutrient-poor DOM
+  ! p_suU6      [1/d]            Specific potential uptake for POM (1/d)
+  ! p_sum       [1/d]            Potential specific growth rate
+  ! p_pu_ra     [-]              Activity respiration fraction
+  ! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
+  ! p_srs       [1/d]            Specific rest respiration
+  ! p_qncSBA    [mmolN/mgC]      Optimal N/C ratio 
+  ! p_qpcSBA    [mmolP/mgC]      Optimal P/C ratio 
+  ! p_chn       [mmolN/m3]       Half saturation ammonium conc. for uptake
+  ! p_chp       [mmolP/m3]       Half saturation phosphate conc. for uptake
+  ! p_ruen      [1/d]            Relaxation timescale for N uptake/remin.
+  ! p_ruep      [1/d]            Relaxation timescale for P uptake/remin.
+  integer  :: p_version(iiSeaiceBacteria)
+  integer, parameter ::       BACT1=1,BACT2=2,BACT3=3
+  real(RLEN)  :: p_q10(iiSeaiceBacteria)
+  real(RLEN)  :: p_chdo(iiSeaiceBacteria)
+  real(RLEN)  :: p_sd(iiSeaiceBacteria)
+  real(RLEN)  :: p_sd2(iiSeaiceBacteria)
+  real(RLEN)  :: p_suhU1(iiSeaiceBacteria)
+  real(RLEN)  :: p_sulU1(iiSeaiceBacteria)
+  real(RLEN)  :: p_suU6(iiSeaiceBacteria)
+  real(RLEN)  :: p_sum(iiSeaiceBacteria)
+  real(RLEN)  :: p_pu_ra(iiSeaiceBacteria)
+  real(RLEN)  :: p_pu_ra_o(iiSeaiceBacteria)
+  real(RLEN)  :: p_srs(iiSeaiceBacteria)
+  real(RLEN)  :: p_qncSBA(iiSeaiceBacteria)
+  real(RLEN)  :: p_qpcSBA(iiSeaiceBacteria)
+  real(RLEN)  :: p_chn(iiSeaiceBacteria)
+  real(RLEN)  :: p_chp(iiSeaiceBacteria)
+  real(RLEN)  :: p_ruen(iiSeaiceBacteria)
+  real(RLEN)  :: p_ruep(iiSeaiceBacteria)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
-
   public InitSeaiceBac
   contains
 
@@ -87,8 +105,8 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /SeaiceBac_parameters/ p_version, p_q10, p_chdo, p_sd, p_sd2, p_suhU1, &
-    p_sulU1, p_suU6, p_sum, p_pu_ra, p_pu_ra_o, p_srs, p_qpc, p_qlpc, &
-    p_qnc, p_qlnc, p_qun, p_qup, p_lI4
+    p_sulU1, p_suU6, p_sum, p_pu_ra, p_pu_ra_o, p_srs, p_qpcSBA, &
+    p_qncSBA, p_chn, p_chp, p_ruen, p_ruep
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

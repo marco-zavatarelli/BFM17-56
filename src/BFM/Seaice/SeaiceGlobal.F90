@@ -31,7 +31,7 @@
     iiC, iiP, iiN, iiS, iiL
 #endif
   use mem, ONLY: qncSAL, qpcSAL, qscSAL, qlcSAL, qpcSZO, qncSZO, &
-                 qpcSBA, qncSBA, qpcSDE, qncSDE, qscSDE
+                 qpcSBA, qncSBA, qpcSOM, qncSOM, qscSOM
   use mem_Param,  ONLY: p_small
   use mem_PelGlobal
 
@@ -74,11 +74,11 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   do i = 1 , ( iiSeaiceDetritus)
     if ( ppSeaiceDetritus(i,iiP) > 0 ) &
-      qpcSDE(i,:)  =   SeaiceDetritus(i,iiP)/( p_small+ SeaiceDetritus(i,iiC))
+      qpcSOM(i,:)  =   SeaiceDetritus(i,iiP)/( p_small+ SeaiceDetritus(i,iiC))
     if ( ppSeaiceDetritus(i,iiN) > 0 ) &
-      qncSDE(i,:)  =   SeaiceDetritus(i,iiN)/( p_small+ SeaiceDetritus(i,iiC))
+      qncSOM(i,:)  =   SeaiceDetritus(i,iiN)/( p_small+ SeaiceDetritus(i,iiC))
     if ( ppSeaiceDetritus(i,iiS) > 0 ) &
-      qscSDE(i,:)  =   SeaiceDetritus(i,iiS)/( p_small+ SeaiceDetritus(i,iiC))
+      qscSOM(i,:)  =   SeaiceDetritus(i,iiS)/( p_small+ SeaiceDetritus(i,iiC))
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

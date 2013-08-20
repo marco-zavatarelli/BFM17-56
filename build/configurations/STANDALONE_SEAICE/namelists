@@ -884,77 +884,73 @@ p_alpha_chl = 1.4e-4,	1.6e-5,
 !-------------------------------------------------------------------------!
 !NAMELIST SeaiceBac_parameters
 !-------------------------------------------------------------------------!
-!
-!  p_version:  	 Switch for DOM uptake parameterization
-!        :  	 p_version=1 <LUCA> Polimenes version
-!        :  	 p_version=2 <BFM> version
-!  p_q10:  	 Q10-value (temperature dependency)
-!  p_chdo:  	 Michaelis const for O2 dependence (mmol/m3)
-!  p_sd:  	 Independent specific mortality (1/d)
-!  p_sd2:  	 Density dependent mortality (value: 0.009) (1/d)
-!  p_suhU1:  	 Specific potential availability for rich DOM (1/d)
-!  p_sulU1:  	 Specific potential availability for poor DOM (1/d)
-!  p_suU2:  	 Specific potential availability refractory DOC (1/d)
-!  p_suU6:  	 Availability of POM (1/d)
-!  p_sum:  	 Specific potential uptake (1/d)
-!  p_pu_ra:  	 Activity respiration (-)
-!  p_pu_ra_o:  	 Decrease in Ass. efficiency at low O2 conc (-).
-!  p_srs:  	 Specific rest respiration (1/day)
-!  p_qnc:  	 Optimal N/C ratio (model units) 45:9:1
-!  p_qpc:  	 Optimal P/C ratio (model units) C:N:P
-!  p_qlnc:  	 Minimal N/C ratio (model units) 45:9:1 <BFM>
-!  p_qlpc:  	 Minimal P/C ratio (model units) C:N:P (BFM>
-!  p_qun:  	 nutrient affinity ( mmol/mgC/day) <BFM>
-!  p_qup:  	 nutrient affinity ( mmol/mgC/day) <BFM>
-!  p_lI4:  	 ammonium conc. at which nutrate uptake are equal (BFM)
-!  p_pu_ea_U7:  	 excretion of reg. org. met. (-) <LUCA>
+! NAME         [UNIT]/KIND            DESCRIPTION
+! p_version   integer         Switch for bacteria parameterization
+!                              1 : Baretta-Bekker et al. 1995;
+!                                  Vichi et al., 2007
+! p_q10                        Q10-value (temperature dependency)
+! p_chdo      [mmol/m3]        Half-saturation constant for O2 limitation
+! p_sd        [1/d]            Specific mortality rate
+! p_sd2       [1/d]            Density dependent specific mortality rate
+! p_suhU1     [1/d]            Specific potential uptake for nutrient-rich DOM
+! p_sulU1     [1/d]            Specific potential uptake for nutrient-poor DOM
+! p_suU6      [1/d]            Specific potential uptake for POM (1/d)
+! p_sum       [1/d]            Potential specific growth rate
+! p_pu_ra     [-]              Activity respiration fraction
+! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
+! p_srs       [1/d]            Specific rest respiration
+! p_qncSBA    [mmolN/mgC]      Optimal N/C ratio
+! p_qpcSBA    [mmolP/mgC]      Optimal P/C ratio
+! p_chn       [mmolN/m3]       Half saturation ammonium conc. for uptake
+! p_chp       [mmolP/m3]       Half saturation phosphate conc. for uptake
+! p_ruen      [1/d]            Relaxation timescale for N uptake/remin.
+! p_ruep      [1/d]            Relaxation timescale for P uptake/remin.
 &SeaiceBac_parameters
-!              T1
-   p_version = 2,
+   p_version = 1,
    p_q10 = 2.95,
    p_chdo = 30.0,
    p_sd = 0.0,
    p_sd2 = 0.0,
    p_suhU1 = 0.5,
    p_sulU1 = 0.0,
-   !p_suU2 = 0.25,
    p_suU6 = 0.10,
    p_sum = 8.38,
    p_pu_ra = 0.6,
    p_pu_ra_o = 0.2,
-   !p_pu_ea_U7 = 0.015,
    p_srs = 0.01,
-   p_qpc = 0.0019,
-   p_qlpc = 0.00095,
-   p_qnc = 0.017,
-   p_qlnc = 0.0085,
-   p_qun = 0.05,
-   p_qup = 0.005,
-   p_lI4 = 0.05,
+   p_qpcSBA = 0.0019,
+   p_qncSBA = 0.017,
+   p_chn = 0.05,
+   p_chp = 0.01,
+   p_ruen = 1.0
+   p_ruep = 1.0
 	filename_nml_conf = 'Seaice_Ecology.nml',
 /
 
 !-------------------------------------------------------------------------!
 !NAMELIST SeaiceZoo_parameters
 !-------------------------------------------------------------------------!
-!
-!  p_q10:  	 Q10 value
-!  p_srs:  	 Respiration rate at 10 degrees Celsius
-!  p_sum:  	 Max. rel daily uptake as a fraction of biomass
-!  p_sdo:  	 Mortality due to oxygen limitation
-!  p_sd:  	 Temperature independent mortality
-!  p_pu_ra:  	 Activity respiration
-!  p_pu_ea:  	 Activity excretion
-!  p_chro:  	 Oxygen saturation where respiration is 0.5
-!  p_chuc:  	 Food concentration where total uptake rate is 0.5
-!  p_minfood:  	 Concentration below which feeding on a particular
-!        :  	 foodsource is depressed
-!  p_suSBA:  	 /day   #relative B1 uptake by zoo
-!  p_qnSZO:  	 Maximum quotum P
-!  p_qpSZO:  	 Maximum quotum N
-!  p_suSAL(S1):  	 /day   #relative S1 uptake by sea ice zoo
-!  p_suSAL(S2):  	 /day   #relative S2 uptake by sea ice zoo
-!  p_suSZO:  	 /day   #relative X1 uptake by sea ice zoo
+! NAME         [UNIT]/KIND           DESCRIPTION
+! p_q10        [-]             Q10 value for physiological rates
+! p_srs        [1/d]           Respiration rate at 10 degrees Celsius
+! p_sum        [1/d]           Potential growth rate
+! p_sdo        [1/d]           Mortality rate due to oxygen limitation
+! p_sd         [1/d]           Temperature independent mortality rate
+! p_pu         [-]             Assimilation efficiency
+! p_pu_ea      [-]             Fraction of activity excretion
+! p_chro       [mmolO2/m3]     Half-saturation oxygen concentration
+! p_chuc       [mgC/m3]        Half-saturation Food concentration for Type II
+! p_minfood    [mgC/m3]        Half-saturation food concentration for
+!                              preference factor
+! p_qncSZO     [mmolN/mgC]     Maximum quotum P:C
+! p_qpcSZO     [mmolN/mgC]     Maximum quotum N:C
+! p_paSBA(z,b) [-]             Availability of sea ice Bacteria group b
+!                              to Zooplankton group z
+! p_paSAL(z,p) [-]             Availability of Algae group p
+!                              to Zooplankton group z
+! p_paSZO(z,m) [-]             Availability of Zooplankton group m
+!                              to Zooplankton group z
+!-------------------------------------------------------------------------!
 &SeaiceZoo_parameters
 !          X1
    p_q10 = 2.0,
@@ -962,7 +958,7 @@ p_alpha_chl = 1.4e-4,	1.6e-5,
    p_sum = 2.0,
    p_sdo = 0.05,
    p_sd = 0.0,
-   p_pu_ra = 0.05,
+   p_pu = 0.6,
    p_pu_ea = 0.1,
    p_chro = 7.8,
    p_chuc = 5.0,
@@ -971,16 +967,38 @@ p_alpha_chl = 1.4e-4,	1.6e-5,
    p_qncSZO = 0.0167,
 !            S1  S2
 ! X1
-   p_suSAL(1,:) = 0.2, 0.1
+   p_paSAL(1,:) = 0.2, 0.1
 !            X1
 ! X1
-   p_suSZO(1,:) = 1.0,
+   p_paSZO(1,:) = 1.0,
 !            T1
 ! X1
-   p_suSBA(1,:) = 0.1,
+   p_paSBA(1,:) = 0.1,
 	filename_nml_conf = 'Seaice_Ecology.nml',
 /
 
+!-------------------------------------------------------------------------!
+!NAMELIST Seaicecoup_parameters
+!-------------------------------------------------------------------------!
+! Sea ice - pelagic coupling PARAMETERS (read from nml)
+!-------------------------------------------------------------------------!
+! NAME         [UNIT]/KIND            DESCRIPTION
+!        :     --------- Physical parameters -----------------
+!  p_epsIce    [m-1]          Attenuation coefficient for pure ice
+!  CalcSeaiceAtmFlux logical  Turn on atmospheric nutrient flux
+!  p_atmN1     [?]            Atmospheric phosphate flux
+!  p_atmN3     [?]            Atmospheric nitrate flux
+!  p_atmN4     [?]            Atmospheric ammonium flux
+!  CalcSeaiceFloodFlux logical  Turn on nutrient flux due to flooding
+!  p_floN1     [?]            Flooding phosphate flux
+!  p_floN3     [?]            Flooding nitrate flux
+!  p_floN4     [?]            Flooding ammonium flux
+!  CalcSeaiceAddPelFlux logical Turn on additional nutrient flux from
+!                               pelagic (note: to be used when there is no
+!                               benthic model)
+!  p_pelN1     [mmol P/m3]      Reference PO4 concentration for restoration
+!  p_relaxN1   [d-1]            Relaxation time scale for restoration
+!-------------------------------------------------------------------------!
 &Seaicecoup_parameters
    p_epsIce = 1.5
     CalcSeaiceAtmFlux = .FALSE.

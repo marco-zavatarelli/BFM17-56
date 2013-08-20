@@ -49,11 +49,22 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Sea ice - pelagic coupling PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !
   ! NAME         [UNIT]/KIND            DESCRIPTION
   !        :     --------- Physical parameters -----------------
   !  p_epsIce    [m-1]          Attenuation coefficient for pure ice
-  !  p_qtemp     [-]            Cut-off threshold for temperature factor
+  !  CalcSeaiceAtmFlux logical  Turn on atmospheric nutrient flux
+  !  p_atmN1     [?]            Atmospheric phosphate flux
+  !  p_atmN3     [?]            Atmospheric nitrate flux
+  !  p_atmN4     [?]            Atmospheric ammonium flux
+  !  CalcSeaiceFloodFlux logical  Turn on nutrient flux due to flooding
+  !  p_floN1     [?]            Flooding phosphate flux
+  !  p_floN3     [?]            Flooding nitrate flux
+  !  p_floN4     [?]            Flooding ammonium flux
+  !  CalcSeaiceAddPelFlux logical Turn on additional nutrient flux from 
+  !                               pelagic (note: to be used when there is no 
+  !                               benthic model)
+  !  p_pelN1     [mmol P/m3]      Reference PO4 concentration for restoration
+  !  p_relaxN1   [d-1]            Relaxation time scale for restoration
   real(RLEN)  :: p_epsIce
   logical     :: CalcSeaiceAtmFlux, CalcSeaiceFloodFlux, CalcSeaiceAddPelFlux
   real(RLEN)  :: p_atmN1, p_atmN3, p_atmN4
@@ -369,12 +380,14 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
             p = ppSeaiceAlgae(j,i)
-            call flux_vector( iiIce, p, p, flux_pel_ice(:) ) 
+            if (p>0) call flux_vector( iiIce, p, p, flux_pel_ice(:) ) 
             p = ppPhytoPlankton(PPY(j),i)
-            PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
-            ! map the flux into a 3D temporary array and send to D3SOURCE
-            tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
-            call flux_vector(iiPel, p, p, tmpflux(:) )
+            if (p>0) then
+               PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
+               ! map the flux into a 3D temporary array and send to D3SOURCE
+               tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
+               call flux_vector(iiPel, p, p, tmpflux(:) )
+            end if
        end do
      end if
    end do
@@ -395,12 +408,14 @@
          end where
          ! add the flux and assign it to the boundary variable of the pelagic system
          p = ppSeaiceDetritus(j,i)
-         call flux_vector( iiIce, p, p, flux_pel_ice(:) ) 
+         if (p>0) call flux_vector( iiIce, p, p, flux_pel_ice(:) ) 
          p = ppPelDetritus(DET(j),i)
-         PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
-         ! map the flux into a 3D temporary array
-         tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
-         call flux_vector(iiPel, p, p, tmpflux(:) )
+         if (p>0) then
+            PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
+            ! map the flux into a 3D temporary array
+            tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
+            call flux_vector(iiPel, p, p, tmpflux(:) )
+         end if
       end do
    end do
 
@@ -421,12 +436,14 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
            p = ppSeaiceBacteria(j,i)
-           call flux_vector( iiIce, p,p, flux_pel_ice(:) ) 
+           if (p>0) call flux_vector( iiIce, p,p, flux_pel_ice(:) ) 
            p = ppPelBacteria(BAC(j),i)
-           PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
-           ! map the flux into a 3D temporary array
-           tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
-           call flux_vector(iiPel, p, p, tmpflux(:) )
+           if (p>0) then
+              PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
+              ! map the flux into a 3D temporary array
+              tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
+              call flux_vector(iiPel, p, p, tmpflux(:) )
+           end if
         end do
       end if
    end do
@@ -448,12 +465,14 @@
            end where
            ! add the flux and assign it to the boundary variable of the pelagic system
            p = ppSeaiceZoo(j,i)
-           call flux_vector( iiIce, p,p, flux_pel_ice(:) ) 
+           if (p>0) call flux_vector( iiIce, p,p, flux_pel_ice(:) ) 
            p = ppMicroZooPlankton(ZOO(j),i)
-           PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
-           ! map the flux into a 3D temporary array
-           tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
-           call flux_vector(iiPel, p, p, tmpflux(:) )
+           if (p>0) then
+              PELSURFACE(p,:) =  PELSURFACE(p,:) - flux_pel_ice(:)  
+              ! map the flux into a 3D temporary array
+              tmpflux(SRFindices) = PELSURFACE(p,:) / Depth(SRFindices)
+              call flux_vector(iiPel, p, p, tmpflux(:) )
+           end if
         end do
       end if
    end do

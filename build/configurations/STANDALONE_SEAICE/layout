@@ -171,9 +171,9 @@ end
    end
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  #     State Variable(s) for Sea ice Detritus (Biogenic Organic Material)
+  #     State Variable(s) for Sea ice Biogenic Organic Material
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    group SeaiceDetritus[cnps] (SDE) : mg C/m2 : mmol N/m2: mmol P/m2: mmol Si/m2
+    group SeaiceDetritus[cnps] (SOM) : mg C/m2 : mmol N/m2: mmol P/m2: mmol Si/m2
       U1[-s]    : Sea ice Labile Organic Carbon (LOC)
       U6        : Sea ice Particulate Organic Carbon (POC)
     end
@@ -200,9 +200,9 @@ end
     qpcSZO(SeaiceZoo)   : Quotum P/C in Sea ice Fauna :mmol P/mg C
     qncSZO(SeaiceZoo)   : Quotum N/C in Sea ice Fauna :mmol N/mg C
     
-    qpcSDE(SeaiceDetritus)  : Quotum P/C in Sea ice Detritus:mmol N/mg C  
-    qncSDE(SeaiceDetritus)  : Quotum N/C in Sea ice Detritus:mmol P/mg C  
-    qscSDE(SeaiceDetritus)  : Quotum Si/C in Sea ice Detritus:mmol Si/mg C 
+    qpcSOM(SeaiceDetritus)  : Quotum P/C in Sea ice organic matter:mmol N/mg C  
+    qncSOM(SeaiceDetritus)  : Quotum N/C in Sea ice organic matter:mmol P/mg C  
+    qscSOM(SeaiceDetritus)  : Quotum Si/C in Sea ice organic matter:mmol Si/mg C 
     
     qpcSBA(SeaiceBacteria)   : Quotum P/C in Sea ice Bacteria :mmol N/mg C
     qncSBA(SeaiceBacteria)   : Quotum N/C in Sea ice Bacteria :mmol P/mg C  
