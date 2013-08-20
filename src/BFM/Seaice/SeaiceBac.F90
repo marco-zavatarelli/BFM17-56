@@ -26,11 +26,10 @@
   use mem,  ONLY: D2STATE_ICE
 #else
   use mem, ONLY: D2STATE_ICE, iiSeaiceBacteria, ppSeaiceBacteria, &
-    U6c, U6n, U6p, U1c, U1n, U1p, F2o, F3c, &
-    I4n, I1p, I3n, iiN, iiP, iiC
+    U1c, U6c, F2o, I4n, I1p, iiN, iiP, iiC
   use mem, ONLY: ppU6c, ppU6n, ppU6p, ppU1c, ppF3c, &
-    ppU1n, ppU1p, ppF2o, ppI4n, ppI1p, ppI3n, Depth, qpcSOM, qncSOM,&
-    ETB, qncSBA, qpcSBA, eO2mO2, qpcSOM, qncSOM, NO_BOXES_ICE, iiIce, iiIce,  &
+    ppU1n, ppU1p, ppF2o, ppI4n, ppI1p, ppI3n, qpcSOM, qncSOM,&
+    ETB, qncSBA, qpcSBA, qpcSOM, qncSOM, NO_BOXES_ICE, iiIce, iiIce,  &
     flux_vector, iiU1, iiU6
 #endif
 
@@ -80,16 +79,10 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer :: i 
   integer       :: ppbacc, ppbacn, ppbacp
   real(RLEN),dimension(NO_BOXES_ICE)  :: bacc
-  real(RLEN),dimension(NO_BOXES_ICE)  :: bacn
-  real(RLEN),dimension(NO_BOXES_ICE)  :: bacp
-  real(RLEN),dimension(NO_BOXES_ICE)  :: runn
-  real(RLEN),dimension(NO_BOXES_ICE)  :: runp
   real(RLEN),dimension(NO_BOXES_ICE)  :: et
   real(RLEN),dimension(NO_BOXES_ICE)  :: eO2
-  real(RLEN),dimension(NO_BOXES_ICE)  :: r
   real(RLEN),dimension(NO_BOXES_ICE)  :: rrc
   real(RLEN),dimension(NO_BOXES_ICE)  :: rd
   real(RLEN),dimension(NO_BOXES_ICE)  :: ruU1c
@@ -98,25 +91,12 @@
   real(RLEN),dimension(NO_BOXES_ICE)  :: ruU6c
   real(RLEN),dimension(NO_BOXES_ICE)  :: ruU6p
   real(RLEN),dimension(NO_BOXES_ICE)  :: ruU6n
-  real(RLEN),dimension(NO_BOXES_ICE)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rump
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn3
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rumn4
-  real(RLEN),dimension(NO_BOXES_ICE)  :: misp
-  real(RLEN),dimension(NO_BOXES_ICE)  :: misn
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rupp
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rupn
   real(RLEN),dimension(NO_BOXES_ICE)  :: ren
   real(RLEN),dimension(NO_BOXES_ICE)  :: rep
   real(RLEN),dimension(NO_BOXES_ICE)  :: rut
   real(RLEN),dimension(NO_BOXES_ICE)  :: rum
   real(RLEN),dimension(NO_BOXES_ICE)  :: run
-  real(RLEN),dimension(NO_BOXES_ICE)  :: sun
   real(RLEN),dimension(NO_BOXES_ICE)  :: rug
-  real(RLEN),dimension(NO_BOXES_ICE)  :: suU1
-  real(RLEN),dimension(NO_BOXES_ICE)  :: suU1n
-  real(RLEN),dimension(NO_BOXES_ICE)  :: suU1p
   real(RLEN),dimension(NO_BOXES_ICE)  :: cuU6
   real(RLEN),dimension(NO_BOXES_ICE)  :: cuU1
   real(RLEN),dimension(NO_BOXES_ICE)  :: iI1p
@@ -167,13 +147,6 @@
   call flux_vector( iiIce, ppbacc,ppU1c, rd* p_pe_R1c )
   call flux_vector( iiIce, ppbacn,ppU1n, rd* qncSBA(bac,:)* p_pe_R1n )
   call flux_vector( iiIce, ppbacp,ppU1p, rd* qpcSBA(bac,:)* p_pe_R1p )
-  !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Calculate quota in U1c
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  qncSOM (iiU1, :) =   U1n(:)/ (p_small + U1c(:))
-  qpcSOM (iiU1, :) =   U1p(:)/ (p_small + U1c(:))
-
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Substrate availability

@@ -28,11 +28,10 @@
   use mem,  ONLY: D2STATE_ICE
 #else
   use mem, ONLY: iiC,iiN,iiP,iiS,iiL
-  use mem, ONLY: D2STATE_ICE, U1c, U6c, F2o, F3c, &
-                 I3n, I4n, I1p, U1n, U6n, U1p, U6p, I5s
+  use mem, ONLY: D2STATE_ICE, I3n, I4n, I1p, I5s
   use mem, ONLY: ppU1c, ppU6c, ppF2o, ppF3c, ppI3n, ppI4n, ppI1p, ppU1n, &
     ppU6n, ppU1p, ppU6p, ppU6s, ppI5s, ETB, EIB, &
-    EHB, eiSAL, iiS1, qncSAL, qpcSAL, qscSAL, qlcSAL, NO_BOXES_ICE, &
+    eiSAL, iiS1, qncSAL, qpcSAL, qlcSAL, NO_BOXES_ICE, &
     iiIce, flux_vector,ppSeaiceAlgae
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
@@ -113,9 +112,6 @@
   real(RLEN),dimension(NO_BOXES_ICE)  :: rumn
   real(RLEN),dimension(NO_BOXES_ICE)  :: misn
   real(RLEN),dimension(NO_BOXES_ICE)  :: cqun3
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rums
-  real(RLEN),dimension(NO_BOXES_ICE)  :: rups
-  real(RLEN),dimension(NO_BOXES_ICE)  :: miss
   real(RLEN),dimension(NO_BOXES_ICE)  :: iI
   real(RLEN),dimension(NO_BOXES_ICE)  :: iI1p
   real(RLEN),dimension(NO_BOXES_ICE)  :: iINn
@@ -136,7 +132,6 @@
   real(RLEN),dimension(NO_BOXES_ICE)  :: Irr
   real(RLEN),dimension(NO_BOXES_ICE)  :: rho_Chl
   real(RLEN),dimension(NO_BOXES_ICE)  :: rate_Chl
-  real(RLEN),dimension(NO_BOXES_ICE)  :: Photo_max
   real(RLEN),dimension(NO_BOXES_ICE)  :: flSIU2c,flS1U6s
   real(RLEN),dimension(NO_BOXES_ICE)  :: seo
 

@@ -152,7 +152,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
    use global_mem, only: RLEN,ZERO,ONE
-   use mem_Param,  only: p_PAR,CalcSeaiceAlgae,CalcPhytoPlankton
+   use mem_Param,  only: p_PAR,CalcSeaiceAlgae
    use mem_Param,  only: CalcSeaiceZoo,CalcSeaiceBacteria 
    use mem_Param,  only: p_epsR6, p_small
    use constants,  only: E2W, SEC_PER_DAY

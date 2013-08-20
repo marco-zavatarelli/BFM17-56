@@ -24,11 +24,10 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: D2STATE_ICE, T1c, T1n, T1p, X1c, F2o, F3c, U1c, U6c, U1n, U6n, &
-    U1p, U6p, I4n, I1p, SeaiceAlgae, SeaiceZoo, SeaiceBacteria
-  use mem, ONLY: ppT1c, ppT1n, ppT1p, ppX1c, ppF2o, ppF3c, ppU1c, ppU6c, ppU6s, Depth,&
+  use mem, ONLY: D2STATE_ICE, SeaiceAlgae, SeaiceZoo, SeaiceBacteria
+  use mem, ONLY:  F2o, ppF2o, ppF3c, ppU1c, ppU6c, ppU6s, &
     ppU1n, ppU6n, ppU1p, ppU6p, ppI4n, ppI1p, ppSeaiceAlgae, ppSeaiceZoo, ppSeaiceBacteria, &
-    ETB, eO2mO2, qncSBA, qpcSBA, qncSAL, qpcSAL, qncSZO, qpcSZO, qlcSAL, qscSAL, &
+    ETB, qncSBA, qpcSBA, qncSAL, qpcSAL, qncSZO, qpcSZO, qlcSAL, qscSAL, &
     iiSeaiceBacteria, iiSeaiceAlgae, iiSeaiceZoo, iiS, iiC, iiN, iiP, iiL, &
     NO_BOXES_ICE, iiIce, iiIce, flux_vector,fixed_quota_flux_vector
 #endif
@@ -117,7 +116,6 @@
   real(RLEN),dimension(NO_BOXES_ICE)  :: ren, r
   real(RLEN),dimension(NO_BOXES_ICE,iiSeaiceAlgae)  :: SALc
   real(RLEN),dimension(NO_BOXES_ICE,iiSeaiceZoo)  :: SZOc
-  real(RLEN),dimension(NO_BOXES_ICE)  :: flS1U6s
   real(RLEN),dimension(NO_BOXES_ICE)  :: tfluxc
   real(RLEN),dimension(NO_BOXES_ICE)  :: tfluxn
   real(RLEN),dimension(NO_BOXES_ICE)  :: tfluxp
