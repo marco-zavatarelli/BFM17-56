@@ -813,7 +813,12 @@ sub func_CONSTITUENT  {
         push( @line_par, "ii" . uc($key) . "=" . $$LST_CONST{$key} );
     }
 
-    if( $#line_par > 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
+    if( $#line_par > 0 ){ 
+        #print also the last index
+        push( @line_par, "iiLastConst=" . scalar( keys %$LST_CONST ) );
+        #print all
+        printList($file, \@line_par, $before); print $file "\n"; 
+    }
 }
 
 
@@ -1044,12 +1049,12 @@ sub func_GROUP_FUNCTIONS  {
                 $line .= "${SPACE}" ."  integer, intent(IN), optional  :: cmax\n";
                 $line .= "${SPACE}" ."  \n";
                 if ( $pre eq "pp" ) {
-                    my $maxNumberConstituents = scalar( keys %$LST_CONST );
                     my @refersMax = ();
 
                     my @line_pointers = ();
                     foreach my $member (@members){
-                        my @refers    = ();
+                        my @refers     = ();
+                        my @refersZero = ();
                         my %const_mem = %{$member->getComponents()};
                         my $maxkey = scalar(keys %const_mem); #insert the maximun number of components
 
@@ -1057,29 +1062,29 @@ sub func_GROUP_FUNCTIONS  {
                             if( exists $const_mem{$const}){
                                 push( @refers, "pp" . $member->getSigla() . ${const} . " ");
                             }else{
-                                push( @refers, "0     " );
+                                push( @refersZero, "0     " );
                             }
                         }
-                        push( @line_pointers, join(",",@refers) );
+                        push( @line_pointers, join(",",(@refers,@refersZero)) );
                         push( @refersMax, ${maxkey} );
                     }
 
                     if( scalar(@refersMax) == 0 ){ push(@refersMax, 0); }
                     $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n\n";
 
-                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * " . $maxNumberConstituents . ") :: pointers = (/ & \n";
+                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * iiLastConst ) :: pointers = (/ & \n";
                     $line .= "${SPACE}" .    "${SPACE}       " 
                        . join(", &\n${SPACE}       ", @line_pointers) . "  &\n"
                        .      "${SPACE}       /)\n\n";
 
                     $line .= "${SPACE}" ."  IF( n > " . max(1,scalar(@members)) . " .OR. n == 0 ) THEN\n";                    
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
-                    $line .= "${SPACE}" ."  ELSE IF( constituent > " . $maxNumberConstituents . " .OR. constituent == 0 ) THEN\n";
+                    $line .= "${SPACE}" ."  ELSE IF( constituent > iiLastConst .OR. constituent == 0 ) THEN\n";
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
                     $line .= "${SPACE}" ."  ELSE IF ( present(cmax) ) THEN\n";
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)\n";
                     $line .= "${SPACE}" ."  ELSE\n";
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * $maxNumberConstituents ) + constituent )\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * iiLastConst ) + constituent )\n";
                     $line .= "${SPACE}" ."  ENDIF\n";
 
                 }else{
