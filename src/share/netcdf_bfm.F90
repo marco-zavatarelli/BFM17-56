@@ -798,7 +798,6 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    ! Pelagic 3D variables
    !---------------------------------------------
-
    k = 0
    do n = stPelStart , stPelFluxE
       if ( var_ids(n) > 0 ) then
@@ -837,7 +836,7 @@ end subroutine init_netcdf_rst_bfm
          IF ( .not. var_ave(n) ) THEN
             ! Store snapshot of pelagic 2D diagnostics
             if ( n >= stPelDiag2dS .AND. n <= stPelDiag2dE ) &
-               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(n,:))
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2DIAGNOS(n,:))
 
             ! Store snapshot of pelagic 2D diagnostics at surface
             if ( n >= stPelSurS .AND. n <= stPelSurE) &
@@ -851,7 +850,7 @@ end subroutine init_netcdf_rst_bfm
             ! Store mean values of (pelagic) 2D entity
             if ( temp_time /= 0.0_RLEN ) then
                k=k+1
-               iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
+               iret = store_data(ncid_bfm,var_ids(n),SURFT_SHAPE,NO_BOXES_XY,garray=D2ave(k,:))
             end if
          ENDIF
       end if
