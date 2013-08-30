@@ -813,12 +813,7 @@ sub func_CONSTITUENT  {
         push( @line_par, "ii" . uc($key) . "=" . $$LST_CONST{$key} );
     }
 
-    if( $#line_par > 0 ){ 
-        #print also the last index
-        push( @line_par, "iiLastConst=" . scalar( keys %$LST_CONST ) );
-        #print all
-        printList($file, \@line_par, $before); print $file "\n"; 
-    }
+    if( $#line_par > 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
 }
 
 
@@ -1049,12 +1044,12 @@ sub func_GROUP_FUNCTIONS  {
                 $line .= "${SPACE}" ."  integer, intent(IN), optional  :: cmax\n";
                 $line .= "${SPACE}" ."  \n";
                 if ( $pre eq "pp" ) {
+                    my $maxNumberConstituents = scalar( keys %$LST_CONST );
                     my @refersMax = ();
 
                     my @line_pointers = ();
                     foreach my $member (@members){
-                        my @refers     = ();
-                        my @refersZero = ();
+                        my @refers    = ();
                         my %const_mem = %{$member->getComponents()};
                         my $maxkey = scalar(keys %const_mem); #insert the maximun number of components
 
@@ -1062,29 +1057,27 @@ sub func_GROUP_FUNCTIONS  {
                             if( exists $const_mem{$const}){
                                 push( @refers, "pp" . $member->getSigla() . ${const} . " ");
                             }else{
-                                push( @refersZero, "0     " );
+                                push( @refers, "0     " );
                             }
                         }
-                        push( @line_pointers, join(",",(@refers,@refersZero)) );
+                        push( @line_pointers, join(",",@refers) );
                         push( @refersMax, ${maxkey} );
                     }
 
                     if( scalar(@refersMax) == 0 ){ push(@refersMax, 0); }
                     $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n\n";
 
-                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * iiLastConst ) :: pointers = (/ & \n";
+                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * " . $maxNumberConstituents . ") :: pointers = (/ & \n";
                     $line .= "${SPACE}" .    "${SPACE}       " 
                        . join(", &\n${SPACE}       ", @line_pointers) . "  &\n"
                        .      "${SPACE}       /)\n\n";
-
-                    $line .= "${SPACE}" ."  IF( n > " . max(1,scalar(@members)) . " .OR. n == 0 ) THEN\n";                    
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
-                    $line .= "${SPACE}" ."  ELSE IF( constituent > iiLastConst .OR. constituent == 0 ) THEN\n";
+                    
+                    $line .= "${SPACE}" ."  IF( constituent > " . $maxNumberConstituents . " .OR. constituent == 0 ) THEN\n";
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
                     $line .= "${SPACE}" ."  ELSE IF ( present(cmax) ) THEN\n";
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)-1\n";
                     $line .= "${SPACE}" ."  ELSE\n";
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * iiLastConst ) + constituent )\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * $maxNumberConstituents ) + constituent )\n";
                     $line .= "${SPACE}" ."  ENDIF\n";
 
                 }else{
@@ -1251,11 +1244,8 @@ sub func_STRING_INDEX  {
     my $subt_short = ucfirst(substr($subt,0,3));
 
     my $type_short = ucfirst(substr($type,0,4));
-    if( $type_short eq "Stat" ){ 
-        $type_short = 'State';  #fix because "state" has 5 chars
-    }else{
-        if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
-    }
+    if( $type_short eq "Stat" ){ $type_short = 'State'; } #fix because "state" has 5 chars
+    if( $dim == 2 ){ $type_short .= '2d'; } #fix because name 2D not collapse with 3D
     $search_S = "${type}_${subt}_${dim}_S";
     $search_E = "${type}_${subt}_${dim}_E";
     $out = "${type_short}";
@@ -1486,9 +1476,9 @@ sub func_INIT_OUTPUT_VARIABLES {
     if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
 
     $line .= "${SPACE}   write(Flun,155) \'ID\',\'Var\',\'Unit\',\'Long Name\',\'Flag\'\n";
-    $line .= "${SPACE}   do n=st${Subtype}StateS,st${Subtype}StateE\n";
+    $line .= "${SPACE}   do n=st${Subtype}Start,st${Subtype}End\n";
     $line .= "${SPACE}     write(Flun,156) n,trim(var_names(n)),trim(var_units(n)) &\n";
-    $line .= "${SPACE}       ,trim(var_long(n)),D${dim}STATETYPE${SUBTYPE}(n-st${Subtype}StateS+1)\n";
+    $line .= "${SPACE}       ,trim(var_long(n)),D${dim}STATETYPE${SUBTYPE}(n)\n";
     $line .= "${SPACE}   end do\n";
    
     if( $line ){ print $file $line; }
@@ -1515,11 +1505,11 @@ sub func_INIT_FUNC_ZERO {
             $line .= "${SPACE}do j = 1, ii" . $group->getSigla()    . "\n";
             $line .= "${SPACE}  if (.NOT.Calc" . $group->getSigla() ."(j)) then\n";
             $line .= "${SPACE}    iiLastElement=pp" . $group->getSigla() . "(j,1,cmax=1)\n";
-            $line .= "${SPACE}    do i = 1,iiLastElement\n";
-            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
-            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = OFF\n";
+            $line .= "${SPACE}    do i = 0,iiLastElement\n";
+            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)+i,:) = p_small\n";
+            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)+i) = OFF\n";
             $line .= "#if defined key_obcbfm\n";
-            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
+            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)+i) = NOOBCSTATES\n";
             $line .= "#endif\n";
             $line .= "${SPACE}    end do\n";
             $line .= "${SPACE}  end if\n";

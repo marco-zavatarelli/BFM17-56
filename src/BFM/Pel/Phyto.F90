@@ -258,7 +258,7 @@
   if ( ppphytos > 0 )  phytos(:) = D3STATE(ppphytos,:)
 #ifdef INCLUDE_PELFE
   ppphytof = ppPhytoPlankton(phyto,iiF)
-  phytof(:) = D3STATE(ppphytof,:)
+  if ( ppphytof > 0 ) phytof(:) = D3STATE(ppphytof,:)
 #endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -436,7 +436,6 @@
        ! Activity and Nutrient-stress excretions are assigned to R2
        flPIR2c  =  seo*phytoc + sea*phytoc
   end select
-
   call flux_vector( iiPel, ppO3c,ppphytoc, rugc )  
   call flux_vector( iiPel, ppphytoc,ppR1c, rr1c )
   call flux_vector( iiPel, ppphytoc,ppR6c, rr6c )
@@ -575,28 +574,29 @@
   ! Nutrient dynamics: IRON
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  !  Nutrient uptake
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  rumf  =   p_quf(phyto)* N7f(:)* phytoc  ! max potential uptake for iron
-  misf  =   sadap*max(ZERO,p_xqf(phyto)*p_qfcPPY(phyto)*phytoc - phytof)  ! intracellular missing amount of F
-  rupf  =   p_xqp(phyto)* run* p_qfcPPY(phyto)  ! Fe uptake based on C uptake
-  runf  =   min(  rumf,  rupf+ misf)  ! actual uptake
-
-  r  =   insw_vector(  runf)
-  call flux_vector( iiPel, ppN7f,ppphytof, runf* r )  ! source/sink.p
-  call flux_vector(iiPel, ppphytof,ppR1f,- runf*( ONE- r))  ! source/sink.p
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Losses of Fe
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-  rr6f  =   rr6c* p_qflc(phyto)
-  rr1f  =   sdo* phytof- rr6f
-
-  call flux_vector( iiPel, ppphytof,ppR1f, rr1f )  ! source/sink.fe
-  call flux_vector( iiPel, ppphytof,ppR6f, rr6f )  ! source/sink.fe
+  if (ppphytof > 0) then
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     ! Net uptake
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     rumf  =   p_quf(phyto)* N7f(:)* phytoc  ! max potential uptake
+     ! intracellular missing amount of Fe
+     misf  =   sadap*max(ZERO,p_xqf(phyto)*p_qfcPPY(phyto)*phytoc - phytof)  
+     rupf  =   p_xqp(phyto)* run* p_qfcPPY(phyto)  ! Fe uptake based on C uptake
+     runf  =   min(  rumf,  rupf+ misf)  ! actual uptake
+     r  =   insw_vector(runf)
+     ! uptake from inorganic if shortage
+     call flux_vector( iiPel, ppN7f,ppphytof, runf* r )
+     ! release to dissolved organic to keep the balance if excess
+     call flux_vector(iiPel, ppphytof,ppR1f,- runf*( ONE- r))
+   
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     ! Losses of Fe
+     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+     rr6f  =   rr6c* p_qflc(phyto)
+     rr1f  =   sdo* phytof- rr6f
+     call flux_vector( iiPel, ppphytof,ppR1f, rr1f )
+     call flux_vector( iiPel, ppphytof,ppR6f, rr6f )
+  end if
 #endif
 
   if ( ChlDynamicsFlag== 2) then
