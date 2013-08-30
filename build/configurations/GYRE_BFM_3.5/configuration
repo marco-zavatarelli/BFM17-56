@@ -32,7 +32,7 @@
         PROC     = 4,
         EXP      = 'gyre_bfm',
         QUEUE    = 'poe_short',
-        NEMONML  = 'iodef.xml namelist xmlio_server.def'
+        NEMONML  = 'iodef.xml namelist'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

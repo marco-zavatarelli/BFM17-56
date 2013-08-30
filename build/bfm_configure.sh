@@ -37,16 +37,15 @@ GMAKE="gmake"
 PERL="perl"
 GENCONF="generate_conf"
 MKNEMO="makenemo"
-BFMSTD="bfm_standalone.x"
 NEMOEXE="nemo.exe"
 
 #nemo files
 NEMONML="";
 
 #options
-OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     NEMONML)
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr)
+OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:"
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     BFMSTD     NEMONML )
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr bfmstd_usr         )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -59,6 +58,7 @@ ARCH="gfortran.inc"
 PROC=4
 EXP="EXP00"
 QUEUE="poe_short"
+BFMSTD="bfm_standalone.x"
 CLEAN=1
 # --------------------------------------------------------------------
 
@@ -108,6 +108,8 @@ DESCRIPTION
                   Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
        -t NETCDF
                   Path to netcdf library and header files. (Default: /usr/local)
+       -o BFMSTD OUTPUT
+                  BFM executable name output. (Default: bfm_standalone.x)
     alternative DEPLOYMENT OPTIONS are:
        -x EXP
                   Name of the experiment for generation of the output folder (Default: "EXP00")
@@ -135,25 +137,26 @@ rm ${LOGDIR}/${LOGFILE}.pipe
 #get user options from commandline
 while getopts "${OPTS}" opt; do
     case $opt in
-      h ) usage;            rm ${LOGDIR}/${LOGFILE}      ; exit             ;;
-      v )                   echo "verbose mode"          ; VERBOSE=1        ;;
-      g ) [ ${VERBOSE} ] && echo "generation activated"  ; GEN=1            ;;
-      c ) [ ${VERBOSE} ] && echo "compilation activated" ; CMP=1            ;;
-      d ) [ ${VERBOSE} ] && echo "deployment activated"  ; DEP=1            ;;
-      P ) [ ${VERBOSE} ] && echo "list presets"          ; LIST=1           ;;
-      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"        ; PRESET=$OPTARG      ;;
-      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"          ; mode_usr=$OPTARG    ;;
-      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"   ; cppdefs_usr=$OPTARG ;;
-      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"        ; bfmdir_usr=$OPTARG  ;;
-      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"       ; nemodir_usr=$OPTARG ;;
-      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"  ; arch_usr=$OPTARG    ;;
-      f ) [ ${VERBOSE} ] && echo "fast mode activated"   ; clean_usr=0         ;;
-      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"   ; netcdf_usr=$OPTARG  ;;
-      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"    ; exp_usr=$OPTARG     ;;
-      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"  ; nmldir_usr=$OPTARG  ;;
-      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"      ; proc_usr=$OPTARG    ;;
-      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"    ; queue_usr=$OPTARG   ;;
-      * ) echo "option not recognized"                   ; exit             ;;
+      h ) usage;            rm ${LOGDIR}/${LOGFILE}        ; exit             ;;
+      v )                   echo "verbose mode"            ; VERBOSE=1        ;;
+      g ) [ ${VERBOSE} ] && echo "generation activated"    ; GEN=1            ;;
+      c ) [ ${VERBOSE} ] && echo "compilation activated"   ; CMP=1            ;;
+      d ) [ ${VERBOSE} ] && echo "deployment activated"    ; DEP=1            ;;
+      P ) [ ${VERBOSE} ] && echo "list presets"            ; LIST=1           ;;
+      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"          ; PRESET=$OPTARG      ;;
+      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"            ; mode_usr=$OPTARG    ;;
+      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"     ; cppdefs_usr=$OPTARG ;;
+      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"          ; bfmdir_usr=$OPTARG  ;;
+      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"         ; nemodir_usr=$OPTARG ;;
+      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"    ; arch_usr=$OPTARG    ;;
+      f ) [ ${VERBOSE} ] && echo "fast mode activated"     ; clean_usr=0         ;;
+      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"     ; netcdf_usr=$OPTARG  ;;
+      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"      ; exp_usr=$OPTARG     ;;
+      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"    ; nmldir_usr=$OPTARG  ;;
+      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"        ; proc_usr=$OPTARG    ;;
+      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"      ; queue_usr=$OPTARG   ;;
+      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG" ; bfmstd_usr=$OPTARG  ;;
+      * ) echo "option not recognized"                     ; exit                ;;
     esac
 done
 

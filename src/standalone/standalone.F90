@@ -384,8 +384,8 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-integer :: i
-real    :: localtime
+integer    :: i
+real(RLEN) :: localtime
 
    LEVEL1 'timestepping'
    do while (ntime.le.nendtim)

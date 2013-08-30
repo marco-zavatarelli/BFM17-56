@@ -1,0 +1,456 @@
+<!--
+<?xml version="1.0"?>
+       -->
+ 
+    <!-- $id$ -->
+    
+    <!-- 
+============================================================================================================
+=                                  definition of all existing variables                                    =
+=                                            DO NOT CHANGE                                                 =
+============================================================================================================
+    -->
+   <field_definition level="1" prec="4" operation="average" enabled=".TRUE." default_value="1.e20" > <!-- time step automaticaly defined -->
+
+      <!-- T grid -->
+      
+     <field_group id="grid_T" grid_ref="grid_T_2D">
+         <field id="toce"         long_name="temperature"                               unit="degC" grid_ref="grid_T_3D"/>
+         <field id="soce"         long_name="salinity"                                  unit="psu"  grid_ref="grid_T_3D"/>
+         <field id="sst"          long_name="sea surface temperature"                   unit="degC"                     />
+         <field id="sst2"         long_name="square of sea surface temperature"         unit="degC2"                    />
+         <field id="sstgrad"      long_name="module of sst gradient"                    unit="degC/m"                   />
+         <field id="sstgrad2"     long_name="square of module of sst gradient"          unit="degC2/m2"                 />
+         <field id="sss"          long_name="sea surface salinity"                      unit="psu"                      />
+         <field id="sss2"         long_name="square of sea surface salinity"            unit="psu2"                     />
+         <field id="ssh"          long_name="sea surface height"                        unit="m"                        />
+         <field id="ssh2"         long_name="square of sea surface height"              unit="m2"                       />
+         <field id="mldkz5"       long_name="mixing layer depth (Turbocline)"           unit="m"                        />
+         <field id="mldr10_1"     long_name="Mixed Layer Depth 0.01 ref.10m"            unit="m"                        />
+         <field id="rhop"         long_name="potential density (sigma0)"                unit="kg/m3" grid_ref="grid_T_3D"/>
+         <!-- next variables available with key_diahth -->
+         <field id="mlddzt"       long_name="Thermocline Depth (max dT/dz)"             unit="m"                        />
+         <field id="mldr10_3"     long_name="Mixed Layer Depth dr=0.03 (ref.10m)"       unit="m"                        />
+         <field id="mldr0_1"      long_name="Mixed Layer Depth dr=0.01 (ref.surf)"      unit="m"                        />
+         <field id="mldr0_3"      long_name="Mixed Layer Depth dr=0.03 (ref.surf)"      unit="m"                        />
+         <field id="mld_dt02"     long_name="Mixed Layer Depth |dt|=0.2 (ref.10m)"      unit="m"                        />
+         <field id="topthdep"     long_name="Top of the thermocline dt=-0.2 (ref.10m)"  unit="m"                        />
+         <field id="pycndep"      long_name="Pycnocline depth dr~dt=-0.2 (ref.10m)"     unit="m"                        />
+         <field id="BLT"          long_name="Barrier Layer Thickness"                   unit="m"                        />
+         <field id="tinv"         long_name="Max of vertical invertion of temperature"  unit="degC"                     />
+         <field id="depti"        long_name="Depth of max. vert. inv. of temperature"   unit="m"                        />
+         <field id="20d"          long_name="Depth of 20C isotherm"                     unit="m"                        />
+         <field id="28d"          long_name="Depth of 28C isotherm"                     unit="m"                        />
+         <field id="hc300"        long_name="Heat content 300 m"                        unit="W"                        />
+         <!-- variables available with key_diaar5 -->
+         <field id="botpres"      long_name="Pressure at sea floor"                     unit="dbar"                     />
+         <field id="cellthc"      long_name="Cell thickness"                            unit="m"    grid_ref="grid_T_3D"/>
+     </field_group>
+
+      <!-- SBC -->
+      
+      <field_group id="SBC" grid_ref="grid_T_2D" > <!-- time step automaticaly defined based on nn_fsbc -->
+
+         <field id="empmr"        long_name="Net Upward Water Flux"                                        unit="kg/m2/s"  />
+         <field id="saltflx"      long_name="Downward salt flux"                                           unit="PSU/m2/s"  />
+         <field id="fmmflx"       long_name="Water flux due to freezing/melting"                           unit="kg/m2/s"  />
+         <field id="snowpre"      long_name="Snow precipitation"                                           unit="kg/m2/s"  />
+         <field id="runoffs"      long_name="River Runoffs"                                                unit="Kg/m2/s"  />
+
+         <field id="qt"           long_name="Net Downward Heat Flux"                                       unit="W/m2"     />
+         <field id="qns"          long_name="non solar Downward Heat Flux"                                 unit="W/m2"     />
+         <field id="qsr"          long_name="Shortwave Radiation"                                          unit="W/m2"     />
+         <field id="qsr3d"        long_name="Shortwave Radiation 3D distribution"  grid_ref="grid_T_3D"    unit="W/m2"     />
+         <field id="qrp"          long_name="Surface Heat Flux: Damping"                                   unit="W/m2"     />
+         <field id="erp"          long_name="Surface Water Flux: Damping"                                  unit="Kg/m2/s"  />
+         <field id="taum"         long_name="wind stress module"                                           unit="N/m2"     />
+         <field id="wspd"         long_name="Wind speed module at 10 m"                                    unit="m/s"      />
+         
+	 <!-- * variable relative to atmospheric pressure forcing : available with ln_apr_dyn -->
+	 <field id="ssh_ib"       long_name="Inverse barometer sea surface height"                         unit="m"        />
+	
+         <!-- *_oce variables available with ln_blk_clio or ln_blk_core -->
+         <field id="qns_oce"      long_name="Non solar Downward Heat Flux over open ocean"                 unit="W/m2"     />
+         <field id="qlw_oce"      long_name="Longwave Downward Heat Flux over open ocean"                  unit="W/m2"     />
+         <field id="qsb_oce"      long_name="Sensible Downward Heat Flux over open ocean"                  unit="W/m2"     />
+         <field id="qla_oce"      long_name="Latent Downward Heat Flux over open ocean"                    unit="W/m2"     />
+         <field id="qhc_oce"      long_name="Downward Heat Content of E-P over open ocean"                 unit="W/m2"     />
+         <field id="taum_oce"     long_name="wind stress module over open ocean"                           unit="N/m2"     />
+
+         <field id="ice_cover"    long_name="Ice fraction"                                                 unit="1"        />
+
+         <field id="ioceflxb"     long_name="Oceanic flux at the ice base"                                 unit="W/m2"     />
+         <field id="qsr_ai_cea"   long_name="Air-Ice downward solar heat flux (cell average)"              unit="W/m2"     />
+         <field id="qns_ai_cea"   long_name="Air-Ice downward non-solar heat flux (cell average)"          unit="W/m2"     />
+         <field id="qla_ai_cea"   long_name="Air-Ice downward Latent heat flux (cell average)"             unit="W/m2"     />
+         
+         <field id="qsr_io_cea"   long_name="Ice-Oce downward solar heat flux (cell average)"              unit="W/m2"     />
+         <field id="qns_io_cea"   long_name="Ice-Oce downward non-solar heat flux (cell average)"          unit="W/m2"     />
+         
+         <field id="snowthic_cea" long_name="Snow thickness (cell average)"                                unit="m"        />
+         <field id="icethic_cea"  long_name="Ice thickness (cell average)"                                 unit="m"        />
+         <field id="iceprod_cea"  long_name="Ice production (cell average)"                                unit="m/s"      />
+         
+         <field id="ice_pres"     long_name="Ice presence"                                                 unit="-"        />
+         <field id="ist_cea"      long_name="Ice surface temperature (cell average)"                       unit="degC"     />
+         <field id="ist_ipa"      long_name="Ice surface temperature (ice presence average)"               unit="degC"     />      
+         <field id="uice_ipa"     long_name="Ice velocity along i-axis at I-point (ice presence average)"  unit="m/s"      />      
+         <field id="vice_ipa"     long_name="Ice velocity along j-axis at I-point (ice presence average)"  unit="m/s"      />      
+         
+         <field id="utau_ice"     long_name="Wind stress along i-axis over the ice at i-point"             unit="N/m2"     />
+         <field id="vtau_ice"     long_name="Wind stress along j-axis over the ice at i-point"             unit="N/m2"     />
+         
+         <field id="u_imasstr"    long_name="Sea-ice mass transport along i-axis"                          unit="kg/s"     />
+         <field id="v_imasstr"    long_name="Sea-ice mass transport along j-axis"                          unit="kg/s"     />
+         <field id="emp_x_sst"    long_name="Concentration/Dilution term on SST"                           unit="kgC/m2/s" />
+         <field id="emp_x_sss"    long_name="Concentration/Dilution term on SSS"                         unit="kgPSU/m2/s" />
+
+         <!-- available key_coupled -->
+         <field id="snow_ao_cea"   long_name="Snow over ice-free ocean (cell average)"                     unit="kg/m2/s"  />
+         <field id="snow_ai_cea"   long_name="Snow over sea-ice (cell average)"                            unit="kg/m2/s"  />
+         <field id="subl_ai_cea"   long_name="Sublimation over sea-ice (cell average)"                     unit="kg/m2/s"  />
+         <field id="icealb_cea"    long_name="Ice albedo (cell average)"                                   unit="1"        />
+         <field id="calving"       long_name="Calving"                                                     unit="kg/m2/s"  />
+         <!-- available if key_coupled + conservative method -->
+         <field id="rain"          long_name="Liquid precipitation"                                        unit="Kg/m2/s"  />
+         <field id="evap_ao_cea"   long_name="Evaporation over ice-free ocean (cell average)"              unit="kg/m2/s"  />
+         <!-- variables available with key_diaar5 -->
+         <field id="isnwmlt_cea"   long_name="Snow over Ice melting (cell average)"                        unit="kg/m2/s"  />
+         <field id="fsal_virt_cea" long_name="Virtual salt flux due to ice formation (cell average)"       unit="kg/m2/s"  />
+         <field id="fsal_real_cea" long_name="Real salt flux due to ice formation (cell average)"          unit="kg/m2/s"  />
+         <field id="hflx_rain_cea" long_name="heat flux due to rainfall"                                   unit="W/m2"     />
+         <field id="hflx_evap_cea" long_name="heat flux due to evaporation"                                unit="W/m2"     />
+         <field id="hflx_snow_cea" long_name="heat flux due to snow falling over ice-free ocean"           unit="W/m2"     />
+         <field id="hflx_ice_cea"  long_name="heat flux due to ice thermodynamics"                         unit="W/m2"     />
+         <field id="hflx_rnf_cea"  long_name="heat flux due to runoffs"                                    unit="W/m2"     />
+         <field id="hflx_cal_cea"  long_name="heat flux due to calving"                                    unit="W/m2"     />
+         <field id="bicemel_cea"   long_name="Rate of Melt at Sea Ice Base (cell average)"                 unit="kg/m2/s"  />
+         <field id="licepro_cea"   long_name="Lateral Sea Ice Growth Rate (cell average)"                  unit="kg/m2/s"  />
+         <field id="snowmel_cea"   long_name="Snow Melt Rate (cell average)"                               unit="kg/m2/s"  />
+         <field id="sntoice_cea"   long_name="Snow-Ice Formation Rate (cell average)"                      unit="kg/m2/s"  />
+         <field id="ticemel_cea"      long_name="Rate of Melt at Upper Surface of Sea Ice (cell average)"     unit="kg/m2/s"  />
+
+      </field_group>
+
+      <!-- U grid -->
+      
+      <field_group id="grid_U"   grid_ref="grid_U_2D">
+         <field id="utau"         long_name="Wind Stress along i-axis"                    unit="N/m2" />
+         <field id="suoce"        long_name="ocean surface current along i-axis"          unit="m/s"  />
+         <field id="uoce"         long_name="ocean current along i-axis"                  unit="m/s"  grid_ref="grid_U_3D" />
+         <field id="uocetr_eff"   long_name="Effective ocean transport along i-axis"      unit="m3/s" grid_ref="grid_U_3D" />
+         <!-- uoce_eiv: available with key_traldf_eiv and key_diaeiv -->
+         <field id="uoce_eiv"     long_name="EIV ocean current along i-axis"              unit="m/s"  grid_ref="grid_U_3D" />
+         <!-- uoce_eiv: available with key_trabbl -->
+         <field id="uoce_bbl"     long_name="BBL ocean current along i-axis"              unit="m/s"  grid_ref="grid_U_3D" />
+	 <field id="ahu_bbl"      long_name="BBL diffusive flux along i-axis"             unit="m3/s" />
+         <!-- variables available with key_diaar5 -->
+         <field id="u_masstr"     long_name="ocean eulerian mass transport along i-axis"  unit="kg/s" grid_ref="grid_U_3D" />
+         <field id="u_heattr"     long_name="ocean eulerian heat transport along i-axis"  unit="W"    />
+         <field id="ueiv_heattr"  long_name="ocean bolus heat transport along i-axis"     unit="W"    />
+         <field id="udiff_heattr" long_name="ocean diffusion heat transport along i-axis" unit="W"    />
+     </field_group>
+      
+      <!-- V grid -->
+      
+      <field_group id="grid_V"   grid_ref="grid_V_2D">
+         <field id="vtau"         long_name="Wind Stress along j-axis"                    unit="N/m2" />
+         <field id="svoce"        long_name="ocean surface current along j-axis"          unit="m/s"  />
+         <field id="voce"         long_name="ocean current along j-axis"                  unit="m/s"  grid_ref="grid_V_3D" />
+         <field id="vocetr_eff"   long_name="Effective ocean transport along j-axis"      unit="m3/s" grid_ref="grid_V_3D" />
+         <!-- voce_eiv: available with key_traldf_eiv and key_diaeiv -->
+         <field id="voce_eiv"     long_name="EIV ocean current along j-axis"              unit="m/s"  grid_ref="grid_V_3D" />
+         <!-- voce_eiv: available with key_trabbl -->
+         <field id="voce_bbl"     long_name="BBL ocean current along j-axis"              unit="m/s"  grid_ref="grid_V_3D" />
+	 <field id="ahv_bbl"      long_name="BBL diffusive flux along j-axis"             unit="m3/s"                   />
+         <!-- variables available with key_diaar5 -->
+         <field id="v_masstr"     long_name="ocean eulerian mass transport along j-axis"  unit="kg/s" grid_ref="grid_V_3D" />
+         <field id="v_heattr"     long_name="ocean eulerian heat transport along j-axis"  unit="W"     />
+         <field id="veiv_heattr"  long_name="ocean bolus heat transport along j-axis"     unit="W"     />
+         <field id="vdiff_heattr" long_name="ocean diffusion heat transport along j-axis" unit="W"     />
+      </field_group>
+      
+      <!-- W grid -->
+      
+      <field_group id="grid_W" grid_ref="grid_W_3D">
+        <field id="woce"         long_name="ocean vertical velocity"                  unit="m/s"    />
+        <field id="wocetr_eff"   long_name="effective ocean vertical transport"       unit="m3/s"   />
+        <!-- woce_eiv: available with key_traldf_eiv and key_diaeiv -->
+        <field id="woce_eiv"     long_name="EIV ocean vertical velocity"              unit="m/s"    />
+        <!-- woce_eiv: available with key_trabbl_adv -->
+        <field id="avt"          long_name="vertical eddy diffusivity"                unit="m2/s"   />
+        <field id="avm"          long_name="vertical eddy viscosity"                  unit="m2/s"   />
+        <!-- avs: available with key_zdfddm -->
+        <field id="avs"          long_name="salt vertical eddy diffusivity"           unit="m2/s"   />
+        <!-- avt_evd and avm_evd: available with ln_zdfevd -->
+        <field id="avt_evd"      long_name="enhanced vertical diffusivity"            unit="m2/s"   />
+        <field id="avm_evd"      long_name="enhanced vertical viscosity"              unit="m2/s"   />
+        <!-- avt_tide: available with key_zdftmx -->
+        <field id="av_tide"      long_name="tidal vertical diffusivity"               unit="m2/s"   />
+        <!-- variables available with key_diaar5 -->   
+        <field id="w_masstr"     long_name="vertical mass trasport"                   unit="kg/s"   />
+        <field id="w_masstr2"    long_name="square of vertical mass trasport"         unit="kg2/s2" />
+        
+        <!-- aht2d and  aht2d_eiv: available with key_traldf_eiv and key_traldf_c2d -->
+        <field id="aht2d"        long_name="lateral eddy diffusivity"                    unit="m2/s"   grid_ref="grid_W_2D" />
+        <field id="aht2d_eiv"    long_name="EIV lateral eddy diffusivity"                unit="m2/s"   grid_ref="grid_W_2D"/>
+      </field_group>
+          
+      <!-- scalar variables available with key_diaar5 -->
+
+      <field_group id="scalar"  domain_ref="1point" >
+         <field id="voltot"     long_name="global mean volume"                         unit="m3"   />
+         <field id="sshtot"     long_name="global mean ssh"                            unit="m"    />
+         <field id="sshsteric"  long_name="global mean ssh steric"                     unit="m"    />
+         <field id="sshthster"  long_name="global mean ssh thermosteric"               unit="m"    />
+         <field id="masstot"    long_name="global mean mass"                           unit="kg"   />
+         <field id="temptot"    long_name="global mean temperature"                    unit="degC" />
+         <field id="saltot"     long_name="global mean salinity"                       unit="psu"  />
+         <field id="fram_trans" long_name="Sea Ice Mass Transport Through Fram Strait" unit="kg/s" />
+      </field_group>
+  
+      <!-- variables available with key_float -->
+      <field_group id="floatvar" domain_ref="1point" axis_ref="nfloat" operation="instant" >
+        <field id="traj_lon"   long_name="floats longitude"   unit="deg"   />
+        <field id="traj_lat"   long_name="floats latitude"    unit="deg"   />
+        <field id="traj_dep"   long_name="floats depth"       unit="m"     />
+        <field id="traj_temp"  long_name="floats temperature" unit="degC"  />
+        <field id="traj_salt"  long_name="floats salinity"    unit="psu"   />
+        <field id="traj_dens"  long_name="floats density"     unit="kg/m3" />
+        <field id="traj_group" long_name="floats group"       unit="none"  />
+      </field_group>
+
+      <!-- variables available with iceberg trajectories -->
+      <field_group id="icbvar" domain_ref="grid_T"  > 
+        <field id="berg_melt"          long_name="icb melt rate of icebergs"                     unit="kg/m2/s"   />
+        <field id="berg_buoy_melt"     long_name="icb buoyancy component of iceberg melt rate"   unit="kg/m2/s"   />
+        <field id="berg_eros_melt"     long_name="icb erosion component of iceberg melt rate"    unit="kg/m2/s"   />
+        <field id="berg_conv_melt"     long_name="icb convective component of iceberg melt rate" unit="kg/m2/s"   />
+        <field id="berg_virtual_area"  long_name="icb virtual coverage by icebergs"              unit="m2"        />
+        <field id="bits_src"           long_name="icb mass source of bergy bits"                 unit="kg/m2/s"   />
+        <field id="bits_melt"          long_name="icb melt rate of bergy bits"                   unit="kg/m2/s"   />
+        <field id="bits_mass"          long_name="icb bergy bit density field"                   unit="kg/m2"     />
+        <field id="berg_mass"          long_name="icb iceberg density field"                     unit="kg/m2"     />
+        <field id="calving"            long_name="icb calving mass input"                        unit="kg/s"      />
+        <field id="berg_floating_melt" long_name="icb melt rate of icebergs + bits"              unit="kg/m2/s"   />
+        <field id="berg_real_calving"  long_name="icb calving into iceberg class"                unit="kg/s"     axis_ref="icbcla" />
+        <field id="berg_stored_ice"    long_name="icb accumulated ice mass by class"             unit="kg"       axis_ref="icbcla" />
+      </field_group>
+
+      <!-- ptrc on T grid -->
+
+      <field_group id="ptrc_T" grid_ref="grid_T_3D">
+       <field id="DIC"      long_name="Dissolved inorganic Concentration"        unit="mmol/m3" />
+       <field id="Alkalini" long_name="Total Alkalinity Concentration"           unit="mmol/m3" />
+       <field id="O2"       long_name="Oxygen Concentration"                     unit="mmol/m3" />
+       <field id="CaCO3"    long_name="Calcite Concentration"                    unit="mmol/m3" />
+       <field id="PO4"      long_name="Phosphate Concentration"                  unit="mmol/m3" />
+       <field id="POC"      long_name="Small organic carbon Concentration"       unit="mmol/m3" />
+       <field id="Si"       long_name="Silicate Concentration"                   unit="mmol/m3" />
+       <field id="PHY"      long_name="(Nano)Phytoplankton Concentration"        unit="mmol/m3" />
+       <field id="ZOO"      long_name="(Micro)Zooplankton Concentration"         unit="mmol/m3" />
+       <field id="DOC"      long_name="Dissolved organic Concentration"          unit="mmol/m3" />
+       <field id="PHY2"     long_name="Diatoms Concentration"                    unit="mmol/m3" />
+       <field id="ZOO2"     long_name="Mesozooplankton Concentration"            unit="mmol/m3" />
+       <field id="DSi"      long_name="Diatoms Silicate Concentration"           unit="mmol/m3" />
+       <field id="Fer"      long_name="Dissolved Iron Concentration"             unit="mmol/m3" />
+       <field id="BFe"      long_name="Big iron particles Concentration"         unit="mmol/m3" />
+       <field id="GOC"      long_name="Big organic carbon Concentration"         unit="mmol/m3" />
+       <field id="SFe"      long_name="Small iron particles Concentration"       unit="mmol/m3" />
+       <field id="DFe"      long_name="Diatoms iron  Concentration"              unit="mmol/m3" />
+       <field id="GSi"      long_name="Sinking biogenic Silicate Concentration"  unit="mmol/m3" />
+       <field id="NFe"      long_name="Nano iron Concentration"                  unit="mmol/m3" />
+       <field id="NCHL"     long_name="Nano chlorophyl Concentration"            unit="mg/m3"   />
+       <field id="DCHL"     long_name="Diatoms chlorophyl Concentration"         unit="mg/m3"   />
+       <field id="NO3"      long_name="Nitrate Concentration"                    unit="mmol/m3" />
+       <field id="NH4"      long_name="Ammonium Concentration"                   unit="mmol/m3" />
+
+       <!-- PISCES with Kriest parametisation : variables available with key_kriest -->
+       <field id="Num"      long_name="Number of organic particles"              unit="nbr" />
+
+       <!-- PISCES light : variables available with key_pisces_reduced -->
+       <field id="DET"      long_name="Detritus"                                 unit="mmol-N/m3" />
+       <field id="DOM"      long_name="Dissolved Organic Matter"                 unit="mmol-N/m3" />
+
+       <!-- CFC11 : variables available with key_cfc -->
+       <field id="CFC11"    long_name="CFC-11 Concentration"                     unit="umol/L" />
+       <!-- Bomb C14 : variables available with key_c14b -->
+       <field id="C14B"     long_name="Bomb C14 Concentration"                   unit="ration" />
+     </field_group>
+
+      <!-- PISCES additional diagnostics on T grid  -->
+     <field_group id="diad_T" grid_ref="grid_T_2D">
+       <field id="PH"          long_name="PH"                                      unit="-"          grid_ref="grid_T_3D" />
+       <field id="CO3"         long_name="Bicarbonates"                            unit="mol/m3"     grid_ref="grid_T_3D" />
+       <field id="CO3sat"      long_name="CO3 saturation"                          unit="mol/m3"     grid_ref="grid_T_3D" />
+       <field id="PAR"         long_name="Photosynthetically Available Radiation"  unit="W/m2"       grid_ref="grid_T_3D" />
+       <field id="PPPHY"       long_name="Primary production of nanophyto"         unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="PPPHY2"      long_name="Primary production of diatoms"           unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="PPNEWN"      long_name="New Primary production of nanophyto"     unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="PPNEWD"      long_name="New Primary production of diatoms"       unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="PBSi"        long_name="Primary production of Si diatoms"        unit="molSi/m3/s" grid_ref="grid_T_3D" />
+       <field id="PFeN"        long_name="Primary production of nano iron"         unit="molFe/m3/s" grid_ref="grid_T_3D" />
+       <field id="PFeD"        long_name="Primary production of diatoms iron"      unit="molFe/m3/s" grid_ref="grid_T_3D" />
+       <field id="xfracal"     long_name="Calcifying fraction"                     unit="-"          grid_ref="grid_T_3D" />
+       <field id="PCAL"        long_name="Calcite production"                      unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="DCAL"        long_name="Calcite dissolution"                     unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="GRAZ1"       long_name="Grazing by microzooplankton"             unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="GRAZ2"       long_name="Grazing by mesozooplankton"              unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="REMIN"       long_name="Oxic remineralization of OM"             unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="DENIT"       long_name="Anoxic remineralization of OM"           unit="molC/m3/s"  grid_ref="grid_T_3D" />
+       <field id="Nfix"        long_name="Nitrogen fixation"                       unit="molN/m3/s"  grid_ref="grid_T_3D" />
+       <field id="Mumax"       long_name="Maximum growth rate"                     unit="s-1"        grid_ref="grid_T_3D" />
+       <field id="MuN"         long_name="Realized growth rate for nanophyto"      unit="s-1"        grid_ref="grid_T_3D" />
+       <field id="MuD"         long_name="Realized growth rate for diatomes"       unit="s-1"        grid_ref="grid_T_3D" />
+       <field id="LNnut"       long_name="Nutrient limitation term in Nanophyto"   unit="-"          grid_ref="grid_T_3D" />
+       <field id="LDnut"       long_name="Nutrient limitation term in Diatoms"     unit="-"          grid_ref="grid_T_3D" />
+       <field id="LNFe"        long_name="Iron limitation term in Nanophyto"       unit="-"          grid_ref="grid_T_3D" />
+       <field id="LDFe"        long_name="Iron limitation term in Diatoms"         unit="-"          grid_ref="grid_T_3D" />
+       <field id="LNlight"     long_name="Light limitation term in Nanophyto"      unit="-"          grid_ref="grid_T_3D" />
+       <field id="LDlight"     long_name="Light limitation term in Diatoms"        unit="-"          grid_ref="grid_T_3D" />
+       <field id="Fe2"         long_name="Iron II concentration"                   unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="Fe3"         long_name="Iron III concentration"                  unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="FeL1"        long_name="Complexed Iron concentration with L1"    unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="FeL2"        long_name="Complexed Iron concentration with L2"    unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="FeP"         long_name="Precipitated Iron III"                   unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="TL1"         long_name="Total L1 concentration"                  unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="TL2"         long_name="Total L2 concentration"                  unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="pdust"       long_name="dust concentration"                      unit="g/L"                          />
+       <field id="Totlig"      long_name="Total ligand concentation"               unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="Biron"       long_name="Bioavailable iron"                       unit="nmol/L"     grid_ref="grid_T_3D" />
+       <field id="Sdenit"      long_name="Nitrate reduction in the sediments"      unit="molN/m2/s"                    />
+       <field id="Ironice"     long_name="Iron input/uptake due to sea ice"        unit="molFe/m2/s"                   />
+       <field id="HYDR"        long_name="Iron input from hydrothemal vents"       unit="molFe/m2/s" grid_ref="grid_T_3D" />
+       <field id="EPC100"      long_name="Export of carbon particles at 100 m"     unit="mol/m2/s"                     />
+       <field id="EPFE100"     long_name="Export of biogenic iron at 100 m"        unit="mol/m2/s"                     />
+       <field id="EPSI100"     long_name="Export of Silicate at 100 m"             unit="mol/m2/s"                     />
+       <field id="EPCAL100"    long_name="Export of Calcite at 100 m"              unit="mol/m2/s"                     />
+       <field id="Cflx"        long_name="DIC flux"                                unit="mol/m2/s"                     />
+       <field id="Oflx"        long_name="Oxygen flux"                             unit="mol/m2/s"                     />
+       <field id="Kg"          long_name="Gas transfer"                            unit="mol/m2/s/uatm"                />
+       <field id="Dpco2"       long_name="Delta CO2"                               unit="uatm"                         />
+       <field id="Dpo2"        long_name="Delta O2"                                unit="uatm"                         />
+       <field id="Heup"        long_name="Euphotic layer depth"                    unit="m"                            />
+       <field id="Irondep"     long_name="Iron deposition from dust"               unit="mol/m2/s"                     />
+       <field id="Ironsed"     long_name="Iron deposition from sediment"           unit="mol/m2/s"  grid_ref="grid_T_3D "/>
+
+       <!-- PISCES with Kriest parametisation : variables available with key_kriest -->
+       <field id="POCFlx"      long_name="Particulate organic C flux"              unit="mol/m2/s"   grid_ref="grid_T_3D" />
+       <field id="NumFlx"      long_name="Particle number flux"                    unit="nbr/m2/s"   grid_ref="grid_T_3D" />
+       <field id="SiFlx"       long_name="Biogenic Si flux"                        unit="mol/m2/s"   grid_ref="grid_T_3D" />
+       <field id="CaCO3Flx"    long_name="CaCO3 flux"                              unit="mol/m2/s"   grid_ref="grid_T_3D" />
+       <field id="xnum"        long_name="Number of particles in aggregats"        unit="-"          grid_ref="grid_T_3D" />
+       <field id="W1"          long_name="sinking speed of mass flux"              unit="m2/s"       grid_ref="grid_T_3D" />
+       <field id="W2"          long_name="sinking speed of number flux"            unit="m2/s"       grid_ref="grid_T_3D" />
+
+       <!-- PISCES light : variables available with key_pisces_reduced -->
+       <field id="FNO3PHY"     long_name="FNO3PHY"                                 unit="-"          grid_ref="grid_T_3D" /> 
+       <field id="FNH4PHY"     long_name="FNH4PHY"                                 unit="-"          grid_ref="grid_T_3D" /> 
+       <field id="FNH4NO3"     long_name="FNH4NO3"                                 unit="-"          grid_ref="grid_T_3D" /> 
+       <field id="TNO3PHY"     long_name="TNO3PHY"                                 unit="-"  /> 
+       <field id="TNH4PHY"     long_name="TNH4PHY"                                 unit="-"  /> 
+       <field id="TPHYDOM"     long_name="TPHYDOM"                                 unit="-"  /> 
+       <field id="TPHYNH4"     long_name="TPHYNH4"                                 unit="-"  /> 
+       <field id="TPHYZOO"     long_name="TPHYZOO"                                 unit="-"  /> 
+       <field id="TPHYDET"     long_name="TPHYDET"                                 unit="-"  /> 
+       <field id="TDETZOO"     long_name="TDETZOO"                                 unit="-"  /> 
+       <field id="TZOODET"     long_name="TZOODET"                                 unit="-"  /> 
+       <field id="TZOOBOD"     long_name="TZOOBOD"                                 unit="-"  /> 
+       <field id="TZOONH4"     long_name="TZOONH4"                                 unit="-"  /> 
+       <field id="TZOODOM"     long_name="TZOODOM"                                 unit="-"  /> 
+       <field id="TNH4NO3"     long_name="TNH4NO3"                                 unit="-"  /> 
+       <field id="TDOMNH4"     long_name="TDOMNH4"                                 unit="-"  /> 
+       <field id="TDETNH4"     long_name="TDETNH4"                                 unit="-"  /> 
+       <field id="TPHYTOT"     long_name="TPHYTOT"                                 unit="-"  /> 
+       <field id="TZOOTOT"     long_name="TZOOTOT"                                 unit="-"  /> 
+       <field id="SEDPOC"      long_name="SEDPOC"                                  unit="-"  /> 
+       <field id="TDETSED"     long_name="TDETSED"                                 unit="-"  /> 
+
+       <!-- CFC11 : variables available with key_cfc -->
+       <field id="qtrCFC11"    long_name="Air-sea flux of CFC-11"                   unit="mol/m2/s"   />
+       <field id="qintCFC11"   long_name="Cumulative air-sea flux of CFC-11"        unit="mol/m2"     />
+       <!-- Bomb C14 : variables available with key_c14b -->
+       <field id="qtrC14b"     long_name="Air-sea flux of Bomb C14"                 unit="mol/m2/s"   />
+       <field id="qintC14b"    long_name="Cumulative air-sea flux of Bomb C14"      unit="mol/m2"     />
+       <field id="fdecay"      long_name="Radiactive decay of Bomb C14"             unit="mol/m3"  grid_ref="grid_T_3D"  />
+     </field_group>
+
+    <!-- 
+============================================================================================================
+    -->
+
+    <field_group id="mooring" >
+      <field field_ref="toce"         name="thetao"   long_name="sea_water_potential_temperature"      />
+      <field field_ref="soce"         name="so"       long_name="sea_water_salinity"                   />
+      <field field_ref="uoce"         name="uo"       long_name="sea_water_x_velocity"                 />
+      <field field_ref="voce"         name="vo"       long_name="sea_water_y_velocity"                 />
+      <field field_ref="woce"         name="wo"       long_name="sea_water_z_velocity"                 />
+      <field field_ref="avt"          name="difvho"   long_name="ocean_vertical_heat_diffusivity"      />
+      <field field_ref="avm"          name="difvmo"   long_name="ocean_vertical_momentum_diffusivity"  />
+   
+      <field field_ref="sst"          name="tos"      long_name="sea_surface_temperature"                       />
+      <field field_ref="sst2"         name="tossq"    long_name="square_of_sea_surface_temperature"             />
+      <field field_ref="sstgrad"      name="tosgrad"  long_name="module_of_sea_surface_temperature_gradient"    />
+      <field field_ref="sss"          name="sos"      long_name="sea_surface_salinity"                          />
+      <field field_ref="ssh"          name="zos"      long_name="sea_surface_height_above_geoid"                />
+      <field field_ref="empmr"        name="wfo"      long_name="water_flux_into_sea_water"                     />
+      <field field_ref="qsr"          name="rsntds"   long_name="surface_net_downward_shortwave_flux"           />
+      <field field_ref="qt"           name="tohfls"   long_name="surface_net_downward_total_heat_flux"          />
+      <field field_ref="taum"          />
+      <field field_ref="20d"           />
+      <field field_ref="mldkz5"        />
+      <field field_ref="mldr10_1"      />
+      <field field_ref="mldr10_3"      />
+      <field field_ref="mldr0_1"       />
+      <field field_ref="mldr0_3"       />
+      <field field_ref="mld_dt02"      />
+      <field field_ref="topthdep"      />
+      <field field_ref="pycndep"       />
+      <field field_ref="tinv"          />
+      <field field_ref="depti"         />
+      <field field_ref="BLT"          name="blt"      long_name="barrier_layer_thickness"               />
+      <field field_ref="utau"         name="tauuo"    long_name="surface_downward_x_stress"             />
+      <field field_ref="vtau"         name="tauvo"    long_name="surface_downward_y_stress"             />
+    </field_group>
+
+    
+    <field_group id="groupT" >
+      <field field_ref="toce"         name="thetao"   long_name="sea_water_potential_temperature"               />
+      <field field_ref="soce"         name="so"       long_name="sea_water_salinity"                            />
+      <field field_ref="sst"          name="tos"      long_name="sea_surface_temperature"                       />
+      <field field_ref="sst2"         name="tossq"    long_name="square_of_sea_surface_temperature"             />
+      <field field_ref="sss"          name="sos"      long_name="sea_surface_salinity"                          />
+      <field field_ref="ssh"          name="zos"      long_name="sea_surface_height_above_geoid"                />
+      <field field_ref="empmr"        name="wfo"      long_name="water_flux_into_sea_water"                     />
+      <field field_ref="qsr"          name="rsntds"   long_name="surface_net_downward_shortwave_flux"           />
+      <field field_ref="qt"           name="tohfls"   long_name="surface_net_downward_total_heat_flux"          />
+      <field field_ref="taum"         />
+      <field field_ref="20d"          />
+      <field field_ref="mldkz5"       />
+      <field field_ref="mldr10_1"     />
+      <field field_ref="mldr10_3"     />
+      <field field_ref="mld_dt02"     />
+      <field field_ref="topthdep"     />
+      <field field_ref="pycndep"      />
+      <field field_ref="tinv"         />
+      <field field_ref="depti"        />
+      <field field_ref="BLT"          name="blt"      long_name="Barrier Layer Thickness"  />
+    </field_group>
+    
+    <field_group id="groupU" >
+      <field field_ref="uoce"         name="uo"      long_name="sea_water_x_velocity"      />
+      <field field_ref="suoce"        name="uos"     long_name="sea_surface_x_velocity"    />
+      <field field_ref="utau"         name="tauuo"   long_name="surface_downward_x_stress" />
+    </field_group>
+    
+    <field_group id="groupV" >
+      <field field_ref="voce"         name="vo"      long_name="sea_water_y_velocity"      />
+      <field field_ref="svoce"        name="vos"     long_name="sea_surface_y_velocity"    />
+      <field field_ref="vtau"         name="tauvo"   long_name="surface_downward_y_stress" />
+    </field_group>
+    
+    <field_group id="groupW" >
+      <field field_ref="woce"         name="wo"       long_name="ocean vertical velocity"  />
+    </field_group>
+    
+    </field_definition>
