@@ -813,7 +813,11 @@ sub func_CONSTITUENT  {
         push( @line_par, "ii" . uc($key) . "=" . $$LST_CONST{$key} );
     }
 
-    if( $#line_par > 0 ){ printList($file, \@line_par, $before); print $file "\n"; }
+    if( $#line_par > 0 ){ 
+        #Create global constant for the last constituent index
+        push( @line_par, "iiLastElement=" . scalar( keys %$LST_CONST ) );
+        printList($file, \@line_par, $before); print $file "\n";
+    }
 }
 
 
@@ -1030,7 +1034,7 @@ sub func_GROUP_FUNCTIONS  {
                 #@members = sort { $a cmp $b } @members;
 
                 my $line = "\n";
-                $line .= "${SPACE}" ."function $pre${groupname}(n,constituent,cmax)\n";
+                $line .= "${SPACE}" ."function $pre${groupname}(n,constituent)\n";
                 $line .= "${SPACE}" ."\n";
                 $line .= "${SPACE}" ."  IMPLICIT NONE\n";
                 $line .= "${SPACE}" ."\n";
@@ -1041,17 +1045,13 @@ sub func_GROUP_FUNCTIONS  {
                 }
                 $line .= "${SPACE}" ."  integer, intent(IN)            :: n\n";
                 $line .= "${SPACE}" ."  integer, intent(IN)            :: constituent\n";
-                $line .= "${SPACE}" ."  integer, intent(IN), optional  :: cmax\n";
                 $line .= "${SPACE}" ."  \n";
                 if ( $pre eq "pp" ) {
-                    my $maxNumberConstituents = scalar( keys %$LST_CONST );
-                    my @refersMax = ();
 
                     my @line_pointers = ();
                     foreach my $member (@members){
                         my @refers    = ();
                         my %const_mem = %{$member->getComponents()};
-                        my $maxkey = scalar(keys %const_mem); #insert the maximun number of components
 
                         foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
                             if( exists $const_mem{$const}){
@@ -1061,29 +1061,27 @@ sub func_GROUP_FUNCTIONS  {
                             }
                         }
                         push( @line_pointers, join(",",@refers) );
-                        push( @refersMax, ${maxkey} );
                     }
 
-                    if( scalar(@refersMax) == 0 ){ push(@refersMax, 0); }
-                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . ") :: const_max=(/"       . join(',',@refersMax) . "/)\n\n";
-
-                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * " . $maxNumberConstituents . ") :: pointers = (/ & \n";
+                    $line .= "${SPACE}" . "  integer,dimension(" . max(1,scalar(@members)) . " * iiLastElement ) :: pointers = (/ & \n";
                     $line .= "${SPACE}" .    "${SPACE}       " 
                        . join(", &\n${SPACE}       ", @line_pointers) . "  &\n"
                        .      "${SPACE}       /)\n\n";
 
                     $line .= "${SPACE}" ."  IF( n > " . max(1,scalar(@members)) . " .OR. n == 0 ) THEN\n";                    
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
-                    $line .= "${SPACE}" ."  ELSE IF( constituent > " . $maxNumberConstituents . " .OR. constituent == 0 ) THEN\n";
+                    $line .= "${SPACE}" ."  ELSE IF( constituent > iiLastElement .OR. constituent == 0 ) THEN\n";
                     $line .= "${SPACE}" ."    pp" . ${groupname}  . " = 0\n";
-                    $line .= "${SPACE}" ."  ELSE IF ( present(cmax) ) THEN\n";
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = const_max(n)\n";
                     $line .= "${SPACE}" ."  ELSE\n";
-                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * $maxNumberConstituents ) + constituent )\n";
+                    $line .= "${SPACE}" ."    pp" . ${groupname}  . " = pointers( ( (n-1) * iiLastElement ) + constituent )\n";
                     $line .= "${SPACE}" ."  ENDIF\n";
 
                 }else{
-                    $line .= "${SPACE}" ."  $pre$groupname => D${dim}STATE${SUBTYPE}(pp${groupname}(n,constituent),:)\n";
+                    $line .= "${SPACE}" ."  if ( pp" . ${groupname} . "(n,constituent) > 0 ) then\n";
+                    $line .= "${SPACE}" ."    $pre$groupname => D${dim}STATE${SUBTYPE}(pp" . ${groupname} . "(n,constituent),:)\n";
+                    $line .= "${SPACE}" ."  else\n";
+                    $line .= "${SPACE}" ."    $pre$groupname => NULL()\n";
+                    $line .= "${SPACE}" ."  end if\n";
                 }
                 $line .= "${SPACE}" ."\n";
                 $line .= "${SPACE}" ."END function\n";
@@ -1509,13 +1507,14 @@ sub func_INIT_FUNC_ZERO {
 
             $line .= "${SPACE}do j = 1, ii" . $group->getSigla()    . "\n";
             $line .= "${SPACE}  if (.NOT.Calc" . $group->getSigla() ."(j)) then\n";
-            $line .= "${SPACE}    iiLastElement=pp" . $group->getSigla() . "(j,1,cmax=1)\n";
             $line .= "${SPACE}    do i = 1,iiLastElement\n";
-            $line .= "${SPACE}      D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
-            $line .= "${SPACE}      D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = OFF\n";
+            $line .= "${SPACE}      if ( pp" . $group->getSigla() . "(j,i) /= 0 ) then \n";
+            $line .= "${SPACE}        D${dim}STATE${SUBTYPE}(pp" . $group->getSigla() . "(j,i),:) = p_small\n";
+            $line .= "${SPACE}        D${dim}STATETYPE${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = OFF\n";
             $line .= "#if defined key_obcbfm\n";
-            $line .= "${SPACE}      D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
+            $line .= "${SPACE}        D${dim}STATEOBC${SUBTYPE}(pp" . $group->getSigla() . "(j,i)) = NOOBCSTATES\n";
             $line .= "#endif\n";
+            $line .= "${SPACE}      end if\n";
             $line .= "${SPACE}    end do\n";
             $line .= "${SPACE}  end if\n";
             $line .= "${SPACE}end do\n\n";

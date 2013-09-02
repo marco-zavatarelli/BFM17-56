@@ -178,7 +178,7 @@
    real(RLEN), dimension(NO_BOXES_XY) :: F2o_star,F3c_star
    real(RLEN), dimension(NO_BOXES_XY) :: EICE1D,epsIce,EIRsrf
 
-   integer                            :: i,j,p,iiLastElement
+   integer                            :: i,j,p
    real(RLEN), dimension(:), pointer  :: lcl_PelagicVar,lcl_SeaiceVar
    real(RLEN)                         :: tmpflux(NO_BOXES)
    real(RLEN)                         :: delta
@@ -368,16 +368,17 @@
 
    do j = 1, iiSeaiceAlgae
      if (CalcSeaiceAlgae(j)) then
-       iiLastElement=ppSeaiceAlgae(j,1,cmax=1)
        do i = 1,iiLastElement
           lcl_SeaiceVar => SeaiceAlgae(j,i)
           lcl_PelagicVar => PhytoPlankton(PPY(j),i)
-           where (EHB(:)>ZERO)
-              flux_pel_ice(:) = max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
-                               + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
-           elsewhere
-              flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
-           end where
+          if( associated(lcl_SeaiceVar) .AND. associated(lcl_PelagicVar) ) then
+             where (EHB(:)>ZERO)
+                flux_pel_ice(:) = max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
+                     + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
+             elsewhere
+                flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
+             end where
+          end if
            ! add the flux and assign it to the boundary variable of the pelagic system
             p = ppSeaiceAlgae(j,i)
             if (p>0) call flux_vector( iiIce, p, p, flux_pel_ice(:) ) 
@@ -396,16 +397,17 @@
    ! Detritus Fluxes to Pelagic from Seaice
    ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    do j = 1, iiSeaiceDetritus
-      iiLastElement=ppSeaiceDetritus(j,1,cmax=1)
       do i = 1,iiLastElement
          lcl_SeaiceVar => SeaiceDetritus(j,i)
          lcl_PelagicVar => PelDetritus(DET(j),i)
-         where (EHB(:)>ZERO)
-            flux_pel_ice(:)= max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
-                 + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
-         elsewhere
-            flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
-         end where
+         if( associated(lcl_SeaiceVar) .AND. associated(lcl_PelagicVar) ) then
+            where (EHB(:)>ZERO)
+               flux_pel_ice(:)= max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
+                    + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
+            elsewhere
+               flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
+            end where
+         end if
          ! add the flux and assign it to the boundary variable of the pelagic system
          p = ppSeaiceDetritus(j,i)
          if (p>0) call flux_vector( iiIce, p, p, flux_pel_ice(:) ) 
@@ -424,16 +426,17 @@
    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    do j = 1, iiSeaiceBacteria
       if (CalcSeaiceBacteria(j)) then
-      iiLastElement=ppSeaiceBacteria(j,1,cmax=1)
         do i = 1,iiLastElement
            lcl_SeaiceVar => SeaiceBacteria(j,i)
            lcl_PelagicVar => PelBacteria(BAC(j),i)
-           where (EHB(:)>ZERO)
-              flux_pel_ice(:)= max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
-               + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
-           elsewhere
-              flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
-           end where
+           if( associated(lcl_SeaiceVar) .AND. associated(lcl_PelagicVar) ) then
+              where (EHB(:)>ZERO)
+                 flux_pel_ice(:)= max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
+                      + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
+              elsewhere
+                 flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
+              end where
+           end if
            ! add the flux and assign it to the boundary variable of the pelagic system
            p = ppSeaiceBacteria(j,i)
            if (p>0) call flux_vector( iiIce, p,p, flux_pel_ice(:) ) 
@@ -453,16 +456,17 @@
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    do j = 1, iiSeaiceZoo
       if (CalcSeaiceZoo(j)) then
-      iiLastElement=ppSeaiceBacteria(j,1,cmax=1)
         do i = 1,iiLastElement
            lcl_SeaiceVar => SeaiceZoo(j,i)
            lcl_PelagicVar => MicroZooPlankton(ZOO(j),i)
-           where (EHB(:)>ZERO)
-              flux_pel_ice(:)= max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
-               + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
-           elsewhere
-              flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
-           end where
+           if( associated(lcl_SeaiceVar) .AND. associated(lcl_PelagicVar) ) then
+              where (EHB(:)>ZERO)
+                 flux_pel_ice(:)= max(ZERO, EDH(:)*lcl_PelagicVar(SRFindices)*EVB(:))  &
+                      + min(ZERO, EDH(:)*lcl_SeaiceVar(:)/EHB(:))
+              elsewhere
+                 flux_pel_ice(:) = min(ZERO,p_small-lcl_SeaiceVar(:))/delta
+              end where
+           end if
            ! add the flux and assign it to the boundary variable of the pelagic system
            p = ppSeaiceZoo(j,i)
            if (p>0) call flux_vector( iiIce, p,p, flux_pel_ice(:) ) 
