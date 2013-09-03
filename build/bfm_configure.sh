@@ -411,34 +411,39 @@ fi
 if [ ${DEP} ]; then
     [ ${VERBOSE} ] && echo "creating Experiment ${PRESET}"
 
-    if [ ! -d ${blddir} ]; then
-        echo "ERROR: directory ${blddir} not exists"
-        echo ${ERROR_MSG}
-    fi
- 
+    exedir="${BFMDIR}/run/${EXP}"
 
     #Copy Namelists
-    exedir="${BFMDIR}/run/${EXP}"
     if [ ! -d ${exedir} ]; then 
+        if [ ! -d ${blddir} ]; then
+            echo "ERROR: directory ${blddir} not exists"
+            echo ${ERROR_MSG}
+            exit
+        fi
+
         mkdir -p ${exedir};
         # copy and link namelist files
         if [ ${NMLDIR} ]; then cp ${NMLDIR}/*.nml ${exedir}/; 
         else cp ${blddir}/*.nml ${exedir}/; fi
+
+        #Copy nemo files
+        if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
+            # copy and link necessary files
+            cd "${BFMDIR}/${CONFDIR}/${PRESET}"
+            cp ${NEMONML} ${exedir}/
+            # copy and link generated namelist_top
+            if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
+            else cp ${blddir}/namelist_top ${exedir}/; fi
+        fi
     else
-        echo "WARNING: directory ${exedir} exists (not copying namelist files)"
+        echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
     fi
 
-    #Copy nemo files and executable 
+    #Copy executable
     if [[ ${MODE} == "STANDALONE" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMSTD} ${exedir}/${BFMSTD}
         printf "Go to ${exedir} and execute command:\n\t./${BFMSTD}\n"
-    else
-        # copy and link necessary files
-        cd "${BFMDIR}/${CONFDIR}/${PRESET}"
-        cp ${NEMONML} ${exedir}/
-        # copy and link generated namelist_top
-        if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
-        else cp ${blddir}/namelist_top ${exedir}/; fi
+    elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
         #change values in runscript
         sed -e "s,_EXP_,${EXP},g"       \
