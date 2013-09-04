@@ -32,6 +32,7 @@
         PROC    = 4,
         NETCDF  = '/usr/local',
         EXP     = 'standalone.seaice',
+        BFMSTD  = 'bfm_seaice.x',
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
