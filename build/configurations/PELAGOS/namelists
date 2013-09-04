@@ -146,8 +146,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! Parameters : 
                     p_small = 1.0e-20
                        slp0 = 1013.25E0
-                      p_PAR = 0.50
-                     p_eps0 = 0.10
+                      p_PAR = 0.40
+                     p_eps0 = 0.0435
                     p_epsR6 = 0.1d-3
                    p_epsESS = 0.04d-3
                    p_pe_R1c = 0.60
