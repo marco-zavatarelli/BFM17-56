@@ -167,7 +167,7 @@
             !---------------------------------------------
             k=0
             j=0
-            do i=stPelDiag2dS,stPelDiag2dE
+            do i=stPelDiag2dS,stPelRivE
                j=j+1
                if ( var_ave(i) ) then
                   k=k+1
@@ -178,20 +178,6 @@
                   end if
                end if
             end do
-
-            j=0
-            do i=stPelSurS,stPelRivE
-               j=j+1
-               if ( var_ave(i) ) then
-                  k=k+1
-                  if ( ave_count < 1.5 ) then
-                     D2ave(k,:)=D2DIAGNOS(j,:)
-                  else
-                     D2ave(k,:)=D2ave(k,:)+D2DIAGNOS(j,:)
-                  end if
-               end if
-            end do
-
          end if
 #if defined INCLUDE_SEAICE
          if (stIceEnd /= 0 .and. do_2ave_ice) then
