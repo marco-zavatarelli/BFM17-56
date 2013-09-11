@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 
 # DESCRIPTION
 #   BFM Configuration manager
@@ -328,9 +328,15 @@ if [ ${GEN} ]; then
         #ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
     else
         #Generate NEMO configuration with subdirs and copy cpp
-        if [ "$NEMOSUB" ]; then
-            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -d "${NEMOSUB}"
-            cp "${BFMDIR}/${CONFDIR}/${PRESET}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
+        if [ ! -d ${NEMODIR}/NEMOGCM/CONFIG/${PRESET} ]; then
+            if [ "$NEMOSUB" ] ; then
+                ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -d "${NEMOSUB}"
+                cp "${BFMDIR}/${CONFDIR}/${PRESET}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
+            else
+                echo "ERROR: NEMO configuration not exists. If you want to create a NEMO configuration, you have to specify NEMOSUB option"
+                echo ${ERROR_MSG}
+                exit
+            fi
         fi
 
         # Generate the specific bfm.fcm include file for makenemo
