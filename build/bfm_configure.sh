@@ -1,3 +1,5 @@
+#!/bin/bash -ex
+
 # DESCRIPTION
 #   BFM Configuration manager
 #
@@ -18,8 +20,6 @@
 #   GNU General Public License for more details.
 # -----------------------------------------------------
 
-#!/bin/bash -e
-
 #logging configuration
 LOGFILE=logfile_$$.log
 LOGDIR="Logs"
@@ -39,13 +39,14 @@ GENCONF="generate_conf"
 MKNEMO="makenemo"
 NEMOEXE="nemo.exe"
 
-#nemo files
+#nemo optional
 NEMONML="";
+NEMOSUB="";
 
 #options
-OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     BFMSTD     NEMONML )
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr bfmstd_usr         )
+OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     BFMSTD     NEMOSUB     NEMONML     )
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr bfmstd_usr nemosub_usr nemonml_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -98,6 +99,10 @@ DESCRIPTION
                   The environmental variable BFMDIR pointing to the root directory of BFM (Default: "${BFMDIR}")
        -n NEMODIR
                   The environmental variable NEMODIR pointing to the root directory of NEMO. (Default: "${NEMODIR}")
+       -N NEMONML
+                  NEMO files to copy to executable directory
+       -S NEMOSUB
+                  NEMO sub-directories to add to the NEMO configuration
        -a ARCH
                   Specify compilation Architecture file (Default: "gfortran.inc")
                   - For STANDALONE mode available archs, list dir : BFMDIR/compilers
@@ -148,6 +153,8 @@ while getopts "${OPTS}" opt; do
       k ) [ ${VERBOSE} ] && echo "key options $OPTARG"     ; cppdefs_usr=$OPTARG ;;
       b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"          ; bfmdir_usr=$OPTARG  ;;
       n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"         ; nemodir_usr=$OPTARG ;;
+      N ) [ ${VERBOSE} ] && echo "NEMONML=$OPTARG"         ; nemonml_usr=$OPTARG ;;
+      S ) [ ${VERBOSE} ] && echo "NEMOSUB=$OPTARG"         ; nemosub_usr=$OPTARG ;;
       a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"    ; arch_usr=$OPTARG    ;;
       f ) [ ${VERBOSE} ] && echo "fast mode activated"     ; clean_usr=0         ;;
       t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"     ; netcdf_usr=$OPTARG  ;;
@@ -320,6 +327,12 @@ if [ ${GEN} ]; then
         # Link to the configuration file
         #ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
     else
+        #Generate NEMO configuration with subdirs and copy cpp
+        if [ "$NEMOSUB" ]; then
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -d "${NEMOSUB}"
+            cp "${BFMDIR}/${CONFDIR}/${PRESET}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
+        fi
+
         # Generate the specific bfm.fcm include file for makenemo
         # some macros are default with NEMO
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${CPPDEFS}"
@@ -368,15 +381,14 @@ if [ ${CMP} ]; then
             echo " "
         fi
     elif [[ ${MODE} == "NEMO" ]]; then
-        cd ${NEMODIR}/NEMOGCM/CONFIG/
 
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-            ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
-        ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
+        ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
             exit 1; 
@@ -384,15 +396,14 @@ if [ ${CMP} ]; then
             echo "${PRESET} compilation done!"
         fi
     elif [[ ${MODE} == "NEMO_3DVAR" ]]; then
-        cd ${NEMODIR}/NEMOGCM/CONFIG/
 
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-            ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
-        ./${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
+        ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
             exit 1; 
@@ -430,7 +441,7 @@ if [ ${DEP} ]; then
         if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
             # copy and link necessary files
             cd "${BFMDIR}/${CONFDIR}/${PRESET}"
-            cp ${NEMONML} ${exedir}/
+            if [ "${NEMONML}" ]; then cp ${NEMONML} ${exedir}/; fi
             # copy and link generated namelist_top
             if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
             else cp ${blddir}/namelist_top ${exedir}/; fi
