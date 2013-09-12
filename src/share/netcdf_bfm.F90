@@ -765,7 +765,7 @@ end subroutine init_netcdf_rst_bfm
    real(RLEN),intent(in)     :: time
 ! !LOCAL VARIABLES:
    integer                   :: iret
-   integer                   :: i,j,k,n
+   integer                   :: i,k,n,idx_flux
    real(RLEN)                :: temp_time
 !
 ! !REVISION HISTORY:
@@ -812,8 +812,9 @@ end subroutine init_netcdf_rst_bfm
 
          !-- Store snapshot of pelagic fluxes
          if ( n >= stPelFluxS .AND. n <= stPelFluxE ) then 
-            call correct_flux_output(1,n,1,NO_BOXES,c1dim)
-            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)  
+            idx_flux=n-stPelFluxS
+            call correct_flux_output(1,idx_flux,1,NO_BOXES,c1dim)
+            iret = store_data(ncid_bfm,var_ids(n),OCET_SHAPE,NO_BOXES,garray=c1dim)
          endif
 
          ! Store mean values of (any) 3D entity
