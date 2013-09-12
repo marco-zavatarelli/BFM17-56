@@ -326,6 +326,12 @@ if [ ${GEN} ]; then
 
         # Link to the configuration file
         #ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
+
+        # Move BFM Layout files to target folders 
+        cp ${blddir}/*.F90 ${BFMDIR}/src/BFM/General
+        mv ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
+        cp ${blddir}/init_var_bfm.F90 ${BFMDIR}/src/share
+        cp ${blddir}/INCLUDE.h ${BFMDIR}/src/BFM/include
     else
         #Generate NEMO configuration with subdirs and copy cpp
         if [ ! -d ${NEMODIR}/NEMOGCM/CONFIG/${PRESET} ]; then
