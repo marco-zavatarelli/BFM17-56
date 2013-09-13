@@ -27,9 +27,9 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: D2m, D1m, D2STATE
+  use mem,  ONLY: D2m, D1m
   use mem, ONLY: K3n,K4n,K6r,ppD2m, ppD1m,    &
-    NO_BOXES_XY,    BoxNumberXY, dummy, &
+    NO_BOXES_XY,    BoxNumberXY_ben, &
     InitializeModel, shiftD1m, shiftD2m, KNO3, KNH4, iiBen, iiPel, flux
   use mem,ONLY: jbotN3n,jbotN4n,N3n_Ben,N4n_Ben,K14n,K24n,D6m,D7m
 #endif
@@ -86,21 +86,22 @@
   real(RLEN)  :: M3n_Dxm
   real(RLEN)  :: sK3G4n
   real(RLEN)  :: lambda
+  real(RLEN)  :: dummy
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer, external  :: PrintSet
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY=1,NO_BOXES_XY
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate concentration of nitrate in porewater in M3n:
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      M3n_D1m = CalculateFromSet( KNO3(BoxNumberXY), EQUATION, &
-        STANDARD, D1m(BoxNumberXY), dummy)
-      Dxm=D1m(boxNumberXY)+D2m(BoxNumberXY) * 0.5
-      M3n_Dxm= CalculateFromSet( KNO3(BoxNumberXY), EQUATION, &
+      M3n_D1m = CalculateFromSet( KNO3(BoxNumberXY_ben), EQUATION, &
+        STANDARD, D1m(BoxNumberXY_ben), dummy)
+      Dxm=D1m(BoxNumberXY_ben)+D2m(BoxNumberXY_ben) * 0.5
+      M3n_Dxm= CalculateFromSet( KNO3(BoxNumberXY_ben), EQUATION, &
         STANDARD, Dxm, dummy)
 
       select case ( M3n_D1m<= 0.0D+00)
@@ -111,21 +112,21 @@
           ! Let if D1m increase let D2m increase too to avoid zero thickness of 
           ! denitrifiaction layer
           if ( InitializeModel ==0 ) then
-            write(LOGUNIT,'(''D1m='',F12.3,'' D2m='',F12.3)') D1m(BoxNumberXY), D2m(BoxNumberXY)
-            write(LOGUNIT,'(''D6m='',F12.3,'' D7m='',F12.3)') D6m(BoxNumberXY), D7m(BoxNumberXY)
-            write(LOGUNIT,'(''K3n='',F12.3,'' K4n='',F12.3)') K3n(BoxNumberXY), K4n(BoxNumberXY)
-            write(LOGUNIT,'(''K14n='',F12.3,'' K24n='',F12.3)') K14n(BoxNumberXY), K24n(BoxNumberXY)
-            write(LOGUNIT,'(''fluxN3='',F12.3,'' fluxK4n='',F12.3)') jbotN3n(BoxNumberXY), jbotN4n(BoxNumberXY)
-            write(LOGUNIT,'(''N3n='',F12.3,'' N4n='',F12.3)') N3n_Ben(BoxNumberXY), N4n_Ben(BoxNumberXY)
+            write(LOGUNIT,'(''D1m='',F12.3,'' D2m='',F12.3)') D1m(BoxNumberXY_ben), D2m(BoxNumberXY_ben)
+            write(LOGUNIT,'(''D6m='',F12.3,'' D7m='',F12.3)') D6m(BoxNumberXY_ben), D7m(BoxNumberXY_ben)
+            write(LOGUNIT,'(''K3n='',F12.3,'' K4n='',F12.3)') K3n(BoxNumberXY_ben), K4n(BoxNumberXY_ben)
+            write(LOGUNIT,'(''K14n='',F12.3,'' K24n='',F12.3)') K14n(BoxNumberXY_ben), K24n(BoxNumberXY_ben)
+            write(LOGUNIT,'(''fluxN3='',F12.3,'' fluxK4n='',F12.3)') jbotN3n(BoxNumberXY_ben), jbotN4n(BoxNumberXY_ben)
+            write(LOGUNIT,'(''N3n='',F12.3,'' N4n='',F12.3)') N3n_Ben(BoxNumberXY_ben), N4n_Ben(BoxNumberXY_ben)
             write(LOGUNIT,'(''K6r='',F12.3,'' lambda K3n='',F12.3)') &
-                                     K6r(BoxNumberXY),GetInfoFromSet( KNO3(BoxNumberXY), GET, LABDA_1, 21)  
-            control  =   PrintSet(  KNH4(BoxNumberXY),"concentration nitrate on D1m < 0")
-            control  =   PrintSet(  KNO3(BoxNumberXY),"concentration nitrate on D1m < 0")
+                                     K6r(BoxNumberXY_ben),GetInfoFromSet( KNO3(BoxNumberXY_ben), GET, LABDA_1, 21)  
+            control  =   PrintSet(  KNH4(BoxNumberXY_ben),"concentration nitrate on D1m < 0")
+            control  =   PrintSet(  KNO3(BoxNumberXY_ben),"concentration nitrate on D1m < 0")
          endif
 
-          D2mnew =D2m(BoxnumberXY)
-          shiftD2m(BoxNumberXY) = max( min( p_d_tot- &
-            p_clD1D2m, D2mNew), D1m(BoxNumberXY)+ p_clD1D2m)- D2m(BoxNumberXY)
+          D2mnew =D2m(BoxNumberXY_ben)
+          shiftD2m(BoxNumberXY_ben) = max( min( p_d_tot- &
+            p_clD1D2m, D2mNew), D1m(BoxNumberXY_ben)+ p_clD1D2m)- D2m(BoxNumberXY_ben)
 
         case( .FALSE. )
 
@@ -136,8 +137,8 @@
           ! Use this new depth as the (uncorrected) new denitrification depth
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          sK3G4n= GetInfoFromSet( KNO3(BoxNumberXY), GET, LABDA_2, 31,dummy,dummy) 
-          lambda= GetInfoFromSet( KNO3(BoxNumberXY), GET, LABDA_1, 31,dummy,dummy) 
+          sK3G4n= GetInfoFromSet( KNO3(BoxNumberXY_ben), GET, LABDA_2, 31,dummy,dummy) 
+          lambda= GetInfoFromSet( KNO3(BoxNumberXY_ben), GET, LABDA_1, 31,dummy,dummy) 
           D2mnew= log(-p_jlK3G4n*lambda/(sK3G4n* M3n_Dxm))/(2.0*lambda)
           Dzm=p_d_tot-p_clD1D2m
           D2mNew = min( Dzm, ( D2mnew + Dxm))
@@ -147,21 +148,21 @@
           ! 2. limit shift incase of D2mnew moves in the direction of D1m
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-          shiftD2m(BoxNumberXY) = max( D2mNew,D1m(BoxNumberXY)+ p_clD1D2m) &
-                                                              - D2m(BoxNumberXY)
+          shiftD2m(BoxNumberXY_ben) = max( D2mNew,D1m(BoxNumberXY_ben)+ p_clD1D2m) &
+                                                              - D2m(BoxNumberXY_ben)
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
           ! Correct by damping the change of D2m in case large changes:
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
           if ( InitializeModel== 0) then
-            shiftD2m(BoxNumberXY) = shiftD2m(BoxNumberXY)/ &
-              ONE_PER_DAY* (D2m(BoxNumberXY)/( &
-              D2m(BoxNumberXY)+ abs(shiftD2m(BoxNumberXY))))**(p_xdamping)  &
+            shiftD2m(BoxNumberXY_ben) = shiftD2m(BoxNumberXY_ben)/ &
+              ONE_PER_DAY* (D2m(BoxNumberXY_ben)/( &
+              D2m(BoxNumberXY_ben)+ abs(shiftD2m(BoxNumberXY_ben))))**(p_xdamping)  &
                * Dzm/(Dzm+D2mnew)
 
 
-             call flux(BoxNumberXY, iiBen, ppD2m, ppD2m, shiftD2m(BoxNumberXY) )
+             call flux(BoxNumberXY_ben, iiBen, ppD2m, ppD2m, shiftD2m(BoxNumberXY_ben) )
 
           end if
 

@@ -51,7 +51,6 @@
 !
       FUNCTION noutput(NUTR,mode,option,input,xinput,yinput)
         USE global_mem, ONLY:RLEN
-        USE mem, ONLY:NO_BOXES_XY
         USE bennut_type
         USE bennut_variables
         USE bennut_constants

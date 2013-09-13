@@ -12,28 +12,10 @@
 !   Description of first order oxic processes in the sediment
 !       and computation of oxygen penetration depth
 !
-!
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
-!
 ! !INTERFACE
   subroutine BenOxygenDynamics
 !
 ! !USES:
-
-  ! For the following Benthic-states fluxes are defined: D1m, G2o, D2m
-  ! The following global scalar vars are used: InitializeModel, LocalDelta
-  ! The following Benthic 1-d global boxvars are modified : shiftD1m, jbotO2o
-  ! The following Benthic 1-d global boxvars are used: ETW_Ben, irrenh, &
-  ! rrBTo, jG2K3o, jG2K7o, O2o_Ben
-  ! The following Benthic 1-d global boxpars  are used: p_poro
-  ! The following 0-d global parameters are used: p_small, p_d_tot, &
-  ! CalcBenthicFlag
-  ! The following global constants are used: RLEN
-  ! The following constants are used: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -45,15 +27,13 @@
   use mem,  ONLY: D1m, G2o, D2m
   use mem, ONLY: ppD1m, ppG2o, ppD2m, InitializeModel, LocalDelta, shiftD1m, &
     jbotO2o, ETW_Ben, irrenh, rrBTo, jG2K3o, jG2K7o, O2o_Ben, NO_BOXES_XY, iiBen, &
-    iiPel, flux_vector,KNO3,M3n,dummy, BoxNumberXY
+    iiPel, flux_vector,KNO3,M3n, BoxNumberXY_ben
 #endif
   use constants,  ONLY: SEC_PER_DAY, ONE_PER_DAY, BENTHIC_BIO,STANDARD,EQUATION
   use mem_Param,  ONLY: p_poro, p_small, p_d_tot, CalcBenthicFlag
   use mem_BenOxygen
   use bennut_interface, ONLY: CalculateFromSet
   use mem_Param,  ONLY: p_d_tot, p_clD1D2m
-
-
 
 !  
 !
@@ -95,6 +75,7 @@
   real(RLEN),dimension(NO_BOXES_XY)  :: G2oNew
   real(RLEN),dimension(NO_BOXES_XY)  :: jG2O2o
   real(RLEN),dimension(NO_BOXES_XY)  :: unc_shiftD1m
+  real(RLEN)                             :: dummy
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -131,9 +112,9 @@
      shiftD1m(:) = shiftD1m(:)* (D1m(:)/( D1m(:)+ &
       abs(shiftD1m(:))))**(p_xdampingD1m)*( p_chD1m/( p_chD1m+ D1m(:)))
      if ( CalcBenthicFlag > BENTHIC_BIO) then
-        do BoxNumberXY = 1,NO_BOXES_XY
-           r(1) = CalculateFromSet( KNO3(BoxNumberXY), EQUATION, &
-                  STANDARD, D1m(BoxNumberXY), dummy)/M3n(BoxNumberXY)
+        do BoxNumberXY_ben = 1,NO_BOXES_XY
+           r(1) = CalculateFromSet( KNO3(BoxNumberXY_ben), EQUATION, &
+                  STANDARD, D1m(BoxNumberXY_ben), dummy)/M3n(BoxNumberXY_ben)
            if ( r(1) .lt.ZERO) then
              write(LOGUNIT,*) "BFM Warning: BenOxygen proportion M3n(D1m)/M3n(0..D2m)=",r(1)
            endif

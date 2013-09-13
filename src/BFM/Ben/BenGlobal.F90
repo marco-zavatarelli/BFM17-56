@@ -34,7 +34,7 @@
   use mem, ONLY: ppD6m, ppD7m, ppD8m, ppD9m, ppY2c, ppY5c, ppY1c, &
     ppY4c, turenh, irrenh, rrBTo, rrATo, reBTn, reBTp, reATn, reATp, &
     jbotO2o,jbotN1p,jbotN3n,jbotN4n,jbotN5s, jbotN6r, &
-    ETW_Ben, NO_BOXES_XY, iiBen, iiPel, flux_vector
+    ETW_Ben, iiBen, iiPel, flux_vector
 #ifdef INCLUDE_BENCO2
   use mem, ONLY:  jbotO3h,jbotO3c
 #endif

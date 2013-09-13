@@ -35,7 +35,8 @@ end function tock
 program bnmerge
 
   use mod_bnmerge, ONLY: GET_ARGUMENTS
-  real :: calctime=0
+  real    :: calctime=0.
+  integer :: calc=0
 
   call tick(calc)
 

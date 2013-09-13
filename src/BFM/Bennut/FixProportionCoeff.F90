@@ -16,16 +16,15 @@
 !	input: 
 !  
 ! !INTERFACE
-        subroutine FixProportionCoeff(NUTR,coeff1,coeff2,value1,value2)
+  subroutine FixProportionCoeff(NUTR,coeff1,coeff2,value1,value2)
 !
 ! !AUTHORS
 !   Piet Ruardij   
 !
 ! !USES:
-        USE global_mem,      ONLY:RLEN
-        use constants, ONLY: PARAMETER, INPUT_TERM, START_ADD_TERM, INPUT_ADD_TERM 
-        use bennut_interface, ONLY: CompleteSet
-        use mem,ONLY:dummy
+  use global_mem,      ONLY:RLEN,ZERO,ONE
+  use constants, ONLY: PARAMETER, INPUT_TERM, START_ADD_TERM, INPUT_ADD_TERM 
+  use bennut_interface, ONLY: CompleteSet
 !
 ! CHANGE_LOG
 !   
@@ -53,16 +52,17 @@
         INTEGER,intent(IN)        :: coeff2
         REAL(RLEN),intent(IN) ::value1
         REAL(RLEN),intent(IN) ::value2
+        REAL(RLEN)            ::dummy
 
-        select case ( abs(value2)> 1.0D-20)
+        select case ( abs(value2)> 1.0E-20_RLEN)
            case( .FALSE. )
               call CompleteSet( NUTR, INPUT_TERM, coeff2, PARAMETER, &
-                                                          dummy, value=0.0D+00)
+                                                          dummy, value=ZERO)
            case( .TRUE. )
              call CompleteSet( NUTR, START_ADD_TERM, coeff2, PARAMETER, &
-                                                           dummy, mfac=1.0D+00/value2)
+                                                           dummy, mfac=ONE/value2)
              call CompleteSet( NUTR, INPUT_ADD_TERM, coeff1, PARAMETER, &
-                                                           dummy, mfac=-1.0/value1)
+                                                           dummy, mfac=-ONE/value1)
        end select
  
        return

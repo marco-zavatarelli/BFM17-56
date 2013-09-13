@@ -3,7 +3,7 @@ ifeq ($(PARALLEL),yes)
 	include ../../compilers/ifort_athena_openmp.inc
 else
 	MODE=concurrent
-	include ../../compilers/ifort_athena.inc
+	include ../../compilers/gfortran.inc
 endif
 
 

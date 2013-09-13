@@ -234,14 +234,14 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-3d-flux -if-exist INCLUDE_DIAG3D INCLUDE_PELCO2
+3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
   ruPPYc=P.c <- O3c : Gross/Net Primary Production : mg C/m3/d
   resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
   resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
   resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
 end
 
-3d-flux -if-exist INCLUDE_DIAG3D
+3d-flux -if-exist INCLUDE_DIAG
   ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
   ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
   ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d

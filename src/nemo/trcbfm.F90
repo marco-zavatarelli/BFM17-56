@@ -22,10 +22,10 @@
    use mem, only: D3SINK
 #endif 
 #ifdef INCLUDE_BEN
-   use mem, only: D2STATE,D2SOURCE,NO_D2_BOX_STATES, &
-                  D2STATETYPE
+   use mem, only: D2STATE_BEN,D2SOURCE_BEN,NO_D2_BOX_STATES_BEN, &
+                  D2STATETYPE_BEN
 #ifdef EXPLICIT_SINK
-   use mem, only: D2SINK
+   use mem, only: D2SINK_BEN
 #endif 
 #endif
    use mem_param, only: CalcTransportFlag, CalcBenthicFlag, &
@@ -100,12 +100,12 @@
    end if
 #ifdef INCLUDE_BEN
    if (CalcBenthicFlag /= 0) then
-      do j=1,NO_D2_BOX_STATES
-         if (D2STATETYPE(j).ge.0) then
+      do j=1,NO_D2_BOX_STATES_BEN
+         if (D2STATETYPE_BEN(j).ge.0) then
 #ifndef EXPLICIT_SINK
-            D2STATE(j,:) = D2STATE(j,:) + delt*D2SOURCE(j,:)
+            D2STATE_BEN(j,:) = D2STATE_BEN(j,:) + delt*D2SOURCE_BEN(j,:)
 #else
-            D2STATE(j,:) = D2STATE(j,:) + delt*sum(D2SOURCE(j,:,:)-D2SINK(j,:,:),1)
+            D2STATE_BEN(j,:) = D2STATE_BEN(j,:) + delt*sum(D2SOURCE_BEN(j,:,:)-D2SINK_BEN(j,:,:),1)
 #endif
          end if
       end do

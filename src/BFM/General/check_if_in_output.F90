@@ -22,7 +22,7 @@
 #ifdef BFM_GOTM
   use bio_var, only: var_names,var_ids,stBenFluxE
 #else
-  use api_bfm, only: var_names,var_ids,stBenFluxE
+  use api_bfm, only: var_names,var_ids,stPelRivE
 #endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -63,7 +63,7 @@
 !
    integer            ::j
 
-   j=getseq_number(text,var_names,stBenFluxE,.TRUE.)
+   j=getseq_number(text,var_names,stPelRivE,.TRUE.)
    if ( j.gt.0) then
        in_list=var_ids(j).ne.0
    else

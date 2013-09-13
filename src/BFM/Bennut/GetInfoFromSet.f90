@@ -10,17 +10,13 @@
 !   GetInfoFromSet.f90
 !
 ! DESCRIPTION
-!   This file is generated from f77 code, using a code generator which
-!   transposes from the F77 code into F90
-!   the code USES module file as used in the BFM model
-!   F90 code generator written by P. Ruardij.
 !
 ! AUTHORS
 ! CHANGE_LOG
 ! COPYING
 !
 !   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!   Copyright (C) 2004 P. Ruardij, the mfstep group, the ERSEM team
+!   Copyright (C) 2004 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -32,8 +28,8 @@
 !   GNU General Public License for more details.
 !
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      FUNCTION GetInfoFromSet(NUTR,option,input,termnr,  &
-                                                          at_x,to_x)
+      FUNCTION GetInfoFromSet(NUTR,option,input,termnr,at_x,to_x)
+        USE global_mem, ONLY:ONE
         USE constants, ONLY:RLEN,GET,COEFFICIENT,LABDA_1,LABDA_2, &
             INTEGRAL,EXPONENTIAL_INTEGRAL,RFLUX,MASS,DERIVATIVE,PARAMETER,COEFF2PARA
         USE bennut_interface,ONLY: kfind, transfer,funcalc
@@ -59,14 +55,14 @@
               GetInfoFromSet=sets(NUTR)%coeffs(seqnr)%labda(j)
             case (COEFFICIENT)
               if (seqnr.gt.sets(NUTR)%nn) then
-                GetInfoFromSet=-1.D31
+                GetInfoFromSet=-1.E31_RLEN
               else
                 GetInfoFromSet=sets(NUTR)%factor(seqnr)
               endif
             case (COEFF2PARA)
                j=sets(NUTR)%coeffs(seqnr)%il/10
                GetInfoFromSet =transfer(COEFF2PARA, &
-                    sets(NUTR)%coeffs(seqnr),1.0D+00,sets(NUTR)%diff(j))
+                    sets(NUTR)%coeffs(seqnr),ONE,sets(NUTR)%diff(j))
             case default
               stop 'GetInfoFromSet mode=????'
           end select
@@ -102,7 +98,7 @@
             endif
             if (input == PARAMETER) then
               r=transfer(COEFF2PARA,sets(NUTR)%coeffs(seqnr),r,  &
-                            sets(NUTR)%diff(layer)) *sets(NUTR)%poro(layer)
+                         sets(NUTR)%diff(layer)) *sets(NUTR)%poro(layer)
             endif
           endif
           GetInfoFromSet=s*r

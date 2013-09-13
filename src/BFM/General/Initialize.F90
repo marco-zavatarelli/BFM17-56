@@ -58,6 +58,7 @@
   use mem_SeaiceAlgae
   use mem_SeaiceBac
   use mem_SeaiceZoo
+  use mem_SeaicetoPel
 #endif
 
 !  
@@ -109,29 +110,34 @@
       call InitLightAdaptation
       call InitSettling
 #ifdef INCLUDE_BEN
-      call InitBenOrganism
-      call InitFilterFeeder
-      call InitBenBac
-      call InitBioturbation
-      call InitBenthicReturn1
-      call InitBenthicReturn2
-      call InitBenthicNutrient3
-      call InitBenAmmonium
-      call InitBenNitrate
-      call InitBenOxygen
-      call InitBenAnoxic
-      call InitBenDenitriDepth
-      call InitBenPhosphate
-      call InitBenSilica
-      call InitBenQ1Transport
-      call InitControlBennutBuffers
+      ! Benthic initialization is done only if there is an active model
+      ! When INCLUDE_BEN is defined, 
+      ! CalcBenthicFlag=0 is used to test the benthic memory only
+      if ( CalcBenthicFlag > 0 ) then
+         call InitBenOrganism
+         call InitFilterFeeder
+         call InitBenBac
+         call InitBioturbation
+         call InitBenthicReturn1
+         call InitBenthicReturn2
+         call InitBenthicNutrient3
+         call InitBenAmmonium
+         call InitBenNitrate
+         call InitBenOxygen
+         call InitBenAnoxic
+         call InitBenDenitriDepth
+         call InitBenPhosphate
+         call InitBenSilica
+         call InitBenQ1Transport
+         call InitControlBennutBuffers
+#ifdef INCLUDE_BENCO2
+         call InitBenCO2Transport
+         call InitBenAlkalinity
+#endif
+      end if
 #endif
 #ifdef INCLUDE_PELCO2
       call InitCO2
-#endif
-#ifdef INCLUDE_BENCO2
-      call InitBenCO2Transport
-      call InitBenAlkalinity
 #endif
 #ifdef INCLUDE_SILT
       call InitSilt
@@ -140,6 +146,7 @@
       call InitSeaiceAlgae
       call InitSeaiceBac
       call InitSeaiceZoo
+      call InitSeaicetoPel
 #endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files

@@ -1,0 +1,43 @@
+#ifdef BFM_NOPOINTERS
+
+
+#define NOPOINTERS 1
+
+%3d-state-pel-header
+%3d-group-pel-header
+%3d-diagnos-pel-header
+%2d-diagnos-pel-header
+%pel-field-header surface
+%pel-field-header bottom
+%pel-field-header river
+%3d-diaggrp-pel-header
+
+#ifdef INCLUDE_SEAICE
+
+%2d-state-ice-header
+%2d-group-ice-header
+%2d-diagnos-ice-header
+%2d-diaggrp-ice-header
+
+#endif
+
+#ifdef INCLUDE_BEN
+
+%2d-state-ben-header
+%2d-group-ben-header
+%2d-diagnos-ben-header
+%2d-diaggrp-ben-header
+
+#endif
+
+
+#endif
+
+
+
+#if defined INCLUDE_BENCO2 && !defined INCLUDE_BEN
+#undef INCLUDE_BENCO2
+#endif
+#if defined INCLUDE_BENPROFILES && !defined INCLUDE_BEN
+#undef INCLUDE_BENPROFILES
+#endif

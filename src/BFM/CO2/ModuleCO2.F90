@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 
-#ifdef INCLUDE_PELCO2
+#if defined INCLUDE_PELCO2 || defined INCLUDE_BENCO2
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -132,7 +132,8 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,          ONLY:EPCO2air,pH,NO_BOXES_XY
+  use mem,          ONLY:EPCO2air,pH
+  use mem,          ONLY:NO_BOXES_XY
 #endif
   use api_bfm, ONLY: bfm_init
   use mem_Param, ONLY: slp0

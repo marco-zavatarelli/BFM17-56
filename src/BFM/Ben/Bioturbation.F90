@@ -23,7 +23,7 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ONE
 #ifdef NOPOINTERS
   use mem
 #else
@@ -89,7 +89,7 @@
   ! Temperature Response
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-  et  =   (p_q10)**(( ETW_Ben(:)- 10.0D+00)* 0.1D+00)
+  et  =   (p_q10)**(( ETW_Ben(:)- 10.0_RLEN)* 0.1_RLEN)
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -98,15 +98,15 @@
 
   Ytur  =   Y2c(:)+ Y5c(:)+ p_turY1* Y1c(:)
 
-  turenh(:)  =   1.0D+00+ p_cmtur* MM_vector(  Ytur,  p_chtur)* et
+  turenh(:)  =   ONE+ p_cmtur* MM_vector(  Ytur,  p_chtur)* et
 
-  call flux_vector(iiBen, ppD6m,ppD6m, p_Etur* turenh(:)*( 1.0D+00- exp( - &
+  call flux_vector(iiBen, ppD6m,ppD6m, p_Etur* turenh(:)*( ONE- exp( - &
     p_cturm/ D6m(:)))/ D6m(:))
-  call flux_vector(iiBen, ppD7m,ppD7m, p_Etur* turenh(:)*( 1.0D+00- exp( - &
+  call flux_vector(iiBen, ppD7m,ppD7m, p_Etur* turenh(:)*( ONE- exp( - &
     p_cturm/ D7m(:)))/ D7m(:))
-  call flux_vector(iiBen, ppD8m,ppD8m, p_Etur* turenh(:)*( 1.0D+00- exp( - &
+  call flux_vector(iiBen, ppD8m,ppD8m, p_Etur* turenh(:)*( ONE- exp( - &
     p_cturm/ D8m(:)))/ D8m(:))
-  call flux_vector(iiBen, ppD9m,ppD9m, p_Etur* turenh(:)*( 1.0D+00- exp( - &
+  call flux_vector(iiBen, ppD9m,ppD9m, p_Etur* turenh(:)*( ONE- exp( - &
     p_cturm/ D9m(:)))/ D9m(:))
 
 
@@ -116,7 +116,7 @@
 
   Yirr  =   Y2c(:)+ Y5c(:)+ p_irrY4* Y4c(:) +Y3c(:)
 
-  irrenh(:)  =   1.0D+00+ p_cmirr* MM_vector(  Yirr,  p_chirr)* et
+  irrenh(:)  =   ONE+ p_cmirr* MM_vector(  Yirr,  p_chirr)* et
 
   end subroutine BioturbationDynamics
 !EOC

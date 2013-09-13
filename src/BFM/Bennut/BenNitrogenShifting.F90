@@ -26,14 +26,14 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use global_mem, ONLY:RLEN,LOGUNIT
+  use global_mem, ONLY:RLEN,LOGUNIT,ZERO,ONE
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m, D2STATE
+  use mem,  ONLY: K14n, K4n, K24n, K3n, D1m, D7m, D2m
   use mem, ONLY: ppK14n, ppK4n, ppK24n, ppK3n, ppD1m, ppG4n, ppD7m, &
     ppD2m,    NO_BOXES_XY,   &
-     BoxNumberXY, LocalDelta, dummy, shiftD1m, KNH4, reATn, shiftD2m, &
+     BoxNumberXY_ben, LocalDelta, shiftD1m, KNH4, reATn, shiftD2m, &
     KNO3, jK34K24n, jK13K3n, iiBen, iiPel, flux
 #endif
   use constants,  ONLY: SHIFT, LAYER1, DERIVATIVE, RFLUX, LAYER2
@@ -89,7 +89,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  real(RLEN)  :: Dnew
+  real(RLEN)  :: Dnew, dummy
   real(RLEN)  :: shiftmass
   real(RLEN)  :: zuD1
   real(RLEN)  :: zuD2
@@ -101,24 +101,24 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  do BoxNumberXY=1,NO_BOXES_XY
+  do BoxNumberXY_ben=1,NO_BOXES_XY
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium Fluxes at the oxic/denitrification boundary
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      Dnew  =   D1m(BoxNumberXY)+ LocalDelta* shiftD1m(BoxNumberXY)
+      Dnew  =   D1m(BoxNumberXY_ben)+ LocalDelta* shiftD1m(BoxNumberXY_ben)
 
       ! Calculate mass shifted in upwards direction:
-      shiftmass = CalculateFromSet( KNH4(BoxNumberXY), SHIFT, LAYER1, &
-        D1m(BoxNumberXY), Dnew)/ LocalDelta
+      shiftmass = CalculateFromSet( KNH4(BoxNumberXY_ben), SHIFT, LAYER1, &
+        D1m(BoxNumberXY_ben), Dnew)/ LocalDelta
 
-      jK14K4n = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
-        D1m(BoxNumberXY), 0.0D+00)+ shiftmass
+      jK14K4n = CalculateFromSet( KNH4(BoxNumberXY_ben), DERIVATIVE, RFLUX, &
+        D1m(BoxNumberXY_ben), ZERO)+ shiftmass
 
-      call LimitShift(jK14K4n,K4n(BoxNumberXY),K14n(boxNumberXY),p_max_shift_change)
-      call flux(BoxNumberXY, iiBen, ppK14n, ppK4n,   jK14K4n* insw(  jK14K4n) )
-      call flux(BoxNumberXY, iiBen, ppK4n, ppK14n, - jK14K4n* insw( -jK14K4n) )
+      call LimitShift(jK14K4n,K4n(BoxNumberXY_ben),K14n(BoxNumberXY_ben),p_max_shift_change)
+      call flux(BoxNumberXY_ben, iiBen, ppK14n, ppK4n,   jK14K4n* insw(  jK14K4n) )
+      call flux(BoxNumberXY_ben, iiBen, ppK4n, ppK14n, - jK14K4n* insw( -jK14K4n) )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! All the nutrient mineralization source term in the anoxic layer
@@ -134,53 +134,53 @@
       !          Anoxic Mineralization at D2.m
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
-      alpha  =   1.0D+00/ max(  p_clDxm,  D7m(BoxNumberXY))
-      zuD1 = max( 1.D-20, reATn(BoxNumberXY))/ p_poro(BoxNumberXY)/ &
-                        IntegralExp( -alpha, p_d_tot- D1m(BoxNumberXY))
-      zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY)- D1m(BoxNumberXY)))
+      alpha  =   ONE/ max(  p_clDxm,  D7m(BoxNumberXY_ben))
+      zuD1 = max( 1.E-20_RLEN, reATn(BoxNumberXY_ben))/ p_poro(BoxNumberXY_ben)/ &
+                        IntegralExp( -alpha, p_d_tot- D1m(BoxNumberXY_ben))
+      zuD2  =   zuD1* exp( - alpha*( D2m(BoxNumberXY_ben)- D1m(BoxNumberXY_ben)))
 
-      jK24K14n = - zuD2* p_poro(BoxNumberXY)* IntegralExp( - alpha, &
-        p_d_tot- D2m(BoxNumberXY))
+      jK24K14n = - zuD2* p_poro(BoxNumberXY_ben)* IntegralExp( - alpha, &
+        p_d_tot- D2m(BoxNumberXY_ben))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Ammonium Fluxes at the denitrification/anoxic boundary
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        
-      Dnew  =   D2m(BoxNumberXY)+ LocalDelta* shiftD2m(BoxNumberXY)
+      Dnew  =   D2m(BoxNumberXY_ben)+ LocalDelta* shiftD2m(BoxNumberXY_ben)
 
       ! Calculate mass shifted in upwards direction:
-      shiftmass = CalculateFromSet( KNH4(BoxNumberXY), SHIFT, LAYER2, &
-        D2m(BoxNumberXY), Dnew)/ LocalDelta  &
-      + CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, &
-        RFLUX, D2m(BoxNumberXY), 0.0D+00)
+      shiftmass = CalculateFromSet( KNH4(BoxNumberXY_ben), SHIFT, LAYER2, &
+        D2m(BoxNumberXY_ben), Dnew)/ LocalDelta  &
+      + CalculateFromSet( KNH4(BoxNumberXY_ben), DERIVATIVE, &
+        RFLUX, D2m(BoxNumberXY_ben), ZERO)
 
-      call LimitShift(shiftmass,K14n(BoxNumberXY),K24n(boxNumberXY),p_max_shift_change)
+      call LimitShift(shiftmass,K14n(BoxNumberXY_ben),K24n(BoxNumberXY_ben),p_max_shift_change)
       jK24K14n=jK24K14n + shiftmass
        
     
-      call flux(BoxNumberXY, iiBen, ppK24n, ppK14n, jK24K14n* insw( jK24K14n) )
-      call flux(BoxNumberXY, iiBen, ppK14n, ppK24n,-jK24K14n* insw(-jK24K14n) )
+      call flux(BoxNumberXY_ben, iiBen, ppK24n, ppK14n, jK24K14n* insw( jK24K14n) )
+      call flux(BoxNumberXY_ben, iiBen, ppK14n, ppK24n,-jK24K14n* insw(-jK24K14n) )
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Fluxes at the lower boundary
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
       ! Ammonium:
-      jK34K24n(BoxNumberXY)  = CalculateFromSet( KNH4(BoxNumberXY), DERIVATIVE, RFLUX, &
-        p_d_tot, 0.0D+00)
-      call flux(BoxNumberXY, iiBen, ppK24n, ppK24n, jK34K24n(BoxNumberXY) )
+      jK34K24n(BoxNumberXY_ben)  = CalculateFromSet( KNH4(BoxNumberXY_ben), DERIVATIVE, RFLUX, &
+        p_d_tot, ZERO)
+      call flux(BoxNumberXY_ben, iiBen, ppK24n, ppK24n, jK34K24n(BoxNumberXY_ben) )
 
 
       ! Nitrate:
-      shiftmass = CalculateFromSet( KNO3(BoxNumberXY), SHIFT, LAYER2, &
-        D2m(BoxNumberXY), Dnew)/ LocalDelta
-      shiftmass=shiftmass * insw(shiftmass *shiftD2m(BoxNumberXY))
-      jK13K3n(BoxNumberXY)  = CalculateFromSet( KNO3(BoxNumberXY), DERIVATIVE, RFLUX, &
-        D2m(BoxNumberXY), dummy)+ shiftmass
+      shiftmass = CalculateFromSet( KNO3(BoxNumberXY_ben), SHIFT, LAYER2, &
+        D2m(BoxNumberXY_ben), Dnew)/ LocalDelta
+      shiftmass=shiftmass * insw(shiftmass *shiftD2m(BoxNumberXY_ben))
+      jK13K3n(BoxNumberXY_ben)  = CalculateFromSet( KNO3(BoxNumberXY_ben), DERIVATIVE, RFLUX, &
+        D2m(BoxNumberXY_ben), dummy)+ shiftmass
 
 
-      call LimitChange(1,jK13K3n(BoxNumberXY),K3n(BoxNumberXY),p_max_shift_change)
-      call flux(BoxNumberXY, iiBen, ppK3n, ppK3n,  jK13K3n(BoxNumberXY) ) 
+      call LimitChange(1,jK13K3n(BoxNumberXY_ben),K3n(BoxNumberXY_ben),p_max_shift_change)
+      call flux(BoxNumberXY_ben, iiBen, ppK3n, ppK3n,  jK13K3n(BoxNumberXY_ben) ) 
 
 
   end do

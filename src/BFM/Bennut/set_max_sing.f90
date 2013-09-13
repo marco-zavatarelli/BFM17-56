@@ -41,7 +41,7 @@
 
       SUBROUTINE set_max_sing(NUTRNR,Y,N)
         USE global_mem, ONLY:RLEN
-        USE mem, ONLY:BoxNumberX,BoxNumberY
+        USE mem, ONLY:BoxNumberX_ben,BoxNumberY_ben
         IMPLICIT  NONE
         integer,intent(INOUT) ::NUTRNR ! Specification
         integer,intent(INOUT) ::n ! Specification
@@ -66,8 +66,8 @@
         enddo
         if (nutrnr.gt.0.and.j.gt.0) then
           write(0,*) 'Calculateset 1:ill conditioned set '
-          write(0,'(''BoxNumberX='' ,I4,''BoxNumberY='',I4,''SetNr='',I4)') &
-                BoxNumberX, BoxNUmberY,NUTRNR
+          write(0,'(''BoxNumberX_ben='' ,I4,''BoxNumberY_ben='',I4,''SetNr='',I4)') &
+                BoxNumberX_ben, BoxNumberY_ben,NUTRNR
         endif
 
         return

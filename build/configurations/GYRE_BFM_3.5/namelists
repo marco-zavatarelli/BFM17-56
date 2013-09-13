@@ -146,8 +146,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! Parameters : 
                     p_small = 1.0e-20
                        slp0 = 1013.25E0
-                      p_PAR = 0.50
-                     p_eps0 = 0.10
+                      p_PAR = 0.40
+                     p_eps0 = 0.0435
                     p_epsR6 = 0.1d-3
                    p_epsESS = 0.04d-3
                    p_pe_R1c = 0.60
@@ -473,12 +473,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_qun       [m3/mgC/d]     Membrane affinity for N
 !  p_lN4       [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
 !  p_qnlc      [mmolN/mgC]    Minimum quotum Si:C 
-!  p_qnRc      [mmolN/mgC]    Reference quotum Si:C
+!  p_qncPPY      [mmolN/mgC]    Reference quotum Si:C
 !  p_xqn       [-]            Multiplication factor for luxury storage
 !                   ---- P limitation control ----
 !  p_qup       [m3/mgC/d]     Membrane affinity for P
 !  p_qplc      [mmolP/mgC]    Minimum quotum Si:C 
-!  p_qpRc      [mmolP/mgC]    Reference quotum Si:C
+!  p_qpcPPY      [mmolP/mgC]    Reference quotum Si:C
 !  p_xqp       [-]            Multiplication factor for luxury storage
 !                   ---- Si limitation control ----
 !  p_switchSi  [1-2]          Switch for Silica limitation
@@ -488,7 +488,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_Contois   [>=0]          If >0, use Contois formulation
 !  p_qus       [m3/mgC/d]     Membrane affinity for Si
 !  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C 
-!  p_qsRc      [mmolSi/mgC]   Reference quotum Si:C
+!  p_qscPPY      [mmolSi/mgC]   Reference quotum Si:C
 !                   ---- nutrient stressed sinking ----
 !  p_esNI      [-]            Nutrient stress threshold for sinking
 !  p_res       [m/d]          Maximum Sinking vel city (m/d)
@@ -497,7 +497,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_sdchl     [1/d]          Specific turnover rate for Chla 
 !  p_alpha_chl [mgC s m2/     Initial slope of the P-E curve
 !               mgChl/uE] 
-!  p_qchlc     [mgChla/mgC]   Fixed/Maximum quotum Chla:C
+!  p_qlcPPY     [mgChla/mgC]   Fixed/Maximum quotum Chla:C
 !  p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
 !  p_tochl_relt  [1/d]        Relaxation rate towards maximum Chla:C
 !  p_EpEk_or   [-]            Optimal value of E_PAR/E_K
@@ -505,7 +505,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_quf       [m3/mgC/d]     Membrane affinity for Fe
 !  p_qflc      [umolFe/mgC]   Minimum quotum Fe:C derived from 3 umol Fe/mol C
 !                             Sunda & Huntsman (1997), Nature, 390, p 389-392
-!  p_qfRc      [umolFe/mgC]   Reference quotum Fe:C 
+!  p_qfcPPY      [umolFe/mgC]   Reference quotum Fe:C 
 !  p_xqf       [-]            Multiplication factor for luxury storage
 !              --------- Light parameters ERSEM-II -----------
 !  p_iswLtyp                  Shape of the productivity function
@@ -534,24 +534,24 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
         p_qun = 0.025,  0.025,  0.025,  0.025
         p_lN4 = 1.0,    1.0,    0.0,    1.0
        p_qnlc = 4.193e-3,4.193e-3,4.193e-3,0.00687
-       p_qnRc = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
+       p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
         p_qup = 0.025,  0.025,  0.025,  0.025
        p_qplc = 1.80e-4,1.80e-4,1.80e-4,4.29e-4
-       p_qpRc = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
+       p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
    p_switchSi = 1,      0,      0,      0
        p_chPs = 1.0,    0.0,    0.0,    0.0
     p_Contois = 0.0,    0.0,    0.0,    0.0
         p_qus = 0.0,    0.0,    0.0,    0.0
        p_qslc = 4.3e-3, 0.0,    0.0,    0.0
-       p_qsRc = 8.5e-3, 0.0,    0.0,    0.0
+       p_qscPPY = 8.5e-3, 0.0,    0.0,    0.0
        p_esNI = 0.1,    0.00,   0.00,   0.00
        p_res  = 5.0,    0.0,    0.0,    0.0
   p_switchChl = 1,      1,      1,      1
       p_sdchl = 0.2,    0.2,    0.2,    0.2
   p_alpha_chl = 1.38e-5, 0.46e-5, 1.52e-5, 0.68e-5
-      p_qchlc = 0.025,  0.015,  0.02,   0.02
+      p_qlcPPY = 0.025,  0.015,  0.02,   0.02
     p_epsChla = 0.03,   0.03,   0.03,   0.03
     p_EpEk_or = 0.0,    0.0,    0.0,    0.0
  p_tochl_relt = 0.0,    0.0,    0.0,    0.0
@@ -560,7 +560,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 
 &Phyto_parameters_iron
        p_qflc = 0.1e-3, 0.1e-3, 0.83e-10,0.25e-3
-       p_qfRc = 0.3e-3, 0.3e-3, 0.18e-4, 0.5e-3
+       p_qfcPPY = 0.3e-3, 0.3e-3, 0.18e-4, 0.5e-3
         p_xqf = 1.0,    1.0,    1.0,     1.0
         p_quf = 2.0e-4, 2.0e-4, 2.0e-4,  2.0e-4
 	filename_nml_conf = 'Pelagic_Ecology.nml',
@@ -913,4 +913,29 @@ p_paMEZ(2,:)=   0.0,    1.0
 !-----------------------------------------------------------------------
 &namtrc_bc
         filename_nml_conf = 'namelist_top',
+/
+
+!------------------------------------------------------------------------------------!
+!NAMELIST bnmerge_nml
+!------------------------------------------------------------------------------------!
+!Main initialisation and output specifications
+!NAME             KIND    DESCRIPTION
+!chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
+!inp_dir 	  string 	Path to the input files (chunks)
+!out_dir 	  string 	Path to the output file (merged)
+!layout 	  string 	Path to the layout.dat file
+!ln_mask 	  logical       Write global mask specification
+!var_save 	  string 	List of output variables (set according to bfm output) 
+!
+! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting 
+!          the number of output variables with HR model configurations.  
+!------------------------------------------------------------------------------------!
+&bnmerge_nml
+   chunk_fname='NEMO_GYRE_BFM',
+   inp_dir='./',
+   out_dir='./',
+   layout='./layout.dat',
+   ln_mask=.FALSE.,
+   var_save='O2o'  'O3h'  'DIC'  'ALK'  'pCO2'  'pH'  'N1p'  'N3n'  'N4n'  'N5s'  'N7f'  'P1c'  'P1l'  'P1f'  'P2c'  'P2l'  'P3c'  'P3l'  'Z4c'  'Z5c'  'Z6c'  'B1c'  'R1c'  'R2c'  'R6c'  'R6f'  'Chla'  'R1n'  'R1p'  'eiPPY(iiP1)'  'eiPPY(iiP2)'  'eiPPY(iiP3)'  'P1n'  'P2n'  'P3n'  'P1p'  'P2p'  'P3p'  'jbotR6c'  'jsurO2o'  'jsurO3c'  'ruPPYc'  'resPBAc'  'resZOOc'  'ruPPYn'  'ruPPYp'  'ruPPYs'  'ruPPYf'  'exPPYc'  'ruZOOc'  'remZOOn'  'remZOOp'  'remPBAn'  'remPBAp'  'EICE'  'ETW'  'EIR'  'EWIND'  'xEPS'  'R6p'  'R6n'  'R6s'  'B1p'  'B1n'  'Z5p'  'Z6p'  'Z5n'  'Z6n',
+   filename_nml_conf = 'bnmerge.nml',
 /

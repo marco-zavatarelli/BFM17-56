@@ -2,7 +2,7 @@
 
 
 SUBROUTINE PrintSet(NUTR,msg)
-     USE mem, ONLY:BoxNumberX,BoxNumberY
+     USE mem, ONLY:BoxNumberX_ben,BoxNumberY_ben
      USE mem_BenthicNutrient3, ONLY:bennut_messages
      USE global_mem, ONLY: LOGUNIT
      USE bennut_variables,ONLY:sets
@@ -18,7 +18,7 @@ SUBROUTINE PrintSet(NUTR,msg)
      call set_warning_for_getm
      if ( bennut_messages == 0 ) return
      write(LOGUNIT,'(''Nutrient Sequence number(NUTR):'',I3)') NUTR
-     write(LOGUNIT,'(''Point BoxNumberX,BoxNumberY:'',I5,'','',I5 )') BoxNumberX,BoxNumberY
+     write(LOGUNIT,'(''Point BoxNumberX_ben,BoxNumberY_ben:'',I5,'','',I5 )') BoxNumberX_ben,BoxNumberY_ben
      write(LOGUNIT,'('' Layer Definition'')')
      write(LOGUNIT, &
        '('' Layers/Equations:'',I5,'' total number of terms:'',I5)') &

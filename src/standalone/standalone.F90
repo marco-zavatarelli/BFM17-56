@@ -56,7 +56,13 @@
    ! arrays for integration routines
    !---------------------------------------------
    real(RLEN),public,dimension(:,:),allocatable :: bbccc3D,bccc3D,ccc_tmp3D
-   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D,bccc2D,ccc_tmp2D
+#if defined INCLUDE_SEAICE
+   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D_ice,bccc2D_ice,ccc_tmp2D_ice
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D_ben,bccc2D_ben,ccc_tmp2D_ben
+#endif
+
    real(RLEN),public                            :: dtm1
    logical,public                               :: sspflag
 
@@ -93,20 +99,21 @@
    use constants, only: E2W
    use mem,   only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,       &
-                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth, D3STATE
+                  NO_BOXES_XY, NO_D2_BOX_DIAGNOSS, &
+                  NO_D3_BOX_DIAGNOSS, NO_STATES, Depth, D3STATE
    use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm,&
                          init_netcdf_rst_bfm,read_rst_bfm
    use time
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   use mem, only: D2STATE
+#if defined INCLUDE_SEAICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, &
+                  NO_D2_BOX_DIAGNOSS_ICE, NO_BOXES_ICE, NO_BOXES_Z_ICE, &
+                  NO_STATES_ICE
 #endif
 #ifdef INCLUDE_BEN
-   use mem, only: Depth_ben
+   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, NO_D2_BOX_DIAGNOSS_BEN
 #endif
 
    IMPLICIT NONE
@@ -156,19 +163,29 @@
    !---------------------------------------------
    ! set the dimensions
    !---------------------------------------------
-#ifdef INCLUDE_BENPROFILES
-   ! dirty method to cheat the standalone model
-   NO_BOXES_X  = 1
-   NO_BOXES_Z  = nboxes
-#else
    NO_BOXES_X  = nboxes
-   NO_BOXES_Z  = 1
-#endif
    NO_BOXES_Y  = 1
+   NO_BOXES_Z  = 1
    NO_BOXES    = NO_BOXES_X * NO_BOXES_Y * NO_BOXES_Z
    NO_BOXES_XY = NO_BOXES_X * NO_BOXES_Y
-   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES +   &
-                 NO_D2_BOX_STATES * NO_BOXES_XY
+   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES + NO_BOXES_XY
+#ifdef INCLUDE_BEN
+#  ifdef INCLUDE_BENPROFILES
+   ! Dirty method to cheat the standalone model
+   NO_BOXES_Z_BEN  = nboxes
+   NO_BOXES_BEN = NO_BOXES_XY 
+#  else
+   NO_BOXES_Z_BEN  = 1
+   NO_BOXES_BEN = NO_BOXES_XY * NO_BOXES_Z_BEN
+#  endif
+   NO_STATES_BEN = NO_BOXES_BEN * NO_D2_BOX_STATES_BEN
+#endif
+#ifdef INCLUDE_SEAICE
+   NO_BOXES_Z_ICE  = 1
+   NO_BOXES_ICE = NO_BOXES_XY * NO_BOXES_Z_ICE
+   NO_STATES_ICE = NO_BOXES_ICE * NO_D2_BOX_STATES_ICE
+#endif
+
    LEVEL3 'Number of Boxes:',nboxes
    LEVEL3 'Box Depth:',indepth
    ! set where surface and bottom boxes are 
@@ -228,9 +245,7 @@
    ! Allocate memory and give initial values
    ! to the pelagic system
    !---------------------------------------------
-   ! the argument list is kept for compatibility 
-   ! with GOTM
-   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
+   call init_var_bfm(bio_setup)
    !---------------------------------------------
    ! Set output stepping
    !---------------------------------------------
@@ -243,9 +258,6 @@
    ! Assign depth
    !---------------------------------------------
    Depth = indepth
-#ifdef INCLUDE_BEN
-   Depth_ben = Depth
-#endif
    ! assume area is 1m^2 (make a parameter in the future for 
    ! mesocosm simulations)
    Area = ONE
@@ -255,21 +267,6 @@
    ! Initialise external forcing functions
    !---------------------------------------------
    call init_envforcing_bfm
-
-#ifdef INCLUDE_BEN
-   !---------------------------------------------
-   ! Initialise the benthic system
-   ! Layer depths and pore-water nutrients are initialised 
-   ! according to the value of calc_initial_bennut_states
-   !---------------------------------------------
-   call init_benthic_bfm(namlst,'BFM_General.nml',unit,bio_setup)
-#endif
-#ifdef INCLUDE_SEAICE
-   !---------------------------------------------
-   ! Initialise the sea-ice system
-   !---------------------------------------------
-   call init_seaice_bfm(namlst,'Seaice.nml',unit,bio_setup)
-#endif
 
    !---------------------------------------------
    ! Read restart file (if flag)
@@ -306,16 +303,28 @@
    allocate(bbccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(bccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(ccc_tmp3D(NO_D3_BOX_STATES,NO_BOXES))
-   allocate(bbccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
-   allocate(bccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
-   allocate(ccc_tmp2D(NO_D2_BOX_STATES,NO_BOXES_XY))
+#if defined INCLUDE_SEAICE
+   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+#endif
+#if defined INCLUDE_BEN
+   allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
+   allocate(bbccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
+   allocate(ccc_tmp2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
+#endif
+
    ! Initialize prior time step for leap-frog:
    if (method == 3) then
       bbccc3d = D3STATE
       ccc_tmp3D = D3STATE
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-      bbccc2d = D2STATE
-      ccc_tmp2D = D2STATE
+#if defined INCLUDE_SEAICE
+      bbccc2d_ice = D2STATE_ICE
+      ccc_tmp2D_ice = D2STATE_ICE
+#endif
+#if defined INCLUDE_BEN
+      bbccc2d_ben = D2STATE_BEN
+      ccc_tmp2D_ben = D2STATE_BEN
 #endif
    end if
 
@@ -324,9 +333,14 @@
    do i=1,NO_D3_BOX_STATES
      LEVEL1 trim(var_names(stPelStateS+i-1)),D3STATE(i,1)
    end do
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   do i=1,NO_D2_BOX_STATES
-     LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE(i,1)
+#if defined INCLUDE_SEAICE
+   do i=1,NO_D2_BOX_STATES_ICE
+     LEVEL1 trim(var_names(stIceStateS+i-1)),D2STATE_ICE(i,1)
+   end do
+#endif
+#if defined INCLUDE_BEN
+   do i=1,NO_D2_BOX_STATES_BEN
+     LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE_BEN(i,1)
    end do
 #endif
 #endif
@@ -370,8 +384,8 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-integer :: i
-real    :: localtime
+integer    :: i
+real(RLEN) :: localtime
 
    LEVEL1 'timestepping'
    do while (ntime.le.nendtim)

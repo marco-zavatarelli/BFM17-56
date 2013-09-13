@@ -42,6 +42,32 @@ subroutine ClearMem
     end do
     deallocate(D3FLUX_MATRIX)
     deallocate(D3FLUX_FUNC)
+#if defined INCLUDE_SEAICE
+    origin=0
+    do i=stIceStateS,stIceStateE
+       origin=origin+1
+       destination=0
+       do j=stIceStateS,stIceStateE
+          destination=destination+1
+          if( allocated(D2FLUX_MATRIX_ICE(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_ICE(origin,destination)%p)
+       end do
+    end do
+    deallocate(D2FLUX_MATRIX_ICE)
+    deallocate(D2FLUX_FUNC_ICE)
+#endif
+#if defined INCLUDE_BEN
+    origin=0
+    do i=stBenStateS,stBenStateE
+       origin=origin+1
+       destination=0
+       do j=stBenStateS,stBenStateE
+          destination=destination+1
+          if( allocated(D2FLUX_MATRIX_BEN(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_BEN(origin,destination)%p)
+       end do
+    end do
+    deallocate(D2FLUX_MATRIX_BEN)
+    deallocate(D2FLUX_FUNC_BEN)
+#endif
 
     ! from api_bfm 
     deallocate(var_ids)
@@ -58,15 +84,41 @@ subroutine ClearMem
      deallocate(D3SOURCE)
 #ifdef EXPLICIT_SINK
      deallocate(D3SINK)
+#if defined INCLUDE_SEAICE
+     deallocate(D2SINK_ICE)
 #endif
+#if defined INCLUDE_BEN
+     deallocate(D2SINK_BEN)
+#endif
+#endif
+
      deallocate(D3STATETYPE)
      deallocate(D3DIAGNOS)
      deallocate(D2DIAGNOS)
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-     deallocate(D2STATE)
-     deallocate(D2SOURCE)
-     deallocate(D2SINK)
-     deallocate(D2STATETYPE)
+#ifdef BFM_NEMO
+     deallocate(D3STATEOBC)
+#endif
+
+#if defined INCLUDE_SEAICE
+     if ( allocated(D2ave_ice) ) deallocate(D2ave_ice)
+     deallocate(D2DIAGNOS_ICE)
+     deallocate(D2STATE_ICE)
+     deallocate(D2SOURCE_ICE)
+     deallocate(D2STATETYPE_ICE)
+#ifdef BFM_NEMO
+     deallocate(D2STATEOBC_ICE)
+#endif
+#endif
+
+#if defined INCLUDE_BEN
+     if ( allocated(D2ave_ben) ) deallocate(D2ave_ben)
+     deallocate(D2DIAGNOS_BEN)
+     deallocate(D2STATE_BEN)
+     deallocate(D2SOURCE_BEN)
+     deallocate(D2STATETYPE_BEN)
+#ifdef BFM_NEMO
+     deallocate(D2STATEOBC_BEN)
+#endif
 #endif
 
 #endif

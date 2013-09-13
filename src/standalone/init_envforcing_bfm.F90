@@ -13,16 +13,8 @@
 !
 !
 ! !USES:
-   use constants, only: E2W
-   use mem,   only: NO_D3_BOX_STATES, NO_BOXES,          &
-                  NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,       &
-                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth
-   use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
-   use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use time
    use envforcing
 
@@ -34,9 +26,13 @@
 !  Original author(s): Marcello Vichi
 !
 ! !LOCAL VARIABLES:
+   logical :: use_seaice_data
+
    namelist /forcings_nml/ forcing_method,ltype,lw,ls,sw,ss,tw,ts,tde, & 
             ww,ws,CO2inc,botdep_c,botdep_n,botdep_p,botdep_si,botox_o,  &
-            forcing_file, seaice_file, use_external_data, data_file, &
+            forcing_file, &
+            use_seaice_data, seaice_file, &
+            use_external_data, data_file, &
             use_event_data, event_file
 !
 ! !LOCAL VARIABLES:
@@ -76,14 +72,18 @@
       !call init_air_sea(data_file,latitude, longitude)
     end select
 #ifdef INCLUDE_SEAICE
-    LEVEL2 'Reading sea-ice forcing data from:'
-    LEVEL3 trim(seaice_file)
-    open(unit_seaice,file=seaice_file,action='read',status='old',err=108)
+    if (use_seaice_data) then
+       LEVEL2 'Reading sea-ice forcing data from:'
+       LEVEL3 trim(seaice_file)
+       open(unit_seaice,file=seaice_file,action='read',status='old',err=108)
+    else
+       LEVEL2 'Skipping sea-ice forcing data'
+    end if
 #endif
     ! Read external data (if activated)
     if (use_external_data) then
-       LEVEL2 'Reading forcing data from:'
-       LEVEL3 trim(forcing_file)
+       LEVEL2 'Reading external data from:'
+       LEVEL3 trim(data_file)
        open(unit_data,file=data_file,action='read',status='old',err=107)
     end if
     ! Read event data (if activated)

@@ -27,7 +27,7 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: D2STATE, Q6c, Q6n, Q6p, G2o, K16r, D6m, &
+  use mem, ONLY: D2STATE_BEN, Q6c, Q6n, Q6p, G2o, K16r, D6m, &
     D7m, D8m, D1m, D2m, BenDetritus, BenthicAmmonium, BenthicPhosphate
   use mem, ONLY: ppQ6c, ppQ6n, ppQ6p, ppG3c,ppG13c, ppG2o, ppK16r, ppD6m, &
     ppD7m, ppD8m, ppD1m, ppD2m, ppBenDetritus, ppBenthicAmmonium, &
@@ -146,9 +146,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  Copy  state var. object in local var
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  hxc = D2STATE(pphxc,:)
-  hxn = D2STATE(pphxn,:)
-  hxp = D2STATE(pphxp,:)
+  hxc = D2STATE_BEN(pphxc,:)
+  hxn = D2STATE_BEN(pphxn,:)
+  hxp = D2STATE_BEN(pphxp,:)
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
