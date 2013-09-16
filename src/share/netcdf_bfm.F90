@@ -62,8 +62,14 @@
    integer                       :: ncid_rst_in
    integer                       :: ocepoint_rdim
    integer                       :: surfpoint_rdim,botpoint_rdim
-   integer                       :: d3vars_rdim,d3state_rid,d3stateb_rid
-   integer                       :: d2vars_rdim,d2state_rid,d2stateb_rid
+   integer                       :: chars_rdim
+   integer                       :: d3vars_rdim,d3state_rid,d3stateb_rid,d3state_name_rid,d3state_units_rid,d3state_long_rid
+#ifdef INCLUDE_SEAICE
+   integer                       :: d2vars_rdim_ice,d2state_rid_ice,d2stateb_rid_ice,d2state_name_rid_ice,d2state_units_rid_ice,d2state_long_rid_ice
+#endif
+#ifdef INCLUDE_BEN
+   integer                       :: d2vars_rdim_ben,d2state_rid_ben,d2stateb_rid_ben,d2state_name_rid_ben,d2state_units_rid_ben,d2state_long_rid_ben
+#endif
 #ifdef INCLUDE_PELCO2
    integer                       :: ph_rid
 #endif
@@ -297,6 +303,7 @@
 !  Prepare the netcdf restart file for the BFM
 !
 ! !USES:
+
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,    &
                   NO_BOXES_XY
 #if defined INCLUDE_SEAICE
@@ -338,10 +345,14 @@
    call check_err(NF90_DEF_DIM(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'oceanpoint', max(NO_BOXES,1), ocepoint_rdim), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'surfacepoint', max(NO_BOXES_XY,1), surfpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'char_max', LEN(var_names), chars_rdim), fname)
    ALLOCATE(dims(2))
    dims(1) = d3vars_rdim
    dims(2) = ocepoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE',NF90_DOUBLE,dims,d3state_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE_NAME',NF90_CHAR,(/chars_rdim, d3vars_rdim/),d3state_name_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE_UNITS',NF90_CHAR,(/chars_rdim, d3vars_rdim/),d3state_units_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE_LONG',NF90_CHAR,(/chars_rdim, d3vars_rdim/),d3state_long_rid), fname)
 #ifdef INCLUDE_PELCO2
    call check_err(NF90_DEF_VAR(ncid_rst,'pH',NF90_DOUBLE,ocepoint_rdim,ph_rid), fname)
 #endif
@@ -354,13 +365,16 @@
    !---------------------------------------------
    ! define 2D Seaice dimensions and variables
    !---------------------------------------------
-   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ice', NO_D2_BOX_STATES_ICE, d2vars_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ice', NO_D2_BOX_STATES_ICE, d2vars_rdim_ice), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ice', max(NO_BOXES_XY,1), botpoint_rdim), fname)
-   dims(1) = d2vars_rdim
+   dims(1) = d2vars_rdim_ice
    dims(2) = botpoint_rdim
-   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE',NF90_DOUBLE,dims,d2state_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE',NF90_DOUBLE,dims,d2state_rid_ice), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_name_rid_ice), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_units_rid_ice), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_LONG',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_long_rid_ice), fname)
 #ifdef BFM_POM
-   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_ICE',NF90_DOUBLE,dims,d2stateb_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_ICE',NF90_DOUBLE,dims,d2stateb_rid_ice), fname)
 #endif
 #endif
 
@@ -369,13 +383,16 @@
    !---------------------------------------------
    ! define 2D Benthic dimensions and variables
    !---------------------------------------------
-   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ben', NO_D2_BOX_STATES_BEN, d2vars_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ben', NO_D2_BOX_STATES_BEN, d2vars_rdim_ben), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ben', max(NO_BOXES_XY,1), botpoint_rdim), fname)
-   dims(1) = d2vars_rdim
+   dims(1) = d2vars_rdim_ben
    dims(2) = botpoint_rdim
-   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN',NF90_DOUBLE,dims,d2state_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN',NF90_DOUBLE,dims,d2state_rid_ben), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_name_rid_ben), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_units_rid_ben), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_LONG',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_long_rid_ben), fname)
 #ifdef BFM_POM
-   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_BEN',NF90_DOUBLE,dims,d2stateb_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_BEN',NF90_DOUBLE,dims,d2stateb_rid_ben), fname)
 #endif
 #endif
 
@@ -429,6 +446,13 @@ end subroutine init_netcdf_rst_bfm
 ! !LOCAL VARIABLES:
    integer                   :: iret
    character(len=80)         :: restfile
+   character(len=LEN(var_names)), dimension(NO_D3_BOX_STATES) :: tmp_d3names,tmp_d3units,tmp_d3long
+#ifdef INCLUDE_SEAICE
+   character(len=LEN(var_names)), dimension(NO_D2_BOX_STATES_ICE) :: tmp_d2names_ice,tmp_d2units_ice,tmp_d2long_ice
+#endif
+#ifdef INCLUDE_BEN
+   character(len=LEN(var_names)), dimension(NO_D2_BOX_STATES_BEN) :: tmp_d2names_ben,tmp_d2units_ben,tmp_d2long_ben
+#endif
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi (INGV) 
@@ -439,7 +463,16 @@ end subroutine init_netcdf_rst_bfm
      restfile="out_restart"
      start(1) = 1;   edges(1) = NO_D3_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES
+     tmp_d3names(:) = var_names(stPelStateS:stPelStateE)
+     tmp_d3units(:) = var_units(stPelStateS:stPelStateE)
+     tmp_d3long(:)  = var_long(stPelStateS:stPelStateE)
      call check_err(NF90_PUT_VAR(ncid_rst,d3state_rid,D3STATE(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d3state_name_rid, tmp_d3names, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d3names), NO_D3_BOX_STATES /)), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d3state_units_rid, tmp_d3units, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d3units), NO_D3_BOX_STATES /)), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d3state_long_rid, tmp_d3long, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d3long), NO_D3_BOX_STATES /)), restfile)
 #ifdef INCLUDE_PELCO2
      call check_err(NF90_PUT_VAR(ncid_rst,ph_rid,D3DIAGNOS(pppH,:),start=(/1/),count=(/NO_BOXES/)), restfile)
 #endif
@@ -450,18 +483,36 @@ end subroutine init_netcdf_rst_bfm
 #if defined INCLUDE_SEAICE
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES_ICE
      start(2) = 1;   edges(2) = NO_BOXES_XY
-     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE_ICE(:,:),start,edges), restfile)
+     tmp_d2names_ice(:) = var_names(stIceStateS:stIceStateE)
+     tmp_d2units_ice(:) = var_units(stIceStateS:stIceStateE)
+     tmp_d2long_ice(:)  = var_long(stIceStateS:stIceStateE)
+     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ice,D2STATE_ICE(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d2state_name_rid_ice, tmp_d2names_ice, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d2names_ice), NO_D2_BOX_STATES_ICE /)), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d2state_units_rid_ice, tmp_d2units_ice, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d2units_ice), NO_D2_BOX_STATES_ICE /)), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d2state_long_rid_ice, tmp_d2long_ice, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d2long_ice), NO_D2_BOX_STATES_ICE /)), restfile)
 #ifdef BFM_POM
-     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB_ICE(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ice,D2STATEB_ICE(:,:),start,edges), restfile)
 #endif
 #endif
 
 #if defined INCLUDE_BEN
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES_BEN
      start(2) = 1;   edges(2) = NO_BOXES_XY
-     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATE_BEN(:,:),start,edges), restfile)
+     tmp_d2names_ben(:) = var_names(stBenStateS:stBenStateE)
+     tmp_d2units_ben(:) = var_units(stBenStateS:stBenStateE)
+     tmp_d2long_ben(:)  = var_long(stBenStateS:stBenStateE)
+     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATE_BEN(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d2state_name_rid_ben, tmp_d2names_ben, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d2names_ben), NO_D2_BOX_STATES_BEN /)), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d2state_units_rid_ben, tmp_d2units_ben, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d2units_ben), NO_D2_BOX_STATES_BEN /)), restfile)
+     call check_err(NF90_PUT_VAR( ncid_rst, d2state_long_rid_ben, tmp_d2long_ben, &
+          start=(/ 1, 1 /), count=(/ LEN(tmp_d2long_ben), NO_D2_BOX_STATES_BEN /)), restfile)
 #ifdef BFM_POM
-     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid,D2STATEB_BEN(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATEB_BEN(:,:),start,edges), restfile)
 #endif
 #endif
      LEVEL1 'Restart has been written in NetCDF'
