@@ -47,12 +47,13 @@ module mod_bnmerge
    integer,public           :: ocepoints, srfpoints
 
    ! NetCDF IDs  of variables to be merged
-   integer,public                                  :: n_bfmvar
-   integer,allocatable,dimension(:),public         :: bfmvarid
+   integer,public                                  :: n_bfmvar, n_bfmvar3d
+   integer,allocatable,dimension(:),public         :: bfmvarid, bfmvarid3d
 
    ! namelist variables
    character(LEN=400) :: cf_nml_bnmerge='bnmerge.nml'     ! namelist name
-   character(LEN=100) :: inp_dir, out_dir, chunk_fname
+   character(LEN=100) :: inp_dir, out_dir, chunk_fname, bfm_restart=""
+   logical            :: only_restart=.FALSE.
    integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
    character(len=64),dimension(NSAVE):: var_save
    logical :: ln_mask=.FALSE.

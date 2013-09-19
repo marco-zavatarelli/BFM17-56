@@ -52,14 +52,20 @@
    !---------------------------------------------
    ! Coordinate variables IDs
    !---------------------------------------------
-   integer          :: lon_id,lat_id,z_id,z1_id,time_id
-   integer          :: zeta_id, mask_id
+   integer          :: lon_id,lat_id,z_id,time_id
+   integer          :: mask_id
    integer          :: depth_id,ocepoint_id,surfpoint_id,botpoint_id
    !---------------------------------------------
    ! Restart file ids
    !---------------------------------------------
+   integer          :: lon_rid,lat_rid,z_rid,time_rid
+   integer          :: mask_rid
+   integer          :: depth_rid,ocepoint_rid,surfpoint_rid,botpoint_rid
    integer,public                :: ncid_rst
    integer                       :: ncid_rst_in
+   integer                       :: lon_rdim,lat_rdim,depth_rdim
+   integer                       :: x_rdim,y_rdim
+   integer                       :: time_rdim
    integer                       :: ocepoint_rdim
    integer                       :: surfpoint_rdim,botpoint_rdim
    integer                       :: chars_rdim
@@ -297,7 +303,9 @@
 ! !IROUTINE: Initialize the netcdf restart
 !
 ! !INTERFACE:
-   subroutine init_netcdf_rst_bfm(title)
+   subroutine init_netcdf_rst_bfm(title,start_time,time_unit,lat,lon,z,dz, &
+                              lat2d,lon2d,oceanpoint,surfacepoint,     &
+                              bottompoint,mask3d)
 !
 ! !DESCRIPTION:
 !  Prepare the netcdf restart file for the BFM
@@ -315,7 +323,14 @@
    implicit none
 !
 ! !INPUT/OUTPUT PARAMETERS:
-   character(len=*), intent(in)                 :: title
+   character(len=*), intent(in)                    :: title,start_time
+   integer, intent(in)                             :: time_unit
+   real(RLEN), intent(in),optional                 :: lat,lon
+   real(RLEN), intent(in),dimension(:,:),optional  :: lat2d,lon2d
+   real(RLEN), intent(in),dimension(:),optional    :: z,dz
+   integer, intent(in),dimension(:),optional       :: oceanpoint
+   integer, intent(in),dimension(:),optional       :: surfacepoint,bottompoint
+   real(RLEN),intent(in),dimension(:,:,:),optional :: mask3d
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -326,6 +341,7 @@
 ! !LOCAL VARIABLES:
    character(len=PATH_MAX)   :: ext,fname
    integer                   :: iret,ndims
+   character(len=128)        :: ncdf_time_str,history
 !!
 !-------------------------------------------------------------------------
 !BOC
@@ -339,13 +355,27 @@
    LEVEL2 TRIM(fname)
    call check_err(NF90_CREATE(fname,NF90_CLOBBER,ncid_rst), fname)
 
+   ncdf_time_unit = time_unit
+
    !---------------------------------------------
    ! define 3D dimensions and variables
    !---------------------------------------------
-   call check_err(NF90_DEF_DIM(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim), fname)
+   if (present(lon).AND.present(lat)) then
+      call check_err(NF90_DEF_DIM(ncid_rst, 'lon', max(NO_BOXES_XY,1), lon_rdim), fname)
+      call check_err(NF90_DEF_DIM(ncid_rst, 'lat', max(NO_BOXES_XY,1), lat_rdim), fname)
+   else if (present(lon2d).AND.present(lat2d)) then
+      call check_err(NF90_DEF_DIM(ncid_rst, 'x', NO_BOXES_X, x_rdim), fname)
+      call check_err(NF90_DEF_DIM(ncid_rst, 'y', NO_BOXES_Y, y_rdim), fname)
+   else
+      stop '### init_netcdf_rst_bfm: lat and lon must be given'
+   end if
+   call check_err(NF90_DEF_DIM(ncid_rst, 'z', NO_BOXES_Z, depth_rdim), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'oceanpoint', max(NO_BOXES,1), ocepoint_rdim), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'surfacepoint', max(NO_BOXES_XY,1), surfpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint', max(NO_BOXES_XY,1), botpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'time', NF90_UNLIMITED, time_rdim), fname)
    call check_err(NF90_DEF_DIM(ncid_rst, 'char_max', LEN(var_names), chars_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst, 'd3vars', NO_D3_BOX_STATES, d3vars_rdim), fname)
    ALLOCATE(dims(2))
    dims(1) = d3vars_rdim
    dims(2) = ocepoint_rdim
@@ -359,16 +389,35 @@
 #ifdef BFM_POM
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATEB',NF90_DOUBLE,dims,d3stateb_rid), fname)
 #endif
- 
+
+   !---------------------------------------------
+   ! define coordinate variables
+   !---------------------------------------------
+   dims(1) = x_rdim
+   dims(2) = y_rdim
+   if (present(lon)) then
+     call check_err(NF90_DEF_VAR(ncid_rst,'lon',NF90_REAL,lon_rdim,lon_rid), fname)
+   elseif (present(lon2d)) then
+     call check_err(NF90_DEF_VAR(ncid_rst,'lon',NF90_REAL,dims,lon_rid), fname)
+   end if
+   if (present(lat)) then
+     call check_err(NF90_DEF_VAR(ncid_rst,'lat',NF90_REAL,lat_rdim,lat_rid), fname)
+   elseif (present(lat2d)) then
+     call check_err(NF90_DEF_VAR(ncid_rst,'lat',NF90_REAL,dims,lat_rid), fname)
+   end if
+   call check_err(NF90_DEF_VAR(ncid_rst,'z',NF90_REAL,depth_rdim,depth_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'oceanpoint', NF90_INT,ocepoint_rdim,ocepoint_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'surfacepoint',NF90_INT,surfpoint_rdim,surfpoint_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'bottompoint',NF90_INT,botpoint_rdim,botpoint_rid), fname)
+   call check_err(NF90_DEF_VAR(ncid_rst,'time',NF90_REAL,time_rdim,time_rid), fname)
 
 #if defined INCLUDE_SEAICE
    !---------------------------------------------
    ! define 2D Seaice dimensions and variables
    !---------------------------------------------
-   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ice', NO_D2_BOX_STATES_ICE, d2vars_rdim_ice), fname)
-   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ice', max(NO_BOXES_XY,1), botpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst,'d2vars_ice', NO_D2_BOX_STATES_ICE, d2vars_rdim_ice), fname)
    dims(1) = d2vars_rdim_ice
-   dims(2) = botpoint_rdim
+   dims(2) = surfpoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE',NF90_DOUBLE,dims,d2state_rid_ice), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_name_rid_ice), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_units_rid_ice), fname)
@@ -383,8 +432,7 @@
    !---------------------------------------------
    ! define 2D Benthic dimensions and variables
    !---------------------------------------------
-   call check_err(NF90_DEF_DIM(ncid_rst, 'd2vars_ben', NO_D2_BOX_STATES_BEN, d2vars_rdim_ben), fname)
-   call check_err(NF90_DEF_DIM(ncid_rst, 'bottompoint_ben', max(NO_BOXES_XY,1), botpoint_rdim), fname)
+   call check_err(NF90_DEF_DIM(ncid_rst,'d2vars_ben', NO_D2_BOX_STATES_BEN, d2vars_rdim_ben), fname)
    dims(1) = d2vars_rdim_ben
    dims(2) = botpoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN',NF90_DOUBLE,dims,d2state_rid_ben), fname)
@@ -397,10 +445,110 @@
 #endif
 
    DEALLOCATE(dims)
+
+   !---------------------------------------------
+   ! define mask variables
+   !---------------------------------------------
+   if (present(mask3d)) then
+      ALLOCATE(dims(3))
+      dims(1) = x_rdim
+      dims(2) = y_rdim
+      dims(3) = depth_rdim
+      call check_err(NF90_DEF_VAR(ncid_rst,'mask',NF90_REAL,dims,mask_rid), fname)
+      DEALLOCATE(dims)
+   end if
+
+   !---------------------------------------------
+   ! assign attributes
+   !---------------------------------------------
+   call check_err(set_attributes(ncid_rst,lon_rid,units='degrees_east'), fname)
+   call check_err(set_attributes(ncid_rst,lat_rid,units='degrees_north'), fname)
+   call check_err(set_attributes(ncid_rst,depth_rid,units='meters'), fname)
+#ifndef NOT_STANDALONE
+   call check_err(set_attributes(ncid_rst,ocepoint_rid,formula_term='water points'), fname)
+   call check_err(set_attributes(ncid_rst,ocepoint_rid,compress='none'), fname)
+   call check_err(set_attributes(ncid_rst,surfpoint_rid,formula_term='surface points'), fname)
+   call check_err(set_attributes(ncid_rst,surfpoint_rid,compress='none'), fname)
+   call check_err(set_attributes(ncid_rst,botpoint_rid,formula_term='bottom points'), fname)
+   call check_err(set_attributes(ncid_rst,botpoint_rid,compress='none'), fname)
+#endif
+#ifdef BFM_GOTM
+   call check_err(set_attributes(ncid_rst,ocepoint_rid,formula_term='watercolumn levels'), fname)
+   call check_err(set_attributes(ncid_rst,ocepoint_rid,compress='z'), fname)
+   call check_err(set_attributes(ncid_rst,surfpoint_rid,formula_term='watercolumn surface'), fname)
+   call check_err(set_attributes(ncid_rst,surfpoint_rid,compress='z'), fname)
+   call check_err(set_attributes(ncid_rst,botpoint_rid,formula_term='watercolumn bottom'), fname)
+   call check_err(set_attributes(ncid_rst,botpoint_rid,compress='z'), fname)
+#endif
+#ifdef BFM_NEMO
+   call check_err(set_attributes(ncid_rst,ocepoint_rid,formula_term='water points'), fname)
+   call check_err(set_attributes(ncid_rst,ocepoint_rid,compress='x y z'), fname)
+   call check_err(set_attributes(ncid_rst,surfpoint_rid,formula_term='surface points'), fname)
+   call check_err(set_attributes(ncid_rst,surfpoint_rid,compress='x y z'), fname)
+   call check_err(set_attributes(ncid_rst,botpoint_rid,formula_term='bottom points'), fname)
+   call check_err(set_attributes(ncid_rst,botpoint_rid,compress='x y z'), fname)
+#endif
+
+   select case (ncdf_time_unit)
+      case(0)                           ! seconds
+         write(ncdf_time_str,100) 'seconds',trim(start_time)
+      case(1)                           ! minutes
+         write(ncdf_time_str,100) 'minutes',trim(start_time)
+      case(2)                           ! hours
+         write(ncdf_time_str,100) 'hours',trim(start_time)
+      case default
+         write(ncdf_time_str,100) 'seconds',trim(start_time)
+   end select
+100 format(A,' since ',A)
+   call check_err(set_attributes(ncid_rst,time_rid,units=trim(ncdf_time_str)), fname)
+
+   !---------------------------------------------
+   !  global attributes
+   !---------------------------------------------
+   call check_err(NF90_PUT_ATT(ncid_rst,NF90_GLOBAL,'Title',title), fname)
+   history = RELEASE
+   call check_err(NF90_PUT_ATT(ncid_rst,NF90_GLOBAL,'history',history), fname)
+   call check_err(NF90_PUT_ATT(ncid_rst,NF90_GLOBAL,'Conventions','CF-1.0'), fname)
+
    !---------------------------------------------
    ! leave define mode
    !---------------------------------------------
    call check_err(NF90_ENDDEF(ncid_rst), fname)
+
+   !---------------------------------------------
+   ! save coordinate variables
+   !---------------------------------------------
+   if (present(lon)) &
+      call check_err(store_data(ncid_rst,lon_rid,POINT,1,scalar=lon), fname)
+   if (present(lat)) &
+      call check_err(store_data(ncid_rst,lat_rid,POINT,1,scalar=lat), fname) 
+   if (present(lat2d)) &
+      call check_err(store_data(ncid_rst,lat_rid,XY_SHAPE,NO_BOXES_Z, &
+                        array2d=lat2d), fname)
+   if (present(lon2d)) &
+      call check_err(store_data(ncid_rst,lon_rid,XY_SHAPE,NO_BOXES_Z, &
+                        array2d=lon2d), fname)
+   if (present(z)) &
+      call check_err(store_data(ncid_rst,depth_rid,Z_SHAPE,NO_BOXES_Z,array=z), fname)
+   if (present(dz)) &
+      call check_err(store_data(ncid_rst,depth_rid,Z_SHAPE,NO_BOXES_Z,array=dz), fname)
+   if (present(oceanpoint)) &
+      call check_err(store_data(ncid_rst,ocepoint_rid,G_SHAPE,NO_BOXES,iarray=oceanpoint), fname)
+   if (present(bottompoint)) &
+      call check_err(store_data(ncid_rst,botpoint_rid,G_SHAPE,NO_BOXES_XY,iarray=bottompoint), fname)
+   if (present(surfacepoint)) &
+      call check_err(store_data(ncid_rst,surfpoint_rid,G_SHAPE,NO_BOXES_XY,iarray=surfacepoint), fname)
+   if (present(mask3d)) &
+      call check_err(store_data(ncid_rst,mask_rid,XYZ_SHAPE,NO_BOXES_Z, &
+                        array3d=mask3d), fname)
+
+   !---------------------------------------------
+   ! syncronize
+   !---------------------------------------------
+   call check_err(NF90_SYNC(ncid_rst), fname)
+
+   ! Flush the log File
+   Call FLUSH (LOGUNIT)
 
 end subroutine init_netcdf_rst_bfm
 !EOC
@@ -411,7 +559,7 @@ end subroutine init_netcdf_rst_bfm
 ! !IROUTINE: Store the restart file
 !
 ! !INTERFACE:
-  subroutine save_rst_bfm()
+  subroutine save_rst_bfm(time)
 !
 ! !DESCRIPTION:
 ! output restart file of BFM variables 
@@ -442,10 +590,11 @@ end subroutine init_netcdf_rst_bfm
    implicit none
 !
 ! !INPUT PARAMETERS:
-
+   real(RLEN),intent(in)     :: time
 ! !LOCAL VARIABLES:
    integer                   :: iret
    character(len=80)         :: restfile
+   real(RLEN)                :: temp_time
    character(len=LEN(var_names)), dimension(NO_D3_BOX_STATES) :: tmp_d3names,tmp_d3units,tmp_d3long
 #ifdef INCLUDE_SEAICE
    character(len=LEN(var_names)), dimension(NO_D2_BOX_STATES_ICE) :: tmp_d2names_ice,tmp_d2units_ice,tmp_d2long_ice
@@ -460,6 +609,21 @@ end subroutine init_netcdf_rst_bfm
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+
+!  Storing the time - both the coordinate and later a time string.
+     select case (ncdf_time_unit)
+        case(0)                           ! seconds
+           temp_time = time
+        case(1)                           ! minutes
+           temp_time = time/60.
+        case(2)                           ! hours
+           temp_time = time/3600.
+        case default
+           temp_time = time
+     end select
+     iret = store_data(ncid_rst,time_rid,POINT,1,scalar=temp_time)
+
+
      restfile="out_restart"
      start(1) = 1;   edges(1) = NO_D3_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES

@@ -337,7 +337,12 @@
    ! initialise (new) and read (previous) restart file
    ! (override any previous initialisation)
    !-------------------------------------------------------
-   call init_netcdf_rst_bfm(rst_fname)
+   call init_netcdf_rst_bfm(rst_fname,TRIM(start_time),0,  &
+             lat2d=gphit,lon2d=glamt,z=gdept_0,        &
+             oceanpoint=ocepoint,                      &
+             surfacepoint=surfpoint,                   &
+             bottompoint=botpoint,                     &
+             mask3d=tmask)
    if (bfm_init == 1) call read_rst_bfm(rst_fname)
 
    !-------------------------------------------------------

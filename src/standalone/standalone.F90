@@ -295,7 +295,11 @@
    !---------------------------------------------
    ! Initialise netcdf restart file
    !---------------------------------------------
-   call init_netcdf_rst_bfm(rst_fname)
+   call init_netcdf_rst_bfm(rst_fname,start,0,  &
+             lat=latitude,lon=longitude,z=Depth,   &
+             oceanpoint=(/(i,i=1,NO_BOXES)/),      &
+             surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
+             bottompoint=(/(i,i=1,NO_BOXES_XY)/))
 
    !---------------------------------------------
    ! allocate and initialise integration arrays
@@ -309,9 +313,9 @@
    allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
 #endif
 #if defined INCLUDE_BEN
-   allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
-   allocate(bbccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
-   allocate(ccc_tmp2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
+   allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
+   allocate(bbccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
+   allocate(ccc_tmp2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
 #endif
 
    ! Initialize prior time step for leap-frog:
@@ -458,6 +462,7 @@ real(RLEN) :: localtime
 ! !USES:
    use time
    use netcdf_bfm, only: close_ncdf, ncid_bfm, save_rst_bfm, ncid_rst
+   use api_bfm, only: time_delta
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
 ! !INPUT/OUTPUT PARAMETERS:
@@ -467,13 +472,15 @@ real(RLEN) :: localtime
 !  Author(s): Karsten Bolding and Hans Burchard
 !
 ! !LOCAL VARIABLES:
-   character(LEN=8)          :: datestr
+   character(LEN=8) :: datestr
+   real(RLEN)       :: localtime
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    ! save and close the restart file
-   call save_rst_bfm
+   localtime = real((time_delta - bfmtime%step0),RLEN) * bfmtime%timestep
+   call save_rst_bfm(localtime)
    call close_ncdf(ncid_rst)
    call close_ncdf(ncid_bfm)
    call end_envforcing_bfm

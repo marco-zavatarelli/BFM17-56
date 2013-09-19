@@ -14,7 +14,6 @@
 !    You should have received a copy of the GNU General Public License
 !    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 subroutine tick(t)
   integer, intent(OUT) :: t
   call system_clock(t)
@@ -34,7 +33,7 @@ end function tock
 
 program bnmerge
 
-  use mod_bnmerge, ONLY: GET_ARGUMENTS
+  use mod_bnmerge, ONLY: GET_ARGUMENTS, only_restart, bfm_restart
   real    :: calctime=0.
   integer :: calc=0
 
@@ -42,8 +41,14 @@ program bnmerge
 
   call GET_ARGUMENTS
   call read_input
-  call create_outputfile
-  call merge_vars
+  if( .NOT. only_restart ) then
+     call create_outputfile
+     call merge_vars
+  end if
+  if( bfm_restart .NE. "" ) then
+     call create_outputfile_restart
+     call merge_vars_restart
+  end if
 
   calctime = tock(calc)
   print *,'Timing summary'

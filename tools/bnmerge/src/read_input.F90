@@ -21,7 +21,7 @@ subroutine read_input
   integer           :: iost,n
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
-  namelist /bnmerge_nml/ inp_dir,out_dir,chunk_fname,layout,ln_mask,var_save
+  namelist /bnmerge_nml/ inp_dir,out_dir,chunk_fname,bfm_restart,only_restart,layout,ln_mask,var_save
 
   var_save="NotVar"
   ! Reading directory names and file name specification
