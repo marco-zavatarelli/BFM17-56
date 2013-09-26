@@ -62,11 +62,13 @@ contains
 
     ! open the output file
     if ( do_output ) then
+       write(*,*) "Merging output..."
        fname_out = trim(out_dir)//"/"//trim(chunk_fname)//".nc"
        status = nf90_open(path = fname_out, mode = NF90_WRITE, ncid = ncid_out)
        if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname_out)//".nc!" )
     endif
     if( do_restart ) then
+       write(*,*) "Merging restart..."
        fname_res = trim(out_dir)//"/"//trim(bfm_restart)//".nc"
        status = nf90_open(path = fname_res, mode = NF90_WRITE, ncid = ncid_res)
        if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname_res)//".nc!" )
@@ -88,9 +90,11 @@ contains
 
     if ( do_output ) then
        call merge_vars_globals(ncid_out)
+       write(*,*) "Finished merge output"
     endif
     if ( do_restart ) then
        call merge_vars_globals(ncid_res)
+       write(*,*) "Finished merge restart"
     end if
 
     ! clean-up memory

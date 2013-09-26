@@ -41,7 +41,8 @@ program bnmerge
   call GET_ARGUMENTS
   call read_input
 
-  write(*,*) "Starting execution..."
+  write(*,*) "Starting bnmerge..."
+  write(*,*)
 
   if( chunk_fname .NE. "" ) then
      do_output=.TRUE.
@@ -58,8 +59,9 @@ program bnmerge
   call create_outputfile
   call merge_vars_init
 
-
+  write(*,*) 
   write(*,*) 'End bnmerge'
+  write(*,*) 
 
 #ifdef PARALLEL
   CALL MPI_Finalize(err)

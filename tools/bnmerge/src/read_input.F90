@@ -42,11 +42,13 @@ subroutine read_input
   ! read processor layout from layout.dat file 
   open ( UNIT=inum, FILE=layout, FORM='FORMATTED', ACCESS='SEQUENTIAL',   &
        STATUS='UNKNOWN', ERR=100, IOSTAT=iost)
+#ifdef DEBUG
   if ( iost == 0 ) then
      write (*,*) '     file   = ', trim(layout),' opened correctly'
      write (*,*) '     unit   = ', inum
      write (*,*)
   end if
+#endif
   read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
   ! get rid of the problem with different forms of the layout.dat file
   if ( iost /= 0 ) read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo

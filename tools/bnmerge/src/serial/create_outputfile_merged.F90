@@ -67,7 +67,7 @@ subroutine create_outputfile
 
   ! Define the dimensions
   if( do_output ) then
-     write(*,*) "Preparing output"
+     write(*,*) "Preparing output..."
      status = nf90_def_dim(ncidout, "time", NF90_UNLIMITED, IDtime)
      if(status /= NF90_NOERR) call handle_err(status,errstring="reading time in out")
      status = nf90_def_dim(ncidout, "x", jpiglo, IDx)
@@ -189,12 +189,10 @@ subroutine create_outputfile
            if ( trim(var_save(n)) == trim(varname) ) then
               n_bfmvar_out = n_bfmvar_out + 1
               bfmvarid_out(n_bfmvar_out)= IDvar
-              write(*,*) "Assigned output ",trim(varname), " with ID:", IDvar
            endif
         enddo
      enddo
-     write(*,*) "Total Output Variables ", n_bfmvar_out
-     write(*,*)
+     write(*,*) "Total Output Variables  ", n_bfmvar_out
      if (n_bfmvar_out == 0) then
         write(*,*) "Selected output variables do not match the content of the input files.", n_bfmvar_out
         stop
@@ -208,14 +206,14 @@ subroutine create_outputfile
         status=nf90_inquire_variable(ncoutid, IDvar, dimids=dimids(1:ndims))
         if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
         status = nf90_inquire_dimension(ncoutid, dimids(ndims), name = DimName)
-        write(*,*) "Define variable: ",trim(varname)," with ID: ",IDvar
-#ifdef DEBUG
-        write(*,*) "from file ",trim(fname_out)
-        write(*,*) "last dimension name ",trim(DimName)
-#endif
         if (DimName /= "time" .OR. ndims == 1) cycle ! enter only with time-varying variables
         ! check the dimension of the variable
         status = nf90_inquire_dimension(ncoutid, dimids(1), name = DimName)
+#ifdef DEBUG
+        write(*,*) "Define variable: ",trim(varname)
+        write(*,*) "from file ",trim(fname_out)
+        write(*,*) "last dimension name ",trim(DimName)
+#endif
         if (DimName == "oceanpoint") then
            ! 3D array
            status = nf90_def_var(ncidout, trim(varname), NF90_REAL, (/ IDx, IDy, IDz, IDtime /), IDtarget)
@@ -244,7 +242,6 @@ subroutine create_outputfile
      if (status == NF90_NOERR) then
         status = nf90_inquire_dimension(ncresid, IDvars_res, len=n_bfmvar_res)
         if (status /= NF90_NOERR) call handle_err(status)
-        write(*,*) "Restart Vars: ",n_bfmvar_res
 
         ! for pH variable
         n_bfmvar_res = n_bfmvar_res + 1
@@ -317,8 +314,8 @@ subroutine create_outputfile
            status = nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat")
            if (status /= NF90_NOERR) call handle_err(status)
            ! inquire variable
-           write(*,*) "Variable saved: ",trim(res_names(n))," : ",n
         end do ! n_bfmvar_res
+        write(*,*) "Total Restart Variables ", n_bfmvar_res
 
         deallocate(res_names)
         deallocate(res_units)
@@ -435,17 +432,15 @@ subroutine create_outputfile
      if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM input file")
      status = nf90_close(ncidout)
      if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM output file")
+     write(*,*) "Output file created: "//trim(fname_out)
   end if
   if ( do_restart ) then
      status = nf90_close(ncresid)
      if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM restart input file")
      status = nf90_close(ncidres)
      if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM restart output file")
+     write(*,*) "Output file created: "//trim(fname_res)
   end if
-
-#ifdef DEBUG
-  write(*,*) "Output file created"
-#endif
 
   return
 
