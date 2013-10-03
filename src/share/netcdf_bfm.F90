@@ -13,7 +13,29 @@
 !  NetCDF format.
 !
 ! !USES:
-   use api_bfm
+   use api_bfm, ONLY: var_names, var_units, var_long, var_ids, &
+        var_ave, &
+        ocepoint_len,surfpoint_len,botpoint_len, &
+        lon_len, lat_len, &
+        c1dim, &
+        bfm_rstctl, out_dir, &
+        D3ave, D2ave, &
+#if defined INCLUDE_SEAICE
+        D2ave_ice, &
+        stIceStateS, stIceDiag2dS, stIceFlux2dS, stIceStateE, &
+        stIceDiag2dE, stIceFlux2dE, stIceStart, stIceEnd, &
+#endif
+#if defined INCLUDE_BEN
+        D2ave_ben, &
+        stBenStateS, stBenDiag2dS, stBenFlux2dS, stBenStateE, &
+        stBenDiag2dE, stBenFlux2dE, stBenStart, stBenEnd,  &
+#endif
+        stStart, stEnd, stPelStateS, stPelDiagS, stPelFluxS, &
+        stPelDiag2dS, stPelSurS, stPelBotS, stPelRivS, &
+        stPelStateE, stPelDiagE, stPelFluxE, stPelDiag2dE, &
+        stPelSurE, stPelBotE, stPelRivE, stPelStart, stPelEnd
+
+
    use mem,     only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z,NO_BOXES_XY,Depth
    use mem,     only: D3FLUX_FUNC
 #if defined INCLUDE_SEAICE
@@ -23,7 +45,7 @@
    use mem,     only: D2FLUX_FUNC_BEN
 #endif
 
-   use global_mem, only: RLEN,LOGUNIT,bfm_lwp
+   use global_mem, only: RLEN,ZERO,LOGUNIT,bfm_lwp
    use constants, ONLY: SEC_PER_DAY
    use netcdf
    implicit none
@@ -835,6 +857,212 @@ end subroutine init_netcdf_rst_bfm
    call check_err(NF90_CLOSE(ncid_rst_in), fname)
 
   end subroutine read_rst_bfm
+!EOC
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE: Read the restart file
+!
+! !INTERFACE:
+  subroutine read_rst_bfm_3d(title, narea, jpnij, &
+        jpiglo, jpjglo, jpkglo, &
+        nlcit, nlcjt, &
+        nldit, nldjt, &
+        nleit, nlejt, &
+        nimppt, njmppt, &
+        SEAmask )
+!
+! !DESCRIPTION:
+! Read restart file of BFM variables from one merged file in 3d 
+!
+! !USES:
+   use mem, only: D3STATE
+#ifdef INCLUDE_PELCO2
+   use mem, only: D3DIAGNOS,pppH
+#endif
+
+   implicit none
+!
+! !INPUT PARAMETERS:
+   character(len=*), intent(in)          :: title                  ! name of the file to open
+   integer, intent(in)                   :: narea                  ! index of subdomain
+   integer, intent(in)                   :: jpnij                  ! nb of local domain = nb of processors ( <= jpni x jpnj )
+   integer, intent(in)                   :: jpiglo, jpjglo, jpkglo ! i-, j-, k-dimensions of the global domain
+   integer, intent(in), dimension(:)     :: nlcit,  nlcjt          !: dimensions of every subdomain
+   integer, intent(in), dimension(:)     :: nldit,  nldjt          !: first, last indoor index for each i-domain
+   integer, intent(in), dimension(:)     :: nleit,  nlejt          !: first, last indoor index for each j-domain
+   integer, intent(in), dimension(:)     :: nimppt, njmppt         !: i-, j-indexes for each processor
+   logical, intent(in), dimension(:,:,:) :: SEAmask !: 3D boolean Land-sea mask
+!
+! !LOCAL VARIABLES:
+   character(len=PATH_MAX) :: fname
+   integer                 :: ncid_rst_3d, ncomp_id, ncomp_len, iret
+
+   integer :: idx_var, idx_var_array, vid
+
+   integer,dimension(4)                      :: array_3d_start, array_3d_count, array_3d_end
+   real(RLEN),allocatable,dimension(:,:,:,:) :: array_3d
+
+
+   integer :: iniI, iniJ, cntI, cntJ, cntK
+
+   integer :: idx_i, idx_j, idx_k, noce
+
+   character(len=PATH_MAX) :: fname_ph
+   integer :: ncid_ph, IDx, IDy, IDz, IDtime, IDboxes, IDtarget, IDtarget_mask, IDtarget_box
+
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi (INGV) 
+!
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+   ! write(*,*)         'FILE NAME '//trim(title)
+   ! write(*,'(A,9i5)') 'DOMAIN_number_total'   , jpnij
+   ! write(*,'(A,9i5)') 'DOMAIN_size_global'    , (/jpiglo, jpjglo, jpkglo/) 
+   ! write(*,*)
+   ! write(*,'(A,9i5)') 'DOMAIN_number'        , narea
+   ! write(*,'(A,9i5)') 'DOMAIN_size_local'    , nlcit(narea), nlcjt(narea)        
+   ! write(*,'(A,9i5)') 'DOMAIN_indoor_first'  , nldit(narea), nldjt(narea)
+   ! write(*,'(A,9i5)') 'DOMAIN_indoor_last'   , nleit(narea), nlejt(narea)
+   ! write(*,'(A,9i5)') 'DOMAIN_for processor' , nimppt(narea), njmppt(narea)       
+
+   !---------------------------------------------
+   ! open the netcdf restart file
+   !---------------------------------------------
+   fname = TRIM(title) // '.' // 'nc'
+   LEVEL2 'Reading Restart file in NetCDF 3D'
+   LEVEL2 TRIM(fname)
+   call check_err(NF90_OPEN(fname,NF90_NOWRITE,ncid_rst_3d), fname)
+   !---------------------------------------------
+   ! Check 3D dimensions 
+   !---------------------------------------------
+   call check_err(NF90_INQ_DIMID(ncid_rst_3d,"x",ncomp_id), fname)
+   call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_3d,ncomp_id, len=ncomp_len), fname)
+   if (ncomp_len/=jpiglo) then
+      LEVEL1 "Global X Dimension mismatch in 3d restart file:"
+      LEVEL2 TRIM(fname)
+      LEVEL3 "DIM X in model:", jpiglo
+      LEVEL3 "DIM X in file:",  ncomp_len
+      stop "STOP in read_rst_bfm_3d contained in netcdf_bfm.F90"
+   end if
+   call check_err(NF90_INQ_DIMID(ncid_rst_3d,"y",ncomp_id), fname)
+   call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_3d,ncomp_id, len=ncomp_len), fname)
+   if (ncomp_len/=jpjglo) then
+      LEVEL1 "Global Y Dimension mismatch in 3d restart file:"
+      LEVEL2 TRIM(fname)
+      LEVEL3 "DIM Y in model:", jpjglo
+      LEVEL3 "DIM Y in file:",  ncomp_len
+      stop "STOP in read_rst_bfm_3d contained in netcdf_bfm.F90"
+   end if
+   call check_err(NF90_INQ_DIMID(ncid_rst_3d,"depth",ncomp_id), fname)
+   call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_3d,ncomp_id, len=ncomp_len), fname)
+   if (ncomp_len/=jpkglo) then
+      LEVEL1 "Global Z Dimension mismatch in 3d restart file:"
+      LEVEL2 TRIM(fname)
+      LEVEL3 "DIM Z in model:", jpkglo
+      LEVEL3 "DIM Z in file:",  ncomp_len
+      stop "STOP in read_rst_bfm_3d contained in netcdf_bfm.F90"
+   end if
+
+   !---------------------------------------------
+   ! get the coordinates of the sub-domain
+   !---------------------------------------------
+   iniI = nimppt(narea)
+   iniJ = njmppt(narea)
+   cntI = nlcit(narea)
+   cntJ = nlcjt(narea)
+   cntK = jpkglo
+
+
+   !allocate subdomain array and global mask
+   allocate( array_3d(cntI,cntJ,cntK,1) )
+   array_3d_start = (/ iniI       , iniJ       , 1   , 1 /)
+   array_3d_count = (/ cntI       , cntJ       , cntk, 1 /)
+   array_3d_end   = (/ iniI+cntI-1, iniJ+cntJ-1, cntk, 1 /)
+
+   !---------------------------------------------
+   ! Initialize 3D variable
+   !---------------------------------------------
+   do idx_var=stPelStateS, stPelStateE
+      idx_var_array = idx_var - stPelStateS + 1
+      iret = NF90_INQ_VARID(ncid_rst_3d, var_names(idx_var), vid)
+      if( iret == NF90_NOERR ) then
+         call check_err(nf90_get_var(ncid_rst_3d, vid, array_3d, &
+              start=array_3d_start, count=array_3d_count), fname)
+
+         noce = 0
+         do idx_k=1,cntK
+            do idx_j=1,cntJ
+               do idx_i=1,cntI
+                  if( SEAmask(idx_i,idx_j,idx_k) ) then
+                     noce = noce+1
+                     D3STATE(idx_var_array,noce) = array_3d(idx_i,idx_j,idx_k,1)
+                  end if
+               end do
+            end do
+         end do
+
+         ! write(*,'(A,i3,A)') "VAR: ", idx_var_array, ' - '//trim(var_names(idx_var))
+         ! write(*,*) "NAREA: ", narea, " NOCE: ", noce, " IDI: ", idx_i, "IDJ: ", idx_j, "IDK: ", idx_k
+      end if
+   end do
+
+   !---------------------------------------------
+   ! Initialize Ph variable
+   !---------------------------------------------
+#ifdef INCLUDE_PELCO2
+   call check_err(NF90_INQ_VARID(ncid_rst_3d,"pH", vid), fname)
+   call check_err(nf90_get_var(ncid_rst_3d, vid, array_3d, &
+        start=array_3d_start, count=array_3d_count), fname)
+
+   noce = 0
+   do idx_k=1,cntK
+      do idx_j=1,cntJ
+         do idx_i=1,cntI
+            if( SEAmask(idx_i,idx_j,idx_k) ) then
+               noce = noce+1
+               D3DIAGNOS(pppH,noce) = array_3d(idx_i,idx_j,idx_k,1)
+            end if
+         end do
+      end do
+   end do
+
+   ! ! write(*,'(A,i3,A)') "VAR: ", pppH, ' - pH'
+   ! write(*,*) "NAREA: ", narea, " NOCE: ", noce, " IDI: ", idx_i, "IDJ: ", idx_j, "IDK: ", idx_k
+   ! write(*,*) "NAREA: ", narea, " Start: ", array_3d_start
+   ! write(*,*) "NAREA: ", narea, " Count: ", array_3d_count
+   ! write(*,*) "NAREA: ", narea, " End:   ", array_3d_end
+
+   ! call check_err(NF90_INQ_VARID(ncid_rst_3d,"O2o", vid), fname)
+   ! call check_err(nf90_get_var(ncid_rst_3d, vid, array_3d, &
+   !      start=array_3d_start, count=array_3d_count), fname)
+
+   ! write(fname_ph,'(A,i1,A)') './O2o_initial_', narea , '.nc'
+   ! call check_err( nf90_create(fname_ph, NF90_SHARE, ncid_ph) )
+   ! ! call check_err( nf90_def_dim(ncid_ph, "x"         , jpiglo, IDx), fname_ph )
+   ! ! call check_err( nf90_def_dim(ncid_ph, "y"         , jpjglo, IDy), fname_ph )
+   ! ! call check_err( nf90_def_dim(ncid_ph, "depth"     , jpkglo, IDz), fname_ph )
+   ! ! call check_err( nf90_def_dim(ncid_ph, "time"      , NF90_UNLIMITED, IDtime), fname_ph )
+   ! call check_err( nf90_def_dim(ncid_ph, "oceanpoint", noce, IDboxes), fname_ph )
+   ! ! call check_err( nf90_def_var(ncid_ph, "O2o"     , NF90_DOUBLE, (/ IDx, IDy, IDz, IDtime /), IDtarget))
+   ! call check_err( nf90_def_var(ncid_ph, "D3STATE" , NF90_DOUBLE, (/ IDboxes /), IDtarget_box))
+   ! ! call check_err( nf90_def_var(ncid_ph, "mask"    , NF90_BYTE, (/ IDx, IDy, IDz /), IDtarget_mask))
+   ! call check_err( nf90_enddef(ncid_ph), fname_ph )
+   ! ! call check_err( nf90_put_var(ncid_ph, IDtarget, array_3d, &
+   ! !      start=array_3d_start, count=array_3d_count), fname_ph )
+   ! call check_err( nf90_put_var(ncid_ph, IDtarget_box, D3STATE(1,1:noce)), fname_ph )
+   ! ! call check_err( nf90_put_var(ncid_ph, IDtarget_mask, SEAmask), fname_ph )
+   ! call check_err( nf90_close(ncid_ph), fname_ph )
+#endif
+
+   call check_err(nf90_close(ncid_rst_3d),fname)
+
+   if(allocated(array_3d)) deallocate(array_3d)
+
+  end subroutine read_rst_bfm_3d
 !EOC
 
 !-----------------------------------------------------------------------

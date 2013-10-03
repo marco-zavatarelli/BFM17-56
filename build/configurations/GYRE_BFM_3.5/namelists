@@ -30,6 +30,7 @@
 ! bfm_init       integer Initialization state
 !                        0. from constant values in bfm_init_nml below
 !                        1. from restart
+!                        2. from 3D restart merged
 ! bfm_rstctl     logical Save initial state of bfm in the output file.
 ! bio_setup      integer BFM configuration:
 !                        1. pelagic

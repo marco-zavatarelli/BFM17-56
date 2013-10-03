@@ -18,14 +18,16 @@
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_BOXES_XY, NO_D3_BOX_DIAGNOSS,     &
-                  NO_STATES,Depth,D3STATE,PELRIVER
+                  NO_STATES,Depth,D3STATE
 #ifdef INCLUDE_BEN
    use mem, only: NO_D2_BOX_STATES_BEN, D2STATE_BEN, &
-                  NO_BOXES_Z_BEN, NO_BOXES_BEN, NO_STATES_BEN
+                  NO_BOXES_Z_BEN, NO_BOXES_BEN, NO_STATES_BEN,
+   use api_bfm, only : D2STATE_BEN_tot   
 #endif
 #ifdef INCLUDE_SEAICE
    use mem, only: NO_D2_BOX_STATES_ICE, D2STATE_ICE, &
                   NO_BOXES_Z_ICE, NO_BOXES_ICE, NO_STATES_ICE
+   use api_bfm, only : D2STATE_ICE_tot
 #endif
    use mem, only: Volume, Area, Area2d
    use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s
@@ -36,21 +38,44 @@
    use global_mem, only: RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
                          error_msg_prn,ONE
    use constants,  only: SEC_PER_DAY
-   use api_bfm
+   use api_bfm, only: ZEROS, SEAmask, BOTmask, SRFmask, &
+        btmp1D, rtmp3Da, rtmp3Db, &
+        var_names, bfm_init, &
+        BOTindices,SRFindices, stPelStateS, &
+        InitVar, bio_setup, rst_fname, rst_fname_3d, save_delta, time_delta, &
+        lat_len, lon_len, out_delta, out_fname, parallel_rank, &
+        D3STATEB, D3STATE_tot, &
+        find, update_save_delta, init_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
-   use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm
+   use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm,read_rst_bfm_3d
    use time,       only: bfmtime, julian_day 
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
-   use trc
-   use oce_trc
-   use iom_def,    only:jpdom_data
-   use iom
-   use sbc_oce, only: ln_rnf
+   use trc, only : ln_trc_sbc, ln_trc_ini, ln_trc_obc, ln_trc_cbc, &
+        ln_top_euler, areatot, cvol, &
+        trn
+   use oce_trc, only : ln_qsr_bio, nn_dttrc, &
+        glob_sum
+   use iom_def, only:jpdom_data
+   use par_oce, only: jpi, jpj, jpk, &
+        jpnij, &
+        jpiglo, jpjglo, jpk
    use trc_oce, only: etot3
-   use trcdta
-   use trcbc
-   use dom_oce, only: nyear, nmonth, nday
+   use trcdta, only : sf_trcdta, nb_trcdta, ntra, &
+        n_trc_index, rf_trfac, trc_dta, trc_dta_init
+   use trcbc, only : trc_bc_init
+   use dom_oce, only: nyear, nmonth, nday, &
+        e1t, e2t, e3t, &
+        rdt, gdept, &
+        tmask, tmask_i, &
+        gphit, glamt, gdept_0, &
+        narea, &
+        nlcit, nlcjt, &
+        nldit, nldjt, &
+        nleit, nlejt, &
+        nimppt, njmppt
+   use lib_mpp, only : lk_mpp, mpp_max, mpp_min
+   use in_out_manager, only: numout, nitend, nit000, lwp
 
    IMPLICIT NONE
 !
@@ -344,7 +369,13 @@
              bottompoint=botpoint,                     &
              mask3d=tmask)
    if (bfm_init == 1) call read_rst_bfm(rst_fname)
-
+   if (bfm_init == 2) call read_rst_bfm_3d(rst_fname_3d, narea, jpnij, &
+        jpiglo, jpjglo, jpk, &
+        nlcit, nlcjt, &
+        nldit, nldjt, &
+        nleit, nlejt, &
+        nimppt, njmppt, &
+        SEAmask )
    !-------------------------------------------------------
    ! compute and report global statistics
    ! in ocean.output
