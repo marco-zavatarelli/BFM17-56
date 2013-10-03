@@ -23,7 +23,7 @@
 subroutine create_outputfile
 
   use netcdf
-  use mod_bnmerge, ONLY: n_bfmvar_out, n_bfmvar_res, bfmvarid_out, bfmvarid_res, &
+  use mod_bnmerge, ONLY: RLEN, n_bfmvar_out, n_bfmvar_res, bfmvarid_out, bfmvarid_res, &
        inp_dir, out_dir, chunk_fname, bfm_restart, &
        do_restart, do_output, &
        jpiglo, jpjglo, jpkglo, &
@@ -51,8 +51,8 @@ subroutine create_outputfile
   character(len = NF90_MAX_NAME) :: DimName,dimname3d_res, varname,attname
 
   integer :: step_start_arr2(2), step_count_arr2(2)
-  real, allocatable, dimension(:,:,:,:) :: tmpfillvar3d
-  real, allocatable, dimension(:,:,:)   :: tmpfillvar2d  
+  real(RLEN), allocatable, dimension(:,:,:,:) :: tmpfillvar3d
+  real(RLEN), allocatable, dimension(:,:,:)   :: tmpfillvar2d  
 
 
   if( do_output ) then
@@ -216,11 +216,11 @@ subroutine create_outputfile
 #endif
         if (DimName == "oceanpoint") then
            ! 3D array
-           status = nf90_def_var(ncidout, trim(varname), NF90_REAL, (/ IDx, IDy, IDz, IDtime /), IDtarget)
+           status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, (/ IDx, IDy, IDz, IDtime /), IDtarget)
            if (status /= NF90_NOERR) call handle_err(status)
         else
            ! 2D array
-           status = nf90_def_var(ncidout, trim(varname), NF90_REAL, (/ IDx, IDy, IDtime /), IDtarget)
+           status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, (/ IDx, IDy, IDtime /), IDtarget)
            if (status /= NF90_NOERR) call handle_err(status)
         end if
         ! copy attributes
@@ -229,7 +229,7 @@ subroutine create_outputfile
         status = nf90_copy_att(ncoutid, IDvar, "long_name", ncidout, IDtarget)
         if (status /= NF90_NOERR) call handle_err(status)
         ! Add fill value
-        status = nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_REAL)
+        status = nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
         if (status /= NF90_NOERR) call handle_err(status)
         ! Add reference coordinate names (needed with CDO)
         status = nf90_put_att(ncidout, IDtarget, "coordinates", "lon lat")
@@ -295,12 +295,11 @@ subroutine create_outputfile
            ! check the dimension of the variable
            if (dimname3d_res == "oceanpoint") then
               ! 3D array
-              status = nf90_def_var(ncidres, trim(res_names(n)), NF90_REAL, (/ IDx, IDy, IDz, IDtime /), IDtarget)
+              status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, (/ IDx, IDy, IDz, IDtime /), IDtarget)
               if (status /= NF90_NOERR) call handle_err(status)
               bfmvarid_res(n)= IDtarget
            else
               write(*,*) "Variable suppose to be 3D oceanpoint."
-              stop
            end if
            ! copy attributes
            status = nf90_put_att(ncidres, IDtarget, "units", trim(res_units(n)))
@@ -308,7 +307,7 @@ subroutine create_outputfile
            status = nf90_put_att(ncidres, IDtarget, "long_name", trim(res_long(n)))
            if (status /= NF90_NOERR) call handle_err(status)
            ! Add fill value
-           status = nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_REAL)
+           status = nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
            if (status /= NF90_NOERR) call handle_err(status)
            ! Add reference coordinate names (needed with CDO)
            status = nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat")
@@ -377,8 +376,8 @@ subroutine create_outputfile
   !write fill value
   if ( do_output ) then
      allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime_out),tmpfillvar2d(jpiglo,jpjglo,ntime_out))
-     tmpfillvar3d = NF90_FILL_REAL
-     tmpfillvar2d = NF90_FILL_REAL
+     tmpfillvar3d = NF90_FILL_DOUBLE
+     tmpfillvar2d = NF90_FILL_DOUBLE
      do n = 1 , n_bfmvar_out
         IDvar = bfmvarid_out(n)
         ! inquire ID in the output file
@@ -403,8 +402,8 @@ subroutine create_outputfile
   endif
   if ( do_restart ) then
      allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime_res),tmpfillvar2d(jpiglo,jpjglo,ntime_res))
-     tmpfillvar3d = NF90_FILL_REAL
-     tmpfillvar2d = NF90_FILL_REAL
+     tmpfillvar3d = NF90_FILL_DOUBLE
+     tmpfillvar2d = NF90_FILL_DOUBLE
      do n = 1 , n_bfmvar_res
         IDtarget = bfmvarid_res(n)
         ! inquire ID in the output file

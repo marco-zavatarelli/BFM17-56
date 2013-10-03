@@ -15,7 +15,7 @@
 !    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 module merge_vars
   use netcdf
-  use mod_bnmerge, ONLY : handle_err, RLEN, &
+  use mod_bnmerge, ONLY : handle_err, RLEN, ZERO, &
        jpiglo, jpjglo, jpkglo, latglo, longlo, maskglo
 
   implicit none
@@ -128,10 +128,10 @@ contains
 
     real, allocatable, dimension(:,:)     :: lat, lon
     real, allocatable, dimension(:,:,:)   :: mask
-    real, allocatable, dimension(:)       :: bottompoint
-    real, allocatable, dimension(:,:)     :: chunk
-    real, allocatable, dimension(:,:,:,:) :: bfmvar3d
-    real, allocatable, dimension(:,:,:)   :: bfmvar2d
+    integer, allocatable, dimension(:)       :: bottompoint
+    real(RLEN), allocatable, dimension(:,:)     :: chunk
+    real(RLEN), allocatable, dimension(:,:,:,:) :: bfmvar3d
+    real(RLEN), allocatable, dimension(:,:,:)   :: bfmvar2d
 
     integer :: vartype,dimids(4),dimlen(4)
 
@@ -141,8 +141,8 @@ contains
     integer :: Istart, Icount, Jstart, Jcount
     integer :: step_start_arr3(3), step_count_arr3(3), step_start_arr4(4), step_count_arr4(4)
 
-    real, allocatable, dimension(:) :: chunktmp
-    real                            :: bottompointtmp
+    real(RLEN), allocatable, dimension(:) :: chunktmp
+    integer                         :: bottompointtmp
 
     integer                        :: ID3dvars, ID3dname, IDph
     character(len=64), allocatable :: res_names(:)
@@ -350,13 +350,13 @@ contains
        select case (dimname)
 
        case("oceanpoint")    ! 3D variable
-          bfmvar3d=NF90_FILL_REAL
+          bfmvar3d=NF90_FILL_DOUBLE
           ! loop sequence is mandatory
           noce = 1
           do k = 1,jpkglo
              do j=1,jpj
                 do i=1,jpi
-                   if (mask(i,j,k) > 0.0_RLEN) then
+                   if (mask(i,j,k) > ZERO) then
                       bfmvar3d(i,j,k,:) = chunk(noce,:)
                       noce = noce+1
                    end if
@@ -373,12 +373,12 @@ contains
           if (status /= NF90_NOERR) &
                call handle_err(status,errstring="Put 3D domain: "//procname//" variable: "//trim(varname))
        case ("surfacepoint")  ! 2D variable
-          bfmvar2d=NF90_FILL_REAL
+          bfmvar2d=NF90_FILL_DOUBLE
           ! loop sequence is mandatory
           noce = 1
           do j=1,jpj
              do i=1,jpi
-                if (mask(i,j,1) > 0.0_RLEN) then
+                if (mask(i,j,1) > ZERO) then
                    bfmvar2d(i,j,:) = chunk(noce,:)
                    noce = noce+1
                 end if
@@ -415,12 +415,12 @@ contains
 
           deallocate(chunktmp)
 
-          bfmvar2d=NF90_FILL_REAL
+          bfmvar2d=NF90_FILL_DOUBLE
           ! loop sequence is mandatory
           noce = 1
           do j=1,jpj
              do i=1,jpi
-                if (mask(i,j,1) > 0.0_RLEN) then
+                if (mask(i,j,1) > ZERO) then
                    bfmvar2d(i,j,:) = chunk(noce,:)
                    noce = noce+1
                 end if

@@ -48,8 +48,8 @@ module mod_bnmerge
        nleit , nlejt       !: first, last indoor index for each j-domain
 
   ! masks
-  real(RLEN), public, allocatable, target, dimension(:,:)   :: latglo, longlo ! FLOAT
-  real(RLEN), public, allocatable, target, dimension(:,:,:) :: maskglo
+  real, public, allocatable, target, dimension(:,:)   :: latglo, longlo ! FLOAT
+  real, public, allocatable, target, dimension(:,:,:) :: maskglo
 
   ! NetCDF IDs  of variables to be merged
   integer,public                                  :: n_bfmvar_out, n_bfmvar_res
