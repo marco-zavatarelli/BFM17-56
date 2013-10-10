@@ -113,7 +113,8 @@
                   NO_STATES_ICE
 #endif
 #ifdef INCLUDE_BEN
-   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, NO_D2_BOX_DIAGNOSS_BEN
+   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, &
+                  NO_D2_BOX_DIAGNOSS_BEN, NO_BOXES_BEN, NO_BOXES_Z_BEN, NO_STATES_BEN
 #endif
 
    IMPLICIT NONE

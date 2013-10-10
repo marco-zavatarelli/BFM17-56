@@ -84,12 +84,12 @@
 
 #endif
 
-    D3FLUX_FUNC(:,:) = ZERO
+    if (allocated(D3FLUX_FUNC)) D3FLUX_FUNC(:,:) = ZERO
 #if defined INCLUDE_SEAICE
-    D2FLUX_FUNC_ICE(:) = ZERO
+    if (allocated(D2FLUX_FUNC_ICE)) D2FLUX_FUNC_ICE(:) = ZERO
 #endif
 #if defined INCLUDE_BEN
-    D2FLUX_FUNC_BEN(:) = ZERO
+    if (allocated(D2FLUX_FUNC_BEN)) D2FLUX_FUNC_BEN(:) = ZERO
 #endif
 
     ! reset surface and bottom fluxes

@@ -31,42 +31,48 @@ subroutine ClearMem
    integer :: i,j,origin,destination
 
     ! free willy, free the fluxes
-    origin=0
-    do i=stPelStateS,stPelStateE
-       origin=origin+1
-       destination=0
-       do j=stPelStateS,stPelStateE
-          destination=destination+1
-          if( allocated(D3FLUX_MATRIX(origin,destination)%p) ) deallocate(D3FLUX_MATRIX(origin,destination)%p)
+    if (allocated(D3FLUX_MATRIX)) then
+       origin=0
+       do i=stPelStateS,stPelStateE
+          origin=origin+1
+          destination=0
+          do j=stPelStateS,stPelStateE
+             destination=destination+1
+             if( allocated(D3FLUX_MATRIX(origin,destination)%p) ) deallocate(D3FLUX_MATRIX(origin,destination)%p)
+          end do
        end do
-    end do
-    deallocate(D3FLUX_MATRIX)
-    deallocate(D3FLUX_FUNC)
+       deallocate(D3FLUX_MATRIX)
+       deallocate(D3FLUX_FUNC)
+    end if
 #if defined INCLUDE_SEAICE
-    origin=0
-    do i=stIceStateS,stIceStateE
-       origin=origin+1
-       destination=0
-       do j=stIceStateS,stIceStateE
-          destination=destination+1
-          if( allocated(D2FLUX_MATRIX_ICE(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_ICE(origin,destination)%p)
+    if (allocated(D2FLUX_MATRIX_ICE)) then
+       origin=0
+       do i=stIceStateS,stIceStateE
+          origin=origin+1
+          destination=0
+          do j=stIceStateS,stIceStateE
+             destination=destination+1
+             if( allocated(D2FLUX_MATRIX_ICE(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_ICE(origin,destination)%p)
+          end do
        end do
-    end do
-    deallocate(D2FLUX_MATRIX_ICE)
-    deallocate(D2FLUX_FUNC_ICE)
+       deallocate(D2FLUX_MATRIX_ICE)
+       deallocate(D2FLUX_FUNC_ICE)
+    end if
 #endif
 #if defined INCLUDE_BEN
-    origin=0
-    do i=stBenStateS,stBenStateE
-       origin=origin+1
-       destination=0
-       do j=stBenStateS,stBenStateE
-          destination=destination+1
-          if( allocated(D2FLUX_MATRIX_BEN(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_BEN(origin,destination)%p)
+    if (allocated(D2FLUX_MATRIX_BEN)) then
+       origin=0
+       do i=stBenStateS,stBenStateE
+          origin=origin+1
+          destination=0
+          do j=stBenStateS,stBenStateE
+             destination=destination+1
+             if( allocated(D2FLUX_MATRIX_BEN(origin,destination)%p) ) deallocate(D2FLUX_MATRIX_BEN(origin,destination)%p)
+          end do
        end do
-    end do
-    deallocate(D2FLUX_MATRIX_BEN)
-    deallocate(D2FLUX_FUNC_BEN)
+       deallocate(D2FLUX_MATRIX_BEN)
+       deallocate(D2FLUX_FUNC_BEN)
+    end if
 #endif
 
     ! from api_bfm 
