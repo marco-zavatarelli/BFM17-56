@@ -328,8 +328,9 @@
         jbotN3n(BoxNumberXY_ben) = CalculateFromSet( KNO3(BoxNumberXY_ben), DERIVATIVE, &
           RFLUX, ZERO, dummy)
 
-        call LimitShift(jbotN3n(BoxNumberXY_ben),N3n_Ben(BoxNumberXY_ben)*Depth_Ben(BoxNumberXY_ben) ,&
-                                                         K3n(BoxNumberXY_ben),p_max_state_change)
+        call LimitShift(jbotN3n(BoxNumberXY_ben), &
+             N3n_Ben(BoxNumberXY_ben)*Depth_Ben(BoxNumberXY_ben) ,&
+             K3n(BoxNumberXY_ben),p_max_state_change)
         jbotN3n(BoxNumberXY_ben)=min(jbotN3n(BoxNumberXY_ben), K3n(BoxNumberXY_ben)  &
                   * p_max_state_change+ jK4K3n(BoxNumberXY_ben)-jK3G4n(BoxNumberXY_ben))
         call flux(BoxNumberXY_ben, iiBen, ppK3n, ppK3n, -( jbotN3n(BoxNumberXY_ben)) )

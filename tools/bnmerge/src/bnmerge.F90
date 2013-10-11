@@ -14,53 +14,62 @@
 !    You should have received a copy of the GNU General Public License
 !    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-subroutine tick(t)
-  integer, intent(OUT) :: t
-  call system_clock(t)
-end subroutine tick
-
-! returns time in seconds from now to time described by t
-real function tock(t)
-  integer, intent(in) :: t
-  integer :: now, clock_rate
-
-  call system_clock(now,clock_rate)
-
-  tock = real(now - t)/real(clock_rate)
-end function tock
-
-
 program bnmerge
-  use mod_bnmerge, ONLY: GET_ARGUMENTS
+
+  use mod_bnmerge, ONLY: GET_ARGUMENTS, chunk_fname, bfm_restart, do_restart, do_output, tick, tock
+  use create_output, ONLY: create_output_init
+  use merge_vars, ONLY: merge_vars_init
+#ifdef PARALLEL
   use mpi
+#endif
 
+  implicit none
+  real(8)    :: calctime=0.
+  integer :: calc=0
+
+#ifdef PARALLEL
   integer err, rank, nprocs, namelen
-  character(len = MPI_MAX_PROCESSOR_NAME) :: name
-  real :: calctime=0
-
-  call tick(calc)
 
   call MPI_INIT(err)
   call MPI_COMM_RANK(MPI_COMM_WORLD, rank, err)
   call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, err)
   call MPI_GET_PROCESSOR_NAME(name, namelen, err)
-
   write(*,*) 'Process: ', trim(name), ' Rank:', rank, ' Nprocs:', nprocs
+#endif
+
+  call tick(calc)
 
   call GET_ARGUMENTS
   call read_input
 
-  call create_outputfile
-  call merge_vars
+  write(*,*) "Starting bnmerge..."
+  write(*,*)
 
-  WRITE(*,*) 'End bnmerge'
+  if( chunk_fname .NE. "" ) then
+     do_output=.TRUE.
+  else
+     do_output=.FALSE.
+  end if
 
+  if( bfm_restart .NE. "" ) then
+     do_restart=.TRUE.
+  else
+     do_restart=.FALSE.
+  end if
+
+  call create_output_init
+  call merge_vars_init
+
+  write(*,*) 
+  write(*,*) 'End bnmerge'
+  write(*,*) 
+
+#ifdef PARALLEL
   CALL MPI_Finalize(err)
+#endif
 
   calctime = tock(calc)
   print *,'Timing summary'
   print *,'Calc: ', calctime
-
 
 end program bnmerge

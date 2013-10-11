@@ -75,7 +75,8 @@
    ! Save Restart and Close the files
    !---------------------------------------------
    if ( bfmtime%stepnow == bfmtime%stepEnd ) then
-      call save_rst_bfm
+      localtime = real((time_delta - bfmtime%step0),RLEN) * bfmtime%timestep
+      call save_rst_bfm(localtime)
       call close_ncdf(ncid_rst)
       call close_ncdf(ncid_bfm)
       ! clear main memory

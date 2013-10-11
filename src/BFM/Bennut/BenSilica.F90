@@ -274,8 +274,9 @@
         jbotN5s(BoxNumberXY_ben) = - CalculateFromSet( KSIO3(BoxNumberXY_ben), &
           DERIVATIVE, RFLUX, ZERO, dummy)
 
-        call LimitShift(jbotN5s(BoxNumberXY_ben),N5s_Ben(BoxNumberXY_ben)*Depth_Ben(BoxNumberXY_ben) ,&
-                                                         K5s(BoxNumberXY_ben),p_max_state_change)
+        call LimitShift(jbotN5s(BoxNumberXY_ben), &
+             N5s_Ben(BoxNumberXY_ben)*Depth_Ben(BoxNumberXY_ben) ,&
+             K5s(BoxNumberXY_ben),p_max_state_change)
         call flux(BoxNumberXY_ben, iiBen, ppK5s, ppK5s, -jbotN5s(BoxNumberXY_ben) )
 
         jK15K5s(BoxNumberXY_ben) = - CalculateFromSet( KSIO3(BoxNumberXY_ben), DERIVATIVE, RFLUX, &
@@ -302,7 +303,10 @@
 
         jK15K5s(BoxNumberXY_ben)  =   jK15K5s(BoxNumberXY_ben)+ shiftmass
 
-        call LimitChange(2,jK15K5s(BoxNumberXY_ben),K5s(BoxNumberXY_ben),p_max_shift_change)
+        call LimitChange(2, &
+             jK15K5s(BoxNumberXY_ben), &
+             K5s(BoxNumberXY_ben), &
+             p_max_shift_change)
 
 
         call flux(BoxNumberXY_ben, iiBen, ppK5s, ppK5s, jK15K5s(BoxNumberXY_ben) )

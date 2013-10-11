@@ -347,9 +347,18 @@ if [ ${GEN} ]; then
 
         # Generate the specific bfm.fcm include file for makenemo
         # some macros are default with NEMO
+        if echo "$cppdefs" | grep -q "\-DINCLUDE_BEN" ; then
+            [ $VERBOSE ] && echo "include BENTHIC in bfm.fcm"
+            FCMBen="src::bfm::ben             ${BFMDIR}/src/BFM/Ben\&src::bfm::bennut          $BFMDIR/src/BFM/Bennut"
+        fi
+        if echo "$cppdefs" | grep -q "\-DINCLUDE_SEAICE" ; then
+            [ $VERBOSE ] && echo "include SEAICE in bfm.fcm"
+            FCMIce="src::bfm::seaice          ${BFMDIR}/src/BFM/Seaice"
+        fi
         FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${CPPDEFS}"
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
-            ${BFMDIR}/${SCRIPTS_PROTO}/Default_bfm.fcm > ${blddir}/bfm.fcm
+            -e "s;_place_ben_;${FCMBen};g"     -e "s;_place_ice_;${FCMIce};"       \
+            ${BFMDIR}/${SCRIPTS_PROTO}/Default_bfm.fcm | tr "\&" "\n" > ${blddir}/bfm.fcm
         [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
 
         # Move BFM Layout files to target folders 

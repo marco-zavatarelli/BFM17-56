@@ -36,7 +36,7 @@
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
    integer                            :: out_delta,out_secs,save_delta,time_delta
-   character(len=PATH_MAX)            :: rst_fname
+   character(len=PATH_MAX)            :: rst_fname,rst_fname_3d
 
    !---------------------------------------------
    ! parameters for massive parallel computation
@@ -102,7 +102,7 @@
    integer,public                            :: stPelRivE=0
 
    integer,public                            :: stPelStart=0
-   integer,public                            :: stPelEnd=0
+   integer,public                            :: stPelEnd=0    
 
 #if defined INCLUDE_SEAICE
    integer,public                            :: stIceStateS=0
@@ -114,7 +114,7 @@
    integer,public                            :: stIceFlux2dE=0
 
    integer,public                            :: stIceStart=0
-   integer,public                            :: stIceEnd=0
+   integer,public                            :: stIceEnd=0    
 
 #endif
 
@@ -128,7 +128,7 @@
    integer,public                            :: stBenFlux2dE=0
 
    integer,public                            :: stBenStart=0
-   integer,public                            :: stBenEnd=0
+   integer,public                            :: stBenEnd=0    
 
 #endif
 
@@ -352,18 +352,19 @@ contains
    !---------------------------------------------
    ! Provide sensible values for namelist parameters
    !---------------------------------------------
-   bio_calc   = .TRUE.
-   bio_setup  = 1
-   bfm_init   = 0
-   bfm_rstctl = .FALSE.
-   out_fname  = 'bfm'
-   rst_fname  = 'bfm_restart'
-   out_dir    = '.'
-   out_title  = 'Another great BFM simulation!'
-   out_units  = 0
-   out_delta  = 100
-   out_secs   = 100
-   bioshade_feedback=.FALSE.
+   bio_calc     = .TRUE.
+   bio_setup    = 1
+   bfm_init     = 0
+   bfm_rstctl   = .FALSE.
+   out_fname    = 'bfm'
+   rst_fname    = 'bfm_restart'
+   rst_fname_3d = 'bfm_restart_init'
+   out_dir      = '.'
+   out_title    = 'Another great BFM simulation!'
+   out_units    = 0
+   out_delta    = 100
+   out_secs     = 100
+   bioshade_feedback = .FALSE.
 
    !---------------------------------------------
    !  Open and read the namelist

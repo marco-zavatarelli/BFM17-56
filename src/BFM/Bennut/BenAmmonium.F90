@@ -118,7 +118,7 @@
   real(RLEN)  :: cK4n
   real(RLEN)  :: jK4N4n
   real(RLEN)  :: sK4K3
-  real(RLEN)  :: cO2
+  real(RLEN)  :: cO2w
   real(RLEN)  :: r
   real(RLEN)  :: dummy
 
@@ -138,7 +138,7 @@
       M24n(BoxNumberXY_ben) = K24n(BoxNumberXY_ben)/ p_poro(BoxNumberXY_ben)/( p_p+ &
         ONE)/( p_d_tot_2- D2m(BoxNumberXY_ben))
 
-      cO2  =   max(1.D-20,G2o(BoxNumberXY_ben)/ p_poro(BoxNumberXY_ben)/ D1m(BoxNumberXY_ben))
+      cO2w  =   max(1.D-20,G2o(BoxNumberXY_ben)/ p_poro(BoxNumberXY_ben)/ D1m(BoxNumberXY_ben))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Calculate coefficient for the e-folding distribution of the anoxic
@@ -172,7 +172,7 @@
       sK4K3 = p_sK4K3* eTq( ETW_Ben(BoxNumberXY_ben), p_q10) 
 
       if (InitializeModel == 0 ) &
-        sK4K3=sK4K3* cO2/( cO2+ p_clO2)* M4n(BoxNumberXY_ben)/( M4n(BoxNumberXY_ben)+ p_clM4)
+        sK4K3=sK4K3* cO2w/( cO2w+ p_clO2)* M4n(BoxNumberXY_ben)/( M4n(BoxNumberXY_ben)+ p_clM4)
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! if availability of carbon for degradation is low , the nitrification &

@@ -27,22 +27,7 @@ lat lon arrays.
 
 Usage
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-bnmerge is controlled by the namelist bnmerge.nml through the
-following parameters:
-
-chunk_fname 	string 	Name of NetCDF chunk files "chunk_fname_????.nc"
-                        The name of the merged output file will be
-                         chunk_fname.nc
-out_dir 	string 	Path to the output directory
-layout 	  	string 	Path to the layout.dat file
-
-as for instance 
-
-&bfm_nml
-   chunk_fname='PELAGOS_ORCA2'
-   out_dir='/path/to/output'
-   layout = '/path/to/layout.dat'
-/
+bnmerge is controlled by the namelist bnmerge.nml (see bnmerge.nml example)
 
 
 Compilation
@@ -52,10 +37,12 @@ from the Compilers directory. Run gmake.
 
 Script (bnmerge.sh)
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Script will help to compile and execute the merging or concurrent (serial) version.
+Script will help to compile and execute the merging of parallel or serial version.
 To execute in parallel:
-   - uncomment PARALLEL=yes
+   - export variable PARALLEL equal to yes.
+      - EX: export PARALLEL=yes
    - load module pnetcdf (in the shell): module load NETCDF/parallel-netcdf-1.3.1
-To execute in concurrent:
-   - comment PARALLEL=yes
+To execute in serial:
+   - leave the variable PARALLEL empty.
+      - EX: export PARALLEL=
    - load module netcdf3 (in the shell): module load NETCDF/netcdf-4.2.1.1_netcdf3

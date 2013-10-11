@@ -145,8 +145,9 @@
        call BenDenitriDepthDynamics
 
        D2m(BoxNumberXY_ben)=D2m(BoxNumberXY_ben) + ShiftD2m(BoxNumberXY_ben)* LocalDelta
-       D2m(BoxNumberXY_ben)=min( max( D1m(BoxNumberXY_ben)+p_clD1D2m, D2m(BoxNumberXY_ben) ), &
-                     p_d_tot-p_clD1D2m)
+       D2m(BoxNumberXY_ben)=min( &
+            max( D1m(BoxNumberXY_ben)+p_clD1D2m, D2m(BoxNumberXY_ben) ), &
+            p_d_tot-p_clD1D2m)
     endif
 
 !   G2o(1)= G2o(1)- (jbotO2o(1) +rrBTo(1)+jG2K3o(1)+jG2K7o(1)) * LocalDelta
@@ -218,10 +219,16 @@
             ! convert alkalinity from pelagic units (umol/kg) to sediment units (mmol/m2)
             G3h(BoxNumberXY_ben)=O3h_Ben(BoxNumberXY_ben)*D1m(BoxNumberXY_ben) &
                              *p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
-            G13h(BoxNumberXY_ben)=O3h_Ben(BoxNumberXY_ben)*(D2m(BoxNumberXY_ben)-D1m(BoxNumberXY_ben)) &
-                              *p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
-            G23h(BoxNumberXY_ben)=O3h_Ben(BoxNumberXY_ben)*(p_d_tot_2-D2m(BoxNumberXY_ben)) &
-                              *p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
+            G13h(BoxNumberXY_ben)= &
+                 O3h_Ben(BoxNumberXY_ben)* &
+                 (D2m(BoxNumberXY_ben)- &
+                 D1m(BoxNumberXY_ben))* &
+                 p_poro(BoxNumberXY_ben)* &
+                 ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
+            G23h(BoxNumberXY_ben)= &
+                 O3h_Ben(BoxNumberXY_ben)* &
+                 (p_d_tot_2-D2m(BoxNumberXY_ben))* &
+                 p_poro(BoxNumberXY_ben)*ERHO_Ben(BoxNumberXY_ben)/1000._RLEN
       enddo
 #endif
   end subroutine InitBenthicNutrient3Dynamics

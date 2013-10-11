@@ -28,7 +28,7 @@ subroutine merge_vars
   integer           :: nimpp, njmpp
   real, allocatable, dimension(:,:) :: lat, lon
   real, allocatable, dimension(:,:,:) :: mask
-  real, allocatable, dimension(:) :: oceanpoint, bottompoint, depth
+  real, allocatable, dimension(:) :: bottompoint, depth
   real, allocatable, dimension(:,:) :: chunk
   real, allocatable, dimension(:,:,:,:) :: bfmvar3d
   real, allocatable, dimension(:,:,:)   :: bfmvar2d
@@ -111,13 +111,10 @@ subroutine merge_vars
      if (status /= NF90_NOERR) call handle_err(status)
      status = nf90_inquire_dimension(ncbfmid, IDbtnpnt, len = lenbtn)
 
-     ! read oceanpoint data
-     allocate(oceanpoint(lenoce))
-     status = nf90_get_var(ncbfmid, IDocepnt, oceanpoint, start = (/ 1 /),     &
-          count = (/ lenoce /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: oceanpoint")
      ! read bottompoint data
      allocate(bottompoint(lenbtn))
+     status = nf90_inq_varid(ncbfmid, "bottompoint", IDbtnpnt)
+     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring var bottompoint")
      status = nf90_get_var(ncbfmid, IDbtnpnt, bottompoint, start = (/ 1 /),     &
           count = (/ lenbtn /))
      if (status /= NF90_NOERR) call handle_err(status,errstring="variable: bottompoint")
@@ -327,7 +324,6 @@ subroutine merge_vars
      ! close the netcdf file
      call handle_err(nf90_close(ncbfmid))
      deallocate(mask)
-     deallocate(oceanpoint)
      deallocate(bottompoint)
      deallocate(bfmvar3d)
      deallocate(bfmvar2d)

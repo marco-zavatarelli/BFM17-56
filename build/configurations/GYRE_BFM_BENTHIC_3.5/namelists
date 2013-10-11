@@ -20,7 +20,7 @@
 #-------------------------------------------------------------------------!
 
 
-
+ 
 !-------------------------------------------------------------------------!
 !NAMELIST bfm_nml
 !-------------------------------------------------------------------------!
@@ -47,9 +47,9 @@
    bfm_init     = 0
    bfm_rstctl   = .FALSE.
    bio_setup    = 1
-   out_fname    = 'NEMO_GYRE_BFM'
+   out_fname    = 'NEMO_GYRE_BFM_BENTHIC'
    out_dir      = '.'
-   out_title    = 'NEMO_GYRE_BFM'
+   out_title    = 'NEMO_GYRE_BFM_BENTHIC'
    out_delta    = 60  !every 5 days (depends on the timestep of nemo nn_rdt)
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
@@ -127,15 +127,15 @@
             CalcPelagicFlag = .TRUE.
             CalcBenthicFlag = 0
        CalcConservationFlag = .FALSE.
-          CalcTransportFlag = .TRUE.
+          CalcTransportFlag = .FALSE.
        CalcPhytoPlankton(1) = .TRUE.
        CalcPhytoPlankton(2) = .TRUE.
        CalcPhytoPlankton(3) = .TRUE.
-       CalcPhytoPlankton(4) = .FALSE.
+       CalcPhytoPlankton(4) = .TRUE.
          CalcPelBacteria(1) = .TRUE.
     CalcMicroZooPlankton(1) = .TRUE.
     CalcMicroZooPlankton(2) = .TRUE.
-     CalcMesoZooPlankton(1) = .FALSE.
+     CalcMesoZooPlankton(1) = .TRUE.
      CalcMesoZooPlankton(2) = .TRUE.
            CalcPelChemistry = .TRUE.
 AssignPelBenFluxesInBFMFlag = .FALSE.
@@ -147,8 +147,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! Parameters : 
                     p_small = 1.0e-20
                        slp0 = 1013.25E0
-                      p_PAR = 0.40
-                     p_eps0 = 0.0435
+                      p_PAR = 0.50
+                     p_eps0 = 0.10
                     p_epsR6 = 0.1d-3
                    p_epsESS = 0.04d-3
                    p_pe_R1c = 0.60
@@ -157,6 +157,33 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                       p_qro = 0.5
                p_qon_dentri = 1.25
                 p_qon_nitri = 1.5
+                    p_poro0 = 0.7
+                    p_d_tot = 0.30
+	filename_nml_conf = 'BFM_General.nml',
+/
+
+!-------------------------------------------------------------------------!
+! NAMELIST Param_parameters_ben
+!-------------------------------------------------------
+! Benthic flags and parameters :
+&Param_parameters_ben
+        CalcBenOrganisms(1) = .FALSE.
+        CalcBenOrganisms(2) = .FALSE.
+        CalcBenOrganisms(3) = .FALSE.
+        CalcBenOrganisms(4) = .FALSE.
+        CalcBenOrganisms(5) = .FALSE.
+         CalcBenBacteria(1) = .FALSE.
+         CalcBenBacteria(2) = .FALSE.
+                 p_InitSink = 100.0
+                  p_d_tot_2 = 0.35
+                  p_clD1D2m = 0.01
+                    p_clDxm = 0.001
+                  p_q10diff = 1.49
+    calc_init_bennut_states = 0 
+                    p_qnQIc = 0.11155
+                    p_qpQIc = 0.010255
+                    p_qsQIc = 0.0221
+
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -165,43 +192,16 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !-------------------------------------------------------------------------!
 !Pelagic initialisation of standard variables
 !<variablename>0 = <realvalue>
-!
-! Initialization with InitVar structure 
-!----------------------------------------
-! NOTE:
-! This part is still experimental and will be improved in the future
-!----------------------------------------
-! BFM variable information for data input
-! available fields:
-! integer init: select the initialization
-!               0 = homogeneous
-!               1 = analytical
-!               2 = from file
-! options for init==1
-!   real anv1: value in the surface layer
-!   real anz1: depth of the surface layer
-!   real anv2: value in the bottom layer
-!   real anz2: depth of the bottom layer
-! options for init==2 
-! * Options currently used when coupled with NEMO
-!   logical obc: variable has open boundary data
-!   logical sbc: variable has surface boundary data
-!   logical cbc: variable has coastal boundary data
-! * Options not used when coupled with NEMO because
-!   overridden by values in namelist_top
-!   char filename: name of the input file
-!   char  varname: name of the var in input file
 !-------------------------------------------------------------------------!
 &bfm_init_nml
-   O2o0 = 300.0,
    N1p0 = 0.3,
    N3n0 = 2.0,
    N4n0 = 0.5,
    N5s0 = 4.0,
-   N7f0 = 0.3,
    N6r0 = 1.0,
+   O2o0 = 300.0,
    O3c0 = 27060.00,
-   O3h0 = 2375.0,
+   O3h0 = 2660.0,
    O4n0 = 200.0,
    P1c0 = 1.0,
    P2c0 = 1.0,
@@ -213,47 +213,55 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    Z6c0 = 1.0,
    B1c0 = 1.0,
    R1c0 = 1.0,
-   R2c0 = 0.0,
-   R3c0 = 0.0,
-   R6c0 = 0.1,
+   R2c0 = 0.1,
+   R3c0 = 1.0,
+   R6c0 = 1.0,
+	filename_nml_conf = 'BFM_General.nml',
+/
 
-   InitVar(O2o)%init = 0,
-   InitVar(O2o)%sbc  = .false.,
-   InitVar(O2o)%cbc  = .false.,
-   InitVar(O2o)%obc  = .false.,
-   InitVar(N1p)%init = 0,
-   InitVar(N1p)%sbc  = .false.,
-   InitVar(N1p)%cbc  = .false.,
-   InitVar(N1p)%obc  = .false.,
-   InitVar(N3n)%init = 0,
-   InitVar(N3n)%sbc  = .false.,
-   InitVar(N3n)%cbc  = .false.,
-   InitVar(N3n)%obc  = .false.,
-   InitVar(N5s)%init = 0,
-   InitVar(N5s)%sbc  = .false.,
-   InitVar(N5s)%cbc  = .false.,
-   InitVar(N5s)%obc  = .false.,
-   InitVar(N7f)%init = 0,
-   InitVar(N7f)%sbc  = .false.,
-   InitVar(N7f)%cbc  = .false.,
-   InitVar(N7f)%obc  = .false.,
-   InitVar(O3c)%init = 1,
-   InitVar(O3c)%anv1 = 25800.,
-   InitVar(O3c)%anz1 = 0.,
-   InitVar(O3c)%anv2 = 27900.,
-   InitVar(O3c)%anz2 = 1500.,
-   InitVar(O3c)%sbc  = .false.,
-   InitVar(O3c)%cbc  = .false.,
-   InitVar(O3c)%obc  = .false.,
-   InitVar(O3h)%init = 1,
-   InitVar(O3h)%anv1 = 2375.,
-   InitVar(O3h)%anz1 = 0.,
-   InitVar(O3h)%anv2 = 2420.,
-   InitVar(O3h)%anz2 = 2000.,
-   InitVar(O3h)%sbc  = .false.,
-   InitVar(O3h)%cbc  = .false.,
-   InitVar(O3h)%obc  = .false.,
-   filename_nml_conf = 'BFM_General.nml',
+!-------------------------------------------------------------------------!
+! NAMELIST bfm_init_nml_ben
+!-------------------------------------------------------------------------!
+!Benthic initialisation of standard variables
+!<variablename>0 = <realvalue>
+!-------------------------------------------------------------------------!
+&bfm_init_nml_ben
+   Y1c0  = 160.0,
+   Y2c0  = 470,
+   Y3c0  = 310.0,
+   Y4c0  = 220.0,
+   Y5c0  = 160.0,
+   H1c0  = 165.0,
+   H2c0  = 45.0,
+   K1p0  = 0.1,
+   K11p0 = 80.0,
+   K21p0 = 19.11096,
+   K4n0  = 0.0277856,
+   K14n0 = 1.0838474,
+   K24n0 = 100.0,
+   K3n0  = 0.0252624,
+   K5s0  = 8.463525,
+   K6r0  = 100.0,
+   D1m0  = 0.002,
+   D2m0  = 0.025,
+   D6m0  = 0.25,
+   D7m0  = 0.25,
+   D8m0  = 0.25,
+   D9m0  = 0.25,
+   Q6c0  = 10265.19,
+   Q6n0  = 200.0,
+   Q6p0  = 25.0,
+   Q6s0  = 10.0,
+   Q1c0  = 10.4988,
+   Q11c0 = 10.4988,
+   G2o0  = 0.008879,
+   G3c0  = 120.15,
+   G13c0 = 440.8475,
+   G23c0 = 11920.0,
+   G3h0  = 10.35,
+   G13h0 = 50.0,
+   G23h0 = 1192.0,
+	filename_nml_conf = 'BFM_General.nml',
 /
 
 !-------------------------------------------------------------------------!
@@ -264,20 +272,24 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !var_save: instantaneous value at the output interval
 !-------------------------------------------------------------------------!
 &bfm_save_nml
-   ave_save = 'O2o','O3h','DIC','ALK','pCO2','pH',
-          'N1p','N3n','N4n','N5s','N7f',
-          'P1c','P1l','P1f','P2c','P2l','P3c','P3l',
-          'Z4c','Z5c','Z6c','B1c',
-          'R1c','R2c','R6c','R6f','Chla','R1n','R1p',
-          'eiPPY(iiP1)','eiPPY(iiP2)','eiPPY(iiP3)',
-          'P1n','P2n','P3n',
-          'P1p','P2p','P3p',
-          'jbotR6c','jsurO2o','jsurO3c',
-          'ruPPYc','resPBAc','resZOOc',
-          'ruPPYn','ruPPYp','ruPPYs','ruPPYf','exPPYc',
-          'ruZOOc','remZOOn','remZOOp','remPBAn','remPBAp',
-          'EICE','ETW','EIR','EWIND','xEPS',
-          'R6p','R6n','R6s','B1p','B1n','Z5p','Z6p','Z5n','Z6n'
+   ave_save = 'ETW','O2o','DIC',
+          'EIR',
+          'xEPS',
+          'Chla',
+          'N1p','N3n','N4n','N5s',
+          'B1c',
+          'P1c','P2c','P3c','P4c',
+          'P1l','P2l','P3l','P4l',
+          'P1n','P2n','P3n','P4n',
+          'P1p','P2p','P3p','P4p',
+          'Z3c','Z4c','Z5c','Z6c',
+          'R1c','R2c','R6c',
+          'R1n','R6n',
+          'R1p','R6p',
+          'P1s','R6s',
+          'eiPPY(iiP1)','eiPPY(iiP2)','eiPPY(iiP3)','eiPPY(iiP4)',
+          'sunPPY(iiP1)','sunPPY(iiP2)','sunPPY(iiP3)','sunPPY(iiP4)',
+          'ruPTc','resPP','resZT','ruPTn','ruPTp','exPP','ruZTc','netZTc','rePTp','reBn','ruBn','fR2B1c','fP1Z4c', 'rrPTo'
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -474,12 +486,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_qun       [m3/mgC/d]     Membrane affinity for N
 !  p_lN4       [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
 !  p_qnlc      [mmolN/mgC]    Minimum quotum Si:C 
-!  p_qncPPY      [mmolN/mgC]    Reference quotum Si:C
+!  p_qncPPY    [mmolN/mgC]    Reference quotum Si:C
 !  p_xqn       [-]            Multiplication factor for luxury storage
 !                   ---- P limitation control ----
 !  p_qup       [m3/mgC/d]     Membrane affinity for P
 !  p_qplc      [mmolP/mgC]    Minimum quotum Si:C 
-!  p_qpcPPY      [mmolP/mgC]    Reference quotum Si:C
+!  p_qpcPPY    [mmolP/mgC]    Reference quotum Si:C
 !  p_xqp       [-]            Multiplication factor for luxury storage
 !                   ---- Si limitation control ----
 !  p_switchSi  [1-2]          Switch for Silica limitation
@@ -489,7 +501,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_Contois   [>=0]          If >0, use Contois formulation
 !  p_qus       [m3/mgC/d]     Membrane affinity for Si
 !  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C 
-!  p_qscPPY      [mmolSi/mgC]   Reference quotum Si:C
+!  p_qscPPY    [mmolSi/mgC]   Reference quotum Si:C
 !                   ---- nutrient stressed sinking ----
 !  p_esNI      [-]            Nutrient stress threshold for sinking
 !  p_res       [m/d]          Maximum Sinking vel city (m/d)
@@ -498,7 +510,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_sdchl     [1/d]          Specific turnover rate for Chla 
 !  p_alpha_chl [mgC s m2/     Initial slope of the P-E curve
 !               mgChl/uE] 
-!  p_qlcPPY     [mgChla/mgC]   Fixed/Maximum quotum Chla:C
+!  p_qlcPPY    [mgChla/mgC]   Reference quotum Chla:C 
 !  p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
 !  p_tochl_relt  [1/d]        Relaxation rate towards maximum Chla:C
 !  p_EpEk_or   [-]            Optimal value of E_PAR/E_K
@@ -506,7 +518,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_quf       [m3/mgC/d]     Membrane affinity for Fe
 !  p_qflc      [umolFe/mgC]   Minimum quotum Fe:C derived from 3 umol Fe/mol C
 !                             Sunda & Huntsman (1997), Nature, 390, p 389-392
-!  p_qfcPPY      [umolFe/mgC]   Reference quotum Fe:C 
+!  p_qfcPPY    [umolFe/mgC]   Reference quotum Fe:C
 !  p_xqf       [-]            Multiplication factor for luxury storage
 !              --------- Light parameters ERSEM-II -----------
 !  p_iswLtyp                  Shape of the productivity function
@@ -521,38 +533,38 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !               P1      P2      P3      P4
         p_q10 = 2.0,    2.0,    2.0,    2.0
        p_temp = 0.0,    0.0,    0.0,    0.0
-        p_sum = 2.0,    2.5,    3.0,    0.75
-        p_srs = 0.01,   0.05,   0.1,    0.1
+        p_sum = 2.5,    3.0,    3.5,    0.5
+        p_srs = 0.1,    0.05,   0.1,    0.1
        p_sdmo = 0.05,   0.05,   0.05,   0.0
        p_thdo = 0.1,    0.1,    0.1,    0.1
         p_seo = 0.0,    0.0,    0.0,    0.0
        p_sheo = 0.0,    0.0,    0.0,    100.0
-      p_pu_ea = 0.05,   0.2,    0.2,    0.05
-      p_pu_ra = 0.1,    0.2,    0.25,   0.1
+      p_pu_ea = 0.05,   0.1,    0.1,    0.15
+      p_pu_ra = 0.1,    0.1,    0.2,    0.1
   p_switchDOC = 1,      1,      1,      1
   p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
      p_limnut = 1,      1,      1,      1
         p_qun = 0.025,  0.025,  0.025,  0.025
-        p_lN4 = 1.0,    1.0,    0.0,    1.0
-       p_qnlc = 4.193e-3,4.193e-3,4.193e-3,0.00687
-       p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
+        p_lN4 = 1.0,    0.5,    0.1,    1.0
+       p_qnlc = 6.87e-3,6.87e-3,6.87e-3,6.87e-3
+     p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
-        p_qup = 0.025,  0.025,  0.025,  0.025
-       p_qplc = 1.80e-4,1.80e-4,1.80e-4,4.29e-4
-       p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
+        p_qup = 2.5e-3, 2.5e-3, 2.5e-3, 2.5e-3
+       p_qplc = 4.29e-4,4.29e-4,4.29e-4,4.29e-4
+     p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
    p_switchSi = 1,      0,      0,      0
-       p_chPs = 1.0,    0.0,    0.0,    0.0
+       p_chPs = 0.3,    0.0,    0.0,    0.0
     p_Contois = 0.0,    0.0,    0.0,    0.0
         p_qus = 0.0,    0.0,    0.0,    0.0
        p_qslc = 4.3e-3, 0.0,    0.0,    0.0
-       p_qscPPY = 8.5e-3, 0.0,    0.0,    0.0
-       p_esNI = 0.1,    0.00,   0.00,   0.00
-       p_res  = 5.0,    0.0,    0.0,    0.0
+     p_qscPPY = 8.5e-3, 0.0,    0.0,    0.0
+       p_esNI = 0.7,    0.75,   0.75,   0.75
+       p_res  = 0.0,    0.0,    0.0,    0.0
   p_switchChl = 1,      1,      1,      1
       p_sdchl = 0.2,    0.2,    0.2,    0.2
-  p_alpha_chl = 1.38e-5, 0.46e-5, 1.52e-5, 0.68e-5
-      p_qlcPPY = 0.025,  0.015,  0.02,   0.02
+  p_alpha_chl = 5.8e-6, 1.1e-5, 1.1e-5, 6.8e-6
+     p_qlcPPY = 0.025,  0.015,  0.02,   0.02
     p_epsChla = 0.03,   0.03,   0.03,   0.03
     p_EpEk_or = 0.0,    0.0,    0.0,    0.0
  p_tochl_relt = 0.0,    0.0,    0.0,    0.0
@@ -560,10 +572,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 /
 
 &Phyto_parameters_iron
-       p_qflc = 0.1e-3, 0.1e-3, 0.83e-10,0.25e-3
-       p_qfcPPY = 0.3e-3, 0.3e-3, 0.18e-4, 0.5e-3
-        p_xqf = 1.0,    1.0,    1.0,     1.0
-        p_quf = 2.0e-4, 2.0e-4, 2.0e-4,  2.0e-4
 	filename_nml_conf = 'Pelagic_Ecology.nml',
 /
 
@@ -729,10 +737,6 @@ p_paMEZ(2,:)=   0.0,    1.0
 /
 
 &PelChem_parameters_iron
-  p_q10R6N7 = 1.50
-    p_sR6N7 = 1.0e-03
-  p_scavN7f = 0.7e-04
-   p_N7fsol = 0.6
 	filename_nml_conf = 'Pelagic_Environment.nml',
 /
 
@@ -746,7 +750,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 ! p_rPIm      [m/d]     phytoplankton background sinking rate
 !-------------------------------------------------------------------------!
 &PelGlobal_parameters
-  p_rR6m = 5.0
+  p_rR6m = 1.5
 !               P1      P2      P3      P4
   p_rPIm =      0.0,    0.0,    0.0,    0.0
 	filename_nml_conf = 'Pelagic_Environment.nml',

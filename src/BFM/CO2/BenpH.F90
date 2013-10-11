@@ -69,11 +69,16 @@
       ! Only the iterative solution of the carbonate system can be
       ! used
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       error= CalcCO2System(DYNAMIC,ESW_Ben(BoxNumberXY_ben),& 
-                   ETW_Ben(BoxNumberXY_ben),ERHO_Ben(BoxNumberXY_ben),&
-                   M1p(BoxNumberXY_ben),M5s(BoxNumberXY_ben),Acae(BoxNumberXY_ben),&
-                   dummy,dummy,dummy,pHae(BoxNumberXY_ben),&
-                   DIC_in=DICae(BoxNumberXY_ben),pCO2_out=pCO2ae(BoxNumberXY_ben))
+       error= CalcCO2System(DYNAMIC, &
+            ESW_Ben(BoxNumberXY_ben), & 
+            ETW_Ben(BoxNumberXY_ben), &
+            ERHO_Ben(BoxNumberXY_ben), &
+            M1p(BoxNumberXY_ben), &
+            M5s(BoxNumberXY_ben), &
+            Acae(BoxNumberXY_ben),&
+            dummy,dummy,dummy,pHae(BoxNumberXY_ben),&
+            DIC_in=DICae(BoxNumberXY_ben), &
+            pCO2_out=pCO2ae(BoxNumberXY_ben))
        if ( error > 0 ) then
             write(LOGUNIT,*)" Ph outside range"
             write(LOGUNIT,'(A,'' ='',G12.6)') 'ESW_Ben',ESW_Ben(BoxNumberXY_ben)
@@ -93,13 +98,21 @@
       ! Only the iterative solution of the carbonate system can be
       ! used
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       m1=M11p(BoxNumberXY_ben)*(D2m(BoxNumberXY_ben)-D1m(BoxNumberXY_ben)) + &
-       M21p(BoxNumberXY_ben)*(p_d_tot-D2m(BoxNumberXY_ben))/ (p_d_tot-D1m(BoxNumberXY_ben))
-       error= CalcCO2System(DYNAMIC,ESW_Ben(BoxNumberXY_ben),& 
-                   ETW_Ben(BoxNumberXY_ben),ERHO_Ben(BoxNumberXY_ben),&
-                   m1,M5s(BoxNumberXY_ben),Acan(BoxNumberXY_ben),&
-                   dummy,dummy,dummy,pHan(BoxNumberXY_ben),&
-                   DIC_in=DICan(BoxNumberXY_ben),pCO2_out=pCO2an(BoxNumberXY_ben))
+       m1=M11p(BoxNumberXY_ben)* &
+            (D2m(BoxNumberXY_ben)- &
+            D1m(BoxNumberXY_ben))+ &
+            M21p(BoxNumberXY_ben)* &
+            (p_d_tot-D2m(BoxNumberXY_ben))/ &
+            (p_d_tot-D1m(BoxNumberXY_ben))
+       error= CalcCO2System(DYNAMIC, &
+            ESW_Ben(BoxNumberXY_ben), & 
+            ETW_Ben(BoxNumberXY_ben), &
+            ERHO_Ben(BoxNumberXY_ben), &
+            m1,M5s(BoxNumberXY_ben), &
+            Acan(BoxNumberXY_ben), &
+            dummy,dummy,dummy,pHan(BoxNumberXY_ben), &
+            DIC_in=DICan(BoxNumberXY_ben), &
+            pCO2_out=pCO2an(BoxNumberXY_ben))
        if ( error > 0 ) then
             write(LOGUNIT,*)" Ph outside range"
             write(LOGUNIT,'(A,'' ='',G12.6)') 'DICan',DICan(BoxNumberXY_ben)
