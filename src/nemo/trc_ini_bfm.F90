@@ -417,7 +417,7 @@
    end do
  
    ! Initialize boundary conditions  
-   call trc_bc_init
+   call trc_bc_init(NO_D3_BOX_STATES)
 
 #ifdef INCLUDE_PELCO2
    ! control consistency between namelists setting
