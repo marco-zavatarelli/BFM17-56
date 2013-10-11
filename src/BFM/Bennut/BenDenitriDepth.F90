@@ -112,12 +112,18 @@
           ! Let if D1m increase let D2m increase too to avoid zero thickness of 
           ! denitrifiaction layer
           if ( InitializeModel ==0 ) then
-            write(LOGUNIT,'(''D1m='',F12.3,'' D2m='',F12.3)') D1m(BoxNumberXY_ben), D2m(BoxNumberXY_ben)
-            write(LOGUNIT,'(''D6m='',F12.3,'' D7m='',F12.3)') D6m(BoxNumberXY_ben), D7m(BoxNumberXY_ben)
-            write(LOGUNIT,'(''K3n='',F12.3,'' K4n='',F12.3)') K3n(BoxNumberXY_ben), K4n(BoxNumberXY_ben)
-            write(LOGUNIT,'(''K14n='',F12.3,'' K24n='',F12.3)') K14n(BoxNumberXY_ben), K24n(BoxNumberXY_ben)
-            write(LOGUNIT,'(''fluxN3='',F12.3,'' fluxK4n='',F12.3)') jbotN3n(BoxNumberXY_ben), jbotN4n(BoxNumberXY_ben)
-            write(LOGUNIT,'(''N3n='',F12.3,'' N4n='',F12.3)') N3n_Ben(BoxNumberXY_ben), N4n_Ben(BoxNumberXY_ben)
+            write(LOGUNIT,'(''D1m='',F12.3,'' D2m='',F12.3)') &
+                                     D1m(BoxNumberXY_ben), D2m(BoxNumberXY_ben)
+            write(LOGUNIT,'(''D6m='',F12.3,'' D7m='',F12.3)') &
+                                     D6m(BoxNumberXY_ben), D7m(BoxNumberXY_ben)
+            write(LOGUNIT,'(''K3n='',F12.3,'' K4n='',F12.3)') &
+                                     K3n(BoxNumberXY_ben), K4n(BoxNumberXY_ben)
+            write(LOGUNIT,'(''K14n='',F12.3,'' K24n='',F12.3)') &
+                                     K14n(BoxNumberXY_ben), K24n(BoxNumberXY_ben)
+            write(LOGUNIT,'(''fluxN3='',F12.3,'' fluxK4n='',F12.3)') &
+                                     jbotN3n(BoxNumberXY_ben), jbotN4n(BoxNumberXY_ben)
+            write(LOGUNIT,'(''N3n='',F12.3,'' N4n='',F12.3)') &
+                                     N3n_Ben(BoxNumberXY_ben), N4n_Ben(BoxNumberXY_ben)
             write(LOGUNIT,'(''K6r='',F12.3,'' lambda K3n='',F12.3)') &
                                      K6r(BoxNumberXY_ben),GetInfoFromSet( KNO3(BoxNumberXY_ben), GET, LABDA_1, 21)  
             control  =   PrintSet(  KNH4(BoxNumberXY_ben),"concentration nitrate on D1m < 0")

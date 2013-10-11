@@ -31,6 +31,7 @@ subroutine ClearMem
    integer :: i,j,origin,destination
 
     ! free willy, free the fluxes
+    if (allocated(D3FLUX_MATRIX)) then
     origin=0
     do i=stPelStateS,stPelStateE
        origin=origin+1
@@ -42,7 +43,9 @@ subroutine ClearMem
     end do
     deallocate(D3FLUX_MATRIX)
     deallocate(D3FLUX_FUNC)
+    end if
 #if defined INCLUDE_SEAICE
+    if (allocated(D2FLUX_MATRIX_ICE)) then
     origin=0
     do i=stIceStateS,stIceStateE
        origin=origin+1
@@ -54,8 +57,10 @@ subroutine ClearMem
     end do
     deallocate(D2FLUX_MATRIX_ICE)
     deallocate(D2FLUX_FUNC_ICE)
+    end if
 #endif
 #if defined INCLUDE_BEN
+    if (allocated(D2FLUX_MATRIX_BEN)) then
     origin=0
     do i=stBenStateS,stBenStateE
        origin=origin+1
@@ -67,6 +72,7 @@ subroutine ClearMem
     end do
     deallocate(D2FLUX_MATRIX_BEN)
     deallocate(D2FLUX_FUNC_BEN)
+    end if
 #endif
 
     ! from api_bfm 

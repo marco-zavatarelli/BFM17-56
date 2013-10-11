@@ -8,11 +8,10 @@ module load NETCDF/parallel-netcdf-1.3.1
 export OMP_NUM_THREADS=16
 LIST=bnmerge.nml
 LOG_DIR=./
-PARALLEL=yes
-#DEBUG=-DDEBUG
+
 
 gmake clean
-gmake DEBUG=${DEBUG} PARALLEL=${PARALLEL}
+gmake
 
 
 if [ "${PARALLEL}" == 'yes' ]; then

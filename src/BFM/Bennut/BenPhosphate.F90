@@ -264,8 +264,10 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         jK1N1p =  CalculateFromSet( KSHIFT,DERIVATIVE, RFLUX, ZERO, ZERO)
 
-        Call LimitShift(jK1N1p, N1p_Ben(BoxNumberXY_ben)* Depth_Ben(BoxNumberXY_ben), &
-                         K1p(BoxNumberXY_ben), p_max_state_change);
+        Call LimitShift(jK1N1p, &
+             N1p_Ben(BoxNumberXY_ben)* Depth_Ben(BoxNumberXY_ben), &
+             K1p(BoxNumberXY_ben), &
+             p_max_state_change);
         call flux(BoxNumberXY_ben, iiBen, ppK1p, ppK1p, -jK1N1p )
         jbotN1p(BoxNumberXY_ben)=jbotN1p(BoxNumberXY_ben) + jK1N1p
 
@@ -286,7 +288,8 @@
         ! limit flux according to the actual phosphate content in the layer
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         call LimitShift(jK11K1p,K1p(BoxNumberXY_ben)-jK1N1p, &
-                                K11p(BoxNumberXY_ben),p_max_shift_change)
+             K11p(BoxNumberXY_ben), &
+             p_max_shift_change)
 
         call flux(BoxNumberXY_ben, iiBen, ppK11p, ppK1p,   jK11K1p* insw( jK11K1p) )
         call flux(BoxNumberXY_ben, iiBen, ppK1p, ppK11p, - jK11K1p* insw(-jK11K1p) )
@@ -309,7 +312,10 @@
         jK21K11p = jK21K11p - zuD2*exp(-alpha*(dn-D2m(BoxNumberXY_ben))) &
            * p_poro(BoxNumberXY_ben)* IntegralExp( -alpha, p_d_tot- dn);
 
-        call LimitShift(jK21K11p,K11p(BoxNumberXY_ben)-jK11K1p, K21p(BoxNumberXY_ben),p_max_shift_change)
+        call LimitShift(jK21K11p, &
+             K11p(BoxNumberXY_ben)-jK11K1p, &
+             K21p(BoxNumberXY_ben), &
+             p_max_shift_change)
         call flux(BoxNumberXY_ben, iiBen, ppK21p, ppK11p, jK21K11p* insw( jK21K11p) )
         call flux(BoxNumberXY_ben, iiBen, ppK11p, ppK21p,-jK21K11p* insw(-jK21K11p) )
 
@@ -319,7 +325,10 @@
         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         jK31K21p(BoxNumberXY_ben) = CalculateFromSet( KSHIFT, DERIVATIVE, RFLUX, p_d_tot_2, ONE)
 
-        call LimitChange(1,jK31K21p(BoxNumberXY_ben),K21p(BoxNumberXY_ben),p_max_state_change)
+        call LimitChange(1, &
+             jK31K21p(BoxNumberXY_ben), &
+             K21p(BoxNumberXY_ben), &
+             p_max_state_change)
         call flux(BoxNumberXY_ben, iiBen, ppK21p, ppK21p, jK31K21p(BoxNumberXY_ben) )
 
       end if

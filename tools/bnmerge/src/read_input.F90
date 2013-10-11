@@ -16,12 +16,23 @@
 
 subroutine read_input
 
-  use mod_bnmerge
+  use mod_bnmerge, ONLY : jpkglo,jpiglo,jpjglo, jpnij, &
+       nimppt, njmppt, &
+       ibonit, ibonjt, &
+       nlcit , nlcjt, &
+       nldit , nldjt, &
+       nleit , nlejt, &
+       chunk_fname, bfm_restart, inp_dir, out_dir, ln_mask, var_save, cf_nml_bnmerge
+
+  implicit none
+
+  integer :: jn
+  integer :: jpi,jpj,jpk
   integer,parameter :: inum=199
   integer           :: iost,n
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
-  namelist /bnmerge_nml/ inp_dir,out_dir,chunk_fname,layout,ln_mask,var_save
+  namelist /bnmerge_nml/ chunk_fname,bfm_restart,inp_dir,out_dir,layout,ln_mask,var_save
 
   var_save="NotVar"
   ! Reading directory names and file name specification
@@ -31,11 +42,13 @@ subroutine read_input
   ! read processor layout from layout.dat file 
   open ( UNIT=inum, FILE=layout, FORM='FORMATTED', ACCESS='SEQUENTIAL',   &
        STATUS='UNKNOWN', ERR=100, IOSTAT=iost)
+#ifdef DEBUG
   if ( iost == 0 ) then
      write (*,*) '     file   = ', trim(layout),' opened correctly'
      write (*,*) '     unit   = ', inum
      write (*,*)
   end if
+#endif
   read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
   ! get rid of the problem with different forms of the layout.dat file
   if ( iost /= 0 ) read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
@@ -57,6 +70,8 @@ subroutine read_input
           nimppt(jn), njmppt(jn)
   end do
   close(inum)
+  jpkglo = jpk
+
   write (*,*) ' === ',trim(layout),' === '
   write (*,'(a)') '   jpnij     jpi     jpj     jpk  jpiglo  jpjglo'
   write (*,'(6i8)') jpnij,jpi,jpj,jpk,jpiglo,jpjglo
