@@ -20,427 +20,543 @@
 !    ncidout   : BFM output merged file identifier 
 !    ncidres   : BFM output restart merged file identifier 
 ! --------------------------------------------------------------------------
-subroutine create_outputfile
-
+module create_output
   use netcdf
-  use mod_bnmerge, ONLY: RLEN, n_bfmvar_out, n_bfmvar_res, bfmvarid_out, bfmvarid_res, &
-       inp_dir, out_dir, chunk_fname, bfm_restart, &
-       do_restart, do_output, &
-       jpiglo, jpjglo, jpkglo, &
-       ln_mask, NSAVE, &
-       handle_err, var_save
+  use mod_bnmerge, ONLY : handle_err, RLEN
 
   implicit none
-  integer            :: ncidout, ncidres, ncoutid, status, ncresid
-  integer            :: n
-  character(LEN=172) :: fname_out, fname_res
-  integer            :: ndims, nVars_out, nGlobalAtts_out, nGlobalAtts_res, nChars
+  ! !PUBLIC MEMBER FUNCTIONS:
+  public create_output_init
 
-  integer           :: IDtime,IDtimetmp,IDunlimdim_out,IDunlimdim_res,IDvartime_out,IDvartime_res
-  integer           :: IDx, IDy, IDz, IDvar, IDtarget, IDatt, IDchars
+contains
 
-  character(len=64), allocatable         :: res_names(:),res_units(:),res_long(:)
-  integer                                :: ndims_state_res
-  integer                                :: IDvars_res, IDstate_res, IDname_res, IDunits_res, IDlong_res
-  integer, allocatable, dimension(:)     :: dimsid_res
+  subroutine create_output_init
+    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res, dimslen_out, dimslen_res
 
-  integer                         :: ntime_res, ntime_out
-  real, allocatable, dimension(:) :: time_res,time_out
+    implicit none
+    integer :: ncidout, ncidres, ncid_chunk_out, ncid_chunk_res
+    integer :: id_array_out(4), id_array_res(4)
+    integer :: IDvartime_out, IDvartime_res
+    integer :: ntime_out, ntime_res
 
-  integer :: dimids(4)
-  character(len = NF90_MAX_NAME) :: DimName,dimname3d_res, varname,attname
+    ! Create file and attribute and dimensions
+    if ( do_output  ) call define_output(chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out, dimslen_out)
+    if ( do_restart ) call define_output(bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res, dimslen_res)
 
-  integer :: step_start_arr2(2), step_count_arr2(2)
-  real(RLEN), allocatable, dimension(:,:,:,:) :: tmpfillvar3d
-  real(RLEN), allocatable, dimension(:,:,:)   :: tmpfillvar2d  
+    write(*,*) "Writing variables..."
+    if( do_output  ) call define_variables_out(ncid_chunk_out, ncidout, id_array_out, n_bfmvar_out )
+    if( do_restart ) call define_variables_res(ncid_chunk_res, ncidres, id_array_res, n_bfmvar_res )
 
+    write(*,*) "Exit definition mode"
+    ! exit definition mode
+    if ( do_output  ) call handle_err(nf90_enddef(ncidout),errstring="while exiting definition mode in output")
+    if ( do_restart ) call handle_err(nf90_enddef(ncidres),errstring="while exiting definition mode in restart")
 
-  if( do_output ) then
-     status = nf90_create(trim(out_dir)//"/"//trim(chunk_fname)//".nc", NF90_NOCLOBBER, ncidout)
-     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(chunk_fname)//".nc already exists!" )
-  end if
-  if( do_restart ) then
-     status = nf90_create(trim(out_dir)//"/"//trim(bfm_restart)//".nc", NF90_NOCLOBBER, ncidres)
-     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(bfm_restart)//".nc already exists!" )
-  end if
+    write(*,*) "Filling values"
+    ! write time values and fill values
+    if( do_output  ) call fill_values(ncid_chunk_out, ncidout, IDvartime_out, ntime_out, n_bfmvar_out)
+    if( do_restart ) call fill_values(ncid_chunk_res, ncidres, IDvartime_res, ntime_res, n_bfmvar_res)
 
+    write(*,*) "Closing files"
+    !close input/output files
+    if ( do_output ) then
+       call handle_err(nf90_close(ncid_chunk_out),errstring="while closing BFM input file")
+       call handle_err(nf90_close(ncidout),errstring="while closing BFM output file")
+       write(*,*) "Output merged file created"
+    end if
+    if ( do_restart ) then
+       call handle_err(nf90_close(ncid_chunk_res),errstring="while closing BFM restart input file")
+       call handle_err(nf90_close(ncidres),errstring="while closing BFM restart output file")
+       write(*,*) "Restart merged file created"
+    end if
 
-  ! Define the dimensions
-  if( do_output ) then
-     write(*,*) "Preparing output..."
-     status = nf90_def_dim(ncidout, "time", NF90_UNLIMITED, IDtime)
-     if(status /= NF90_NOERR) call handle_err(status,errstring="reading time in out")
-     status = nf90_def_dim(ncidout, "x", jpiglo, IDx)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading X in out")
-     status = nf90_def_dim(ncidout, "y", jpjglo, IDy)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading Y in out")
-     status = nf90_def_dim(ncidout, "depth", jpkglo, IDz)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading depth in out")
-  endif
-  if( do_restart ) then
-     write(*,*) "Preparing restart..."
-     status = nf90_def_dim(ncidres, "time", NF90_UNLIMITED, IDtime)
-     if(status /= NF90_NOERR) call handle_err(status,errstring="reading time in restart out")
-     status = nf90_def_dim(ncidres, "x", jpiglo, IDx)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading X in restart out")
-     status = nf90_def_dim(ncidres, "y", jpjglo, IDy)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading Y in restart out")
-     status = nf90_def_dim(ncidres, "depth", jpkglo, IDz)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading depth in restart out")
-  endif
+  end subroutine create_output_init
 
 
-  if( do_output ) then
-     ! read variables from domain 0000 and copy attributes
-     fname_out = trim(inp_dir)//"/"//trim(chunk_fname)//"_0000.nc" 
-     status = nf90_open(path = fname_out, mode = NF90_WRITE, ncid = ncoutid)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(chunk_fname)//".nc!" )
-     status = nf90_inquire(ncoutid, nVariables=nVars_out, nAttributes=nGlobalAtts_out, unlimitedDimId=IDunlimdim_out)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")
-     status = nf90_inquire_dimension(ncoutid, IDunlimdim_out, len = ntime_out)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading time")
-  end if
-  if( do_restart) then
-     ! read variables from BFM restart domain 0000 and copy attributes
-     fname_res = trim(inp_dir)//"/"//trim(bfm_restart)//"_0000.nc" 
-     status = nf90_open(path = fname_res, mode = NF90_WRITE, ncid = ncresid)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname_res)//".nc!" )
-     status = nf90_inq_dimid(ncresid, "char_max", IDchars)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading chars")
-     status = nf90_inquire_dimension(ncresid, IDChars, len=nChars)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading len chars")
-     status = nf90_inquire(ncresid, nAttributes=nGlobalAtts_res, unlimitedDimId=IDunlimdim_res)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")
-     status = nf90_inquire_dimension(ncresid, IDunlimdim_res, len = ntime_res)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading time")
-  end if
+  subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime, dimslen)
+    use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask, TYPE_OCE, TYPE_SRF, TYPE_BTN
 
-  ! define geographic variables
-  if( do_output ) then
-     if ( ln_mask ) then
-        call handle_err (nf90_def_var(ncidout, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDtarget))
-        call handle_err (nf90_put_att(ncidout, IDtarget, "coordinates", "lon lat"))
-     end if
-     call handle_err (nf90_def_var(ncidout, "lat", NF90_REAL, (/ IDx, IDy /), IDtarget))
-     call handle_err( nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_REAL) )
-     call handle_err (nf90_put_att(ncidout, IDtarget, "units", "degrees_north"))
-     call handle_err (nf90_def_var(ncidout, "lon", NF90_REAL, (/ IDx, IDy /), IDtarget))
-     call handle_err( nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_REAL) )
-     call handle_err (nf90_put_att(ncidout, IDtarget, "units", "degrees_east"))
-     call handle_err (nf90_def_var(ncidout, "depth", NF90_REAL, (/ IDz /), IDtarget))
-     call handle_err( nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_REAL) )
-     call handle_err (nf90_put_att(ncidout, IDtarget, "long_name", "depth_below_sea"))
-     call handle_err (nf90_put_att(ncidout, IDtarget, "units", "m"))
-     call handle_err (nf90_put_att(ncidout, IDtarget, "positive", "down"))
-     call handle_err (nf90_put_att(ncidout, IDtarget, "axis", "Z"))
-  end if
-  if ( do_restart ) then
-     if ( ln_mask ) then
-        call handle_err (nf90_def_var(ncidres, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDtarget))
-        call handle_err (nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat"))
-     end if
-     call handle_err (nf90_def_var(ncidres, "lat", NF90_REAL, (/ IDx, IDy /), IDtarget))
-     call handle_err( nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_REAL) )
-     call handle_err (nf90_put_att(ncidres, IDtarget, "units", "degrees_north"))
-     call handle_err (nf90_def_var(ncidres, "lon", NF90_REAL, (/ IDx, IDy /), IDtarget))
-     call handle_err( nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_REAL) )
-     call handle_err (nf90_put_att(ncidres, IDtarget, "units", "degrees_east"))
-     call handle_err (nf90_def_var(ncidres, "depth", NF90_REAL, (/ IDz /), IDtarget))
-     call handle_err( nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_REAL) )
-     call handle_err (nf90_put_att(ncidres, IDtarget, "long_name", "depth_below_sea"))
-     call handle_err (nf90_put_att(ncidres, IDtarget, "units", "m"))
-     call handle_err (nf90_put_att(ncidres, IDtarget, "positive", "down"))
-     call handle_err (nf90_put_att(ncidres, IDtarget, "axis", "Z"))
-  end if
+    implicit none
+    character(len=100), intent(in)  :: fname
+    integer,            intent(out) :: ncid_out, ncid_chunk, id_array(4), id_vartime, ntime, dimslen(3)
 
-  ! copy global attributes
-  if ( do_output ) then
+    integer                        :: status
+    integer                        :: nGlobalAtts 
+    integer                        :: IDx, IDy, IDz, IDtime, IDatt, IDunlimdim, IDtimetmp, IDocepnt, IDsrfpnt, IDbtnpnt
+    character(len = NF90_MAX_NAME) :: globattname
+
+    status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NOCLOBBER, ncid_out)
+    if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(fname)//".nc already exists!" )
+
+    ! Define the dimensions
+    status = nf90_def_dim(ncid_out, "x", jpiglo, IDx)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="reading X in out")
+    status = nf90_def_dim(ncid_out, "y", jpjglo, IDy)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="reading Y in out")
+    status = nf90_def_dim(ncid_out, "depth", jpkglo, IDz)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="reading depth in out")
+    status = nf90_def_dim(ncid_out, "time", NF90_UNLIMITED, IDtime)
+    if(status /= NF90_NOERR) call handle_err(status,errstring="reading time in out")
+
+    ! read variables from domain 0000 and copy attributes
+    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_WRITE, ncid = ncid_chunk)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname)//"_0000.nc!" )
+    status = nf90_inquire(ncid_chunk, nAttributes=nGlobalAtts, unlimitedDimId=IDunlimdim)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")
+    status = nf90_inquire_dimension(ncid_chunk, IDunlimdim, len = ntime)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="reading time")
+    status = nf90_inq_dimid(ncid_chunk, "oceanpoint", IDocepnt)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring oceanpoint")
+    status = nf90_inquire_dimension(ncid_chunk, IDocepnt, len = dimslen(TYPE_OCE))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim oceanpoint")
+    status = nf90_inq_dimid(ncid_chunk, "surfacepoint", IDsrfpnt)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring surfacepoint")
+    status = nf90_inquire_dimension(ncid_chunk, IDsrfpnt, len = dimslen(TYPE_SRF))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim surfacepoint")
+    status = nf90_inq_dimid(ncid_chunk, "bottompoint", IDbtnpnt)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring bottompoint")
+    status = nf90_inquire_dimension(ncid_chunk, IDbtnpnt, len = dimslen(TYPE_BTN))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim bottompoint")
+
+    ! define geographic variables
+    if ( ln_mask ) then
+       call handle_err (nf90_def_var(ncid_out, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDatt))
+       call handle_err (nf90_put_att(ncid_out, IDatt, "coordinates", "lon lat"))
+    end if
+    call handle_err (nf90_def_var(ncid_out, "lat", NF90_REAL, (/ IDx, IDy /), IDatt))
+    call handle_err( nf90_put_att(ncid_out, IDatt, "_FillValue", NF90_FILL_REAL) )
+    call handle_err (nf90_put_att(ncid_out, IDatt, "units", "degrees_north"))
+    call handle_err (nf90_def_var(ncid_out, "lon", NF90_REAL, (/ IDx, IDy /), IDatt))
+    call handle_err( nf90_put_att(ncid_out, IDatt, "_FillValue", NF90_FILL_REAL) )
+    call handle_err (nf90_put_att(ncid_out, IDatt, "units", "degrees_east"))
+    call handle_err (nf90_def_var(ncid_out, "depth", NF90_REAL, (/ IDz /), IDatt))
+    call handle_err( nf90_put_att(ncid_out, IDatt, "_FillValue", NF90_FILL_REAL) )
+    call handle_err (nf90_put_att(ncid_out, IDatt, "long_name", "depth_below_sea"))
+    call handle_err (nf90_put_att(ncid_out, IDatt, "units", "m"))
+    call handle_err (nf90_put_att(ncid_out, IDatt, "positive", "down"))
+    call handle_err (nf90_put_att(ncid_out, IDatt, "axis", "Z"))
+
+    ! copy global attributes
 #ifdef DEBUG
-     write(*,*) "Creating file:",trim(chunk_fname)//".nc"," containing",ntime_out,"time frames"
-     write(*,*) "Start copying global attributes ..."
+    write(*,*) "Creating file:",trim(fname)//".nc"," containing",ntime,"time frames"
+    write(*,*) "Start copying global attributes ..."
 #endif
-     do IDatt=1,nGlobalAtts_out
-        status=nf90_inq_attname(ncoutid, NF90_GLOBAL, IDatt, name=attname)
-        status = nf90_copy_att(ncoutid, NF90_GLOBAL, trim(attname), ncidout, NF90_GLOBAL)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="copying attribute "//trim(attname))
-     end do
-  end if
-  if ( do_restart ) then
+    do IDatt=1,nGlobalAtts
+       status=nf90_inq_attname(ncid_chunk, NF90_GLOBAL, IDatt, name=globattname)
+       status = nf90_copy_att(ncid_chunk, NF90_GLOBAL, trim(globattname), ncid_out, NF90_GLOBAL)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="copying attribute "//trim(globattname))
+    end do
+
+    ! define time variable and attributes
+    status = nf90_inq_varid(ncid_chunk, "time", IDtimetmp)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname)
+    status = nf90_def_var(ncid_out, "time", NF90_REAL, (/ IDtime /), id_vartime)
+    if (status /= NF90_NOERR) call handle_err(status)
+    status = nf90_copy_att(ncid_chunk, IDtimetmp, "units", ncid_out, id_vartime)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="copying time units")
+
+    id_array = (/ IDx, IDy, IDz, IDtime /)
+
+  end subroutine define_output
+
+
+  subroutine fill_values(ncid_chunk, ncid_out, id_vartime, ntime, nvars)
+    use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo
+
+    implicit none
+
+    integer, intent(in) :: ncid_chunk, ncid_out, id_vartime, ntime, nvars
+
+    real, allocatable :: time(:)
+    integer           :: IDtimetmp, status
+
+    integer                        :: IDtarget, ndims
+    character(len = NF90_MAX_NAME) :: varname
+    real(RLEN), allocatable        :: tmpfillvar3d(:,:,:,:), tmpfillvar2d(:,:,:)
+
+    allocate(time(ntime))
+    status = nf90_inq_varid(ncid_chunk, "time", IDtimetmp)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var")
+    status = nf90_get_var(ncid_chunk, IDtimetmp, time, start = (/ 1 /), count = (/ ntime /))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="reading time values from")
+    status = nf90_put_var(ncid_out, id_vartime, time, start = (/ 1 /), count = (/ ntime /))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="variable: time output")
+    deallocate(time)
+
+    !write fill value
+    allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime),tmpfillvar2d(jpiglo,jpjglo,ntime))
+    tmpfillvar3d = NF90_FILL_DOUBLE
+    tmpfillvar2d = NF90_FILL_DOUBLE
+    do IDtarget = 1 , nvars
+       ! inquire ID in the output file
+       call handle_err( nf90_inquire_variable(ncid_out, IDtarget, ndims=ndims, name=varname) )
+       ! write empty variable values
+       select case (ndims)
+       case (4)
+          ! 3D array
+          call handle_err( nf90_put_var(ncid_out, IDtarget, tmpfillvar3d), &
+               errstring="variable:"//trim(varname))
+       case (3)
+          ! 2D array
+          call handle_err( nf90_put_var(ncid_out, IDtarget, tmpfillvar2d), &
+               errstring="variable:"//trim(varname))
+          ! case default
+          !   write(*,'(A,I4,A,A,A,I4)') "invalid dimension size: ",ndims, " for var: '",trim(varname), "'  ID: ", IDtarget
+       end select
+    end do
+    deallocate(tmpfillvar3d,tmpfillvar2d)
+  end subroutine fill_values
+
+
+  subroutine define_variables_out(ncid_chunk, ncidout, id_array_out, n_var_total )
+    use mod_bnmerge, ONLY: NSAVE, TYPE_OCE, TYPE_BTN, TYPE_SRF, var_save, bfmvarid_out, bfmvartype_out, bfmvartarget_out
+
+    implicit none
+    integer, intent(in)  :: ncid_chunk, ncidout, id_array_out(4)
+    integer, intent(out) :: n_var_total
+
+    integer                        :: n, nvars, IDvar, IDtarget, status, ndims, dimids_out(4)
+    character(len = NF90_MAX_NAME) :: varname, dimname_out
+
+
+    ! Tracks of the variables that have to be stored
+    status = nf90_inquire(ncid_chunk, nVariables=nvars)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring numnber of variables in OUTPUT ")
+    allocate(bfmvarid_out(nvars))
+    n_var_total=0
+    do IDvar=1,nvars
+       status=nf90_inquire_variable(ncid_chunk, IDvar, name=varname)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
+       do n = 1 , NSAVE
+          if ( trim(var_save(n)) == trim(varname) ) then
+             n_var_total = n_var_total + 1
+             bfmvarid_out(n_var_total)   = IDvar
+          endif
+       enddo
+    enddo
+    write(*,*) "Total Output Variables  ", n_var_total
+    if (n_var_total == 0) then
+       write(*,*) "Selected output variables do not match the content of the input files.", n_var_total
+       stop
+    endif
+
+    ! Assign dimensions and attributes to variables 
+    allocate(bfmvartype_out(n_var_total))
+    allocate(bfmvartarget_out(n_var_total))
+    do n = 1 , n_var_total
+       IDvar = bfmvarid_out(n)
+       ! inquire variable
+       status=nf90_inquire_variable(ncid_chunk, IDvar, ndims=ndims, name=varname)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
+       status=nf90_inquire_variable(ncid_chunk, IDvar, dimids=dimids_out(1:ndims))
+       if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
+       status = nf90_inquire_dimension(ncid_chunk, dimids_out(ndims), name = dimname_out)
+       if (dimname_out /= "time" .OR. ndims == 1) cycle ! enter only with time-varying variables
+       ! check the dimension of the variable
+       status = nf90_inquire_dimension(ncid_chunk, dimids_out(1), name = dimname_out)
 #ifdef DEBUG
-     write(*,*) "Creating file:",trim(bfm_restart)//".nc"," containing",ntime_res,"time frames"
-     write(*,*) "Start copying global attributes ..."
+       write(*,*) "Define variable: ",trim(varname)
+       write(*,*) "from file chunk in output file"
+       write(*,*) "last dimension name ",trim(dimname_out)
 #endif
-     do IDatt=1,nGlobalAtts_res
-        status=nf90_inq_attname(ncresid, NF90_GLOBAL, IDatt, name=attname)
-        status = nf90_copy_att(ncresid, NF90_GLOBAL, trim(attname), ncidres, NF90_GLOBAL)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="copying attribute "//trim(attname))
-     end do
-  end if
+       select case(dimname_out)
+       case ("oceanpoint") ! 3D array
+          bfmvartype_out(n) = TYPE_OCE
+          status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, &
+               id_array_out, IDtarget)
+       case("surfacepoint") ! 2D surface
+          bfmvartype_out(n) = TYPE_SRF
+          status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, &
+               (/ id_array_out(1), id_array_out(2), id_array_out(4) /), IDtarget)
+       case("bottompoint") ! 2D bottom
+          bfmvartype_out(n) = TYPE_BTN
+          status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, &
+               (/ id_array_out(1), id_array_out(2), id_array_out(4) /), IDtarget)
+       case default
+          write(*,*) "Dimension name not recognized: "//trim(dimname_out)
+          stop
+       end select
+       if (status /= NF90_NOERR) call handle_err(status)
+       bfmvartarget_out(n) = IDtarget
+
+       ! copy attributes
+       status = nf90_copy_att(ncid_chunk, IDvar, "units", ncidout, IDtarget)
+       if (status /= NF90_NOERR) call handle_err(status)
+       status = nf90_copy_att(ncid_chunk, IDvar, "long_name", ncidout, IDtarget)
+       if (status /= NF90_NOERR) call handle_err(status)
+       ! Add fill value
+       status = nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
+       if (status /= NF90_NOERR) call handle_err(status)
+       ! Add reference coordinate names (needed with CDO)
+       status = nf90_put_att(ncidout, IDtarget, "coordinates", "lon lat")
+       if (status /= NF90_NOERR) call handle_err(status)
+    end do ! n_var_total 
+
+  end subroutine define_variables_out
 
 
-  ! Tracks of the variables that have to be stored
-  if ( do_output ) then 
-     allocate(bfmvarid_out(nVars_out))
-     n_bfmvar_out=0
-     do IDvar=1,nVars_out
-        status=nf90_inquire_variable(ncoutid, IDvar, ndims=ndims, name=varname)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
-        do n = 1 , NSAVE
-           if ( trim(var_save(n)) == trim(varname) ) then
-              n_bfmvar_out = n_bfmvar_out + 1
-              bfmvarid_out(n_bfmvar_out)= IDvar
-           endif
-        enddo
-     enddo
-     write(*,*) "Total Output Variables  ", n_bfmvar_out
-     if (n_bfmvar_out == 0) then
-        write(*,*) "Selected output variables do not match the content of the input files.", n_bfmvar_out
-        stop
-     endif
-     ! Assign dimensions and attributes to variables 
-     do n = 1 , n_bfmvar_out
-        IDvar = bfmvarid_out(n)
-        ! inquire variable
-        status=nf90_inquire_variable(ncoutid, IDvar, ndims=ndims, name=varname)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
-        status=nf90_inquire_variable(ncoutid, IDvar, dimids=dimids(1:ndims))
-        if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
-        status = nf90_inquire_dimension(ncoutid, dimids(ndims), name = DimName)
-        if (DimName /= "time" .OR. ndims == 1) cycle ! enter only with time-varying variables
-        ! check the dimension of the variable
-        status = nf90_inquire_dimension(ncoutid, dimids(1), name = DimName)
+  subroutine define_variables_res(ncid_chunk, ncidres, id_array_res, n_var_total)
+    use mod_bnmerge, ONLY: TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH, bfmvarid_res, bfmvartype_res, bfmvartarget_res
+
+    implicit none
+    integer, intent(in)  :: ncid_chunk, ncidres, id_array_res(4)
+    integer, intent(out) :: n_var_total
+
+    integer                        :: n, IDvar, IDtarget, IDph, status
+    integer                        :: nbfmvars3d_res, nbfmvars2dben_res, nbfmvars2dice_res
+    character(len=64), allocatable :: res_names(:),res_units(:),res_long(:)
+    integer                        :: step_start_arr2(2), step_count_arr2(2)
+    integer                        :: dimids_res(2)
+    character(len = NF90_MAX_NAME) :: dimname_res
+
+    n_var_total = 0
+
+    !Get the total number of variables
+    nbfmvars3d_res    = 0
+    nbfmvars2dben_res = 0
+    nbfmvars2dice_res = 0
+    ! for 3d variables
+    status = nf90_inq_dimid(ncid_chunk, "d3vars", IDvar)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring d3vars")
+    status = nf90_inquire_dimension(ncid_chunk, IDvar, len=nbfmvars3d_res)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring number of 3D vars")
+    ! for pH variable
+    nbfmvars3d_res = nbfmvars3d_res + 1
+    ! for 2d benthic variables
+    status = nf90_inq_dimid(ncid_chunk, "d2vars_ben", IDvar)
+    if (status == NF90_NOERR) then
+       status = nf90_inquire_dimension(ncid_chunk, IDvar, len=nbfmvars2dben_res)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring number of 2D ben vars")
+    end if
+    ! for 2d ice variables
+    status = nf90_inq_dimid(ncid_chunk, "d2vars_ice", IDvar)
+    if (status == NF90_NOERR) then
+       status = nf90_inquire_dimension(ncid_chunk, IDvar, len=nbfmvars2dice_res)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring number of 2D ice vars")
+    end if
+
+    !allocate global arrays
+    allocate(bfmvarid_res(nbfmvars3d_res+nbfmvars2dben_res+nbfmvars2dice_res))
+    allocate(bfmvartype_res(nbfmvars3d_res+nbfmvars2dben_res+nbfmvars2dice_res))
+    allocate(bfmvartarget_res(nbfmvars3d_res+nbfmvars2dben_res+nbfmvars2dice_res))
+   
+    ! define 3d variables (always present)
+    allocate(res_names(nbfmvars3d_res))
+    allocate(res_units(nbfmvars3d_res))
+    allocate(res_long(nbfmvars3d_res))
+    step_start_arr2 = (/ 1, 1 /)
+    step_count_arr2 = (/ LEN(res_names), nbfmvars3d_res-1 /)
+
+    status = nf90_inq_varid(ncid_chunk, "D3STATE", IDvar)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE var")
+    status=nf90_inquire_variable(ncid_chunk, IDvar, dimids=dimids_res)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE dims")
+    status = nf90_inquire_dimension(ncid_chunk, dimids_res(2), name=dimname_res)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE dims")
+
+    status = nf90_inq_varid(ncid_chunk, "D3STATE_NAME", IDvar)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE_NAME var")
+    status = nf90_get_var(ncid_chunk, IDvar, res_names, start=step_start_arr2, count=step_count_arr2)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE_NAME var")
+
+    status = nf90_inq_varid(ncid_chunk, "D3STATE_UNITS", IDvar)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE_UNITS var")
+    status = nf90_get_var(ncid_chunk, IDvar, res_units, start=step_start_arr2, count=step_count_arr2)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE_UNITS var")
+
+    status = nf90_inq_varid(ncid_chunk, "D3STATE_LONG", IDVar)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE_LONG var")
+    status = nf90_get_var(ncid_chunk, IDvar, res_long, start=step_start_arr2, count=step_count_arr2)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE_LONG var")
+
+    !Define pH variable in last position
+    status = nf90_inq_varid(ncid_chunk, "pH", IDph)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring pH var")
+    res_names(nbfmvars3d_res) = "pH"
+    res_units(nbfmvars3d_res) = "pH"
+    res_long(nbfmvars3d_res)  = "acidity or basicity of an aqueous solution"
+
+    do n = 1 , nbfmvars3d_res
 #ifdef DEBUG
-        write(*,*) "Define variable: ",trim(varname)
-        write(*,*) "from file ",trim(fname_out)
-        write(*,*) "last dimension name ",trim(DimName)
+       write(*,*) "Define variable: ",trim(res_names(n))
+       write(*,*) "from file chunk in RESTART"
+       write(*,*) "last dimension name ",trim(dimname_res)
 #endif
-        if (DimName == "oceanpoint") then
-           ! 3D array
-           status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, (/ IDx, IDy, IDz, IDtime /), IDtarget)
-           if (status /= NF90_NOERR) call handle_err(status)
-        else
-           ! 2D array
-           status = nf90_def_var(ncidout, trim(varname), NF90_DOUBLE, (/ IDx, IDy, IDtime /), IDtarget)
-           if (status /= NF90_NOERR) call handle_err(status)
-        end if
-        ! copy attributes
-        status = nf90_copy_att(ncoutid, IDvar, "units", ncidout, IDtarget)
-        if (status /= NF90_NOERR) call handle_err(status)
-        status = nf90_copy_att(ncoutid, IDvar, "long_name", ncidout, IDtarget)
-        if (status /= NF90_NOERR) call handle_err(status)
-        ! Add fill value
-        status = nf90_put_att(ncidout, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
-        if (status /= NF90_NOERR) call handle_err(status)
-        ! Add reference coordinate names (needed with CDO)
-        status = nf90_put_att(ncidout, IDtarget, "coordinates", "lon lat")
-        if (status /= NF90_NOERR) call handle_err(status)
-     end do ! n_bfmvar_out 
-  end if
-  if ( do_restart ) then
-     n_bfmvar_res = 0
-     status = nf90_inq_dimid(ncresid, "d3vars", IDvars_res)
-     if (status == NF90_NOERR) then
-        status = nf90_inquire_dimension(ncresid, IDvars_res, len=n_bfmvar_res)
-        if (status /= NF90_NOERR) call handle_err(status)
+       ! check the dimension of the variable
+       if (dimname_res == "oceanpoint") then ! 3D array
+          status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, id_array_res, IDtarget)
+          if (status /= NF90_NOERR) call handle_err(status)
+       else
+          write(*,*) "Variable suppose to be 3D oceanpoint."
+          stop
+       end if
+       ! add attributes
+       status = nf90_put_att(ncidres, IDtarget, "units", trim(res_units(n)))
+       if (status /= NF90_NOERR) call handle_err(status)
+       status = nf90_put_att(ncidres, IDtarget, "long_name", trim(res_long(n)))
+       if (status /= NF90_NOERR) call handle_err(status)
+       ! Add fill value
+       status = nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
+       if (status /= NF90_NOERR) call handle_err(status)
+       ! Add reference coordinate names (needed with CDO)
+       status = nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat")
+       if (status /= NF90_NOERR) call handle_err(status)
+       !fill the global array for merging
+       n_var_total = n_var_total + 1
+       if( res_names(n) == "pH" ) then
+          bfmvarid_res(n_var_total)   = IDph 
+          bfmvartype_res(n_var_total) = TYPE_PH
+       else
+          bfmvarid_res(n_var_total)   = n
+          bfmvartype_res(n_var_total) = TYPE_OCE
+       endif
+       bfmvartarget_res(n_var_total) = IDtarget
+    end do ! nbfmvars3d_res
+    write(*,*) "Total Restart 3D Variables ", nbfmvars3d_res
 
-        ! for pH variable
-        n_bfmvar_res = n_bfmvar_res + 1
+    deallocate(res_names)
+    deallocate(res_units)
+    deallocate(res_long)
 
-        allocate(res_names(n_bfmvar_res))
-        allocate(res_units(n_bfmvar_res))
-        allocate(res_long(n_bfmvar_res))
 
-        status = nf90_inq_varid(ncresid, "D3STATE", IDstate_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE var in "//fname_res)
-        status=nf90_inquire_variable(ncresid, IDstate_res, ndims=ndims_state_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE var in "//fname_res)
-        allocate(dimsid_res(ndims_state_res))
+    ! define 2d benthic variables (optional)
+    if (nbfmvars2dben_res > 0) then
+       allocate(res_names(nbfmvars2dben_res))
+       allocate(res_units(nbfmvars2dben_res))
+       allocate(res_long(nbfmvars2dben_res))
+       step_start_arr2 = (/ 1, 1 /)
+       step_count_arr2 = (/ LEN(res_names), nbfmvars2dben_res /)
 
-        status=nf90_inquire_variable(ncresid, IDstate_res, dimids=dimsid_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE var in "//fname_res)
-        status = nf90_inquire_dimension(ncresid, dimsid_res(2), name=dimname3d_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE var in "//fname_res)
-        deallocate(dimsid_res)
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_BEN", IDvar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_BEN var")
+       status=nf90_inquire_variable(ncid_chunk, IDvar, dimids=dimids_res)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_BEN dims")
+       status = nf90_inquire_dimension(ncid_chunk, dimids_res(2), name=dimname_res)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_BEN dims")
 
-        status = nf90_inq_varid(ncresid, "D3STATE_NAME", IDname_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE_NAME var in "//fname_res)
-        step_start_arr2 = (/ 1, 1 /)
-        step_count_arr2 = (/ LEN(res_names), n_bfmvar_res-1 /)
-        status = nf90_get_var(ncresid, IDname_res, res_names, start=step_start_arr2, count=step_count_arr2)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE_NAME var in "//fname_res)
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_BEN_NAME", IDvar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_BEN_NAME var")
+       status = nf90_get_var(ncid_chunk, IDvar, res_names, start=step_start_arr2, count=step_count_arr2)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_BEN_NAME var")
 
-        status = nf90_inq_varid(ncresid, "D3STATE_UNITS", IDunits_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE_UNITS var in "//fname_res)
-        status = nf90_get_var(ncresid, IDunits_res, res_units, start=step_start_arr2, count=step_count_arr2)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE_UNITS var in "//fname_res)
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_BEN_UNITS", IDvar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_BEN_UNITS var")
+       status = nf90_get_var(ncid_chunk, IDvar, res_units, start=step_start_arr2, count=step_count_arr2)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_BEN_UNITS var")
 
-        status = nf90_inq_varid(ncresid, "D3STATE_LONG", IDlong_res)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D3STATE_LONG var in "//fname_res)
-        status = nf90_get_var(ncresid, IDlong_res, res_long, start=step_start_arr2, count=step_count_arr2)
-        if (status /= NF90_NOERR) call handle_err(status,errstring="getting D3STATE_LONG var in "//fname_res)
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_BEN_LONG", IDVar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_BEN_LONG var")
+       status = nf90_get_var(ncid_chunk, IDvar, res_long, start=step_start_arr2, count=step_count_arr2)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_BEN_LONG var")
 
-        allocate(bfmvarid_res(n_bfmvar_res))
-
-        !Define pH variable in last position in output file
-        res_names(n_bfmvar_res) = "pH"
-        res_units(n_bfmvar_res) = "pH"
-        res_long(n_bfmvar_res)  = "acidity or basicity of an aqueous solution"
-
-        do n = 1 , n_bfmvar_res
+       do n = 1 , nbfmvars2dben_res
 #ifdef DEBUG
-           write(*,*) "Define variable: ",trim(res_names(n))
-           write(*,*) "from file ",trim(fname_res)
-           write(*,*) "last dimension name ",trim(dimname3d_res)
+          write(*,*) "Define variable: ",trim(res_names(n))
+          write(*,*) "from file chunk in RESTART"
+          write(*,*) "last dimension name ",trim(dimname_res)
 #endif
-           ! check the dimension of the variable
-           if (dimname3d_res == "oceanpoint") then
-              ! 3D array
-              status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, (/ IDx, IDy, IDz, IDtime /), IDtarget)
-              if (status /= NF90_NOERR) call handle_err(status)
-              bfmvarid_res(n)= IDtarget
-           else
-              write(*,*) "Variable suppose to be 3D oceanpoint."
-           end if
-           ! copy attributes
-           status = nf90_put_att(ncidres, IDtarget, "units", trim(res_units(n)))
-           if (status /= NF90_NOERR) call handle_err(status)
-           status = nf90_put_att(ncidres, IDtarget, "long_name", trim(res_long(n)))
-           if (status /= NF90_NOERR) call handle_err(status)
-           ! Add fill value
-           status = nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
-           if (status /= NF90_NOERR) call handle_err(status)
-           ! Add reference coordinate names (needed with CDO)
-           status = nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat")
-           if (status /= NF90_NOERR) call handle_err(status)
-           ! inquire variable
-        end do ! n_bfmvar_res
-        write(*,*) "Total Restart Variables ", n_bfmvar_res
+          ! check the dimension of the variable
+          if (dimname_res == "bottompoint") then ! 2D array
+             status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, &
+                  (/ id_array_res(1), id_array_res(2), id_array_res(4) /), IDtarget)
+             if (status /= NF90_NOERR) call handle_err(status)
+          else
+             write(*,*) "Variable suppose to be 2D bottompoint."
+             stop
+          end if
+          ! add attributes
+          status = nf90_put_att(ncidres, IDtarget, "units", trim(res_units(n)))
+          if (status /= NF90_NOERR) call handle_err(status)
+          status = nf90_put_att(ncidres, IDtarget, "long_name", trim(res_long(n)))
+          if (status /= NF90_NOERR) call handle_err(status)
+          ! Add fill value
+          status = nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
+          if (status /= NF90_NOERR) call handle_err(status)
+          ! Add reference coordinate names (needed with CDO)
+          status = nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat")
+          if (status /= NF90_NOERR) call handle_err(status)
+          !fill the global array for merging
+          n_var_total = n_var_total + 1
+          bfmvarid_res(n_var_total)   = n
+          bfmvartype_res(n_var_total) = TYPE_BTN
+          bfmvartarget_res(n_var_total) = IDtarget
+       end do ! nbfmvars2dben_res
+       write(*,*) "Total Restart Benthic Variables ", nbfmvars2dben_res
 
-        deallocate(res_names)
-        deallocate(res_units)
-        deallocate(res_long)
-     end if ! 3D restart var
-  end if
+       deallocate(res_names)
+       deallocate(res_units)
+       deallocate(res_long)
+    end if ! 2D restart ben var
 
+    ! define 2d ice variables (optional)
+    if (nbfmvars2dice_res > 0) then
+       allocate(res_names(nbfmvars2dice_res))
+       allocate(res_units(nbfmvars2dice_res))
+       allocate(res_long(nbfmvars2dice_res))
+       step_start_arr2 = (/ 1, 1 /)
+       step_count_arr2 = (/ LEN(res_names), nbfmvars2dice_res /)
 
-  ! copy time variable and attributes
-  if ( do_output ) then
-     status = nf90_inq_varid(ncoutid, "time", IDtimetmp)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname_out)
-     allocate(time_out(ntime_out))
-     status = nf90_get_var(ncoutid, IDtimetmp, time_out, start = (/ 1 /), count = (/ ntime_out /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading time values from"//fname_out)
-     status = nf90_def_var(ncidout, "time", NF90_REAL, (/ IDtime /), IDvartime_out)
-     if (status /= NF90_NOERR) call handle_err(status)
-     status = nf90_copy_att(ncoutid, IDtimetmp, "units", ncidout, IDvartime_out)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="copying time units")     
-  end if
-  if ( do_restart ) then
-     ! copy time variable and attributes
-     status = nf90_inq_varid(ncresid, "time", IDtimetmp)
-     allocate(time_res(ntime_res))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname_res)
-     status = nf90_get_var(ncresid, IDtimetmp, time_res, start = (/ 1 /), count = (/ ntime_res /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="reading time values from"//fname_res)
-     status = nf90_def_var(ncidres, "time", NF90_REAL, (/ IDtime /), IDvartime_res)
-     if (status /= NF90_NOERR) call handle_err(status)
-     status = nf90_copy_att(ncresid, IDtimetmp, "units", ncidres, IDvartime_res)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="copying time units")     
-  end if
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_ICE", IDvar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_ICE var")
+       status=nf90_inquire_variable(ncid_chunk, IDvar, dimids=dimids_res)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_ICE dims")
+       status = nf90_inquire_dimension(ncid_chunk, dimids_res(2), name=dimname_res)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_ICE dims")
 
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_ICE_NAME", IDvar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_ICE_NAME var")
+       status = nf90_get_var(ncid_chunk, IDvar, res_names, start=step_start_arr2, count=step_count_arr2)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_ICE_NAME var")
 
-  ! exit definition mode
-  if ( do_output ) then
-     status = nf90_enddef(ncidout)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="while exiting definition mode in output")
-  end if
-  if ( do_restart ) then
-     status = nf90_enddef(ncidres)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="while exiting definition mode in restart")
-  end if
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_ICE_UNITS", IDvar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_ICE_UNITS var")
+       status = nf90_get_var(ncid_chunk, IDvar, res_units, start=step_start_arr2, count=step_count_arr2)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_ICE_UNITS var")
 
+       status = nf90_inq_varid(ncid_chunk, "D2STATE_ICE_LONG", IDVar)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring D2STATE_ICE_LONG var")
+       status = nf90_get_var(ncid_chunk, IDvar, res_long, start=step_start_arr2, count=step_count_arr2)
+       if (status /= NF90_NOERR) call handle_err(status,errstring="getting D2STATE_ICE_LONG var")
 
-  ! write time values
-  if ( do_output ) then
-     status = nf90_put_var(ncidout, IDvartime_out, time_out, start = (/ 1 /), count = (/ ntime_out /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: time output")
-     deallocate(time_out)
-  end if
-  if ( do_restart ) then
-     status = nf90_put_var(ncidres, IDvartime_res, time_res, start = (/ 1 /), count = (/ ntime_res /))
-     if (status /= NF90_NOERR) call handle_err(status,errstring="variable: time restart")
-     deallocate(time_res)
-  end if
+       do n = 1 , nbfmvars2dice_res
+#ifdef DEBUG
+          write(*,*) "Define variable: ",trim(res_names(n))
+          write(*,*) "from file chunk in RESTART"
+          write(*,*) "last dimension name ",trim(dimname_res)
+#endif
+          ! check the dimension of the variable
+          if (dimname_res == "surfacepoint") then ! 2D array
+             status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, &
+                  (/ id_array_res(1), id_array_res(2), id_array_res(4) /), IDtarget)
+             if (status /= NF90_NOERR) call handle_err(status)
+          else
+             write(*,*) "Variable suppose to be 2D surfacepoint."
+             stop
+          end if
+          ! add attributes
+          status = nf90_put_att(ncidres, IDtarget, "units", trim(res_units(n)))
+          if (status /= NF90_NOERR) call handle_err(status)
+          status = nf90_put_att(ncidres, IDtarget, "long_name", trim(res_long(n)))
+          if (status /= NF90_NOERR) call handle_err(status)
+          ! Add fill value
+          status = nf90_put_att(ncidres, IDtarget, "_FillValue", NF90_FILL_DOUBLE)
+          if (status /= NF90_NOERR) call handle_err(status)
+          ! Add reference coordinate names (needed with CDO)
+          status = nf90_put_att(ncidres, IDtarget, "coordinates", "lon lat")
+          if (status /= NF90_NOERR) call handle_err(status)
+          !fill the global array for merging
+          n_var_total = n_var_total + 1
+          bfmvarid_res(n_var_total)   = n
+          bfmvartype_res(n_var_total) = TYPE_SRF
+          bfmvartarget_res(n_var_total) = IDtarget
+       end do ! nbfmvars2dice_res
+       write(*,*) "Total Restart Ice Variables ", nbfmvars2dice_res
 
+       deallocate(res_names)
+       deallocate(res_units)
+       deallocate(res_long)
+    end if ! 2D restart ice var
 
-  !write fill value
-  if ( do_output ) then
-     allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime_out),tmpfillvar2d(jpiglo,jpjglo,ntime_out))
-     tmpfillvar3d = NF90_FILL_DOUBLE
-     tmpfillvar2d = NF90_FILL_DOUBLE
-     do n = 1 , n_bfmvar_out
-        IDvar = bfmvarid_out(n)
-        ! inquire ID in the output file
-        call handle_err( nf90_inquire_variable(ncoutid, IDvar, ndims=ndims, name=varname) )
-        call handle_err( nf90_inq_varid(ncidout, varname, IDtarget) )
-        call handle_err( nf90_inquire_variable(ncidout, IDtarget, ndims=ndims) )
-        ! write empty variable values
-        SELECT CASE (ndims)
-        case (4)
-           ! 3D array
-           call handle_err( nf90_put_var(ncidout, IDtarget, tmpfillvar3d), &
-                errstring="variable:"//trim(varname))
-        case (3)
-           ! 2D array
-           call handle_err( nf90_put_var(ncidout, IDtarget, tmpfillvar2d), &
-                errstring="variable:"//trim(varname))
-        case default
-           write(*,'(A,I4)') "invalid dimension size: ",ndims
-        end select
-     end do
-     deallocate(tmpfillvar3d,tmpfillvar2d)
-  endif
-  if ( do_restart ) then
-     allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime_res),tmpfillvar2d(jpiglo,jpjglo,ntime_res))
-     tmpfillvar3d = NF90_FILL_DOUBLE
-     tmpfillvar2d = NF90_FILL_DOUBLE
-     do n = 1 , n_bfmvar_res
-        IDtarget = bfmvarid_res(n)
-        ! inquire ID in the output file
-        call handle_err( nf90_inquire_variable(ncidres, IDtarget, ndims=ndims, name=varname) )
-        ! write empty variable values
-        SELECT CASE (ndims)
-        case (4)
-           ! 3D array
-           call handle_err( nf90_put_var(ncidres, IDtarget, tmpfillvar3d), &
-                errstring="variable:"//trim(varname))
-        case (3)
-           ! 2D array
-           call handle_err( nf90_put_var(ncidres, IDtarget, tmpfillvar2d), &
-                errstring="variable:"//trim(varname))
-        case default
-           write(*,'(A,I4,A,A,A,I4)') "invalid dimension size: ",ndims, " for var: '",trim(varname), "'  ID: ", IDtarget
-        end select
-     end do
-     deallocate(tmpfillvar3d,tmpfillvar2d)
-  end if
+  end subroutine define_variables_res
 
-  !close input/output files
-  if ( do_output ) then
-     status = nf90_close(ncoutid)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM input file")
-     status = nf90_close(ncidout)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM output file")
-     write(*,*) "Output file created: "//trim(fname_out)
-  end if
-  if ( do_restart ) then
-     status = nf90_close(ncresid)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM restart input file")
-     status = nf90_close(ncidres)
-     if (status /= NF90_NOERR) call handle_err(status,errstring="while closing BFM restart output file")
-     write(*,*) "Output file created: "//trim(fname_res)
-  end if
-
-  return
-
-end subroutine create_outputfile
+end module create_output

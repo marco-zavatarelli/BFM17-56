@@ -17,7 +17,8 @@
 program bnmerge
 
   use mod_bnmerge, ONLY: GET_ARGUMENTS, chunk_fname, bfm_restart, do_restart, do_output, tick, tock
-  use merge_vars, ONLY: merge_vars_init, merge_vars_proc
+  use create_output, ONLY: create_output_init
+  use merge_vars, ONLY: merge_vars_init
 #ifdef PARALLEL
   use mpi
 #endif
@@ -56,7 +57,7 @@ program bnmerge
      do_restart=.FALSE.
   end if
 
-  call create_outputfile
+  call create_output_init
   call merge_vars_init
 
   write(*,*) 

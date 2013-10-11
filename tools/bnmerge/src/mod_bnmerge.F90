@@ -51,9 +51,13 @@ module mod_bnmerge
   real, public, allocatable, target, dimension(:,:)   :: latglo, longlo ! FLOAT
   real, public, allocatable, target, dimension(:,:,:) :: maskglo
 
-  ! NetCDF IDs  of variables to be merged
-  integer,public                                  :: n_bfmvar_out, n_bfmvar_res
-  integer,allocatable,dimension(:),public         :: bfmvarid_out, bfmvarid_res
+  ! NetCDF IDs, types and dimensions  of variables to be merged
+  integer,public                          :: n_bfmvar_out, n_bfmvar_res
+  integer,allocatable,dimension(:),public :: bfmvarid_out, bfmvarid_res         ! id of variables in input
+  integer,allocatable,dimension(:),public :: bfmvartype_out, bfmvartype_res     ! type of var dimension
+  integer,allocatable,dimension(:),public :: bfmvartarget_out, bfmvartarget_res ! id of variables in output
+  integer,dimension(4),public             :: dimslen_out, dimslen_res                      ! input dimensions lenght 
+  integer, parameter, public              :: TYPE_OCE=1, TYPE_BTN=2, TYPE_SRF=3, TYPE_PH=4 ! type of input dimensions
 
   ! namelist variables
   character(LEN=400) :: cf_nml_bnmerge='bnmerge.nml'     ! namelist name
@@ -70,7 +74,7 @@ contains
   !   ------------------------------------------------------------------------------    
   !    Handle errors of NetCDF operations
   !   ------------------------------------------------------------------------------
-  !
+!
   subroutine handle_err(iret,errstring)
     implicit none
     integer,intent(in)  :: iret

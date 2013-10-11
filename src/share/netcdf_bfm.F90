@@ -93,10 +93,12 @@
    integer                       :: chars_rdim
    integer                       :: d3vars_rdim,d3state_rid,d3stateb_rid,d3state_name_rid,d3state_units_rid,d3state_long_rid
 #ifdef INCLUDE_SEAICE
-   integer                       :: d2vars_rdim_ice,d2state_rid_ice,d2stateb_rid_ice,d2state_name_rid_ice,d2state_units_rid_ice,d2state_long_rid_ice
+   integer                       :: d2vars_rdim_ice,d2state_rid_ice,d2stateb_rid_ice,d2state_name_rid_ice, &
+        d2state_units_rid_ice,d2state_long_rid_ice
 #endif
 #ifdef INCLUDE_BEN
-   integer                       :: d2vars_rdim_ben,d2state_rid_ben,d2stateb_rid_ben,d2state_name_rid_ben,d2state_units_rid_ben,d2state_long_rid_ben
+   integer                       :: d2vars_rdim_ben,d2state_rid_ben,d2stateb_rid_ben,d2state_name_rid_ben, &
+        d2state_units_rid_ben,d2state_long_rid_ben
 #endif
 #ifdef INCLUDE_PELCO2
    integer                       :: ph_rid
