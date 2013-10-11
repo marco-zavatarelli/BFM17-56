@@ -46,9 +46,9 @@
    bfm_init     = 0
    bfm_rstctl   = .FALSE.
    bio_setup    = 1
-   out_fname    = 'PELAGOS2_3DVAR'
+   out_fname    = 'PELAGOS2'
    out_dir      = '.'
-   out_title    = 'PELAGOS2_3DVAR'
+   out_title    = 'PELAGOS2'
    out_delta    = 75  !every 5 days (depends on the timestep of nemo nn_rdt)
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
