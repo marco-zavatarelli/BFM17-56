@@ -1314,10 +1314,12 @@ sub func_STRING_INDEX_STARTEND  {
     my $max=0;
     my $min=0;
     foreach my $key ( keys %STRING_INDEX_ARRAY ){
-        if( $key =~ m/.*${subt}.*/ ){
+        if( $key =~ m/.*${subt}.*_E/ ){
             if( $max < $STRING_INDEX_ARRAY{$key} ){ 
                 $max = $STRING_INDEX_ARRAY{$key};
             }
+        }
+        if( $key =~ m/.*${subt}.*_S/ ){
             if( !$min || $min > $STRING_INDEX_ARRAY{$key} ){
                 $min = $STRING_INDEX_ARRAY{$key};
             }
@@ -1330,6 +1332,7 @@ sub func_STRING_INDEX_STARTEND  {
     }
 
     if( $line ){ print $file $line; }
+    #print Dumper(\%STRING_INDEX_ARRAY) . "\n";
 }
 
 

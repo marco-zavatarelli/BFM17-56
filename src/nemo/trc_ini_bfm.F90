@@ -21,13 +21,13 @@
                   NO_STATES,Depth,D3STATE
 #ifdef INCLUDE_BEN
    use mem, only: NO_D2_BOX_STATES_BEN, D2STATE_BEN, &
-                  NO_BOXES_Z_BEN, NO_BOXES_BEN, NO_STATES_BEN,
-   use api_bfm, only : D2STATE_BEN_tot   
+                  NO_BOXES_Z_BEN, NO_BOXES_BEN, NO_STATES_BEN
+   use api_bfm, only : D2STATE_BEN_tot, D2STATEB_BEN
 #endif
 #ifdef INCLUDE_SEAICE
    use mem, only: NO_D2_BOX_STATES_ICE, D2STATE_ICE, &
                   NO_BOXES_Z_ICE, NO_BOXES_ICE, NO_STATES_ICE
-   use api_bfm, only : D2STATE_ICE_tot
+   use api_bfm, only : D2STATE_ICE_tot, D2STATEB_ICE
 #endif
    use mem, only: Volume, Area, Area2d
    use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s

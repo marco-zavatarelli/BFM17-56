@@ -335,7 +335,9 @@
            jK16K6r = jK16K6r+ CalculateFromSet( KRED(BoxNumberXY_ben), SHIFT, LAYER1, &
                                    D1m(BoxNumberXY_ben), Dnew)/ LocalDelta
 
-           call LimitShift(jK16K6r,K6r(BoxNumberXY_ben),K16r(BoxNumberXY_ben)-jK6G4r ,p_max_shift_change)
+           call LimitShift(jK16K6r,K6r(BoxNumberXY_ben), &
+                           K16r(BoxNumberXY_ben)-jK6G4r , &
+                           p_max_shift_change)
 
            call flux(BoxNumberXY_ben, iiBen, ppK16r, ppK6r,   jK16K6r* insw(  jK16K6r) )
            call flux(BoxNumberXY_ben, iiBen, ppK6r, ppK16r, - jK16K6r* insw( -jK16K6r) )
@@ -348,8 +350,9 @@
            jbotN6r(BoxNumberXY_ben) = CalculateFromSet( KRED(BoxNumberXY_ben), DERIVATIVE, &
                RFLUX, ZERO, dummy)
 
-           call LimitChange(jbotN6r(BoxNumberXY_ben),N6r_Ben(BoxNumberXY_ben)*Depth_Ben(BoxNumberXY_ben) ,&
-                                                         p_max_state_change)
+           call LimitChange(jbotN6r(BoxNumberXY_ben), &
+                            N6r_Ben(BoxNumberXY_ben)*Depth_Ben(BoxNumberXY_ben), &
+                            p_max_state_change)
 
            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
            ! Reoxidation Flux from (S2-, Fe3+, Mg3+ to SO4-, FE2+, Mg2+
@@ -385,7 +388,9 @@
 
            jK26K16r = jK26K16r+ &
                    CalculateFromSet( KRED(BoxNumberXY_ben), DERIVATIVE, RFLUX, D2m(BoxNumberXY_ben), dummy)
-           call LimitShift(jK26K16r,K16r(BoxNumberXY_ben)-jK6G4r,K26r(BoxNumberXY_ben),p_max_shift_change)
+           call LimitShift(jK26K16r,K16r(BoxNumberXY_ben)-jK6G4r, &
+                           K26r(BoxNumberXY_ben), &
+                           p_max_shift_change)
 
            call flux(BoxNumberXY_ben, iiBen, ppK26r, ppK16r,   jK26K16r* insw(  jK26K16r) )
            call flux(BoxNumberXY_ben, iiBen, ppK16r, ppK26r, - jK26K16r* insw( -jK26K16r) )

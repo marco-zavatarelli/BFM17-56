@@ -170,18 +170,15 @@
 
 
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          subroutine flux(grid_nr,iiSub,origin,destination,flow,error)
+          subroutine flux(grid_nr,iiSub,origin,destination,flow)
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           use constants, only: RLEN, ZERO, SEC_PER_DAY
-          use global_mem, only: LOGUNIT
           implicit none
           integer,intent(IN)                 :: grid_nr
           integer,intent(IN)                 :: iiSub
           integer,intent(IN)                 :: origin
           integer,intent(IN)                 :: destination
           real(RLEN),intent(IN)              :: flow
-          integer,intent(INOUT),optional     :: error
-          character(len=8)                   :: D23
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           !BEGIN compute
 #ifdef IFORT
@@ -244,7 +241,7 @@
           implicit none
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D3_vector(size(D3SOURCE,DIM=2))
-          integer :: i
+
           Source_D3_vector = ZERO
           Source_D3_vector(:) = D3SOURCE(iistate,:)*SEC_PER_DAY
         end function Source_D3_vector
@@ -260,7 +257,7 @@
           implicit none
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D2_vector_ice(size(D2SOURCE_ICE,DIM=2))
-          integer :: i
+
           Source_D2_vector_ice = ZERO
           Source_D2_vector_ice = D2SOURCE_ICE(iistate,:)*SEC_PER_DAY 
         end function Source_D2_vector_ice
@@ -275,7 +272,7 @@
           implicit none
           integer, intent(IN) ::iistate
           real(RLEN) ::Source_D2_vector_ben(size(D2SOURCE_BEN,DIM=2))
-          integer :: i
+
           Source_D2_vector_ben = ZERO
           Source_D2_vector_ben = D2SOURCE_BEN(iistate,:)*SEC_PER_DAY 
         end function Source_D2_vector_ben
@@ -293,7 +290,7 @@
           integer, intent(IN)  ::iiSub
           integer, intent(IN)  ::iibox
           integer, intent(IN)  ::iistate
-          integer :: i
+
           Source = ZERO
           if ( iiSub == iiPel )  then
              Source=D3SOURCE(iistate,iibox)*SEC_PER_DAY

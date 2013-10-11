@@ -129,10 +129,17 @@
       ! from mmol eq/m2 --> umol eq/kg
       ! Diagnostic variable used to compute pH
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-      Acae(BoxNumberXY_ben) = G3h(BoxNumberXY_ben)/ p_poro(BoxNumberXY_ben)/( &
-        p_p+ ONE)/( D1m(BoxNumberXY_ben))/ERHO_Ben(BoxNumberXY_ben)*1000._RLEN
-      Acan(BoxNumberXY_ben) = (G23h(BoxNumberXY_ben)+G13h(BoxNumberXY_ben))/ p_poro(BoxNumberXY_ben)/( &
-        p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY_ben))/ERHO_Ben(BoxNumberXY_ben)*1000._RLEN
+      Acae(BoxNumberXY_ben) = &
+           G3h(BoxNumberXY_ben)/ &
+           p_poro(BoxNumberXY_ben)/( &
+           p_p+ ONE)/( D1m(BoxNumberXY_ben))/ &
+           ERHO_Ben(BoxNumberXY_ben)*1000._RLEN
+      Acan(BoxNumberXY_ben) = &
+           (G23h(BoxNumberXY_ben)+&
+           G13h(BoxNumberXY_ben))/ &
+           p_poro(BoxNumberXY_ben)/( &
+           p_p+ ONE)/( p_d_tot- D1m(BoxNumberXY_ben))/ &
+           ERHO_Ben(BoxNumberXY_ben)*1000._RLEN
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! H+-loss  due to nitrification and deoxidation of OH-
@@ -325,7 +332,11 @@
 
         ! Damp for too large fluxes
 
-        call LimitShift(jG13G3h,G3h(BoxNumberXY_ben)-loss-jG3O3h,G13h(BoxNumberXY_ben),p_max_shift_change)
+        call LimitShift(jG13G3h, &
+             G3h(BoxNumberXY_ben)- &
+             loss-jG3O3h, &
+             G13h(BoxNumberXY_ben), &
+             p_max_shift_change)
         call flux(BoxNumberXY_ben, iiBen, ppG13h, ppG3h,   jG13G3h* insw(  jG13G3h) )
         call flux(BoxNumberXY_ben, iiBen, ppG3h, ppG13h, - jG13G3h* insw( -jG13G3h) )
 
@@ -343,7 +354,10 @@
 
         ! Damp for too large fluxes
 
-        call LimitShift(jG23G13h,G13h(BoxNumberXY_ben),G23h(BoxNumberXY_ben),p_max_shift_change)
+        call LimitShift(jG23G13h, &
+             G13h(BoxNumberXY_ben), &
+             G23h(BoxNumberXY_ben), &
+             p_max_shift_change)
         call flux(BoxNumberXY_ben, iiBen, ppG23h, ppG13h,   jG23G13h* insw(  jG23G13h) )
         call flux(BoxNumberXY_ben, iiBen, ppG13h, ppG23h, - jG23G13h* insw( -jG23G13h) )
 
