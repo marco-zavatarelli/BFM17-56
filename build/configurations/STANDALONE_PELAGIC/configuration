@@ -29,7 +29,6 @@
         CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
-        NETCDF  = '/opt/local',
         EXP     = 'standalone.pelagic',
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

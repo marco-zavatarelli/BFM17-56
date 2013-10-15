@@ -45,8 +45,8 @@ NEMOSUB="";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NETCDF     EXP     NMLDIR     PROC     QUEUE     BFMSTD     NEMOSUB     NEMONML     )
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr netcdf_usr exp_usr nmldir_usr proc_usr queue_usr bfmstd_usr nemosub_usr nemonml_usr )
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NCDF_DIR   EXP     NMLDIR     PROC     QUEUE     BFMSTD     NEMOSUB     NEMONML     )
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr ncdf_dir_usr exp_usr nmldir_usr proc_usr queue_usr bfmstd_usr nemosub_usr nemonml_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -61,6 +61,7 @@ EXP="EXP00"
 QUEUE="poe_short"
 BFMSTD="bfm_standalone.x"
 CLEAN=1
+NCDF_DIR_DEFAULT="/usr"
 # --------------------------------------------------------------------
 
 
@@ -111,8 +112,8 @@ DESCRIPTION
                   Number of procs used for compilation. Default: 4
        -f
                   Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
-       -t NETCDF
-                  Path to netcdf library and header files. (Default: /usr/local)
+       -t NCDF_DIR
+                  Path to netcdf library and header files. (Default: "/usr" if \${NETCDF} environment variable is not defined)
        -o BFMSTD OUTPUT
                   BFM executable name output. (Default: bfm_standalone.x)
     alternative DEPLOYMENT OPTIONS are:
@@ -148,22 +149,22 @@ while getopts "${OPTS}" opt; do
       c ) [ ${VERBOSE} ] && echo "compilation activated"   ; CMP=1            ;;
       d ) [ ${VERBOSE} ] && echo "deployment activated"    ; DEP=1            ;;
       P ) [ ${VERBOSE} ] && echo "list presets"            ; LIST=1           ;;
-      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"          ; PRESET=$OPTARG      ;;
-      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"            ; mode_usr=$OPTARG    ;;
-      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"     ; cppdefs_usr=$OPTARG ;;
-      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"          ; bfmdir_usr=$OPTARG  ;;
-      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"         ; nemodir_usr=$OPTARG ;;
-      N ) [ ${VERBOSE} ] && echo "NEMONML=$OPTARG"         ; nemonml_usr=$OPTARG ;;
-      S ) [ ${VERBOSE} ] && echo "NEMOSUB=$OPTARG"         ; nemosub_usr=$OPTARG ;;
-      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"    ; arch_usr=$OPTARG    ;;
-      f ) [ ${VERBOSE} ] && echo "fast mode activated"     ; clean_usr=0         ;;
-      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"     ; netcdf_usr=$OPTARG  ;;
-      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"      ; exp_usr=$OPTARG     ;;
-      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"    ; nmldir_usr=$OPTARG  ;;
-      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"        ; proc_usr=$OPTARG    ;;
-      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"      ; queue_usr=$OPTARG   ;;
-      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG" ; bfmstd_usr=$OPTARG  ;;
-      * ) echo "option not recognized"                     ; exit                ;;
+      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"          ; PRESET=$OPTARG       ;;
+      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"            ; mode_usr=$OPTARG     ;;
+      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"     ; cppdefs_usr=$OPTARG  ;;
+      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"          ; bfmdir_usr=$OPTARG   ;;
+      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"         ; nemodir_usr=$OPTARG  ;;
+      N ) [ ${VERBOSE} ] && echo "NEMONML=$OPTARG"         ; nemonml_usr=$OPTARG  ;;
+      S ) [ ${VERBOSE} ] && echo "NEMOSUB=$OPTARG"         ; nemosub_usr=$OPTARG  ;;
+      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"    ; arch_usr=$OPTARG     ;;
+      f ) [ ${VERBOSE} ] && echo "fast mode activated"     ; clean_usr=0          ;;
+      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"     ; ncdf_dir_usr=$OPTARG ;;
+      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"      ; exp_usr=$OPTARG      ;;
+      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"    ; nmldir_usr=$OPTARG   ;;
+      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"        ; proc_usr=$OPTARG     ;;
+      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"      ; queue_usr=$OPTARG    ;;
+      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG" ; bfmstd_usr=$OPTARG   ;;
+      * ) echo "option not recognized"                     ; exit                 ;;
     esac
 done
 
@@ -299,11 +300,15 @@ if [ ${GEN} ]; then
         fi
 
         #change netcdf path in compiler file
-        if [ ${NETCDF} ]; then
-            [ ${VERBOSE} ] && echo "changing netcd path!"
-            sed -e "s,/usr/local,${NETCDF}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
+        if [ ${NCDF_DIR} ]; then
+            [ ${VERBOSE} ] && echo "changing netcd path for user option!"
+            sed -e "s,\${NETCDF},${NCDF_DIR}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
+        elif [ ${NETCDF} ]; then
+            [ ${VERBOSE} ] && echo "changing netcd path for environment variable!"
+            sed -e "s,\${NETCDF},${NETCDF}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
         else
-            cp ${BFMDIR}/compilers/${ARCH} ${blddir}/${ARCH}
+            [ ${VERBOSE} ] && echo "changing netcd path for default!"
+            sed -e "s,\${NETCDF},${NCDF_DIR_DEFAULT}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
         fi
 
         if [ ${VERBOSE} ]; then

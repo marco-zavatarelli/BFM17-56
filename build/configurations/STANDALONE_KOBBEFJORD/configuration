@@ -30,7 +30,6 @@
         CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG INCLUDE_SEAICE',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
-        NETCDF  = '/usr/local',
         EXP     = 'standalone.seaice.Kobbefjord',
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
