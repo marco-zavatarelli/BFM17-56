@@ -21,16 +21,22 @@
 !    ncidres   : BFM output restart merged file identifier 
 ! --------------------------------------------------------------------------
 module create_output
+
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN
-
   implicit none
+
+#ifdef PARALLEL
+  include 'mpif.h'
+#endif
+
   ! !PUBLIC MEMBER FUNCTIONS:
   public create_output_init
 
 contains
 
   subroutine create_output_init
+    use netcdf
     use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res, dimslen_out, dimslen_res
 
     implicit none
@@ -74,6 +80,7 @@ contains
 
 
   subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime, dimslen)
+    use netcdf
     use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask, TYPE_OCE, TYPE_SRF, TYPE_BTN
 
     implicit none
@@ -161,6 +168,7 @@ contains
 
 
   subroutine fill_values(ncid_chunk, ncid_out, id_vartime, ntime, nvars)
+    use netcdf
     use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo
 
     implicit none
@@ -209,6 +217,7 @@ contains
 
 
   subroutine define_variables_out(ncid_chunk, ncidout, id_array_out, n_var_total )
+    use netcdf
     use mod_bnmerge, ONLY: NSAVE, TYPE_OCE, TYPE_BTN, TYPE_SRF, var_save, bfmvarid_out, bfmvartype_out, bfmvartarget_out
 
     implicit none
@@ -296,6 +305,7 @@ contains
 
 
   subroutine define_variables_res(ncid_chunk, ncidres, id_array_res, n_var_total)
+    use netcdf
     use mod_bnmerge, ONLY: TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH, bfmvarid_res, bfmvartype_res, bfmvartarget_res
 
     implicit none

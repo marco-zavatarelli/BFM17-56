@@ -19,6 +19,10 @@ module merge_vars
        jpiglo, jpjglo, jpkglo, latglo, longlo, maskglo
 
   implicit none
+#ifdef PARALLEL
+  include 'mpif.h'
+#endif
+
   real, allocatable, dimension(:) :: depth
 
   ! !PUBLIC MEMBER FUNCTIONS:
@@ -200,6 +204,7 @@ contains
     write(*,*) "No of dimensions = ",nDims
     write(*,*) "No of variables  = ",nVars
     write(*,*) "No of time step  = ",ntime
+    write(*,*) "Dimensions       = ",dimslen
 #endif
 
     ! read bottompoint data
@@ -208,7 +213,7 @@ contains
     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring var bottompoint")
     status = nf90_get_var(ncinid, IDbtnpnt, bottompoint, start = (/ 1 /),     &
          count = (/ dimslen(TYPE_BTN) /))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="variable: bottompoint")
+    if (status /= NF90_NOERR) call handle_err(status,errstring="getting variable: bottompoint")
 
     ! read mask and lat-lon data
     status = nf90_inq_varid(ncinid, "mask", IDvar)

@@ -17,23 +17,20 @@
 
 module mod_bnmerge
 
-#ifdef PARALLEL
-  use pnetcdf
-  use mpi
-#else
   use netcdf
+  implicit none
+
+#ifdef PARALLEL
+  include 'mpif.h'
+! #define INTEGER integer(kind=MPI_OFFSET_KIND)
 #endif
 
-  implicit none
+
   integer,    parameter, public :: RLEN=selected_real_kind(12,307)
   real(RLEN), parameter, public :: ZERO=0.0_RLEN
   real(RLEN), parameter, public :: ONE=1.0_RLEN
 
-#ifdef PARALLEL
-  integer(kind=MPI_OFFSET_KIND), public :: &  
-#else
   integer, public :: &  
-#endif
        jpkglo    ,                   &  !: number of grid points along k (proc)
        jpiglo    ,                   &  !: number of grid points along i (global domain)
        jpjglo    ,                   &  !: number of grid points along j (global domain)
@@ -80,10 +77,10 @@ contains
     integer,intent(in)  :: iret
     character(len=*),optional,intent(in) :: errstring
 #ifdef PARALLEL
-    if (iret .ne. NF_NOERR) then
+    if (iret .ne. NF90_NOERR) then
        write(*,*) "====== NetCDF Error ======"
        if (present(errstring)) write(*,*) errstring
-       write(*,*) NFMPI_STRERROR(iret)
+       write(*,*) NF90_STRERROR(iret)
        call MPI_ABORT(MPI_COMM_WORLD, 1, iret)
 #else
     if (iret .ne. NF90_NOERR) then
@@ -91,8 +88,8 @@ contains
        if (present(errstring)) write(*,*) errstring
        write(*,*) NF90_STRERROR(iret)
        stop "stop in function handle_err"
-    endif
 #endif
+    endif
   end subroutine handle_err
   !
   !   ------------------------------------------------------------------------------    
