@@ -21,7 +21,7 @@ program bnmerge
   use merge_vars, ONLY: merge_vars_init
 
   implicit none
-#ifdef PARALLEL
+#ifdef PARAL
   include 'mpif.h'
   character(len=MPI_MAX_PROCESSOR_NAME) name 
   integer err, rank, nprocs, namelen
@@ -29,7 +29,7 @@ program bnmerge
   real(8)    :: calctime=0.
   integer :: calc=0
 
-#ifdef PARALLEL
+#ifdef PARAL
   call MPI_INIT(err)
   call MPI_COMM_RANK(MPI_COMM_WORLD, rank, err)
   call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, err)
@@ -64,7 +64,7 @@ program bnmerge
   write(*,*) 'End bnmerge'
   write(*,*) 
 
-#ifdef PARALLEL
+#ifdef PARAL
   CALL MPI_Finalize(err)
 #endif
 

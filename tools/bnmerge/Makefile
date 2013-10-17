@@ -3,7 +3,7 @@ ifeq ($(DEBUG),yes)
 endif
 
 ifeq ($(PARALLEL),yes)
-	OPTPAR=-DPARALLEL
+	OPTPAR= -openmp -DPARAL
 	include ../../compilers/ifort_athena_openmp.inc
 else
 	include ../../compilers/ifort_athena_openmp.inc

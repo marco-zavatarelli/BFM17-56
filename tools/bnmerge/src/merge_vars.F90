@@ -17,10 +17,12 @@ module merge_vars
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN, ZERO, &
        jpiglo, jpjglo, jpkglo, latglo, longlo, maskglo
+  !$ USE omp_lib           ! Note OpenMP sentinel
 
   implicit none
-#ifdef PARALLEL
+#ifdef PARAL
   include 'mpif.h'
+  integer :: nthreads=0, nthread=0
 #endif
 
   real, allocatable, dimension(:) :: depth
@@ -33,7 +35,6 @@ contains
   subroutine merge_vars_init
     use mod_bnmerge, ONLY : n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, &
          n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, &
-         dimslen_out, dimslen_res, &
          do_output, do_restart, &
          out_dir, chunk_fname, bfm_restart, &
          jpnij
@@ -80,23 +81,56 @@ contains
             errstring="opening restart file ")
     end if
 
+
+    !--------------------------------------------------------------------------------
+    !0. OMP setup
+    
+    !$OMP PARALLEL DEFAULT(NONE) SHARED(nthreads)
+    !$OMP MASTER
+    !$      nthreads = omp_get_num_threads()
+    !$      WRITE(*,*) 'Running OMP with ',nthreads,' thread(s).'
+    !$      CALL OMP_SET_NESTED(.FALSE.)      ! disables nested parallelism
+    !$OMP END MASTER
+    !$OMP END PARALLEL
+    
+    !--------------------------------------------------------------------------------
+    
+
     !main execution
     if ( do_output ) then
        write(*,*) "Merging output main..."
+       ! loop over all the files getting info
+       !$OMP PARALLEL DO DEFAULT(NONE) &
+       !$OMP PRIVATE ( nthread, procnum ) &
+       !$OMP SHARED  ( jpnij, chunk_fname, ncid_out ) &
+       !$OMP SHARED  ( n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, zflag, gflag )
        do procnum=1,jpnij
+#ifdef DEBUG
+          !$ nthread = omp_get_thread_num()
+          !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', procnum
+#endif         
           call merge_vars_proc(.FALSE., chunk_fname, procnum, ncid_out, &
-               n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, dimslen_out, &
-               zflag, gflag)
+               n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, zflag, gflag)
        end do ! processes
+       !$OMP END PARALLEL DO
        gflag = 1
     end if
     if ( do_restart ) then
        write(*,*) "Merging restart main..."
+       ! loop over all the files getting info
+       !$OMP PARALLEL DO DEFAULT(NONE) &
+       !$OMP PRIVATE ( nthread, procnum ) &
+       !$OMP SHARED  ( jpnij, bfm_restart, ncid_res ) &
+       !$OMP SHARED  ( n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, zflag, gflag )
        do procnum=1,jpnij
+#ifdef DEBUG
+          !$ nthread = omp_get_thread_num()
+          !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', procnum
+#endif         
           call merge_vars_proc(.TRUE. , bfm_restart, procnum, ncid_res, &
-               n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, dimslen_res, &
-               zflag, gflag)
+               n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, zflag, gflag)
        end do ! processes
+       !$OMP END PARALLEL DO
     end if
 
 
@@ -136,14 +170,15 @@ contains
 
 
 
-  subroutine merge_vars_proc(is_restart, fname_in, procnum, ncid, n_vars, bfmvarid, bfmvartypes, bfmvartargets, dimslen, &
+  subroutine merge_vars_proc(is_restart, fname_in, procnum, ncid, n_vars, bfmvarid, bfmvartypes, bfmvartargets, &
        zflag, gflag)
     use mod_bnmerge, ONLY : inp_dir, nimppt, njmppt, nlcit , nlcjt, TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH
 
     implicit none
     integer, intent(inout)           :: zflag
     integer, intent(in)              :: procnum, ncid, n_vars, gflag
-    integer,dimension(:), intent(in) :: bfmvarid, bfmvartypes, bfmvartargets, dimslen
+    integer,dimension(:), intent(in) :: bfmvarid, bfmvartypes, bfmvartargets
+    integer,dimension(3)             :: dimslen
     character(LEN=100), intent(in)   :: fname_in
     logical, intent(in)              :: is_restart
 
@@ -152,7 +187,7 @@ contains
     integer             :: ncinid, status
     character(LEN=172)  :: fname
     integer             :: ndims, nVars, nGlobalAtts, IDunlimdim
-    integer             :: IDbtnpnt, IDvar
+    integer             :: IDvar, IDvarbtn, IDocepnt, IDsrfpnt, IDbtnpnt
 
     integer           :: ntime
     integer           :: noce 
@@ -185,6 +220,7 @@ contains
 
     character(LEN=4) :: procname
 
+
     ! build the file name for each process (start from 0)
     write(procname,'(I4.4)') procnum-1
 
@@ -195,6 +231,22 @@ contains
     status = nf90_inquire(ncinid, nDims, nVars, nGlobalAtts, IDunlimdim)
     if (status /= NF90_NOERR) call handle_err(status)
     status = nf90_inquire_dimension(ncinid, IDunlimdim, len = ntime)
+
+    ! read dimensions and build 
+    status = nf90_inq_dimid(ncinid, "oceanpoint", IDocepnt)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring oceanpoint")
+    status = nf90_inquire_dimension(ncinid, IDocepnt, len = dimslen(TYPE_OCE))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim oceanpoint")
+    status = nf90_inq_dimid(ncinid, "surfacepoint", IDsrfpnt)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring surfacepoint")
+    status = nf90_inquire_dimension(ncinid, IDsrfpnt, len = dimslen(TYPE_SRF))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim surfacepoint")
+    status = nf90_inq_dimid(ncinid, "bottompoint", IDbtnpnt) 
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring bottompoint")
+    status = nf90_inquire_dimension(ncinid, IDbtnpnt, len = dimslen(TYPE_BTN))
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim bottompoint")
+
+
 #ifdef DEBUG
     write(*,*)
     write(*,*) "Processing file : "
@@ -204,14 +256,14 @@ contains
     write(*,*) "No of dimensions = ",nDims
     write(*,*) "No of variables  = ",nVars
     write(*,*) "No of time step  = ",ntime
-    write(*,*) "Dimensions       = ",dimslen
+    write(*,*) "Dimensions len   = ",dimslen
 #endif
 
     ! read bottompoint data
-    allocate(bottompoint(dimslen(TYPE_BTN)))
-    status = nf90_inq_varid(ncinid, "bottompoint", IDbtnpnt)
+    status = nf90_inq_varid(ncinid, "bottompoint", IDvarbtn) 
     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring var bottompoint")
-    status = nf90_get_var(ncinid, IDbtnpnt, bottompoint, start = (/ 1 /),     &
+    allocate(bottompoint(dimslen(TYPE_BTN)))
+    status = nf90_get_var(ncinid, IDvarbtn, bottompoint, start = (/ 1 /),     &
          count = (/ dimslen(TYPE_BTN) /))
     if (status /= NF90_NOERR) call handle_err(status,errstring="getting variable: bottompoint")
 
@@ -385,11 +437,13 @@ contains
           end do
           step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
           step_count_arr4 = (/ Icount, Jcount, jpkglo, ntime /)
+          !$OMP CRITICAL
           status = nf90_put_var(ncid, bfmvartargets(d), bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:), &
                start = step_start_arr4, count = step_count_arr4)
+          !$OMP END CRITICAL
           if (status /= NF90_NOERR) call handle_err(status,errstring="Put 3D domain: "//procname)
 #ifdef DEBUG
-          write(*,'(A,i3,i3,i3,i6)') "3D var "//trim(varname)//", Proc: "//procname//", Dims: ",jpi, jpj, jpkglo, ntime
+          write(*,'(A,i3,i3,i3,i6)') "3D var "//trim(varname)//", Proc: "//trim(procname)//", Dims: ",jpi, jpj, jpkglo, ntime
 #endif
        case ("surfacepoint")  ! 2D variable
           bfmvar2d=NF90_FILL_DOUBLE
@@ -405,11 +459,13 @@ contains
           end do
           step_start_arr3 = (/ Istart, Jstart, 1 /)
           step_count_arr3= (/ Icount, Jcount, ntime /)
+          !$OMP CRITICAL
           status = nf90_put_var(ncid, bfmvartargets(d), bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
                start = step_start_arr3, count = step_count_arr3)
+          !$OMP END CRITICAL
           if (status /= NF90_NOERR) call handle_err(status,errstring="Put 2D domain: "//procname)
 #ifdef DEBUG
-          write(*,'(A,i3,i3,i3,i6)') "2D Surface var "//varname//", Proc: "//procname//", Dims: ",jpi, jpj, ntime
+          write(*,'(A,i3,i3,i3,i6)') "2D Surface var "//trim(varname)//", Proc: "//trim(procname)//", Dims: ",jpi, jpj, ntime
 #endif
        case ("bottompoint")   ! 2D variable from the bottom
 
@@ -445,11 +501,13 @@ contains
           end do
           step_start_arr3 = (/ Istart, Jstart, 1 /)
           step_count_arr3= (/ Icount, Jcount, ntime /)
+          !$OMP CRITICAL
           status = nf90_put_var(ncid, bfmvartargets(d), bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
                start = step_start_arr3, count = step_count_arr3)
+          !$OMP END CRITICAL
           if (status /= NF90_NOERR) call handle_err(status,errstring="Put 2D domain: "//procname)
 #ifdef DEBUG
-          write(*,'(A,i3,i3,i3,i6)') "2D Bottom var "//varname//", Proc: "//procname//", Dims: ",jpi, jpj, ntime
+          write(*,'(A,i3,i3,i3,i6)') "2D Bottom var "//trim(varname)//", Proc: "//trim(procname)//", Dims: ",jpi, jpj, ntime
 #endif
        end select
 

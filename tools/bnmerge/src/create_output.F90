@@ -24,10 +24,12 @@ module create_output
 
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN
+  !$ USE omp_lib           ! Note OpenMP sentinel
   implicit none
 
-#ifdef PARALLEL
+#ifdef PARAL
   include 'mpif.h'
+  integer :: nthread=0
 #endif
 
   ! !PUBLIC MEMBER FUNCTIONS:
@@ -37,7 +39,7 @@ contains
 
   subroutine create_output_init
     use netcdf
-    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res, dimslen_out, dimslen_res
+    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res
 
     implicit none
     integer :: ncidout, ncidres, ncid_chunk_out, ncid_chunk_res
@@ -46,8 +48,8 @@ contains
     integer :: ntime_out, ntime_res
 
     ! Create file and attribute and dimensions
-    if ( do_output  ) call define_output(chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out, dimslen_out)
-    if ( do_restart ) call define_output(bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res, dimslen_res)
+    if ( do_output  ) call define_output(chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out)
+    if ( do_restart ) call define_output(bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res)
 
     write(*,*) "Writing variables..."
     if( do_output  ) call define_variables_out(ncid_chunk_out, ncidout, id_array_out, n_bfmvar_out )
@@ -79,13 +81,13 @@ contains
   end subroutine create_output_init
 
 
-  subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime, dimslen)
+  subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime)
     use netcdf
-    use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask, TYPE_OCE, TYPE_SRF, TYPE_BTN
+    use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask
 
     implicit none
     character(len=100), intent(in)  :: fname
-    integer,            intent(out) :: ncid_out, ncid_chunk, id_array(4), id_vartime, ntime, dimslen(3)
+    integer,            intent(out) :: ncid_out, ncid_chunk, id_array(4), id_vartime, ntime
 
     integer                        :: status
     integer                        :: nGlobalAtts 
@@ -112,18 +114,6 @@ contains
     if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")
     status = nf90_inquire_dimension(ncid_chunk, IDunlimdim, len = ntime)
     if (status /= NF90_NOERR) call handle_err(status,errstring="reading time")
-    status = nf90_inq_dimid(ncid_chunk, "oceanpoint", IDocepnt)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring oceanpoint")
-    status = nf90_inquire_dimension(ncid_chunk, IDocepnt, len = dimslen(TYPE_OCE))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim oceanpoint")
-    status = nf90_inq_dimid(ncid_chunk, "surfacepoint", IDsrfpnt)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring surfacepoint")
-    status = nf90_inquire_dimension(ncid_chunk, IDsrfpnt, len = dimslen(TYPE_SRF))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim surfacepoint")
-    status = nf90_inq_dimid(ncid_chunk, "bottompoint", IDbtnpnt)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring bottompoint")
-    status = nf90_inquire_dimension(ncid_chunk, IDbtnpnt, len = dimslen(TYPE_BTN))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim bottompoint")
 
     ! define geographic variables
     if ( ln_mask ) then
@@ -195,23 +185,36 @@ contains
     allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime),tmpfillvar2d(jpiglo,jpjglo,ntime))
     tmpfillvar3d = NF90_FILL_DOUBLE
     tmpfillvar2d = NF90_FILL_DOUBLE
+    !$OMP PARALLEL DO DEFAULT(NONE) &
+    !$OMP SHARED  ( nvars, ncid_out, tmpfillvar3d, tmpfillvar2d ) &
+    !$OMP PRIVATE ( IDtarget, ndims, varname, nthread )
     do IDtarget = 1 , nvars
+#ifdef DEBUG
+          !$ nthread = omp_get_thread_num()
+          !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', IDtarget
+#endif         
        ! inquire ID in the output file
-       call handle_err( nf90_inquire_variable(ncid_out, IDtarget, ndims=ndims, name=varname) )
+       call handle_err( nf90_inquire_variable(ncid_out, IDtarget, ndims=ndims, name=varname), &
+               errstring="inquiring target in out variable" )
        ! write empty variable values
        select case (ndims)
        case (4)
           ! 3D array
+          !$OMP CRITICAL
           call handle_err( nf90_put_var(ncid_out, IDtarget, tmpfillvar3d), &
                errstring="variable:"//trim(varname))
+          !$OMP END CRITICAL
        case (3)
           ! 2D array
+          !$OMP CRITICAL
           call handle_err( nf90_put_var(ncid_out, IDtarget, tmpfillvar2d), &
                errstring="variable:"//trim(varname))
+          !$OMP END CRITICAL
           ! case default
           !   write(*,'(A,I4,A,A,A,I4)') "invalid dimension size: ",ndims, " for var: '",trim(varname), "'  ID: ", IDtarget
        end select
     end do
+    !$OMP END PARALLEL DO
     deallocate(tmpfillvar3d,tmpfillvar2d)
   end subroutine fill_values
 
@@ -388,7 +391,7 @@ contains
 
     do n = 1 , nbfmvars3d_res
 #ifdef DEBUG
-       write(*,*) "Define variable: ",trim(res_names(n))
+       write(*,*) "Define variable "//trim(res_names(n))//": ",n
        write(*,*) "from file chunk in RESTART"
        write(*,*) "last dimension name ",trim(dimname_res)
 #endif

@@ -11,16 +11,21 @@
 #ARFLAGS      Assembler flags
 #OTHERFLAGS   User defined additional flags
 
-	FC = ifort
-	LD = ifort
-	AR      = ar
-	ARFLAGS = -r
-	NCDF_LIB = -L${PNETCDF}/lib -lpnetcdf
-	NCDF_INC = -I${PNETCDF}/include
-        MPI_LIB =  -L/opt/intel/impi/4.1.0/lib64 -lmpi -lmpich -lmpiif
-        MPI_INC =  -I/opt/intel/impi/4.1.0/include64
-	CPPFLAGS=
-        FFLAGS  =  -r8 -O3 -xHost -fp-model source -traceback ${NCDF_INC} ${MPI_INC} -openmp
-	LDFLAGS = ${NCDF_INC} ${MPI_INC} ${NCDF_LIB} ${MPI_LIB} -openmp
+  HDF5     = /users/home/opt/hdf5/hdf5-1.8.11_parallel
 
-#NOTE: you have to load module: NETCDF/parallel-netcdf-1.3.1
+	FC       = mpiifort
+	LD       = mpiifort
+
+	NCDF_LIB  = -L${NETCDF}/lib -lnetcdff -lnetcdf -L${PNETCDF}/lib -lpnetcdf
+	NCDF_INC  = -I${PNETCDF}/include -I${NETCDF}/include
+	HDF5_LIB  = -L${HDF5}/lib -lhdf5_hl -lhdf5
+  HDF5_INC  = -I${HDF5}/include
+  OTHER_LIB = -lz -lcurl -lgpfs
+
+  FFLAGS   = -r8 -O3 -xHost -fp-model source -traceback ${NCDF_INC} ${HDF5_INC}
+	LDFLAGS  = ${NCDF_LIB} ${HDF5_LIB} ${OTHER_LIB}
+
+#NOTE: you have to load modules: 
+#      - HDF5/hdf5-1.8.11_parallel
+#      - NETCDF/parallel-netcdf-1.3.1
+#      - NETCDF/netcdf-4.3_parallel

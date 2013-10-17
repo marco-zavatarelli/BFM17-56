@@ -53,7 +53,6 @@ module mod_bnmerge
   integer,allocatable,dimension(:),public :: bfmvarid_out, bfmvarid_res         ! id of variables in input
   integer,allocatable,dimension(:),public :: bfmvartype_out, bfmvartype_res     ! type of var dimension
   integer,allocatable,dimension(:),public :: bfmvartarget_out, bfmvartarget_res ! id of variables in output
-  integer,dimension(4),public             :: dimslen_out, dimslen_res                      ! input dimensions lenght 
   integer, parameter, public              :: TYPE_OCE=1, TYPE_BTN=2, TYPE_SRF=3, TYPE_PH=4 ! type of input dimensions
 
   ! namelist variables
