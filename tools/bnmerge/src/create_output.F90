@@ -94,7 +94,13 @@ contains
     integer                        :: IDx, IDy, IDz, IDtime, IDatt, IDunlimdim, IDtimetmp, IDocepnt, IDsrfpnt, IDbtnpnt
     character(len = NF90_MAX_NAME) :: globattname
 
-    status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NOCLOBBER, ncid_out)
+
+#ifdef PARAL
+ status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", &
+      IOR(NF90_NETCDF4, NF90_MPIIO), ncid_out, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
+#else
+ status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NOCLOBBER, ncid_out)
+#endif   
     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(fname)//".nc already exists!" )
 
     ! Define the dimensions
@@ -108,7 +114,13 @@ contains
     if(status /= NF90_NOERR) call handle_err(status,errstring="reading time in out")
 
     ! read variables from domain 0000 and copy attributes
-    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_WRITE, ncid = ncid_chunk)
+#ifdef PARAL
+!    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", &
+!         mode = IOR(NF90_NOWRITE, NF90_MPIIO), ncid = ncid_chunk, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
+    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
+#else
+    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
+#endif
     if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname)//"_0000.nc!" )
     status = nf90_inquire(ncid_chunk, nAttributes=nGlobalAtts, unlimitedDimId=IDunlimdim)
     if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")

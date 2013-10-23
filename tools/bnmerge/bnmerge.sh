@@ -1,26 +1,24 @@
 #!/bin/bash
-
-set -ex 
+#set -ex 
 
 # set environment
-module load NETCDF/parallel-netcdf-1.3.1
 
-export OMP_NUM_THREADS=16
-LIST=bnmerge.nml
-LOG_DIR=./
-
-
-gmake clean
-gmake
-
+BNMERGE_LST=bnmerge.nml
+LOG_DIR=.
+BNMERGE_EXE=${BFMDIR}/tools/bnmerge/bnmerge.x
 
 if [ "${PARALLEL}" == 'yes' ]; then
-    #QUEUE='poe_short_smt'
-    QUEUE='serial_30min'
+    export OMP_NUM_THREADS=128
+    module load INTEL/intel_xe_2013 HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1
+    QUEUE='poe_short'
 else
+    export OMP_NUM_THREADS=1
+    module load INTEL/intel_xe_2013 NETCDF/netcdf-4.3
     QUEUE='serial_30min'
 fi
 
+
+# create runscript
 
 cat > runscript <<EOF
     #! /bin/sh 
@@ -32,28 +30,18 @@ cat > runscript <<EOF
     #BSUB -q ${QUEUE}    # queue
     #BSUB -n ${OMP_NUM_THREADS}            # Number of CPUs
     #BSUB -x 
-    #BSUB -R "span[ptile=16]"
+    #BSUB -R "span[ptile=32]"
 
-    VERBOSE=_VERBOSE_
-    if [ $VERBOSE ]; then set -exv; fi
+    if [ ${DEBUG} ]; then set -exv; fi
 
     export MP_TASK_AFFINITY=core
 
     # Launch the model
-
-    time ./bnmerge.x -f ${LIST}
+    ${BNMERGE_EXE} -f ${BNMERGE_LST}
 
     echo " bnmerge DONEEE!!!"
 
 EOF
 
-
-bsub < runscript
-while `true` ; do
-    echo "Waiting..."
-    sleep 10
-    njobs=`bjobs | grep bnmerge | wc -l`
-    if [ ${njobs} -eq 0 ]; then
-        break
-    fi
-done
+# execute runscript and wait for output
+echo "Move \"runscript\" to your experiment folder and execute: \"bsub < runscript\""

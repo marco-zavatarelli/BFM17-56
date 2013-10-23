@@ -16,7 +16,8 @@
 module merge_vars
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN, ZERO, &
-       jpiglo, jpjglo, jpkglo, latglo, longlo, maskglo
+       jpiglo, jpjglo, jpkglo, latglo, longlo, maskglo, &
+       inp_dir, nimppt, njmppt, nlcit , nlcjt
   !$ USE omp_lib           ! Note OpenMP sentinel
 
   implicit none
@@ -38,9 +39,6 @@ contains
          do_output, do_restart, &
          out_dir, chunk_fname, bfm_restart, &
          jpnij
-
-    use mod_bnmerge, ONLY : nimppt, njmppt, ibonit, ibonjt, nlcit , nlcjt, nldit, nldjt, nleit, nlejt
-
 
     implicit none
     integer            :: procnum
@@ -70,15 +68,27 @@ contains
     ! open the output file
     if ( do_output ) then
        write(*,*) "Merging output init..."
+#ifdef PARAL
+       call handle_err(nf90_open(path = trim(out_dir)//"/"//trim(chunk_fname)//".nc", &
+            mode = IOR(NF90_WRITE, NF90_MPIIO), ncid = ncid_out, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
+            errstring="opening output file ")
+#else
        call handle_err(nf90_open(path = trim(out_dir)//"/"//trim(chunk_fname)//".nc", &
             mode = NF90_WRITE, ncid = ncid_out), &
             errstring="opening output file ")
+#endif
     endif
     if( do_restart ) then
        write(*,*) "Merging restart init..."
+#ifdef PARAL
+       call handle_err(nf90_open(path = trim(out_dir)//"/"//trim(bfm_restart)//".nc", &
+            mode = IOR(NF90_WRITE, NF90_MPIIO), ncid = ncid_res, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
+            errstring="opening output file ")
+#else
        call handle_err(nf90_open(path = trim(out_dir)//"/"//trim(bfm_restart)//".nc", &
             mode = NF90_WRITE, ncid = ncid_res), &
             errstring="opening restart file ")
+#endif
     end if
 
 
@@ -103,12 +113,9 @@ contains
        !$OMP PARALLEL DO DEFAULT(NONE) &
        !$OMP PRIVATE ( nthread, procnum ) &
        !$OMP SHARED  ( jpnij, chunk_fname, ncid_out ) &
-       !$OMP SHARED  ( n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, zflag, gflag )
+       !$OMP SHARED  ( n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, zflag, gflag ) &
+       !$OMP SHARED  ( inp_dir, nimppt, njmppt, nlcit , nlcjt )
        do procnum=1,jpnij
-#ifdef DEBUG
-          !$ nthread = omp_get_thread_num()
-          !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', procnum
-#endif         
           call merge_vars_proc(.FALSE., chunk_fname, procnum, ncid_out, &
                n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, zflag, gflag)
        end do ! processes
@@ -121,12 +128,9 @@ contains
        !$OMP PARALLEL DO DEFAULT(NONE) &
        !$OMP PRIVATE ( nthread, procnum ) &
        !$OMP SHARED  ( jpnij, bfm_restart, ncid_res ) &
-       !$OMP SHARED  ( n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, zflag, gflag )
+       !$OMP SHARED  ( n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, zflag, gflag ) &
+       !$OMP SHARED  ( inp_dir, nimppt, njmppt, nlcit , nlcjt )
        do procnum=1,jpnij
-#ifdef DEBUG
-          !$ nthread = omp_get_thread_num()
-          !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', procnum
-#endif         
           call merge_vars_proc(.TRUE. , bfm_restart, procnum, ncid_res, &
                n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, zflag, gflag)
        end do ! processes
@@ -157,14 +161,8 @@ contains
 
     deallocate (nimppt)
     deallocate (njmppt)
-    deallocate (ibonit)
-    deallocate (ibonjt)
     deallocate (nlcit)
     deallocate (nlcjt)
-    deallocate (nldit)
-    deallocate (nldjt)
-    deallocate (nleit)
-    deallocate (nlejt)
 
   end subroutine merge_vars_init
 
@@ -172,7 +170,8 @@ contains
 
   subroutine merge_vars_proc(is_restart, fname_in, procnum, ncid, n_vars, bfmvarid, bfmvartypes, bfmvartargets, &
        zflag, gflag)
-    use mod_bnmerge, ONLY : inp_dir, nimppt, njmppt, nlcit , nlcjt, TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH
+
+    use mod_bnmerge, ONLY : TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH
 
     implicit none
     integer, intent(inout)           :: zflag
@@ -220,13 +219,15 @@ contains
 
     character(LEN=4) :: procname
 
+    !$ nthread = omp_get_thread_num()
+    !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' Proc: ', procnum
 
     ! build the file name for each process (start from 0)
     write(procname,'(I4.4)') procnum-1
 
     ! build the file name for each process (start from 0)
     fname = trim(inp_dir)//"/"//trim(fname_in)//"_"//procname//".nc"
-    status = nf90_open(path = fname, mode = NF90_SHARE, ncid = ncinid)
+    status = nf90_open(path = fname, mode = NF90_NOWRITE, ncid = ncinid)
     if (status /= NF90_NOERR) call handle_err(status)
     status = nf90_inquire(ncinid, nDims, nVars, nGlobalAtts, IDunlimdim)
     if (status /= NF90_NOERR) call handle_err(status)
@@ -265,7 +266,7 @@ contains
     allocate(bottompoint(dimslen(TYPE_BTN)))
     status = nf90_get_var(ncinid, IDvarbtn, bottompoint, start = (/ 1 /),     &
          count = (/ dimslen(TYPE_BTN) /))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="getting variable: bottompoint")
+    if (status /= NF90_NOERR) call handle_err(status,errstring="getting variable: bottompoint in"//trim(fname))
 
     ! read mask and lat-lon data
     status = nf90_inq_varid(ncinid, "mask", IDvar)
@@ -438,6 +439,8 @@ contains
           step_start_arr4 = (/ Istart, Jstart, 1, 1 /)
           step_count_arr4 = (/ Icount, Jcount, jpkglo, ntime /)
           !$OMP CRITICAL
+          !$ nthread = omp_get_thread_num()
+          !$ WRITE(*,*) 'Write OMP thread: ', nthread, ' Var: ', bfmvartargets(d)
           status = nf90_put_var(ncid, bfmvartargets(d), bfmvar3d(iniI:jpi-finI,iniJ:jpj-finJ,:,:), &
                start = step_start_arr4, count = step_count_arr4)
           !$OMP END CRITICAL
@@ -460,6 +463,8 @@ contains
           step_start_arr3 = (/ Istart, Jstart, 1 /)
           step_count_arr3= (/ Icount, Jcount, ntime /)
           !$OMP CRITICAL
+          !$ nthread = omp_get_thread_num()
+          !$ WRITE(*,*) 'Write OMP thread: ', nthread, ' Var: ', bfmvartargets(d)
           status = nf90_put_var(ncid, bfmvartargets(d), bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
                start = step_start_arr3, count = step_count_arr3)
           !$OMP END CRITICAL
@@ -502,6 +507,8 @@ contains
           step_start_arr3 = (/ Istart, Jstart, 1 /)
           step_count_arr3= (/ Icount, Jcount, ntime /)
           !$OMP CRITICAL
+          !$ nthread = omp_get_thread_num()
+          !$ WRITE(*,*) 'Write OMP thread: ', nthread, ' Var: ', bfmvartargets(d)
           status = nf90_put_var(ncid, bfmvartargets(d), bfmvar2d(iniI:jpi-finI,iniJ:jpj-finJ,:), &
                start = step_start_arr3, count = step_count_arr3)
           !$OMP END CRITICAL

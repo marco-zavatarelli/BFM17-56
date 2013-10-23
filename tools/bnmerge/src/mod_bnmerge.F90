@@ -39,10 +39,7 @@ module mod_bnmerge
 
   integer, public, allocatable, dimension(:) ::   &  !:
        nimppt, njmppt,  &  !: i-, j-indexes for each processor
-       ibonit, ibonjt,  &  !: i-, j- processor neighbour existence
-       nlcit , nlcjt,   &  !: dimensions of every subdomain
-       nldit , nldjt,   &  !: first, last indoor index for each i-domain
-       nleit , nlejt       !: first, last indoor index for each j-domain
+       nlcit , nlcjt       !: dimensions of every subdomain
 
   ! masks
   real, public, allocatable, target, dimension(:,:)   :: latglo, longlo ! FLOAT
