@@ -54,7 +54,7 @@ module mod_bnmerge
 
   ! namelist variables
   character(LEN=400) :: cf_nml_bnmerge='bnmerge.nml'     ! namelist name
-  character(LEN=100) :: inp_dir, out_dir, chunk_fname="", bfm_restart=""
+  character(LEN=NF90_MAX_NAME)   :: inp_dir, out_dir, chunk_fname, bfm_restart
   logical :: do_restart, do_output
   integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
   character(len=64),dimension(NSAVE):: var_save
@@ -74,6 +74,7 @@ contains
     character(len=*),optional,intent(in) :: errstring
 #ifdef PARALLEL
     if (iret .ne. NF90_NOERR) then
+       nf90_set_log_level(6)
        write(*,*) "====== NetCDF Error ======"
        if (present(errstring)) write(*,*) errstring
        write(*,*) NF90_STRERROR(iret)

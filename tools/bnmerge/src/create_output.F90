@@ -24,7 +24,6 @@ module create_output
 
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN
-  !$ USE omp_lib           ! Note OpenMP sentinel
   implicit none
 
 #ifdef PARAL
@@ -96,10 +95,11 @@ contains
 
 
 #ifdef PARAL
- status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", &
-      IOR(NF90_NETCDF4, NF90_MPIIO), ncid_out, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
+    status = nf90_create_par(path=trim(out_dir)//"/"//trim(fname)//".nc", &
+         cmode=IOR(NF90_NETCDF4, NF90_MPIIO), &
+         ncid=ncid_out, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
 #else
- status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NOCLOBBER, ncid_out)
+    status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NETCDF4, ncid_out)
 #endif   
     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(fname)//".nc already exists!" )
 
@@ -115,9 +115,9 @@ contains
 
     ! read variables from domain 0000 and copy attributes
 #ifdef PARAL
-!    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", &
-!         mode = IOR(NF90_NOWRITE, NF90_MPIIO), ncid = ncid_chunk, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
-    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
+    status = nf90_open_par(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", &
+         cmode=IOR(NF90_NOWRITE, NF90_MPIIO), &
+         ncid = ncid_chunk, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
 #else
     status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
 #endif
@@ -197,14 +197,7 @@ contains
     allocate(tmpfillvar3d(jpiglo,jpjglo,jpkglo,ntime),tmpfillvar2d(jpiglo,jpjglo,ntime))
     tmpfillvar3d = NF90_FILL_DOUBLE
     tmpfillvar2d = NF90_FILL_DOUBLE
-    !$OMP PARALLEL DO DEFAULT(NONE) &
-    !$OMP SHARED  ( nvars, ncid_out, tmpfillvar3d, tmpfillvar2d ) &
-    !$OMP PRIVATE ( IDtarget, ndims, varname, nthread )
     do IDtarget = 1 , nvars
-#ifdef DEBUG
-          !$ nthread = omp_get_thread_num()
-          !$ WRITE(*,*) 'Running OMP thread: ', nthread, ' ID: ', IDtarget
-#endif         
        ! inquire ID in the output file
        call handle_err( nf90_inquire_variable(ncid_out, IDtarget, ndims=ndims, name=varname), &
                errstring="inquiring target in out variable" )
@@ -212,21 +205,16 @@ contains
        select case (ndims)
        case (4)
           ! 3D array
-          !$OMP CRITICAL
           call handle_err( nf90_put_var(ncid_out, IDtarget, tmpfillvar3d), &
                errstring="variable:"//trim(varname))
-          !$OMP END CRITICAL
        case (3)
           ! 2D array
-          !$OMP CRITICAL
           call handle_err( nf90_put_var(ncid_out, IDtarget, tmpfillvar2d), &
                errstring="variable:"//trim(varname))
-          !$OMP END CRITICAL
           ! case default
           !   write(*,'(A,I4,A,A,A,I4)') "invalid dimension size: ",ndims, " for var: '",trim(varname), "'  ID: ", IDtarget
        end select
     end do
-    !$OMP END PARALLEL DO
     deallocate(tmpfillvar3d,tmpfillvar2d)
   end subroutine fill_values
 
