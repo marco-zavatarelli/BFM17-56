@@ -7,6 +7,7 @@ MODULE trcdta
    !!              -   !  2004-03  (C. Ethe)  module
    !!              -   !  2005-03  (O. Aumont, A. El Moussaoui) F90
    !!            3.4   !  2010-11  (C. Ethe, G. Madec)  use of fldread + dynamical allocation 
+   !!            3.5   !  2013-08  (M. Vichi)  generalization for other BGC models
    !!----------------------------------------------------------------------
 #if  defined key_top 
    !!----------------------------------------------------------------------
@@ -27,21 +28,17 @@ MODULE trcdta
    PUBLIC   trc_dta         ! called in trcini.F90 and trcdmp.F90
    PUBLIC   trc_dta_init    ! called in trcini.F90 
 
-   INTEGER  , PARAMETER, PUBLIC                        :: MAXTRC=100  ! maximum number of tracers 
    INTEGER  , SAVE, PUBLIC                             :: nb_trcdta   ! number of tracers to be initialised with data
    INTEGER  , SAVE, PUBLIC, ALLOCATABLE, DIMENSION(:)  :: n_trc_index ! indice of tracer which is initialised with data
    INTEGER  , SAVE, PUBLIC                             :: ntra        ! MAX( 1, nb_trcdta ) to avoid compilation error with bounds checking
    REAL(wp) , SAVE, PUBLIC, ALLOCATABLE, DIMENSION(:)  :: rf_trfac    ! multiplicative factor for tracer values
    TYPE(FLD), SAVE, PUBLIC, ALLOCATABLE, DIMENSION(:)  :: sf_trcdta   ! structure of input SST (file informations, fields read)
 
-! MAV: to be removed. Just for compilation and waiting for the upgrade
-LOGICAL , PUBLIC, PARAMETER :: lk_dtatrc = .FALSE. !: temperature data flag
-
    !! * Substitutions
 #  include "domzgr_substitute.h90"
    !!----------------------------------------------------------------------
    !! NEMO/OPA 3.3 , NEMO Consortium (2010)
-   !! $Id: trcdta.F90 2977 2011-10-22 13:46:41Z cetlod $ 
+   !! $Id: trcdta.F90 4059 2013-10-11 13:47:34Z vichi $ 
    !! Software governed by the CeCILL licence     (NEMOGCM/NEMO_CeCILL.txt)
    !!----------------------------------------------------------------------
 CONTAINS
@@ -56,19 +53,22 @@ CONTAINS
       !!              - allocates passive tracer data structure 
       !!----------------------------------------------------------------------
       !
-      INTEGER,INTENT(IN) :: ntrc
-      INTEGER            :: jl, jn                   ! dummy loop indicies
+      INTEGER,INTENT(IN) :: ntrc                             ! number of tracers
+      INTEGER            :: jl, jn                           ! dummy loop indices
       INTEGER            :: ierr0, ierr1, ierr2, ierr3       ! temporary integers
+      INTEGER            ::  ios                     ! Local integer output status for namelist read
       CHARACTER(len=100) :: clndta, clntrc
       REAL(wp)           :: zfact
       !
       CHARACTER(len=100) :: cn_dir
-      TYPE(FLD_N), ALLOCATABLE, DIMENSION(:) :: slf_i     ! array of namelist informations on the fields to read
-      TYPE(FLD_N), DIMENSION(MAXTRC) :: sn_trcdta
-      REAL(wp)   , DIMENSION(MAXTRC) :: rn_trfac    ! multiplicative factor for tracer values
+      TYPE(FLD_N), ALLOCATABLE, DIMENSION(:) :: slf_i ! array of namelist informations on the fields to read
+      TYPE(FLD_N), DIMENSION(jpmaxtrc) :: sn_trcdta
+      REAL(wp)   , DIMENSION(jpmaxtrc) :: rn_trfac    ! multiplicative factor for tracer values
       !!
       NAMELIST/namtrc_dta/ sn_trcdta, cn_dir, rn_trfac 
       !!----------------------------------------------------------------------
+      !
+      IF( nn_timing == 1 )  CALL timing_start('trc_dta_init')
       !
       !  Initialisation
       ierr0 = 0  ;  ierr1 = 0  ;  ierr2 = 0  ;  ierr3 = 0  
@@ -87,9 +87,11 @@ CONTAINS
       ENDDO
       !
       ntra = MAX( 1, nb_trcdta )   ! To avoid compilation error with bounds checking
-      IF( lwp ) WRITE(numout,*) ' '
-      IF( lwp ) WRITE(numout,*) ' number of passive tracers to be initialized by data :', nb_trcdta
-      IF( lwp ) WRITE(numout,*) ' '
+      IF(lwp) THEN
+         WRITE(numout,*) ' '
+         WRITE(numout,*) ' number of passive tracers to be initialize by data :', ntra
+         WRITE(numout,*) ' '
+      ENDIF
       !                         ! allocate the arrays (if necessary)
       !
       cn_dir  = './'            ! directory in which the model is executed
@@ -103,14 +105,30 @@ CONTAINS
          rn_trfac(jn) = 1._wp
       END DO
       !
+!MAV temporary code for 3.5
       REWIND( numnat )               ! read nattrc
       READ  ( numnat, namtrc_dta )
+!MAV future code for 3.6
+!      REWIND( numnat_ref )              ! Namelist namtrc_dta in reference namelist : Passive tracer data
+!      READ  ( numnat_ref, namtrc_dta, IOSTAT = ios, ERR = 901)
+!901   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namtrc_dta in reference namelist', lwp )
+!
+!      REWIND( numnat_cfg )              ! Namelist namtrc_dta in configuration namelist : Passive tracer data
+!      READ  ( numnat_cfg, namtrc_dta, IOSTAT = ios, ERR = 902 )
+!902   IF( ios /= 0 ) CALL ctl_nam ( ios , 'namtrc_dta in configuration namelist', lwp )
+!      WRITE ( numont, namtrc_dta )
 
       IF( lwp ) THEN
          DO jn = 1, ntrc
             IF( ln_trc_ini(jn) )  THEN    ! open input file only if ln_trc_ini(jn) is true
                clndta = TRIM( sn_trcdta(jn)%clvar ) 
+               clntrc = TRIM( ctrcnm   (jn)       ) 
                zfact  = rn_trfac(jn)
+               IF( clndta /=  clntrc ) THEN 
+                  CALL ctl_warn( 'trc_dta_init: passive tracer data initialisation :  ',   &
+                  &              'the variable name in the data file : '//clndta//   & 
+                  &              '  must be the same than the name of the passive tracer : '//clntrc//' ')
+               ENDIF
                WRITE(numout,*) ' read an initial file for passive tracer number :', jn, ' name : ', clndta, & 
                &               ' multiplicative factor : ', zfact
             ENDIF
@@ -141,6 +159,9 @@ CONTAINS
          !
       ENDIF
       !
+      DEALLOCATE( slf_i )          ! deallocate local field structure
+      IF( nn_timing == 1 )  CALL timing_stop('trc_dta_init')
+      !
    END SUBROUTINE trc_dta_init
 
 
@@ -154,9 +175,9 @@ CONTAINS
       !!              - s- or mixed z-s coordinate: vertical interpolation on model mesh
       !!              - ln_trcdmp=F: deallocates the data structure as they are not used
       !!
-      !! ** Action  :   ptrc   passive tracer data on medl mesh and interpolated at time-step kt
+      !! ** Action  :   sf_dta   passive tracer data on medl mesh and interpolated at time-step kt
       !!----------------------------------------------------------------------
-      INTEGER                   , INTENT(in   ) ::   kt         ! ocean time-step
+      INTEGER                     , INTENT(in   ) ::   kt     ! ocean time-step
       TYPE(FLD), DIMENSION(1)   , INTENT(inout) ::   sf_dta     ! array of information on the field to read
       REAL(wp)                  , INTENT(in   ) ::   zrf_trfac  ! multiplication factor
       !
@@ -166,9 +187,11 @@ CONTAINS
       CHARACTER(len=100) :: clndta
       !!----------------------------------------------------------------------
       !
+      IF( nn_timing == 1 )  CALL timing_start('trc_dta')
+      !
+      IF( nb_trcdta > 0 ) THEN
          !
          CALL fld_read( kt, 1, sf_dta )      !==   read data at kt time step   ==!
-         !
          !
          IF( ln_sco ) THEN                   !==   s- or mixed s-zps-coordinate   ==!
             !
@@ -234,7 +257,10 @@ CONTAINS
                CALL prihre( sf_dta(1)%fnow(:,:,jpkm1), jpi, jpj, 1, jpi, 20, 1, jpj, 20, 1., numout )
                WRITE(numout,*)
          ENDIF
-      ! 
+      ENDIF
+      !
+      IF( nn_timing == 1 )  CALL timing_stop('trc_dta')
+      !
    END SUBROUTINE trc_dta
 #else
    !!----------------------------------------------------------------------
