@@ -19,17 +19,17 @@ program bnmerge
   use mod_bnmerge, ONLY: GET_ARGUMENTS, chunk_fname, bfm_restart, do_restart, do_output, tick, tock
   use create_output, ONLY: create_output_init
   use merge_vars, ONLY: merge_vars_init
-#ifdef PARALLEL
-  use mpi
-#endif
 
   implicit none
+#ifdef PARAL
+  include 'mpif.h'
+  character(len=MPI_MAX_PROCESSOR_NAME) name 
+  integer err, rank, nprocs, namelen
+#endif
   real(8)    :: calctime=0.
   integer :: calc=0
 
-#ifdef PARALLEL
-  integer err, rank, nprocs, namelen
-
+#ifdef PARAL
   call MPI_INIT(err)
   call MPI_COMM_RANK(MPI_COMM_WORLD, rank, err)
   call MPI_COMM_SIZE(MPI_COMM_WORLD, nprocs, err)
@@ -64,7 +64,7 @@ program bnmerge
   write(*,*) 'End bnmerge'
   write(*,*) 
 
-#ifdef PARALLEL
+#ifdef PARAL
   CALL MPI_Finalize(err)
 #endif
 

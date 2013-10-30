@@ -18,10 +18,7 @@ subroutine read_input
 
   use mod_bnmerge, ONLY : jpkglo,jpiglo,jpjglo, jpnij, &
        nimppt, njmppt, &
-       ibonit, ibonjt, &
        nlcit , nlcjt, &
-       nldit , nldjt, &
-       nleit , nlejt, &
        chunk_fname, bfm_restart, inp_dir, out_dir, ln_mask, var_save, cf_nml_bnmerge
 
   implicit none
@@ -32,6 +29,7 @@ subroutine read_input
   integer           :: iost,n
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
+  integer, allocatable, dimension(:) :: nldit, nldjt, nleit, nlejt
   namelist /bnmerge_nml/ chunk_fname,bfm_restart,inp_dir,out_dir,layout,ln_mask,var_save
 
   var_save="NotVar"
@@ -55,14 +53,12 @@ subroutine read_input
   read (inum,'(a)') dummyline
   allocate (nimppt(jpnij))
   allocate (njmppt(jpnij))
-  allocate (ibonit(jpnij))
-  allocate (ibonjt(jpnij))
-  allocate (nlcit(jpnij))
-  allocate (nlcjt(jpnij))
   allocate (nldit(jpnij))
   allocate (nldjt(jpnij))
   allocate (nleit(jpnij))
   allocate (nlejt(jpnij))
+  allocate (nlcit(jpnij))
+  allocate (nlcjt(jpnij))
   do n = 1, jpnij
      read (inum,'(9i5)') jn, nlcit(jn), nlcjt(jn), &
           nldit(jn), nldjt(jn), &
@@ -71,6 +67,8 @@ subroutine read_input
   end do
   close(inum)
   jpkglo = jpk
+
+  deallocate(nldit, nldjt, nleit, nlejt)
 
   write (*,*) ' === ',trim(layout),' === '
   write (*,'(a)') '   jpnij     jpi     jpj     jpk  jpiglo  jpjglo'

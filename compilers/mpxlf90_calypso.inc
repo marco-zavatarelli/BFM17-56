@@ -11,13 +11,16 @@
 #OTHERFLAGS   User defined additional flags
 
   NCDF_DIR=${NETCDF}
-  NCDF_LIB=${NCDF_DIR}/lib -lnetcdf 
-  NCDF_INC=${NCDF_DIR}/include
-  FC=mpxlf90_r -cpp
-  FCFLAGS=
+  NCDF_LIB= -L${NCDF_DIR}/lib -lnetcdf 
+  NCDF_INC= -I${NCDF_DIR}/include
+
+  FC=mpxlf90_r
   LD=mpxlf90_r
+
   AR=ar
   ARFLAGS=-rs
+
+  FCFLAGS= -cpp
   OTHERFLAGS=
-  FFLAGS=-O3 -qsuffix=f=f90  -qstrict -qalias=intptr -qsuppress=1501-245 -qarch=pwr6 -q64 -qrealsize=8 -qtune=pwr6 -qextname -qlargepage -qmaxmem=-1 -I${NCDF_INC}
-  LDFLAGS=-I${NCDF_INC} -L${NCDF_LIB} -bloadmap:LinkerMap
+  FFLAGS= -cpp -O3 -qsuffix=f=f90  -qstrict -qalias=intptr -qsuppress=1501-245 -qarch=pwr6 -q64 -qrealsize=8 -qtune=pwr6 -qextname -qlargepage -qmaxmem=-1 ${NCDF_INC}
+  LDFLAGS=${NCDF_INC} ${NCDF_LIB} -bloadmap:LinkerMap

@@ -4,12 +4,15 @@
 # -L/usr/local/lib -lhdf5_hl -lhdf5 -lz
 
   NCDF_DIR=${NETCDF}
-  NCDF_LIB=${NCDF_DIR}/lib -lnetcdff -lnetcdf 
-  NCDF_INC=${NCDF_DIR}/include 
+  NCDF_LIB= -L${NCDF_DIR}/lib -lnetcdff -lnetcdf 
+  NCDF_INC= -I${NCDF_DIR}/include
+
   FC=gfortran
   LD=gfortran
+
   AR=ar
   ARFLAGS=-r
+
   CPPFLAGS=
-  FFLAGS= -ffpe-trap=invalid,zero,overflow -fbounds-check -fcheck=all -Wall -Wuninitialized -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize -I${NCDF_INC}
-  LDFLAGS= -I${NCDF_INC} -L${NCDF_LIB} 
+  FFLAGS= -ffpe-trap=invalid,zero,overflow -fbounds-check -fcheck=all -Wall -Wuninitialized -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize ${NCDF_INC}
+  LDFLAGS= ${NCDF_INC} ${NCDF_LIB} 

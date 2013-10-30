@@ -17,23 +17,20 @@
 
 module mod_bnmerge
 
-#ifdef PARALLEL
-  use pnetcdf
-  use mpi
-#else
   use netcdf
+  implicit none
+
+#ifdef PARALLEL
+  include 'mpif.h'
+! #define INTEGER integer(kind=MPI_OFFSET_KIND)
 #endif
 
-  implicit none
+
   integer,    parameter, public :: RLEN=selected_real_kind(12,307)
   real(RLEN), parameter, public :: ZERO=0.0_RLEN
   real(RLEN), parameter, public :: ONE=1.0_RLEN
 
-#ifdef PARALLEL
-  integer(kind=MPI_OFFSET_KIND), public :: &  
-#else
   integer, public :: &  
-#endif
        jpkglo    ,                   &  !: number of grid points along k (proc)
        jpiglo    ,                   &  !: number of grid points along i (global domain)
        jpjglo    ,                   &  !: number of grid points along j (global domain)
@@ -42,10 +39,7 @@ module mod_bnmerge
 
   integer, public, allocatable, dimension(:) ::   &  !:
        nimppt, njmppt,  &  !: i-, j-indexes for each processor
-       ibonit, ibonjt,  &  !: i-, j- processor neighbour existence
-       nlcit , nlcjt,   &  !: dimensions of every subdomain
-       nldit , nldjt,   &  !: first, last indoor index for each i-domain
-       nleit , nlejt       !: first, last indoor index for each j-domain
+       nlcit , nlcjt       !: dimensions of every subdomain
 
   ! masks
   real, public, allocatable, target, dimension(:,:)   :: latglo, longlo ! FLOAT
@@ -56,12 +50,11 @@ module mod_bnmerge
   integer,allocatable,dimension(:),public :: bfmvarid_out, bfmvarid_res         ! id of variables in input
   integer,allocatable,dimension(:),public :: bfmvartype_out, bfmvartype_res     ! type of var dimension
   integer,allocatable,dimension(:),public :: bfmvartarget_out, bfmvartarget_res ! id of variables in output
-  integer,dimension(4),public             :: dimslen_out, dimslen_res                      ! input dimensions lenght 
   integer, parameter, public              :: TYPE_OCE=1, TYPE_BTN=2, TYPE_SRF=3, TYPE_PH=4 ! type of input dimensions
 
   ! namelist variables
   character(LEN=400) :: cf_nml_bnmerge='bnmerge.nml'     ! namelist name
-  character(LEN=100) :: inp_dir, out_dir, chunk_fname="", bfm_restart=""
+  character(LEN=NF90_MAX_NAME)   :: inp_dir, out_dir, chunk_fname, bfm_restart
   logical :: do_restart, do_output
   integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
   character(len=64),dimension(NSAVE):: var_save
@@ -80,10 +73,11 @@ contains
     integer,intent(in)  :: iret
     character(len=*),optional,intent(in) :: errstring
 #ifdef PARALLEL
-    if (iret .ne. NF_NOERR) then
+    if (iret .ne. NF90_NOERR) then
+       nf90_set_log_level(6)
        write(*,*) "====== NetCDF Error ======"
        if (present(errstring)) write(*,*) errstring
-       write(*,*) NFMPI_STRERROR(iret)
+       write(*,*) NF90_STRERROR(iret)
        call MPI_ABORT(MPI_COMM_WORLD, 1, iret)
 #else
     if (iret .ne. NF90_NOERR) then
@@ -91,8 +85,8 @@ contains
        if (present(errstring)) write(*,*) errstring
        write(*,*) NF90_STRERROR(iret)
        stop "stop in function handle_err"
-    endif
 #endif
+    endif
   end subroutine handle_err
   !
   !   ------------------------------------------------------------------------------    

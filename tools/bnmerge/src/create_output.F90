@@ -21,17 +21,24 @@
 !    ncidres   : BFM output restart merged file identifier 
 ! --------------------------------------------------------------------------
 module create_output
+
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN
-
   implicit none
+
+#ifdef PARAL
+  include 'mpif.h'
+  integer :: nthread=0
+#endif
+
   ! !PUBLIC MEMBER FUNCTIONS:
   public create_output_init
 
 contains
 
   subroutine create_output_init
-    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res, dimslen_out, dimslen_res
+    use netcdf
+    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res
 
     implicit none
     integer :: ncidout, ncidres, ncid_chunk_out, ncid_chunk_res
@@ -40,8 +47,8 @@ contains
     integer :: ntime_out, ntime_res
 
     ! Create file and attribute and dimensions
-    if ( do_output  ) call define_output(chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out, dimslen_out)
-    if ( do_restart ) call define_output(bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res, dimslen_res)
+    if ( do_output  ) call define_output(chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out)
+    if ( do_restart ) call define_output(bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res)
 
     write(*,*) "Writing variables..."
     if( do_output  ) call define_variables_out(ncid_chunk_out, ncidout, id_array_out, n_bfmvar_out )
@@ -73,19 +80,27 @@ contains
   end subroutine create_output_init
 
 
-  subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime, dimslen)
-    use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask, TYPE_OCE, TYPE_SRF, TYPE_BTN
+  subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime)
+    use netcdf
+    use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask
 
     implicit none
     character(len=100), intent(in)  :: fname
-    integer,            intent(out) :: ncid_out, ncid_chunk, id_array(4), id_vartime, ntime, dimslen(3)
+    integer,            intent(out) :: ncid_out, ncid_chunk, id_array(4), id_vartime, ntime
 
     integer                        :: status
     integer                        :: nGlobalAtts 
     integer                        :: IDx, IDy, IDz, IDtime, IDatt, IDunlimdim, IDtimetmp, IDocepnt, IDsrfpnt, IDbtnpnt
     character(len = NF90_MAX_NAME) :: globattname
 
-    status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NOCLOBBER, ncid_out)
+
+#ifdef PARAL
+    status = nf90_create_par(path=trim(out_dir)//"/"//trim(fname)//".nc", &
+         cmode=IOR(NF90_NETCDF4, NF90_MPIIO), &
+         ncid=ncid_out, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
+#else
+    status = nf90_create(trim(out_dir)//"/"//trim(fname)//".nc", NF90_NETCDF4, ncid_out)
+#endif   
     if(status /= NF90_NOERR) call handle_err(status,errstring="A file named "//trim(fname)//".nc already exists!" )
 
     ! Define the dimensions
@@ -99,24 +114,18 @@ contains
     if(status /= NF90_NOERR) call handle_err(status,errstring="reading time in out")
 
     ! read variables from domain 0000 and copy attributes
-    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_WRITE, ncid = ncid_chunk)
+#ifdef PARAL
+    status = nf90_open_par(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", &
+         cmode=IOR(NF90_NOWRITE, NF90_MPIIO), &
+         ncid = ncid_chunk, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
+#else
+    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
+#endif
     if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname)//"_0000.nc!" )
     status = nf90_inquire(ncid_chunk, nAttributes=nGlobalAtts, unlimitedDimId=IDunlimdim)
     if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")
     status = nf90_inquire_dimension(ncid_chunk, IDunlimdim, len = ntime)
     if (status /= NF90_NOERR) call handle_err(status,errstring="reading time")
-    status = nf90_inq_dimid(ncid_chunk, "oceanpoint", IDocepnt)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring oceanpoint")
-    status = nf90_inquire_dimension(ncid_chunk, IDocepnt, len = dimslen(TYPE_OCE))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim oceanpoint")
-    status = nf90_inq_dimid(ncid_chunk, "surfacepoint", IDsrfpnt)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring surfacepoint")
-    status = nf90_inquire_dimension(ncid_chunk, IDsrfpnt, len = dimslen(TYPE_SRF))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim surfacepoint")
-    status = nf90_inq_dimid(ncid_chunk, "bottompoint", IDbtnpnt)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring bottompoint")
-    status = nf90_inquire_dimension(ncid_chunk, IDbtnpnt, len = dimslen(TYPE_BTN))
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring dim bottompoint")
 
     ! define geographic variables
     if ( ln_mask ) then
@@ -161,6 +170,7 @@ contains
 
 
   subroutine fill_values(ncid_chunk, ncid_out, id_vartime, ntime, nvars)
+    use netcdf
     use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo
 
     implicit none
@@ -189,7 +199,8 @@ contains
     tmpfillvar2d = NF90_FILL_DOUBLE
     do IDtarget = 1 , nvars
        ! inquire ID in the output file
-       call handle_err( nf90_inquire_variable(ncid_out, IDtarget, ndims=ndims, name=varname) )
+       call handle_err( nf90_inquire_variable(ncid_out, IDtarget, ndims=ndims, name=varname), &
+               errstring="inquiring target in out variable" )
        ! write empty variable values
        select case (ndims)
        case (4)
@@ -209,6 +220,7 @@ contains
 
 
   subroutine define_variables_out(ncid_chunk, ncidout, id_array_out, n_var_total )
+    use netcdf
     use mod_bnmerge, ONLY: NSAVE, TYPE_OCE, TYPE_BTN, TYPE_SRF, var_save, bfmvarid_out, bfmvartype_out, bfmvartarget_out
 
     implicit none
@@ -296,6 +308,7 @@ contains
 
 
   subroutine define_variables_res(ncid_chunk, ncidres, id_array_res, n_var_total)
+    use netcdf
     use mod_bnmerge, ONLY: TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH, bfmvarid_res, bfmvartype_res, bfmvartarget_res
 
     implicit none
@@ -378,7 +391,7 @@ contains
 
     do n = 1 , nbfmvars3d_res
 #ifdef DEBUG
-       write(*,*) "Define variable: ",trim(res_names(n))
+       write(*,*) "Define variable "//trim(res_names(n))//": ",n
        write(*,*) "from file chunk in RESTART"
        write(*,*) "last dimension name ",trim(dimname_res)
 #endif
