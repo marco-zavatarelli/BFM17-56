@@ -35,21 +35,11 @@ Compilation
 To debug (parallel or serial):
    - export variable DEBUG equal to yes: export DEBUG=yes
 
-To execute in parallel:
-   - export variables:
-      - PARALLEL equal to yes: export PARALLEL=yes
-      - OMP_NUM_THREADS to number of parallel threads: export OMP_NUM_THREADS=8
-   - load libraries:
-      - hdf5-1.8.11_parallel
-      - netcdf-4.3_parallel (with "netcdf-fortran-4.2")
-      - parallel-netcdf-1.3.1
-
-To execute in serial:
-   - leave the variable PARALLEL empty: export PARALLEL=
+To execute:
    - load libraries:
       - netcdf-4.3 (with "netcdf-fortran-4.2")
 
-Change the variable COMPILER (parallel or serial) in the Makefile with the name 
+Change the variable COMPILER in the Makefile with the name 
 of the included compiler file from the Compilers directory. Run gmake.
 
 Script (bnmerge.sh)
