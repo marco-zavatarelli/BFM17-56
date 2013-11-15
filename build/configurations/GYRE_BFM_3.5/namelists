@@ -893,8 +893,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 !-------------------------------------------------------------------------!
 !   Initialisation from data input file: Not needed for GYRE_BFM
 !   for each BFM variable set the structure sn_trcdta(VARNAME)
-!   !  file name    ! frequency (hours) ! variable   ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
-!   !               !  (if <0  months)  !   name     !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  !
+!   !  file name    ! frequency (hours) ! variable   ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation ! land/sea mask
+!   !               !  (if <0  months)  !   name     !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  ! filename     
 !   and the conversion factor rn_trfac(VARNAME)
 !-------------------------------------------------------------------------!
 &namtrc_dta      
@@ -909,8 +909,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   conditions for each BFM variable 
 !   sn_trc?bc(VARNAME): structure with file name and interpolatio
 !   rn_tr?fac(VARNAME): conversion factor
-!              ! file name   ! frequency (hr) ! variable ! time interp. ! clim    !'yearly' or ! weights  ! rotation
-!              !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing
+!   ! file name   ! frequency (hr) ! variable ! time interp. ! clim    !'yearly' or ! weights  ! rotation ! land/sea mask
+!   !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing  ! filename     
 !-----------------------------------------------------------------------
 &namtrc_bc
         filename_nml_conf = 'namelist_top',
