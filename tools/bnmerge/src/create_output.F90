@@ -157,6 +157,9 @@ contains
     end do
 
     ! define time variable and attributes
+#ifdef DEBUG
+    write(*,*) "define time variable and attributes ..."
+#endif
     status = nf90_inq_varid(ncid_chunk, "time", IDtimetmp)
     if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname)
     status = nf90_def_var(ncid_out, "time", NF90_REAL, (/ IDtime /), id_vartime)
@@ -221,6 +224,7 @@ contains
 
   subroutine define_variables_out(ncid_chunk, ncidout, id_array_out, n_var_total )
     use netcdf
+    use mod_bnmerge, ONLY: replace_char
     use mod_bnmerge, ONLY: NSAVE, TYPE_OCE, TYPE_BTN, TYPE_SRF, var_save, bfmvarid_out, bfmvartype_out, bfmvartarget_out
 
     implicit none
@@ -228,7 +232,7 @@ contains
     integer, intent(out) :: n_var_total
 
     integer                        :: n, nvars, IDvar, IDtarget, status, ndims, dimids_out(4)
-    character(len = NF90_MAX_NAME) :: varname, dimname_out
+    character(len = NF90_MAX_NAME) :: varname, dimname_out, string
 
 
     ! Tracks of the variables that have to be stored
@@ -240,7 +244,9 @@ contains
        status=nf90_inquire_variable(ncid_chunk, IDvar, name=varname)
        if (status /= NF90_NOERR) call handle_err(status,errstring="variable: "//trim(varname))
        do n = 1 , NSAVE
-          if ( trim(var_save(n)) == trim(varname) ) then
+          string = var_save(n)
+          call replace_char(str=string, tar='()', rep='_')
+          if ( ( trim(var_save(n)) == trim(varname) ) .OR. ( trim(string) == trim(varname) ) ) then
              n_var_total = n_var_total + 1
              bfmvarid_out(n_var_total)   = IDvar
           endif

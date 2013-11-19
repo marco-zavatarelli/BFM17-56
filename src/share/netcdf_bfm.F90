@@ -13,6 +13,7 @@
 !  NetCDF format.
 !
 ! !USES:
+   use string_functions, ONLY : replace_char
    use api_bfm, ONLY: var_names, var_units, var_long, var_ids, &
         var_ave, &
         ocepoint_len,surfpoint_len,botpoint_len, &
@@ -617,7 +618,7 @@ end subroutine init_netcdf_rst_bfm
 ! !INPUT PARAMETERS:
    real(RLEN),intent(in)     :: time
 ! !LOCAL VARIABLES:
-   integer                   :: iret
+   integer                   :: iret, iter
    character(len=80)         :: restfile
    real(RLEN)                :: temp_time
    character(len=LEN(var_names)), dimension(NO_D3_BOX_STATES) :: tmp_d3names,tmp_d3units,tmp_d3long
@@ -653,6 +654,9 @@ end subroutine init_netcdf_rst_bfm
      start(1) = 1;   edges(1) = NO_D3_BOX_STATES
      start(2) = 1;   edges(2) = NO_BOXES
      tmp_d3names(:) = var_names(stPelStateS:stPelStateE)
+     do iter=1, SIZE(tmp_d3names)
+        call replace_char(str=tmp_d3names(iter), Tar='()', rep='_')
+     end do
      tmp_d3units(:) = var_units(stPelStateS:stPelStateE)
      tmp_d3long(:)  = var_long(stPelStateS:stPelStateE)
      call check_err(NF90_PUT_VAR(ncid_rst,d3state_rid,D3STATE(:,:),start,edges), restfile)
@@ -673,6 +677,9 @@ end subroutine init_netcdf_rst_bfm
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES_ICE
      start(2) = 1;   edges(2) = NO_BOXES_XY
      tmp_d2names_ice(:) = var_names(stIceStateS:stIceStateE)
+     do iter=1, SIZE(tmp_d2names_ice)
+        call replace_char(str=tmp_d2names_ice(iter), tar='()', rep='_')
+     end do
      tmp_d2units_ice(:) = var_units(stIceStateS:stIceStateE)
      tmp_d2long_ice(:)  = var_long(stIceStateS:stIceStateE)
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ice,D2STATE_ICE(:,:),start,edges), restfile)
@@ -691,6 +698,9 @@ end subroutine init_netcdf_rst_bfm
      start(1) = 1;   edges(1) = NO_D2_BOX_STATES_BEN
      start(2) = 1;   edges(2) = NO_BOXES_XY
      tmp_d2names_ben(:) = var_names(stBenStateS:stBenStateE)
+     do iter=1, SIZE(tmp_d2names_ben)
+        call replace_char(str=tmp_d2names_ben(iter), tar='()', rep='_')
+     end do
      tmp_d2units_ben(:) = var_units(stBenStateS:stBenStateE)
      tmp_d2long_ben(:)  = var_long(stBenStateS:stBenStateE)
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATE_BEN(:,:),start,edges), restfile)
@@ -915,6 +925,7 @@ end subroutine init_netcdf_rst_bfm
    character(len=PATH_MAX) :: fname_ph
    integer :: ncid_ph, IDx, IDy, IDz, IDtime, IDboxes, IDtarget, IDtarget_mask, IDtarget_box
 
+   character(len=NF90_MAX_NAME) :: string
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi (INGV) 
@@ -991,7 +1002,13 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    do idx_var=stPelStateS, stPelStateE
       idx_var_array = idx_var - stPelStateS + 1
-      iret = NF90_INQ_VARID(ncid_rst_3d, var_names(idx_var), vid)
+      string = var_names(idx_var)
+      iret = NF90_INQ_VARID(ncid_rst_3d, string, vid)
+      if( iret /= NF90_NOERR ) then
+         ! in new BFM version netcdf output remove '(' and ')' 
+         call replace_char(str=string, tar='()', rep='_')
+         iret = NF90_INQ_VARID(ncid_rst_3d, string, vid)
+      end if
       if( iret == NF90_NOERR ) then
          call check_err(nf90_get_var(ncid_rst_3d, vid, array_3d, &
               start=array_3d_start, count=array_3d_count), fname)
@@ -1008,7 +1025,7 @@ end subroutine init_netcdf_rst_bfm
             end do
          end do
 
-         ! write(*,'(A,i3,A)') "VAR: ", idx_var_array, ' - '//trim(var_names(idx_var))
+         ! write(*,'(A,i3,A)') "VAR: ", idx_var_array, ' - '//trim(string)
          ! write(*,*) "NAREA: ", narea, " NOCE: ", noce, " IDI: ", idx_i, "IDJ: ", idx_j, "IDK: ", idx_k
       end if
    end do
@@ -1493,11 +1510,15 @@ end subroutine init_netcdf_rst_bfm
 !
 ! !LOCAL VARIABLES:
    integer                   :: iret
+   character(LEN=LEN(name))  :: string
 !
 !-----------------------------------------------------------------------
 !BOC
-   iret = NF90_DEF_VAR(ncid,name,data_type,dimids,id)
-   call check_err(iret, ('caller: new_nc_variable with input '//trim(name)))
+   !Replace the name if have "(" or ")"
+   string = name
+   call replace_char(str=string, tar='()', rep='_')
+   iret = NF90_DEF_VAR(ncid,string,data_type,dimids,id)
+   call check_err(iret, ('caller: new_nc_variable with input '//trim(string)))
    new_nc_variable = iret
    return
    end function new_nc_variable

@@ -13,7 +13,7 @@
 ! !USES:
    IMPLICIT NONE
 
-   public empty, index_trim, getseq_number
+   public empty, index_trim, getseq_number, replace_char
 !
 !-----------------------------------------------------------------------
 
@@ -105,6 +105,36 @@
      getseq_number=0
      return
      end function getseq_number
+!EOC
+
+!-----------------------------------------------------------------------
+!EOC
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:  replace_char
+!
+! !INTERFACE:
+     subroutine replace_char(str,tar,rep)
+! !DESCRIPTION:
+!
+! !INPUT PARAMETERS:
+     implicit none
+    character(LEN=*), intent(INOUT) :: str
+    character(LEN=*), intent(IN)    :: tar, rep
+!
+!EOP
+!
+! !LOCAL VARIABLES:
+     integer                 :: times
+!-------------------------------------------------------------------------
+!BOC
+     times = scan(str, tar)
+     do while ( times .ne. 0 )
+        str(times:times) = rep
+        times = scan(str, tar)
+     end do
+   end subroutine replace_char
 !EOC
 
 !-----------------------------------------------------------------------

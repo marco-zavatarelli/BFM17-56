@@ -57,6 +57,11 @@ program bnmerge
      do_restart=.FALSE.
   end if
 
+#ifdef DEBUG
+    write(*,*) "Merge Output  files? ", do_output
+    write(*,*) "Merge Restart files? ", do_restart
+#endif
+
   call create_output_init
   call merge_vars_init
 

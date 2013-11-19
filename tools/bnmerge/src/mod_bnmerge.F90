@@ -54,10 +54,10 @@ module mod_bnmerge
 
   ! namelist variables
   character(LEN=400) :: cf_nml_bnmerge='bnmerge.nml'     ! namelist name
-  character(LEN=NF90_MAX_NAME)   :: inp_dir, out_dir, chunk_fname, bfm_restart
+  character(LEN=NF90_MAX_NAME)   :: inp_dir, out_dir, chunk_fname='', bfm_restart=''
   logical :: do_restart, do_output
   integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
-  character(len=64),dimension(NSAVE):: var_save
+  character(len=64),dimension(NSAVE):: var_save="NotVar"
   logical :: ln_mask=.FALSE.
 
 
@@ -165,12 +165,14 @@ contains
   end subroutine GET_ARGUMENTS
   
   subroutine tick(t)
+    implicit none
     integer, intent(OUT) :: t
     call system_clock(t)
   end subroutine tick
 
   ! returns time in seconds from now to time described by t
   real(8) function tock(t)
+    implicit none
     integer, intent(in) :: t
     integer :: now, clock_rate
 
@@ -178,6 +180,21 @@ contains
 
     tock = real(now - t)/real(clock_rate)
   end function tock
+
+
+  subroutine replace_char(str,tar,rep)
+    implicit none
+    character(LEN=*), intent(INOUT) :: str
+    character(LEN=*), intent(IN)    :: tar, rep
+
+    integer                 :: times
+
+    times = scan(str, tar)
+    do while ( times .ne. 0 )
+       str(times:times) = rep
+       times = scan(str, tar)
+    end do
+  end subroutine replace_char
 
 
 end module mod_bnmerge

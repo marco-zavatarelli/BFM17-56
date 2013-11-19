@@ -32,7 +32,6 @@ subroutine read_input
   integer, allocatable, dimension(:) :: nldit, nldjt, nleit, nlejt
   namelist /bnmerge_nml/ chunk_fname,bfm_restart,inp_dir,out_dir,layout,ln_mask,var_save
 
-  var_save="NotVar"
   ! Reading directory names and file name specification
   open(namlst,file=trim(cf_nml_bnmerge),action='read',status='old',err=99)
   read(namlst,nml=bnmerge_nml,err=98)
