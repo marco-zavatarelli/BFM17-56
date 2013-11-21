@@ -486,6 +486,12 @@ if [ ${DEP} ]; then
         cp *.nml ${exedir}/
         if [ "${EXPFILES}" ]; then cp ${EXPFILES} ${exedir}/; fi
         if [ "${EXPDIR}"   ]; then cp ${EXPDIR}/* ${exedir}/; fi
+
+        #link reference nemo files from the shared directory
+        if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ] && [ -d ${NEMODIR}/NEMOGCM/CONFIG/SHARED ]]; then 
+           ln -sf ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_ref ${exedir}/;
+           ln -sf ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_def.xml ${exedir}/;
+        fi
     else
         echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
     fi
