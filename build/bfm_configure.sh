@@ -468,9 +468,14 @@ if [ ${DEP} ]; then
             # copy and link necessary files
             cd "${BFMDIR}/${CONFDIR}/${PRESET}"
             if [ "${NEMONML}" ]; then cp ${NEMONML} ${exedir}/; fi
+            # copy reference namelists if the directory exists (NEMO > 3.6)
+            if [ -d ${NEMODIR}/NEMOGCM/CONFIG/SHARED ]; then
+               cp ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_ref ${exedir}/;
+               cp ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_def.xml ${exedir}/;
+            fi
             # copy and link generated namelist_top
-            if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
-            else cp ${blddir}/namelist_top ${exedir}/; fi
+            if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top* ${exedir}/; 
+            else cp ${blddir}/namelist_top* ${exedir}/; fi
         fi
     else
         echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
