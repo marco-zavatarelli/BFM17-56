@@ -483,9 +483,9 @@ if [ ${DEP} ]; then
 
         #copy files from blddir to exedir
         cd ${blddir}
-        cp *.nml ${exedir}/;
-        if [ "${EXPFILES}" ] cp ${EXPFILES} ${exedir}/;
-        if [ "${EXPDIR}"   ] cp ${EXPDIR}/* ${exedir}/;
+        cp *.nml ${exedir}/
+        if [ "${EXPFILES}" ]; then cp ${EXPFILES} ${exedir}/; fi
+        if [ "${EXPDIR}"   ]; then cp ${EXPDIR}/* ${exedir}/; fi
     else
         echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
     fi
