@@ -32,7 +32,7 @@
         PROC    = 8,
         EXP     = 'pelagos2',
         QUEUE   = 'poe_short',
-        NEMONML = 'namelist namelist_ice iodef.xml domain_def.xml field_def.xml'
+        EXPFILES= 'namelist namelist_ice iodef.xml domain_def.xml field_def.xml'
         NEMOSUB = 'OPA_SRC TOP_SRC LIM_SRC_2'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

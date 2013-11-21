@@ -36,17 +36,20 @@ MKMF="mkmf"
 GMAKE="gmake"
 PERL="perl"
 GENCONF="generate_conf"
+GENNML="generate_namelist"
 MKNEMO="makenemo"
 NEMOEXE="nemo.exe"
 
+#optional
+NMLLIST="";
+
 #nemo optional
-NEMONML="";
 NEMOSUB="";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NCDF_DIR   EXP     NMLDIR     PROC     QUEUE     BFMSTD     NEMOSUB     NEMONML     )
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr ncdf_dir_usr exp_usr nmldir_usr proc_usr queue_usr bfmstd_usr nemosub_usr nemonml_usr )
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NCDF_DIR     EXP     EXPDIR     PROC     QUEUE     BFMSTD     NEMOSUB     EXPFILES     NMLLIST)
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr ncdf_dir_usr exp_usr expdir_usr proc_usr queue_usr bfmstd_usr nemosub_usr expfiles_usr nmllist_usr)
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -100,10 +103,10 @@ DESCRIPTION
                   The environmental variable BFMDIR pointing to the root directory of BFM (Default: "${BFMDIR}")
        -n NEMODIR
                   The environmental variable NEMODIR pointing to the root directory of NEMO. (Default: "${NEMODIR}")
-       -N NEMONML
-                  NEMO files to copy to executable directory
        -S NEMOSUB
                   NEMO sub-directories to add to the NEMO configuration
+       -N NMLLIST
+                  namelist file list containing namelists to copy to executable directory
        -a ARCH
                   Specify compilation Architecture file (Default: "gfortran.inc")
                   - For STANDALONE mode available archs, list dir : BFMDIR/compilers
@@ -118,9 +121,11 @@ DESCRIPTION
                   BFM executable name output. (Default: bfm_standalone.x)
     alternative DEPLOYMENT OPTIONS are:
        -x EXP
-                  Name of the experiment for generation of the output folder (Default: "EXP00")
-       -l NMLDIR
-                  Input dir where are the namelists to run the experiment (Default: "${TEMPDIR}/${PRESET}")
+                  Name of the experiment for generation of the output folder (Default: "${EXP}")
+       -F EXPFILES 
+                  files (generated or not)  to copy to experiment directory
+       -D EXPDIR
+                  Input dir where are files to copy to experiment directory (Default: "${TEMPDIR}/${PRESET}")
        -r PROC
                   Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
@@ -143,28 +148,29 @@ rm ${LOGDIR}/${LOGFILE}.pipe
 #get user options from commandline
 while getopts "${OPTS}" opt; do
     case $opt in
-      h ) usage;            rm ${LOGDIR}/${LOGFILE}        ; exit             ;;
-      v )                   echo "verbose mode"            ; VERBOSE=1        ;;
-      g ) [ ${VERBOSE} ] && echo "generation activated"    ; GEN=1            ;;
-      c ) [ ${VERBOSE} ] && echo "compilation activated"   ; CMP=1            ;;
-      d ) [ ${VERBOSE} ] && echo "deployment activated"    ; DEP=1            ;;
-      P ) [ ${VERBOSE} ] && echo "list presets"            ; LIST=1           ;;
-      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"          ; PRESET=$OPTARG       ;;
-      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"            ; mode_usr=$OPTARG     ;;
-      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"     ; cppdefs_usr=$OPTARG  ;;
-      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"          ; bfmdir_usr=$OPTARG   ;;
-      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"         ; nemodir_usr=$OPTARG  ;;
-      N ) [ ${VERBOSE} ] && echo "NEMONML=$OPTARG"         ; nemonml_usr=$OPTARG  ;;
-      S ) [ ${VERBOSE} ] && echo "NEMOSUB=$OPTARG"         ; nemosub_usr=$OPTARG  ;;
-      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"    ; arch_usr=$OPTARG     ;;
-      f ) [ ${VERBOSE} ] && echo "fast mode activated"     ; clean_usr=0          ;;
-      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"     ; ncdf_dir_usr=$OPTARG ;;
-      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"      ; exp_usr=$OPTARG      ;;
-      l ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"    ; nmldir_usr=$OPTARG   ;;
-      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"        ; proc_usr=$OPTARG     ;;
-      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"      ; queue_usr=$OPTARG    ;;
-      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG" ; bfmstd_usr=$OPTARG   ;;
-      * ) echo "option not recognized"                     ; exit                 ;;
+      h ) usage;            rm ${LOGDIR}/${LOGFILE}         ; exit             ;;
+      v )                   echo "verbose mode"             ; VERBOSE=1        ;;
+      g ) [ ${VERBOSE} ] && echo "generation activated"     ; GEN=1            ;;
+      c ) [ ${VERBOSE} ] && echo "compilation activated"    ; CMP=1            ;;
+      d ) [ ${VERBOSE} ] && echo "deployment activated"     ; DEP=1            ;;
+      P ) [ ${VERBOSE} ] && echo "list presets"             ; LIST=1           ;;
+      p ) [ ${VERBOSE} ] && echo "preset $OPTARG"           ; PRESET=$OPTARG       ;;
+      m ) [ ${VERBOSE} ] && echo "mode $OPTARG"             ; mode_usr=$OPTARG     ;;
+      k ) [ ${VERBOSE} ] && echo "key options $OPTARG"      ; cppdefs_usr=$OPTARG  ;;
+      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"           ; bfmdir_usr=$OPTARG   ;;
+      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"          ; nemodir_usr=$OPTARG  ;;
+      N ) [ ${VERBOSE} ] && echo "NMLLIST=$OPTARG"          ; nmllist_usr=$OPTARG  ;;
+      S ) [ ${VERBOSE} ] && echo "NEMOSUB=$OPTARG"          ; nemosub_usr=$OPTARG  ;;
+      a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"     ; arch_usr=$OPTARG     ;;
+      f ) [ ${VERBOSE} ] && echo "fast mode activated"      ; clean_usr=0          ;;
+      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"      ; ncdf_dir_usr=$OPTARG ;;
+      x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"       ; exp_usr=$OPTARG      ;;
+      F ) [ ${VERBOSE} ] && echo "experiment files $OPTARG" ; expfiles_usr=$OPTARG ;;
+      D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
+      r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
+      q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"       ; queue_usr=$OPTARG    ;;
+      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmstd_usr=$OPTARG   ;;
+      * ) echo "option not recognized"                      ; exit                 ;;
     esac
 done
 
@@ -185,17 +191,19 @@ if [ $VERBOSE ]; then
     cmd_mkmf="${MKMF} -v"
     cmd_gmake="${GMAKE}"
     cmd_gen="${GENCONF}.pl -v"
+    cmd_gennml="${GENNML}.pl -v"
     cmd_mknemo="${MKNEMO}"
 else
     cmd_mkmf="${MKMF}"
     cmd_gmake="${GMAKE} -s"
     cmd_gen="${GENCONF}.pl"
+    cmd_gennml="${GENNML}.pl"
     cmd_mknemo="${MKNEMO} -v0"
 fi
 
 myGlobalConf="${PRESET}/configuration"
 myGlobalMem="${PRESET}/layout"
-myGlobalNml="${PRESET}/namelists"
+myGlobalNml="${PRESET}/namelists_bfm"
 
 ##### Overwrite options specified in configuration file
 [ ${VERBOSE} ] && echo "Conf. file replace:"
@@ -218,6 +226,9 @@ done
 
 #specify build dir of BFM
 blddir="${BFMDIR}/${TEMPDIR}/${PRESET}"
+#specify preset dir
+presetdir="${BFMDIR}/${CONFDIR}/${PRESET}"
+
 
 #Check some optional parameter values
 if [[ ! $BFMDIR ]]; then 
@@ -266,6 +277,7 @@ if [ ${GEN} ]; then
     if [ ! -d ${blddir} ]; then mkdir ${blddir}; fi
     cd ${blddir}
     rm -rf *
+    cp ${presetdir}/* ${blddir}
     
     #add -D to cppdefs
     cppdefs=`echo ${CPPDEFS} | sed -e 's/\([a-zA-Z_0-9]*\)/-D\1/g'`
@@ -277,6 +289,15 @@ if [ ${GEN} ]; then
         -n ${BFMDIR}/${CONFDIR}/${myGlobalNml}  \
         -f ${BFMDIR}/${SCRIPTS_PROTO} \
         -t ${blddir} || exit
+
+    # generate other namelists specified in the argument NMLLIST
+    if [ "${NMLLIST}" ]; then
+        ${PERL} -I${BFMDIR}/${SCRIPTS_BIN}/ ${BFMDIR}/${SCRIPTS_BIN}/${cmd_gennml} \
+            -i ${presetdir} \
+            -n "${NMLLIST}"  \
+            -o ${blddir} || exit
+    fi
+
 
     if [[ ${MODE} == "STANDALONE" ]]; then
         # list files
@@ -342,7 +363,7 @@ if [ ${GEN} ]; then
         if [ ! -d ${NEMODIR}/NEMOGCM/CONFIG/${PRESET} ]; then
             if [ "$NEMOSUB" ] ; then
                 ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -d "${NEMOSUB}"
-                cp "${BFMDIR}/${CONFDIR}/${PRESET}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
+                cp "${presetdir}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
             else
                 echo "ERROR: NEMO configuration not exists. If you want to create a NEMO configuration, you have to specify NEMOSUB option"
                 echo ${ERROR_MSG}
@@ -450,7 +471,7 @@ if [ ${DEP} ]; then
 
     exedir="${BFMDIR}/run/${EXP}"
 
-    #Copy Namelists
+    #Copy Namelists and other files
     if [ ! -d ${exedir} ]; then 
         if [ ! -d ${blddir} ]; then
             echo "ERROR: directory ${blddir} not exists"
@@ -459,19 +480,12 @@ if [ ${DEP} ]; then
         fi
 
         mkdir -p ${exedir};
-        # copy and link namelist files
-        if [ ${NMLDIR} ]; then cp ${NMLDIR}/*.nml ${exedir}/; 
-        else cp ${blddir}/*.nml ${exedir}/; fi
 
-        #Copy nemo files
-        if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
-            # copy and link necessary files
-            cd "${BFMDIR}/${CONFDIR}/${PRESET}"
-            if [ "${NEMONML}" ]; then cp ${NEMONML} ${exedir}/; fi
-            # copy and link generated namelist_top
-            if [ ${NMLDIR} ]; then cp ${NMLDIR}/namelist_top ${exedir}/; 
-            else cp ${blddir}/namelist_top ${exedir}/; fi
-        fi
+        #copy files from blddir to exedir
+        cd ${blddir}
+        cp *.nml ${exedir}/;
+        if [ "${EXPFILES}" ] cp ${EXPFILES} ${exedir}/;
+        if [ "${EXPDIR}"   ] cp ${EXPDIR}/* ${exedir}/;
     else
         echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
     fi

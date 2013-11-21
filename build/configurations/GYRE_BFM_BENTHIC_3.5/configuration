@@ -32,7 +32,7 @@
         PROC     = 8,
         EXP      = 'gyre_bfm',
         QUEUE    = 'poe_short',
-        NEMONML  = 'iodef.xml domain_def.xml field_def.xml namelist'
+        EXPFILES = 'iodef.xml domain_def.xml field_def.xml namelist namelist_top'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
