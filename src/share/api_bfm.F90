@@ -23,7 +23,7 @@
 
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public init_bfm, find, update_save_delta
+   public init_bfm, find, update_save_delta, printDEBUG
 !
 ! !PUBLIC DATA MEMBERS:
    logical                            :: bio_calc,bioshade_feedback,bfm_rstctl
@@ -640,13 +640,41 @@ contains
    end function find
 
 !EOC
+   
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:
+!
+! !INTERFACE:
+   subroutine printDEBUG( ntime )
+!
+! !DESCRIPTION:
+!  Print debug information
+!
+! !USES:
+     use mem, only: D3STATE
+     use global_mem, only: RLEN,LOGUNIT
 
+     implicit none
+     integer, intent(IN) :: ntime
+     integer :: idx, idx_tmp
 
+     write(LOGUNIT,*)
+     write(LOGUNIT,*) 'D3STATE: (', ntime, ')'
+     do idx = stPelStateS , stPelStateE
+        idx_tmp=idx-stPelStateS+1
+        write(LOGUNIT,*) "  ", trim(var_names(idx)), "= ", D3STATE(idx_tmp,:)
+     end do
+     write(LOGUNIT,*)
+
+   end subroutine  printDEBUG
+!EOC
 !-----------------------------------------------------------------------
 
-   end module api_bfm
+ end module api_bfm
 
-!-----------------------------------------------------------------------
-!Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!Copyright (C) 2006 - Marcello Vichi
+ !-----------------------------------------------------------------------
+ !Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+ !Copyright (C) 2006 - Marcello Vichi
 

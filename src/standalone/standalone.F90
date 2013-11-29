@@ -376,6 +376,9 @@
    use netcdf_bfm, only: save_bfm
    use mem
    use api_bfm, only: out_delta, save_delta , time_delta, update_save_delta
+#ifdef DEBUG
+   use api_bfm, only: printDEBUG
+#endif
    use time
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
@@ -413,6 +416,9 @@ real(RLEN) :: localtime
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Integrate forward in time
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#ifdef DEBUG
+      call printDEBUG(ntime)
+#endif
       select case (method)
          case (2)
             call integrationRK2
