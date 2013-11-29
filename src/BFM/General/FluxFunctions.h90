@@ -31,22 +31,26 @@
             ! Implicit typing is never allowed
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             implicit none
-            integer,intent(IN) :: iiSub, iiorigin, iidestination
-            integer :: origin, destination
-            real(RLEN) :: flux(:)
-            character(len=8)                   :: D23
-            integer :: j
+            integer,intent(IN)       :: iiSub, iiorigin, iidestination
+            real(RLEN),dimension(:)  :: flux !is going to be restored at the end if modified
+
+            integer          :: origin, destination
+            logical          :: fluxsign
+            character(len=8) :: D23
+            integer          :: j
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !BEGIN compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             origin      = iiorigin
             destination = iidestination
+            fluxsign    = .FALSE. 
 
-            if ( destination ==0 ) then
+            if ( destination == 0 ) then
                ! call (iiSub,origin,origin,-flux)
                destination = origin
                flux        = -flux
-            elseif ( origin ==0 ) then
+               fluxsign    = .TRUE.
+            elseif ( origin == 0 ) then
               ! call (iiSub,destination,destination,flux)
                origin = destination
             endif
@@ -162,6 +166,8 @@
               end select
             end if !origin <> destination
 
+            ! if destination == 0 => need to restore original input sign 
+            if ( fluxsign ) flux = -flux 
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             !END compute
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -345,21 +351,17 @@
       ! Implicit typing is never allowed
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       implicit none
-      integer,intent(IN) :: mode
+      integer,intent(IN) :: mode                       ! check fix quota mode
       integer,intent(IN) :: iiSub
-      integer,intent(IN) :: which
+      integer,intent(IN) :: which                      ! pointer to Zoo carbon
       integer,intent(IN) :: origin
       integer,intent(IN) :: destination
       real(RLEN),intent(IN),dimension(:) :: flux
-      real(RLEN),intent(INOUT),dimension(:) :: collect
+      real(RLEN),intent(INOUT),dimension(:) :: collect ! save fluxes  
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       !BEGIN compute
-      if ( origin> 0 .and.destination >0) then
-         call flux_vector(iiSub,origin, destination,flux)
-      else if ( origin > 0 ) then
-         call flux_vector(iiSub,origin, origin,-flux)
-      elseif ( destination > 0 ) then
-         call flux_vector(iiSub,destination, destination,flux)
+      if (iiSub >= 0 ) then
+          call flux_vector(iiSub,origin, destination,flux)
       elseif (iiSub < 0 ) then
          if ( mode==0)  return
          if ( sum(abs(flux)/(1.0D-80+abs(collect))-1.0D+00)> 1.0D-6) then
