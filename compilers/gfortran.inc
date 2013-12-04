@@ -5,7 +5,7 @@
 
   NCDF_DIR=${NETCDF}
   NCDF_LIB= -L${NCDF_DIR}/lib -lnetcdff -lnetcdf 
-  NCDF_INC= -I${NCDF_DIR}/include 
+  NCDF_INC= -I${NCDF_DIR}/include
 
   FC=gfortran
   LD=gfortran

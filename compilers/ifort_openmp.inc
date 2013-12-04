@@ -13,14 +13,14 @@
 #NOTE: in athena you have to load modules: -HDF5/hdf5-1.8.11_parallel -NETCDF/parallel-netcdf-1.3.1 -NETCDF/netcdf-4.3_parallel
 
   NCDF_DIR=${NETCDF}
-	NCDF_LIB= -L${NETCDF}/lib -lnetcdff -lnetcdf -L${PNETCDF}/lib -lpnetcdf
-	NCDF_INC= -I${PNETCDF}/include -I${NETCDF}/include
+  NCDF_LIB= -L${NETCDF}/lib -lnetcdff -lnetcdf -L${PNETCDF}/lib -lpnetcdf
+  NCDF_INC= -I${PNETCDF}/include -I${NETCDF}/include
   HDF5=/users/home/opt/hdf5/hdf5-1.8.11_parallel
-	HDF5_LIB= -L${HDF5}/lib -lhdf5_hl -lhdf5
+  HDF5_LIB= -L${HDF5}/lib -lhdf5_hl -lhdf5
   HDF5_INC= -I${HDF5}/include
 
-	FC=mpiifort
-	LD=mpiifort
+  FC=mpiifort
+  LD=mpiifort
 
   CPPFLAGS=
   OTHER_LIB= -lz -lcurl -lgpfs

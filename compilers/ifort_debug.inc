@@ -22,6 +22,6 @@
   ARFLAGS=-r
 
   CPPFLAGS=
-  FFLAGS= -O3 -r8 -xHost -fp-model source ${NCDF_INC}
+  FFLAGS= -g -traceback -O3 -r8 -xHost -fp-model source ${NCDF_INC}
   LDFLAGS= ${NCDF_INC} ${NCDF_LIB}
 
