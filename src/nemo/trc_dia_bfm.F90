@@ -18,6 +18,7 @@
    use time,       only: bfmtime
 #ifdef INCLUDE_PELCO2
    use constants, ONLY:MW_C
+   use mem_CO2, ONLY: CloseCO2
 #ifdef NOPOINTERS
   use mem
 #else

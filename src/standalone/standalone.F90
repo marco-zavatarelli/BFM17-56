@@ -17,6 +17,9 @@
 !  default: all is private.
    use global_mem, only:RLEN,ONE
    use constants,  only:SEC_PER_DAY
+#ifdef INCLUDE_PELCO2
+   use mem_CO2, ONLY: CloseCO2
+#endif   
    private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -491,8 +494,8 @@ real(RLEN) :: localtime
    call save_rst_bfm(localtime)
    call close_ncdf(ncid_rst)
    call close_ncdf(ncid_bfm)
-   !close systemforcings
 #ifdef INCLUDE_PELCO2
+   !close systemforcings
    call CloseCO2()
 #endif
    call end_envforcing_bfm
