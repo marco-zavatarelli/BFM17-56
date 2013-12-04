@@ -79,6 +79,10 @@
       call save_rst_bfm(localtime)
       call close_ncdf(ncid_rst)
       call close_ncdf(ncid_bfm)
+      !close systemforcings
+#ifdef INCLUDE_PELCO2
+      call CloseCO2()
+#endif
       ! clear main memory
       call ClearMem
    else

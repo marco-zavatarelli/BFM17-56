@@ -65,7 +65,7 @@
 
 !
 ! !PUBLIC DATA MEMBERS:
-   public FieldInit, FieldRead
+   public FieldInit, FieldRead, FieldClose
 !
 ! !REVISION HISTORY:
 !  Author(s): Marcello 
@@ -390,6 +390,25 @@
       return
 
    end subroutine FieldGet
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ subroutine FieldClose(FName, FData)
+   ! This routine close the forcing file
+
+   use netcdf_bfm, only: check_err
+
+   implicit none
+   type(ForcingName),  intent(IN) :: FName
+   type(ForcingField), intent(IN) :: FData
+
+   IF (FData%filetype) THEN 
+      call check_err(NF90_CLOSE(FData%lun))
+   ELSE
+      close(FData%lun)
+   ENDIF
+
+   return
+ end subroutine 
 !-------------------------------------------------------------------------!
 !-------------------------------------------------------------------------!
  integer function GetLun ()

@@ -16,7 +16,7 @@
 !
 ! !USES:
   use global_mem
-  use SystemForcing, only :ForcingName, ForcingField, FieldInit
+  use SystemForcing, only :ForcingName, ForcingField, FieldInit, FieldClose
   IMPLICIT NONE
 !  
 !
@@ -122,7 +122,7 @@
    logical      :: CalcBioAlkFlag = .FALSE.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
-  public InitCO2
+  public InitCO2, CloseCO2
 
   contains
 
@@ -252,6 +252,14 @@
 101 call error_msg_prn(NML_READ,"ModuleCO2.f90","CO2_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitCO2
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  subroutine CloseCO2()
+    if (AtmCO2%init == 2) then
+       ! close external 0-D timeseries
+       CALL FieldClose(AtmCO2_N, AtmCO2)
+    endif
+  end subroutine CloseCO2
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
