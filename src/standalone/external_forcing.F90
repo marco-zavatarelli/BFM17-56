@@ -30,8 +30,9 @@
    use time,       only: julianday, secondsofday, time_diff, &
                          julian_day,calendar_date,dayofyear
    use envforcing, only: init_forcing_vars, daylength, density, &
-                         unit_forcing, read_obs
+                         unit_forcing, read_obs, READ_ERROR, END_OF_FILE
    use standalone, only: latitude
+   use bfm_error_msg
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -57,7 +58,8 @@
    integer, save             :: data_jul1,data_secs1
    integer, save             :: data_jul2=0,data_secs2=0
    real(RLEN), save          :: obs1(NOBS),obs2(NOBS)=0.
-   integer                   :: rc,jh,jn
+   integer                   :: jh,jn
+   integer                   :: ierr
 !-----------------------------------------------------------------------
 !BOC
 #ifdef DEBUG
@@ -72,6 +74,12 @@
      data_jul2=0
      data_secs2=0
      obs2(:)=ZERO
+     ! check consistency of initial date
+     call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,NOBS,obs2,ierr)
+     call julian_day(yy,mm,dd,0,0,jday)
+     if (jday > julianday )  &
+        call bfm_error('external_forcing','Model start date is earlier than start date of forcing data')
+     rewind(unit_forcing)
    end if
    !  This part initialise and read in new values if necessary.
    if(time_diff(data_jul2,data_secs2,julianday,secondsofday) .lt. 0) then
@@ -79,7 +87,13 @@
          data_jul1 = data_jul2
          data_secs1 = data_secs2
          obs1 = obs2
-         call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,NOBS,obs2,rc)
+         call read_obs(unit_forcing,yy,mm,dd,hh,min,ss,NOBS,obs2,ierr)
+         select case (ierr)
+           case (READ_ERROR)  
+              call bfm_error('external_forcing','Error reading forcing data')
+           case (END_OF_FILE)  
+              call bfm_error('external_forcing','Model end date is beyond forcing data')
+         end select
          call julian_day(yy,mm,dd,0,0,jday)
          data_jul2 = int(jday)
          data_secs2 = hh*3600 + min*60 + ss
