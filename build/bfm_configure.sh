@@ -362,7 +362,7 @@ if [ ${GEN} ]; then
         #Generate NEMO configuration with subdirs and copy cpp
         if [ ! -d ${NEMODIR}/NEMOGCM/CONFIG/${PRESET} ]; then
             if [ "$NEMOSUB" ] ; then
-                ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -d "${NEMOSUB}"
+                ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -m ${ARCH} -d "${NEMOSUB}"
                 cp "${presetdir}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
             else
                 echo "ERROR: NEMO configuration not exists. If you want to create a NEMO configuration, you have to specify NEMOSUB option"
@@ -488,7 +488,7 @@ if [ ${DEP} ]; then
         if [ "${EXPDIR}"   ]; then cp ${EXPDIR}/* ${exedir}/; fi
 
         #link reference nemo files from the shared directory
-        if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ] && [ -d ${NEMODIR}/NEMOGCM/CONFIG/SHARED ]]; then 
+        if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]] && [ -d ${NEMODIR}/NEMOGCM/CONFIG/SHARED ]; then 
            ln -sf ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_ref ${exedir}/;
            ln -sf ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_def.xml ${exedir}/;
         fi
