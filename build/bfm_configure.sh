@@ -48,8 +48,8 @@ NEMOSUB="";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NCDF_DIR     EXP     EXPDIR     PROC     QUEUE     BFMSTD     NEMOSUB     EXPFILES     NMLLIST)
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr ncdf_dir_usr exp_usr expdir_usr proc_usr queue_usr bfmstd_usr nemosub_usr expfiles_usr nmllist_usr)
+OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NCDF_DIR     EXP     EXPDIR     PROC     QUEUE     BFMSTD     NEMOSUB     EXPFILES     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr ncdf_dir_usr exp_usr expdir_usr proc_usr queue_usr bfmstd_usr nemosub_usr expfiles_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -72,7 +72,7 @@ NCDF_DIR_DEFAULT="/usr"
 usage(){
     more << EOF
 NAME
-    This script compile and/or deploy the BFM model.
+    This script configure, compile and/or deploy the BFM model.
 
 SYNOPSIS
     usage: $0 -h
@@ -130,6 +130,16 @@ DESCRIPTION
                   Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
                   Name of the queue number of procs used for running. Default
+
+ENVIRONMENT VARIABLES
+       BFMDIR
+                  Path to the root directory of BFM
+       BFMDIR_RUN
+                  Path to folder where experiments will be created. (Default: "${BFMDIR}/run" if environment variable is not defined)
+       NEMODIR
+                  Path to the root directory of NEMO
+       NETCDF
+                  Path to netcdf library and header files. (Default: "/usr" if environment variable is not defined)
 EOF
 }
 
@@ -469,7 +479,14 @@ fi
 if [ ${DEP} ]; then
     [ ${VERBOSE} ] && echo "creating Experiment ${PRESET}"
 
-    exedir="${BFMDIR}/run/${EXP}"
+    #change run dir path
+    if [ ${BFMDIR_RUN} ]; then
+        exedir="${BFMDIR_RUN}/${EXP}"
+        [ ${VERBOSE} ] && echo "setting run dir path with environment variable: ${exedir}"
+    else
+        exedir="${BFMDIR}/run/${EXP}"
+        [ ${VERBOSE} ] && echo "setting run dir path with default: ${exedir}"
+    fi
 
     #Copy Namelists and other files
     if [ ! -d ${exedir} ]; then 
