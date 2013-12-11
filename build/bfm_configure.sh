@@ -48,13 +48,14 @@ NEMOSUB="";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     BFMDIR     NEMODIR     ARCH     CLEAN     PROC     NCDF_DIR     EXP     EXPDIR     PROC     QUEUE     BFMSTD     NEMOSUB     EXPFILES     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr bfmdir_usr nemodir_usr arch_usr clean_usr proc_usr ncdf_dir_usr exp_usr expdir_usr proc_usr queue_usr bfmstd_usr nemosub_usr expfiles_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     PROC     QUEUE     BFMSTD     NEMOSUB     EXPFILES     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr proc_usr queue_usr bfmstd_usr nemosub_usr expfiles_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
+BFMDIR_DEFAULT="${PWD}/.."
 MODE="STANDALONE"
 CPPDEFS="BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG"
 PRESET="STANDALONE_PELAGIC"
@@ -64,7 +65,7 @@ EXP="EXP00"
 QUEUE="poe_short"
 BFMSTD="bfm_standalone.x"
 CLEAN=1
-NCDF_DIR_DEFAULT="/usr"
+NETCDF_DEFAULT="/usr"
 # --------------------------------------------------------------------
 
 
@@ -99,10 +100,6 @@ DESCRIPTION
                   - NEMO (with NEMO. Compile and run ONLY in LSF platform)
        -k CPPDEFS
                   Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG")                 
-       -b BFMDIR
-                  The environmental variable BFMDIR pointing to the root directory of BFM (Default: "${BFMDIR}")
-       -n NEMODIR
-                  The environmental variable NEMODIR pointing to the root directory of NEMO. (Default: "${NEMODIR}")
        -S NEMOSUB
                   NEMO sub-directories to add to the NEMO configuration
        -N NMLLIST
@@ -115,8 +112,6 @@ DESCRIPTION
                   Number of procs used for compilation. Default: 4
        -f
                   Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
-       -t NCDF_DIR
-                  Path to netcdf library and header files. (Default: "/usr" if \${NETCDF} environment variable is not defined)
        -o BFMSTD OUTPUT
                   BFM executable name output. (Default: bfm_standalone.x)
     alternative DEPLOYMENT OPTIONS are:
@@ -133,13 +128,13 @@ DESCRIPTION
 
 ENVIRONMENT VARIABLES
        BFMDIR
-                  Path to the root directory of BFM
+                  Path to the root directory of BFM. (Default: "${BFMDIR_DEFAULT}" if environment variable is not defined)
+       NETCDF
+                  Path to netcdf library and header files. (Default: "${NETCDF_DEFAULT}" if environment variable is not defined)
        BFMDIR_RUN
                   Path to folder where experiments will be created. (Default: "${BFMDIR}/run" if environment variable is not defined)
        NEMODIR
-                  Path to the root directory of NEMO
-       NETCDF
-                  Path to netcdf library and header files. (Default: "/usr" if environment variable is not defined)
+                  Path to the root directory of NEMO. Must define this environment variable if you use NEMO
 EOF
 }
 
@@ -154,7 +149,6 @@ tee < ${LOGDIR}/${LOGFILE}.pipe ${LOGDIR}/${LOGFILE} &
 exec &> ${LOGDIR}/${LOGFILE}.pipe
 rm ${LOGDIR}/${LOGFILE}.pipe
 
-
 #get user options from commandline
 while getopts "${OPTS}" opt; do
     case $opt in
@@ -167,13 +161,10 @@ while getopts "${OPTS}" opt; do
       p ) [ ${VERBOSE} ] && echo "preset $OPTARG"           ; PRESET=$OPTARG       ;;
       m ) [ ${VERBOSE} ] && echo "mode $OPTARG"             ; mode_usr=$OPTARG     ;;
       k ) [ ${VERBOSE} ] && echo "key options $OPTARG"      ; cppdefs_usr=$OPTARG  ;;
-      b ) [ ${VERBOSE} ] && echo "BFMDIR=$OPTARG"           ; bfmdir_usr=$OPTARG   ;;
-      n ) [ ${VERBOSE} ] && echo "NEMODIR=$OPTARG"          ; nemodir_usr=$OPTARG  ;;
       N ) [ ${VERBOSE} ] && echo "NMLLIST=$OPTARG"          ; nmllist_usr=$OPTARG  ;;
       S ) [ ${VERBOSE} ] && echo "NEMOSUB=$OPTARG"          ; nemosub_usr=$OPTARG  ;;
       a ) [ ${VERBOSE} ] && echo "architecture $OPTARG"     ; arch_usr=$OPTARG     ;;
       f ) [ ${VERBOSE} ] && echo "fast mode activated"      ; clean_usr=0          ;;
-      t ) [ ${VERBOSE} ] && echo "netcdf path $OPTARG"      ; ncdf_dir_usr=$OPTARG ;;
       x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"       ; exp_usr=$OPTARG      ;;
       F ) [ ${VERBOSE} ] && echo "experiment files $OPTARG" ; expfiles_usr=$OPTARG ;;
       D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
@@ -183,6 +174,12 @@ while getopts "${OPTS}" opt; do
       * ) echo "option not recognized"                      ; exit                 ;;
     esac
 done
+
+#set bfm path
+if [[ ! ${BFMDIR} ]]; then
+    BFMDIR="${BFMDIR_DEFAULT}"
+    [ ${VERBOSE} ] && echo "setting BFM path with default: ${BFMDIR}"
+fi
 
 #check must parameters
 if [[ $LIST ]]; then
@@ -241,11 +238,6 @@ presetdir="${BFMDIR}/${CONFDIR}/${PRESET}"
 
 
 #Check some optional parameter values
-if [[ ! $BFMDIR ]]; then 
-    echo "ERROR: BFMDIR not specified"
-    echo ${ERROR_MSG}
-    exit
-fi
 if [[ ! $NEMODIR && ( "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ) ]]; then
     echo "ERROR: NEMODIR not specified in NEMO mode"
     echo ${ERROR_MSG}
@@ -330,16 +322,13 @@ if [ ${GEN} ]; then
             find ${BFMDIR}/src/BFM/Seaice -name "*.?90" -print >> BFM.lst
         fi
 
-        #change netcdf path in compiler file
-        if [ ${NCDF_DIR} ]; then
-            [ ${VERBOSE} ] && echo "changing netcd path for user option!"
-            sed -e "s,\${NETCDF},${NCDF_DIR}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
-        elif [ ${NETCDF} ]; then
-            [ ${VERBOSE} ] && echo "changing netcd path for environment variable!"
+        #set netcdf path in compiler file
+        if [ ${NETCDF} ]; then
+            [ ${VERBOSE} ] && echo "setting netcd path with environment variable: ${NETCDF}"
             sed -e "s,\${NETCDF},${NETCDF}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
         else
-            [ ${VERBOSE} ] && echo "changing netcd path for default!"
-            sed -e "s,\${NETCDF},${NCDF_DIR_DEFAULT}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
+            [ ${VERBOSE} ] && echo "setting netcd path with default: ${NETCDF_DEFAULT}"
+            sed -e "s,\${NETCDF},${NETCDF_DEFAULT}," ${BFMDIR}/compilers/${ARCH} > ${blddir}/${ARCH}
         fi
 
         if [ ${VERBOSE} ]; then
@@ -479,7 +468,7 @@ fi
 if [ ${DEP} ]; then
     [ ${VERBOSE} ] && echo "creating Experiment ${PRESET}"
 
-    #change run dir path
+    #set run dir path
     if [ ${BFMDIR_RUN} ]; then
         exedir="${BFMDIR_RUN}/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with environment variable: ${exedir}"
