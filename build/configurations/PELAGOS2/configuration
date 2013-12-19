@@ -28,7 +28,7 @@
 &BFM_conf
         MODE     = 'NEMO',
         CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_PELFE INCLUDE_DIAG',
-        ARCH     = 'ifort_athena_xios',
+        ARCH     = 'gfortran_athena_xios',
         PROC     = 8,
         EXP      = 'pelagos2',
         QUEUE    = 'poe_short',
