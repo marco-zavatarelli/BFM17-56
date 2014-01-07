@@ -48,8 +48,8 @@ NEMOSUB="";
 
 #options
 OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     PROC     QUEUE     BFMSTD     NEMOSUB     EXPFILES     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr proc_usr queue_usr bfmstd_usr nemosub_usr expfiles_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -63,7 +63,7 @@ ARCH="gfortran.inc"
 PROC=4
 EXP="EXP00"
 QUEUE="poe_short"
-BFMSTD="bfm_standalone.x"
+BFMEXE="bfm_standalone.x"
 CLEAN=1
 NETCDF_DEFAULT="/usr"
 # --------------------------------------------------------------------
@@ -112,7 +112,7 @@ DESCRIPTION
                   Number of procs used for compilation. Default: 4
        -f
                   Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
-       -o BFMSTD OUTPUT
+       -o BFMEXE OUTPUT
                   BFM executable name output. (Default: bfm_standalone.x)
     alternative DEPLOYMENT OPTIONS are:
        -x EXP
@@ -170,7 +170,7 @@ while getopts "${OPTS}" opt; do
       D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
       q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"       ; queue_usr=$OPTARG    ;;
-      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmstd_usr=$OPTARG   ;;
+      o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmexe_usr=$OPTARG   ;;
       * ) echo "option not recognized"                      ; exit                 ;;
     esac
 done
@@ -265,7 +265,7 @@ fi
 if [ ${GEN} ]; then
 
     if [ ! -f ${BFMDIR}/${CONFDIR}/${myGlobalMem} ]; then
-         echo "ERROR: ${BFMDIR}/${CONFDIR}/${myGlobalMem} not exsits"
+         echo "ERROR: ${BFMDIR}/${CONFDIR}/${myGlobalMem} not exists"
          echo ${ERROR_MSG}
          exit
     fi
@@ -337,7 +337,7 @@ if [ ${GEN} ]; then
             echo "    -c \"${cppdefs}\" "
             echo "    -o \"-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include\" "
             echo "    -t \"${blddir}/${ARCH}\" "
-            echo "    -p \"${BFMDIR}/bin/${BFMSTD}\" "
+            echo "    -p \"${BFMDIR}/bin/${BFMEXE}\" "
             echo "    BFM.lst && echo \" "
         fi
 
@@ -346,18 +346,16 @@ if [ ${GEN} ]; then
             -c "${cppdefs}" \
             -o "-I${BFMDIR}/include -I${BFMDIR}/src/BFM/include" \
             -t "${blddir}/${ARCH}" \
-            -p "${BFMDIR}/bin/${BFMSTD}" \
+            -p "${BFMDIR}/bin/${BFMEXE}" \
             BFM.lst && echo ""
 
-        # Link to the configuration file
-        #ln -sf ${BFMDIR}/${CONFDIR}/${myGlobalDef} GlobalDefsBFM.model
 
         # Move BFM Layout files to target folders 
         cp ${blddir}/*.F90 ${BFMDIR}/src/BFM/General
         mv ${BFMDIR}/src/BFM/General/init_var_bfm.F90 ${BFMDIR}/src/share
         cp ${blddir}/init_var_bfm.F90 ${BFMDIR}/src/share
         cp ${blddir}/INCLUDE.h ${BFMDIR}/src/BFM/include
-    else
+    elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         #Generate NEMO configuration with subdirs and copy cpp
         if [ ! -d ${NEMODIR}/NEMOGCM/CONFIG/${PRESET} ]; then
             if [ "$NEMOSUB" ] ; then
@@ -416,9 +414,9 @@ if [ ${CMP} ]; then
         fi
         echo " "
         echo "Starting ${PRESET} compilation..."
-        rm -rf ${BFMDIR}/bin/${BFMSTD}
+        rm -rf ${BFMDIR}/bin/${BFMEXE}
         ${cmd_gmake}
-        if [ ! -f ${BFMDIR}/bin/${BFMSTD} ]; then 
+        if [ ! -f ${BFMDIR}/bin/${BFMEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
             exit 1; 
         else
@@ -434,22 +432,11 @@ if [ ${CMP} ]; then
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
-        ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
-        if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
-            echo "ERROR in ${PRESET} compilation!" ; 
-            exit 1; 
+        if[[ || "$MODE" == "NEMO" ]]; then        
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
         else
-            echo "${PRESET} compilation done!"
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
         fi
-    elif [[ ${MODE} == "NEMO_3DVAR" ]]; then
-
-        if [ ${CLEAN} == 1 ]; then
-            [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
-            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
-        fi
-        [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
-        rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
-        ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
             exit 1; 
@@ -498,8 +485,8 @@ if [ ${DEP} ]; then
 
     #Copy executable
     if [[ ${MODE} == "STANDALONE" ]]; then
-        ln -sf ${BFMDIR}/bin/${BFMSTD} ${exedir}/${BFMSTD}
-        printf "Go to ${exedir} and execute command:\n\t./${BFMSTD}\n"
+        ln -sf ${BFMDIR}/bin/${BFMEXE} ${exedir}/${BFMEXE}
+        printf "Go to ${exedir} and execute command:\n\t./${BFMEXE}\n"
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
         #change values in runscript
