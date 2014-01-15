@@ -30,7 +30,7 @@
 ! bfm_init       integer Initialization state
 !                        0. from constant values in bfm_init_nml below
 !                        1. from restart
-!                        2. from 3D restart merged
+!                        2. from 3D restart merged (NEMO)
 ! bfm_rstctl     logical Save initial state of bfm in the output file.
 ! bio_setup      integer BFM configuration:
 !                        1. pelagic
@@ -188,7 +188,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !   logical sbc: variable has surface boundary data
 !   logical cbc: variable has coastal boundary data
 ! * Options not used when coupled with NEMO because
-!   overridden by values in namelist_top
+!   overridden by values in namelist_top_cfg
 !   char filename: name of the input file
 !   char  varname: name of the var in input file
 !-------------------------------------------------------------------------!
@@ -264,6 +264,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !var_save: instantaneous value at the output interval
 !-------------------------------------------------------------------------!
 &bfm_save_nml
+   var_save = ''
    ave_save = 'O2o','O3h','DIC','ALK','pCO2','pH',
           'N1p','N3n','N4n','N5s','N7f',
           'P1c','P1l','P1f','P2c','P2l','P3c','P3l',
@@ -769,19 +770,27 @@ p_paMEZ(2,:)=   0.0,    1.0
 #!              fix for negative concentrations       (namtrc_rad)
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 !-------------------------------------------------------------------------!
-!NAMELIST namtrc
+!NAMELIST namtrc_run
 !-------------------------------------------------------------------------!
 !   BFM requires only the following parameters for
 !   tracers definition
 !   nn_dttrc      time step frequency for passive sn_tracers      
 !   ln_top_euler  Euler timestepping SHOULD be set to TRUE
+!-------------------------------------------------------------------------!
+&namtrc_run     
+   nn_dttrc      =  1  
+   ln_top_euler  = .true.
+        filename_nml_conf = 'namelist_top_cfg',
+/
+
+!-------------------------------------------------------------------------!
+!NAMELIST namtrc
+!-------------------------------------------------------------------------!
 !   sn_tracer(1) is a dummy tracer to let NEMO know that there is a model
 !-------------------------------------------------------------------------!
 &namtrc     
-   nn_dttrc      =  1  
-   ln_top_euler  = .true.
    sn_tracer(1)   = 'DUMMY', 'Dummy tracer', 'dummy units',.false.,.true.
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -798,11 +807,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 &namtrc_adv    
    ln_trcadv_cen2   =  .false.
    ln_trcadv_tvd    =  .true.
-   ln_trcadv_muscl  =  .false.
-   ln_trcadv_muscl2 =  .false.
-   ln_trcadv_ubs    =  .false.
-   ln_trcadv_qck    =  .false.
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -822,15 +827,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   rn_ahtrb_0       background eddy diffusivity for ldf_iso [m2/s]
 !-------------------------------------------------------------------------!
 &namtrc_ldf    
-   ln_trcldf_diff   =  .true.
-   ln_trcldf_lap    =  .true.
-   ln_trcldf_bilap  =  .false.
-   ln_trcldf_level  =  .false. 
-   ln_trcldf_hor    =  .false.
-   ln_trcldf_iso    =  .true.
-   rn_ahtrc_0       =  2000.
-   rn_ahtrb_0       =     0.
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -841,9 +838,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   nn_trczdf_exp    number of sub-timestep for ln_trczdfexp=T
 !-------------------------------------------------------------------------!
 &namtrc_zdf        
-   ln_trczdf_exp   =  .false.
-   nn_trczdf_exp   =   3
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -853,8 +848,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !  ln_trcrad   artificially correct negative concentrations (T) or not (F)
 !-------------------------------------------------------------------------!
 &namtrc_rad        
-   ln_trcrad   =  .true.  
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -864,7 +858,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   passive tracer newtonian damping
 !-------------------------------------------------------------------------!
 &namtrc_dmp    
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -875,7 +869,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !          or mixed-layer trends          ('key_trdmld_trc')
 !-------------------------------------------------------------------------!
 &namtrc_trd       
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -885,7 +879,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   parameters for passive tracer additional diagnostics
 !-------------------------------------------------------------------------!
 &namtrc_dia       
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -898,7 +892,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   and the conversion factor rn_trfac(VARNAME)
 !-------------------------------------------------------------------------!
 &namtrc_dta      
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !-------------------------------------------------------------------------!
@@ -913,7 +907,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing  ! filename     
 !-----------------------------------------------------------------------
 &namtrc_bc
-        filename_nml_conf = 'namelist_top',
+        filename_nml_conf = 'namelist_top_cfg',
 /
 
 !------------------------------------------------------------------------------------!
@@ -922,21 +916,21 @@ p_paMEZ(2,:)=   0.0,    1.0
 !Main initialisation and output specifications
 !NAME             KIND    DESCRIPTION
 !chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
+!bfm_restart      string        Name of NetCDF restart chunk files (also name of restart output)
 !inp_dir 	  string 	Path to the input files (chunks)
 !out_dir 	  string 	Path to the output file (merged)
 !layout 	  string 	Path to the layout.dat file
 !ln_mask 	  logical       Write global mask specification
 !var_save 	  string 	List of output variables (set according to bfm output) 
 !
-! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting 
-!          the number of output variables with HR model configurations.  
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
-   chunk_fname='NEMO_GYRE_BFM',
-   inp_dir='./',
-   out_dir='./',
-   layout='./layout.dat',
-   ln_mask=.FALSE.,
-   var_save='O2o'  'O3h'  'DIC'  'ALK'  'pCO2'  'pH'  'N1p'  'N3n'  'N4n'  'N5s'  'N7f'  'P1c'  'P1l'  'P1f'  'P2c'  'P2l'  'P3c'  'P3l'  'Z4c'  'Z5c'  'Z6c'  'B1c'  'R1c'  'R2c'  'R6c'  'R6f'  'Chla'  'R1n'  'R1p'  'eiPPY(iiP1)'  'eiPPY(iiP2)'  'eiPPY(iiP3)'  'P1n'  'P2n'  'P3n'  'P1p'  'P2p'  'P3p'  'jbotR6c'  'jsurO2o'  'jsurO3c'  'ruPPYc'  'resPBAc'  'resZOOc'  'ruPPYn'  'ruPPYp'  'ruPPYs'  'ruPPYf'  'exPPYc'  'ruZOOc'  'remZOOn'  'remZOOp'  'remPBAn'  'remPBAp'  'EICE'  'ETW'  'EIR'  'EWIND'  'xEPS'  'R6p'  'R6n'  'R6s'  'B1p'  'B1n'  'Z5p'  'Z6p'  'Z5n'  'Z6n',
+   chunk_fname='NEMO_GYRE_BFM'
+   bfm_restart=''
+   inp_dir='./'
+   out_dir='./'
+   layout='./layout.dat'
+   ln_mask=.FALSE.
+   var_save='O2o'  'O3h'  'DIC'  'ALK'  'pCO2'  'pH'  'N1p'  'N3n'  'N4n'  'N5s'  'N7f'  'P1c'  'P1l'  'P1f'  'P2c'  'P2l'  'P3c'  'P3l'  'Z4c'  'Z5c'  'Z6c'  'B1c'  'R1c'  'R2c'  'R6c'  'R6f'  'Chla'  'R1n'  'R1p'  'eiPPY(iiP1)'  'eiPPY(iiP2)'  'eiPPY(iiP3)'  'P1n'  'P2n'  'P3n'  'P1p'  'P2p'  'P3p'  'jbotR6c'  'jsurO2o'  'jsurO3c'  'ruPPYc'  'resPBAc'  'resZOOc'  'ruPPYn'  'ruPPYp'  'ruPPYs'  'ruPPYf'  'exPPYc'  'ruZOOc'  'remZOOn'  'remZOOp'  'remPBAn'  'remPBAp'  'EICE'  'ETW'  'EIR'  'EWIND'  'xEPS'  'R6p'  'R6n'  'R6s'  'B1p'  'B1n'  'Z5p'  'Z6p'  'Z5n'  'Z6n'
    filename_nml_conf = 'bnmerge.nml',
 /

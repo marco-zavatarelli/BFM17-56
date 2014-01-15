@@ -1,3 +1,6 @@
 # GYRE_BFM: the standard BFM-NEMO coupling
 
-This version requires NEMO release 3.5 and above
+This version requires NEMO release 3.6 and above
+The run directory is created in $BFMDIR_RUN/gyre_bfm just like all other
+BFM presets and the nemo executable is linked to there.
+
