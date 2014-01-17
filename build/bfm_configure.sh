@@ -37,7 +37,7 @@ GMAKE="gmake"
 PERL="perl"
 GENCONF="generate_conf"
 GENNML="generate_namelist"
-MKNEMO="makenemo"
+MKNEMO="makenemo"       
 NEMOEXE="nemo.exe"
 
 #optional
@@ -98,6 +98,7 @@ DESCRIPTION
                   Mode for compilation and deployment. Available models are: (Default: "STANDALONE")
                   - STANDALONE (without NEMO. Compile and run in local machine)
                   - NEMO (with NEMO. Compile and run ONLY in LSF platform)
+                  - POM1D
        -k CPPDEFS
                   Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG")                 
        -S NEMOSUB
@@ -243,8 +244,8 @@ if [[ ! $NEMODIR && ( "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ) ]]; then
     echo ${ERROR_MSG}
     exit
 fi
-if [[ "$MODE" != "STANDALONE" && "$MODE" != "NEMO" && "$MODE" != "NEMO_3DVAR" ]]; then 
-    echo "ERROR: MODE value not valid ($MODE). Available values are: STANDALONE or NEMO or NEMO_3DVAR."
+if [[ "$MODE" != "STANDALONE" && "$MODE" != "POM1D" && "$MODE" != "NEMO" && "$MODE" != "NEMO_3DVAR" ]]; then 
+    echo "ERROR: MODE value not valid ($MODE). Available values are: STANDALONE or POM1D or NEMO or NEMO_3DVAR."
     echo ${ERROR_MSG}
     exit
 fi
@@ -301,10 +302,15 @@ if [ ${GEN} ]; then
     fi
 
 
-    if [[ ${MODE} == "STANDALONE" ]]; then
+    if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         # list files
         find ${BFMDIR}/src/BFM/General -name "*.?90" -print > BFM.lst
-        find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
+        if [[ ${MODE} == "STANDALONE" ]]; then
+            find ${BFMDIR}/src/standalone -name "*.?90" -print >> BFM.lst
+        else
+            find ${BFMDIR}/src/pom -name "*.?90"  -print >> BFM.lst
+            find ${BFMDIR}/src/pom -name "*.[fF]" -print >> BFM.lst
+        fi
         find ${BFMDIR}/src/share -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Pel -name "*.?90" -print >> BFM.lst
         find ${BFMDIR}/src/BFM/Light -name "*.?90" -print >> BFM.lst
@@ -407,7 +413,7 @@ if [ ${CMP} ]; then
     fi
     cd ${blddir}
 
-    if [[ ${MODE} == "STANDALONE" ]]; then
+    if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
             ${cmd_gmake} clean
@@ -424,7 +430,7 @@ if [ ${CMP} ]; then
             echo "${PRESET} compilation done!"
             echo " "
         fi
-    elif [[ ${MODE} == "NEMO" ]]; then
+    elif [[ ${MODE} == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then
 
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
@@ -432,7 +438,7 @@ if [ ${CMP} ]; then
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
-        if[[ || "$MODE" == "NEMO" ]]; then        
+        if [[ "$MODE" == "NEMO" ]]; then 
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
         else
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
@@ -460,7 +466,7 @@ if [ ${DEP} ]; then
         exedir="${BFMDIR_RUN}/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with environment variable: ${exedir}"
     else
-        exedir="${BFMDIR}/run/${EXP}"
+    exedir="${BFMDIR}/run/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with default: ${exedir}"
     fi
 
@@ -490,7 +496,7 @@ if [ ${DEP} ]; then
     fi
 
     #Copy executable
-    if [[ ${MODE} == "STANDALONE" ]]; then
+    if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMEXE} ${exedir}/${BFMEXE}
         printf "Go to ${exedir} and execute command:\n\t./${BFMEXE}\n"
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 

@@ -231,7 +231,8 @@
    real(RLEN),allocatable,dimension(:,:,:),public :: rtmp3Db
 #endif
 
-#ifdef BFM_POM
+
+#ifdef POM_BFM
    !---------------------------------------------
    ! Additional 3D arrays
    !---------------------------------------------
@@ -640,7 +641,7 @@ contains
    end function find
 
 !EOC
-   
+
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -672,9 +673,9 @@ contains
 !EOC
 !-----------------------------------------------------------------------
 
- end module api_bfm
+   end module api_bfm
 
- !-----------------------------------------------------------------------
- !Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
- !Copyright (C) 2006 - Marcello Vichi
+!-----------------------------------------------------------------------
+!Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!Copyright (C) 2006 - Marcello Vichi
 
