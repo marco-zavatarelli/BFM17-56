@@ -1,0 +1,2 @@
+bld::tool::fppkeys key_dynspg_flt key_ldfslp key_zdftke key_vectopt_loop key_top key_my_trc key_mpp_mpi key_iomput
+inc $BFMDIR/src/nemo/bfm.fcm

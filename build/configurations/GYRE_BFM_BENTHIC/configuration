@@ -27,12 +27,13 @@
 
 &BFM_conf
         MODE     = 'NEMO',
-        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_DIAG INCLUDE_BEN INCLUDE_BENCO2',
-        ARCH     = 'macport_osx',
+        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_PELFE INCLUDE_DIAG INCLUDE_BEN INCLUDE_BENCO2',
+        ARCH     = 'gfortran_athena_xios',
         PROC     = 8,
-        EXP      = 'gyre_bfm',
+        EXP      = 'gyre_bfm_ben',
         QUEUE    = 'poe_short',
-        EXPFILES = 'iodef.xml domain_def.xml field_def.xml namelist namelist_top'
+        EXPFILES = 'iodef.xml namelist_cfg namelist_top_cfg'
+        NEMOSUB  = 'OPA_SRC TOP_SRC'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

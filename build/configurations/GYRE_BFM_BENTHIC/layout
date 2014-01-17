@@ -77,6 +77,7 @@ end
    O4n	:	NitrogenSink : mmol N/m3
    N5s	:	Silicate     : mmol Si/m3
    N6r	:	Reduction Equivalents : mmol S--/m3
+   N7f  :       Bioavailable Iron : umol Fe/m3
 
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Bacteria
@@ -88,7 +89,7 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Phytoplankton Species
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
+   group PhytoPlankton[cnplsf] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3 : umol Fe/m3
 	   P1	        : Diatoms
 	   P2[-s]	: Flagellates
 	   P3[-s]	: PicoPhytoplankton
@@ -114,10 +115,10 @@ end
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   #	State Variable(s) for Detritus (Biogenic Organic Material)
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
+    group PelDetritus[cnpsf] (OMT) : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3 : umol Fe/m3
       R1[-s]    : Labile Dissolved Organic Matter
-      R2[-nps]  : Semi-labile Dissolved Organic Carbon
-      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
+      R2[-npsf]  : Semi-labile Dissolved Organic Carbon
+      R3[-npsf]  : Semi-refractory Dissolved Organic Carbon
       R6        : Particulate Organic Matter 
     end
 end
@@ -375,7 +376,7 @@ end
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Variables to check totmass of C N P Si in pelagic
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    totpel[cnps]  : Total Mass in Pelagic: g C: g N: g P: g Si
+    totpel[cnpsf]  : Total Mass in Pelagic: g C: g N: g P: g Si: g Fe
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Variables for oxygen diagnostics
@@ -402,6 +403,7 @@ end
     qncPPY(PhytoPlankton)	: Quotum N/C in Phytoplankton : mmol N/mg C 
     qscPPY(PhytoPlankton)	: Quotum Si/C in Phytoplankton : mmol Si/mg C 
     qlcPPY(PhytoPlankton)	: Quotum Chl/C in Phytoplankton : mg Chl /mg C
+    qfcPPY(PhytoPlankton)	: Quotum Fe/C in Phytoplankton : umol Fe/mg C
 
     qpcMEZ(MesoZooPlankton)	: Quotum P/C in Mesozooplankton :mmol P/mg C 
     qncMEZ(MesoZooPlankton)	: Quotum N/C in Mesozooplankton :mmol N/mg C 
@@ -412,6 +414,7 @@ end
     qpcOMT(PelDetritus)		: Quotum P/C in Organic Matter:mmol N/mg C 
     qncOMT(PelDetritus)		: Quotum N/C in Organic Matter:mmol P/mg C  
     qscOMT(PelDetritus)		: Quotum Si/C in Organic Matter:mmol Si/mg C
+    qfcOMT(PelDetritus)		: Quotum Fe/C in Organic Matter:umol Fe/mg C
  
     qpcPBA(PelBacteria)		: Quotum P/C in Pelagic Bacteria :mmol P/mg C  
     qncPBA(PelBacteria)		: Quotum N/C in Pelagic Bacteria :mmol N/mg C  
@@ -443,28 +446,29 @@ end
   totsysn  : total mass :  g N
   totsysp  : total mass :  g P
   totsyss  : total mass :  g Si
+  totsysf  : total mass :  g Fe
 end
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
-  ruPTc=P.c <- O3c : Gross Primary Production     : mg C/m3/d
-  resPP=P.c -> O3c : Respiration of phytoplankton : mg C/m3/d
-  resZT=(Z.c->O3c) : Respiration of zooplankton   : mg C/m3/d
+  ruPPYc=P.c <- O3c : Gross/Net Primary Production : mg C/m3/d
+  resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
+  resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
+  resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
 end
 
 3d-flux -if-exist INCLUDE_DIAG
-  ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
-  ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
-  exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
-  ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
-  netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
-  rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
-  rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
-  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
-  reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
-  ruBn=(N4n->B1n): bacterial uptake : mmol N/m3/d
-  fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
-  fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
+  ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
+  ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
+  ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
+  ruPPYf=P.f <- N7f : Net Iron Uptake : umol Fe/m3/d
+  exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
+  ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross/Net Secondary Production:mg C/m3/d
+  resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
+  remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
+  remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
+  remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
+  remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
 end
