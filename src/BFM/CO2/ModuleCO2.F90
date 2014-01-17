@@ -187,14 +187,22 @@
     elseif (AtmCO2%init == 2) then
        ! read external 0-D timeseries
        CALL FieldInit(AtmCO2_N, AtmCO2)
-       write(LOGUNIT,*) 'Using variable atmospheric CO2 concentration. Initial value:', AtmCO2%fnow(1)
-       write(LOGUNIT,*) ' '
+       ! the following check is needed to avoid allocation of empty arrays
+       ! with MPI and land domains
+       if (NO_BOXES_XY > 0) then
+          write(LOGUNIT,*) 'Using variable atmospheric CO2 concentration. Initial value:', AtmCO2%fnow(1)
+          write(LOGUNIT,*) ' '
+       end if
     elseif (AtmCO2%init == 4) then
        ! CO2 concentration is provided by external model
        CALL FieldInit(AtmCO2_N, AtmCO2)
-       AtmCO2%fnow = AtmCO20
-       write(LOGUNIT,*) 'CO2 conc. provided by external model. Initialize with default uniform value', AtmCO2%fnow(1)
-       write(LOGUNIT,*) ' '
+       ! the following check is needed to avoid allocation of empty arrays
+       ! with MPI and land domains
+       if (NO_BOXES_XY > 0) then
+          AtmCO2%fnow = AtmCO20
+          write(LOGUNIT,*) 'CO2 conc. provided by external model. Initialize with default uniform value', AtmCO2%fnow(1)
+          write(LOGUNIT,*) ' '
+       end if
     endif
     ! Rough approximation: pCO2 is assumed equal to the mixing ratio of CO2
     if (.not. calcAtmpCO2) EPCO2air = AtmCO2%fnow
@@ -207,9 +215,13 @@
        if (AtmSLP%init == 0) then
          ! Use constant
           CALL FieldInit(AtmSLP_N, AtmSLP)
-          AtmSLP%fnow = slp0
-          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in BFM_General.nml): ', AtmSLP%fnow(1)
-          write(LOGUNIT,*) ' '
+          ! the following check is needed to avoid allocation of empty arrays
+          ! with MPI and land domains
+          if (NO_BOXES_XY > 0) then
+             AtmSLP%fnow = slp0
+             write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in BFM_General.nml): ', AtmSLP%fnow(1)
+             write(LOGUNIT,*) ' '
+          end if
        else
          CALL FieldInit(AtmSLP_N, AtmSLP)
        endif
@@ -255,10 +267,12 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   subroutine CloseCO2()
+    implicit none
+    
     if (AtmCO2%init == 2) then
        ! close external 0-D timeseries
        CALL FieldClose(AtmCO2_N, AtmCO2)
-    endif
+    end if
   end subroutine CloseCO2
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
