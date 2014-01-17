@@ -64,16 +64,7 @@
    use trcdta, only : sf_trcdta, nb_trcdta, ntra, &
         n_trc_index, rf_trfac, trc_dta, trc_dta_init
    use trcbc, only : trc_bc_init
-   use dom_oce, only: nyear, nmonth, nday, &
-        e1t, e2t, e3t, &
-        rdt, gdept, &
-        tmask, tmask_i, &
-        gphit, glamt, gdept_0, &
-        narea, &
-        nlcit, nlcjt, &
-        nldit, nldjt, &
-        nleit, nlejt, &
-        nimppt, njmppt
+   use dom_oce
    use lib_mpp, only : lk_mpp, mpp_max, mpp_min
    use in_out_manager, only: numout, nitend, nit000, lwp
 
@@ -147,7 +138,7 @@
    !-------------------------------------------------------
    do j = 1,jpj
       do i = 1,jpi
-         rtmp3Da(i,j,:) = fse3t(i,j,:)
+         rtmp3Da(i,j,:) = fse3t_n(i,j,:)
          rtmp3Db(i,j,:) = e1t(i,j)*e2t(i,j)
          if (SEAmask(i,j,1)) then
             SRFmask(i,j,1) = .TRUE.
@@ -363,7 +354,7 @@
    ! (override any previous initialisation)
    !-------------------------------------------------------
    call init_netcdf_rst_bfm(rst_fname,TRIM(start_time),0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_0,        &
+             lat2d=gphit,lon2d=glamt,z=gdept_1d,        &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &
@@ -404,7 +395,7 @@
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
    call init_netcdf_bfm(out_fname,TRIM(start_time),0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_0,        &
+             lat2d=gphit,lon2d=glamt,z=gdept_1d,        &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &

@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<simulation> 
+
+  <context id="nemo" time_origin="1900-01-01 00:00:00" >
+    
+    <!-- $id$ -->
+    
+    <!-- 
+============================================================================================================
+=                                  definition of all existing variables                                    =
+=                                            DO NOT CHANGE                                                 =
+============================================================================================================
+    -->
+    <field_definition src="./field_def.xml"/>
+    <!-- 
+============================================================================================================
+=                                           output files definition                                        =
+=                                            Define your own files                                         =
+=                                         put the variables you want...                                    =
+============================================================================================================
+    -->
+    
+    <file_definition type="multiple_file" name="@expname@_@freq@_@startdate@_@enddate@" sync_freq="1d" min_digits="4">
+    
+      <file_group id="1h" output_freq="1h"  output_level="10" enabled=".TRUE."> <!-- 1h files -->
+	<file id="file1" name_suffix="_grid_T" description="ocean T grid variables" >
+	  <field field_ref="sst"  />
+	  <field field_ref="qsr"  />
+	</file>
+      </file_group>
+
+     
+      <file_group id="1d" output_freq="1d"  output_level="10" enabled=".TRUE."> <!-- 1d files -->
+	
+	<!-- example of "hand made" zoom  -->
+	<file id="file2" name_suffix="_grid_T_myzoom" >
+	  <!-- group of variables sharing the same zoom. see zoom definition in domain_def.xml -->
+	  <field_group id="blabla" domain_ref="myzoom" >    
+	    <field field_ref="toce" />
+	    <field field_ref="soce" />
+	  </field_group>
+	</file>
+	
+	<!-- mooring: automatic definition of the file name suffix based on id="0n180wT"  -->
+	<!-- include a group of variables. see field_def.xml for mooring variables definition  -->
+	<file id="0n180wT">
+	  <field_group group_ref="mooring" domain_ref="0n180wT" />  
+	</file>
+	
+	<!-- Equatorial section: automatic definition of the file name suffix based on id="EqT" -->
+	<!-- Zoom over vertical axis. def of axis_ref in the axis_definition bellow -->
+	<file id="EqT" >
+	  <field_group id="EqT" domain_ref="EqT" >
+	    <field field_ref="toce" name="votemper" axis_ref="deptht_myzoom"  />
+	    <field field_ref="sss" />
+	  </field_group>
+	</file>
+	
+	<!-- global file with different operations on data   -->
+	<file id="file3" >
+	  <field field_ref="toce"   default_value="-10" />    <!-- redefine the missing value -->
+	  <field field_ref="sst"    name="sstmooring1" domain_ref="0n180wT"  />   <!-- include a mooring -->
+	  <field field_ref="sst"    name="sst_1d_ave"  />                         <!-- mean -->
+	  <field field_ref="sst"    name="sst_1d_inst" operation="instant" />     <!-- instant value -->
+	  <field field_ref="sst"    name="sst_1d_max"  operation="maximum" />     <!-- max -->
+	  <field field_ref="suoce"  />   <!-- include a U-grid variable in the list -->
+	</file>
+	
+      </file_group>
+      
+    </file_definition>
+    
+    <!-- 
+============================================================================================================
+= grid definition = = DO NOT CHANGE =
+============================================================================================================
+    -->
+    
+   <axis_definition>  
+     <axis_group id="deptht" long_name="Vertical T levels" unit="m" positive="down" >
+       <axis id="deptht" />
+       <axis id="deptht_myzoom" zoom_begin="1" zoom_end="10" />
+     </axis_group>
+      <axis id="depthu" long_name="Vertical U levels" unit="m" positive="down" />
+      <axis id="depthv" long_name="Vertical V levels" unit="m" positive="down" />
+      <axis id="depthw" long_name="Vertical W levels" unit="m" positive="down" />
+      <axis id="nfloat" long_name="Float number"      unit="-"  />
+      <axis id="icbcla" long_name="Iceberg class"     unit="-"  />
+   </axis_definition> 
+    
+   <domain_definition src="./domain_def.xml"/>
+   
+   <grid_definition>    
+     <grid id="grid_T_2D" domain_ref="grid_T"/>
+     <grid id="grid_T_3D" domain_ref="grid_T" axis_ref="deptht"/>
+     <grid id="grid_U_2D" domain_ref="grid_U"/>
+     <grid id="grid_U_3D" domain_ref="grid_U" axis_ref="depthu"/>
+     <grid id="grid_V_2D" domain_ref="grid_V"/>
+     <grid id="grid_V_3D" domain_ref="grid_V" axis_ref="depthv"/>
+     <grid id="grid_W_2D" domain_ref="grid_W"/>
+     <grid id="grid_W_3D" domain_ref="grid_W" axis_ref="depthw"/>
+    </grid_definition>    
+
+  </context>
+  
+
+  <context id="xios">
+
+      <variable_definition>
+	
+     <!-- 
+        We must have buffer_size > jpi*jpj*jpk*8*3 (with jpi and jpj the subdomain size)
+-->
+	  <variable id="buffer_size"               type="integer">25000000</variable>
+	  <variable id="buffer_server_factor_size" type="integer">2</variable>
+	  <variable id="info_level"                type="integer">0</variable>
+	  <variable id="using_server"              type="boolean">false</variable>
+	  <variable id="using_oasis"               type="boolean">false</variable>
+	  <variable id="oasis_codes_id"            type="string" >oceanx</variable>
+	
+      </variable_definition>
+               
+  </context>
+  
+</simulation>

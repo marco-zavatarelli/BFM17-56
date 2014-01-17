@@ -1,0 +1,12 @@
+# PELAGOS2: the global ocean BFM-NEMO coupling @ORCA2
+
+This version requires NEMO release >= 3.6 
+This preset is not part of the official NEMO release but uses
+the NEMO makenemo tool to create the configuration in the CONFIG 
+directory to allow the compilation with FCM.
+Be aware that the file containing the CPP macros IS FOUND in this directory
+and once you have created the corresponding configuration directory
+in the NEMO tree it will be copied there and should be modified from there.
+
+The run directory is created in $BFMDIR_RUN/pelagos2 just like all other
+BFM presets and the nemo executable is linked to there.
