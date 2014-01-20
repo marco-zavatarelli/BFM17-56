@@ -1137,7 +1137,7 @@ end subroutine init_netcdf_rst_bfm
 
       do n=stPelDiag2dS,stPelRivE
          dims(1) = botpoint_dim 
-         if ( n >= stPelSurS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
+         if ( n >= stPelDiag2dS .AND. n <= stPelSurE ) dims(1) = surfpoint_dim
 
          if ( var_ids(n) /= 0 )  then 
             iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
