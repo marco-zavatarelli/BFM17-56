@@ -66,7 +66,8 @@
                       flux/SEC_PER_DAY
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                  if( allocated( D3FLUX_MATRIX ) .AND. &
+                       allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
                      do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
                         D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) =      &
                              D3FLUX_FUNC( ABS(D3FLUX_MATRIX(origin,destination)%p(j)), : ) + &
@@ -79,7 +80,8 @@
                       flux/SEC_PER_DAY
                   D2SOURCE_ICE(destination,:) = D2SOURCE_ICE(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
+                  if( allocated( D2FLUX_MATRIX_ICE ) .AND. &
+                       allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
                      do j=1, SIZE(D2FLUX_MATRIX_ICE(origin,destination)%p)
                         D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) =      &
                              D2FLUX_FUNC_ICE( ABS(D2FLUX_MATRIX_ICE(origin,destination)%p(j)) ) + &
@@ -93,7 +95,8 @@
                       flux/SEC_PER_DAY
                   D2SOURCE_BEN(destination,:) = D2SOURCE_BEN(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
+                  if( allocated( D2FLUX_MATRIX_BEN ) .AND. &
+                       allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
                      do j=1, SIZE(D2FLUX_MATRIX_BEN(origin,destination)%p)
                         D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) =      &
                              D2FLUX_FUNC_BEN( ABS(D2FLUX_MATRIX_BEN(origin,destination)%p(j)) ) + &
@@ -108,7 +111,8 @@
                 case (iiPel)
                   D3SOURCE(destination,:) = D3SOURCE(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
+                  if( allocated( D3FLUX_MATRIX ) .AND. &
+                       allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
                      do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
                         if( D3FLUX_MATRIX(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D3SINK
                            where( flux < ZERO )
@@ -127,7 +131,8 @@
                 case (iiIce)
                   D2SOURCE_ICE(destination,:) = D2SOURCE_ICE(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
+                  if( allocated( D2FLUX_MATRIX_ICE ) .AND. &
+                       allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
                      do j=1, SIZE(D2FLUX_MATRIX_ICE(origin,destination)%p)
                         if( D2FLUX_MATRIX_ICE(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D2SINK_ICE
                            if( flux(1) < ZERO ) then
@@ -147,7 +152,8 @@
                 case (iiBen)
                   D2SOURCE_BEN(destination,:) = D2SOURCE_BEN(destination,:) + &
                       flux/SEC_PER_DAY
-                  if( allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
+                  if( allocated( D2FLUX_MATRIX_BEN ) .AND. &
+                       allocated(D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
                      do j=1, SIZE(D2FLUX_MATRIX_BEN(origin,destination)%p)
                         if( D2FLUX_MATRIX_BEN(origin,destination)%dir(j) == 1 ) then ! "A->B" => (out flow) => flux < ZERO => D2SINK_BEN
                            if( flux(1) < ZERO ) then
