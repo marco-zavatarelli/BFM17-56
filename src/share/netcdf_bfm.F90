@@ -412,7 +412,7 @@
 #ifdef INCLUDE_PELCO2
    call check_err(NF90_DEF_VAR(ncid_rst,'pH',NF90_DOUBLE,ocepoint_rdim,ph_rid), fname)
 #endif
-#ifdef POM_BFM
+#ifdef BFM_POM
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATEB',NF90_DOUBLE,dims,d3stateb_rid), fname)
 #endif
 
@@ -448,7 +448,7 @@
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_name_rid_ice), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_units_rid_ice), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_LONG',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_long_rid_ice), fname)
-#ifdef POM_BFM 
+#ifdef BFM_POM 
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_ICE',NF90_DOUBLE,dims,d2stateb_rid_ice), fname)
 #endif
 #endif
@@ -465,7 +465,7 @@
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_name_rid_ben), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_units_rid_ben), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_LONG',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_long_rid_ben), fname)
-#ifdef POM_BFM
+#ifdef BFM_POM
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_BEN',NF90_DOUBLE,dims,d2stateb_rid_ben), fname)
 #endif
 #endif
@@ -595,20 +595,20 @@ end subroutine init_netcdf_rst_bfm
 #ifdef INCLUDE_PELCO2
    use mem, only: D3DIAGNOS,pppH
 #endif
-#ifdef POM_BFM
+#ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
 
 #if defined INCLUDE_SEAICE
    use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE
-#ifdef POM_BFM
+#ifdef BFM_POM
    use api_bfm, only: D2STATEB_ICE
 #endif
 #endif
 
 #if defined INCLUDE_BEN
    use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN
-#ifdef POM_BFM
+#ifdef BFM_POM
    use api_bfm, only: D2STATEB_BEN
 #endif
 #endif
@@ -669,7 +669,7 @@ end subroutine init_netcdf_rst_bfm
 #ifdef INCLUDE_PELCO2
      call check_err(NF90_PUT_VAR(ncid_rst,ph_rid,D3DIAGNOS(pppH,:),start=(/1/),count=(/NO_BOXES/)), restfile)
 #endif
-#ifdef POM_BFM 
+#ifdef BFM_POM 
      call check_err(NF90_PUT_VAR(ncid_rst,d3stateb_rid,D3STATEB(:,:),start,edges), restfile)
 #endif
 
@@ -689,7 +689,7 @@ end subroutine init_netcdf_rst_bfm
           start=(/ 1, 1 /), count=(/ LEN(tmp_d2units_ice), NO_D2_BOX_STATES_ICE /)), restfile)
      call check_err(NF90_PUT_VAR( ncid_rst, d2state_long_rid_ice, tmp_d2long_ice, &
           start=(/ 1, 1 /), count=(/ LEN(tmp_d2long_ice), NO_D2_BOX_STATES_ICE /)), restfile)
-#ifdef POM_BFM
+#ifdef BFM_POM
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ice,D2STATEB_ICE(:,:),start,edges), restfile)
 #endif
 #endif
@@ -710,7 +710,7 @@ end subroutine init_netcdf_rst_bfm
           start=(/ 1, 1 /), count=(/ LEN(tmp_d2units_ben), NO_D2_BOX_STATES_BEN /)), restfile)
      call check_err(NF90_PUT_VAR( ncid_rst, d2state_long_rid_ben, tmp_d2long_ben, &
           start=(/ 1, 1 /), count=(/ LEN(tmp_d2long_ben), NO_D2_BOX_STATES_BEN /)), restfile)
-#ifdef POM_BFM
+#ifdef BFM_POM
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATEB_BEN(:,:),start,edges), restfile)
 #endif
 #endif
@@ -736,20 +736,20 @@ end subroutine init_netcdf_rst_bfm
 #ifdef INCLUDE_PELCO2
    use mem, only: D3DIAGNOS,pppH
 #endif
-#ifdef POM_BFM
+#ifdef BFM_POM
    use api_bfm, only: D3STATEB
 #endif
 
 #if defined INCLUDE_SEAICE
    use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE
-#ifdef POM_BFM
+#ifdef BFM_POM
    use api_bfm, only: D2STATEB_ICE
 #endif
 #endif
 
 #if defined INCLUDE_BEN
    use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN
-#ifdef POM_BFM
+#ifdef BFM_POM
    use api_bfm, only: D2STATEB_BEN
 #endif
 #endif
@@ -803,7 +803,7 @@ end subroutine init_netcdf_rst_bfm
    call check_err(NF90_INQ_VARID(ncid_rst_in,"pH",nstate_id), fname)
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D3DIAGNOS(pppH,:)), fname)
 #endif 
-#ifdef POM_BFM
+#ifdef BFM_POM
    call check_err(NF90_INQ_VARID(ncid_rst_in,"D3STATEB",nstate_id), fname)
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D3STATEB(:,:)), fname)
 #endif
@@ -830,7 +830,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    call check_err(NF90_INQ_VARID(ncid_rst_in,"D2STATE_ICE",nstate_id), fname)
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATE_ICE(:,:)), fname)
-#ifdef POM_BFM
+#ifdef BFM_POM
    call check_err(NF90_INQ_VARID(ncid_rst_in,"D2STATEB_ICE",nstate_id), fname)
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATEB_ICE(:,:)), fname)
 #endif
@@ -859,7 +859,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    call check_err(NF90_INQ_VARID(ncid_rst_in,"D2STATE_BEN",nstate_id), fname)
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATE_BEN(:,:)), fname)
-#ifdef POM_BFM
+#ifdef BFM_POM
    call check_err(NF90_INQ_VARID(ncid_rst_in,"D2STATEB_BEN",nstate_id), fname)
    call check_err(NF90_GET_VAR(ncid_rst_in,nstate_id,D2STATEB_BEN(:,:)), fname)
 #endif
