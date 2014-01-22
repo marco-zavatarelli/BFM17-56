@@ -1,0 +1,2 @@
+TESTS     = STANDALONE_PELAGIC, STANDALONE_BENTHIC, GYRE_BFM, PELAGOS
+FORCINGS  =                   ,                   ,         , /work/ans040/FORCINGS/BFM
