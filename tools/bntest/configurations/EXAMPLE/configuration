@@ -1,2 +1,13 @@
-TESTS     = STANDALONE_PELAGIC, STANDALONE_BENTHIC, GYRE_BFM, PELAGOS
-FORCINGS  =                   ,                   ,         , /work/ans040/FORCINGS/BFM
+# Configuration example for bntest 
+
+NAME      = test_STD_PEL      , test_PELAGOS_NO, test_STD_PEL_NO   , test_GYRE,
+PRESET    = STANDALONE_PELAGIC, PELAGOS2       , STANDALONE_PELAGIC, GYRE_BFM ,    
+ARCH      = openmpi.inc       , openmpi.inc    ,                   , gut_osx  ,
+#FORCING  =                   ,                ,                   ,          ,
+#VALGRIND =                   ,                ,                   ,          ,
+
+# NAME      = test_STD_PEL      ,
+# PRESET    = STANDALONE_PELAGIC,
+# ARCH      = openmpi.inc       ,
+# #FORCING  =                   ,
+# #VALGRIND =                   ,
