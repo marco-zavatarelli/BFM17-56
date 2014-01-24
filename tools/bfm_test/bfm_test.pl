@@ -1,7 +1,7 @@
 #!/usr/bin/perl -w
 
 # DESCRIPTION
-#   Execute tests for BFM model
+#   Testing environment for BFM model
 #
 # AUTHORS
 #   Esteban Gutierrez esteban.gutierrez@cmcc.it
@@ -35,10 +35,11 @@ use classes;
 if( ! length ${ENV{'BFMDIR'}} ) { print "ERROR, \$BFMDIR must be defined\n"; exit; }
 
 #Fix values
-my $BFMDIR   = "${ENV{'BFMDIR'}}";
-my $BASE_DIR = "${BFMDIR}/tools/bfm_test";
-my $CONF_DIR = "${BASE_DIR}/configurations";
-my $BFM_EXE  = "bfm_configure.sh";
+my $BFMDIR    = "${ENV{'BFMDIR'}}";
+my $BUILD_DIR = "${BFMDIR}/build";
+my $BASE_DIR  = "${BFMDIR}/tools/bfm_test";
+my $CONF_DIR  = "${BASE_DIR}/configurations";
+my $BFM_EXE   = "bfm_configure.sh";
 #Default values
 my $temp_dir = "$BASE_DIR/tmp";
 my $out_dir  = "$BASE_DIR/out";
@@ -52,7 +53,7 @@ my (%user);
 
 sub usage(){
     print "usage: $0 {-p [preset_file] -h -P} [-o [output_dir]] [-t [temporal_dir]] [-v]\n\n";
-    print "This script execute tests for BFM model\n\n";
+    print "This script generate, execute and analyze tests for BFM model\n\n";
     print "MUST specify one of these options:\n";
     print "\t-f [preset_file]  test configuration preset\n";
     print "\t-P                list presets available\n";
@@ -98,9 +99,13 @@ my $lst_test = get_configuration("${CONF_DIR}/${input_preset}/configuration", $v
 foreach my $test (@$lst_test){
     if($verbose){ print "----------\n"; }
     if($verbose){ print "Generating " . $test->getName() . "\n"; }
-    if( ! generate_test($BFMDIR, $BFM_EXE, $temp_dir, $test) ){ next; }
+    if( ! generate_test($BUILD_DIR, $BFM_EXE, $temp_dir, $test) ){ next; }
     if($verbose){ print "Executing " . $test->getName() . "\n"; }
-    if( ! execute_test($BFM_EXE, $temp_dir, $test) ){ next; }
+    my $process_name = execute_test($BUILD_DIR, $temp_dir, $test);
+    if( !$process_name ){ next; }
+    else{
+        if($verbose){ print "\tWaiting for Process Name: $process_name\n"; }
+    }
 }
 if($verbose){ print "----------\n";    }
 if($verbose){ print "Test finished\n"; }

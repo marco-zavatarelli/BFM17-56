@@ -1,14 +1,12 @@
 # Configuration example for bfm_test 
 
-NAME      = test_STD_PEL      , test_PELAGOS_NO, test_STD_PEL_NO   , test_GYRE,
-PRESET    = STANDALONE_PELAGIC, PELAGOS2       , STANDALONE_PELAGIC, GYRE_BFM ,    
-ARCH      = openmpi.inc       , openmpi.inc    ,                   , gut_osx  ,
-RUN       = shell             , job            , shell             , job      ,
-#FORCING  =                   ,                ,                   ,          ,
-#VALGRIND =                   ,                ,                   ,          ,
+# NAME      = test_STD_PEL      , test_PELAGOS_NO, test_STD_PEL_NO   , test_GYRE,
+# PRESET    = STANDALONE_PELAGIC, PELAGOS2       , STANDALONE_PELAGIC, GYRE_BFM ,    
+# ARCH      = openmpi.inc       , openmpi.inc    ,                   , gut_osx  ,
+# RUN       =                   ,                ,                   ,          ,
+# #FORCING  =                   ,                ,                   ,          ,
+# #VALGRIND =                   ,                ,                   ,          ,
 
-# NAME      = test_STD_PEL      ,
-# PRESET    = STANDALONE_PELAGIC,
-# ARCH      = openmpi.inc       ,
-# #FORCING  =                   ,
-# #VALGRIND =                   ,
+NAME      = test_STD_PEL      ,
+PRESET    = STANDALONE_PELAGIC,
+ARCH      = openmpi.inc       ,

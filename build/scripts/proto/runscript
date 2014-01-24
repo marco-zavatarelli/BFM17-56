@@ -25,7 +25,7 @@ exp=_EXP_
 
 # Launch the model
 
-time mpirun.lsf _EXE_
+time _EXE_
 
 echo " ${EXP} DONEEE!!!"
 

@@ -38,11 +38,15 @@ our @EXPORT= qw(get_configuration generate_test execute_test);
 ########### VARIABLES ##########################
 
 ########### FIX VALUES ##########################
-my @OPTIONS= Test->get_options();
+my @OPTIONS      = Test->get_options();
+my $BFM_OUT_FILE = 'bfm.out';
 ########### FIX VALUES ##########################
 
 ########### DEFAULT ##########################
 my $VERBOSE = 0;
+my $DEFAULT_EXE_MODE      = 'STANDALONE';
+my $DEFAULT_EXE_NAME_STD  = 'bfm_standalone.x';
+my $DEFAULT_EXE_NAME_NEMO = 'nemo.exe';
 ########### DEFAULT ##########################
 
 ########### FUNCTIONS ##########################
@@ -70,7 +74,6 @@ sub get_configuration{
 sub check_conf{
     my ($user_conf) = @_;
 
-    #if($VERBOSE){ print Dumper($user_conf) . "\n"; }
     if( ! exists $$user_conf{NAME} ){ 
         print "ERROR: Configuration file must contain \"NAME\" variable\n"; 
         exit; 
@@ -112,7 +115,7 @@ sub fill_conf{
 }
 
 sub generate_test{
-    my ($bfm_dir, $bfm_exe, $temp_dir, $test) = @_;
+    my ($build_dir, $bfm_exe, $temp_dir, $test) = @_;
 
     #remove the output folder
     my $out_dir = "${temp_dir}/" . $test->getName();
@@ -120,18 +123,18 @@ sub generate_test{
 
     #execute the test and capture the output
     my $cmd = "export BFMDIR_RUN=$temp_dir; ";
-    $cmd   .= "cd ${bfm_dir}/build; ";
+    $cmd   .= "cd ${build_dir}; ";
     $cmd   .= "$bfm_exe -gcd ";
     $cmd   .= $test->generate_opt();
-    my $out=`$cmd`;
     if($VERBOSE){ print "\tCommand: $cmd\n"; }
-
+    my $out=`$cmd`;
+    
     #check for errors and warnings in generation and compilation time
     if($VERBOSE){
-        my @out_warning = $out =~ m/WARNING(?::| )(.*)/ig;
+        my @out_warning = $out =~ m/WARNING(?::| )+(.*)/ig;
         if(@out_warning){ print "\tWARNING in ". $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_warning) . "\n"; }
     }
-    my @out_error   = $out =~ m/ERROR(?::| )(.*)/ig;
+    my @out_error   = $out =~ m/ERROR(?::| )+(.*)/ig;
     if(@out_error)  { print "\tERROR in "  . $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_error)   . "\n"; return 0; }
     my @out_exit  = $out =~ m/EXITING\.\.\./ig;
     if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; return 0; }
@@ -147,12 +150,62 @@ sub generate_test{
             copy( $file_target, $file_path) or die "Copy failed: $!";            
         }
     }
+    close OUTDIR;
     return 1;
 }
 
 sub execute_test{
-    my ($bfm_exe, $temp_dir, $test) = @_;
-    return 1;
+    my ($build_dir, $temp_dir, $test) = @_;
+
+    my $test_dir = "$temp_dir/" . $test->getName();
+    if( ! -d $test_dir ){ print "\tERROR in " . $test->getName() . " test dir does not exists: $test_dir\n"; return 0; }
+    
+    #get mode and executable name from bfm_configure configuration
+    my $conf_file = "$build_dir/configurations/" . $test->getPreset() . "/configuration";
+    if( ! open FILE, "<$conf_file" ){ print "\tProblems opening configuration file \"$conf_file\": $!\n"; return 0; }
+    my $mode = $DEFAULT_EXE_MODE;
+    my $exe_name;
+    foreach my $line (<FILE>)  {
+        if( $line =~ m/MODE\s*=\s*(.*)/   ){ $mode     = $1; }
+        if( $line =~ m/BFMEXE\s*=\s*(.*)/ ){ $exe_name = $1; }
+    }
+    close FILE;
+    if( ! $exe_name ) {
+        if( $mode =~ m/NEMO.*/ ){ $exe_name = $DEFAULT_EXE_NAME_NEMO }
+        else                    { $exe_name = $DEFAULT_EXE_NAME_STD; }
+    }
+
+    # check if executable exists and put with executable attributes
+    my $exe_path = "$test_dir/$exe_name";
+    if( ! -f $exe_path  ){ print "\tERROR in " . $test->getName() . " executable does not exists: $exe_path\n"; return 0; }
+    `chmod u+x $exe_path`;
+
+    #get the process name
+    $exe_name        = 'runscript_' . $test->getName();
+    my $process_name = $exe_name;
+    #get from script the name of the process
+    my $script_path = "$test_dir/$exe_name";
+    if( ! open FILE, "<$script_path" ){ print "\tProblems opening script file \"$script_path\": $!\n"; return 0; }
+    foreach my $line (<FILE>)  {
+        if( $line =~ m/BSUB -J\s*([^#\s]*)/   ){ $process_name = $1; }
+    }
+    close FILE;
+
+    #execute in background and return the process name
+    if( $test->getRun() ){
+        #batch job execution (like useing LSF) 
+        my $cmd = "cd $test_dir; " . $test->getRun() . " < $exe_name";
+        if($VERBOSE){ print "\tCommand: $cmd\n"; }
+        if ( system($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " batch execution command fails: $!\n"; return 0; }
+        return $process_name;
+    }else{
+        #standard shell execution
+        my $cmd = "cd $test_dir; chmod u+x $exe_name; ./$exe_name &> $BFM_OUT_FILE";
+        if($VERBOSE){ print "\tCommand: $cmd\n"; }
+        unless (fork){ exec($cmd); exit; }
+        #if($VERBOSE){ print "\tCommand: $cmd\n"; }
+        return $exe_name;
+    }
 }
 
 1;

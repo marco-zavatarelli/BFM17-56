@@ -29,7 +29,7 @@ use Data::Dumper;
 ###############Class Test
 package Test;
 
-my @OPTIONS= ('PRESET', 'ARCH', 'FORCING', 'VALGRIND');
+my @OPTIONS= ('PRESET', 'ARCH', 'RUN', 'FORCING', 'VALGRIND');
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
 
 sub new{
@@ -38,6 +38,7 @@ sub new{
        _name     => shift,
        _preset   => shift,
        _arch     => shift,
+       _run      => shift,
        _forcing  => shift,
        _valgrind => shift,
    };
@@ -49,23 +50,26 @@ sub DESTROY{}
 sub getName    { my( $self ) = @_; return $self->{_name}    ; }
 sub getPreset  { my( $self ) = @_; return $self->{_preset}  ; }
 sub getArch    { my( $self ) = @_; return $self->{_arch}    ; }
+sub getRun     { my( $self ) = @_; return $self->{_run}     ; }
 sub getForcing { my( $self ) = @_; return $self->{_forcing} ; }
 sub getValgrind{ my( $self ) = @_; return $self->{_valgrind}; }
 
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}    = $name      if defined($name)    ; }
 sub setPreset  { my ( $self, $preset    ) = @_; $self->{_preset}  = $preset    if defined($preset)  ; }
 sub setArch    { my ( $self, $arch      ) = @_; $self->{_arch}    = $arch      if defined($arch)    ; }
+sub setRun     { my ( $self, $run       ) = @_; $self->{_run}     = $run       if defined($run)     ; }
 sub setForcing { my ( $self, $forcing   ) = @_; $self->{_forcing} = $forcing   if defined($forcing) ; }
 sub setValgrind{ my ( $self, $valgrind  ) = @_; $self->{_valgrind} = $valgrind if defined($valgrind); }
 
 sub print{
     my ( $self ) = @_;
     print "Test ";
-    if($self->{_name})     { print "Name: "    . $self->getName()       . "; "; }
-    if($self->{_preset})   { print "Preset: "  . $self->getPreset()     . "; "; }
-    if($self->{_arch})     { print "Arch: "    . $self->getArch()       . "; "; }
-    if($self->{_forcing})  { print "Forcing: " . $self->getForcing()    . "; "; }
-    if($self->{_valgrind}) { print "Valgrind: " . $self->getValgrind() . "; "; }
+    if($self->{_name})     { print "Name: "     . $self->getName()       . "; "; }
+    if($self->{_preset})   { print "Preset: "   . $self->getPreset()     . "; "; }
+    if($self->{_arch})     { print "Arch: "     . $self->getArch()       . "; "; }
+    if($self->{_run})      { print "Run: "      . $self->getRun()        . "; "; }
+    if($self->{_forcing})  { print "Forcing: "  . $self->getForcing()    . "; "; }
+    if($self->{_valgrind}) { print "Valgrind: " . $self->getValgrind()   . "; "; }
 }
 
 #generate options to execute bfm_configure

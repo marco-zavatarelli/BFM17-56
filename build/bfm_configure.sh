@@ -39,7 +39,6 @@ GENCONF="generate_conf"
 GENNML="generate_namelist"
 MKNEMO="makenemo"       
 NEMOEXE="nemo.exe"
-
 #optional
 NMLLIST="";
 
@@ -66,6 +65,7 @@ QUEUE="poe_short"
 BFMEXE="bfm_standalone.x"
 CLEAN=1
 NETCDF_DEFAULT="/usr"
+MPICMD="mpirun.lsf"
 # --------------------------------------------------------------------
 
 
@@ -498,16 +498,19 @@ if [ ${DEP} ]; then
     #Copy executable
     if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMEXE} ${exedir}/${BFMEXE}
-        printf "Go to ${exedir} and execute command:\n\t./${BFMEXE}\n"
+        execmd="./${BFMEXE}"
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
-        #change values in runscript
-        sed -e "s,_EXP_,${EXP},g"       \
-            -e "s,_EXE_,${NEMOEXE},g" \
-            -e "s,_VERBOSE_,${VERBOSE},g" \
-            -e "s,_PRESET_,${PRESET},g" \
-            -e "s,_QUEUE_,${QUEUE},g"   \
-            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/runscript > ${exedir}/runscript_${EXP}
-        printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
+        execmd="${MPICMD} ./${NEMOEXE}"
     fi
+
+    #change values in runscript
+    sed -e "s,_EXP_,${EXP},g"         \
+        -e "s,_EXE_,${execmd},g"      \
+        -e "s,_VERBOSE_,${VERBOSE},g" \
+        -e "s,_PRESET_,${PRESET},g"   \
+        -e "s,_QUEUE_,${QUEUE},g"     \
+        -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/runscript > ${exedir}/runscript_${EXP}
+    printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
+
 fi
