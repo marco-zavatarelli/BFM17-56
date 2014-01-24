@@ -35,7 +35,8 @@ use classes;
 if( ! length ${ENV{'BFMDIR'}} ) { print "ERROR, \$BFMDIR must be defined\n"; exit; }
 
 #Fix values
-my $BASE_DIR = "${ENV{'BFMDIR'}}/tools/bntest";
+my $BFMDIR   = "${ENV{'BFMDIR'}}";
+my $BASE_DIR = "${BFMDIR}/tools/bntest";
 my $CONF_DIR = "${BASE_DIR}/configurations";
 my $BFM_EXE  = "bfm_configure.sh";
 #Default values
@@ -93,12 +94,13 @@ if( ! -d $temp_dir ){
 if( $verbose ){ print "Reading configuration...\n"; }
 my $lst_test = get_configuration("${CONF_DIR}/${input_preset}/configuration", $verbose);
 
-#generate, execute and analyze each test
+#generate and execute each test
 foreach my $test (@$lst_test){
     if($verbose){ print "----------\n"; }
     if($verbose){ print "Generating " . $test->getName() . "\n"; }
-    if( ! generate_test($BFM_EXE, $temp_dir, $test) ){ next; }
+    if( ! generate_test($BFMDIR, $BFM_EXE, $temp_dir, $test) ){ next; }
     if($verbose){ print "Executing " . $test->getName() . "\n"; }
+    if( ! execute_test($BFM_EXE, $temp_dir, $test) ){ next; }
 }
 if($verbose){ print "----------\n";    }
 if($verbose){ print "Test finished\n"; }

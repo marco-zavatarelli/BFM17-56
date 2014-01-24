@@ -27,12 +27,14 @@ use strict;
 use warnings;
 use Exporter;
 use Data::Dumper;
+use File::Path qw(rmtree);
+use File::Copy;
 
 use classes;
 
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(get_configuration generate_test);
+our @EXPORT= qw(get_configuration generate_test execute_test);
 ########### VARIABLES ##########################
 
 ########### FIX VALUES ##########################
@@ -110,13 +112,20 @@ sub fill_conf{
 }
 
 sub generate_test{
-    my ($bfm_exe, $temp_dir, $test) = @_;
+    my ($bfm_dir, $bfm_exe, $temp_dir, $test) = @_;
+
+    #remove the output folder
+    my $out_dir = "${temp_dir}/" . $test->getName();
+    rmtree([$out_dir]);
+
+    #execute the test and capture the output
     my $cmd = "export BFMDIR_RUN=$temp_dir; ";
-    $cmd   .= "cd ${ENV{'BFMDIR'}}/build; ";
+    $cmd   .= "cd ${bfm_dir}/build; ";
     $cmd   .= "$bfm_exe -gcd ";
     $cmd   .= $test->generate_opt();
-    if($VERBOSE){ print "\tCommand: $cmd\n"; }
     my $out=`$cmd`;
+    if($VERBOSE){ print "\tCommand: $cmd\n"; }
+
     #check for errors and warnings in generation and compilation time
     if($VERBOSE){
         my @out_warning = $out =~ m/WARNING(?::| )(.*)/ig;
@@ -124,8 +133,25 @@ sub generate_test{
     }
     my @out_error   = $out =~ m/ERROR(?::| )(.*)/ig;
     if(@out_error)  { print "\tERROR in "  . $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_error)   . "\n"; return 0; }
-    my ($out_exit)  = $out =~ m/EXITING\.\.\./ig;
-    if($out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; return 0; }
+    my @out_exit  = $out =~ m/EXITING\.\.\./ig;
+    if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; return 0; }
+
+    #copy target simlinks to not to depend from NEMO or BFM current compilation
+    # because the current compilation could be overwrite by the next test   
+    opendir OUTDIR, "$out_dir" or die "ERROR: reading output directory: $out_dir\n";
+    while (my $file = readdir(OUTDIR)) {
+        my $file_path = "$out_dir/$file";
+        if( -f $file_path && -l $file_path ) {
+            my $file_target = readlink($file_path);
+            unlink($file_path) or die "Cannot remove symbolic link: $!";
+            copy( $file_target, $file_path) or die "Copy failed: $!";            
+        }
+    }
+    return 1;
+}
+
+sub execute_test{
+    my ($bfm_exe, $temp_dir, $test) = @_;
     return 1;
 }
 
