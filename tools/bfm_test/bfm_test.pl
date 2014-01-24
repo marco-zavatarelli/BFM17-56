@@ -28,7 +28,7 @@ use Data::Dumper;
 use Getopt::Std;
 
 use lib './scripts';
-use bntest_modules; #subroutines and functions for bntest
+use bfm_test_modules; #subroutines and functions for bfm_test
 use classes;
 
 #check if global variables are defined
@@ -36,7 +36,7 @@ if( ! length ${ENV{'BFMDIR'}} ) { print "ERROR, \$BFMDIR must be defined\n"; exi
 
 #Fix values
 my $BFMDIR   = "${ENV{'BFMDIR'}}";
-my $BASE_DIR = "${BFMDIR}/tools/bntest";
+my $BASE_DIR = "${BFMDIR}/tools/bfm_test";
 my $CONF_DIR = "${BASE_DIR}/configurations";
 my $BFM_EXE  = "bfm_configure.sh";
 #Default values

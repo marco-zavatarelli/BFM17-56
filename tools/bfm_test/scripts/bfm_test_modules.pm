@@ -19,7 +19,7 @@
 #   GNU General Public License for more details.
 # -----------------------------------------------------
 
-package bntest_modules;
+package bfm_test_modules;
 
 use 5.008_002;
 
