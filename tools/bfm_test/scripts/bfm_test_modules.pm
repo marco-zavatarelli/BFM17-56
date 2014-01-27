@@ -34,7 +34,7 @@ use classes;
 
 ########### VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(get_configuration generate_test execute_test);
+our @EXPORT= qw(get_configuration generate_test execute_test analyze_test);
 ########### VARIABLES ##########################
 
 ########### FIX VALUES ##########################
@@ -44,16 +44,22 @@ my $BFM_OUT_FILE = 'bfm.out';
 
 ########### DEFAULT ##########################
 my $VERBOSE = 0;
-my $DEFAULT_EXE_MODE      = 'STANDALONE';
-my $DEFAULT_EXE_NAME_STD  = 'bfm_standalone.x';
-my $DEFAULT_EXE_NAME_NEMO = 'nemo.exe';
 ########### DEFAULT ##########################
 
 ########### FUNCTIONS ##########################
 sub get_configuration{
-    my ($conf_file, $verbose) = @_;
+    my ($conf_file, $build_dir, $verbose) = @_;
     my %user_conf;
     $VERBOSE = $verbose;
+
+    get_configuration_test($conf_file, \%user_conf);
+    get_configuration_bfm($build_dir , \%user_conf);
+    check_conf(\%user_conf);
+    return fill_tests(\%user_conf);
+}
+
+sub get_configuration_test{
+    my ($conf_file, $user_conf) = @_;
 
     open CONFIG, "<$conf_file" or die "Could not open configuration file for ${conf_file}: $!";
     while (<CONFIG>) {
@@ -64,11 +70,39 @@ sub get_configuration{
         next unless length;     # anything left?
         my ($var, $value) = split(/\s*=\s*/, $_, 2);
         my @comasep = split(/,/, "$value");
-        $user_conf{$var} = \@comasep;
+        $$user_conf{$var} = \@comasep;
     }
     close(CONFIG);
-    check_conf(\%user_conf);
-    return fill_conf(\%user_conf);
+}
+
+sub get_configuration_bfm{
+    my ($build_dir, $user_conf) = @_;
+
+    my @modes = ();
+    my @exes = ();
+    foreach my $preset (@{$$user_conf{PRESET}}){
+        my $mode = '';
+        my $exe = '';
+        my $conf_file = "$build_dir/configurations/$preset/configuration";
+        if( ! open CONFIG, "<$conf_file" ){ print "\tProblems opening configuration file \"$conf_file\": $!\n"; next; }
+        while (<CONFIG>) {
+            chomp;                  # no newline
+            s/#.*//;                # no comments
+            s/^\s+//;               # no leading white
+            s/\s+$//;               # no trailing white
+            s/\,$//;                # no coma at the end
+            s/\'//g;                # no '
+            next unless length;     # anything left?
+            my ($var, $value) = split(/\s*=\s*/, $_, 2);
+            if( $var =~ 'MODE'   ){ $mode  = $value;  }
+            if( $var =~ 'BFMEXE' ){ $exe   = $value;  }
+        }
+        close CONFIG;
+        push( @modes, $mode);
+        push( @exes,  $exe );
+    }
+    $$user_conf{MODE} = \@modes;
+    $$user_conf{EXE}  = \@exes;
 }
 
 sub check_conf{
@@ -80,14 +114,14 @@ sub check_conf{
     }
     my $num_tests = scalar(@{$$user_conf{NAME}});
     foreach my $opt (@OPTIONS){
-        if( exists $$user_conf{$opt} && scalar(@{$$user_conf{$opt}}) != $num_tests ){ 
+        if( exists $$user_conf{$opt} && scalar(@{$$user_conf{$opt}}) != $num_tests ){
             print "ERROR: \"$opt\" var must have same number of elements as \"NAME\" var ($num_tests elements)\n"; 
-            exit; 
+            exit;
         }
     }
 }
 
-sub fill_conf{
+sub fill_tests{
     my($user_conf) = @_;
     my @lst_test;
 
@@ -110,7 +144,7 @@ sub fill_conf{
         push(@lst_test, new Test($name, @lst_opt ) );
     }
     if($VERBOSE){ Test->printAll(\@lst_test); }
- 
+    
     return \@lst_test;
 }
 
@@ -155,57 +189,53 @@ sub generate_test{
 }
 
 sub execute_test{
-    my ($build_dir, $temp_dir, $test) = @_;
+    my ($temp_dir, $test) = @_;
 
     my $test_dir = "$temp_dir/" . $test->getName();
     if( ! -d $test_dir ){ print "\tERROR in " . $test->getName() . " test dir does not exists: $test_dir\n"; return 0; }
     
-    #get mode and executable name from bfm_configure configuration
-    my $conf_file = "$build_dir/configurations/" . $test->getPreset() . "/configuration";
-    if( ! open FILE, "<$conf_file" ){ print "\tProblems opening configuration file \"$conf_file\": $!\n"; return 0; }
-    my $mode = $DEFAULT_EXE_MODE;
-    my $exe_name;
-    foreach my $line (<FILE>)  {
-        if( $line =~ m/MODE\s*=\s*(.*)/   ){ $mode     = $1; }
-        if( $line =~ m/BFMEXE\s*=\s*(.*)/ ){ $exe_name = $1; }
-    }
-    close FILE;
-    if( ! $exe_name ) {
-        if( $mode =~ m/NEMO.*/ ){ $exe_name = $DEFAULT_EXE_NAME_NEMO }
-        else                    { $exe_name = $DEFAULT_EXE_NAME_STD; }
-    }
-
     # check if executable exists and put with executable attributes
-    my $exe_path = "$test_dir/$exe_name";
+    my $exe_path = "$test_dir/" . $test->getExe();
     if( ! -f $exe_path  ){ print "\tERROR in " . $test->getName() . " executable does not exists: $exe_path\n"; return 0; }
     `chmod u+x $exe_path`;
 
-    #get the process name
-    $exe_name        = 'runscript_' . $test->getName();
-    my $process_name = $exe_name;
-    #get from script the name of the process
-    my $script_path = "$test_dir/$exe_name";
-    if( ! open FILE, "<$script_path" ){ print "\tProblems opening script file \"$script_path\": $!\n"; return 0; }
-    foreach my $line (<FILE>)  {
-        if( $line =~ m/BSUB -J\s*([^#\s]*)/   ){ $process_name = $1; }
-    }
-    close FILE;
+    #get the script name
+    my $script_name = 'runscript_' . $test->getName();
+    my $proc = $test->getPreset();
 
     #execute in background and return the process name
     if( $test->getRun() ){
-        #batch job execution (like useing LSF) 
-        my $cmd = "cd $test_dir; " . $test->getRun() . " < $exe_name";
+        #batch job execution (like using LSF) 
+        my $cmd = "cd $test_dir; " . $test->getRun() . " < $script_name";
         if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        if ( system($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " batch execution command fails: $!\n"; return 0; }
-        return $process_name;
+        if ( exec($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " batch execution command fails: $!\n"; return 0; }
+        return $test->getPreset();
+
+        if($VERBOSE){ print "\tWaiting for Process Name: $proc"; }
+        my $count = 0;
+        my $time  = 0;
+        do{
+            #get the process running with the name of the executable
+            $count = scalar grep /$proc/, (split /\n/, `bjobs`);
+            if( !$time ){ $time = 50; print "\n\t."; }else{ $time--; print "."; }
+            sleep 1;
+        }while( $count != 0 );
+        print "\n";
     }else{
         #standard shell execution
-        my $cmd = "cd $test_dir; chmod u+x $exe_name; ./$exe_name &> $BFM_OUT_FILE";
+        my $cmd = "cd $test_dir; chmod u+x $script_name; ./$script_name &> $BFM_OUT_FILE";
         if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        unless (fork){ exec($cmd); exit; }
-        #if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        return $exe_name;
+        if ( exec($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " shell execution command fails: $!\n"; return 0; }
     }
+    return 1;
+}
+
+sub analyze_test{
+    my ($temp_dir, $test) = @_;
+
+    my $test_dir = "$temp_dir/" . $test->getName();
+
+    return 1;
 }
 
 1;
