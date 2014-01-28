@@ -7,6 +7,10 @@
 # #FORCING  =                   ,                ,                   ,          ,
 # #VALGRIND =                   ,                ,                   ,          ,
 
-NAME      = test_STD_PEL      ,
-PRESET    = STANDALONE_PELAGIC,
-ARCH      = openmpi.inc       ,
+NAME   = test_STD_PEL      , test_GYRE    ,
+PRESET = STANDALONE_PELAGIC, GYRE_BFM     ,
+RUN    = shell             , bsub         ,
+PRECMD = export NETCDF=/users/home/ans040/local; \
+         export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH,\
+         export NETCDF=/users/home/ans040/local; \
+         export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH,

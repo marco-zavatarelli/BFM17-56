@@ -32,7 +32,8 @@ package Test;
 my $DEF_MODE     = 'STANDALONE';
 my $DEF_EXE_STD  = 'bfm_standalone.x';
 my $DEF_EXE_NEMO = 'nemo.exe';
-my @OPTIONS= ('PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND');
+# order is important in options, has to follow same order as used in "new"
+my @OPTIONS= ('PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND', 'PRECMD');
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
 
 sub new{
@@ -46,6 +47,7 @@ sub new{
        _exe      => shift,
        _forcing  => shift,
        _valgrind => shift,
+       _precmd   => shift,
    };
    return bless $self, $class;   
 }
@@ -69,6 +71,7 @@ sub getExe     {
 }
 sub getForcing { my( $self ) = @_; return $self->{_forcing} ; }
 sub getValgrind{ my( $self ) = @_; return $self->{_valgrind}; }
+sub getPrecmd  { my( $self ) = @_; return $self->{_precmd}  ; }
 
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}    = $name      if defined($name)    ; }
 sub setPreset  { my ( $self, $preset    ) = @_; $self->{_preset}  = $preset    if defined($preset)  ; }
@@ -78,18 +81,21 @@ sub setMode    { my ( $self, $mode      ) = @_; $self->{_mode}    = $mode      i
 sub setExe     { my ( $self, $exe       ) = @_; $self->{_exe}     = $exe       if defined($exe)     ; }
 sub setForcing { my ( $self, $forcing   ) = @_; $self->{_forcing} = $forcing   if defined($forcing) ; }
 sub setValgrind{ my ( $self, $valgrind  ) = @_; $self->{_valgrind} = $valgrind if defined($valgrind); }
+sub setPrecmd  { my ( $self, $precmd    ) = @_; $self->{_precmd}  = $precmd    if defined($precmd)  ; }
+
 
 sub print{
     my ( $self ) = @_;
     print "Test ";
-    if($self->{_name})     { print "Name: "     . $self->getName()       . "; "; }
-    if($self->{_preset})   { print "Preset: "   . $self->getPreset()     . "; "; }
-    if($self->{_arch})     { print "Arch: "     . $self->getArch()       . "; "; }
-    if($self->{_run})      { print "Run: "      . $self->getRun()        . "; "; }
-    if($self->{_exe})      { print "Exe: "      . $self->getExe()        . "; "; }
-    if($self->{_mode})     { print "Mode: "     . $self->getMode()       . "; "; }
-    if($self->{_forcing})  { print "Forcing: "  . $self->getForcing()    . "; "; }
-    if($self->{_valgrind}) { print "Valgrind: " . $self->getValgrind()   . "; "; }
+    if($self->{_name})     { print "\tName:     " . $self->getName()       . ";\n"; }
+    if($self->{_preset})   { print "\tPreset:   " . $self->getPreset()     . ";\n"; }
+    if($self->{_arch})     { print "\tArch:     " . $self->getArch()       . ";\n"; }
+    if($self->{_run})      { print "\tRun:      " . $self->getRun()        . ";\n"; }
+    if($self->{_exe})      { print "\tExe:      " . $self->getExe()        . ";\n"; }
+    if($self->{_mode})     { print "\tMode:     " . $self->getMode()       . ";\n"; }
+    if($self->{_forcing})  { print "\tForcing:  " . $self->getForcing()    . ";\n"; }
+    if($self->{_valgrind}) { print "\tValgrind: " . $self->getValgrind()   . ";\n"; }
+    if($self->{_precmd})   { print "\tPrecmd:   " . $self->getPrecmd()     . ";\n"; }
 }
 
 #generate options to execute bfm_configure

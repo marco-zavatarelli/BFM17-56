@@ -62,15 +62,20 @@ sub get_configuration_test{
     my ($conf_file, $user_conf) = @_;
 
     open CONFIG, "<$conf_file" or die "Could not open configuration file for ${conf_file}: $!";
-    while (<CONFIG>) {
-        chomp;                  # no newline
-        s/#.*//;                # no comments
-        s/^\s+//;               # no leading white
-        s/\s+$//;               # no trailing white
-        next unless length;     # anything left?
-        my ($var, $value) = split(/\s*=\s*/, $_, 2);
-        my @comasep = split(/,/, "$value");
+    my $line_next = '';
+    foreach my $line (<CONFIG>){
+        chomp($line);                    # no newline
+        $line =~ s/#.*//;                # no comments
+        $line =~ s/^\s+//;               # no leading white
+        $line =~ s/\s+$//;               # no trailing white
+        $line =~ s/\'//g;                # no '
+        if( $line =~ /(.*)\\$/ ){ $line_next .= $1; next; }
+        if( $line_next ){ $line = $line_next . $line;  }
+        next unless length($line);     # anything left?
+        my ($var, $value) = split(/\s*=\s*/, $line, 2);
+        my @comasep = split(/\s*,\s*/, "$value");
         $$user_conf{$var} = \@comasep;
+        $line_next='';
     }
     close(CONFIG);
 }
@@ -157,6 +162,7 @@ sub generate_test{
 
     #execute the test and capture the output
     my $cmd = "export BFMDIR_RUN=$temp_dir; ";
+    if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
     $cmd   .= "cd ${build_dir}; ";
     $cmd   .= "$bfm_exe -gcd ";
     $cmd   .= $test->generate_opt();
@@ -201,31 +207,33 @@ sub execute_test{
 
     #get the script name
     my $script_name = 'runscript_' . $test->getName();
-    my $proc = $test->getPreset();
 
     #execute in background and return the process name
-    if( $test->getRun() ){
+    my $cmd  = "cd $test_dir; ";
+    if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
+    $cmd    .= "chmod u+x $script_name; ";
+    if( $test->getRun() eq 'bsub'){
         #batch job execution (like using LSF) 
-        my $cmd = "cd $test_dir; " . $test->getRun() . " < $script_name";
+        $cmd .= $test->getRun() . " < $script_name &> $BFM_OUT_FILE";
         if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        if ( exec($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " batch execution command fails: $!\n"; return 0; }
-        return $test->getPreset();
+        if ( system($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " batch execution command fails: $!\n"; return 0; }
 
-        if($VERBOSE){ print "\tWaiting for Process Name: $proc"; }
+        my $proc = $test->getPreset();
         my $count = 0;
-        my $time  = 0;
+        # my $time  = 0;
+        if($VERBOSE){ print "\tWaiting for Process Name: $proc"; }
         do{
             #get the process running with the name of the executable
             $count = scalar grep /$proc/, (split /\n/, `bjobs`);
-            if( !$time ){ $time = 50; print "\n\t."; }else{ $time--; print "."; }
+            # if( !$time ){ $time = 50; print "\n\t."; }else{ $time--; print "."; }
             sleep 1;
         }while( $count != 0 );
         print "\n";
     }else{
         #standard shell execution
-        my $cmd = "cd $test_dir; chmod u+x $script_name; ./$script_name &> $BFM_OUT_FILE";
+        $cmd .= "./$script_name &> $BFM_OUT_FILE";
         if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        if ( exec($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " shell execution command fails: $!\n"; return 0; }
+        if ( system($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " shell execution command fails: $!\n"; return 0; }
     }
     return 1;
 }
