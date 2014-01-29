@@ -46,9 +46,8 @@ NMLLIST="";
 NEMOSUB="";
 
 #options
-OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -97,8 +96,9 @@ DESCRIPTION
        -m MODE
                   Mode for compilation and deployment. Available models are: (Default: "STANDALONE")
                   - STANDALONE (without NEMO. Compile and run in local machine)
-                  - NEMO (with NEMO. Compile and run ONLY in LSF platform)
                   - POM1D
+                  - NEMO (with NEMO)
+                  - NEMO_3DVAR (with NEMO and 3DVAR)
        -k CPPDEFS
                   Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG")                 
        -S NEMOSUB
@@ -122,6 +122,8 @@ DESCRIPTION
                   files (generated or not)  to copy to experiment directory
        -D EXPDIR
                   Input dir where are files to copy to experiment directory (Default: "${TEMPDIR}/${PRESET}")
+       -e EXECMD
+                  Executable command for runscript (Default for NEMO: "${EXE_NEMO}", empty for others)
        -r PROC
                   Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
@@ -151,7 +153,7 @@ exec &> ${LOGDIR}/${LOGFILE}.pipe
 rm ${LOGDIR}/${LOGFILE}.pipe
 
 #get user options from commandline
-while getopts "${OPTS}" opt; do
+while getopts "hvgcdPp:m:k:N:S:a:fx:F:D:e:r:q:o:" opt; do
     case $opt in
       h ) usage;            rm ${LOGDIR}/${LOGFILE}         ; exit             ;;
       v )                   echo "verbose mode"             ; VERBOSE=1        ;;
@@ -169,6 +171,7 @@ while getopts "${OPTS}" opt; do
       x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"       ; exp_usr=$OPTARG      ;;
       F ) [ ${VERBOSE} ] && echo "experiment files $OPTARG" ; expfiles_usr=$OPTARG ;;
       D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
+      e ) [ ${VERBOSE} ] && echo "exe command $OPTARG"      ; execmd_usr=$OPTARG   ;;
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
       q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"       ; queue_usr=$OPTARG    ;;
       o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmexe_usr=$OPTARG   ;;
@@ -416,11 +419,13 @@ if [ ${CMP} ]; then
     if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+            [ ${VERBOSE} ] && echo "Command: ${cmd_gmake} clean"
             ${cmd_gmake} clean
         fi
         echo " "
         echo "Starting ${PRESET} compilation..."
         rm -rf ${BFMDIR}/bin/${BFMEXE}
+        [ ${VERBOSE} ] && echo "Command: ${cmd_gmake}"
         ${cmd_gmake}
         if [ ! -f ${BFMDIR}/bin/${BFMEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
@@ -434,13 +439,16 @@ if [ ${CMP} ]; then
 
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean"
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
         if [[ "$MODE" == "NEMO" ]]; then 
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}"
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
         else
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e \"${BFMDIR}/src/nemo;${NEMODIR}/3DVAR\" -j ${PROC}"
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
         fi
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
@@ -466,7 +474,7 @@ if [ ${DEP} ]; then
         exedir="${BFMDIR_RUN}/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with environment variable: ${exedir}"
     else
-    exedir="${BFMDIR}/run/${EXP}"
+        exedir="${BFMDIR}/run/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with default: ${exedir}"
     fi
 
@@ -498,10 +506,18 @@ if [ ${DEP} ]; then
     #Copy executable
     if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMEXE} ${exedir}/${BFMEXE}
-        execmd="./${BFMEXE}"
+        if [ "${EXECMD}" ]; then 
+            execmd="${EXECMD} ./${BFMEXE}"
+        else
+            execmd="./${BFMEXE}"
+        fi
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
-        execmd="${MPICMD} ./${NEMOEXE}"
+        if [ "${EXECMD}" ]; then 
+            execmd="${EXECMD} ./${NEMOEXE}"
+        else 
+            execmd="${MPICMD} ./${NEMOEXE}"
+        fi
     fi
 
     #change values in runscript

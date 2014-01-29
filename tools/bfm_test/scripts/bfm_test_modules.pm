@@ -32,21 +32,20 @@ use File::Copy;
 
 use classes;
 
-########### VARIABLES ##########################
+########### EXPORT VARIABLES ##########################
 our @ISA = qw(Exporter);
 our @EXPORT= qw(get_configuration generate_test execute_test analyze_test);
-########### VARIABLES ##########################
+########### EXPORT VARIABLES ##########################
 
-########### FIX VALUES ##########################
-my @OPTIONS      = Test->get_options();
-my $BFM_OUT_FILE = 'bfm.out';
-########### FIX VALUES ##########################
+########### GLOBAL VALUES ##########################
+my $BFM_LOG_FILE_EXE = 'bfm.out.exe';
+########### GLOBAL VALUES ##########################
 
 ########### DEFAULT ##########################
 my $VERBOSE = 0;
 ########### DEFAULT ##########################
 
-########### FUNCTIONS ##########################
+########### MODULES ##########################
 sub get_configuration{
     my ($conf_file, $build_dir, $verbose) = @_;
     my %user_conf;
@@ -68,7 +67,6 @@ sub get_configuration_test{
         $line =~ s/#.*//;                # no comments
         $line =~ s/^\s+//;               # no leading white
         $line =~ s/\s+$//;               # no trailing white
-        $line =~ s/\'//g;                # no '
         if( $line =~ /(.*)\\$/ ){ $line_next .= $1; next; }
         if( $line_next ){ $line = $line_next . $line;  }
         next unless length($line);     # anything left?
@@ -96,7 +94,6 @@ sub get_configuration_bfm{
             s/^\s+//;               # no leading white
             s/\s+$//;               # no trailing white
             s/\,$//;                # no coma at the end
-            s/\'//g;                # no '
             next unless length;     # anything left?
             my ($var, $value) = split(/\s*=\s*/, $_, 2);
             if( $var =~ 'MODE'   ){ $mode  = $value;  }
@@ -118,7 +115,8 @@ sub check_conf{
         exit; 
     }
     my $num_tests = scalar(@{$$user_conf{NAME}});
-    foreach my $opt (@OPTIONS){
+    foreach my $opt ( Test->get_options() ){
+        # print "$opt-->" . Dumper($$user_conf{$opt}) . "\n";
         if( exists $$user_conf{$opt} && scalar(@{$$user_conf{$opt}}) != $num_tests ){
             print "ERROR: \"$opt\" var must have same number of elements as \"NAME\" var ($num_tests elements)\n"; 
             exit;
@@ -136,11 +134,12 @@ sub fill_tests{
         my @lst_opt;
         my $name = ${$$user_conf{NAME}}[$test];
         $name =~ s/^\s+|\s+$//g; #remove leading and trailing spaces
-        foreach my $opt (@OPTIONS){
+        foreach my $opt ( Test->get_options()  ){
             my $value = '';
             #if exists the option in configuration file, replace the empty value
             if( exists $$user_conf{$opt} ){ 
                 $value = ${$$user_conf{$opt}}[$test];
+                $value =~ s/\'//g; # no '
                 $value =~ s/^\s+|\s+$//g; #remove leading and trailing spaces
             }
             push(@lst_opt, $value);
@@ -155,19 +154,27 @@ sub fill_tests{
 
 sub generate_test{
     my ($build_dir, $bfm_exe, $temp_dir, $test) = @_;
+    my $bfm_log_file_cmp = 'bfm.out.cmp';
 
     #remove the output folder
-    my $out_dir = "${temp_dir}/" . $test->getName();
-    rmtree([$out_dir]);
+    my $test_dir = "${temp_dir}/" . $test->getName();
+    rmtree([$test_dir]);
 
     #execute the test and capture the output
     my $cmd = "export BFMDIR_RUN=$temp_dir; ";
     if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
     $cmd   .= "cd ${build_dir}; ";
     $cmd   .= "$bfm_exe -gcd ";
+    if($VERBOSE){ $cmd .= "-v "; }    
     $cmd   .= $test->generate_opt();
     if($VERBOSE){ print "\tCommand: $cmd\n"; }
     my $out=`$cmd`;
+
+    #save log with compilation in test directory
+    if( ! open CMP_LOG, ">$test_dir/$bfm_log_file_cmp" ){ print "\tERROR: Problems creating compilation log: $!\n"; return 0;}
+    print CMP_LOG $out;
+    close CMP_LOG;
+    if($VERBOSE){ print "\tSee more info in: $test_dir/$bfm_log_file_cmp\n"; }
     
     #check for errors and warnings in generation and compilation time
     if($VERBOSE){
@@ -180,17 +187,18 @@ sub generate_test{
     if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; return 0; }
 
     #copy target simlinks to not to depend from NEMO or BFM current compilation
-    # because the current compilation could be overwrite by the next test   
-    opendir OUTDIR, "$out_dir" or die "ERROR: reading output directory: $out_dir\n";
+    # because the current compilation could be overwritten by the next test   
+    if( ! opendir OUTDIR, "$test_dir" ){ print "\tERROR: reading output directory $test_dir: $!\n"; return 0; }
     while (my $file = readdir(OUTDIR)) {
-        my $file_path = "$out_dir/$file";
+        my $file_path = "$test_dir/$file";
         if( -f $file_path && -l $file_path ) {
             my $file_target = readlink($file_path);
-            unlink($file_path) or die "Cannot remove symbolic link: $!";
-            copy( $file_target, $file_path) or die "Copy failed: $!";            
+            if( ! unlink($file_path) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; return 0; }
+            if( ! copy( $file_target, $file_path) ){ print "\tERROR: Copy failed: $!\n"; return 0; }
         }
     }
     close OUTDIR;
+
     return 1;
 }
 
@@ -211,13 +219,20 @@ sub execute_test{
     #execute in background and return the process name
     my $cmd  = "cd $test_dir; ";
     if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
-    $cmd    .= "chmod u+x $script_name; ";
-    if( $test->getRun() eq 'bsub'){
-        #batch job execution (like using LSF) 
-        $cmd .= $test->getRun() . " < $script_name &> $BFM_OUT_FILE";
-        if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        if ( system($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " batch execution command fails: $!\n"; return 0; }
+    $cmd .= "chmod u+x $script_name; ";
+    if( $test->getRun() eq 'bsub' ){ #batch jobs needs redirection of input from file 
+        $cmd .= $test->getRun() . " < ";
+    }
+    #generate the rest of the command
+    $cmd .= "./$script_name &> $BFM_LOG_FILE_EXE";
+    if($VERBOSE){ print "\tCommand: $cmd\n"; }
+    if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_EXE\n"; }
 
+    #execute the command
+    if ( system($cmd) != 0 ){ print "\tERROR in " . $test->getName() . " cmd execution command fails: $!\n"; return 0; }
+
+    if( $test->getRun() eq 'bsub' ){
+        #batch jobs execution waits for the process to finish
         my $proc = $test->getPreset();
         my $count = 0;
         # my $time  = 0;
@@ -229,21 +244,58 @@ sub execute_test{
             sleep 1;
         }while( $count != 0 );
         print "\n";
-    }else{
-        #standard shell execution
-        $cmd .= "./$script_name &> $BFM_OUT_FILE";
-        if($VERBOSE){ print "\tCommand: $cmd\n"; }
-        if ( system($cmd) == -1 ){ print "\tERROR in " . $test->getName() . " shell execution command fails: $!\n"; return 0; }
     }
     return 1;
 }
 
 sub analyze_test{
     my ($temp_dir, $test) = @_;
+    my $status  = 0;
+    my $timming = 0;
+
 
     my $test_dir = "$temp_dir/" . $test->getName();
 
+    #first check if the running finished well
+    if($VERBOSE){ print "\tGetting status information\n"; }
+    if( $test->getMode() =~ /NEMO/ ){
+        #check ocean
+        if( open(OCEAN, "<", "$test_dir/ocean.output") ){
+            $status = 1;
+            while(<OCEAN>){  if( $_ =~ /"E R R O R"/ ){ $status = 0; } }
+            close OCEAN;
+        }
+    }else{
+        if( open(BFMLOG, "<", "$test_dir/ocean.output") ){ 
+            while(<BFMLOG>){ if( $_ =~ /"bfm_save : Output saved at the end of the experiment"/ ){ $status = 1; } }
+            close BFMLOG;
+        }
+    }
+
+    #get timming information
+    if($VERBOSE){ print "\tGetting timming information\n"; }
+    if( $status && open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){
+        while(<BFMEXELOG>){
+            if($_ =~ /^real\s*(.*)/ ){ $timming = $1; }
+        }
+        close BFMEXELOG;
+    }
+
+    #compare results if compare dir exists
+    if( $test->getCompare ){
+        if($VERBOSE){ print "\tComparing results\n"; }
+    }
+
+    #check valgring options if valgrind exists
+    if( $test->getValgrind ){
+        if($VERBOSE){ print "\tComparing results\n"; }
+    }
+
+    #generate summary with timing, memmory and results
+    $test->setResult("STATUS: $status TIMMING: $timming");
+
     return 1;
 }
+########### MODULES ##########################
 
 1;

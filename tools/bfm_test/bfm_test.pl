@@ -35,15 +35,14 @@ use classes;
 if( ! length ${ENV{'BFMDIR'}} ) { print "ERROR, \$BFMDIR must be defined\n"; exit; }
 
 #Fix values
-my $BFMDIR    = "${ENV{'BFMDIR'}}";
-my $BUILD_DIR = "${BFMDIR}/build";
-my $BASE_DIR  = "${BFMDIR}/tools/bfm_test";
-my $CONF_DIR  = "${BASE_DIR}/configurations";
-my $BFM_EXE   = "bfm_configure.sh";
+my $BFMDIR     = "${ENV{'BFMDIR'}}";
+my $BUILD_DIR  = "${BFMDIR}/build";
+my $BASE_DIR   = "${BFMDIR}/tools/bfm_test";
+my $CONF_DIR   = "${BASE_DIR}/configurations";
+my $BFM_EXE    = "bfm_configure.sh";
 #Default values
 my ($generation, $execution, $analysis) = 0;
 my $temp_dir = "$BASE_DIR/tmp";
-my $out_dir  = "$BASE_DIR/out";
 my $list     = 0;
 my $verbose  = 0;
 my $help     = 0;
@@ -53,7 +52,7 @@ my ($input_preset);
 my (%user);
 
 sub usage(){
-    print "usage: $0 {-p [preset_file] -h -P} [-o [output_dir]] [-t [temporal_dir]] [-v]\n\n";
+    print "usage: $0 {-p [preset_file] -h -P} [-t [temporal_dir]] [-v]\n\n";
     print "This script generate, execute and analyze configurations for BFM model\n\n";
     print "INFORMATIVE options:\n";
     print "\t-P                list presets available\n";
@@ -64,7 +63,6 @@ sub usage(){
     print "\t-x                Execute preset\n";
     print "\t-a                Analyze preset\n";
     print "ALTERNATIVE options are:\n";
-    print "\t-o [output_dir]   output dir for generated files\n";
     print "\t-t [temporal_dir] output dir for temporal files\n";
     print "\t-v                verbose mode\n";
     print "\n";
@@ -78,7 +76,6 @@ GetOptions(
     'x'    => \$execution,
     'a'    => \$analysis,
     't=s'  => \$temp_dir,
-    'o=s'  => \$out_dir,  
     'v'    => \$verbose,
     'P'    => \$list,
     'h'    => \$help,
@@ -120,4 +117,10 @@ foreach my $test (@$lst_test){
     }
 }
 if($verbose){ print "----------\n";    }
-if($verbose){ print "Test finished\n"; }
+
+printf "%-20s%-50s\n", "TEST", "RESULT";
+foreach my $test (@$lst_test){
+    printf "%-20s", $test->getName();
+    if( $test->getResult() ){ printf "%-50s", $test->getResult() }
+    print "\n";
+}
