@@ -1,9 +1,9 @@
 #! /bin/sh 
 
 #BSUB -a poe
-#BSUB -J _PRESET_         # Name of the job.
-#BSUB -o _PRESET__%J.out  # Appends std output to file %J.out.
-#BSUB -e _PRESET__%J.err  # Appends std error to file %J.out.
+#BSUB -J _PRESET_      # Name of the job.
+#BSUB -o _PRESET_.out  # Appends std output to file %J.out.
+#BSUB -e _PRESET_.err  # Appends std error to file %J.out.
 #BSUB -P nemo
 #BSUB -q _QUEUE_    # queue
 #BSUB -n _PROC_            # Number of CPUs

@@ -42,17 +42,18 @@ my $CONF_DIR   = "${BASE_DIR}/configurations";
 my $BFM_EXE    = "bfm_configure.sh";
 #Default values
 my ($generation, $execution, $analysis) = 0;
-my $temp_dir = "$BASE_DIR/tmp";
-my $list     = 0;
-my $verbose  = 0;
-my $help     = 0;
+my $temp_dir  = "$BASE_DIR/tmp";
+my $list      = 0;
+my $overwrite = 0;
+my $verbose   = 0;
+my $help      = 0;
 #Must parameters
 my ($input_preset);
 #configuration parameters
 my (%user);
 
 sub usage(){
-    print "usage: $0 {-p [preset_file] -h -P} [-t [temporal_dir]] [-v]\n\n";
+    print "usage: $0 {-p [preset_file] -h -P} [-t [temporal_dir] -o -v]\n\n";
     print "This script generate, execute and analyze configurations for BFM model\n\n";
     print "INFORMATIVE options:\n";
     print "\t-P                list presets available\n";
@@ -64,6 +65,7 @@ sub usage(){
     print "\t-a                Analyze preset\n";
     print "ALTERNATIVE options are:\n";
     print "\t-t [temporal_dir] output dir for temporal files\n";
+    print "\t-o                overwrite generated directories\n";
     print "\t-v                verbose mode\n";
     print "\n";
 }
@@ -76,16 +78,17 @@ GetOptions(
     'x'    => \$execution,
     'a'    => \$analysis,
     't=s'  => \$temp_dir,
+    'o'    => \$overwrite,
     'v'    => \$verbose,
     'P'    => \$list,
     'h'    => \$help,
     ) or &usage() && exit;
-if ( $list ){ 
+if ( $list ){ # list dirs inside bfm configuration
     opendir my($dirlist), ${CONF_DIR} or die "Couldn't open dir '${CONF_DIR}': $!";
     my @presets = grep !/^\.\.?$/ && -d ${CONF_DIR}, readdir $dirlist;
     close $dirlist;
     print join("\n", @presets) . "\n";
-    exit; 
+    exit;
 }
 if ( $help ){ &usage(); exit; }
 if ( !$input_preset || !($generation || $execution || $analysis) ){ &usage(); exit; }
@@ -100,17 +103,20 @@ if( ! -d $temp_dir ){
 if( $verbose ){ print "Reading configuration...\n"; }
 my $lst_test = get_configuration("${CONF_DIR}/${input_preset}/configuration", $BUILD_DIR, $verbose);
 
-#generate, execute and analyze each test
+#for each test
 foreach my $test (@$lst_test){
     if($verbose){ print "----------\n"; }
+    #generate
     if( $generation ){
         if($verbose){ print "Generating " . $test->getName() . "\n"; }
-        if( !generate_test($BUILD_DIR, $BFM_EXE, $temp_dir, $test) ){ next; }
+        if( !generate_test($BUILD_DIR, $BFM_EXE, $overwrite, $temp_dir, $test) ){ next; }
     }
+    #execute
     if( $execution ){
         if($verbose){ print "Executing " . $test->getName() . "\n"; }
         if( !execute_test($temp_dir, $test) ){ next; }
     }
+    #analyze
     if( $analysis ){
         if($verbose){ print "Analyzing " . $test->getName() . "\n"; }
         if( !analyze_test($temp_dir, $test) ){ next; }
@@ -118,9 +124,6 @@ foreach my $test (@$lst_test){
 }
 if($verbose){ print "----------\n";    }
 
-printf "%-20s%-50s\n", "TEST", "RESULT";
-foreach my $test (@$lst_test){
-    printf "%-20s", $test->getName();
-    if( $test->getResult() ){ printf "%-50s", $test->getResult() }
-    print "\n";
-}
+#print the summary
+Test->printSummary($lst_test);
+

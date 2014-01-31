@@ -24,18 +24,28 @@
 use strict;
 use warnings;
 
-use Data::Dumper;
-
 ###############Class Test
 package Test;
 
-my $DEF_RUN      = 'sh';
-my $DEF_MODE     = 'STANDALONE';
-my $DEF_EXE_STD  = 'bfm_standalone.x';
-my $DEF_EXE_NEMO = 'nemo.exe';
+my $DEF_RUN       = 'sh';
+my $DEF_MODE      = 'STANDALONE';
+my $DEF_MODE_NEMO = 'NEMO.*';
+my $DEF_EXE_STD   = 'bfm_standalone.x';
+my $DEF_EXE_NEMO  = 'nemo.exe';
+
 # order is important in options, has to follow same order as used in "new"
 my @OPTIONS= ('PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
+
+#output codes for compilation and execution
+my ($FAIL, $SUCCEED, $NOT_EXE) = ('FAIL', 'SUCCEED', 'NOT_EXE');
+sub is_fail   { my ( $self, $value ) = @_; if( $value eq $FAIL)   { return 1; }else{ return 0; } }
+sub is_succeed{ my ( $self, $value ) = @_; if( $value eq $SUCCEED){ return 1; }else{ return 0; } }
+sub is_not_exe{ my ( $self, $value ) = @_; if( $value eq $NOT_EXE){ return 1; }else{ return 0; } }
+sub fail    { my ( $self ) = @_; return $FAIL;    }
+sub succeed { my ( $self ) = @_; return $SUCCEED; }
+sub not_exe { my ( $self ) = @_; return $NOT_EXE; }
+
 
 #CLASS creator and destructor
 sub new{
@@ -53,6 +63,9 @@ sub new{
        _compare  => shift,
        _proc     => shift,
        _parexe   => shift,
+       _statcmp  => $NOT_EXE,
+       _statrun  => $NOT_EXE,
+       _statana  => $NOT_EXE,
    };
    return bless $self, $class;   
 }
@@ -68,7 +81,7 @@ sub getExe     {
     my( $self ) = @_; 
     if( $self->{_exe} ){
         return $self->{_exe};
-    }elsif( $self->{_mode} =~ m/NEMO.*/ ){
+    }elsif( $self->{_mode} =~ m/$DEF_MODE_NEMO/ ){
         return $DEF_EXE_NEMO;
     }else{
         return $DEF_EXE_STD;
@@ -90,6 +103,9 @@ sub getParexe  {
     }
 }
 sub getResult  { my( $self ) = @_; return $self->{_result};   }
+sub getStatcmp { my( $self ) = @_; return $self->{_statcmp};  }
+sub getStatrun { my( $self ) = @_; return $self->{_statrun};  }
+sub getStatana { my( $self ) = @_; return $self->{_statana};  }
 
 #SET functions
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}     = $name     if defined($name);     }
@@ -105,6 +121,9 @@ sub setCompare { my ( $self, $compare   ) = @_; $self->{_compare}  = $compare  i
 sub setProc    { my ( $self, $proc      ) = @_; $self->{_proc}     = $proc     if defined($proc);     }
 sub setParexe  { my ( $self, $parexe    ) = @_; $self->{_parexe}   = $parexe   if defined($parexe);   }
 sub setResult  { my ( $self, $result    ) = @_; $self->{_result}   = $result   if defined($result);   }
+sub setStatcmp { my ( $self, $statcmp   ) = @_; $self->{_statcmp}  = $statcmp  if defined($statcmp);  }
+sub setStatrun { my ( $self, $statrun   ) = @_; $self->{_statrun}  = $statrun  if defined($statrun);  }
+sub setStatana { my ( $self, $statana   ) = @_; $self->{_statana}  = $statana  if defined($statana);  }
 
 #PRINT functions
 sub print{
@@ -122,12 +141,45 @@ sub print{
     if($self->{_proc})     { print "\tProc:     " . $self->getProc()       . "\n"; }
     if($self->{_parexe})   { print "\tParexe:   " . $self->getParexe()     . "\n"; }
     if($self->{_result})   { print "\tResult:   " . $self->getResult()     . "\n"; }
+    if($self->{_statcmp})  { print "\tStatcmp:  " . $self->getStatcmp()    . "\n"; }
+    if($self->{_statrun})  { print "\tStatrun:  " . $self->getStatrun()    . "\n"; }
+    if($self->{_statana})  { print "\tStatana:  " . $self->getStatana()    . "\n"; }
 }
 sub printAll{
     my ($self, $lst_test) = @_;
     print "Test list: \n";
     foreach my $test (@$lst_test){ $test->print(); print "\n"; }
 }
+sub printSummary{
+    my ($self, $lst_test) = @_;
+    printf "%-20s%-30s%-20s%-20s%-20s\n", "TEST", "RESULT", "COMPILATION", "RUN", "ANALYSIS";
+    foreach my $test (@$lst_test){
+        my $test_name   = $test->getName();
+        my $test_result = '?';
+        my $test_cmp    = $test->getStatcmp();
+        my $test_run    = $test->getStatrun();
+        my $test_ana    = $test->getStatana();
+        
+        if( $test->getResult() ){ $test_result = $test->getResult(); }
+        if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO'   ; }
+        elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
+        elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-';       }
+        if   ( $test_run eq $FAIL    ) { $test_run = 'NO'   ; }
+        elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
+        elsif( $test_run eq $NOT_EXE ) { $test_run = '-';       }
+        if   ( $test_ana eq $FAIL    ) { $test_ana = 'NO'   ; }
+        elsif( $test_ana eq $SUCCEED ) { $test_ana = 'YES'; }
+        elsif( $test_ana eq $NOT_EXE ) { $test_ana = '-';       }
+
+        printf "%-20s", $test_name;
+        printf "%-30s", $test_result;
+        printf "%-20s", $test_cmp;
+        printf "%-20s", $test_run;
+        printf "%-20s", $test_ana;
+        print "\n";
+    }
+}
+
 
 #generate options to execute bfm_configure
 sub generate_opt{

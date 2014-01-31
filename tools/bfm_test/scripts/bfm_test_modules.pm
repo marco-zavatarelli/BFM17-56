@@ -31,10 +31,9 @@ use File::Path qw(rmtree);
 use File::Copy;
 
 use classes;
-
 ########### EXPORT VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(get_configuration generate_test execute_test analyze_test);
+our @EXPORT= qw(get_configuration generate_test execute_test wait_proc analyze_test);
 ########### EXPORT VARIABLES ##########################
 
 ########### GLOBAL VALUES ##########################
@@ -153,11 +152,13 @@ sub fill_tests{
 }
 
 sub generate_test{
-    my ($build_dir, $bfm_exe, $temp_dir, $test) = @_;
+    my ($build_dir, $bfm_exe, $overwrite, $temp_dir, $test) = @_;
     my $bfm_log_file_cmp = 'bfm.out.cmp';
 
-    #remove the output folder
     my $test_dir = "${temp_dir}/" . $test->getName();
+
+    #remove the output folder and regenerate if not overwrite
+    if( -d $test_dir && !$overwrite ){ $test->setStatcmp(Test->not_exe); return 1; }
     rmtree([$test_dir]);
 
     #execute the test and capture the output
@@ -171,9 +172,9 @@ sub generate_test{
     my $out=`$cmd`;
 
     #save log with compilation in test directory
-    if( ! open CMP_LOG, ">$test_dir/$bfm_log_file_cmp" ){ print "\tERROR: Problems creating compilation log: $!\n"; return 0;}
-    print CMP_LOG $out;
-    close CMP_LOG;
+    if( ! open CMPLOG, ">$test_dir/$bfm_log_file_cmp" ){ print "\tERROR: Problems creating compilation log: $!\n"; $test->setStatcmp(Test->fail); return 0;}
+    print CMPLOG $out;
+    close CMPLOG;
     if($VERBOSE){ print "\tSee more info in: $test_dir/$bfm_log_file_cmp\n"; }
     
     #check for errors and warnings in generation and compilation time
@@ -182,23 +183,36 @@ sub generate_test{
         if(@out_warning){ print "\tWARNING in ". $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_warning) . "\n"; }
     }
     my @out_error   = $out =~ m/ERROR(?::| )+(.*)/ig;
-    if(@out_error)  { print "\tERROR in "  . $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_error)   . "\n"; return 0; }
+    if(@out_error)  { print "\tERROR in "  . $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_error)   . "\n"; $test->setStatcmp(Test->fail); return 0; }
     my @out_exit  = $out =~ m/EXITING\.\.\./ig;
-    if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; return 0; }
+    if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; $test->setStatcmp(Test->fail); return 0; }
 
     #copy target simlinks to not to depend from NEMO or BFM current compilation
     # because the current compilation could be overwritten by the next test   
-    if( ! opendir OUTDIR, "$test_dir" ){ print "\tERROR: reading output directory $test_dir: $!\n"; return 0; }
+    if( ! opendir OUTDIR, "$test_dir" ){ print "\tERROR: reading output directory $test_dir: $!\n"; $test->setStatcmp(Test->fail); return 0; }
     while (my $file = readdir(OUTDIR)) {
         my $file_path = "$test_dir/$file";
         if( -f $file_path && -l $file_path ) {
             my $file_target = readlink($file_path);
-            if( ! unlink($file_path) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; return 0; }
-            if( ! copy( $file_target, $file_path) ){ print "\tERROR: Copy failed: $!\n"; return 0; }
+            if( ! unlink($file_path) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; $test->setStatcmp(Test->fail); return 0; }
+            if( ! copy( $file_target, $file_path) ){ print "\tERROR: Copy failed: $!\n"; $test->setStatcmp(Test->fail); return 0; }
         }
     }
+
+    #if there are forcing dirs, link inside the test directory
+    my @forcings = split (';', $test->getForcing());
+    foreach my $forcing (@forcings){
+        print "\tAdding FORCING dir: $forcing\n";
+        my @filelist = glob("$forcing/*");
+        foreach my $file (@filelist){
+            (my $filename) = $file =~ /.*\/(.*)/;
+            if( ! symlink("$file","$test_dir/$filename") ){ print "\tWARNING in ". $test->getName() . ": impossible to link file $file: $!\n"; }
+        }
+    }
+
     close OUTDIR;
 
+    $test->setStatcmp(Test->succeed);
     return 1;
 }
 
@@ -206,79 +220,138 @@ sub execute_test{
     my ($temp_dir, $test) = @_;
 
     my $test_dir = "$temp_dir/" . $test->getName();
-    if( ! -d $test_dir ){ print "\tERROR in " . $test->getName() . " test dir does not exists: $test_dir\n"; return 0; }
+    if( ! -d $test_dir ){ print "\tERROR in " . $test->getName() . " test dir does not exists: $test_dir\n"; $test->setStatrun(Test->fail); return 0; }
     
     # check if executable exists and put with executable attributes
     my $exe_path = "$test_dir/" . $test->getExe();
-    if( ! -f $exe_path  ){ print "\tERROR in " . $test->getName() . " executable does not exists: $exe_path\n"; return 0; }
+    if( ! -f $exe_path  ){ print "\tERROR in " . $test->getName() . " executable does not exists: $exe_path\n"; $test->setStatrun(Test->fail); return 0; }
     `chmod u+x $exe_path`;
 
     #get the script name
     my $script_name = 'runscript_' . $test->getName();
 
-    #execute in background and return the process name
+    #generate the exectuion command
+    #generate de change dir
     my $cmd  = "cd $test_dir; ";
+    #generate the part to execute before the test command
     if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
+    #generate permissions change
     $cmd .= "chmod u+x $script_name; ";
+    #generate the test command
     if( $test->getRun() eq 'bsub' ){ #batch jobs needs redirection of input from file 
-        $cmd .= $test->getRun() . " < ";
+        $cmd .= $test->getRun() . " < ./$script_name ";
+    }else{
+        $cmd .= "./$script_name ";
     }
-    #generate the rest of the command
-    $cmd .= "./$script_name &> $BFM_LOG_FILE_EXE";
+    #generate the loggin part
+    $cmd .= " &> $BFM_LOG_FILE_EXE";
+
     if($VERBOSE){ print "\tCommand: $cmd\n"; }
     if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_EXE\n"; }
 
     #execute the command
-    if ( system($cmd) != 0 ){ print "\tERROR in " . $test->getName() . " cmd execution command fails: $!\n"; return 0; }
+    if ( system($cmd) != 0 ){ print "\tERROR in " . $test->getName() . " cmd execution command fails: $!\n"; $test->setStatrun(Test->fail); return 0; }
 
-    if( $test->getRun() eq 'bsub' ){
-        #batch jobs execution waits for the process to finish
-        my $proc = $test->getPreset();
-        my $count = 0;
-        # my $time  = 0;
-        if($VERBOSE){ print "\tWaiting for Process Name: $proc"; }
-        do{
-            #get the process running with the name of the executable
-            $count = scalar grep /$proc/, (split /\n/, `bjobs`);
-            # if( !$time ){ $time = 50; print "\n\t."; }else{ $time--; print "."; }
-            sleep 1;
-        }while( $count != 0 );
-        print "\n";
-    }
+    #wait for the command to finish
+    wait_proc($test);
+
+    $test->setStatrun(Test->succeed()); 
     return 1;
+}
+
+sub wait_proc{
+    my ($test) = @_;
+
+    #get command to list process and executable name to wait for
+    my $command = 'ps -w';
+    my $proc = 'runscript_' . $test->getName();
+    if( $test->getRun() eq 'bsub' ){ 
+        $command = 'bjobs -w';
+        $proc = $test->getPreset();
+    }
+
+    my $count = 0;
+    # my $time  = 0;
+    if($VERBOSE){ print "\tWaiting for Process Name: $proc"; }
+    do{
+        #get the process running with the name of the executable
+        #$count = () = `$command 2> /dev/null` =~ / $proc /;
+        $count = scalar grep / $proc /, (split /\n/, `$command 2> /dev/null`);
+        # if( !$time ){ $time = 50; print "\n\t."; }else{ $time--; print "."; }
+        sleep 1;
+    }while( $count != 0 );
+    print "\n";
 }
 
 sub analyze_test{
     my ($temp_dir, $test) = @_;
-    my $status  = 0;
-    my $timming = 0;
 
+    my $timming = '?';
 
     my $test_dir = "$temp_dir/" . $test->getName();
 
     #first check if the running finished well
     if($VERBOSE){ print "\tGetting status information\n"; }
     if( $test->getMode() =~ /NEMO/ ){
+        #check if time step finished
+        my ($out_1, $out_2) = (-1, -2);
+        if( open(TIMESTEP, "<", "$test_dir/time.step") ){
+            while(<TIMESTEP>){ 
+                if( $_ =~ /\s*(\d+)\s*/ ){ $out_1 = $1; }
+            }
+            close TIMESTEP;
+            if($VERBOSE){ print "\t- from file: $test_dir/time.step: $out_1\n"; }
+        }
+        if( open(NAMELIST, "<", "$test_dir/namelist_cfg") ){
+            while(<NAMELIST>){ 
+                if( $_ =~ /\s*nn_itend\s*=\s*(\d+)\s*/ ){ $out_2 = $1; } 
+            }
+            close NAMELIST;
+            if($VERBOSE){ print "\t- from file: $test_dir/namelist_cfg: $out_2\n"; }
+        }
+        if( $out_1 == $out_2){ $test->setStatana(Test->succeed); }
         #check ocean
         if( open(OCEAN, "<", "$test_dir/ocean.output") ){
-            $status = 1;
-            while(<OCEAN>){  if( $_ =~ /"E R R O R"/ ){ $status = 0; } }
+            if($VERBOSE){ print "\t- from file: $test_dir/ocean.output\n"; }
+            while(<OCEAN>){
+                if( $_ =~ /"E R R O R"/ ){ $test->setStatana(Test->fail); }
+            }
             close OCEAN;
         }
     }else{
-        if( open(BFMLOG, "<", "$test_dir/ocean.output") ){ 
-            while(<BFMLOG>){ if( $_ =~ /"bfm_save : Output saved at the end of the experiment"/ ){ $status = 1; } }
+        if( open(BFMLOG, "<", "$test_dir/bfm.log") ){ 
+            if($VERBOSE){ print "\t- from file: $test_dir/bfm.log\n"; }
+            while(<BFMLOG>){ 
+                if( $_ =~ /bfm_save : Output saved at the end of the experiment/ ){ $test->setStatana(Test->succeed); }
+            }
             close BFMLOG;
         }
     }
 
     #get timming information
     if($VERBOSE){ print "\tGetting timming information\n"; }
-    if( $status && open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){
-        while(<BFMEXELOG>){
-            if($_ =~ /^real\s*(.*)/ ){ $timming = $1; }
+    if( Test->is_succeed($test->getStatana()) ){
+        if( $test->getRun() eq 'bsub' ){ # is a batch job
+            #get the output file
+            my $out_name = "$test_dir/" . $test->getPreset() . "*" . ".out";
+            my (@out_files) = glob("$out_name");
+            if( $out_files[0] &&  open(JOBEXELOG, "<", "$out_files[0]") ){
+                if($VERBOSE){ print "\t- from file: $out_files[0]\n"; }
+                #get timming information
+                while(<JOBEXELOG>){
+                    if( $_ =~ /\s+CPU time\s+:\s+(.+)/ ) { $timming = $1; }
+                }
+                close(JOBEXELOG);
+            }
+        }else{ # is a shell execution
+            if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){
+                if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
+                while(<BFMEXELOG>){
+                    if($_ =~ /^real\s*(.*)/ ){ $timming = $1; }
+                }
+                close BFMEXELOG;
+            }
         }
-        close BFMEXELOG;
     }
 
     #compare results if compare dir exists
@@ -292,7 +365,9 @@ sub analyze_test{
     }
 
     #generate summary with timing, memmory and results
-    $test->setResult("STATUS: $status TIMMING: $timming");
+    my $status = 'N';
+    if( Test->is_succeed($test->getStatana()) ){ $status = 'Y'; }
+    $test->setResult("SUCCEED: $status TIMMING: $timming");
 
     return 1;
 }

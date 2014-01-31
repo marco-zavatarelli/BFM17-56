@@ -1,30 +1,43 @@
 # Configuration example for bfm_test 
-# NAME     : Name of the test (mandatory)
-# PRESET   : Name of th preset for using as parameter in bfm_configure (see bfm_configure option "-p")
-# ARCH     : Specify compilation Architecture file (see bfm_configure option "-a")
-# RUN      : Mode to run the experiment. Valid values are: sh (default, for running in a unix shell), bsub (for running in batch mode) 
-# FORCING  : Forcing dir to link in the run directory
-# VALGRIND : Valgrind options for analysis
-# COMPARE  : Directory with test to compare results
-# PRECMD   : Commands to execute prior to compilation and running 
-# PROC     : number of processors to use in compilation and running (see bfm_configure option "-r")
-# PAREXE   : Program to execute in parallel (see bfm_configure option "-e"). NOTE: You can use $PROC inside this command
+# the options are separated by lines, and the values by coma ','
+# is it possible to continue with same key in other line using backslash '\' at the end of the line
+# Avalaible kays are:
+# - NAME     : Name of the test (mandatory)
+# - PRESET   : Name of th preset for using as parameter in bfm_configure (see bfm_configure option "-p")
+# - ARCH     : Specify compilation Architecture file (see bfm_configure option "-a")
+# - RUN      : Mode to run the experiment. Valid values are: sh (default, for running in a unix shell), bsub (for running in batch mode) 
+# - FORCING  : Forcing dir to link in the run directory (if several directories, separate them by colon ';')
+# - VALGRIND : Valgrind options for analysis
+# - COMPARE  : Directory with test to compare results
+# - PRECMD   : Commands to execute prior to compilation and running 
+# - PROC     : number of processors to use in compilation and running (see bfm_configure option "-r")
+# - PAREXE   : Program to execute in parallel (see bfm_configure option "-e"). NOTE: You can use $PROC inside this command
 
 
 
 # Configuration to run in MacOsx 
-NAME   = test_GYRE            , test_STD_PEL      ,
-PRESET = GYRE_BFM             , STANDALONE_PELAGIC,
-ARCH   = gut_osx              , openmpi.inc       ,
-RUN    = sh                   , sh                ,
-PROC   = 16                   , ''                ,
-PAREXE = "openmpirun -n $PROC", ''                ,
+# NAME   = test_GYRE            , test_STD_PEL      ,
+# PRESET = GYRE_BFM             , STANDALONE_PELAGIC,
+# ARCH   = gut_osx              , openmpi.inc       ,
+# RUN    = sh                   , sh                ,
+# PROC   = 16                   , ''                ,
+# PAREXE = "openmpirun -n $PROC", ''                ,
 
 # Configuration to run in Athena
-# NAME   = test_STD_PEL      , test_GYRE    ,
-# PRESET = STANDALONE_PELAGIC, GYRE_BFM     ,
-# RUN    = shell             , bsub         ,
-# PRECMD = export NETCDF=/users/home/ans040/local; \
-#          export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH,\
-#          export NETCDF=/users/home/ans040/local; \
-#          export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH,
+NAME    = test_GYRE, test_GYRE_BENTHIC, test_STD_PEL      , test_STD_PEL_JOB  , test_PELAGOS2
+PRESET  = GYRE_BFM , GYRE_BFM_BENTHIC , STANDALONE_PELAGIC, STANDALONE_PELAGIC, PELAGOS2     
+RUN     = bsub     , bsub             , sh                , bsub              , bsub         
+PROC    = 16       , 16               , ''                , ''                , 16           
+ARCH    = ''       , ''               , ifort.inc         , ''                , ''           
+
+FORCING = ''                                                  , \
+          ''                                                  , \
+          ''                                                  , \
+          ''                                                  , \
+          /work/ans040/FORCING/NEMO;/work/ans040/FORCING/BFM
+
+PRECMD  = export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          module load NETCDF/netcdf-4.2.1.1, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
