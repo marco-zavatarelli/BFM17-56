@@ -24,20 +24,28 @@
 # PAREXE = "openmpirun -n $PROC", ''                ,
 
 # Configuration to run in Athena
-NAME    = test_GYRE, test_GYRE_BENTHIC, test_STD_PEL      , test_STD_PEL_JOB  , test_PELAGOS2
-PRESET  = GYRE_BFM , GYRE_BFM_BENTHIC , STANDALONE_PELAGIC, STANDALONE_PELAGIC, PELAGOS2     
-RUN     = bsub     , bsub             , sh                , bsub              , bsub         
-PROC    = 16       , 16               , ''                , ''                , 16           
-ARCH    = ''       , ''               , ifort.inc         , ''                , ''           
-
+NAME    = test_GYRE, test_GYRE_BENTHIC, test_STD_PEL      , test_STD_PEL_JOB  , test_PELAGOS2, test_STD_BEN      , test_STD_CO2      , test_STD_KOB         , test_STD_MED     , test_STD_ICE
+PRESET  = GYRE_BFM , GYRE_BFM_BENTHIC , STANDALONE_PELAGIC, STANDALONE_PELAGIC, PELAGOS2     , STANDALONE_BENTHIC, STANDALONE_CO2TEST, STANDALONE_KOBBEFJORD, STANDALONE_MEDSEA, STANDALONE_SEAICE
+RUN     = bsub     , bsub             , sh                , bsub              , bsub         , bsub              , bsub              , bsub                 , bsub             , bsub             
+PROC    = 16       , 16               , ''                , ''                , 128          , ''                , ''                , ''                   , ''               , ''               
+ARCH    = ''       , ''               , ifort.inc         , ''                , ''           , ''                , ''                , ''                   , ''               , ''                
 FORCING = ''                                                  , \
           ''                                                  , \
           ''                                                  , \
           ''                                                  , \
-          /work/ans040/FORCING/NEMO;/work/ans040/FORCING/BFM
-
+          /work/ans040/FORCING/NEMO;/work/ans040/FORCING/BFM  , \
+          ''                                                  , \
+          ''                                                  , \
+          ''                                                  , \
+          ''                                                  , \
+          ''                                                  
 PRECMD  = export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           module load NETCDF/netcdf-4.2.1.1, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH

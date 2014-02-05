@@ -32,7 +32,7 @@
         PROC     = 8,
         EXP      = 'pelagos2',
         QUEUE    = 'poe_short',
-        EXPFILES = 'namelist_cfg namelist_ice_cfg iodef.xml namelist_top_cfg EMPave_old.dat'
+        EXPFILES = 'namelist_cfg namelist_ice_cfg namelist_ice_ref iodef.xml namelist_top_cfg EMPave_old.dat'
         NEMOSUB  = 'OPA_SRC TOP_SRC LIM_SRC_2'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
