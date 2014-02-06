@@ -32,9 +32,10 @@ my $DEF_MODE      = 'STANDALONE';
 my $DEF_MODE_NEMO = 'NEMO.*';
 my $DEF_EXE_STD   = 'bfm_standalone.x';
 my $DEF_EXE_NEMO  = 'nemo.exe';
+my $DEF_ACTIVE    = 'Y';
 
 # order is important in options, has to follow same order as used in "new"
-my @OPTIONS= ('PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
+my @OPTIONS= ('ACTIVE', 'PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
 
 #output codes for compilation and execution
@@ -52,6 +53,7 @@ sub new{
    my $class = shift;
    my $self = {
        _name     => shift,
+       _active   => shift,
        _preset   => shift,
        _arch     => shift,
        _run      => shift,
@@ -73,6 +75,7 @@ sub DESTROY{}
 
 #GET Functions
 sub getName    { my( $self ) = @_; return $self->{_name};   }
+sub getActive  { my( $self ) = @_; if($self->{_active}){return $self->{_active};}else{ return $DEF_ACTIVE;} }
 sub getPreset  { my( $self ) = @_; return $self->{_preset}; }
 sub getArch    { my( $self ) = @_; return $self->{_arch};   }
 sub getRun     { my( $self ) = @_; if($self->{_run}) {return $self->{_run}; }else{ return $DEF_RUN; } }
@@ -109,6 +112,7 @@ sub getStatana { my( $self ) = @_; return $self->{_statana};  }
 
 #SET functions
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}     = $name     if defined($name);     }
+sub setActive  { my ( $self, $active    ) = @_; $self->{_active}   = $active   if defined($active);   }
 sub setPreset  { my ( $self, $preset    ) = @_; $self->{_preset}   = $preset   if defined($preset);   }
 sub setArch    { my ( $self, $arch      ) = @_; $self->{_arch}     = $arch     if defined($arch);     }
 sub setRun     { my ( $self, $run       ) = @_; $self->{_run}      = $run      if defined($run);      }
@@ -129,6 +133,7 @@ sub setStatana { my ( $self, $statana   ) = @_; $self->{_statana}  = $statana  i
 sub print{
     my ( $self ) = @_;
     if($self->{_name})     { print "\tTest:     " . $self->getName()       . "\n"; }
+    if($self->{_active})   { print "\tActive:   " . $self->getActive()     . "\n"; }
     if($self->{_preset})   { print "\tPreset:   " . $self->getPreset()     . "\n"; }
     if($self->{_arch})     { print "\tArch:     " . $self->getArch()       . "\n"; }
     if($self->{_run})      { print "\tRun:      " . $self->getRun()        . "\n"; }
@@ -154,29 +159,31 @@ sub printSummary{
     my ($self, $lst_test) = @_;
     printf "%-20s%-30s%-20s%-20s%-20s\n", "TEST", "RESULT", "COMPILATION", "RUN", "ANALYSIS";
     foreach my $test (@$lst_test){
-        my $test_name   = $test->getName();
-        my $test_result = '?';
-        my $test_cmp    = $test->getStatcmp();
-        my $test_run    = $test->getStatrun();
-        my $test_ana    = $test->getStatana();
-        
-        if( $test->getResult() ){ $test_result = $test->getResult(); }
-        if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO'   ; }
-        elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
-        elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-';       }
-        if   ( $test_run eq $FAIL    ) { $test_run = 'NO'   ; }
-        elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
-        elsif( $test_run eq $NOT_EXE ) { $test_run = '-';       }
-        if   ( $test_ana eq $FAIL    ) { $test_ana = 'NO'   ; }
-        elsif( $test_ana eq $SUCCEED ) { $test_ana = 'YES'; }
-        elsif( $test_ana eq $NOT_EXE ) { $test_ana = '-';       }
+        if( $test->getActive() eq 'Y' ){
+            my $test_name   = $test->getName();
+            my $test_result = '?';
+            my $test_cmp    = $test->getStatcmp();
+            my $test_run    = $test->getStatrun();
+            my $test_ana    = $test->getStatana();
+            
+            if( $test->getResult() ){ $test_result = $test->getResult(); }
+            if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO'   ; }
+            elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
+            elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-';       }
+            if   ( $test_run eq $FAIL    ) { $test_run = 'NO'   ; }
+            elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
+            elsif( $test_run eq $NOT_EXE ) { $test_run = '-';       }
+            if   ( $test_ana eq $FAIL    ) { $test_ana = 'NO'   ; }
+            elsif( $test_ana eq $SUCCEED ) { $test_ana = 'YES'; }
+            elsif( $test_ana eq $NOT_EXE ) { $test_ana = '-';       }
 
-        printf "%-20s", $test_name;
-        printf "%-30s", $test_result;
-        printf "%-20s", $test_cmp;
-        printf "%-20s", $test_run;
-        printf "%-20s", $test_ana;
-        print "\n";
+            printf "%-20s", $test_name;
+            printf "%-30s", $test_result;
+            printf "%-20s", $test_cmp;
+            printf "%-20s", $test_run;
+            printf "%-20s", $test_ana;
+            print "\n";
+        }
     }
 }
 
@@ -185,11 +192,12 @@ sub printSummary{
 sub generate_opt{
     my ( $self ) = @_;
     my $cmd = '';
-    if($self->{_name})   { $cmd .= "-x "  . $self->getName()   . " "; }
-    if($self->{_preset}) { $cmd .= "-p "  . $self->getPreset() . " "; }
-    if($self->{_arch})   { $cmd .= "-a "  . $self->getArch()   . " "; }
-    if($self->{_proc})   { $cmd .= "-r "  . $self->getProc()   . " "; }
-    if($self->{_parexe}) { $cmd .= "-e "  . $self->getParexe() . " "; }
+    if($self->{_name})    { $cmd .= "-x "  . $self->getName()    . " "; }
+    if($self->{_preset})  { $cmd .= "-p "  . $self->getPreset()  . " "; }
+    if($self->{_arch})    { $cmd .= "-a "  . $self->getArch()    . " "; }
+    if($self->{_proc})    { $cmd .= "-r "  . $self->getProc()    . " "; }
+    if($self->{_parexe})  { $cmd .= "-e "  . $self->getParexe()  . " "; }
+    if($self->{_forcing}) { $cmd .= "-i "  . $self->getForcing() . " "; }
     return $cmd;
 }
 

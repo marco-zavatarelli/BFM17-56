@@ -102,24 +102,27 @@ if( ! -d $temp_dir ){
 #read configuration file
 if( $verbose ){ print "Reading configuration...\n"; }
 my $lst_test = get_configuration("${CONF_DIR}/${input_preset}/configuration", $BUILD_DIR, $verbose);
+if( $verbose ){ Test->printAll($lst_test); }
 
 #for each test
 foreach my $test (@$lst_test){
-    if($verbose){ print "----------\n"; }
-    #generate
-    if( $generation ){
-        if($verbose){ print "Generating " . $test->getName() . "\n"; }
-        if( !generate_test($BUILD_DIR, $BFM_EXE, $overwrite, $temp_dir, $test) ){ next; }
-    }
-    #execute
-    if( $execution ){
-        if($verbose){ print "Executing " . $test->getName() . "\n"; }
-        if( !execute_test($temp_dir, $test) ){ next; }
-    }
-    #analyze
-    if( $analysis ){
-        if($verbose){ print "Analyzing " . $test->getName() . "\n"; }
-        if( !analyze_test($temp_dir, $test) ){ next; }
+    if( $test->getActive() eq 'Y' ){
+        if($verbose){ print "----------\n"; }
+        #generate
+        if( $generation ){
+            if($verbose){ print "Generating " . $test->getName() . "\n"; }
+            if( !generate_test($BUILD_DIR, $BFM_EXE, $overwrite, $temp_dir, $test) ){ next; }
+        }
+        #execute
+        if( $execution ){
+            if($verbose){ print "Executing " . $test->getName() . "\n"; }
+            if( !execute_test($temp_dir, $test) ){ next; }
+        }
+        #analyze
+        if( $analysis ){
+            if($verbose){ print "Analyzing " . $test->getName() . "\n"; }
+            if( !analyze_test($temp_dir, $test) ){ next; }
+        }
     }
 }
 if($verbose){ print "----------\n";    }

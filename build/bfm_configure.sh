@@ -46,8 +46,8 @@ NMLLIST="";
 NEMOSUB="";
 
 #options
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -120,6 +120,9 @@ DESCRIPTION
                   Name of the experiment for generation of the output folder (Default: "${EXP}")
        -F EXPFILES 
                   files (generated or not)  to copy to experiment directory
+       -i FORCING 
+                  Necessary forcings to execute the model. To specify several files, separate them by colon ';' and surround all by quotes '"'.
+                  (If the path is relative, the ROOT will be ${BFMDIR})
        -D EXPDIR
                   Input dir where are files to copy to experiment directory (Default: "${TEMPDIR}/${PRESET}")
        -e EXECMD
@@ -153,7 +156,7 @@ exec &> ${LOGDIR}/${LOGFILE}.pipe
 rm ${LOGDIR}/${LOGFILE}.pipe
 
 #get user options from commandline
-while getopts "hvgcdPp:m:k:N:S:a:fx:F:D:e:r:q:o:" opt; do
+while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:r:q:o:" opt; do
     case $opt in
       h ) usage;            rm ${LOGDIR}/${LOGFILE}         ; exit             ;;
       v )                   echo "verbose mode"             ; VERBOSE=1        ;;
@@ -170,6 +173,7 @@ while getopts "hvgcdPp:m:k:N:S:a:fx:F:D:e:r:q:o:" opt; do
       f ) [ ${VERBOSE} ] && echo "fast mode activated"      ; clean_usr=0          ;;
       x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"       ; exp_usr=$OPTARG      ;;
       F ) [ ${VERBOSE} ] && echo "experiment files $OPTARG" ; expfiles_usr=$OPTARG ;;
+      i ) [ ${VERBOSE} ] && echo "forcing files $OPTARG"    ; forcing_usr=$OPTARG  ;;
       D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
       e ) [ ${VERBOSE} ] && echo "exe command $OPTARG"      ; execmd_usr=$OPTARG   ;;
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
@@ -493,6 +497,20 @@ if [ ${DEP} ]; then
         cp *.nml ${exedir}/
         if [ "${EXPFILES}" ]; then cp ${EXPFILES} ${exedir}/; fi
         if [ "${EXPDIR}"   ]; then cp ${EXPDIR}/* ${exedir}/; fi
+
+        #link forcing files to exedir
+        if [ "${FORCING}" ]; then
+            [ ${VERBOSE} ] && echo "linking Forcings: ${FORCING}"
+            forcing_list=(${FORCING//;/ })
+            for idx_for in "${!forcing_list[@]}"; do
+                #if is relative path, start with BFMDIR
+                if [[ ${forcing_list[$idx_for]} =~ ^\s*\/ ]]; then
+                    ln -sf ${forcing_list[$idx_for]} ${exedir}/
+                else
+                    ln -sf ${BFMDIR}/${forcing_list[$idx_for]} ${exedir}/
+                fi
+            done
+        fi
 
         #link reference nemo files from the shared directory
         if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]] && [ -d ${NEMODIR}/NEMOGCM/CONFIG/SHARED ]; then 

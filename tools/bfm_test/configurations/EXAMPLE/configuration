@@ -3,15 +3,16 @@
 # is it possible to continue with same key in other line using backslash '\' at the end of the line
 # Avalaible kays are:
 # - NAME     : Name of the test (mandatory)
-# - PRESET   : Name of th preset for using as parameter in bfm_configure (see bfm_configure option "-p")
-# - ARCH     : Specify compilation Architecture file (see bfm_configure option "-a")
+# - ACTIVE   : Activate or deactivate a test. If a test is not active it will not be generated, executed and/or analyzed. Possible values are Y (active) or N (deactive)
+# - PRESET   : Name of th preset for using as parameter in bfm_configure (see bfm_configure option '-p')
 # - RUN      : Mode to run the experiment. Valid values are: sh (default, for running in a unix shell), bsub (for running in batch mode) 
-# - FORCING  : Forcing dir to link in the run directory (if several directories, separate them by colon ';')
+# - PROC     : number of processors to use in compilation and running (see bfm_configure option '-r')
+# - ARCH     : Specify compilation Architecture file (see bfm_configure option '-a')
+# - PAREXE   : Program to execute in parallel (see bfm_configure option '-e'). NOTE: You can use $PROC inside this command
+# - PRECMD   : Commands to execute prior to compilation and running 
+# - FORCING  : Forcing files to link in the run directory (see bfm_configure option '-i')
 # - VALGRIND : Valgrind options for analysis
 # - COMPARE  : Directory with test to compare results
-# - PRECMD   : Commands to execute prior to compilation and running 
-# - PROC     : number of processors to use in compilation and running (see bfm_configure option "-r")
-# - PAREXE   : Program to execute in parallel (see bfm_configure option "-e"). NOTE: You can use $PROC inside this command
 
 
 
@@ -24,21 +25,12 @@
 # PAREXE = "openmpirun -n $PROC", ''                ,
 
 # Configuration to run in Athena
-NAME    = test_GYRE, test_GYRE_BENTHIC, test_STD_PEL      , test_STD_PEL_JOB  , test_PELAGOS2, test_STD_BEN      , test_STD_CO2      , test_STD_KOB         , test_STD_MED     , test_STD_ICE
-PRESET  = GYRE_BFM , GYRE_BFM_BENTHIC , STANDALONE_PELAGIC, STANDALONE_PELAGIC, PELAGOS2     , STANDALONE_BENTHIC, STANDALONE_CO2TEST, STANDALONE_KOBBEFJORD, STANDALONE_MEDSEA, STANDALONE_SEAICE
-RUN     = bsub     , bsub             , sh                , bsub              , bsub         , bsub              , bsub              , bsub                 , bsub             , bsub             
-PROC    = 16       , 16               , ''                , ''                , 128          , ''                , ''                , ''                   , ''               , ''               
-ARCH    = ''       , ''               , ifort.inc         , ''                , ''           , ''                , ''                , ''                   , ''               , ''                
-FORCING = ''                                                  , \
-          ''                                                  , \
-          ''                                                  , \
-          ''                                                  , \
-          /work/ans040/FORCING/NEMO;/work/ans040/FORCING/BFM  , \
-          ''                                                  , \
-          ''                                                  , \
-          ''                                                  , \
-          ''                                                  , \
-          ''                                                  
+NAME    = test_GYRE, test_GYRE_BENTHIC, test_STD_PEL      , test_STD_PEL_JOB  , test_PELAGOS2, test_STD_BEN      , test_STD_CO2      , test_STD_KOB         , test_STD_MED     , test_STD_ICE     ,
+ACTIVE  = Y        , Y                , Y                 , Y                 , Y            , Y                 , Y                 , Y                    , Y                , Y                ,
+PRESET  = GYRE_BFM , GYRE_BFM_BENTHIC , STANDALONE_PELAGIC, STANDALONE_PELAGIC, PELAGOS2     , STANDALONE_BENTHIC, STANDALONE_CO2TEST, STANDALONE_KOBBEFJORD, STANDALONE_MEDSEA, STANDALONE_SEAICE,
+RUN     = bsub     , bsub             , sh                , bsub              , bsub         , bsub              , bsub              , bsub                 , bsub             , bsub             ,
+PROC    = 16       , 16               , ''                , ''                , 128          , ''                , ''                , ''                   , ''               , ''               ,
+ARCH    = ''       , ''               , ifort.inc         , ''                , ''           , ''                , ''                , ''                   , ''               , ''               ,
 PRECMD  = export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           module load NETCDF/netcdf-4.2.1.1, \
@@ -48,4 +40,14 @@ PRECMD  = export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
           export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH, \
-          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+          export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH,
+FORCING = ''                                                      , \
+          ''                                                      , \
+          ''                                                      , \
+          ''                                                      , \
+          "/work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*", \
+          ''                                                      , \
+          ''                                                      , \
+          ''                                                      , \
+          ''                                                      , \
+          ''                                                      ,

@@ -146,7 +146,6 @@ sub fill_tests{
         #create test object
         push(@lst_test, new Test($name, @lst_opt ) );
     }
-    if($VERBOSE){ Test->printAll(\@lst_test); }
     
     return \@lst_test;
 }
@@ -187,30 +186,24 @@ sub generate_test{
     my @out_exit  = $out =~ m/EXITING\.\.\./ig;
     if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; $test->setStatcmp(Test->fail); return 0; }
 
-    #copy target simlinks to not to depend from NEMO or BFM current compilation
+    #copy executable simlink to not to depend from NEMO or BFM current compilation
     # because the current compilation could be overwritten by the next test   
-    if( ! opendir OUTDIR, "$test_dir" ){ print "\tERROR: reading output directory $test_dir: $!\n"; $test->setStatcmp(Test->fail); return 0; }
-    while (my $file = readdir(OUTDIR)) {
-        my $file_path = "$test_dir/$file";
-        if( -f $file_path && -l $file_path ) {
-            my $file_target = readlink($file_path);
-            if( ! unlink($file_path) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; $test->setStatcmp(Test->fail); return 0; }
-            if( ! copy( $file_target, $file_path) ){ print "\tERROR: Copy failed: $!\n"; $test->setStatcmp(Test->fail); return 0; }
-        }
+    my $file_exe = "$test_dir/" . $test->getExe();
+    if( -f $file_exe && -l $file_exe ) {
+        my $file_target = readlink($file_exe);
+        if( ! unlink($file_exe) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; $test->setStatcmp(Test->fail); return 0; }
+        if( ! copy( $file_target, $file_exe) ){ print "\tERROR: Copy failed: $!\n"; $test->setStatcmp(Test->fail); return 0; }
     }
-
-    #if there are forcing dirs, link inside the test directory
-    my @forcings = split (';', $test->getForcing());
-    foreach my $forcing (@forcings){
-        print "\tAdding FORCING dir: $forcing\n";
-        my @filelist = glob("$forcing/*");
-        foreach my $file (@filelist){
-            (my $filename) = $file =~ /.*\/(.*)/;
-            if( ! symlink("$file","$test_dir/$filename") ){ print "\tWARNING in ". $test->getName() . ": impossible to link file $file: $!\n"; }
-        }
-    }
-
-    close OUTDIR;
+    # if( ! opendir OUTDIR, "$test_dir" ){ print "\tERROR: reading output directory $test_dir: $!\n"; $test->setStatcmp(Test->fail); return 0; }
+    # while (my $file = readdir(OUTDIR)) {
+    #     my $file_path = "$test_dir/$file";
+    #     if( -f $file_path && -l $file_path ) {
+    #         my $file_target = readlink($file_path);
+    #         if( ! unlink($file_path) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; $test->setStatcmp(Test->fail); return 0; }
+    #         if( ! copy( $file_target, $file_path) ){ print "\tERROR: Copy failed: $!\n"; $test->setStatcmp(Test->fail); return 0; }
+    #     }
+    # }
+    # close OUTDIR;
 
     $test->setStatcmp(Test->succeed);
     return 1;
@@ -277,10 +270,10 @@ sub wait_proc{
         #get the process running with the name of the executable
         #$count = () = `$command 2> /dev/null` =~ / $proc /;
         $count = scalar grep / $proc /, (split /\n/, `$command 2> /dev/null`);
-        # if( !$time ){ $time = 50; print "\n\t."; }else{ $time--; print "."; }
+        # if( !$time ){ $time = 50; if($VERBOSE){ print "\n\t."; } }else{ $time--; if($VERBOSE){ print "."; } }
         sleep 1;
     }while( $count != 0 );
-    print "\n";
+    if($VERBOSE){ print "\n"; }
 }
 
 sub analyze_test{
@@ -319,12 +312,26 @@ sub analyze_test{
             close OCEAN;
         }
     }else{
-        if( open(BFMLOG, "<", "$test_dir/bfm.log") ){ 
-            if($VERBOSE){ print "\t- from file: $test_dir/bfm.log\n"; }
-            while(<BFMLOG>){ 
-                if( $_ =~ /bfm_save : Output saved at the end of the experiment/ ){ $test->setStatana(Test->succeed); }
+        if( $test->getRun() eq 'bsub' ){ # is a batch job
+            #get the error output file
+            my $err_name = "$test_dir/" . $test->getPreset() . "*" . ".err";
+            my (@err_files) = glob("$err_name");
+            if( $err_files[0] &&  open(JOBERRLOG, "<", "$err_files[0]") ){
+                if($VERBOSE){ print "\t- from file: $err_files[0]\n"; }
+                #get end log
+                while(<JOBERRLOG>){
+                    if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); }
+                }
+                close(JOBERRLOG);
             }
-            close BFMLOG;
+        }else{ # is a shell job
+            if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){ 
+                if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
+                while(<BFMEXELOG>){ 
+                    if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); }
+                }
+                close BFMEXELOG;
+            }
         }
     }
 
@@ -357,11 +364,19 @@ sub analyze_test{
     #compare results if compare dir exists
     if( $test->getCompare ){
         if($VERBOSE){ print "\tComparing results\n"; }
+        #check if command exists
+        my $out_cmp = `nccmp -V 2>&1`;
+        if( $out_cmp =~ /nccmp \d.\d.\d/){
+        }else{ 
+            if($VERBOSE){ 
+                print "\tWARNING in ". $test->getName() . ": Comparison not executed because \"nccmp\" command does not exist or is not executable.\n";
+            }
+        }
     }
 
     #check valgring options if valgrind exists
     if( $test->getValgrind ){
-        if($VERBOSE){ print "\tComparing results\n"; }
+        if($VERBOSE){ print "\tGetting Valgrind results\n"; }
     }
 
     #generate summary with timing, memmory and results
