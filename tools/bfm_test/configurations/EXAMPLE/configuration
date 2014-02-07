@@ -16,14 +16,6 @@
 
 
 
-# Configuration to run in MacOsx 
-# NAME   = test_GYRE            , test_STD_PEL      ,
-# PRESET = GYRE_BFM             , STANDALONE_PELAGIC,
-# ARCH   = gut_osx              , openmpi.inc       ,
-# RUN    = sh                   , sh                ,
-# PROC   = 16                   , ''                ,
-# PAREXE = "openmpirun -n $PROC", ''                ,
-
 # Configuration to run in Athena
 NAME    = test_GYRE, test_GYRE_BENTHIC, test_STD_PEL      , test_STD_PEL_JOB  , test_PELAGOS2, test_STD_BEN      , test_STD_CO2      , test_STD_KOB         , test_STD_MED     , test_STD_ICE     ,
 ACTIVE  = Y        , Y                , Y                 , Y                 , Y            , Y                 , Y                 , Y                    , Y                , Y                ,

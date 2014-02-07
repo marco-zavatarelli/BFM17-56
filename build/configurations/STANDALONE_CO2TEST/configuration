@@ -30,7 +30,7 @@
         ARCH    = 'gfortran.inc',
         PROC    = 4,
         EXP     = 'co2test',
-        FORCING = ' /users/home/ans040/dev/repo/bfm/inputs/co2/NOAA_MBL_CO2_1979_2010_LAT_33.dat'
+        FORCING = 'inputs/co2/NOAA_MBL_CO2_1979_2010_LAT_33.dat'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
