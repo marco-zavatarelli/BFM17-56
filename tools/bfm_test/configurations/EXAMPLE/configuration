@@ -51,3 +51,13 @@ FORCING = ''                                                      , \
           ''                                                      , \
           ''                                                      , \
           ''                                                      ,
+COMPARE = /work/ans040/BFM_TEST/test_GYRE        , \
+          /work/ans040/BFM_TEST/test_GYRE_BENTHIC, \
+          /work/ans040/BFM_TEST/test_STD_PEL     , \
+          /work/ans040/BFM_TEST/test_STD_PEL_JOB , \
+          /work/ans040/BFM_TEST/test_PELAGOS2    , \
+          /work/ans040/BFM_TEST/test_STD_BEN     , \
+          /work/ans040/BFM_TEST/test_STD_CO2     , \
+          /work/ans040/BFM_TEST/test_STD_KOB     , \
+          /work/ans040/BFM_TEST/test_STD_MED     , \
+          /work/ans040/BFM_TEST/test_STD_ICE     ,

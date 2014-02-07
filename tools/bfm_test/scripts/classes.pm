@@ -33,6 +33,7 @@ my $DEF_MODE_NEMO = 'NEMO.*';
 my $DEF_EXE_STD   = 'bfm_standalone.x';
 my $DEF_EXE_NEMO  = 'nemo.exe';
 my $DEF_ACTIVE    = 'Y';
+my $DEF_TIMMING   = '?';
 
 # order is important in options, has to follow same order as used in "new"
 my @OPTIONS= ('ACTIVE', 'PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
@@ -68,6 +69,8 @@ sub new{
        _statcmp  => $NOT_EXE,
        _statrun  => $NOT_EXE,
        _statana  => $NOT_EXE,
+       _timming  => $DEF_TIMMING,
+       _statcom  => $NOT_EXE,
    };
    return bless $self, $class;   
 }
@@ -105,10 +108,11 @@ sub getParexe  {
         return $self->{_parexe};
     }
 }
-sub getResult  { my( $self ) = @_; return $self->{_result};   }
 sub getStatcmp { my( $self ) = @_; return $self->{_statcmp};  }
 sub getStatrun { my( $self ) = @_; return $self->{_statrun};  }
 sub getStatana { my( $self ) = @_; return $self->{_statana};  }
+sub getTimming { my( $self ) = @_; return $self->{_timming};  }
+sub getStatcom { my( $self ) = @_; return $self->{_statcom};  }
 
 #SET functions
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}     = $name     if defined($name);     }
@@ -124,10 +128,11 @@ sub setPrecmd  { my ( $self, $precmd    ) = @_; $self->{_precmd}   = $precmd   i
 sub setCompare { my ( $self, $compare   ) = @_; $self->{_compare}  = $compare  if defined($compare);  }
 sub setProc    { my ( $self, $proc      ) = @_; $self->{_proc}     = $proc     if defined($proc);     }
 sub setParexe  { my ( $self, $parexe    ) = @_; $self->{_parexe}   = $parexe   if defined($parexe);   }
-sub setResult  { my ( $self, $result    ) = @_; $self->{_result}   = $result   if defined($result);   }
 sub setStatcmp { my ( $self, $statcmp   ) = @_; $self->{_statcmp}  = $statcmp  if defined($statcmp);  }
 sub setStatrun { my ( $self, $statrun   ) = @_; $self->{_statrun}  = $statrun  if defined($statrun);  }
 sub setStatana { my ( $self, $statana   ) = @_; $self->{_statana}  = $statana  if defined($statana);  }
+sub setTimming { my ( $self, $timming   ) = @_; $self->{_timming}  = $timming  if defined($timming);  }
+sub setStatcom { my ( $self, $statcom   ) = @_; $self->{_statcom}  = $statcom  if defined($statcom);  }
 
 #PRINT functions
 sub print{
@@ -145,10 +150,11 @@ sub print{
     if($self->{_compare})  { print "\tCompare:  " . $self->getCompare()    . "\n"; }
     if($self->{_proc})     { print "\tProc:     " . $self->getProc()       . "\n"; }
     if($self->{_parexe})   { print "\tParexe:   " . $self->getParexe()     . "\n"; }
-    if($self->{_result})   { print "\tResult:   " . $self->getResult()     . "\n"; }
     if($self->{_statcmp})  { print "\tStatcmp:  " . $self->getStatcmp()    . "\n"; }
     if($self->{_statrun})  { print "\tStatrun:  " . $self->getStatrun()    . "\n"; }
     if($self->{_statana})  { print "\tStatana:  " . $self->getStatana()    . "\n"; }
+    if($self->{_timming})  { print "\tTimming:  " . $self->getTimming()    . "\n"; }
+    if($self->{_statcom})  { print "\tStatcom:  " . $self->getStatcom()    . "\n"; }
 }
 sub printAll{
     my ($self, $lst_test) = @_;
@@ -157,31 +163,38 @@ sub printAll{
 }
 sub printSummary{
     my ($self, $lst_test) = @_;
-    printf "%-20s%-30s%-20s%-20s%-20s\n", "TEST", "RESULT", "COMPILATION", "RUN", "ANALYSIS";
+    printf "%-20s%-13s%-5s%-40s\n", "TEST", "COMPILATION", "RUN", "ANALYSIS";
     foreach my $test (@$lst_test){
         if( $test->getActive() eq 'Y' ){
-            my $test_name   = $test->getName();
-            my $test_result = '?';
-            my $test_cmp    = $test->getStatcmp();
-            my $test_run    = $test->getStatrun();
-            my $test_ana    = $test->getStatana();
+            my $test_cmp  = $test->getStatcmp();
+            my $test_run  = $test->getStatrun();
+            my $test_ana  = $test->getStatana();
+            my $test_com  = $test->getStatcom();
             
-            if( $test->getResult() ){ $test_result = $test->getResult(); }
-            if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO'   ; }
+            if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO' ; }
             elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
-            elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-';       }
-            if   ( $test_run eq $FAIL    ) { $test_run = 'NO'   ; }
-            elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
-            elsif( $test_run eq $NOT_EXE ) { $test_run = '-';       }
-            if   ( $test_ana eq $FAIL    ) { $test_ana = 'NO'   ; }
-            elsif( $test_ana eq $SUCCEED ) { $test_ana = 'YES'; }
-            elsif( $test_ana eq $NOT_EXE ) { $test_ana = '-';       }
+            elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-'  ; }
 
-            printf "%-20s", $test_name;
-            printf "%-30s", $test_result;
-            printf "%-20s", $test_cmp;
-            printf "%-20s", $test_run;
-            printf "%-20s", $test_ana;
+            if   ( $test_run eq $FAIL    ) { $test_run = 'NO' ; }
+            elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
+            elsif( $test_run eq $NOT_EXE ) { $test_run = '-'  ; }
+
+            if   ( $test_ana eq $FAIL    ) { $test_ana = 'N'; }
+            elsif( $test_ana eq $SUCCEED ) { $test_ana = 'Y'; }
+            elsif( $test_ana eq $NOT_EXE ) { $test_ana = '?'; }
+
+            if   ( $test_com eq $FAIL    ) { $test_com = 'N'; }
+            elsif( $test_com eq $SUCCEED ) { $test_com = 'Y'; }
+            elsif( $test_com eq $NOT_EXE ) { $test_com = '?'; }
+
+            my $test_analysis = "SUCCEED: " . $test_ana . "; "
+                              . "TIMMING: " . $test->getTimming() ."; "
+                              . "COMPARISON: " . $test_com ."; ";
+
+            printf "%-20s", $test->getName();
+            printf "%-13s", $test_cmp;
+            printf "%-5s", $test_run;
+            printf "%-40s", $test_analysis;
             print "\n";
         }
     }

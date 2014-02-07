@@ -29,6 +29,7 @@ use Exporter;
 use Data::Dumper;
 use File::Path qw(rmtree);
 use File::Copy;
+use File::Basename;
 
 use classes;
 ########### EXPORT VARIABLES ##########################
@@ -37,7 +38,9 @@ our @EXPORT= qw(get_configuration generate_test execute_test wait_proc analyze_t
 ########### EXPORT VARIABLES ##########################
 
 ########### GLOBAL VALUES ##########################
+my $BFM_LOG_FILE_CMP = 'bfm.out.cmp';
 my $BFM_LOG_FILE_EXE = 'bfm.out.exe';
+my $BFM_LOG_FILE_COM = 'bfm.out.com';
 ########### GLOBAL VALUES ##########################
 
 ########### DEFAULT ##########################
@@ -152,7 +155,6 @@ sub fill_tests{
 
 sub generate_test{
     my ($build_dir, $bfm_exe, $overwrite, $temp_dir, $test) = @_;
-    my $bfm_log_file_cmp = 'bfm.out.cmp';
 
     my $test_dir = "${temp_dir}/" . $test->getName();
 
@@ -171,10 +173,10 @@ sub generate_test{
     my $out=`$cmd`;
 
     #save log with compilation in test directory
-    if( ! open CMPLOG, ">$test_dir/$bfm_log_file_cmp" ){ print "\tERROR: Problems creating compilation log: $!\n"; $test->setStatcmp(Test->fail); return 0;}
+    if( ! open CMPLOG, ">$test_dir/$BFM_LOG_FILE_CMP" ){ print "\tERROR: Problems creating compilation log: $!\n"; $test->setStatcmp(Test->fail); return 0;}
     print CMPLOG $out;
     close CMPLOG;
-    if($VERBOSE){ print "\tSee more info in: $test_dir/$bfm_log_file_cmp\n"; }
+    if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_CMP\n"; }
     
     #check for errors and warnings in generation and compilation time
     if($VERBOSE){
@@ -194,16 +196,6 @@ sub generate_test{
         if( ! unlink($file_exe) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; $test->setStatcmp(Test->fail); return 0; }
         if( ! copy( $file_target, $file_exe) ){ print "\tERROR: Copy failed: $!\n"; $test->setStatcmp(Test->fail); return 0; }
     }
-    # if( ! opendir OUTDIR, "$test_dir" ){ print "\tERROR: reading output directory $test_dir: $!\n"; $test->setStatcmp(Test->fail); return 0; }
-    # while (my $file = readdir(OUTDIR)) {
-    #     my $file_path = "$test_dir/$file";
-    #     if( -f $file_path && -l $file_path ) {
-    #         my $file_target = readlink($file_path);
-    #         if( ! unlink($file_path) ){ print "\tERROR: Cannot remove symbolic link: $!\n"; $test->setStatcmp(Test->fail); return 0; }
-    #         if( ! copy( $file_target, $file_path) ){ print "\tERROR: Copy failed: $!\n"; $test->setStatcmp(Test->fail); return 0; }
-    #     }
-    # }
-    # close OUTDIR;
 
     $test->setStatcmp(Test->succeed);
     return 1;
@@ -279,8 +271,6 @@ sub wait_proc{
 sub analyze_test{
     my ($temp_dir, $test) = @_;
 
-    my $timming = '?';
-
     my $test_dir = "$temp_dir/" . $test->getName();
 
     #first check if the running finished well
@@ -303,15 +293,18 @@ sub analyze_test{
             if($VERBOSE){ print "\t- from file: $test_dir/namelist_cfg: $out_2\n"; }
         }
         if( $out_1 == $out_2){ $test->setStatana(Test->succeed); }
+        else{ $test->setStatana(Test->fail); return 0; }
+
         #check ocean
         if( open(OCEAN, "<", "$test_dir/ocean.output") ){
             if($VERBOSE){ print "\t- from file: $test_dir/ocean.output\n"; }
             while(<OCEAN>){
-                if( $_ =~ /"E R R O R"/ ){ $test->setStatana(Test->fail); }
+                if( $_ =~ /"E R R O R"/ ){ $test->setStatana(Test->fail); return 0; }
             }
             close OCEAN;
         }
     }else{
+        $test->setStatana(Test->fail);
         if( $test->getRun() eq 'bsub' ){ # is a batch job
             #get the error output file
             my $err_name = "$test_dir/" . $test->getPreset() . "*" . ".err";
@@ -333,44 +326,119 @@ sub analyze_test{
                 close BFMEXELOG;
             }
         }
+        #return if test not succeed
+        if( ! Test->is_succeed($test->getStatana()) ){ return 0; }
     }
+
+
 
     #get timming information
     if($VERBOSE){ print "\tGetting timming information\n"; }
-    if( Test->is_succeed($test->getStatana()) ){
-        if( $test->getRun() eq 'bsub' ){ # is a batch job
-            #get the output file
-            my $out_name = "$test_dir/" . $test->getPreset() . "*" . ".out";
-            my (@out_files) = glob("$out_name");
-            if( $out_files[0] &&  open(JOBEXELOG, "<", "$out_files[0]") ){
-                if($VERBOSE){ print "\t- from file: $out_files[0]\n"; }
-                #get timming information
-                while(<JOBEXELOG>){
-                    if( $_ =~ /\s+CPU time\s+:\s+(.+)/ ) { $timming = $1; }
-                }
-                close(JOBEXELOG);
+    if( $test->getRun() eq 'bsub' ){ # is a batch job
+        #get the output file
+        my $out_name = "$test_dir/" . $test->getPreset() . "*" . ".out";
+        my (@out_files) = glob("$out_name");
+        if( $out_files[0] &&  open(JOBEXELOG, "<", "$out_files[0]") ){
+            if($VERBOSE){ print "\t- from file: $out_files[0]\n"; }
+            #get timming information
+            while(<JOBEXELOG>){
+                if( $_ =~ /\s+CPU time\s+:\s+(.+)/ ) { $test->setTimming($1); }
             }
-        }else{ # is a shell execution
-            if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){
-                if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
-                while(<BFMEXELOG>){
-                    if($_ =~ /^real\s*(.*)/ ){ $timming = $1; }
-                }
-                close BFMEXELOG;
+            close(JOBEXELOG);
+        }
+    }else{ # is a shell execution
+        if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){
+            if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
+            while(<BFMEXELOG>){
+                if($_ =~ /^real\s*(.*)/ ){ $test->setTimming($1); }
             }
+            close BFMEXELOG;
         }
     }
 
     #compare results if compare dir exists
-    if( $test->getCompare ){
-        if($VERBOSE){ print "\tComparing results\n"; }
+    if( $test->getCompare() ){
+        my $cmp_dir = $test->getCompare();
+        if($VERBOSE){ print "\tComparing results: $test_dir VS $cmp_dir\n"; }
+        if($VERBOSE){ print "\t- See more info in: $test_dir/$BFM_LOG_FILE_COM\n"; }
+
         #check if command exists
         my $out_cmp = `nccmp -V 2>&1`;
         if( $out_cmp =~ /nccmp \d.\d.\d/){
+            #get all the files ".nc" in the input  dir
+            my @filelist_test = glob("$test_dir/*.nc");
+            #get all the files ".nc" in the compare dir
+            my @filelist_cmp  = glob("$cmp_dir/*.nc");
+            #check if are the same
+            if( $#filelist_test != $#filelist_cmp ){
+                if($VERBOSE){ 
+                    print "\tWARNING in ". $test->getName() . ": Comparison impossible, not same number of NETCDF files: $#filelist_test <> $#filelist_cmp.\n";
+                }
+                $test->setStatcom(Test->fail);
+            }else{
+                #execute nccmp
+                my %filelist_test = map {basename($_)=>1} @filelist_test;
+                my @only_in_cmp   = grep { !$filelist_test{basename($_)} } @filelist_cmp;
+                my %filelist_cmp  = map {basename($_)=>1} @filelist_cmp;
+                my @only_in_test  = grep { !$filelist_cmp{basename($_)} } @filelist_test;
+                if($VERBOSE){ print "\t- $test_dir AND $cmp_dir\n"; }
+                ` echo COMPARISON > $test_dir/$BFM_LOG_FILE_COM`;
+                foreach my $name (keys %filelist_test){
+                    my $cmd = "nccmp -dgmf -t 1e-3 $test_dir/$name $cmp_dir/$name";
+                    `echo $cmd >>$test_dir/$BFM_LOG_FILE_COM`;
+                    `$cmd >>$test_dir/$BFM_LOG_FILE_COM 2>&1`;
+                }
+                #analyze the output
+                if( open(BFMCOMLOG, "<", "$test_dir/$BFM_LOG_FILE_COM") ){
+                    my %error_vars;
+                    my $name_last = "";
+                    my $var_last  = "";
+                    my $name_ins  = "";
+                    my $var_ins   = "";
+                    while(<BFMCOMLOG>){
+                        if( $_ =~ /^nccmp \-dgmf \-t 1e-3 (.*) / ){ #get the name of the last file analyzed 
+                            $name_last = basename($1);
+                        }
+                        if( $_ =~ /^DIFFER :[^:]+: ([^:]+) :/ ){ #get the variable which differs
+                            $var_last = $1;
+                            if( $name_ins ne $name_last || $var_ins ne $var_last ){
+                                #if not inserted before, push to the summary hash
+                                push( @{$error_vars{$var_last}}, $name_last );
+                                $var_ins  = $var_last;
+                                $name_ins = $name_last;
+                            }
+                        }
+                    }
+                    close BFMCOMLOG;
+                    #print Dumper(\%error_vars) . "\n";
+                    #check if variables differs (not timestamp)
+                    my $count_vars = keys %error_vars;
+                    if( exists $error_vars{timeStamp} ){ $count_vars -= 1; }
+                    if( $count_vars == 0 ){ $test->setStatcom(Test->succeed); if($VERBOSE){ print "\t- Comparison OK\n";   } }
+                    else{                   $test->setStatcom(Test->fail);    if($VERBOSE){ print "\t- Comparison FAIL\n"; } }
+                    #insert results at the end of comparison log
+                    if( open(BFMCOMLOG, ">>", "$test_dir/$BFM_LOG_FILE_COM") ){
+                        my @list = keys %error_vars;
+                        print BFMCOMLOG "\n\nSUMMARY:\n\t- $count_vars differs: @list \n" . Dumper(\%error_vars) . "\n";
+                        close BFMCOMLOG;
+                    }else{
+                        if($VERBOSE){ 
+                            print "\tWARNING in ". $test->getName() . ": Cannot open comparison file $test_dir/$BFM_LOG_FILE_COM to store summary data: $!.\n";
+                        }
+                        $test->setStatcom(Test->fail);
+                    }
+                }else{
+                    if($VERBOSE){ 
+                        print "\tWARNING in ". $test->getName() . ": Cannot open comparison file $test_dir/$BFM_LOG_FILE_COM: $!.\n";
+                    }
+                    $test->setStatcom(Test->fail);
+                }
+            }
         }else{ 
             if($VERBOSE){ 
                 print "\tWARNING in ". $test->getName() . ": Comparison not executed because \"nccmp\" command does not exist or is not executable.\n";
             }
+            $test->setStatcom(Test->fail);
         }
     }
 
@@ -378,11 +446,6 @@ sub analyze_test{
     if( $test->getValgrind ){
         if($VERBOSE){ print "\tGetting Valgrind results\n"; }
     }
-
-    #generate summary with timing, memmory and results
-    my $status = 'N';
-    if( Test->is_succeed($test->getStatana()) ){ $status = 'Y'; }
-    $test->setResult("SUCCEED: $status TIMMING: $timming");
 
     return 1;
 }
