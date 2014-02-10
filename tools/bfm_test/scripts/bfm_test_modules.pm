@@ -445,8 +445,43 @@ sub analyze_test{
     #check valgring options if valgrind exists
     if( $test->getValgrind ){
         if($VERBOSE){ print "\tGetting Valgrind results\n"; }
+        #get the massif output file
+        my $mass_name = "$test_dir/massif.out.*";
+        my $mass_out  = "$test_dir/massif_out";
+        my (@mass_files) = glob("$mass_name");
+        if( $mass_files[0] ){
+            if($VERBOSE){ print "\t- Getting Massif results\n"; }
+            if($VERBOSE){ print "\t- from file: $mass_files[0]\n"; }
+            `ms_print $mass_files[0] >$mass_out 2>&1`;
+            if( open(MASSLOG, "<", "$mass_out") ){
+                if($VERBOSE){ print "\t- memory summary in file: $mass_out\n"; }
+                # while(<MASSLOG>){ }
+                close(MASSLOG);
+            }
+                
+        }
+        #get the cachegrind output file
+        my $cache_name  = "$test_dir/cachegrind.out.*";
+        my (@cache_files) = glob("$cache_name");
+        #if there is output
+        if( $cache_files[0] ){
+            if($VERBOSE){ print "\t- Getting Cachegrind results\n"; }
+            if($VERBOSE){ print "\t- from files: @cache_files\n"; }
+            my $cache_merge = "$test_dir/cachegrind_merge";
+            my $cache_out   = "$test_dir/cachegrind_out";
+            #sum all outputs
+            my $cmd_cachemerge = "cg_merge -o $cache_merge " . join(' ',@cache_files) . " >$cache_out 2>&1";
+            `$cmd_cachemerge`;
+            #get the summary
+            `cg_annotate --auto=yes $cache_merge >>$cache_out 2>&1`;
+            #add the output to summary
+            if( open(CACHELOG, "<", "$cache_out") ){
+                if($VERBOSE){ print "\t- cache summary in file: $cache_out\n"; }
+                #while(<CACHELOG>){ }
+                close(CACHELOG);
+            }
+        }
     }
-
     return 1;
 }
 ########### MODULES ##########################

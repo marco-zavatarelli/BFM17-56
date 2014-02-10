@@ -204,13 +204,18 @@ sub printSummary{
 #generate options to execute bfm_configure
 sub generate_opt{
     my ( $self ) = @_;
-    my $cmd = '';
-    if($self->{_name})    { $cmd .= "-x "  . $self->getName()    . " "; }
-    if($self->{_preset})  { $cmd .= "-p "  . $self->getPreset()  . " "; }
-    if($self->{_arch})    { $cmd .= "-a "  . $self->getArch()    . " "; }
-    if($self->{_proc})    { $cmd .= "-r "  . $self->getProc()    . " "; }
-    if($self->{_parexe})  { $cmd .= "-e "  . $self->getParexe()  . " "; }
-    if($self->{_forcing}) { $cmd .= "-i "  . $self->getForcing() . " "; }
+    my $cmd    = '';
+    my $precmd = '';
+    if($self->{_name})     { $cmd .= "-x "  . $self->getName()    . " "; }
+    if($self->{_preset})   { $cmd .= "-p "  . $self->getPreset()  . " "; }
+    if($self->{_arch})     { $cmd .= "-a "  . $self->getArch()    . " "; }
+    if($self->{_proc})     { $cmd .= "-r "  . $self->getProc()    . " "; }
+    if($self->{_forcing})  { $cmd .= "-i "  . $self->getForcing() . " "; }
+    #add valgrind and parexe to the same option and surround by "\" 
+    if($self->{_parexe})   { $precmd .= " " . $self->getParexe()   . " "; }
+    if($self->{_valgrind}) { $precmd .= " " . $self->getValgrind() . " "; }
+    $precmd =~ s/\"//g;
+    if($precmd){ $cmd .= "-e \"" . $precmd . "\" ";  }
     return $cmd;
 }
 

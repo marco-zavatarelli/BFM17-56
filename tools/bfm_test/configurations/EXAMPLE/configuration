@@ -1,6 +1,8 @@
 # Configuration example for bfm_test 
-# the options are separated by lines, and the values by coma ','
-# is it possible to continue with same key in other line using backslash '\' at the end of the line
+# - Options are separated by lines, and values by coma ','
+# - Write option in multiple lines using backslash '\' at the end of the line
+# - Insert white spaces inside a value surrounding all the value with double quotes '"'
+# - Use two single quotes '' to specify empty option.
 # Avalaible kays are:
 # - NAME     : Name of the test (mandatory)
 # - ACTIVE   : Activate or deactivate a test. If a test is not active it will not be generated, executed and/or analyzed. Possible values are Y (active) or N (deactive)
@@ -11,7 +13,7 @@
 # - PAREXE   : Program to execute in parallel (see bfm_configure option '-e'). NOTE: You can use $PROC inside this command
 # - PRECMD   : Commands to execute prior to compilation and running 
 # - FORCING  : Forcing files to link in the run directory (see bfm_configure option '-i')
-# - VALGRIND : Valgrind options for analysis
+# - VALGRIND : Valgrind command and options for analysis
 # - COMPARE  : Directory with test to compare results
 
 
@@ -43,6 +45,16 @@ FORCING = ''                                                      , \
           ''                                                      , \
           ''                                                      , \
           ''                                                      ,
+VALGRIND = "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind", \
+           "valgrind --tool=cachegrind",
 COMPARE = /work/ans040/BFM_TEST/test_GYRE        , \
           /work/ans040/BFM_TEST/test_GYRE_BENTHIC, \
           /work/ans040/BFM_TEST/test_STD_PEL     , \
