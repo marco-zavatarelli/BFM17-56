@@ -32,6 +32,7 @@
         PROC    = 4,
         EXP     = 'standalone.seaice',
         BFMSTD  = 'bfm_seaice.x',
+        FORCING = 'inputs/seaice/STANDALONE_SEAICE_S0_ocean.dat;inputs/seaice/STANDALONE_SEAICE_S0_seaice.dat'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

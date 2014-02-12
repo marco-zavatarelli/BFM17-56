@@ -39,7 +39,6 @@ GENCONF="generate_conf"
 GENNML="generate_namelist"
 MKNEMO="makenemo"       
 NEMOEXE="nemo.exe"
-
 #optional
 NMLLIST="";
 
@@ -47,9 +46,8 @@ NMLLIST="";
 NEMOSUB="";
 
 #options
-OPTS="hvgcdPp:m:k:b:n:a:r:ft:x:l:q:o:N:S:"
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     VALGRIND     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr valgrind_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -66,6 +64,7 @@ QUEUE="poe_short"
 BFMEXE="bfm_standalone.x"
 CLEAN=1
 NETCDF_DEFAULT="/usr"
+MPICMD="mpirun.lsf"
 # --------------------------------------------------------------------
 
 
@@ -97,8 +96,9 @@ DESCRIPTION
        -m MODE
                   Mode for compilation and deployment. Available models are: (Default: "STANDALONE")
                   - STANDALONE (without NEMO. Compile and run in local machine)
-                  - NEMO (with NEMO. Compile and run ONLY in LSF platform)
                   - POM1D
+                  - NEMO (with NEMO)
+                  - NEMO_3DVAR (with NEMO and 3DVAR)
        -k CPPDEFS
                   Key options to configure the model. (Default: "BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG")                 
        -S NEMOSUB
@@ -120,8 +120,15 @@ DESCRIPTION
                   Name of the experiment for generation of the output folder (Default: "${EXP}")
        -F EXPFILES 
                   files (generated or not)  to copy to experiment directory
+       -i FORCING 
+                  Necessary forcings to execute the model. To specify several files, separate them by colon ';' and surround all by quotes '"'.
+                  (If the path is relative, the ROOT will be ${BFMDIR})
        -D EXPDIR
                   Input dir where are files to copy to experiment directory (Default: "${TEMPDIR}/${PRESET}")
+       -e EXECMD
+                  Executable command to insert in runscript (Default for NEMO: "${EXE_NEMO}", empty for others)
+       -V VALGRIND
+                  Executable valgrind command to insert in runscript
        -r PROC
                   Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
@@ -151,7 +158,7 @@ exec &> ${LOGDIR}/${LOGFILE}.pipe
 rm ${LOGDIR}/${LOGFILE}.pipe
 
 #get user options from commandline
-while getopts "${OPTS}" opt; do
+while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:V:r:q:o:" opt; do
     case $opt in
       h ) usage;            rm ${LOGDIR}/${LOGFILE}         ; exit             ;;
       v )                   echo "verbose mode"             ; VERBOSE=1        ;;
@@ -168,7 +175,10 @@ while getopts "${OPTS}" opt; do
       f ) [ ${VERBOSE} ] && echo "fast mode activated"      ; clean_usr=0          ;;
       x ) [ ${VERBOSE} ] && echo "experiment $OPTARG"       ; exp_usr=$OPTARG      ;;
       F ) [ ${VERBOSE} ] && echo "experiment files $OPTARG" ; expfiles_usr=$OPTARG ;;
+      i ) [ ${VERBOSE} ] && echo "forcing files $OPTARG"    ; forcing_usr=$OPTARG  ;;
       D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
+      e ) [ ${VERBOSE} ] && echo "exe command $OPTARG"      ; execmd_usr=$OPTARG   ;;
+      V ) [ ${VERBOSE} ] && echo "valgrind command $OPTARG" ; valgrind_usr=$OPTARG ;;
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
       q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"       ; queue_usr=$OPTARG    ;;
       o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmexe_usr=$OPTARG   ;;
@@ -416,11 +426,13 @@ if [ ${CMP} ]; then
     if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+            [ ${VERBOSE} ] && echo "Command: ${cmd_gmake} clean"
             ${cmd_gmake} clean
         fi
         echo " "
         echo "Starting ${PRESET} compilation..."
         rm -rf ${BFMDIR}/bin/${BFMEXE}
+        [ ${VERBOSE} ] && echo "Command: ${cmd_gmake}"
         ${cmd_gmake}
         if [ ! -f ${BFMDIR}/bin/${BFMEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
@@ -434,13 +446,16 @@ if [ ${CMP} ]; then
 
         if [ ${CLEAN} == 1 ]; then
             [ ${VERBOSE} ] && echo "Cleaning up ${PRESET}..."
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean"
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} clean
         fi
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
         if [[ "$MODE" == "NEMO" ]]; then 
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}"
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
         else
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e \"${BFMDIR}/src/nemo;${NEMODIR}/3DVAR\" -j ${PROC}"
             ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
         fi
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
@@ -466,7 +481,7 @@ if [ ${DEP} ]; then
         exedir="${BFMDIR_RUN}/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with environment variable: ${exedir}"
     else
-    exedir="${BFMDIR}/run/${EXP}"
+        exedir="${BFMDIR}/run/${EXP}"
         [ ${VERBOSE} ] && echo "setting run dir path with default: ${exedir}"
     fi
 
@@ -486,6 +501,20 @@ if [ ${DEP} ]; then
         if [ "${EXPFILES}" ]; then cp ${EXPFILES} ${exedir}/; fi
         if [ "${EXPDIR}"   ]; then cp ${EXPDIR}/* ${exedir}/; fi
 
+        #link forcing files to exedir
+        if [ "${FORCING}" ]; then
+            [ ${VERBOSE} ] && echo "linking Forcings: ${FORCING}"
+            forcing_list=(${FORCING//;/ })
+            for idx_for in "${!forcing_list[@]}"; do
+                #if is relative path, start with BFMDIR
+                if [[ ${forcing_list[$idx_for]} =~ ^\s*\/ ]]; then
+                    ln -sf ${forcing_list[$idx_for]} ${exedir}/
+                else
+                    ln -sf ${BFMDIR}/${forcing_list[$idx_for]} ${exedir}/
+                fi
+            done
+        fi
+
         #link reference nemo files from the shared directory
         if [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]] && [ -d ${NEMODIR}/NEMOGCM/CONFIG/SHARED ]; then 
            ln -sf ${NEMODIR}/NEMOGCM/CONFIG/SHARED/*_ref ${exedir}/;
@@ -495,19 +524,30 @@ if [ ${DEP} ]; then
         echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
     fi
 
-    #Copy executable
+    #Copy executable and insert exe and valgrind commands
     if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMEXE} ${exedir}/${BFMEXE}
-        printf "Go to ${exedir} and execute command:\n\t./${BFMEXE}\n"
+        if [ "${EXECMD}" ]; then 
+            execmd="${EXECMD} ${VALGRIND} ./${BFMEXE}"
+        else
+            execmd="${VALGRIND} ./${BFMEXE}"
+        fi
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
-        #change values in runscript
-        sed -e "s,_EXP_,${EXP},g"       \
-            -e "s,_EXE_,${NEMOEXE},g" \
-            -e "s,_VERBOSE_,${VERBOSE},g" \
-            -e "s,_PRESET_,${PRESET},g" \
-            -e "s,_QUEUE_,${QUEUE},g"   \
-            -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/runscript > ${exedir}/runscript_${EXP}
-        printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
+        if [ "${EXECMD}" ]; then 
+            execmd="${EXECMD} ${VALGRIND} ./${NEMOEXE}"
+        else 
+            execmd="${MPICMD} ${VALGRIND} ./${NEMOEXE}"
+        fi
     fi
+
+    #change values in runscript
+    sed -e "s,_EXP_,${EXP},g"         \
+        -e "s,_EXE_,${execmd},g"      \
+        -e "s,_VERBOSE_,${VERBOSE},g" \
+        -e "s,_PRESET_,${PRESET},g"   \
+        -e "s,_QUEUE_,${QUEUE},g"     \
+        -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/runscript > ${exedir}/runscript_${EXP}
+    printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
+
 fi

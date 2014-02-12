@@ -31,6 +31,7 @@
         ARCH    = 'gfortran.inc',
         PROC    = 4,
         EXP     = 'standalone.seaice.Kobbefjord',
+        FORCING = 'inputs/seaice/STANDALONE_SEAICE_KOBBEFJORD_*.dat'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
