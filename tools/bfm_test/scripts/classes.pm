@@ -36,7 +36,7 @@ my $DEF_ACTIVE    = 'Y';
 my $DEF_TIMMING   = '?';
 
 # order is important in options, has to follow same order as used in "new"
-my @OPTIONS= ('ACTIVE', 'PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
+my @OPTIONS= ('ACTIVE', 'PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'QUEUE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
 
 #output codes for compilation and execution
@@ -47,7 +47,7 @@ sub is_not_exe{ my ( $self, $value ) = @_; if( $value eq $NOT_EXE){ return 1; }e
 sub fail    { my ( $self ) = @_; return $FAIL;    }
 sub succeed { my ( $self ) = @_; return $SUCCEED; }
 sub not_exe { my ( $self ) = @_; return $NOT_EXE; }
-
+sub is_timmed { my ( $self, $value ) = @_; if( $value ne $DEF_TIMMING ){ return 1; }else{ return 0; } }
 
 #CLASS creator and destructor
 sub new{
@@ -60,6 +60,7 @@ sub new{
        _run      => shift,
        _mode     => shift,
        _exe      => shift,
+       _queue    => shift,
        _forcing  => shift,
        _valgrind => shift,
        _precmd   => shift,
@@ -69,8 +70,9 @@ sub new{
        _statcmp  => $NOT_EXE,
        _statrun  => $NOT_EXE,
        _statana  => $NOT_EXE,
-       _timming  => $DEF_TIMMING,
+       _statval  => $NOT_EXE,
        _statcom  => $NOT_EXE,
+       _timming  => $DEF_TIMMING,
    };
    return bless $self, $class;   
 }
@@ -93,6 +95,7 @@ sub getExe     {
         return $DEF_EXE_STD;
     }
 }
+sub getQueue   { my( $self ) = @_; return $self->{_queue};    }
 sub getForcing { my( $self ) = @_; return $self->{_forcing};  }
 sub getValgrind{ my( $self ) = @_; return $self->{_valgrind}; }
 sub getPrecmd  { my( $self ) = @_; return $self->{_precmd};   }
@@ -111,8 +114,9 @@ sub getParexe  {
 sub getStatcmp { my( $self ) = @_; return $self->{_statcmp};  }
 sub getStatrun { my( $self ) = @_; return $self->{_statrun};  }
 sub getStatana { my( $self ) = @_; return $self->{_statana};  }
-sub getTimming { my( $self ) = @_; return $self->{_timming};  }
+sub getStatval { my( $self ) = @_; return $self->{_statval};  }
 sub getStatcom { my( $self ) = @_; return $self->{_statcom};  }
+sub getTimming { my( $self ) = @_; return $self->{_timming};  }
 
 #SET functions
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}     = $name     if defined($name);     }
@@ -122,6 +126,7 @@ sub setArch    { my ( $self, $arch      ) = @_; $self->{_arch}     = $arch     i
 sub setRun     { my ( $self, $run       ) = @_; $self->{_run}      = $run      if defined($run);      }
 sub setMode    { my ( $self, $mode      ) = @_; $self->{_mode}     = $mode     if defined($mode);     }
 sub setExe     { my ( $self, $exe       ) = @_; $self->{_exe}      = $exe      if defined($exe);      }
+sub setQueue   { my ( $self, $queue     ) = @_; $self->{_queue}    = $queue    if defined($queue);    }
 sub setForcing { my ( $self, $forcing   ) = @_; $self->{_forcing}  = $forcing  if defined($forcing);  }
 sub setValgrind{ my ( $self, $valgrind  ) = @_; $self->{_valgrind} = $valgrind if defined($valgrind); }
 sub setPrecmd  { my ( $self, $precmd    ) = @_; $self->{_precmd}   = $precmd   if defined($precmd);   }
@@ -131,8 +136,9 @@ sub setParexe  { my ( $self, $parexe    ) = @_; $self->{_parexe}   = $parexe   i
 sub setStatcmp { my ( $self, $statcmp   ) = @_; $self->{_statcmp}  = $statcmp  if defined($statcmp);  }
 sub setStatrun { my ( $self, $statrun   ) = @_; $self->{_statrun}  = $statrun  if defined($statrun);  }
 sub setStatana { my ( $self, $statana   ) = @_; $self->{_statana}  = $statana  if defined($statana);  }
-sub setTimming { my ( $self, $timming   ) = @_; $self->{_timming}  = $timming  if defined($timming);  }
+sub setStatval { my ( $self, $statval   ) = @_; $self->{_statval}  = $statval  if defined($statval);  }
 sub setStatcom { my ( $self, $statcom   ) = @_; $self->{_statcom}  = $statcom  if defined($statcom);  }
+sub setTimming { my ( $self, $timming   ) = @_; $self->{_timming}  = $timming  if defined($timming);  }
 
 #PRINT functions
 sub print{
@@ -144,6 +150,7 @@ sub print{
     if($self->{_run})      { print "\tRun:      " . $self->getRun()        . "\n"; }
     if($self->{_exe})      { print "\tExe:      " . $self->getExe()        . "\n"; }
     if($self->{_mode})     { print "\tMode:     " . $self->getMode()       . "\n"; }
+    if($self->{_queue})    { print "\tQueue:    " . $self->getQueue()      . "\n"; }
     if($self->{_forcing})  { print "\tForcing:  " . $self->getForcing()    . "\n"; }
     if($self->{_valgrind}) { print "\tValgrind: " . $self->getValgrind()   . "\n"; }
     if($self->{_precmd})   { print "\tPrecmd:   " . $self->getPrecmd()     . "\n"; }
@@ -153,8 +160,9 @@ sub print{
     if($self->{_statcmp})  { print "\tStatcmp:  " . $self->getStatcmp()    . "\n"; }
     if($self->{_statrun})  { print "\tStatrun:  " . $self->getStatrun()    . "\n"; }
     if($self->{_statana})  { print "\tStatana:  " . $self->getStatana()    . "\n"; }
-    if($self->{_timming})  { print "\tTimming:  " . $self->getTimming()    . "\n"; }
     if($self->{_statcom})  { print "\tStatcom:  " . $self->getStatcom()    . "\n"; }
+    if($self->{_statval})  { print "\tStatval:  " . $self->getStatval()    . "\n"; }
+    if($self->{_timming})  { print "\tTimming:  " . $self->getTimming()    . "\n"; }
 }
 sub printAll{
     my ($self, $lst_test) = @_;
@@ -163,13 +171,14 @@ sub printAll{
 }
 sub printSummary{
     my ($self, $lst_test) = @_;
-    printf "%-20s%-13s%-5s%-40s\n", "TEST", "COMPILATION", "RUN", "ANALYSIS";
+    printf "%-20s%-13s%-5s%-50s\n", "TEST", "COMPILATION", "RUN", "ANALYSIS";
     foreach my $test (@$lst_test){
         if( $test->getActive() eq 'Y' ){
             my $test_cmp  = $test->getStatcmp();
             my $test_run  = $test->getStatrun();
             my $test_ana  = $test->getStatana();
             my $test_com  = $test->getStatcom();
+            my $test_val  = $test->getStatval();
             
             if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO' ; }
             elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
@@ -187,9 +196,14 @@ sub printSummary{
             elsif( $test_com eq $SUCCEED ) { $test_com = 'Y'; }
             elsif( $test_com eq $NOT_EXE ) { $test_com = '?'; }
 
+            if   ( $test_val eq $FAIL    ) { $test_val = 'N'; }
+            elsif( $test_val eq $SUCCEED ) { $test_val = 'Y'; }
+            elsif( $test_val eq $NOT_EXE ) { $test_val = '?'; }
+
             my $test_analysis = "SUCCEED: " . $test_ana . "; "
                               . "TIMMING: " . $test->getTimming() ."; "
-                              . "COMPARISON: " . $test_com ."; ";
+                              . "COMPARISON: " . $test_com ."; "
+                              . "VALGRIND: " . $test_val ."; ";
 
             printf "%-20s", $test->getName();
             printf "%-13s", $test_cmp;
@@ -205,17 +219,14 @@ sub printSummary{
 sub generate_opt{
     my ( $self ) = @_;
     my $cmd    = '';
-    my $precmd = '';
-    if($self->{_name})     { $cmd .= "-x "  . $self->getName()    . " "; }
-    if($self->{_preset})   { $cmd .= "-p "  . $self->getPreset()  . " "; }
-    if($self->{_arch})     { $cmd .= "-a "  . $self->getArch()    . " "; }
-    if($self->{_proc})     { $cmd .= "-r "  . $self->getProc()    . " "; }
-    if($self->{_forcing})  { $cmd .= "-i "  . $self->getForcing() . " "; }
-    #add valgrind and parexe to the same option and surround by "\" 
-    if($self->{_parexe})   { $precmd .= " " . $self->getParexe()   . " "; }
-    if($self->{_valgrind}) { $precmd .= " " . $self->getValgrind() . " "; }
-    $precmd =~ s/\"//g;
-    if($precmd){ $cmd .= "-e \"" . $precmd . "\" ";  }
+    if($self->{_name})     { $cmd .= "-x "   . $self->getName()     . " "; }
+    if($self->{_preset})   { $cmd .= "-p "   . $self->getPreset()   . " "; }
+    if($self->{_arch})     { $cmd .= "-a "   . $self->getArch()     . " "; }
+    if($self->{_proc})     { $cmd .= "-r "   . $self->getProc()     . " "; }
+    if($self->{_queue})    { $cmd .= "-q "   . $self->getQueue()    . " "; }
+    if($self->{_forcing})  { $cmd .= "-i \"" . $self->getForcing()  . "\" "; }
+    if($self->{_parexe})   { $cmd .= "-e \"" . $self->getParexe()   . "\" "; }
+    if($self->{_valgrind}) { $cmd .= "-V \"" . $self->getValgrind() . "\" "; }
     return $cmd;
 }
 

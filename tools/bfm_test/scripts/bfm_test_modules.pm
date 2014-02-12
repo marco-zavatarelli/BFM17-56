@@ -41,6 +41,8 @@ our @EXPORT= qw(get_configuration generate_test execute_test wait_proc analyze_t
 my $BFM_LOG_FILE_CMP = 'bfm.out.cmp';
 my $BFM_LOG_FILE_EXE = 'bfm.out.exe';
 my $BFM_LOG_FILE_COM = 'bfm.out.com';
+my $BFM_LOG_FILE_MEM = 'bfm.out.mem';
+my $BFM_LOG_FILE_CAC = 'bfm.out.cac';
 ########### GLOBAL VALUES ##########################
 
 ########### DEFAULT ##########################
@@ -174,6 +176,7 @@ sub generate_test{
 
     #save log with compilation in test directory
     if( ! open CMPLOG, ">$test_dir/$BFM_LOG_FILE_CMP" ){ print "\tERROR: Problems creating compilation log: $!\n"; $test->setStatcmp(Test->fail); return 0;}
+    print CMPLOG $cmd . "\n";
     print CMPLOG $out;
     close CMPLOG;
     if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_CMP\n"; }
@@ -181,10 +184,10 @@ sub generate_test{
     #check for errors and warnings in generation and compilation time
     if($VERBOSE){
         my @out_warning = $out =~ m/WARNING(?::| )+(.*)/ig;
-        if(@out_warning){ print "\tWARNING in ". $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_warning) . "\n"; }
+        if(@out_warning){ print "\tWARNING in ". $test->getName() . ":\n\t\t-" . join("\n\t\t- ",@out_warning) . "\n"; }
     }
     my @out_error   = $out =~ m/ERROR(?::| )+(.*)/ig;
-    if(@out_error)  { print "\tERROR in "  . $test->getName() . ":\n\t\t-" . join("\n\t\t-",@out_error)   . "\n"; $test->setStatcmp(Test->fail); return 0; }
+    if(@out_error)  { print "\tERROR in "  . $test->getName() . ":\n\t\t-" . join("\n\t\t- ",@out_error)   . "\n"; $test->setStatcmp(Test->fail); return 0; }
     my @out_exit  = $out =~ m/EXITING\.\.\./ig;
     if(@out_exit)   { print "\tERROR in "  . $test->getName() . ": Compiler not exists\n"; $test->setStatcmp(Test->fail); return 0; }
 
@@ -229,9 +232,13 @@ sub execute_test{
         $cmd .= "./$script_name ";
     }
     #generate the loggin part
-    $cmd .= " &> $BFM_LOG_FILE_EXE";
+    $cmd .= " >>$test_dir/$BFM_LOG_FILE_EXE 2>&1";
 
     if($VERBOSE){ print "\tCommand: $cmd\n"; }
+    #save log with execution in test directory
+    if( ! open EXELOG, ">$test_dir/$BFM_LOG_FILE_EXE" ){ print "\tERROR: Problems creating execution log: $!\n"; $test->setStatrun(Test->fail); return 0;}
+    print EXELOG $cmd . "\n";
+    close EXELOG;
     if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_EXE\n"; }
 
     #execute the command
@@ -273,7 +280,7 @@ sub analyze_test{
 
     my $test_dir = "$temp_dir/" . $test->getName();
 
-    #first check if the running finished well
+    #get status information
     if($VERBOSE){ print "\tGetting status information\n"; }
     if( $test->getMode() =~ /NEMO/ ){
         #check if time step finished
@@ -293,17 +300,18 @@ sub analyze_test{
             if($VERBOSE){ print "\t- from file: $test_dir/namelist_cfg: $out_2\n"; }
         }
         if( $out_1 == $out_2){ $test->setStatana(Test->succeed); }
-        else{ $test->setStatana(Test->fail); return 0; }
+        else{ $test->setStatana(Test->fail); }
 
         #check ocean
         if( open(OCEAN, "<", "$test_dir/ocean.output") ){
             if($VERBOSE){ print "\t- from file: $test_dir/ocean.output\n"; }
             while(<OCEAN>){
-                if( $_ =~ /"E R R O R"/ ){ $test->setStatana(Test->fail); return 0; }
+                if( $_ =~ /"E R R O R"/ ){ $test->setStatana(Test->fail); last; }
             }
             close OCEAN;
         }
     }else{
+        #by default in shell mode if output is not present result is fail
         $test->setStatana(Test->fail);
         if( $test->getRun() eq 'bsub' ){ # is a batch job
             #get the error output file
@@ -313,7 +321,7 @@ sub analyze_test{
                 if($VERBOSE){ print "\t- from file: $err_files[0]\n"; }
                 #get end log
                 while(<JOBERRLOG>){
-                    if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); }
+                    if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); last; }
                 }
                 close(JOBERRLOG);
             }
@@ -321,16 +329,15 @@ sub analyze_test{
             if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){ 
                 if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
                 while(<BFMEXELOG>){ 
-                    if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); }
+                    if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); last; }
                 }
                 close BFMEXELOG;
             }
         }
-        #return if test not succeed
-        if( ! Test->is_succeed($test->getStatana()) ){ return 0; }
     }
-
-
+    #return if test fail
+    if( Test->is_fail($test->getStatana()) ){ if($VERBOSE){ print "\t- Status FAIL\n"; } return 0; }
+    if( Test->is_succeed($test->getStatana()) && $VERBOSE ){ print "\t- Status OK\n"; }
 
     #get timming information
     if($VERBOSE){ print "\tGetting timming information\n"; }
@@ -355,11 +362,15 @@ sub analyze_test{
             close BFMEXELOG;
         }
     }
+    if( ! Test->is_timmed($test) ){
+        if($VERBOSE){ print "\t- No timming information present\n"; }
+    }elsif( $VERBOSE ){ print "\t- Timming: " . $test->getTimming() . "\n"; }
 
-    #compare results if compare dir exists
+    #get comapre information
     if( $test->getCompare() ){
         my $cmp_dir = $test->getCompare();
-        if($VERBOSE){ print "\tComparing results: $test_dir VS $cmp_dir\n"; }
+        if($VERBOSE){ print "\tComparing results:\n"; }
+        if($VERBOSE){ print "\t- $test_dir VS $cmp_dir\n"; }
         if($VERBOSE){ print "\t- See more info in: $test_dir/$BFM_LOG_FILE_COM\n"; }
 
         #check if command exists
@@ -381,8 +392,9 @@ sub analyze_test{
                 my @only_in_cmp   = grep { !$filelist_test{basename($_)} } @filelist_cmp;
                 my %filelist_cmp  = map {basename($_)=>1} @filelist_cmp;
                 my @only_in_test  = grep { !$filelist_cmp{basename($_)} } @filelist_test;
-                if($VERBOSE){ print "\t- $test_dir AND $cmp_dir\n"; }
-                ` echo COMPARISON > $test_dir/$BFM_LOG_FILE_COM`;
+                if( ! open COMLOG, ">$test_dir/$BFM_LOG_FILE_COM" ){ print "\tERROR: Problems creating comparison log: $!\n"; $test->setStatcom(Test->fail); return 0;}
+                print COMLOG "COMPARISON:\n";
+                close COMLOG;
                 foreach my $name (keys %filelist_test){
                     my $cmd = "nccmp -dgmf -t 1e-3 $test_dir/$name $cmp_dir/$name";
                     `echo $cmd >>$test_dir/$BFM_LOG_FILE_COM`;
@@ -413,12 +425,12 @@ sub analyze_test{
                     #print Dumper(\%error_vars) . "\n";
                     #check if variables differs (not timestamp)
                     my $count_vars = keys %error_vars;
+                    my @list = keys %error_vars;
                     if( exists $error_vars{timeStamp} ){ $count_vars -= 1; }
                     if( $count_vars == 0 ){ $test->setStatcom(Test->succeed); if($VERBOSE){ print "\t- Comparison OK\n";   } }
-                    else{                   $test->setStatcom(Test->fail);    if($VERBOSE){ print "\t- Comparison FAIL\n"; } }
+                    else{                   $test->setStatcom(Test->fail);    if($VERBOSE){ print "\t- Comparison FAIL. Variables differs: @list\n"; } }
                     #insert results at the end of comparison log
                     if( open(BFMCOMLOG, ">>", "$test_dir/$BFM_LOG_FILE_COM") ){
-                        my @list = keys %error_vars;
                         print BFMCOMLOG "\n\nSUMMARY:\n\t- $count_vars differs: @list \n" . Dumper(\%error_vars) . "\n";
                         close BFMCOMLOG;
                     }else{
@@ -442,45 +454,60 @@ sub analyze_test{
         }
     }
 
-    #check valgring options if valgrind exists
+    #get Valgrind information
     if( $test->getValgrind ){
         if($VERBOSE){ print "\tGetting Valgrind results\n"; }
-        #get the massif output file
-        my $mass_name = "$test_dir/massif.out.*";
-        my $mass_out  = "$test_dir/massif_out";
-        my (@mass_files) = glob("$mass_name");
-        if( $mass_files[0] ){
+
+        #get the massif output
+        if( $test->getValgrind =~ /--tool=massif/ ){
             if($VERBOSE){ print "\t- Getting Massif results\n"; }
-            if($VERBOSE){ print "\t- from file: $mass_files[0]\n"; }
-            `ms_print $mass_files[0] >$mass_out 2>&1`;
-            if( open(MASSLOG, "<", "$mass_out") ){
-                if($VERBOSE){ print "\t- memory summary in file: $mass_out\n"; }
-                # while(<MASSLOG>){ }
-                close(MASSLOG);
-            }
-                
+            my $mass_name = "$test_dir/massif.out.*";
+            my (@mass_files) = glob("$mass_name");
+            if( $mass_files[0] ){
+                if($VERBOSE){ print "\t- memory summary in files: $test_dir/$BFM_LOG_FILE_MEM\n"; }
+                my $cmd = "ms_print $mass_files[0] >>$test_dir/$BFM_LOG_FILE_MEM 2>&1";
+                if( ! open MEMLOG, ">$test_dir/$BFM_LOG_FILE_MEM" ){ print "\tERROR: Problems creating memory log: $!\n"; $test->setStatval(Test->fail); return 0;}
+                print MEMLOG "$cmd\n";
+                `$cmd`;
+                close MEMLOG;
+            }elsif($VERBOSE){ print "\t- Massif FAIL: output not present\n"; }
         }
-        #get the cachegrind output file
-        my $cache_name  = "$test_dir/cachegrind.out.*";
-        my (@cache_files) = glob("$cache_name");
-        #if there is output
-        if( $cache_files[0] ){
+
+        #get the cachegrind output
+        if( $test->getValgrind =~ /--tool=cachegrind/ ){
             if($VERBOSE){ print "\t- Getting Cachegrind results\n"; }
-            if($VERBOSE){ print "\t- from files: @cache_files\n"; }
-            my $cache_merge = "$test_dir/cachegrind_merge";
-            my $cache_out   = "$test_dir/cachegrind_out";
-            #sum all outputs
-            my $cmd_cachemerge = "cg_merge -o $cache_merge " . join(' ',@cache_files) . " >$cache_out 2>&1";
-            `$cmd_cachemerge`;
-            #get the summary
-            `cg_annotate --auto=yes $cache_merge >>$cache_out 2>&1`;
-            #add the output to summary
-            if( open(CACHELOG, "<", "$cache_out") ){
-                if($VERBOSE){ print "\t- cache summary in file: $cache_out\n"; }
-                #while(<CACHELOG>){ }
-                close(CACHELOG);
-            }
+            my $cache_name  = "$test_dir/cachegrind.out.*";
+            my (@cache_files) = glob("$cache_name");
+            #if there is output
+            if( $cache_files[0] ){
+                if($VERBOSE){ print "\t- cache summary in file: $test_dir/$BFM_LOG_FILE_CAC\n"; }
+                my $cache_merge = "$test_dir/cachegrind.merge";
+                my $cmd_cachemerge = "cg_merge -o $cache_merge " . join(' ',@cache_files) . " >>$test_dir/$BFM_LOG_FILE_CAC 2>&1";
+                my $cmd_cacheanno ="cg_annotate --auto=yes $cache_merge >>$test_dir/$BFM_LOG_FILE_CAC 2>&1";
+                #sum all outputs
+                if( ! open CACLOG, ">$test_dir/$BFM_LOG_FILE_CAC" ){ print "\tERROR: Problems creating cache log for merge: $!\n"; $test->setStatval(Test->fail); return 0;}
+                print CACLOG "MERGE:\n$cmd_cachemerge\n";
+                close CACLOG;
+                `$cmd_cachemerge`;
+                #get the summary
+                if( ! open CACLOG, ">>$test_dir/$BFM_LOG_FILE_CAC" ){ print "\tERROR: Problems openning cache log for annotate: $!\n"; $test->setStatval(Test->fail); return 0;}
+                print CACLOG "\n\nANNOTATE:\n$cmd_cacheanno\n";
+                close CACLOG;
+                `$cmd_cacheanno`;
+            }elsif($VERBOSE){ print "\t- Cachegrind FAIL: output not present\n"; }
         }
+
+        #get the memcheck output
+        if( $test->getValgrind =~ /--tool=memcheck/ ){
+            if($VERBOSE){ print "\t- Getting Memcheck results\n"; }
+            my $val_name = "$test_dir/valgrind_*";
+            my (@val_files) = glob("$val_name");
+            if( $val_files[0] ){
+                if($VERBOSE){ print "\t- memory summary in file: @val_files\n"; }
+            }elsif($VERBOSE){ print "\t- Memcheck FAIL: output not present\n"; }
+        }
+
+        $test->setStatval(Test->succeed);
     }
     return 1;
 }

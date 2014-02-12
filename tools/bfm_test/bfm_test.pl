@@ -55,9 +55,6 @@ my (%user);
 sub usage(){
     print "usage: $0 {-p [preset_file] -h -P} [-t [temporal_dir] -o -v]\n\n";
     print "This script generate, execute and analyze configurations for BFM model\n\n";
-    print "INFORMATIVE options:\n";
-    print "\t-P                list presets available\n";
-    print "\t-h                print help message\n";
     print "for running you MUST specify one of these options:\n";
     print "\t-p [preset_file]  test configuration preset\n";
     print "\t-g                Generate preset\n";
@@ -67,6 +64,9 @@ sub usage(){
     print "\t-t [temporal_dir] output dir for temporal files\n";
     print "\t-o                overwrite generated directories\n";
     print "\t-v                verbose mode\n";
+    print "INFORMATIVE options:\n";
+    print "\t-P                list presets available\n";
+    print "\t-h                print help message\n";
     print "\n";
 }
 
@@ -101,7 +101,7 @@ if( ! -d $temp_dir ){
 
 #read configuration file
 if( $verbose ){ print "Reading configuration...\n"; }
-my $lst_test = get_configuration("${CONF_DIR}/${input_preset}/configuration", $BUILD_DIR, $verbose);
+my $lst_test = get_configuration("${CONF_DIR}/${input_preset}", $BUILD_DIR, $verbose);
 if( $verbose ){ Test->printAll($lst_test); }
 
 #for each test

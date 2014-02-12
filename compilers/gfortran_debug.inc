@@ -14,5 +14,5 @@
   ARFLAGS=-r
 
   CPPFLAGS=
-  FFLAGS= -ffpe-trap=invalid,zero,overflow -fbounds-check -fcheck=all -Wall -Wuninitialized -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize ${NCDF_INC}
+  FFLAGS= -ffpe-trap=invalid,zero,overflow -fbounds-check -Wall -Wuninitialized -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize ${NCDF_INC}
   LDFLAGS= ${NCDF_INC} ${NCDF_LIB} 

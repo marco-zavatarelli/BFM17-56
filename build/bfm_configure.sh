@@ -46,8 +46,8 @@ NMLLIST="";
 NEMOSUB="";
 
 #options
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     VALGRIND     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr valgrind_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -126,7 +126,9 @@ DESCRIPTION
        -D EXPDIR
                   Input dir where are files to copy to experiment directory (Default: "${TEMPDIR}/${PRESET}")
        -e EXECMD
-                  Executable command for runscript (Default for NEMO: "${EXE_NEMO}", empty for others)
+                  Executable command to insert in runscript (Default for NEMO: "${EXE_NEMO}", empty for others)
+       -V VALGRIND
+                  Executable valgrind command to insert in runscript
        -r PROC
                   Number of procs used for running (same as compilation). Default: 4
        -q QUEUE
@@ -156,7 +158,7 @@ exec &> ${LOGDIR}/${LOGFILE}.pipe
 rm ${LOGDIR}/${LOGFILE}.pipe
 
 #get user options from commandline
-while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:r:q:o:" opt; do
+while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:V:r:q:o:" opt; do
     case $opt in
       h ) usage;            rm ${LOGDIR}/${LOGFILE}         ; exit             ;;
       v )                   echo "verbose mode"             ; VERBOSE=1        ;;
@@ -176,6 +178,7 @@ while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:r:q:o:" opt; do
       i ) [ ${VERBOSE} ] && echo "forcing files $OPTARG"    ; forcing_usr=$OPTARG  ;;
       D ) [ ${VERBOSE} ] && echo "namelist dir $OPTARG"     ; expdir_usr=$OPTARG   ;;
       e ) [ ${VERBOSE} ] && echo "exe command $OPTARG"      ; execmd_usr=$OPTARG   ;;
+      V ) [ ${VERBOSE} ] && echo "valgrind command $OPTARG" ; valgrind_usr=$OPTARG ;;
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
       q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"       ; queue_usr=$OPTARG    ;;
       o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmexe_usr=$OPTARG   ;;
@@ -521,20 +524,20 @@ if [ ${DEP} ]; then
         echo "WARNING: directory ${exedir} exists (not overwriting namelists)"
     fi
 
-    #Copy executable
+    #Copy executable and insert exe and valgrind commands
     if [[ ${MODE} == "STANDALONE" || "$MODE" == "POM1D" ]]; then
         ln -sf ${BFMDIR}/bin/${BFMEXE} ${exedir}/${BFMEXE}
         if [ "${EXECMD}" ]; then 
-            execmd="${EXECMD} ./${BFMEXE}"
+            execmd="${EXECMD} ${VALGRIND} ./${BFMEXE}"
         else
-            execmd="./${BFMEXE}"
+            execmd="${VALGRIND} ./${BFMEXE}"
         fi
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
         ln -sf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ${exedir}/${NEMOEXE}
         if [ "${EXECMD}" ]; then 
-            execmd="${EXECMD} ./${NEMOEXE}"
+            execmd="${EXECMD} ${VALGRIND} ./${NEMOEXE}"
         else 
-            execmd="${MPICMD} ./${NEMOEXE}"
+            execmd="${MPICMD} ${VALGRIND} ./${NEMOEXE}"
         fi
     fi
 
