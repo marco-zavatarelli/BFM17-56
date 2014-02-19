@@ -234,7 +234,7 @@ contains
 #else
     status = nf90_open(path = fname_proc, mode = NF90_NOWRITE, ncid = ncinid)
 #endif
-    if (status /= NF90_NOERR) call handle_err(status, errstring="opening input file: "//fname_proc)
+    if (status /= NF90_NOERR) call handle_err(status, errstring="opening input file: "//trim(fname_proc))
 
     !$OMP CRITICAL
     status = nf90_inquire(ncinid, nDims, nVars, nGlobalAtts, IDunlimdim)
@@ -243,7 +243,7 @@ contains
     !$OMP CRITICAL
     status = nf90_inquire_dimension(ncinid, IDunlimdim, len = ntime)
     !$OMP END CRITICAL
-    if (status /= NF90_NOERR) call handle_err(status, errstring="inquiring time len in input: "//fname_proc)
+    if (status /= NF90_NOERR) call handle_err(status, errstring="inquiring time len in input: "//trim(fname_proc))
 
     ! read dimensions and build 
     !$OMP CRITICAL
@@ -292,7 +292,7 @@ contains
     !$OMP CRITICAL
     status = nf90_get_var(ncinid, IDvarbtn, bottompoint, start = (/ 1 /), count = (/ dimslen(TYPE_BTN) /))
     !$OMP END CRITICAL
-    if (status /= NF90_NOERR) call handle_err(status,errstring="get var bottompoint in: "//fname_proc)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="get var bottompoint in: "//trim(fname_proc))
 
 
     ! read mask and lat-lon data
@@ -434,7 +434,7 @@ contains
     use mod_bnmerge, ONLY : TYPE_OCE, TYPE_BTN, TYPE_SRF, TYPE_PH
 
     logical           , intent(in)                     :: is_restart
-    character(LEN= NF90_MAX_NAME), intent(in)                     :: fname_proc
+    character(LEN= NF90_MAX_NAME), intent(in)          :: fname_proc
     integer           , intent(in)                     :: ncid, ncinid
     integer           , intent(in), dimension(:)       :: bfmvarid, bfmvartypes, bfmvartargets
     integer           , intent(in)                     :: ID3dvars, ID2dbenvars, ID2dicevars, num_var
@@ -468,7 +468,6 @@ contains
     ! nthread = omp_get_thread_num()
     ! WRITE(*,*) ' - OMP Vars: thread: ', nthread, ' var: ', num_var
 
-    allocate(chunk(MAX(dimslen(TYPE_OCE), dimslen(TYPE_BTN), dimslen(TYPE_SRF)),ntime))
     ! allocate local 3D and 2D variables
     allocate(bfmvar3d(jpi,jpj,jpkglo,ntime))
     allocate(bfmvar2d(jpi,jpj,ntime))
@@ -477,6 +476,7 @@ contains
     select case(bfmvartypes(num_var))
     case(TYPE_OCE)
        dimname="oceanpoint"
+       allocate(chunk(dimslen(TYPE_OCE),ntime))
        if( is_restart ) then
           IDvar = ID3dvars
           step_start_arr2 = (/ bfmvarid(num_var), 1           /)
@@ -488,6 +488,7 @@ contains
        endif
     case(TYPE_BTN)
        dimname="bottompoint"
+       allocate(chunk(dimslen(TYPE_BTN),ntime))
        if( is_restart ) then
           IDvar = ID2dbenvars
           step_start_arr2 = (/ bfmvarid(num_var), 1           /)
@@ -501,6 +502,7 @@ contains
        bottompoint = bottompoint_src
     case(TYPE_SRF)
        dimname="surfacepoint"
+       allocate(chunk(dimslen(TYPE_SRF),ntime))
        if( is_restart ) then
           IDvar = ID2dicevars
           step_start_arr2 = (/ bfmvarid(num_var), 1           /)
@@ -512,6 +514,7 @@ contains
        endif
     case(TYPE_PH)
        dimname="oceanpoint"
+       allocate(chunk(dimslen(TYPE_OCE),ntime))
        IDvar = bfmvarid(num_var)
        step_start_arr2 = (/ 1                , 1     /)
        step_count_arr2 = (/ dimslen(TYPE_OCE), ntime /)
@@ -520,12 +523,12 @@ contains
     !$OMP CRITICAL
     status = nf90_get_var(ncinid, IDvar, chunk, start = step_start_arr2, count = step_count_arr2 )
     !$OMP END CRITICAL
-    if (status /= NF90_NOERR) call handle_err(status,errstring="Get variable in "//fname_proc)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="Get variable in "//trim(fname_proc))
 #ifdef DEBUG
     !$OMP CRITICAL
     call handle_err(nf90_inquire_variable(ncid, bfmvartargets(num_var), name=varname),errstring="Getting name")
     !$OMP END CRITICAL
-    write(*,'(A,i3)') "Writing variable : "//trim(varname)//", Proc: "//fname_proc//", ID: ",bfmvartargets(num_var)
+    write(*,'(A,i3)') "Writing variable : "//trim(varname)//", Proc: "//trim(fname_proc)//", ID: ",bfmvartargets(num_var)
 #endif
 
     iniI = 2
@@ -571,7 +574,7 @@ contains
        !$OMP END CRITICAL
        if (status /= NF90_NOERR) call handle_err(status,errstring="Put 3D domain")
 #ifdef DEBUG
-       write(*,'(A,i3,i3,i3,i6)') "3D var "//trim(varname)//", Proc: "//fname_proc//", Dims: ",jpi, jpj, jpkglo, ntime
+       write(*,'(A,i3,i3,i3,i6)') "3D var "//trim(varname)//", Proc: "//trim(fname_proc)//", Dims: ",jpi, jpj, jpkglo, ntime
 #endif
     case ("surfacepoint")  ! 2D variable
        bfmvar2d=NF90_FILL_DOUBLE
@@ -595,7 +598,7 @@ contains
        !$OMP END CRITICAL
        if (status /= NF90_NOERR) call handle_err(status,errstring="Put 2D domain")
 #ifdef DEBUG
-       write(*,'(A,i3,i3,i6)') "2D Surface var "//trim(varname)//", Proc: "//fname_proc//", Dims: ",jpi, jpj, ntime
+       write(*,'(A,i3,i3,i6)') "2D Surface var "//trim(varname)//", Proc: "//trim(fname_proc)//", Dims: ",jpi, jpj, ntime
 #endif
     case ("bottompoint")   ! 2D variable from the bottom
 
@@ -639,7 +642,7 @@ contains
        !$OMP END CRITICAL
        if (status /= NF90_NOERR) call handle_err(status,errstring="Put 2D domain")
 #ifdef DEBUG
-       write(*,'(A,i3,i3,i6)') "2D Bottom var "//trim(varname)//", Proc: "//fname_proc//", Dims: ",jpi, jpj, ntime
+       write(*,'(A,i3,i3,i6)') "2D Bottom var "//trim(varname)//", Proc: "//trim(fname_proc)//", Dims: ",jpi, jpj, ntime
 #endif
     end select
 
