@@ -47,9 +47,9 @@
    bfm_init     = 0
    bfm_rstctl   = .FALSE.
    bio_setup    = 1
-   out_fname    = 'PELAGOS2'
+   out_fname    = 'PELAGOS'
    out_dir      = '.'
-   out_title    = 'PELAGOS2'
+   out_title    = 'PELAGOS'
    out_delta    = -1
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
@@ -954,7 +954,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
-   chunk_fname='PELAGOS2'
+   chunk_fname='PELAGOS'
    bfm_restart=''
    inp_dir='./'
    out_dir='./'
