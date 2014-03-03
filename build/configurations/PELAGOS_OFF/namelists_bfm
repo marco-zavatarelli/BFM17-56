@@ -47,9 +47,9 @@
    bfm_init     = 0
    bfm_rstctl   = .FALSE.
    bio_setup    = 1
-   out_fname    = 'PELAGOS2'
+   out_fname    = 'PELAGOS_OFF'
    out_dir      = '.'
-   out_title    = 'PELAGOS2'
+   out_title    = 'PELAGOS_OFF'
    out_delta    = -1
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
@@ -800,8 +800,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   ln_trcadv_qck      QUICKEST scheme
 !-------------------------------------------------------------------------!
 &namtrc_adv    
-   ln_trcadv_tvd    =  .false.
-   ln_trcadv_muscl  =  .true.
+   ln_trcadv_tvd     =  .false.  !  TVD scheme
+   ln_trcadv_muscl   =  .true.   !  MUSCL scheme
         filename_nml_conf = 'namelist_top_cfg',
 /
 
@@ -887,21 +887,17 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   and the conversion factor rn_trfac(VARNAME)
 !-------------------------------------------------------------------------!
 &namtrc_dta      
-   sn_trcdta(O2o)  = 'data_1m_O2_nomask'      ,        -12        ,  'O2'      ,    .false.   , .true. , 'yearly'  , '', '', ''
-   sn_trcdta(N1p)  = 'phos_WOA01_1y_orca2_nomask.nc',  -1         ,  'PO4'     ,    .false.   , .true. , 'yearly'  , '', '', ''
-   sn_trcdta(N3n)  = 'nitr_WOA01_1y_orca2_nomask.nc',  -1         ,  'NO3'     ,    .false.   , .true. , 'yearly'  , '', '', ''
-   sn_trcdta(N5s)  = 'sili_WOA01_1y_orca2_nomask.nc',  -1         ,  'Si'      ,    .false.   , .true. , 'yearly'  , '', '', ''
-   sn_trcdta(N7f)  = 'smooth_zonal_Fe_nomask.nc',      -12        ,  'Fe'      ,    .false.   , .true. , 'yearly'  , '', '', ''
-   sn_trcdta(R1c) = 'data_1m_DOC_nomask'     ,        -12        ,  'DOC'     ,    .false.   , .true. , 'yearly'  , '' , '', ''
-   sn_trcdta(O3c) = 'data_1m_DIC_nomask'     ,        -12        ,  'DIC'     ,    .false.   , .true. , 'yearly'  , '' , '', ''
-   sn_trcdta(O3h) = 'data_1m_Alkalini_nomask',        -12        ,  'Alkalini',    .false.   , .true. , 'yearly'  , '' , '', ''
+   sn_trcdta(N1p)  = 'phos_WOA01_1y_orca2_nomask.nc',  -12        ,  'PO4'     ,    .false.   , .true. , 'yearly'  , ''       , '', ''
+   sn_trcdta(N3n)  = 'nitr_WOA01_1y_orca2_nomask.nc',  -12        ,  'NO3'     ,    .false.   , .true. , 'yearly'  , ''       , '', ''
+   sn_trcdta(N5s)  = 'sili_WOA01_1y_orca2_nomask.nc',  -12        ,  'Si'      ,    .false.   , .true. , 'yearly'  , ''       , '', ''
+   sn_trcdta(N7f)  = 'smooth_zonal_Fe_nomask.nc',      -12        ,  'Fe'      ,    .false.   , .true. , 'yearly'  , ''       , '', ''
+   sn_trcdta(O3c) = 'data_1m_DIC_nomask'     ,         -12        ,  'DIC'     ,    .false.   , .true. , 'yearly'  , ''       , '', ''
+   sn_trcdta(O3h) = 'data_1m_Alkalini_nomask',         -12        ,  'Alkalini',    .false.   , .true. , 'yearly'  , ''       , '', ''
    cn_dir        =  './'      !  root directory for the location of the data files
-   rn_trfac(O2o)   =   22.4  !  conversion factor from ml/l to mmol m3 (1 mol O2 = 22.4 l)
    rn_trfac(N1p)   =   1.0   !  no conversion
    rn_trfac(N3n)   =   1.0   !  no conversion
    rn_trfac(N5s)   =   1.0   !  no conversion
    rn_trfac(N7f)   =   1.0   !  no conversion
-   rn_trfac(R1c)  =  12.e6  !  conversion factor from mol/l to mg/m3
    rn_trfac(O3c)  =  12.0   !  conversion factor from umol/l to mg/m3
    rn_trfac(O3h)  =   1.0   !  no conversion
         filename_nml_conf = 'namelist_top_cfg',
@@ -918,8 +914,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 !              !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing  | mask
 !-----------------------------------------------------------------------
 &namtrc_bc
-   sn_trcsbc(N3n)  = 'ndeposition.orca',        -1      ,  'ndep'      ,  .false.  , .true.  , 'yearly'   , '', '', ''
-   sn_trcsbc(N7f)  = 'fe_deposition_tegen_fung_murray_nomask',       -12      ,  'fedep'      ,  .false.  , .true.  , 'yearly', '', '', ''
+   sn_trcsbc(N3n)  = 'ndeposition.orca',        -1      ,  'ndep'      ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
+   sn_trcsbc(N7f)  = 'fe_deposition_tegen_fung_murray_nomask',       -12      ,  'fedep'      ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
    rn_trsfac(N3n)  = 1.0
    rn_trsfac(N7f)  =  5.0e-03        ! umol/m2/day, dissolution fraction 5o/oo
    sn_trccbc(N1p)  = 'river' ,       -12      ,  'RIVERPHOS'  ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
@@ -954,7 +950,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 !
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
-   chunk_fname='PELAGOS2'
+   chunk_fname='PELAGOS_OFF'
    bfm_restart=''
    inp_dir='./'
    out_dir='./'

@@ -7,8 +7,7 @@
 #BSUB -P nemo
 #BSUB -q _QUEUE_    # queue
 #BSUB -n _PROC_            # Number of CPUs
-##BSUB -x 
-###BSUB -R "span[ptile=32]"
+#BSUB -R "span[ptile=16]"
 
 VERBOSE=_VERBOSE_
 if [ $VERBOSE ]; then set -exv; fi

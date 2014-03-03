@@ -1,0 +1,2 @@
+bld::tool::fppkeys key_trabbl key_ldfslp key_traldf_c2d key_traldf_eiv key_top key_offline key_my_trc key_mpp_mpi key_nosignedzero
+inc $BFMDIR/src/nemo/bfm.fcm

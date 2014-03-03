@@ -6,13 +6,15 @@
 &namrun        !   parameters of the run
 !-----------------------------------------------------------------------
    nn_it000    =       1   !  first time step
-   nn_itend    =    100    !  last  time step (std 5475)
-   nn_write    =     10    !  frequency of write in the output file   (modulo referenced to nn_it000)
+   nn_itend    =    5475   !  last  time step (std 5475)
+   nn_write    =     15    !  frequency of write in the output file   (modulo referenced to nn_it000)
+   cn_exp      =  "PELAGOS2"  !  experience name
+   nn_date0    =  20000101 !  date at nit_0000 (format yyyymmdd) used if ln_rstart=F or (ln_rstart=T and nn_rstctl=0 or 1)
 /
 !-----------------------------------------------------------------------
 &namcfg        !   parameters of the configuration
 !-----------------------------------------------------------------------
-   cp_cfg      =  "orca"               !  name of the configuration
+   cp_cfg      =  "pelagos"               !  name of the configuration
    jp_cfg      =       2               !  resolution of the configuration
    jpidta      =     182               !  1st lateral dimension ( >= jpi )
    jpjdta      =     149               !  2nd    "         "    ( >= jpj )
@@ -48,6 +50,8 @@
    ppa2        =  999999.              !  Double tanh function parameters
    ppkth2      =  999999.              !
    ppacr2      =  999999.              !
+   rn_rdt      = 5760.                 !  time step for the dynamics (and tracer if nn_acc=0)
+   nn_msh      =    1                  !  create (=1) a mesh file or not (=0)
 /
 !-----------------------------------------------------------------------
 &namcrs        !   Grid coarsening for dynamics output and/or
@@ -151,6 +155,7 @@
 !-----------------------------------------------------------------------
 &namtra_dmp    !   tracer: T & S newtonian damping
 !-----------------------------------------------------------------------
+   ln_tradmp   =  .false.   !  add a damping termn (T) or not (F)
 /
 !-----------------------------------------------------------------------
 &namdyn_adv    !   formulation of the momentum advection
@@ -191,9 +196,9 @@
 !-----------------------------------------------------------------------
 &nammpp        !   Massively Parallel Processing                        ("key_mpp_mpi)
 !-----------------------------------------------------------------------
-   jpni        =   15       !  jpni   number of processors following i (set automatically if < 1)
-   jpnj        =   10       !  jpnj   number of processors following j (set automatically if < 1)
-   jpnij       =   128       !  jpnij  number of local domains (set automatically if < 1)
+   jpni        =   0       !  jpni   number of processors following i (set automatically if < 1)
+   jpnj        =   0       !  jpnj   number of processors following j (set automatically if < 1)
+   jpnij       =   0       !  jpnij  number of local domains (set automatically if < 1)
 /
 !-----------------------------------------------------------------------
 &namctl        !   Control prints & Benchmark
