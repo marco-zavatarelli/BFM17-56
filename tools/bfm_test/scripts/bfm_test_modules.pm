@@ -292,12 +292,14 @@ sub analyze_test{
             close TIMESTEP;
             if($VERBOSE){ print "\t- from file: $test_dir/time.step: $out_1\n"; }
         }
-        if( open(NAMELIST, "<", "$test_dir/namelist_cfg") ){
+        my $file_name = "$test_dir/namelist_cfg";
+        if( -e "$test_dir/namelist" ){ $file_name = "$test_dir/namelist" } # in NEMO 3.4 this is the name of the namelist
+        if( open(NAMELIST, "<", "$file_name") ){
             while(<NAMELIST>){ 
                 if( $_ =~ /\s*nn_itend\s*=\s*(\d+)\s*/ ){ $out_2 = $1; } 
             }
             close NAMELIST;
-            if($VERBOSE){ print "\t- from file: $test_dir/namelist_cfg: $out_2\n"; }
+            if($VERBOSE){ print "\t- from file: $file_name: $out_2\n"; }
         }
         if( $out_1 == $out_2){ $test->setStatana(Test->succeed); }
         else{ $test->setStatana(Test->fail); }
@@ -342,14 +344,14 @@ sub analyze_test{
     #get timming information
     if($VERBOSE){ print "\tGetting timming information\n"; }
     if( $test->getRun() eq 'bsub' ){ # is a batch job
-        #get the output file
-        my $out_name = "$test_dir/" . $test->getPreset() . "*" . ".out";
-        my (@out_files) = glob("$out_name");
-        if( $out_files[0] &&  open(JOBEXELOG, "<", "$out_files[0]") ){
-            if($VERBOSE){ print "\t- from file: $out_files[0]\n"; }
+        #get the output err file
+        my $err_name = "$test_dir/" . $test->getPreset() . "*" . ".err";
+        my (@err_files) = glob("$err_name");
+        if( $err_files[0] &&  open(JOBEXELOG, "<", "$err_files[0]") ){
+            if($VERBOSE){ print "\t- from file: $err_files[0]\n"; }
             #get timming information
             while(<JOBEXELOG>){
-                if( $_ =~ /\s+CPU time\s+:\s+(.+)/ ) { $test->setTimming($1); }
+                if( $_ =~ /^real\s+(.+)/ ) { $test->setTimming($1); }
             }
             close(JOBEXELOG);
         }
@@ -376,14 +378,41 @@ sub analyze_test{
         #check if command exists
         my $out_cmp = `nccmp -V 2>&1`;
         if( $out_cmp =~ /nccmp \d.\d.\d/){
-            #get all the files ".nc" in the input  dir
-            my @filelist_test = glob("$test_dir/*.nc");
-            #get all the files ".nc" in the compare dir
-            my @filelist_cmp  = glob("$cmp_dir/*.nc");
-            #check if are the same
-            if( $#filelist_test != $#filelist_cmp ){
+            my @filelist_test = ();
+            my @filelist_cmp  = ();
+            my $num_proc = $test->getProc();
+
+            #get all outptut files from BFM in the input dir
+            if( open(NAMELIST, "<", "$test_dir/BFM_General.nml") ){
+                my $out_bfm = '';
+                while(<NAMELIST>){ 
+                    if( $_ =~ /\s*out_fname\s*=\s*\"*\'*(\w+)\"*\'*\s*/ ){ $out_bfm = $1; }
+                }
+                close NAMELIST;
+                if( $out_bfm ){
+                    if($VERBOSE){ print "\t- from file: $test_dir/BFM_General.nml: $out_bfm\n"; }
+                    my @temp_list = glob( "$test_dir/${out_bfm}_*.nc" );
+                    foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}_\d+.nc/ ) {push( @filelist_test, $file ); } }
+                }
+            }
+            #get all outptut files from BFM in the compare dir
+            if( open(NAMELIST, "<", "$cmp_dir/BFM_General.nml") ){
+                my $out_bfm = '';
+                while(<NAMELIST>){ 
+                    if( $_ =~ /\s*out_fname\s*=\s*\"*\'*(\w+)\"*\'*\s*/ ){ $out_bfm = $1; }
+                }
+                close NAMELIST;
+                if( $out_bfm ){
+                    if($VERBOSE){ print "\t- from file: $cmp_dir/BFM_General.nml: $out_bfm\n"; }
+                    my @temp_list = glob( "$cmp_dir/${out_bfm}_*.nc" );
+                    foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}_\d+.nc/ ) {push( @filelist_cmp, $file ); } }
+                }
+            }
+
+            #check if are the same or not null
+            if( ($#filelist_test != $#filelist_cmp) || $#filelist_test < 1 || $#filelist_cmp < 1 ){
                 if($VERBOSE){ 
-                    print "\tWARNING in ". $test->getName() . ": Comparison impossible, not same number of NETCDF files: $#filelist_test <> $#filelist_cmp.\n";
+                    print "\tWARNING in ". $test->getName() . ": Comparison impossible, not same or null number of NETCDF files: $#filelist_test <> $#filelist_cmp.\n";
                 }
                 $test->setStatcom(Test->fail);
             }else{
