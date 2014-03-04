@@ -46,8 +46,8 @@ NMLLIST="";
 NEMOSUB="";
 
 #options
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     PROC     EXP     EXPDIR     EXECMD     VALGRIND     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr proc_usr exp_usr expdir_usr execmd_usr valgrind_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     EXP     EXPDIR     EXECMD     VALGRIND     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr exp_usr expdir_usr execmd_usr valgrind_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
@@ -58,7 +58,8 @@ MODE="STANDALONE"
 CPPDEFS="BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG"
 PRESET="STANDALONE_PELAGIC"
 ARCH="gfortran.inc"
-PROC=4
+PROC=8
+PROC_CMP=8
 EXP="EXP00"
 QUEUE="poe_short"
 BFMEXE="bfm_standalone.x"
@@ -109,8 +110,6 @@ DESCRIPTION
                   Specify compilation Architecture file (Default: "gfortran.inc")
                   - For STANDALONE mode available archs, list dir : BFMDIR/compilers
                   - For NEMO mode available archs, execute command: NEMODIR/NEMOGCM/CONFIG/makenemo -h all
-       -r PROC
-                  Number of procs used for compilation. Default: 4
        -f
                   Fast mode. Dont execute "clean" command in compilation (clean is activated by default)
        -o BFMEXE OUTPUT
@@ -130,7 +129,7 @@ DESCRIPTION
        -V VALGRIND
                   Executable valgrind command to insert in runscript
        -r PROC
-                  Number of procs used for running (same as compilation). Default: 4
+                  Number of procs used for running. Default: 8
        -q QUEUE
                   Name of the queue number of procs used for running. Default
 
@@ -452,11 +451,11 @@ if [ ${CMP} ]; then
         [ ${VERBOSE} ] && echo "Starting ${PRESET} compilation..."
         rm -rf ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE}
         if [[ "$MODE" == "NEMO" ]]; then 
-            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}"
-            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC}
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC_CMP}"
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e ${BFMDIR}/src/nemo -j ${PROC_CMP}
         else
-            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e \"${BFMDIR}/src/nemo;${NEMODIR}/3DVAR\" -j ${PROC}"
-            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC}
+            [ ${VERBOSE} ] && echo "Command: ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e \"${BFMDIR}/src/nemo;${NEMODIR}/3DVAR\" -j ${PROC_CMP}"
+            ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -n ${PRESET} -m ${ARCH} -e "${BFMDIR}/src/nemo;${NEMODIR}/3DVAR" -j ${PROC_CMP}
         fi
         if [ ! -f ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/BLD/bin/${NEMOEXE} ]; then 
             echo "ERROR in ${PRESET} compilation!" ; 
