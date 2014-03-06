@@ -175,7 +175,7 @@ END MODULE init_var_bfm_local
    ! data. The namelist values override the
    ! assignment
    !---------------------------------------------
-   InitVar = InputInfo(0,"dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO,.FALSE.,.FALSE.,.FALSE.)
+   InitVar = InputInfo(0, ZERO, "dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO,.FALSE.,.FALSE.,.FALSE.)
 
    !---------------------------------------------
    ! Open and read the namelist

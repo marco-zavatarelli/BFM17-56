@@ -36,7 +36,7 @@
    use mem_CO2,    only: AtmCO2 
 #endif
    use global_mem, only: RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
-                         error_msg_prn,ONE
+                         error_msg_prn,ONE, bfm_lwp
    use constants,  only: SEC_PER_DAY
    use api_bfm, only: ZEROS, SEAmask, BOTmask, SRFmask, &
         btmp1D, rtmp3Da, rtmp3Db, &
@@ -300,16 +300,17 @@
       ! initialize the data structure for input fields
       ! found in the top_namelist
       call trc_dta_init(NO_D3_BOX_STATES)
-      if (lwp) then
-         write(numout,*)
-         write(numout,*) '           ---- BFM Initialization ----             '
-         write(numout,*)
+      if (bfm_lwp) then
+         write(LOGUNIT,*)
+         write(LOGUNIT,*) '           ---- BFM Initialization ----             '
+         write(LOGUNIT,*)
+         write(LOGUNIT,157) 'Init', 'Unif', 'Filename    ', 'Var', 'Anal. Z1', 'Anal. V1', 'Anal. Z2', 'Anal. V2', 'OBC', 'SBC', 'CBC'
       endif
       do m = 1,NO_D3_BOX_STATES
-         if (lwp) write(numout,*) 'BFM variable ',trim(var_names(stPelStateS+m-1)),' is initialized with:'
          select case (InitVar(m) % init)
+         case (0) 
+            InitVar(m)%unif = D3STATE(m,1)
          case (1) ! Analytical profile
-            if (lwp) write(numout,*) '--> Analytical profile' 
             rtmp3Da = ZERO
             ! fsdept contains the model depth
             do j = 1,jpj
@@ -320,19 +321,20 @@
             end do
             D3STATE(m,:)  = pack(rtmp3Da,SEAmask)
          case (2) ! from file
-            if (lwp) write(numout,*) '--> Data file' 
             ! mapping index
             ll = n_trc_index(m)
             call trc_dta(nit000,sf_trcdta(ll),rf_trfac(ll))
             D3STATE(m,:)  = pack(sf_trcdta(ll)%fnow(:,:,:),SEAmask)
-         case default 
-            if (bfm_init==0) then
-               if (lwp) write(numout,*) '--> Constant homogeneous value' 
-            else
-               if (lwp) write(numout,*) '--> Restart data file' 
-            end if
+            InitVar(m)%filename=sf_trcdta(ll)%clname
          end select
+         Initvar(m)%varname=var_names(m)
+         if (bfm_lwp) write(LOGUNIT, 158) InitVar(m)
       end do
+   end if
+   if (bfm_lwp) then 
+      write(LOGUNIT, *) 
+      write(LOGUNIT, *) '           ---- End BFM Initialization ----             '
+      write(LOGUNIT, *) 
    end if
 
    deallocate(rtmp3Da)
@@ -457,6 +459,8 @@
 
    return
 
+157 FORMAT(a4, 1x, a10  , 1x, a25, 1x, a3, 1x, a10  , 1x, a10  , 1x, a10  , 1x, a10  , 3x, a3, 3x, a3, 3x, a3)
+158 FORMAT(i4, 1x, E10.3, 1x, a25, 1x, a3, 1x, E10.3, 1x, E10.3, 1x, E10.3, 1x, E10.3, 3x, L3, 3x, L3, 3x, L3)
    end subroutine trc_ini_bfm
 !EOC
 
