@@ -41,7 +41,6 @@ my $BASE_DIR   = "${BFMDIR}/tools/bfm_test";
 my $CONF_DIR   = "${BASE_DIR}/configurations";
 my $BFM_EXE    = "bfm_configure.sh";
 #Default values
-my ($generation, $execution, $analysis) = 0;
 my $temp_dir  = "$BASE_DIR/tmp";
 my $list      = 0;
 my $overwrite = 0;
@@ -54,16 +53,13 @@ my (%user);
 
 sub usage(){
     print "usage: $0 {-p [preset_file] -h -P} [-t [temporal_dir] -o -v]\n\n";
-    print "This script generate, execute and analyze configurations for BFM model\n\n";
-    print "for running you MUST specify one of these options:\n";
+    print "This script generate, run and analyze configurations for BFM model\n\n";
+    print "MUST specify the preset name for execution:\n";
     print "\t-p [preset_file]  test configuration preset\n";
-    print "\t-g                Generate preset\n";
-    print "\t-x                Execute preset\n";
-    print "\t-a                Analyze preset\n";
     print "ALTERNATIVE options are:\n";
-    print "\t-t [temporal_dir] output dir for temporal files\n";
     print "\t-o                overwrite generated directories\n";
     print "\t-v                verbose mode\n";
+    print "\t-t [temporal_dir] output dir for temporal files\n";
     print "INFORMATIVE options:\n";
     print "\t-P                list presets available\n";
     print "\t-h                print help message\n";
@@ -74,12 +70,9 @@ sub usage(){
 use Getopt::Long qw(:config bundling noignorecase); # for getopts compat
 GetOptions(
     'p=s'  => \$input_preset,
-    'g'    => \$generation,
-    'x'    => \$execution,
-    'a'    => \$analysis,
-    't=s'  => \$temp_dir,
     'o'    => \$overwrite,
     'v'    => \$verbose,
+    't=s'  => \$temp_dir,
     'P'    => \$list,
     'h'    => \$help,
     ) or &usage() && exit;
@@ -91,7 +84,7 @@ if ( $list ){ # list dirs inside bfm configuration
     exit;
 }
 if ( $help ){ &usage(); exit; }
-if ( !$input_preset || !($generation || $execution || $analysis) ){ &usage(); exit; }
+if ( !$input_preset ){ &usage(); exit; }
 
 #create dirs
 if( ! -d $temp_dir ){ 
@@ -101,25 +94,25 @@ if( ! -d $temp_dir ){
 
 #read configuration file
 if( $verbose ){ print "Reading configuration...\n"; }
-my $lst_test = get_configuration("${CONF_DIR}/${input_preset}", $BUILD_DIR, $verbose);
+my $lst_test = get_configuration("${CONF_DIR}", "${input_preset}", $BUILD_DIR, $verbose);
 if( $verbose ){ Test->printAll($lst_test); }
 
 #for each test
 foreach my $test (@$lst_test){
-    if( $test->getActive() eq 'Y' ){
+    if( $test->getActive() ne 'N' ){
         if($verbose){ print "----------\n"; }
         #generate
-        if( $generation ){
+        if( $test->getActive() =~ '[Y|G]' ){
             if($verbose){ print "Generating " . $test->getName() . "\n"; }
             if( !generate_test($BUILD_DIR, $BFM_EXE, $overwrite, $temp_dir, $test) ){ next; }
         }
-        #execute
-        if( $execution ){
-            if($verbose){ print "Executing " . $test->getName() . "\n"; }
-            if( !execute_test($temp_dir, $test) ){ next; }
+        #run
+        if( $test->getActive() =~ '[Y|R]' ){
+            if($verbose){ print "Running " . $test->getName() . "\n"; }
+            if( !run_test($temp_dir, $test) ){ next; }
         }
         #analyze
-        if( $analysis ){
+        if( $test->getActive()  =~ '[Y|A]' ){
             if($verbose){ print "Analyzing " . $test->getName() . "\n"; }
             if( !analyze_test($temp_dir, $test) ){ next; }
         }

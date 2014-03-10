@@ -34,12 +34,13 @@ my $DEF_EXE_STD   = 'bfm_standalone.x';
 my $DEF_EXE_NEMO  = 'nemo.exe';
 my $DEF_ACTIVE    = 'Y';
 my $DEF_TIMMING   = '?';
+my $DEF_COMPTHR   = '1e-3';
 
 # order is important in options, has to follow same order as used in "new"
-my @OPTIONS= ('ACTIVE', 'PRESET', 'ARCH', 'RUN', 'MODE', 'EXE', 'QUEUE', 'FORCING', 'VALGRIND', 'PRECMD', 'COMPARE', 'PROC', 'PAREXE' );
+my @OPTIONS= ('ACTIVE', 'PRESET', 'COPY', 'ARCH', 'RUN', 'MODE', 'EXE', 'QUEUE', 'FORCING', 'VALGRIND', 'PRECMD', 'PRERUN', 'COMPARE', 'COMPTHR', 'PROC', 'PAREXE' );
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
 
-#output codes for compilation and execution
+#output codes for compilation, running and analysis
 my ($FAIL, $SUCCEED, $NOT_EXE) = ('FAIL', 'SUCCEED', 'NOT_EXE');
 sub is_fail   { my ( $self, $value ) = @_; if( $value eq $FAIL)   { return 1; }else{ return 0; } }
 sub is_succeed{ my ( $self, $value ) = @_; if( $value eq $SUCCEED){ return 1; }else{ return 0; } }
@@ -56,6 +57,7 @@ sub new{
        _name     => shift,
        _active   => shift,
        _preset   => shift,
+       _copy     => shift,
        _arch     => shift,
        _run      => shift,
        _mode     => shift,
@@ -64,7 +66,9 @@ sub new{
        _forcing  => shift,
        _valgrind => shift,
        _precmd   => shift,
+       _prerun   => shift,
        _compare  => shift,
+       _compthr  => shift,
        _proc     => shift,
        _parexe   => shift,
        _statcmp  => $NOT_EXE,
@@ -82,6 +86,7 @@ sub DESTROY{}
 sub getName    { my( $self ) = @_; return $self->{_name};   }
 sub getActive  { my( $self ) = @_; if($self->{_active}){return $self->{_active};}else{ return $DEF_ACTIVE;} }
 sub getPreset  { my( $self ) = @_; return $self->{_preset}; }
+sub getCopy    { my( $self ) = @_; return $self->{_copy};   }
 sub getArch    { my( $self ) = @_; return $self->{_arch};   }
 sub getRun     { my( $self ) = @_; if($self->{_run}) {return $self->{_run}; }else{ return $DEF_RUN; } }
 sub getMode    { my( $self ) = @_; if($self->{_mode}){return $self->{_mode};}else{ return $DEF_MODE;} }
@@ -89,7 +94,7 @@ sub getExe     {
     my( $self ) = @_; 
     if( $self->{_exe} ){
         return $self->{_exe};
-    }elsif( $self->{_mode} =~ m/$DEF_MODE_NEMO/ ){
+    }elsif( $self->getMode() =~ m/$DEF_MODE_NEMO/ ){
         return $DEF_EXE_NEMO;
     }else{
         return $DEF_EXE_STD;
@@ -99,12 +104,14 @@ sub getQueue   { my( $self ) = @_; return $self->{_queue};    }
 sub getForcing { my( $self ) = @_; return $self->{_forcing};  }
 sub getValgrind{ my( $self ) = @_; return $self->{_valgrind}; }
 sub getPrecmd  { my( $self ) = @_; return $self->{_precmd};   }
+sub getPrerun  { my( $self ) = @_; return $self->{_prerun};   }
 sub getCompare { my( $self ) = @_; return $self->{_compare};  }
+sub getCompthr { my( $self ) = @_; if($self->{_compthr}) {return $self->{_compthr}; }else{ return $DEF_COMPTHR; } }
 sub getProc    { my( $self ) = @_; return $self->{_proc};     }
 sub getParexe  { 
     my( $self ) = @_; 
-    if( $self->{_parexe} =~ /\$PROC|\$\{PROC\}/ && $self->{_proc} ){
-        my $proc = $self->{_proc};
+    if( $self->{_parexe} =~ /\$PROC|\$\{PROC\}/ && $self->getProc() ){
+        my $proc = $self->getProc();
         $self->{_parexe} =~ s/\$PROC|\$\{PROC\}/$proc/;
         return $self->{_parexe};
     }else{ 
@@ -122,6 +129,7 @@ sub getTimming { my( $self ) = @_; return $self->{_timming};  }
 sub setName    { my ( $self, $name      ) = @_; $self->{_name}     = $name     if defined($name);     }
 sub setActive  { my ( $self, $active    ) = @_; $self->{_active}   = $active   if defined($active);   }
 sub setPreset  { my ( $self, $preset    ) = @_; $self->{_preset}   = $preset   if defined($preset);   }
+sub setCopy    { my ( $self, $copy      ) = @_; $self->{_copy}     = $copy     if defined($copy);     }
 sub setArch    { my ( $self, $arch      ) = @_; $self->{_arch}     = $arch     if defined($arch);     }
 sub setRun     { my ( $self, $run       ) = @_; $self->{_run}      = $run      if defined($run);      }
 sub setMode    { my ( $self, $mode      ) = @_; $self->{_mode}     = $mode     if defined($mode);     }
@@ -130,7 +138,9 @@ sub setQueue   { my ( $self, $queue     ) = @_; $self->{_queue}    = $queue    i
 sub setForcing { my ( $self, $forcing   ) = @_; $self->{_forcing}  = $forcing  if defined($forcing);  }
 sub setValgrind{ my ( $self, $valgrind  ) = @_; $self->{_valgrind} = $valgrind if defined($valgrind); }
 sub setPrecmd  { my ( $self, $precmd    ) = @_; $self->{_precmd}   = $precmd   if defined($precmd);   }
+sub setPrerun  { my ( $self, $prerun    ) = @_; $self->{_prerun}   = $prerun   if defined($prerun);   }
 sub setCompare { my ( $self, $compare   ) = @_; $self->{_compare}  = $compare  if defined($compare);  }
+sub setCompthr { my ( $self, $compthr   ) = @_; $self->{_compthr}  = $compthr  if defined($compthr);  }
 sub setProc    { my ( $self, $proc      ) = @_; $self->{_proc}     = $proc     if defined($proc);     }
 sub setParexe  { my ( $self, $parexe    ) = @_; $self->{_parexe}   = $parexe   if defined($parexe);   }
 sub setStatcmp { my ( $self, $statcmp   ) = @_; $self->{_statcmp}  = $statcmp  if defined($statcmp);  }
@@ -143,26 +153,29 @@ sub setTimming { my ( $self, $timming   ) = @_; $self->{_timming}  = $timming  i
 #PRINT functions
 sub print{
     my ( $self ) = @_;
-    if($self->{_name})     { print "\tTest:     " . $self->getName()       . "\n"; }
-    if($self->{_active})   { print "\tActive:   " . $self->getActive()     . "\n"; }
-    if($self->{_preset})   { print "\tPreset:   " . $self->getPreset()     . "\n"; }
-    if($self->{_arch})     { print "\tArch:     " . $self->getArch()       . "\n"; }
-    if($self->{_run})      { print "\tRun:      " . $self->getRun()        . "\n"; }
-    if($self->{_exe})      { print "\tExe:      " . $self->getExe()        . "\n"; }
-    if($self->{_mode})     { print "\tMode:     " . $self->getMode()       . "\n"; }
-    if($self->{_queue})    { print "\tQueue:    " . $self->getQueue()      . "\n"; }
-    if($self->{_forcing})  { print "\tForcing:  " . $self->getForcing()    . "\n"; }
-    if($self->{_valgrind}) { print "\tValgrind: " . $self->getValgrind()   . "\n"; }
-    if($self->{_precmd})   { print "\tPrecmd:   " . $self->getPrecmd()     . "\n"; }
-    if($self->{_compare})  { print "\tCompare:  " . $self->getCompare()    . "\n"; }
-    if($self->{_proc})     { print "\tProc:     " . $self->getProc()       . "\n"; }
-    if($self->{_parexe})   { print "\tParexe:   " . $self->getParexe()     . "\n"; }
-    if($self->{_statcmp})  { print "\tStatcmp:  " . $self->getStatcmp()    . "\n"; }
-    if($self->{_statrun})  { print "\tStatrun:  " . $self->getStatrun()    . "\n"; }
-    if($self->{_statana})  { print "\tStatana:  " . $self->getStatana()    . "\n"; }
-    if($self->{_statcom})  { print "\tStatcom:  " . $self->getStatcom()    . "\n"; }
-    if($self->{_statval})  { print "\tStatval:  " . $self->getStatval()    . "\n"; }
-    if($self->{_timming})  { print "\tTimming:  " . $self->getTimming()    . "\n"; }
+    if( $self->getName()     ){ print "\tTest:     " . $self->getName()       . "\n"; }
+    if( $self->getActive()   ){ print "\tActive:   " . $self->getActive()     . "\n"; }
+    if( $self->getPreset()   ){ print "\tPreset:   " . $self->getPreset()     . "\n"; }
+    if( $self->getCopy()     ){ print "\tCopy:     " . $self->getCopy()       . "\n"; }
+    if( $self->getArch()     ){ print "\tArch:     " . $self->getArch()       . "\n"; }
+    if( $self->getRun()      ){ print "\tRun:      " . $self->getRun()        . "\n"; }
+    if( $self->getExe()      ){ print "\tExe:      " . $self->getExe()        . "\n"; }
+    if( $self->getMode()     ){ print "\tMode:     " . $self->getMode()       . "\n"; }
+    if( $self->getQueue()    ){ print "\tQueue:    " . $self->getQueue()      . "\n"; }
+    if( $self->getForcing()  ){ print "\tForcing:  " . $self->getForcing()    . "\n"; }
+    if( $self->getValgrind() ){ print "\tValgrind: " . $self->getValgrind()   . "\n"; }
+    if( $self->getPrecmd()   ){ print "\tPrecmd:   " . $self->getPrecmd()     . "\n"; }
+    if( $self->getPrerun()   ){ print "\tPrerun:   " . $self->getPrerun()     . "\n"; }
+    if( $self->getCompare()  ){ print "\tCompare:  " . $self->getCompare()    . "\n"; }
+    if( $self->getCompthr()  ){ print "\tCompthr:  " . $self->getCompthr()    . "\n"; }
+    if( $self->getProc()     ){ print "\tProc:     " . $self->getProc()       . "\n"; }
+    if( $self->getParexe()   ){ print "\tParexe:   " . $self->getParexe()     . "\n"; }
+    if( $self->getStatcmp()  ){ print "\tStatcmp:  " . $self->getStatcmp()    . "\n"; }
+    if( $self->getStatrun()  ){ print "\tStatrun:  " . $self->getStatrun()    . "\n"; }
+    if( $self->getStatana()  ){ print "\tStatana:  " . $self->getStatana()    . "\n"; }
+    if( $self->getStatcom()  ){ print "\tStatcom:  " . $self->getStatcom()    . "\n"; }
+    if( $self->getStatval()  ){ print "\tStatval:  " . $self->getStatval()    . "\n"; }
+    if( $self->getTimming()  ){ print "\tTimming:  " . $self->getTimming()    . "\n"; }
 }
 sub printAll{
     my ($self, $lst_test) = @_;
@@ -171,46 +184,44 @@ sub printAll{
 }
 sub printSummary{
     my ($self, $lst_test) = @_;
-    printf "%-20s%-13s%-5s%-50s\n", "TEST", "COMPILATION", "RUN", "ANALYSIS";
+    printf "%-30s%-13s%-5s%-50s\n", "TEST", "COMPILATION", "RUN", "ANALYSIS";
     foreach my $test (@$lst_test){
-        if( $test->getActive() eq 'Y' ){
-            my $test_cmp  = $test->getStatcmp();
-            my $test_run  = $test->getStatrun();
-            my $test_ana  = $test->getStatana();
-            my $test_com  = $test->getStatcom();
-            my $test_val  = $test->getStatval();
-            
-            if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO' ; }
-            elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
-            elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-'  ; }
+        my $test_cmp  = $test->getStatcmp();
+        my $test_run  = $test->getStatrun();
+        my $test_ana  = $test->getStatana();
+        my $test_com  = $test->getStatcom();
+        my $test_val  = $test->getStatval();
+        
+        if   ( $test_cmp eq $FAIL    ) { $test_cmp = 'NO' ; }
+        elsif( $test_cmp eq $SUCCEED ) { $test_cmp = 'YES'; }
+        elsif( $test_cmp eq $NOT_EXE ) { $test_cmp = '-'  ; }
 
-            if   ( $test_run eq $FAIL    ) { $test_run = 'NO' ; }
-            elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
-            elsif( $test_run eq $NOT_EXE ) { $test_run = '-'  ; }
+        if   ( $test_run eq $FAIL    ) { $test_run = 'NO' ; }
+        elsif( $test_run eq $SUCCEED ) { $test_run = 'YES'; }
+        elsif( $test_run eq $NOT_EXE ) { $test_run = '-'  ; }
 
-            if   ( $test_ana eq $FAIL    ) { $test_ana = 'N'; }
-            elsif( $test_ana eq $SUCCEED ) { $test_ana = 'Y'; }
-            elsif( $test_ana eq $NOT_EXE ) { $test_ana = '?'; }
+        if   ( $test_ana eq $FAIL    ) { $test_ana = 'N'; }
+        elsif( $test_ana eq $SUCCEED ) { $test_ana = 'Y'; }
+        elsif( $test_ana eq $NOT_EXE ) { $test_ana = '?'; }
 
-            if   ( $test_com eq $FAIL    ) { $test_com = 'N'; }
-            elsif( $test_com eq $SUCCEED ) { $test_com = 'Y'; }
-            elsif( $test_com eq $NOT_EXE ) { $test_com = '?'; }
+        if   ( $test_com eq $FAIL    ) { $test_com = 'N'; }
+        elsif( $test_com eq $SUCCEED ) { $test_com = 'Y'; }
+        elsif( $test_com eq $NOT_EXE ) { $test_com = '?'; }
 
-            if   ( $test_val eq $FAIL    ) { $test_val = 'N'; }
-            elsif( $test_val eq $SUCCEED ) { $test_val = 'Y'; }
-            elsif( $test_val eq $NOT_EXE ) { $test_val = '?'; }
+        if   ( $test_val eq $FAIL    ) { $test_val = 'N'; }
+        elsif( $test_val eq $SUCCEED ) { $test_val = 'Y'; }
+        elsif( $test_val eq $NOT_EXE ) { $test_val = '?'; }
 
-            my $test_analysis = "SUCCEED: " . $test_ana . "; "
-                              . "TIMMING: " . $test->getTimming() ."; "
-                              . "COMPARISON: " . $test_com ."; "
-                              . "VALGRIND: " . $test_val ."; ";
+        my $test_analysis = "SUCCEED: " . $test_ana . "; "
+            . "TIMMING: "    . $test->getTimming() ."; "
+            . "COMPARISON: " . $test_com ."; "
+            . "VALGRIND: "   . $test_val ."; ";
 
-            printf "%-20s", $test->getName();
-            printf "%-13s", $test_cmp;
-            printf "%-5s", $test_run;
-            printf "%-40s", $test_analysis;
-            print "\n";
-        }
+        printf "%-30s", $test->getName();
+        printf "%-13s", $test_cmp;
+        printf "%-5s", $test_run;
+        printf "%-40s", $test_analysis;
+        print "\n";
     }
 }
 
@@ -219,14 +230,14 @@ sub printSummary{
 sub generate_opt{
     my ( $self ) = @_;
     my $cmd    = '';
-    if($self->{_name})     { $cmd .= "-x "   . $self->getName()     . " "; }
-    if($self->{_preset})   { $cmd .= "-p "   . $self->getPreset()   . " "; }
-    if($self->{_arch})     { $cmd .= "-a "   . $self->getArch()     . " "; }
-    if($self->{_proc})     { $cmd .= "-r "   . $self->getProc()     . " "; }
-    if($self->{_queue})    { $cmd .= "-q "   . $self->getQueue()    . " "; }
-    if($self->{_forcing})  { $cmd .= "-i \"" . $self->getForcing()  . "\" "; }
-    if($self->{_parexe})   { $cmd .= "-e \"" . $self->getParexe()   . "\" "; }
-    if($self->{_valgrind}) { $cmd .= "-V \"" . $self->getValgrind() . "\" "; }
+    if( $self->getName()     ){ $cmd .= "-x "   . $self->getName()     . " "; }
+    if( $self->getPreset()   ){ $cmd .= "-p "   . $self->getPreset()   . " "; }
+    if( $self->getArch()     ){ $cmd .= "-a "   . $self->getArch()     . " "; }
+    if( $self->getProc()     ){ $cmd .= "-r "   . $self->getProc()     . " "; }
+    if( $self->getQueue()    ){ $cmd .= "-q "   . $self->getQueue()    . " "; }
+    if( $self->getForcing()  ){ $cmd .= "-i \"" . $self->getForcing()  . "\" "; }
+    if( $self->getParexe()   ){ $cmd .= "-e \"" . $self->getParexe()   . "\" "; }
+    if( $self->getValgrind() ){ $cmd .= "-V \"" . $self->getValgrind() . "\" "; }
     return $cmd;
 }
 

@@ -1,27 +1,46 @@
 # Configuration example for bfm_test 
+#
 # - Options are separated by lines, and values by coma ','
 # - Write an option in multiple lines using backslash '\' at the end of the line
 # - Use two single quotes '' to specify empty values.
+#
 # Avalaible kays are:
 # - NAME     : Name of the test (mandatory)
-# - ACTIVE   : Activate or deactivate a test. If a test is not active it will not be generated, executed and/or analyzed. Possible values are Y (active) or N (deactive)
-# - PRESET   : Name of th preset for using as parameter in bfm_configure (see bfm_configure option '-p')
-# - RUN      : Mode to run the experiment. Valid values are: sh (default, for running in a unix shell), bsub (for running in batch mode) 
-# - PROC     : number of processors to use in compilation and running (see bfm_configure option '-r')
+# - ACTIVE   : Specify execution stage to perform
+#              - Valid values are (you can combine them):
+#                - Y: all execution stages: generation, running and analysis (default)
+#                - N: no execution. Test will not be generated, run or analyzed. 
+#                - G: only generation
+#                - R: only running
+#                - A: only analysis
+# - PRESET   : Name of the preset for using as parameter in bfm_configure (see bfm_configure option '-p')
+# - COPY     : Copy other generated test
+#              - In generation time, The test will not be generated, only copied and deployed (bfm_configure option '-d')
+#              - Source test must exists in tmp directory (use ACTIVE=G to only execute generation of source test) 
+# - RUN      : Mode to run the experiment 
+#              - Valid values are:
+#                - sh:   default, for running in a unix shell
+#                - bsub: for running in batch mode
+# - PROC     : Number of processors to use in compilation and running (see bfm_configure option '-r')
 # - ARCH     : Specify compilation Architecture file (see bfm_configure option '-a')
 # - QUEUE    : Specify queue in job mode (see bfm_configure option '-q')
-# - PAREXE   : Program to execute in parallel (see bfm_configure option '-e'). NOTE: You can use $PROC inside this command
-# - PRECMD   : Commands to execute prior to compilation and running 
+# - PAREXE   : Command to execute in parallel. Ex: openmpirun (see bfm_configure option '-e')
+#              - You can use $PROC inside this command
+# - PRECMD   : Commands to execute prior compiling and prior running
+# - PRERUN   : Commands to execute prior running 
 # - FORCING  : Forcing files to link in the run directory (see bfm_configure option '-i')
 # - VALGRIND : Valgrind command and options for analysis
-# - COMPARE  : Directory with test to compare results
+# - COMPARE  : Directory with test output to compare results
+#              - Run command "nccmp -V" first to check if nccmp command works
+# - COMPTHR  : Compare threshold for nccmp command (default 1e-3)
+
 
 # Configuration to run in MacOsx
 NAME    = test_GYRE          , test_GYRE_BENTHIC  , test_STD_PEL      , test_PELAGOS2      , test_STD_BEN      , test_STD_CO2      , test_STD_KOB         , test_STD_MED     , test_STD_ICE     ,
 ACTIVE  = Y                  , Y                  , Y                 , Y                  , Y                 , Y                 , Y                    , Y                , Y                ,
 PRESET  = GYRE_BFM           , GYRE_BFM_BENTHIC   , STANDALONE_PELAGIC, PELAGOS2           , STANDALONE_BENTHIC, STANDALONE_CO2TEST, STANDALONE_KOBBEFJORD, STANDALONE_MEDSEA, STANDALONE_SEAICE,
 RUN     = sh                 , sh                 , sh                , sh                 , sh                , sh                , sh                   , sh               , sh               ,
-PROC    = 16                 , 16                 , ''                , 128                , ''                , ''                , ''                   , ''               , ''               ,
+PROC    = 16                 , 16                 , ''                , 256                , ''                , ''                , ''                   , ''               , ''               ,
 ARCH    = gut_osx            , gut_osx            , openmpi.inc       , gut_osx            , openmpi.inc       , openmpi.inc       , openmpi.inc          , openmpi.inc      , openmpi.inc      ,
 PAREXE  = openmpirun -n $PROC, openmpirun -n $PROC, ''                , openmpirun -n $PROC, ''                , ''                , ''                   , ''               , ''               ,
 FORCING = ''                                                                              , \

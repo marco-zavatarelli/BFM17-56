@@ -34,12 +34,12 @@ use File::Basename;
 use classes;
 ########### EXPORT VARIABLES ##########################
 our @ISA = qw(Exporter);
-our @EXPORT= qw(get_configuration generate_test execute_test wait_proc analyze_test);
+our @EXPORT= qw(get_configuration generate_test run_test wait_proc analyze_test);
 ########### EXPORT VARIABLES ##########################
 
 ########### GLOBAL VALUES ##########################
 my $BFM_LOG_FILE_CMP = 'bfm.out.cmp';
-my $BFM_LOG_FILE_EXE = 'bfm.out.exe';
+my $BFM_LOG_FILE_RUN = 'bfm.out.run';
 my $BFM_LOG_FILE_COM = 'bfm.out.com';
 my $BFM_LOG_FILE_MEM = 'bfm.out.mem';
 my $BFM_LOG_FILE_CAC = 'bfm.out.cac';
@@ -51,20 +51,24 @@ my $VERBOSE = 0;
 
 ########### MODULES ##########################
 sub get_configuration{
-    my ($conf_file, $build_dir, $verbose) = @_;
+    my ($conf_dir, $preset, $build_dir, $verbose) = @_;
     my %user_conf;
     $VERBOSE = $verbose;
 
-    get_configuration_test($conf_file, \%user_conf);
+    get_configuration_test($conf_dir, $preset, \%user_conf);
     get_configuration_bfm($build_dir , \%user_conf);
     check_conf(\%user_conf);
     return fill_tests(\%user_conf);
 }
 
 sub get_configuration_test{
-    my ($conf_file, $user_conf) = @_;
+    my ($conf_dir, $preset, $user_conf) = @_;
 
-    open CONFIG, "<$conf_file" or die "Could not open configuration file for ${conf_file}: $!";
+    my $conf_preset = "$conf_dir/$preset";
+    #if the configuration is a directory check inside the dir for the configuration file
+    if ( -d $conf_preset ){ $conf_preset = "$conf_dir/$preset/$preset"; }
+    open CONFIG, "<", "${conf_preset}" or die "Could not open configuration file ${conf_preset}: $!";
+
     my $line_next = '';
     foreach my $line (<CONFIG>){
         chomp($line);                    # no newline
@@ -161,21 +165,35 @@ sub generate_test{
     my $test_dir = "${temp_dir}/" . $test->getName();
 
     #remove the output folder and regenerate if not overwrite
-    if( -d $test_dir && !$overwrite ){ $test->setStatcmp(Test->not_exe); return 1; }
+    if( -d $test_dir && !$overwrite ){ 
+        if($VERBOSE){ print "\tTest dir exists (not overwriting)\n"; }
+        $test->setStatcmp(Test->not_exe); return 1; 
+    }
     rmtree([$test_dir]);
 
-    #execute the test and capture the output
+    #generate the test and capture the output
     my $cmd = "export BFMDIR_RUN=$temp_dir; ";
     if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
     $cmd   .= "cd ${build_dir}; ";
-    $cmd   .= "$bfm_exe -gcd ";
+    #if copy option, only copy the generated preset, execute only deployment option and delete running log files
+    if( $test->getCopy() ){
+        my $original_dir = "${temp_dir}/" . $test->getCopy();
+        if($VERBOSE){ print "\tCopying from dir: $original_dir\n"; }
+        my @list_files_remove = ( "$BFM_LOG_FILE_RUN", "$BFM_LOG_FILE_COM", "$BFM_LOG_FILE_MEM", "$BFM_LOG_FILE_CAC", 'bfm.log', 'ocean.output', 'time.step', 'layout.dat', 'timing.output', 'solver.stat', 'STRAIT.dat');
+        @list_files_remove = map { "$test_dir/" . $_ } @list_files_remove;
+        `cp -R $original_dir $test_dir`;
+        unlink(@list_files_remove); unlink(glob "$test_dir/*.err"); unlink(glob "$test_dir/*.out"); unlink(glob "$test_dir/runscript*");
+        $cmd   .= "$bfm_exe -d ";
+    }else{
+        $cmd   .= "$bfm_exe -gcd ";
+    }
     if($VERBOSE){ $cmd .= "-v "; }    
     $cmd   .= $test->generate_opt();
     if($VERBOSE){ print "\tCommand: $cmd\n"; }
     my $out=`$cmd`;
 
-    #save log with compilation in test directory
-    if( ! open CMPLOG, ">$test_dir/$BFM_LOG_FILE_CMP" ){ print "\tERROR: Problems creating compilation log: $!\n"; $test->setStatcmp(Test->fail); return 0;}
+    #save log with generation in test directory
+    if( ! open CMPLOG, ">$test_dir/$BFM_LOG_FILE_CMP" ){ print "\tERROR: Problems creating generation log: $!\n"; $test->setStatcmp(Test->fail); return 0;}
     print CMPLOG $cmd . "\n";
     print CMPLOG $out;
     close CMPLOG;
@@ -204,7 +222,7 @@ sub generate_test{
     return 1;
 }
 
-sub execute_test{
+sub run_test{
     my ($temp_dir, $test) = @_;
 
     my $test_dir = "$temp_dir/" . $test->getName();
@@ -218,9 +236,12 @@ sub execute_test{
     #get the script name
     my $script_name = 'runscript_' . $test->getName();
 
-    #generate the exectuion command
+    #generate the execution command
     #generate de change dir
-    my $cmd  = "cd $test_dir; ";
+    my $cmd  = '';
+    #add pre-running commands if exists
+    if( $test->getPrerun() ){ $cmd .= $test->getPrerun() . "; "; }
+    $cmd .= "cd $test_dir; ";
     #generate the part to execute before the test command
     if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
     #generate permissions change
@@ -232,14 +253,14 @@ sub execute_test{
         $cmd .= "./$script_name ";
     }
     #generate the loggin part
-    $cmd .= " >>$test_dir/$BFM_LOG_FILE_EXE 2>&1";
+    $cmd .= " >>$test_dir/$BFM_LOG_FILE_RUN 2>&1";
 
     if($VERBOSE){ print "\tCommand: $cmd\n"; }
-    #save log with execution in test directory
-    if( ! open EXELOG, ">$test_dir/$BFM_LOG_FILE_EXE" ){ print "\tERROR: Problems creating execution log: $!\n"; $test->setStatrun(Test->fail); return 0;}
-    print EXELOG $cmd . "\n";
-    close EXELOG;
-    if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_EXE\n"; }
+    #save log with running in test directory
+    if( ! open RUNLOG, ">$test_dir/$BFM_LOG_FILE_RUN" ){ print "\tERROR: Problems creating running log: $!\n"; $test->setStatrun(Test->fail); return 0;}
+    print RUNLOG $cmd . "\n";
+    close RUNLOG;
+    if($VERBOSE){ print "\tSee more info in: $test_dir/$BFM_LOG_FILE_RUN\n"; }
 
     #execute the command
     if ( system($cmd) != 0 ){ print "\tERROR in " . $test->getName() . " cmd execution command fails: $!\n"; $test->setStatrun(Test->fail); return 0; }
@@ -272,6 +293,7 @@ sub wait_proc{
         # if( !$time ){ $time = 50; if($VERBOSE){ print "\n\t."; } }else{ $time--; if($VERBOSE){ print "."; } }
         sleep 1;
     }while( $count != 0 );
+    sleep 5; #Wait for write in output if delay
     if($VERBOSE){ print "\n"; }
 }
 
@@ -328,12 +350,12 @@ sub analyze_test{
                 close(JOBERRLOG);
             }
         }else{ # is a shell job
-            if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){ 
-                if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
-                while(<BFMEXELOG>){ 
+            if( open(BFMRUNLOG, "<", "$test_dir/$BFM_LOG_FILE_RUN") ){ 
+                if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_RUN\n"; }
+                while(<BFMRUNLOG>){ 
                     if( $_ =~ /BFM standalone finished on/ ) { $test->setStatana(Test->succeed); last; }
                 }
-                close BFMEXELOG;
+                close BFMRUNLOG;
             }
         }
     }
@@ -347,21 +369,21 @@ sub analyze_test{
         #get the output err file
         my $err_name = "$test_dir/" . $test->getPreset() . "*" . ".err";
         my (@err_files) = glob("$err_name");
-        if( $err_files[0] &&  open(JOBEXELOG, "<", "$err_files[0]") ){
+        if( $err_files[0] &&  open(JOBRUNLOG, "<", "$err_files[0]") ){
             if($VERBOSE){ print "\t- from file: $err_files[0]\n"; }
             #get timming information
-            while(<JOBEXELOG>){
+            while(<JOBRUNLOG>){
                 if( $_ =~ /^real\s+(.+)/ ) { $test->setTimming($1); }
             }
-            close(JOBEXELOG);
+            close(JOBRUNLOG);
         }
     }else{ # is a shell execution
-        if( open(BFMEXELOG, "<", "$test_dir/$BFM_LOG_FILE_EXE") ){
-            if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_EXE\n"; }
-            while(<BFMEXELOG>){
+        if( open(BFMRUNLOG, "<", "$test_dir/$BFM_LOG_FILE_RUN") ){
+            if($VERBOSE){ print "\t- from file: $test_dir/$BFM_LOG_FILE_RUN\n"; }
+            while(<BFMRUNLOG>){
                 if($_ =~ /^real\s*(.*)/ ){ $test->setTimming($1); }
             }
-            close BFMEXELOG;
+            close BFMRUNLOG;
         }
     }
     if( ! Test->is_timmed($test) ){
@@ -373,7 +395,7 @@ sub analyze_test{
         my $cmp_dir = $test->getCompare();
         if($VERBOSE){ print "\tComparing results:\n"; }
         if($VERBOSE){ print "\t- $test_dir VS $cmp_dir\n"; }
-        if($VERBOSE){ print "\t- See more info in: $test_dir/$BFM_LOG_FILE_COM\n"; }
+
 
         #check if command exists
         my $out_cmp = `nccmp -V 2>&1`;
@@ -421,11 +443,12 @@ sub analyze_test{
                 my @only_in_cmp   = grep { !$filelist_test{basename($_)} } @filelist_cmp;
                 my %filelist_cmp  = map {basename($_)=>1} @filelist_cmp;
                 my @only_in_test  = grep { !$filelist_cmp{basename($_)} } @filelist_test;
+                if($VERBOSE){ print "\t- See more info in: $test_dir/$BFM_LOG_FILE_COM\n"; }
                 if( ! open COMLOG, ">$test_dir/$BFM_LOG_FILE_COM" ){ print "\tERROR: Problems creating comparison log: $!\n"; $test->setStatcom(Test->fail); return 0;}
                 print COMLOG "COMPARISON:\n";
                 close COMLOG;
                 foreach my $name (keys %filelist_test){
-                    my $cmd = "nccmp -dgmf -t 1e-3 $test_dir/$name $cmp_dir/$name";
+                    my $cmd = "nccmp -dgmf -t " . $test->getCompthr(). " $test_dir/$name $cmp_dir/$name";
                     `echo $cmd >>$test_dir/$BFM_LOG_FILE_COM`;
                     `$cmd >>$test_dir/$BFM_LOG_FILE_COM 2>&1`;
                 }
