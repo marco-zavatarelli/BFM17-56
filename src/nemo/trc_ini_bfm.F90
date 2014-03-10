@@ -304,7 +304,8 @@
          write(LOGUNIT,*)
          write(LOGUNIT,*) '           ---- BFM Initialization ----             '
          write(LOGUNIT,*)
-         write(LOGUNIT,157) 'Init', 'Unif', 'Filename    ', 'Var', 'Anal. Z1', 'Anal. V1', 'Anal. Z2', 'Anal. V2', 'OBC', 'SBC', 'CBC'
+         write(LOGUNIT,157) 'Init', 'Unif', 'Filename    ', 'Var', 'Anal. Z1', 'Anal. V1', &
+              'Anal. Z2', 'Anal. V2', 'OBC', 'SBC', 'CBC'
       endif
       do m = 1,NO_D3_BOX_STATES
          select case (InitVar(m) % init)
