@@ -28,6 +28,8 @@ MODULE trcini
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
    USE trcsub          ! variables to substep passive tracers
+   ! BFM
+   USE mem_Param, ONLY : LightPeriodFlag
    
    IMPLICIT NONE
    PRIVATE
