@@ -32,8 +32,8 @@
    use mem, only: Volume, Area, Area2d
    use mem, only: ppO2o,ppN1p,ppN3n,ppN4n,ppN5s
 #ifdef INCLUDE_PELCO2
-   use mem,        only: ppO3c,ppO3h
-   use mem_CO2,    only: AtmCO2 
+   use mem,        only: ppO3c, ppO3h, ppN6r
+   use mem_CO2,    only: AtmCO2, AtmSLP, AtmTDP
 #endif
    use global_mem, only: RLEN,ZERO,LOGUNIT,NML_OPEN,NML_READ, &
                          error_msg_prn,ONE, bfm_lwp
@@ -357,7 +357,7 @@
    ! (override any previous initialisation)
    !-------------------------------------------------------
    call init_netcdf_rst_bfm(rst_fname,TRIM(start_time),0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_1d,        &
+             lat2d=gphit,lon2d=glamt,z=gdept_1d,       &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &
@@ -398,7 +398,7 @@
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
    call init_netcdf_bfm(out_fname,TRIM(start_time),0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_1d,        &
+             lat2d=gphit,lon2d=glamt,z=gdept_1d,       &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &
@@ -452,10 +452,17 @@
 #ifdef INCLUDE_PELCO2
    ! control consistency between namelists setting
    if (AtmCO2%init .eq. 4 .and. .NOT. ln_trc_sbc(ppO3c)) then
-     write(LOGUNIT,*) 'CO2 data from Nemo are not available in surface BC for O3c (check namelist_top and BFM_General).'
+     write(LOGUNIT,*) 'CO2 data from Nemo not available in surface BC for O3c (check namelist_top and BFM_General).'
      stop
    endif   
-
+   if (AtmSLP%init .eq. 4 .and. .NOT. ln_trc_sbc(ppO3h)) then
+     write(LOGUNIT,*) 'Sea Level Pressure data from Nemo not available in surface BC for O3h (check namelist_top and BFM_General).'
+     stop
+   endif
+   if (AtmTDP%init .eq. 4 .and. .NOT. ln_trc_sbc(ppN6r)) then
+     write(LOGUNIT,*) 'Dew Point Temperature data from Nemo not available in surface BC for N6r (check namelist_top and BFM_General).'
+     stop
+   endif
 #endif
 
    return

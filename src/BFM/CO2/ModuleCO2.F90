@@ -224,17 +224,24 @@
           end if
        else
          CALL FieldInit(AtmSLP_N, AtmSLP)
+         if (AtmSLP%init .eq. 2 ) &
+            write(LOGUNIT,*) 'BFM reads atmospheric SLP from file: ', AtmSLP_N%filename
+         if (AtmSLP%init .eq. 4 ) &
+            write(LOGUNIT,*) 'BFM receives atmospheric SLP from coupled model, using sbc forcing for O3h (TA)'
+         write(LOGUNIT,*) ' '
        endif
 
        ! Atmospheric Dew Point Temperature
        if (pCO2Method == 2 .AND. AtmTDP%init .ne. 0 ) then
           CALL FieldInit(AtmTDP_N, AtmTDP)
-          if (AtmTDP%init .ne. 4 ) &
-             write(LOGUNIT,*) 'BFM intialize Dew Point Temperature from file: ', AtmTDP_N%filename
-             write(LOGUNIT,*) ' '
+         if (AtmTDP%init .eq. 2 ) &
+            write(LOGUNIT,*) 'BFM reads Dew Point Temperature from file: ', AtmTDP_N%filename
+         if (AtmTDP%init .eq. 4 ) &
+            write(LOGUNIT,*) 'BFM receives Dew Point Temperature from coupled model, using sbc forcing for N6r (Red. Equival.)'
+         write(LOGUNIT,*) ' '
        else
           pCO2Method = 1
-          write(LOGUNIT,*) 'pCO2Method is forced to 1 beacuse AtmTDP%init is set to 0.'
+          write(LOGUNIT,*) 'pCO2Method is forced to 1 because AtmTDP%init is set to 0.'
        endif
     endif
 

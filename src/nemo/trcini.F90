@@ -74,8 +74,8 @@ CONTAINS
       !                                                              ! total volume of the ocean 
       areatot = glob_sum( cvol(:,:,:) )
 
-      IF( ln_dm2dc )      &
-         &       CALL ctl_stop( ' The diurnal cycle is not compatible with PISCES or LOBSTER or BFM ' )
+      IF( ln_dm2dc .AND. ( lk_pisces .OR. lk_lobster ) )      &
+         &       CALL ctl_stop( ' The diurnal cycle is not compatible with PISCES or LOBSTER ' )
 
       IF( nn_cla == 1 )   &
          &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
@@ -96,6 +96,10 @@ CONTAINS
       tra(:,:,:,:) = 0._wp
       trb(:,:,:,:) = trn(:,:,:,:)
       !
+      ! check consistency of light paramterizations
+      if ( ln_dm2dc .AND. LightPeriodFlag .NE. 1) &
+                 CALL ctl_stop( ' The diurnal cycle (ln_dm2dc) is not compatible with the BFM LightPeriodFlag = 1.' )
+
       IF( nn_timing == 1 )   CALL timing_stop('trc_init')
       
    END SUBROUTINE trc_init

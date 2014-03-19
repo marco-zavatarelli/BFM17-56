@@ -20,17 +20,13 @@
    use api_bfm
    use SystemForcing, only : FieldRead
 #ifdef INCLUDE_PELCO2
-   use mem,        only: ppO3c
+   use mem,        only: ppO3c, ppO3h, ppN6r
    use mem_CO2,    only: AtmCO20, AtmCO2, AtmSLP, AtmTDP
    USE trcbc,      only: sf_trcsbc, n_trc_indsbc
 #endif
 ! OPA modules
    use oce_trc
    use trc_oce, only: etot3
-! MFS bulk 
-#if defined INCLUDE_PELCO2 && defined USE_MFSBULK
-   use sbcblk_mfs, ONLY: sf 
-#endif
 
 IMPLICIT NONE
 ! OPA domain substitutions
@@ -87,31 +83,47 @@ IMPLICIT NONE
 
 #ifdef INCLUDE_PELCO2
    !---------------------------------------------
-   ! Assign atmospheric pCO2
+   ! Assign atmospheric CO2 fields
    !---------------------------------------------
+   !
+   ! CO2 atmospheric mixing ratio
+   !
+   ! Read timeseries in BFM
    if (AtmCO2%init .gt. 0 .AND. AtmCO2%init .lt. 4) call FieldRead(AtmCO2)
 
-   ! CO2 concentration read in NEMO Boundary Conditions
+   ! Read in NEMO Boundary Conditions
    if (AtmCO2%init .eq. 4 ) then
        n = n_trc_indsbc(ppO3c)
-       AtmCO2%fnow = pack(sf_trcsbc(n)%fnow(:,:,1),SRFmask(:,:,1) )
+       AtmCO2%fnow = pack( sf_trcsbc(n)%fnow(:,:,1),SRFmask(:,:,1) )
    endif
    !
    ! Water column pressure 
    ! (need better approximation to convert from m to dbar)
    EPR = pack(fsdept(:,:,:),SEAmask)
-#ifdef USE_MFSBULK
    !
    ! Atmospheric sea level pressure (MFS index jp_msl  = 4)
+   !
    if ( allocated(AtmSLP%fnow))  then 
-      if (AtmSLP%init .eq.4) AtmSLP%fnow = pack(sf(4)%fnow(:,:,1),SRFmask(:,:,1) )
+      ! Read timeseries in BFM
+      if (AtmSLP%init .gt. 0 .AND. AtmSLP%init .lt. 4) call FieldRead(AtmSLP)
+      ! Read in NEMO Boundary Conditions
+      if (AtmSLP%init .eq.4) then
+         n = n_trc_indsbc(ppO3h)
+         AtmSLP%fnow = pack( sf_trcsbc(n)%fnow(:,:,1),SRFmask(:,:,1) )
+      endif
    endif
    !
-   ! Atmospheric Dew Point Temperature (MFS index jp_rhm  = 6)
+   ! Atmospheric Dew Point Temperature
+   !
    if ( allocated(AtmTDP%fnow)) then 
-      if (AtmTDP%init .eq.4) AtmTDP%fnow = pack(sf(6)%fnow(:,:,1),SRFmask(:,:,1) )
+      ! Read timeseries in BFM
+      if (AtmTDP%init .gt. 0 .AND. AtmTDP%init .lt. 4) call FieldRead(AtmTDP)
+      ! Read in NEMO Boundary Conditions
+      if (AtmTDP%init .eq.4) then
+         n = n_trc_indsbc(ppN6r)
+         AtmTDP%fnow = pack( sf_trcsbc(n)%fnow(:,:,1),SRFmask(:,:,1) )
+      endif
    endif
-#endif
 #endif
 
    !---------------------------------------------
