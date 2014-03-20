@@ -76,9 +76,6 @@ CONTAINS
       !                                                              ! total volume of the ocean 
       areatot = glob_sum( cvol(:,:,:) )
 
-      IF( ln_dm2dc .AND. ( lk_pisces .OR. lk_lobster ) )      &
-         &       CALL ctl_stop( ' The diurnal cycle is not compatible with PISCES or LOBSTER ' )
-
       IF( nn_cla == 1 )   &
          &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
 
