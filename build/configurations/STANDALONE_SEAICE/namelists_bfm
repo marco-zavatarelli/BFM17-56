@@ -93,9 +93,9 @@
 !                                           phytoplankton
 ! LightPeriodFlag               numeric Choose the light averaging period
 !                                       1 = Instantanous irradiance
-!                                       2 = Daylight average with explicit
-!                                           photoperiod                                       
-!                                       3 = Daily average
+!                                       2 = Daily average
+!                                       3 = Daylight average with explicit
+!                                           photoperiod
 ! LightLocationFlag             numeric Choose the parameterization of light
 !                                       location in the discrete grid
 !                                       1 = Light at the top of the cell
