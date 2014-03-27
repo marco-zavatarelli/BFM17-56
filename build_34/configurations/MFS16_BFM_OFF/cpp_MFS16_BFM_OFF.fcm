@@ -1,0 +1,4 @@
+#bld::tool::fppkeys  key_mfs key_mpp_mpi key_diainstant key_zdftke key_dynspg_flt key_obc
+bld::tool::fppkeys  key_mfs key_mpp_mpi key_zdfric key_dynspg_flt key_obc key_iomput key_top key_my_trc key_offline
+# bfm core 
+inc $BFMDIR/src/nemo/bfm.fcm

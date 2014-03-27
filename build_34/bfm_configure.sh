@@ -25,7 +25,7 @@ LOGFILE=logfile_$$.log
 LOGDIR="Logs"
 
 #local paths
-VER=""
+VER="_34"
 TEMPDIR="build${VER}/tmp"
 CONFDIR="build${VER}/configurations"
 SCRIPTSDIR="build${VER}/scripts"

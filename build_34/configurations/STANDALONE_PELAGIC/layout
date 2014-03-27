@@ -1,0 +1,251 @@
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       MEMORY LAYOUT
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-                     
+# BFM - Biogeochemical Flux Model 
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#
+# COPYING
+#   
+#   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+#                                                                                                     
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation;
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#-------------------------------------------------------------------------!
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       Multi-purpose scalar variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+1d-variable
+  LocalDelta
+end
+1d-intvar
+  InitializeModel
+end
+	
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       Dimensional variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-variable
+  Depth : Gridpoint Depth: m
+  Volume: Gridpoint Volume: m3
+  Area  : Gridpoint Area: m2
+end
+2d-variable
+  Area2d  : 2-D Gridpoint Area: m2
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       PHYSICAL VARIABLES
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2d-variable
+  ThereIsLight : Switch for day/night cycle : -
+  SUNQ	       : Daylength in hours : h
+  EWIND : Wind speed : m/s
+  EICE  : Sea-ice fraction: -
+end
+3d-variable
+  ETW   : temperature : C
+  ESW   : Salinity : -
+  ERHO  : Seawater Density : kg/m3
+  EIR   : Irradiance : uE/m2/s
+  ESS   : Suspended Sediments : g/m3
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       PELAGIC STATE VARIABLES (volume)
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-state
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State variable for Oxygen
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   O2o : Oxygen : mmol O2/m3
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Nutrients
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   N1p	:	Phosphate : mmol P/m3
+   N3n	:	Nitrate  : mmol N/m3
+   N4n	:	Ammonium : mmol N/m3
+   O4n	:	NitrogenSink : mmol N/m3
+   N5s	:	Silicate     : mmol Si/m3
+   N6r	:	Reduction Equivalents : mmol S--/m3
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Bacteria
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group PelBacteria[cnp] (PBA) : mg C/m3 : mmol N/m3 : mmol P/m3
+     B1	: Aerobic and Anaerobic Bacteria 
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Phytoplankton Species
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
+	   P1	        : Diatoms
+	   P2[-s]	: Flagellates
+	   P3[-s]	: PicoPhytoplankton
+	   P4[-s]	: Large Phytoplankton
+   end
+               
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Mesozooplankton
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group MesoZooPlankton[cnp] (MEZ) : mg C/m3 : mmol N/m3 : mmol P/m3
+		Z3 	: Carnivorous Mesozooplankton
+		Z4 	: Omnivorous Mesozooplankton
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Microzooplankton
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group MicroZooPlankton[cnp] (MIZ) : mg C/m3 : mmol N/m3 : mmol P/m3
+	   Z5	: Microzooplankton
+	   Z6	: Heterotrophic Nanoflagellates (HNAN)
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Detritus (Biogenic Organic Material)
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
+      R1[-s]    : Labile Dissolved Organic Matter
+      R2[-nps]  : Semi-labile Dissolved Organic Carbon
+      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
+      R6        : Particulate Organic Matter 
+    end
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       CO2 and Carbonate system variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-state -if-exist INCLUDE_PELCO2
+  group Inorganic[ch] (CAR): mg C/m3 : mmol eq/m3
+     O3: Dissolved Inorganic Carbon: Alkalinity 
+  end
+end
+
+2d-variable -if-exist INCLUDE_PELCO2
+  EPCO2air   : Atmospheric CO2 Partial Pressure : uatm
+  CO2airflux : Sea-air CO2 Flux : mmol/m2/d
+end
+
+3d-variable -if-exist INCLUDE_PELCO2
+    DIC        : Dissolved Inorganic Carbon : umol/kg
+    CO2        : CO2(aq) : umol/kg
+    pCO2       : Oceanic pCO2 : uatm
+    HCO3       : Bicarbonate :  umol/kg
+    CO3        : Carbonate : umol/kg
+    ALK        : Alkalinity : umol eq/kg
+    pH         : pH : -
+    OCalc      : Saturation state of Calcite : -
+    OArag      : Saturation state of Aragonite : -
+    EPR        : Water Pressure : dbar
+end
+
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       GENERAL DIAGNOSTICS
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-variable
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables to check totmass of C N P Si in pelagic
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    totpel[cnps]  : Total Mass in Pelagic: g C: g N: g P: g Si
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables for oxygen diagnostics
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    cxoO2  : Oxygen Saturation : mmol O2/m3
+    eO2mO2 : Relative Oxygen saturation: - 
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Diagnostic collective variables 
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    Chla : Chlorophyll-a : mg Chl/m3
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Water column diagnostic rates
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    flPTN6r : Pelagic Anaerobic Mineralization Rate : mmol O2/m3/d
+    flN3O4n : Pelagic Denitrification Rate : mmol N/m3/d
+    flN4N3n : Pelagic Nitrification Rate   : mmol N/m3/d
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables holding quota of elements in species
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    qpcPPY(PhytoPlankton)	: Quotum P/C in Phytoplankton : mmol P/mg C 
+    qncPPY(PhytoPlankton)	: Quotum N/C in Phytoplankton : mmol N/mg C 
+    qscPPY(PhytoPlankton)	: Quotum Si/C in Phytoplankton : mmol Si/mg C 
+    qlcPPY(PhytoPlankton)	: Quotum Chl/C in Phytoplankton : mg Chl /mg C
+
+    qpcMEZ(MesoZooPlankton)	: Quotum P/C in Mesozooplankton :mmol P/mg C 
+    qncMEZ(MesoZooPlankton)	: Quotum N/C in Mesozooplankton :mmol N/mg C 
+
+    qpcMIZ(MicroZooPlankton)	: Quotum P/C in MicroZooPlankton :mmol P/mg C  
+    qncMIZ(MicroZooPlankton)	: Quotum N/C in MicroZooPlankton :mmol N/mg C 
+
+    qpcOMT(PelDetritus)		: Quotum P/C in Organic Matter:mmol N/mg C 
+    qncOMT(PelDetritus)		: Quotum N/C in Organic Matter:mmol P/mg C  
+    qscOMT(PelDetritus)		: Quotum Si/C in Organic Matter:mmol Si/mg C
+ 
+    qpcPBA(PelBacteria)		: Quotum P/C in Pelagic Bacteria :mmol P/mg C  
+    qncPBA(PelBacteria)		: Quotum N/C in Pelagic Bacteria :mmol N/mg C  
+
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   # Sinking rates of phytoplankton and detritus
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    sediPPY(PhytoPlankton)     : PhytoPlankton sedimentation rate :m/d
+    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate :m/d
+    sediMEZ(MesoZooPlankton)  : MesoZooPlankton sedimentation rate :m/d
+    sediR2                    : Detritus sedimentation rate:m/d
+    sediR6                    : Detritus sedimentation rate:m/d
+
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   # Sinking rates of phytoplankton and detritus
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
+    eiPPY(PhytoPlankton)  : Regulating Factor for Light in PhytoPlankton : -
+    xEPS                  : Total Extinction Coefficient : 1/m
+    ELiPPY(PhytoPlankton) : Optimal light in PhytoPlankton : W/m2
+    ABIO_eps              : Abiotic Extinction Coefficient : 1/m
+end
+
+2d-variable
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables to check total mass of C N P Si in the system
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  totsysc  : total mass :  g C
+  totsysn  : total mass :  g N
+  totsysp  : total mass :  g P
+  totsyss  : total mass :  g Si
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#                       DIAGNOSTIC RATES
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
+  ruPPYc=P.c <- O3c : Gross Primary Production : mg C/m3/d
+  resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
+  resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
+  resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
+end
+
+3d-flux -if-exist INCLUDE_DIAG
+  ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
+  ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
+  ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
+  exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
+  ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross/Net Secondary Production:mg C/m3/d
+  resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
+  remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
+  remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
+  remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
+  remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
+end

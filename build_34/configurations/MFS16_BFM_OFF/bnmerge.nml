@@ -1,0 +1,30 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!------------------------------------------------------------------------------------!
+!Main initialisation and output specifications
+!NAME             KIND    DESCRIPTION
+!chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
+!inp_dir 	  string 	Path to the input files (chunks)
+!out_dir 	  string 	Path to the output file (merged)
+!layout 	  string 	Path to the layout.dat file
+!ln_mask 	  logical       Write global mask specification
+!var_save 	  string 	List of output variables (set according to bfm output) 
+!
+! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting 
+!          the number of output variables with HR model configurations.  
+!------------------------------------------------------------------------------------!
+&bnmerge_nml
+   chunk_fname='PELAGOS2_OFF'
+   inp_dir='./'
+   out_dir='./'
+   layout='./layout.dat'
+   ln_mask=.FALSE.
+   var_save= 'B1c', 'P1c','P2c', 'P3c','P4c','Chla','Z3c','Z5c'
+          'O2o','N1p','N3n','N4n','N5s','N6r','jsurO2o','jbotR6c',
+          'EIR','ETW','EWIND','O3c','O3h','DIC','EPCO2air',
+          'pH','CO2','pCO2','HCO3','CO3','CO2airflux'
+/
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

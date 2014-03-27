@@ -1,0 +1,27 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!------------------------------------------------------------------------------------!
+!Main initialisation and output specifications
+!NAME             KIND    DESCRIPTION
+!out_fname        string        Name of NetCDF output file (same of input chunks)
+!inp_dir          string        Path to the input files (chunks)
+!out_dir          string        Path to the output file (merged)
+!layout           string        Path to the layout.dat file
+!ln_mask          logical       Write global mask specification
+!var_save         string        List of output variables
+!
+! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting
+!          the number of output variables.
+!------------------------------------------------------------------------------------!
+&bnmerge_nml
+   chunk_fname='BFM_NEMO'
+   inp_dir='/work/ans032/PELAGOS025/EXPTS/TEST-NEWCODE/19990610'
+   out_dir='/work/ans032/PELAGOS025/EXPTS/TEST-NEWCODE/19990610'
+   layout='/work/ans032/PELAGOS025/EXPTS/TEST-NEWCODE/19990610/layout.dat'
+   ln_mask=.FALSE. 
+   var_save= 'DIC',
+/
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

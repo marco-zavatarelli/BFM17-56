@@ -1,0 +1,4 @@
+# PELAGOS025_OFF: the global ocean BFM-NEMO coupling 
+
+This version requires NEMO release 3.4 
+Works with NEMO 3.5 only if the namelist is changed
