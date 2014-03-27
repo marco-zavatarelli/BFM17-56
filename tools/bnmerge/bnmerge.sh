@@ -7,7 +7,7 @@ LOG_DIR=.
 BNMERGE_EXE=${BFMDIR}/tools/bnmerge/bnmerge.x
 if [ "${PARALLEL}" == 'yes' ]; then
     LIBS="INTEL/intel_xe_2013 HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1"
-    export OMP_NUM_THREADS=128
+    export OMP_NUM_THREADS=16
     QUEUE='poe_short'
 else
     LIBS="INTEL/intel_xe_2013 NETCDF/netcdf-4.3"
@@ -29,9 +29,9 @@ cat > runscript <<EOF
 #BSUB -e ${LOG_DIR}/bnmerge%J.err  # appends std error to file %J.out.
 #BSUB -P bnmerge                   # project name
 #BSUB -q ${QUEUE}                  # queue
-#BSUB -n ${OMP_NUM_THREADS}        # Number of CPUs
-#BSUB -x                           # exclusive host mode
-#BSUB -R "span[ptile=16]"          # use only nodes with 16 cores
+#BSUB -n 1                         # Number of CPUs
+##BSUB -x                           # exclusive host mode
+##BSUB -R "span[ptile=16]"          # use only nodes with 16 cores
 
 if [ ${DEBUG} ]; then set -exv; fi
 

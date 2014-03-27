@@ -69,9 +69,9 @@ program bnmerge
   write(*,*) 'End bnmerge'
   write(*,*) 
 
-#ifdef PARAL
-  CALL MPI_Finalize(err)
-#endif
+!#ifdef PARAL
+!  CALL MPI_Finalize(err)
+!#endif
 
   calctime = tock(calc)
   print *,'Timing summary'
