@@ -271,8 +271,8 @@
    save_delta = bfmtime%step0
    call update_save_delta(out_delta,save_delta,time_delta)
    IF (MOD(save_delta, nn_dttrc) /= 0) THEN
-      if (lwp) write(numout,*) 'BFM : output time step must be a multiple value of the sub-stepping (nn_dttrc).'
-      stop 'Mismatch of output timestep and sub-stepping'
+      if (bfm_lwp) write(LOGUNIT,*) 'BFM : output time step must be a multiple value of the sub-stepping (nn_dttrc).'
+      stop 'Mismatch of output timestep and sub-stepping. Details in bfm.log'
    ENDIF
    !-------------------------------------------------------
    ! Prepares the BFM 1D arrays containing the
@@ -310,7 +310,7 @@
       do m = 1,NO_D3_BOX_STATES
          select case (InitVar(m) % init)
          case (0) 
-            InitVar(m)%unif = D3STATE(m,1)
+            InitVar(m)%unif = minval( D3STATE(m,:) )
          case (1) ! Analytical profile
             rtmp3Da = ZERO
             ! fsdept contains the model depth
