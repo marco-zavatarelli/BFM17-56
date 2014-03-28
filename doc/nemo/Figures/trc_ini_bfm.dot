@@ -1,0 +1,55 @@
+digraph "" {
+  graph [fontname="ArialMT", rankdir="LR", fontsize="11", bgcolor="#EDF3FE", label=""];
+  node [fontname="ArialMT", fillcolor="white", fontsize="11", style="filled", shape="box", label="", color="blue"];
+  edge [fontname="ArialMT", fontsize="11", label="", color="#CC0044"];
+  graph [bgcolor="white"];
+  __N1 [label="trc_ini_bfm
+trc_ini_bfm.f90", color="green"];
+  __N2 [label="julian_day
+time.f90"];
+  __N10 [label="init_bfm
+api_bfm.f90", color="green"];
+  __N11 [label="set_var_info_bfm
+set_var_info_bfm.f90", color="green"];
+  __N12 [label="init_var_bfm
+init_var_bfm.f90", color="green"];
+  __N13 [label="update_save_delta
+api_bfm.f90", color="green"];
+  __N16 [label="trc_dta_init
+trcdta.f90"];
+  __N17 [label="analytical_profile
+analytical_profile.f90", color="green"];
+  __N18 [label="trc_dta
+trcdta.f90"];
+  __N20 [label="init_netcdf_rst_bfm
+read_rst_bfm
+read_rst_bfm_3d
+netcdf_bfm.f90", color="green"];
+  __N28 [label="calcmean_bfm
+calcmean_bfm.f90", color="green"];
+  __N29 [label="init_netcdf_bfm
+netcdf_bfm.f90", color="green"];
+  __N30 [label="init_save_bfm
+netcdf_bfm.f90", color="green"];
+  __N31 [label="trc_bc_init
+trcbc.f90"];
+  __N32 [label="trc_init
+trcini.f90", color="red"];
+  __N33 [label="nemo_init
+nemogcm.f90"];
+  __N1 -> __N2;
+  __N1 -> __N10;
+  __N1 -> __N11;
+  __N1 -> __N12;
+  __N1 -> __N13;
+  __N1 -> __N16;
+  __N1 -> __N17;
+  __N1 -> __N18;
+  __N1 -> __N20;
+  __N1 -> __N28;
+  __N1 -> __N29;
+  __N1 -> __N30;
+  __N1 -> __N31;
+  __N33 -> __N32;
+  __N32 -> __N1;
+}

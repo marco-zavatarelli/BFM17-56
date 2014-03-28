@@ -1,0 +1,35 @@
+digraph "" {
+  graph [fontname="ArialMT", rankdir="LR", fontsize="11", bgcolor="white", label=""];
+  node [fontname="ArialMT", fillcolor="white", fontsize="11", style="filled", shape="box", label="", color="blue"];
+  edge [fontname="ArialMT", fontsize="11", label="", color="#CC0044"];
+  graph [bgcolor="white"];
+  __N1 [label="trc_stp
+trcstp.f90", color="red"];
+  __N3 [label="trc_sub_ini
+trcsub.f90"];
+  __N4 [label="trc_bc_read
+trcbc.f90"];
+  __N5 [label="trc_sub_stp
+trcsub.f90"];
+  __N7 [label="trc_bfm
+trcbfm.f90"];
+  __N8 [label="trc_trp_bfm
+trc_trp_bfm.f90"];
+  __N9 [label="trc_dia_bfm
+trc_dia_bfm.f90"];
+  __N10 [label="trc_sub_reset
+trcsub.f90"];
+  __N12 [label="stp
+step.f90"];
+  __N13 [label="nemo_gcm
+nemogcm.f90"];
+  __N1 -> __N3;
+  __N1 -> __N4;
+  __N1 -> __N5;
+  __N1 -> __N7;
+  __N1 -> __N8;
+  __N1 -> __N9;
+  __N1 -> __N10;
+  __N13 -> __N12;
+  __N12 -> __N1;
+}
