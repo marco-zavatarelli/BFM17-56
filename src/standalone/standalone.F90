@@ -277,7 +277,7 @@
    ! Read restart file (if flag)
    ! Overwrite previous initialization
    !---------------------------------------------
-   if (bfm_init == 1) call read_rst_bfm(rst_fname)
+   if (bfm_init == 1) call read_rst_bfm(in_rst_fname)
 
    !---------------------------------------------
    ! Initialise the diagnostic variables
@@ -290,8 +290,8 @@
    !---------------------------------------------
    call calcmean_bfm(INIT)
    call calcmean_bfm(ACCUMULATE)
-   call init_netcdf_bfm(out_fname,start,0,  &
-             lat=latitude,lon=longitude,z=Depth,   &
+   call init_netcdf_bfm(out_fname,start,out_title, &
+             0,lat=latitude,lon=longitude,z=Depth, &
              oceanpoint=(/(i,i=1,NO_BOXES)/),      &
              surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
              bottompoint=(/(i,i=1,NO_BOXES_XY)/))
@@ -300,7 +300,7 @@
    !---------------------------------------------
    ! Initialise netcdf restart file
    !---------------------------------------------
-   call init_netcdf_rst_bfm(rst_fname,start,0,  &
+   call init_netcdf_rst_bfm(out_rst_fname,start,0,  &
              lat=latitude,lon=longitude,z=Depth,   &
              oceanpoint=(/(i,i=1,NO_BOXES)/),      &
              surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &

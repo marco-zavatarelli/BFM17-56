@@ -125,8 +125,8 @@
 ! !IROUTINE: Initialize the netcdf output
 !
 ! !INTERFACE:
-   subroutine init_netcdf_bfm(title,start_time,time_unit,lat,lon,z,dz, &
-                              lat2d,lon2d,oceanpoint,surfacepoint,     &
+   subroutine init_netcdf_bfm(title,start_time,expinfo,time_unit,lat,lon,z,dz, &
+                              lat2d,lon2d,oceanpoint,surfacepoint,             &
                               bottompoint,mask3d)
 !
 ! !DESCRIPTION:
@@ -136,7 +136,7 @@
    implicit none
 !
 ! !INPUT/OUTPUT PARAMETERS:
-   character(len=*), intent(in)                 :: title,start_time
+   character(len=*), intent(in)                 :: title,start_time,expinfo
    integer, intent(in)                          :: time_unit
    real(RLEN), intent(in),optional                :: lat,lon
    real(RLEN), intent(in),dimension(:,:),optional :: lat2d,lon2d
@@ -278,6 +278,7 @@
    history = RELEASE
    call check_err(NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'history',history), fname)
    call check_err(NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Conventions','CF-1.0'), fname)
+   call check_err(NF90_PUT_ATT(ncid_bfm,NF90_GLOBAL,'Experiment',expinfo), fname)
 
    !---------------------------------------------
    ! leave define mode
@@ -376,7 +377,7 @@
    ! Prepare the netcdf file
    !---------------------------------------------
    ext = 'nc'
-   fname = './out_'// TRIM(title) // '.' // ext
+   fname = './'// TRIM(title) // '.' // ext
    LEVEL2 'Restart file in NetCDF'
    LEVEL2 TRIM(fname)
    call check_err(NF90_CREATE(fname,NF90_NETCDF4,ncid_rst), fname)
@@ -774,7 +775,7 @@ end subroutine init_netcdf_rst_bfm
    ! open the netcdf restart file
    !---------------------------------------------
    ext = 'nc'
-   fname = './in_'// TRIM(title) // '.' // ext
+   fname = './'// TRIM(title) // '.' // ext
    LEVEL2 'Reading Restart file in NetCDF'
    LEVEL2 TRIM(fname)
    call check_err(NF90_OPEN(fname,NF90_NOWRITE,ncid_rst_in), fname)

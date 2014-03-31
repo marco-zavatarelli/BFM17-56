@@ -283,7 +283,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    InitVar(O3c)%anz1 = 0.,
    InitVar(O3c)%anv2 = 27900.,
    InitVar(O3c)%anz2 = 1500.,
-   InitVar(O3c)%cbc  = .true.,
    InitVar(O3h)%init = 2,
    InitVar(O3h)%anv1 = 2375.,
    InitVar(O3h)%anz1 = 0.,

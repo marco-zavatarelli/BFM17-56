@@ -219,7 +219,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    InitVar(N1p)%init = 2,
    InitVar(N1p)%cbc  = .true.,
    InitVar(N3n)%init = 2,
-   InitVar(N3n)%sbc  = .true.,
    InitVar(N3n)%cbc  = .true.,
    InitVar(N5s)%init = 2,
    InitVar(N5s)%cbc  = .true.,
@@ -229,7 +228,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    InitVar(R1c)%init = 0,
    InitVar(R1c)%cbc  = .true.,
    InitVar(O3c)%init = 2,
-   InitVar(O3c)%cbc  = .true.,
    InitVar(O3h)%init = 2,
    filename_nml_conf = 'BFM_General.nml',
 /

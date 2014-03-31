@@ -36,7 +36,7 @@
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
    integer                            :: out_delta,out_secs,save_delta,time_delta
-   character(len=PATH_MAX)            :: rst_fname,rst_fname_3d
+   character(len=PATH_MAX)            :: in_rst_fname, out_rst_fname
 
    !---------------------------------------------
    ! parameters for massive parallel computation
@@ -322,7 +322,7 @@ contains
 #endif
 
    use global_mem, only: LOGUNIT
-   use time, only: bfmtime
+   use time, only: bfmtime, outdeltalab
 #if defined key_obcbfm
    use global_mem, only: LOGUNITOBC
 #endif
@@ -337,7 +337,7 @@ contains
 !
 ! !LOCAL VARIABLES:
    integer                   :: rc,n
-   character(len=PATH_MAX)   :: logfname
+   character(len=PATH_MAX)   :: logfname, thistime
 #if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
 #endif
@@ -353,18 +353,18 @@ contains
    !---------------------------------------------
    ! Provide sensible values for namelist parameters
    !---------------------------------------------
-   bio_calc     = .TRUE.
-   bio_setup    = 1
-   bfm_init     = 0
-   bfm_rstctl   = .FALSE.
-   out_fname    = 'bfm'
-   rst_fname    = 'bfm_restart'
-   rst_fname_3d = 'bfm_restart_init'
-   out_dir      = '.'
-   out_title    = 'Another great BFM simulation!'
-   out_units    = 0
-   out_delta    = 100
-   out_secs     = 100
+   bio_calc      = .TRUE.
+   bio_setup     = 1
+   bfm_init      = 0
+   bfm_rstctl    = .FALSE.
+   out_fname     = 'bfm'
+   in_rst_fname  = 'in_bfm_restart'
+   out_rst_fname = 'out_bfm_restart'
+   out_dir       = '.'
+   out_title     = 'Another great BFM simulation!'
+   out_units     = 0
+   out_delta     = 100
+   out_secs      = 100
    bioshade_feedback = .FALSE.
 
    !---------------------------------------------
@@ -400,8 +400,21 @@ contains
         form='formatted',err=100)
 
    ! provide different file names for each process domain
-   out_fname = trim(out_fname)//'_'//str
-   rst_fname = trim(rst_fname)//'_'//str
+   !
+   ! restart output file
+   write(thistime,'(I8.8)') bfmtime%stepEnd
+   out_rst_fname=TRIM(out_fname)//'_'//TRIM(thistime)//'_restart_bfm_'//str
+   !
+   ! restart input file
+   if (bfm_init == 1 ) then
+      in_rst_fname=TRIM(in_rst_fname)//'_'//str
+   elseif (bfm_init == 2 ) then
+      in_rst_fname=TRIM(in_rst_fname)
+   endif
+
+   ! data output file
+   thistime=outdeltalab(out_delta)
+   out_fname=TRIM(out_fname)//'_'//TRIM(thistime)//'_'//TRIM(bfmtime%date0)//'_'//TRIM(bfmtime%dateEnd)//'_bfm_'//str
 
    LEVEL1 'init_bfm'
    LEVEL3 "Producing log for process rank:",parallel_rank
@@ -413,13 +426,13 @@ contains
    bfm_lwp = .TRUE.
    open(LOGUNIT,file=logfname,action='write',  &
         form='formatted',err=100)
-
 #endif
+   !
    !-------------------------------------------------------
    ! Write to log bfmtime setting
    !-------------------------------------------------------
    LEVEL2 'BFM time informations:'
-   WRITE(LOGUNIT,*) 'Start Date, Julianday0, JuliandayEnd, step0, timestep, stepnow, stepEnd'
+   WRITE(LOGUNIT,*) '  Start Date  ,  End Date  ,Julianday0, JuliandayEnd, step0, timestep, stepnow, stepEnd'
    WRITE(LOGUNIT,*) bfmtime   
    !
    LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)

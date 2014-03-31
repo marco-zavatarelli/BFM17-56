@@ -42,13 +42,13 @@
         btmp1D, rtmp3Da, rtmp3Db, &
         var_names, bfm_init, &
         BOTindices,SRFindices, stPelStateS, &
-        InitVar, bio_setup, rst_fname, rst_fname_3d, save_delta, time_delta, &
-        lat_len, lon_len, out_delta, out_fname, parallel_rank, &
+        InitVar, bio_setup, in_rst_fname, out_rst_fname, save_delta, time_delta, &
+        lat_len, lon_len, out_delta, out_fname, out_title, parallel_rank, &
         D3STATEB, D3STATE_tot, &
         find, update_save_delta, init_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm,read_rst_bfm_3d
-   use time,       only: bfmtime, julian_day 
+   use time,       only: bfmtime, julian_day, calendar_date
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
    use trc, only : ln_trc_sbc, ln_trc_ini, ln_trc_obc, ln_trc_cbc, &
@@ -80,12 +80,12 @@
 #include "domzgr_substitute.h90"
 
    integer    :: i,j,k,ll,m
-   integer    :: status
+   integer    :: status, yy, mm, dd, hh, nn
    integer,parameter    :: namlst=10,unit=11
    integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:),msktmp(:,:)
    logical,allocatable  :: mask1d(:)
    integer              :: nc_id ! logical unit for data initialization
-   character(len=20)    :: start_time
+   character(len=40)    :: thistime
    real(RLEN)           :: julianday
    REAL(RLEN)           :: ztraf, zmin, zmax, zmean, zdrift
 !EOP
@@ -94,15 +94,17 @@
    !-------------------------------------------------------
    ! Initial time
    !-------------------------------------------------------
-   write(start_time,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
+   write(bfmtime%datestring,'(I4.4,a,I2.2,a,I2.2)') nyear,'-',nmonth,'-',nday
+   write(bfmtime%date0,'(I4.4,I2.2,I2.2)') nyear,nmonth,nday
    call julian_day(nyear,nmonth,nday,0,0,julianday)
-   bfmtime%date0    = start_time
    bfmtime%time0    = julianday
    bfmtime%timeEnd  = julianday + ((nitend-nit000)* rdt) / SEC_PER_DAY
    bfmtime%step0    = nit000 - 1
    bfmtime%timestep = rdt
    bfmtime%stepnow  = nit000 - 1
    bfmtime%stepEnd  = nitend
+   call calendar_date(bfmtime%timeEnd,yy,mm,dd,hh,nn)
+   write(bfmtime%dateEnd,'(I4.4,I2.2,I2.2)') yy,mm,dd
    !-------------------------------------------------------
    ! Force Euler timestepping for the BFM
    !-------------------------------------------------------
@@ -356,14 +358,14 @@
    ! initialise (new) and read (previous) restart file
    ! (override any previous initialisation)
    !-------------------------------------------------------
-   call init_netcdf_rst_bfm(rst_fname,TRIM(start_time),0,  &
+   call init_netcdf_rst_bfm(out_rst_fname,TRIM(bfmtime%datestring),0,  &
              lat2d=gphit,lon2d=glamt,z=gdept_1d,       &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &
              mask3d=tmask)
-   if (bfm_init == 1) call read_rst_bfm(rst_fname)
-   if (bfm_init == 2) call read_rst_bfm_3d(rst_fname_3d, narea, jpnij, &
+   if (bfm_init == 1) call read_rst_bfm(in_rst_fname)
+   if (bfm_init == 2) call read_rst_bfm_3d(in_rst_fname, narea, jpnij, &
         jpiglo, jpjglo, jpk, &
         nlcit, nlcjt, &
         nldit, nldjt, &
@@ -397,7 +399,8 @@
    ! initialise netcdf output
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
-   call init_netcdf_bfm(out_fname,TRIM(start_time),0,  &
+   call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
+             TRIM(out_title) , 0 ,                     &
              lat2d=gphit,lon2d=glamt,z=gdept_1d,       &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &

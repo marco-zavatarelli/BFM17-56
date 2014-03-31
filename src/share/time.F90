@@ -25,13 +25,15 @@
    private
 
    type TimeInfo
-      character(len=25)      :: date0    ! calendar date of start
-      real(RLEN)             :: time0    ! Julian day start of run 
-      real(RLEN)             :: timeEnd  ! Julian day end of run
-      integer                :: step0    ! Initial step # 
-      integer                :: timestep ! Delta t
-      integer                :: stepnow  ! Actual step #
-      integer                :: stepEnd  ! Actual step #
+      character(len=25)      :: datestring   ! calendar date string for NetCDF
+      character(len=25)      :: date0        ! calendar date of run end
+      character(len=25)      :: dateEnd      ! calendar date of run end
+      real(RLEN)             :: time0        ! Julian day start of run 
+      real(RLEN)             :: timeEnd      ! Julian day end of run
+      integer                :: step0        ! Initial step # 
+      integer                :: timestep     ! Delta t
+      integer                :: stepnow      ! Actual step #
+      integer                :: stepEnd      ! Actual step #
    end type TimeInfo
 !
 ! tom: maybe this structure can be used to replace maby time parameters
@@ -43,7 +45,7 @@
    public                              :: write_time_string
    public                              :: time_diff
    public                              :: dayofyear
-   public                              :: eomdays, yeardays
+   public                              :: eomdays, yeardays, outdeltalab
 !
 ! !PUBLIC DATA MEMBERS:
    character(len=19), public           :: timestr
@@ -189,14 +191,17 @@
    ! Set bfmtime 
    jday = real(jul0,RLEN)
    call calendar_date(jday,yy,mm,dd,hh,nn)
-   write(bfmtime%date0,'(i4.4,a1,i2.2,a1,i2.2,1x,I2.2,a1,I2.2)') yy,'-',mm,'-',dd,hh,':',nn
+   write(bfmtime%datestring,'(i4.4,a1,i2.2,a1,i2.2,1x,I2.2,a1,I2.2)') yy,'-',mm,'-',dd,hh,':',nn
+   write(bfmtime%date0,'(i4.4,i2.2,i2.2)') yy,mm,dd
    bfmtime%time0    = jday
    bfmtime%timeEnd  = jday + (float(MaxN) * timestep) / SEC_PER_DAY
    bfmtime%step0    = MinN - 1
    bfmtime%timestep = timestep
    bfmtime%stepnow  = MinN - 1
    bfmtime%stepEnd  = MaxN
-   
+   call calendar_date(bfmtime%timeEnd,yy,mm,dd,hh,nn)
+   write(bfmtime%dateEnd,'(i4.4,i2.2,i2.2)') yy,mm,dd
+
    LEVEL2 'bfmtime : ', bfmtime
 
    return
@@ -554,6 +559,41 @@
      if (yeardays == 0 .OR. yeardays > 366) stop ' yeardays out of bounds!'
      return
  end function yeardays
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ character(len=PATH_MAX) function outdeltalab(outdelta)
+     implicit none
+     integer :: outdelta, timesec, outfreq , thisrdt
+
+     thisrdt = int(bfmtime%timestep)
+     timesec = outdelta * thisrdt
+
+     ! BFM monthly frequency
+     if ( outdelta == -1 ) then
+        outdeltalab='1m'
+     ! Daily frequency
+     elseif ( MOD ( timesec, int(SEC_PER_DAY) ) == 0 ) then
+        outfreq = timesec / int(SEC_PER_DAY)
+        write(outdeltalab,'(i12,a1)') outfreq, 'd'
+     ! Hourly frequency
+     elseif ( MOD ( timesec , 3600 ) == 0 ) then
+        outfreq = timesec / 3600
+        write(outdeltalab,'(i12,a1)') outfreq, 'h'
+     ! Minutes frequency
+     elseif ( MOD ( timesec , 60 ) == 0 ) then
+        outfreq = timesec / 60
+        write(outdeltalab,'(i12,a1)') outfreq, 'mn'
+     ! Seconds frequency (=outdelta)
+     else
+        outfreq = timesec
+        write(outdeltalab,'(i12,a1)') outfreq, 's'
+     endif
+     
+     ! Remove leading spaces
+     outdeltalab = ADJUSTL( outdeltalab ) 
+
+     return
+ end function outdeltalab
 !-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 
