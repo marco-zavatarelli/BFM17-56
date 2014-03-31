@@ -40,7 +40,6 @@
 !-----------------------------------------------------------------------
    nn_bathy    =    0      !  compute (=0) or read (=1) the bathymetry file
    rn_rdt      = 7200.     !  time step for the dynamics (and tracer if nn_acc=0)
-   nn_baro     =   60      !  number of barotropic time step            ("key_dynspg_ts")
    rn_rdtmin   = 7200.           !  minimum time step on tracers (used if nn_acc=1)
    rn_rdtmax   = 7200.           !  maximum time step on tracers (used if nn_acc=1)
    jphgr_msh   =       5                 !  type of horizontal mesh
@@ -61,6 +60,10 @@
    ppa2        =  999999.0               !  Double tanh function parameters
    ppkth2      =  999999.0               !
    ppacr2      =  999999.0               !
+/
+!-----------------------------------------------------------------------
+&namsplit      !   time splitting parameters                            ("key_dynspg_ts")
+!-----------------------------------------------------------------------
 /
 !-----------------------------------------------------------------------
 &namcrs        !   Grid coarsening for dynamics output and/or
