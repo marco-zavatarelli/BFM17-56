@@ -31,8 +31,9 @@
       <file_group id="1d" output_freq="1d"  output_level="10" enabled=".TRUE."/> <!-- 1d files -->
       <file_group id="3d" output_freq="3d"  output_level="10" enabled=".TRUE."/> <!-- 3d files -->    
 
-      <file_group id="5d" output_freq="5d"  output_level="10" enabled=".TRUE." >  <!-- 5d files -->  
- 
+      <file_group id="5d" output_freq="5d"  output_level="10" enabled=".TRUE." />  <!-- 5d files -->  
+
+      <file_group id="1m" output_freq="1mo" output_level="10" enabled=".TRUE."> <!-- real monthly files -->
 	<file id="file1" name_suffix="_grid_T" description="ocean T grid variables" >
 	  <field field_ref="sst"          name="tos"      long_name="sea_surface_temperature"                       />
 	  <field field_ref="sss"          name="sos"      long_name="sea_surface_salinity"                          />
@@ -102,9 +103,6 @@
 	</file>
 	-->
       </file_group>
-
-
-      <file_group id="1m" output_freq="1mo" output_level="10" enabled=".TRUE."/> <!-- real monthly files -->
 
 
       <file_group id="2m" output_freq="2mo" output_level="10" enabled=".TRUE."/> <!-- real 2m files -->
