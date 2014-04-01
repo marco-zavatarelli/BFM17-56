@@ -188,32 +188,29 @@
 !-----------------------------------------------------------------------
 &namsbc_core   !   namsbc_core  CORE bulk formulae
 !-----------------------------------------------------------------------
-!              !  file name          ! frequency (hours) ! variable  ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
-!              !                               !  (if <0  months)  !   name    !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  !
-   sn_wndi     = 'eraINT_165'      ,         3         , 'var165'  ,   .true.     , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , 'Uwnd'
-   sn_wndj     = 'eraINT_166'      ,         3         , 'var166'  ,   .true.     , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , 'Vwnd'
-   sn_qsr      = 'eraINT_169'      ,        24         , 'var169'  ,   .false.    , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , ''
-   sn_qlw      = 'eraINT_175'      ,        24         , 'var175'  ,   .false.    , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , ''
-   sn_tair     = 'eraINT_167'      ,         3         , 'var167'  ,   .true.     , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , ''
-   sn_humi     = 'eraINT_qs'       ,         3         , 'qs'      ,   .true.     , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , ''
-   sn_prec     = 'eraINT_228'      ,        24         , 'var228'  ,   .true.     , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , ''
-   sn_snow     = 'eraINT_144'      ,        24         , 'var144'  ,   .true.     , .false., 'yearly'  , 'wgt_bilin_ORCA025'  , ''
-   sn_tdif     = 'qscat_corr'        ,        -1         , 'tauint'  ,   .true.     , .true. , 'yearly'  , ''       , ''
-   sn_swc      = 'sw_corr'           ,        24         , 'swc'     ,   .false.    , .true. , 'yearly'  , ''       , ''
-   sn_lwc      = 'lw_corr'           ,        24         , 'lwc'     ,   .false.    , .true. , 'yearly'  , ''       , ''
-   sn_prc      = 'prec_corr'         ,       -1          , 'prc'     ,   .true.     , .true.  , 'yearly' , ''       , ''
-   cn_dir      = '/work/ans032/ERA-INT/'      !  root directory for the location of the bulk files
+!              !  file name        ! frequency (hours) ! variable  ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
+!              !                   !  (if <0  months)  !   name    !   (logical)  !  (T/F) ! 'monthly' ! filename ! pairing  !
+   sn_wndi     = 'u10_core'        ,       3           , 'u10m'     ,    .true.      , .false.  , 'yearly'  , ''  , ''
+   sn_wndj     = 'v10_core'        ,       3           , 'v10m'     ,    .true.      , .false.  , 'yearly'  , ''  , ''
+   sn_qsr      = 'qsw_core'        ,       24          , 'swrd'     ,    .false.     , .false.  , 'yearly'  , ''  , ''
+   sn_qlw      = 'qlw_core'        ,       24          , 'lwrad'    ,    .true.      , .false.  , 'yearly'  , ''  , ''
+   sn_tair     = 't2_core'         ,       3           , 't2m'      ,    .true.      , .false.  , 'yearly'  , ''  , ''
+   sn_humi     = 'q2_core'         ,       3           , 'q2m'      ,    .true.      , .false.  , 'yearly'  , ''  , ''
+   sn_prec     = 'precip_core'     ,       24          , 'precip'   ,    .true.      , .false.  , 'yearly'  , ''  , ''
+   sn_snow     = 'snow_core'       ,       24          , 'snow'     ,    .true.      , .false.  , 'yearly'  , ''  , ''
+
+   cn_dir      = './'      !  root directory for the location of the bulk files
    ln_2m       = .true.    !  air temperature and humidity referenced at 2m (T) instead 10m (F)
    ln_taudif   = .false.    !  HF tau contribution: use "mean of stress module - module of the mean stress" data
    rn_pfac     = 1.        !  multiplicative factor for precipitation (total & snow)
 !   Corrections for ORCA025
-   rn_qns_bias      = 0.        ! correction to net downward heat flux (sohefldo), ida
-   ln_printdia      = .false.    ! write heat fluxe components, ida
+   rn_qns_bias      = 0.        ! correction to net downward heat flux (sohefldo)
+   ln_printdia      = .false.   ! write heat fluxe components
    ln_netsw         = .false.
    ln_gwxc          = .false.
-   ln_corad_antar   = .false.
-   ln_corad_arc     = .false.
-   ln_cotair_arc    = .false.
+   ln_corad_antar   = .false.   ! true in andrea REAN 3.2 
+   ln_corad_arc     = .false.   ! true in andrea REAN 3.2
+   ln_cotair_arc    = .false.   ! true in andrea REAN 3.2
    ln_coprecip      = .false.
 /
 !-----------------------------------------------------------------------
@@ -266,7 +263,7 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
    ln_qsr_rgb  = .true.    !  RGB (Red-Green-Blue) light penetration
    ln_qsr_2bd  = .false.   !  2 bands              light penetration
    ln_qsr_bio  = .false.   !  bio-model light penetration
-   nn_chldta   =      0    !  RGB : Chl data (=1) or cst value (=0)
+   nn_chldta   =      1    !  RGB : Chl data (=1) or cst value (=0) ! 1 in andrea NEMO 3.2
    rn_abs      =   0.58    !  RGB & 2 bands: fraction of light (rn_si1)
    rn_si0      =   0.35    !  RGB & 2 bands: shortess depth of extinction
    rn_si1      =   23.0    !  2 bands: longest depth of extinction
@@ -343,7 +340,7 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
 !-----------------------------------------------------------------------
 &namlbc        !   lateral momentum boundary condition
 !-----------------------------------------------------------------------
-   rn_shlat    =    1.0    !  shlat = 0  !  0 < shlat < 2  !  shlat = 2  !  2 < shlat
+   rn_shlat    =    0.5    !  shlat = 0  !  0 < shlat < 2  !  shlat = 2  !  2 < shlat
                            !  free slip  !   partial slip  !   no slip   ! strong slip
    ln_vorlat   = .false.   !  consistency of vorticity boundary condition with analytical eqs.
 /
@@ -534,8 +531,8 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
 &namtra_adv    !   advection scheme for tracer 
 !-----------------------------------------------------------------------
    ln_traadv_cen2   =  .false.  !  2nd order centered scheme   
-   ln_traadv_tvd    =  .false.  !  TVD scheme                
-   ln_traadv_muscl  =  .true.   !  MUSCL scheme             
+   ln_traadv_tvd    =  .true.   !  TVD scheme
+   ln_traadv_muscl  =  .false   !  MUSCL scheme
    ln_traadv_muscl2 =  .false.  !  MUSCL2 scheme + cen2 at boundaries  
    ln_traadv_ubs    =  .false.  !  UBS scheme                 
    ln_traadv_qck    =  .false.  !  QUICKEST scheme                 
@@ -631,7 +628,7 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
    !                       !  Coefficient
    rn_ahm_0_lap     =     0.    !  horizontal laplacian eddy viscosity   [m2/s]
    rn_ahmb_0        =     0.    !  background eddy viscosity for ldf_iso [m2/s]
-   rn_ahm_0_blp     =   -1.0e11 !  horizontal bilaplacian eddy viscosity [m4/s] 
+   rn_ahm_0_blp     =   -1.8e11 !  horizontal bilaplacian eddy viscosity [m4/s] 
 /
 
 !!======================================================================
@@ -682,6 +679,7 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
    rn_ebb      =  60.      !  coef. of the surface input of tke (=67.83 suggested when ln_mxl0=T)
    rn_emin     =   1.e-6   !  minimum value of tke [m2/s2]
    rn_emin0    =   1.e-4   !  surface minimum value of tke [m2/s2]
+   rn_bshear   =   1.e-20  !  background shear (>0)
    nn_mxl      =   3       !  mixing length: = 0 bounded by the distance to surface and bottom
                            !                 = 1 bounded by the local vertical scale factor
                            !                 = 2 first vertical derivative of mixing length bounded by 1
