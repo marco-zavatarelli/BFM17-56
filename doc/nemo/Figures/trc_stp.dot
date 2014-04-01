@@ -12,11 +12,11 @@ trcbc.f90"];
   __N5 [label="trc_sub_stp
 trcsub.f90"];
   __N7 [label="trc_bfm
-trcbfm.f90"];
+trcbfm.f90", color="green"];
   __N8 [label="trc_trp_bfm
-trc_trp_bfm.f90"];
+trc_trp_bfm.f90", color="green"];
   __N9 [label="trc_dia_bfm
-trc_dia_bfm.f90"];
+trc_dia_bfm.f90", color="green"];
   __N10 [label="trc_sub_reset
 trcsub.f90"];
   __N12 [label="stp

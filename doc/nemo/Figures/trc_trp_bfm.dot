@@ -4,11 +4,11 @@ digraph "" {
   edge [fontname="ArialMT", fontsize="11", label="", color="#CC0044"];
   graph [bgcolor="white"];
   __N1 [label="trc_trp_bfm
-trc_trp_bfm.f90", color="red"];
+trc_trp_bfm.f90", color="green"];
   __N4 [label="trc_bc_bfm
-trc_bc_bfm.f90"];
+trc_bc_bfm.f90", color="green"];
   __N5 [label="trc_set_bfm
-trc_set_bfm.f90"];
+trc_set_bfm.f90", color="green"];
   __N6 [label="trc_bbl
 trcbbl.f90"];
   __N7 [label="trc_adv
@@ -17,16 +17,14 @@ trcadv.f90"];
 zpshde.f90"];
   __N9 [label="trc_ldf
 trcldf.f90"];
-  __N10 [label="trc_kpp
-zdfkpp.f90"];
   __N11 [label="trc_zdf
 trczdf.f90"];
   __N12 [label="trc_nxt_bfm
-trcnxt_bfm.f90"];
+trcnxt_bfm.f90", color="green"];
   __N13 [label="trc_nxt
-trcnxt.f90"];
+trcnxt.f90", color="red"];
   __N25 [label="trc_stp
-trcstp.f90"];
+trcstp.f90", color="red"];
   __N26 [label="stp
 step.f90"];
   __N1 -> __N4;
@@ -35,7 +33,6 @@ step.f90"];
   __N1 -> __N7;
   __N1 -> __N8;
   __N1 -> __N9;
-  __N1 -> __N10;
   __N1 -> __N11;
   __N1 -> __N12;
   __N1 -> __N13;
