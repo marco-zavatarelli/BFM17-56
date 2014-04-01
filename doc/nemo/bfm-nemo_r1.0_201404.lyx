@@ -224,7 +224,7 @@ M.
 
 \begin_layout Standard
 \align center
-Release 1.0, April 2014
+DRAFT REVISION Release 1.0, April 2014
 \begin_inset Newline newline
 \end_inset
 
@@ -2178,13 +2178,113 @@ key "vichi07_part1"
 
  but it is now intended to be just another configuration of the BFM.
  This implies that any BFM feature can now be used with NEMO also in global
- ocean configuration.
- The PELAGOS family of configurations double the ORCA family, that is PELAGOS2
- refers to the ORCA2 grid, PELAGOS1 to ORCA1 and so forth.
+ ocean configurations.
+ The PELAGOS family of configurations follows the ORCA family specifications,
+ that is PELAGOS2 refers to the ORCA2 grid, PELAGOS1 to ORCA1 and so forth.
 \end_layout
 
 \begin_layout Standard
-PELAGOS2 is the coarsest global ocean resolution 
+PELAGOS2 is the coarsest global ocean resolution but still requires a parallel
+ computing environment for its usage.
+ One needs to have a fully functioning NEMO implementation of the ORCA2_LIM
+ configuration before attempting to run PELAGOS2 (see details here: http://www.ne
+mo-ocean.eu/Using-NEMO/Configurations/ORCA2_LIM_PISCES).
+ The default set up is the same as ORCA2_LIM with the following features:
+\end_layout
+
+\begin_layout Itemize
+sea ice model LIM2 (
+\family typewriter
+key_lim2
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+filtered linear free surface (
+\family typewriter
+key_dynspg_flt
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+Laplacian diffusion with isopycnal diffusion (
+\family typewriter
+key_ldfslp
+\family default
+) and coefficients for horizontal diffusion with 2-D variation (
+\family typewriter
+key_traldf_c2d
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+eddy-induced velocity parameterization of enhanced diffusion (
+\family typewriter
+key_traldf_eiv
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+coefficients for horizontal viscosity with 3-D variation (
+\family typewriter
+key_dynldf_c3d
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+vertical turbulence TKE closure and vertical tidal mixing (
+\family typewriter
+key_zdftke
+\family default
+ and 
+\family typewriter
+key_zdftmx
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+bottom boundary layer parameterization (
+\family typewriter
+key_trabbl
+\family default
+)
+\end_layout
+
+\begin_layout Itemize
+double diffusion (
+\family typewriter
+key_zdfddm
+\family default
+)
+\end_layout
+
+\begin_layout Standard
+with the addition of the pre-processing macros to turn on passive tracers
+ and the BFM (
+\family typewriter
+key_top
+\family default
+ and 
+\family typewriter
+key_my_trc
+\family default
+)
+\end_layout
+
+\begin_layout Standard
+By default, PELAGOS2 is compiled with the embedded I/O library XIOS (
+\family typewriter
+key_iomput
+\family default
+) which must be compiled as an external library.
+ On a modern super-computer, 1 month of simulation takes about 6-10 minutes
+ using 128 processors.
 \end_layout
 
 \begin_layout Section
@@ -2196,29 +2296,62 @@ This preset is not part of the official NEMO release but uses the
 \family typewriter
 makenemo
 \family default
- tool to create the configuration in the 
+ tool to create the configuration 
+\family typewriter
+PELAGOS2
+\family default
+ in the 
 \family typewriter
 $NEMODIR/NEMOGCM/CONFIG
 \family default
  directory to allow the compilation with FCM.
- Users should know that the file containing the cpp macros si found in this
- directory and once you have created the corresponding configuration directory
- in the NEMO tree it will be copied there and should be modified from there.
+ Users should know that the file 
+\family typewriter
+cpp_PELAGOS2.fcm
+\family default
+ containing the preprocessing macros listed above is found in this directory,
+ and once you have created the corresponding configuration directory in
+ the NEMO tree it will be copied there and should be subsequently modified
+ from there.
 \end_layout
 
 \begin_layout Standard
-When the configuration script is called with the PELAGOS2 preset, makenemo
+When the configuration script is called with the PELAGOS2 preset, 
+\family typewriter
+makenemo
+\family default
  is requested to create a new configuration and 
 \end_layout
 
 \begin_layout Standard
 \begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-./bfm_configure.sh -gcd -a ARCHFILE -p PELAGOS2
+% ./bfm_configure.sh -gcd -a ARCHFILE -p PELAGOS2
+\end_layout
+
+\begin_layout Plain Layout
+
+You are  installing a new configuration
+\end_layout
+
+\begin_layout Plain Layout
+
+Creating PELAGOS2/WORK = OPA_SRC TOP_SRC LIM_SRC_2 for PELAGOS2
+\end_layout
+
+\begin_layout Plain Layout
+
+MY_SRC directory is : PELAGOS2/MY_SRC
+\end_layout
+
+\begin_layout Plain Layout
+
+....
 \end_layout
 
 \end_inset
@@ -2227,17 +2360,24 @@ status open
 \end_layout
 
 \begin_layout Standard
-The run directory is created in $BFMDIR_RUN/pelagos2 just like all other
- BFM presets and the nemo executable is linked to there.
+The run directory is created in 
+\family typewriter
+$BFMDIR_RUN/pelagos2
+\family default
+ just like all other BFM presets and the nemo executable is linked to there.
 \end_layout
 
 \begin_layout Section
-PELAGOS_OFF
+The PELAGOS2_OFF preset
 \end_layout
 
 \begin_layout Standard
-Ricordati che meshmask va creata con tutti i domini e non solo con quelli
- di oceano se no l'offline ha delle maschere sbagliate
+It must be considered that the grid is entirely determined by the mesh_mask.nc
+ file given as input.
+ Please note that the model will not work properly if the meshmask was generated
+ from a parallel simulation where land domains have been excluded.
+ This will create a mismatch with the number of grid points generating a
+ set of NAN in the diagnostics that will slow down the simulation.
 \end_layout
 
 \begin_layout Chapter
@@ -2275,6 +2415,242 @@ Difference between 3D restart and 1D restart
 
 \begin_layout Section
 Diagnostic computation of satellite chlorophyll
+\end_layout
+
+\begin_layout Standard
+This tool is available in directory $BFMDIR/tools/chlsat and computes the
+ chlorophyll concentration as seen by satellite considering: 
+\end_layout
+
+\begin_layout Enumerate
+the optical depth and a tolerance level as described in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "vichi07_part1"
+
+\end_inset
+
+, eq.
+ 2; 
+\end_layout
+
+\begin_layout Enumerate
+the 1% light level;
+\end_layout
+
+\begin_layout Enumerate
+the 0.1% light level
+\end_layout
+
+\begin_layout Standard
+Input files are the chlorophyll concentration (variable 
+\family typewriter
+Chla
+\family default
+) and the attenuation coefficient (variable 
+\family typewriter
+xEPS
+\family default
+), both with the same number of time stamps, and the mask file.
+ It also allows to compute the attenuation coefficient using the BFM formula
+ from total chlorophyll concentration, background attenuation and chlorophyll-sp
+ecific absorption coefficient but neglecting the contribution from inorganic
+ suspended matter and detritus.
+ The input parameters are in the namelist 
+\family typewriter
+chlsat.nml
+\family default
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Fortran"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+!-------------------------------------------------------------------------------
+-----!
+\end_layout
+
+\begin_layout Plain Layout
+
+!Main initialisation and output specifications
+\end_layout
+
+\begin_layout Plain Layout
+
+!NAME             KIND    DESCRIPTION
+\end_layout
+
+\begin_layout Plain Layout
+
+!out_fname 	   string 	   Name of output file
+\end_layout
+
+\begin_layout Plain Layout
+
+!inp_dir 	     string 	   Path to the input files
+\end_layout
+
+\begin_layout Plain Layout
+
+!out_dir 	     string    	Path to the output file
+\end_layout
+
+\begin_layout Plain Layout
+
+!mask_fname       string        Full path to NEMO mesh_mask file
+\end_layout
+
+\begin_layout Plain Layout
+
+!chla_fname       string        Name of data file containing 3D Chl
+\end_layout
+
+\begin_layout Plain Layout
+
+!chla_name        string        Name of Chl variable in file
+\end_layout
+
+\begin_layout Plain Layout
+
+!compute_eps      logical       Use attenuation coefficient from output
+\end_layout
+
+\begin_layout Plain Layout
+
+!                               or computed using the BFM formula from Chl
+\end_layout
+
+\begin_layout Plain Layout
+
+!                               concentration, neglecting ISM and detritus
+\end_layout
+
+\begin_layout Plain Layout
+
+!                               The computation requires:
+\end_layout
+
+\begin_layout Plain Layout
+
+!   p_eps0        real          background attenuation of water (m-1)
+\end_layout
+
+\begin_layout Plain Layout
+
+!   p_epsChla     real          specific attenuation of Chla (m2/mg Chl)
+\end_layout
+
+\begin_layout Plain Layout
+
+!
+\end_layout
+
+\begin_layout Plain Layout
+
+!eps_fname        string        Name of data file containing 3D att.
+ coeff.
+\end_layout
+
+\begin_layout Plain Layout
+
+!eps_name         string        Name of attenuation coeff.
+ variable in file
+\end_layout
+
+\begin_layout Plain Layout
+
+!tolerance        real          multiplicative factor for optical depth
+\end_layout
+
+\begin_layout Plain Layout
+
+!
+\end_layout
+
+\begin_layout Plain Layout
+
+!-------------------------------------------------------------------------------
+-----!
+\end_layout
+
+\begin_layout Plain Layout
+
+&chlsat_nml
+\end_layout
+
+\begin_layout Plain Layout
+
+   out_fname='chlsat.nc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   inp_dir='.'
+\end_layout
+
+\begin_layout Plain Layout
+
+   out_dir='.'
+\end_layout
+
+\begin_layout Plain Layout
+
+   mask_fname='ORCA2_chlmask.nc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   chla_fname='bfm_output.nc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   chla_name='Chla'
+\end_layout
+
+\begin_layout Plain Layout
+
+   compute_eps=.false.
+\end_layout
+
+\begin_layout Plain Layout
+
+   p_eps0=0.0435
+\end_layout
+
+\begin_layout Plain Layout
+
+   p_epsChla=0.03
+\end_layout
+
+\begin_layout Plain Layout
+
+   eps_fname='bfm_output.nc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   eps_name='xEPS'
+\end_layout
+
+\begin_layout Plain Layout
+
+   tolerance=0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
