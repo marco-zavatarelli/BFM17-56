@@ -39,6 +39,7 @@
 ! out_dir        string  Path to the output file
 ! out_title      string  Name of the experiment in NetCDF file
 ! out_delta      integer Output is saved every out_delta timesteps
+!                        Set to -1 to store real monthly output
 ! parallel_log   logical Set true in parallel jobs for a single log file 
 !-------------------------------------------------------------------------!
 &bfm_nml
@@ -663,15 +664,23 @@ p_paMEZ(2,:)=   0.0,    1.0
 !-------------------------------------------------------------------------!
 ! Sinking rates of Pelagic Variables
 !  : for mem_PelGlobal filled by InitPelGlobal
-! NAME        UNIT      DESCRIPTION
-! p_rR6m      [m/d]     detritus sinking rate
-! p_rPIm      [m/d]     phytoplankton background sinking rate
+! NAME           UNIT      DESCRIPTION
+! p_rR6m         [m/d]   detritus sinking rate
+! KSINK_rPPY      [m]    prescribe sinking rate for phytoplankton below this
+!                        depth threshold to p_rR6m value. Use 0.0 to disable.
+! AggregateSink  logic   use aggregation = true to enhance the sink rate
+!                        and bypass the prescribed sinking
+! depth_factor    [m]    depth factor for aggregation method
+! p_rPIm         [m/d]   phytoplankton background sinking rate
 !-------------------------------------------------------------------------!
 &PelGlobal_parameters
-  p_rR6m = 3.0
+  p_rR6m         = 3.0
+  KSINK_rPPY     = 0.0
+  AggregateSink  = .FALSE.
+  depth_factor   = 2000.0
 !               P1      P2      P3      P4
   p_rPIm =      0.0,    0.0,    0.0,    0.0
-	filename_nml_conf = 'Pelagic_Environment.nml',
+       filename_nml_conf = 'Pelagic_Environment.nml',
 /
 
 !-------------------------------------------------------------------------!

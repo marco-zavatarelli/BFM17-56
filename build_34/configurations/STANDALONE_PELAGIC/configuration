@@ -27,7 +27,7 @@
 &BFM_conf
         MODE    = 'STANDALONE',
         CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG',
-        ARCH    = 'gfortran.inc',
+        ARCH    = 'ifort.inc',
         PROC    = 4,
         EXP     = 'standalone.pelagic',
 /

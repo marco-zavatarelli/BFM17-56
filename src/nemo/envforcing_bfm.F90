@@ -97,10 +97,6 @@ IMPLICIT NONE
        AtmCO2%fnow = pack( sf_trcsbc(n)%fnow(:,:,1),SRFmask(:,:,1) )
    endif
    !
-   ! Water column pressure 
-   ! (need better approximation to convert from m to dbar)
-   EPR = pack(fsdept(:,:,:),SEAmask)
-   !
    ! Atmospheric sea level pressure (MFS index jp_msl  = 4)
    !
    if ( allocated(AtmSLP%fnow))  then 

@@ -63,8 +63,20 @@
   ! PelGlobal PARAMETERS (read from nml)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !  All parameter were copied from the .p-file:
-  real(RLEN)  :: p_rR6m  ! m/d# detritus sinking rate
-  real(RLEN)  :: p_rPIm(4)
+  ! NAME           UNIT      DESCRIPTION
+  ! p_rR6m         [m/d]   detritus sinking rate
+  ! p_rPIm         [m/d]   phytoplankton background sinking rate
+  ! KSINK_rPPY      [m]    prescribe sinking rate for phytoplankton below this 
+  !                        depth threshold to p_rR6m value. Use 0.0 to disable. 
+  ! AggregateSink  logic   use aggregation = true to enhance the sink rate
+  !                        and bypass the prescribed sinking
+  ! depth_factor    [m]    depth factor for aggregation method
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  real(RLEN)    :: p_rR6m = 10.0_RLEN
+  real(RLEN)    :: p_rPIm(4)
+  real(RLEN)    :: KSINK_rPPY = 0.0_RLEN
+  logical       :: AggregateSink = .FALSE.
+  real(RLEN)    :: depth_factor = 2000.0_RLEN
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -75,7 +87,8 @@
   subroutine InitPelGlobal()
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /PelGlobal_parameters/ p_rR6m, p_rPIm
+  namelist /PelGlobal_parameters/ p_rR6m, p_rPIm , KSINK_rPPY, AggregateSink, &
+                                  depth_factor
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

@@ -18,7 +18,7 @@
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
                   NO_BOXES_XY, NO_D3_BOX_DIAGNOSS,     &
-                  NO_STATES,Depth,D3STATE
+                  NO_STATES,Depth,D3STATE,EPR
 #ifdef INCLUDE_BEN
    use mem, only: NO_D2_BOX_STATES_BEN, D2STATE_BEN, &
                   NO_BOXES_Z_BEN, NO_BOXES_BEN, NO_STATES_BEN
@@ -286,6 +286,9 @@
    Volume = pack(rtmp3Da*rtmp3Db,SEAmask)
    !thickness at each sea gridpoint (Depth(NO_BOXES))
    Depth  = pack(rtmp3Da,SEAmask)
+   ! Water column pressure
+   ! (need better approximation to convert from m to dbar)
+   EPR = pack(fsdept(:,:,:),SEAmask)
 
    !-------------------------------------------------------
    ! Initialization from analytical profiles or data
@@ -359,7 +362,7 @@
    ! (override any previous initialisation)
    !-------------------------------------------------------
    call init_netcdf_rst_bfm(out_rst_fname,TRIM(bfmtime%datestring),0,  &
-             lat2d=gphit,lon2d=glamt,z=gdept_0,        &
+             lat2d=gphit,lon2d=glamt,z=fsdept(1,1,:),  &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &
@@ -401,7 +404,7 @@
    call calcmean_bfm(INIT)
    call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
              TRIM(out_title) , 0 ,                     &
-             lat2d=gphit,lon2d=glamt,z=gdept_0,        &
+             lat2d=gphit,lon2d=glamt,z=fsdept(1,1,:),  &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &

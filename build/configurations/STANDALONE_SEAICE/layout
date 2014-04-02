@@ -56,6 +56,7 @@ end
   ERHO  : Seawater Density : kg/m3
   EIR   : Irradiance : uE/m2/s
   ESS   : Suspended Sediments : g/m3
+  EPR   : Water Pressure : dbar
 end
 2d-variable-ice -if-exist INCLUDE_SEAICE
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -234,7 +235,6 @@ end
     pH         : pH : -
     OCalc      : Saturation state of Calcite : -
     OArag      : Saturation state of Aragonite : -
-    EPR        : Water Pressure : dbar
 end
 
 
