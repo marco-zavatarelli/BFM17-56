@@ -637,7 +637,7 @@ Integration of BFM in the NEMO-TOP interface
 BFM and NEMO are separated codes that are maintained by different groups
  of developers.
  The coupled configuration is therefore the result of a joint compilation
- of the two codes, where the BFM is used as a modular library of NEMO.
+ of the two codes, where the BFM is a modular external library of NEMO.
 \end_layout
 
 \begin_layout Standard
@@ -711,7 +711,7 @@ key "BFM-manual"
 \end_inset
 
 , but when run in coupled configuration there are some additional parameters
- derived from the NEMO TOP namelist may be adjusted.
+ derived from the NEMO TOP namelist that must be adjusted.
  Particularly, this occurs for the prescription of initial and boundary
  conditions because both rely on the NEMO facilities for reading and interpolati
 ng external files.
@@ -1144,6 +1144,19 @@ reference "sec:Boundary-conditions-TOP"
 .
 \end_layout
 
+\begin_layout Standard
+\begin_inset Note Note
+status open
+
+\begin_layout Plain Layout
+Sinking in PelGlobal
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 The flow chart
 \end_layout
@@ -1522,6 +1535,19 @@ status open
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Missing features
+\end_layout
+
+\begin_layout Standard
+BFM-NEMO is still not complete.
+ Dynamical free surface and variable volume.
+\end_layout
+
+\begin_layout Standard
+XIOS library
 \end_layout
 
 \begin_layout Chapter
