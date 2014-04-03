@@ -123,7 +123,6 @@
   ! p_eps0       [1/m]         Background extinction coefficient
   ! p_epsESS     [m2/g]        Specific attenuation coefficient of
   !                            suspended sediments
-  ! p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
   ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
   !                            detritus
   ! p_pe_R1c     [-]           Fractional content of C in cytoplasm 
@@ -146,7 +145,6 @@
       p_PAR=0.50_RLEN,      &  
       p_eps0=0.04_RLEN  ,  &  
       p_epsESS=0.04e-3_RLEN  ,  &
-      p_epsChla=0.03, &
       p_epsR6=0.1e-3_RLEN , & 
       p_pe_R1c=0.60_RLEN  ,     &
       p_pe_R1n=0.72_RLEN  ,     &
@@ -221,8 +219,7 @@
     p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,         &
     p_eps0, p_epsESS, p_sedlevels, p_sedsigma,                                &
     p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,                                   &
-    p_epsR6, p_epsChla, check_fixed_quota, &
-    p_d_tot, p_poro0 
+    p_epsR6, check_fixed_quota, p_d_tot, p_poro0 
 #ifdef INCLUDE_BEN
   namelist /Param_parameters_ben/                                             &
     CalcBenOrganisms,CalcBenBacteria,                                         &
