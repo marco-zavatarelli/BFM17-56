@@ -178,7 +178,7 @@
    ! Allocate and build the indices of ocean points in
    ! the 3D nemo arrays
    !-------------------------------------------------------
-#ifndef USEPACK
+#ifdef NOPACK
    allocate (iwet(NO_BOXES))
    allocate (jwet(NO_BOXES))
    allocate (kwet(NO_BOXES))

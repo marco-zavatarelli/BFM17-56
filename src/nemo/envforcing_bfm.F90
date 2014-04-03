@@ -1,4 +1,4 @@
-#include "cppdefs.h"
+include "cppdefs.h"
 !-----------------------------------------------------------------------
 !BOP
 !
@@ -49,7 +49,7 @@ IMPLICIT NONE
    !---------------------------------------------
    ! Assign temperature, salinity and density
    !---------------------------------------------
-#ifdef USEPACK
+#ifndef NOPACK
       ETW = pack(tsn(:,:,:,jp_tem),SEAmask)
       ESW = pack(tsn(:,:,:,jp_sal),SEAmask)
       ERHO = pack(rhop(:,:,:),SEAmask)
@@ -144,7 +144,7 @@ IMPLICIT NONE
    ! to 3D grid (apply land-sea mask)
    !---------------------------------------------
       allocate(rtmp3Db(jpi,jpj,jpk))
-#ifdef USEPACK
+#ifndef NOPACK
       rtmp3Db = unpack(xEPS,SEAmask,ZEROS)
 #else
       DO n = 1,NO_BOXES
@@ -172,12 +172,12 @@ IMPLICIT NONE
                rtmp3Da(i,j,k+1) = rtmp3Da(i,j,k)*               &
                                   exp(-rtmp3Db(i,j,k)*fse3w(i,j,k))
                if (ln_qsr_bio) & 
-			       etot3(i,j,k+1) = etot3(i,j,k)*    &
+                                  etot3(i,j,k+1) = etot3(i,j,k)*    &
                                   exp(-rtmp3Db(i,j,k)*fse3t(i,j,k))
             end do 
          end do 
       end do 
-#ifdef USEPACK
+#ifndef NOPACK
       EIR = pack(rtmp3Da,SEAmask)
 #else
       DO n = 1,NO_BOXES

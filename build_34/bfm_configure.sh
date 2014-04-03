@@ -399,7 +399,7 @@ if [ ${GEN} ]; then
             [ $VERBOSE ] && echo "include SEAICE in bfm.fcm"
             FCMIce="src::bfm::seaice          ${BFMDIR}/src/BFM/Seaice"
         fi
-        FCMMacros="BFM_NEMO USEPACK BFM_NOPOINTERS ${CPPDEFS}"
+        FCMMacros="BFM_NEMO BFM_NOPOINTERS ${CPPDEFS}"
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
             -e "s;_place_ben_;${FCMBen};g"     -e "s;_place_ice_;${FCMIce};"       \
             ${BFMDIR}/${SCRIPTS_PROTO}/Default_bfm.fcm | tr "\&" "\n" > ${blddir}/bfm.fcm

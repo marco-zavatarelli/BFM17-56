@@ -68,23 +68,22 @@
 #else
       case (ppP1c,ppP1n,ppP1p,ppP1s,ppP1l)
 #endif
-  
-   !---------------------------------------------
-   ! Prescribe sinking velocity below depth 
-   ! threshold KSINK_rPPY (usually below 150m)
-   ! This accelerate diatoms sinking to balance 
-   ! the reduction occruing in deeper layers
-   ! where nutrient concentration is high
-   ! It is alternatevly done by AggregationSink
-   !---------------------------------------------
-   if ( KSINK_rPPY > 0 .AND. .NOT. AggregateSink ) &
-      WHERE( EPR > KSINK_rPPY ) sediPPY(iiP1,:) = p_rR6m
-#ifdef USEPACK
+        !---------------------------------------------
+        ! Prescribe sinking velocity below depth 
+        ! threshold KSINK_rPPY (usually below 150m)
+        ! This accelerate diatoms sinking to balance 
+        ! the reduction occruing in deeper layers
+        ! where nutrient concentration is high
+        ! It is alternatevly done by AggregationSink
+        !---------------------------------------------
+         if ( KSINK_rPPY > 0 .AND. .NOT. AggregateSink ) &
+            where( EPR > KSINK_rPPY ) sediPPY(iiP1,:) = p_rR6m
+#ifndef NOPACK
          wbio = -unpack(sediPPY(iiP1,:),SEAmask,ZEROS)
 #else
-         DO n = 1,NO_BOXES
+         do n = 1,NO_BOXES
             wbio(iwet(n),jwet(n),kwet(n)) = -sediPPY(iiP1,n)
-         END DO
+         end do
 #endif
          ! vertical sinking
          CALL trc_sink_bfm(wbio)
@@ -95,7 +94,7 @@
 #else
       case (ppR6c,ppR6n,ppR6p,ppR6s)
 #endif
-#ifdef USEPACK
+#ifndef NOPACK
          wbio = -unpack(sediR6(:),SEAmask,ZEROS)
 #else
          DO n = 1,NO_BOXES
