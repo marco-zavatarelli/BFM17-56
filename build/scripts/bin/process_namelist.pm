@@ -110,9 +110,11 @@ sub check_cols{
 
 
 sub process_namelist{
-    my $nml_val = shift; #input file
-    my $lst_nml = shift; #output for names
-    my $lst_com = shift; #output for commentaries
+    my ($nml_val, $lst_nml, $lst_com, $debug ) = @_;
+    # nml_val - input file
+    # lst_nml - output for names
+    # lst_com - output for commentaries
+    # debug   - print debug messages
     
     my $index = 0;
 
@@ -149,7 +151,7 @@ sub process_namelist{
                         my @comm_temp = split('\s+',$sub_comm);
                         $sub_comm_param{$param_temp} = \@comm_temp;
                         $sub_comm='';
-                        #print "$param_temp -> @comm_temp\n";
+                        if( $debug ){ print "$param_temp -> @comm_temp\n"; }
                     }
                 }
                 $block .= $line;
@@ -162,7 +164,7 @@ sub process_namelist{
 
             #is the end of the namelist?
             if( $line =~ m/^\s*\// ){
-                #print "BLOCK:\n$block\n";
+                if( $debug ){ print "BLOCK:\n$block\n"; }
                 $$lst_nml[$index] = F90Namelist->new(debug => 0) or die "Couldn't get object\n";
                 $$lst_nml[$index]->parse(text => $block);
                 #add commentaries of parameters
@@ -174,7 +176,7 @@ sub process_namelist{
                         print "WARNING: problems adding comment \"@{$comm_ref}\" for param \"$key\" in namelist \"" . $$lst_nml[$index]->name . "\"\n";
                     }
                 }
-                #print "OUTPUT:\n", $$lst_nml[$index]->output();
+                if( $debug ){ print "OUTPUT:\n", $$lst_nml[$index]->output(); }
                 $index++;
                 $block = '';
                 $comm = '';
@@ -187,13 +189,13 @@ sub process_namelist{
 
 
 sub check_namelists{
-    my ($lists_ref, $groups_ref, $params_ref, $const_ref, $index_ref, $VERBOSE ) = @_;
+    my ($lists_ref, $groups_ref, $params_ref, $const_ref, $index_ref, $debug ) = @_;
     my @const  = keys %$const_ref;
 
     foreach my $list (@$lists_ref){
         #check _parameters lists
         if( $list->name =~ /(.*)_parameters$/ ){
-            if ( $VERBOSE ){ print "\tLIST: " . $list->name . "\n"; }
+            if ( $debug ){ print "\tLIST: " . $list->name . "\n"; }
             my $nml_name = $1;
             my $grp_name = "${nml_name}Plankton";
             my $check = 0;
@@ -207,7 +209,7 @@ sub check_namelists{
             }
 
             if( $check ){
-                if ( $VERBOSE ){ print "\t\tFound correspondance with $grp_name\n"; }
+                if ( $debug ){ print "\t\tFound correspondance with $grp_name\n"; }
                 my $list_name = $list->name;
                 #check all the parameters which are part of this group
                 my @params_grp = ();
@@ -410,7 +412,7 @@ sub check_namelists{
 
 
 sub print_namelists{
-    my ( $lst_nml, $lst_com, $lst_index, $out_dir, $VERBOSE ) = @_ ;
+    my ( $lst_nml, $lst_com, $lst_index, $out_dir, $debug ) = @_ ;
 
     my $index = 0;
     foreach my $nml (@$lst_nml){
@@ -494,7 +496,7 @@ sub print_namelists{
             }
             printf NML_OUT "\n\n\n" ;
             close NML_OUT;
-            if( $VERBOSE ){ print "---------- $nml_name\n"; }
+            if( $debug ){ print "---------- $nml_name\n"; }
         }
     }
 }

@@ -39,6 +39,7 @@ my ($input_mem, $input_nml, $proto_dir, $out_dir, @cpp_defs);
 
 #fix values
 my $VERBOSE = 0;
+my $DEBUG = 0;
 my $HELP    = 0;
 my @PROTOS_NAME = qw(ModuleMem AllocateMem set_var_info_bfm init_var_bfm INCLUDE);
 my @PROTOS_EXT  = qw(F90       F90         F90              F90          h      );
@@ -53,7 +54,7 @@ my %lst_const = ();
 my %lst_index = ();
 
 sub usage(){
-    print "usage: $0 {-D[cpp_def] -r [mem_layout] -n [namelist] -f [prototype_dir] -t [output_dir]} [-v]\n\n";
+    print "usage: $0 {-D[cpp_def] -r [mem_layout] -n [namelist] -f [prototype_dir] -t [output_dir]} [-v] [-d]\n\n";
     print "This script generate .F90, .h and .nml files using templates based on configuration files\n\n";
     print "MUST specify these OPTIONS:\n";
     print "\t-D[cpp_def]          defines\n";
@@ -63,6 +64,7 @@ sub usage(){
     print "\t-t [output_dir]      output dir for generated files\n";
     print "alternative OPTIONS are:\n";
     print "\t-v                   verbose mode\n";
+    print "\t-d                   debug mode\n";
 }
 
 use Getopt::Long qw(:config bundling noignorecase); # for getopts compat
@@ -73,6 +75,7 @@ GetOptions(
     't=s'  => \$out_dir,  
     'D=s@' => \@cpp_defs,
     'v'    => \$VERBOSE,
+    'd'    => \$DEBUG,
     'h'    => \$HELP,
     ) or &usage() && exit;
 if ( $HELP ){ &usage(); exit; }
@@ -80,35 +83,38 @@ if ( !$input_mem || !$input_nml || !$proto_dir || !$out_dir || !@cpp_defs ){ &us
 
 #read memory layout file
 if( $VERBOSE ){ print "Reading memory layout...\n"; }
-process_memLayout($input_mem, \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs), $VERBOSE );
+process_memLayout($input_mem, \%lst_group, \%lst_param, \%lst_sta, \%lst_const, join(' ',@cpp_defs), $DEBUG);
 
 #process namelists removing them from the input file
 if( $VERBOSE ){ print "Reading namelists...\n"; }
-process_namelist($input_nml, \@lst_nml, \@lst_com);
+process_namelist($input_nml, \@lst_nml, \@lst_com, $DEBUG);
 
 #write memory output files
 if( $VERBOSE ){ print "Printing memory layout...\n"; }
 foreach my $idx ( 0 .. $#PROTOS_NAME ){
     my $name = $PROTOS_NAME[$idx];
     my $ext  = $PROTOS_EXT[$idx];
-    if( $VERBOSE ){ print "---------- ${name} ini \n"; }
-    print_f90("$proto_dir/${name}.proto", "$out_dir/${name}.${ext}", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, \%lst_index, \@lst_nml, $VERBOSE);
-    if( $VERBOSE ){ print "---------- ${name} end \n\n"; }
+    if( $DEBUG ){ print "---------- ${name} ini \n"; }
+    print_f90("$proto_dir/${name}.proto", "$out_dir/${name}.${ext}", \%lst_group, \%lst_param, \%lst_sta, \%lst_const, \%lst_index, \@lst_nml, $DEBUG);
+    if( $DEBUG ){ print "---------- ${name} end \n\n"; }
 }
 
 #check consistency between namelists and memory_layout
 if( $VERBOSE ){ print "Checking namelist and memory layout...\n"; }
-check_namelists( \@lst_nml, \%lst_group, \%lst_param, \%lst_const, \%lst_index, $VERBOSE );
+check_namelists( \@lst_nml, \%lst_group, \%lst_param, \%lst_const, \%lst_index, $DEBUG );
 
 #write namelists output files
 if( $VERBOSE ){ print "Writing namelists...\n"; }
-print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $VERBOSE );
+print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $DEBUG );
 
-
-#foreach my $key (keys %lst_group){ $lst_group{$key}->print(); }
-#foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
-#print Dumper(\%lst_index) , "\n"; 
-#print Dumper(\%lst_sta) , "\n"; 
-#print Dumper(\@lst_nml) , "\n";
+if( $DEBUG ){
+    print "lst_group:\n";
+    foreach my $key (keys %lst_group){ $lst_group{$key}->print(); }
+    print "lst_param:\n";
+    foreach my $key (keys %lst_param){ $lst_param{$key}->print(); }
+    print "lst_index:\n" , Dumper(\%lst_index) , "\n"; 
+    print "lst_sta:\n"   , Dumper(\%lst_sta)   , "\n"; 
+    print "lst_nml:\n"   , Dumper(\@lst_nml)   , "\n";
+}
 
 if( $VERBOSE ){ print "Configuration files generation finished\n"; }

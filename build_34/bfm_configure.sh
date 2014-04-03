@@ -47,13 +47,14 @@ NMLLIST="";
 NEMOSUB="";
 
 #options
-OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     EXP     EXPDIR     EXECMD     VALGRIND     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     )
-OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr exp_usr expdir_usr execmd_usr valgrind_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr )
+OPTIONS=(     MODE     CPPDEFS     ARCH     CLEAN     EXP     EXPDIR     EXECMD     VALGRIND     PROC     QUEUE     BFMEXE     NEMOSUB     EXPFILES     FORCING     NMLLIST     RUNPROTO     )
+OPTIONS_USR=( mode_usr cppdefs_usr arch_usr clean_usr exp_usr expdir_usr execmd_usr valgrind_usr proc_usr queue_usr bfmexe_usr nemosub_usr expfiles_usr forcing_usr nmllist_usr runproto_usr )
 
 #error message
 ERROR_MSG="Execute $0 -h for help if you don't know what is going wrong. PLEASE read CAREFULLY before seeking help."
 
 #----------------- USER CONFIGURATION DEFAULT VALUES -----------------
+DEBUG="";
 BFMDIR_DEFAULT="${PWD}/.."
 MODE="STANDALONE"
 CPPDEFS="BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG"
@@ -67,6 +68,7 @@ BFMEXE="bfm_standalone.x"
 CLEAN=1
 NETCDF_DEFAULT="/usr"
 MPICMD="mpirun.lsf"
+RUNPROTO="runscript"
 # --------------------------------------------------------------------
 
 
@@ -133,6 +135,8 @@ DESCRIPTION
                   Number of procs used for running. Default: 8
        -q QUEUE
                   Name of the queue number of procs used for running. Default
+       -R RUNPROTO
+                  Specify prototype for generating the experiment running script (Default: runscript)
 
 ENVIRONMENT VARIABLES
        BFMDIR
@@ -182,6 +186,7 @@ while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:V:r:q:o:" opt; do
       r ) [ ${VERBOSE} ] && echo "n. procs $OPTARG"         ; proc_usr=$OPTARG     ;;
       q ) [ ${VERBOSE} ] && echo "queue name $OPTARG"       ; queue_usr=$OPTARG    ;;
       o ) [ ${VERBOSE} ] && echo "executable name $OPTARG"  ; bfmexe_usr=$OPTARG   ;;
+      R ) [ ${VERBOSE} ] && echo "run proto  name $OPTARG"  ; runproto_usr=$OPTARG ;;
       * ) echo "option not recognized"                      ; exit                 ;;
     esac
 done
@@ -217,6 +222,10 @@ else
     cmd_gen="${GENCONF}.pl"
     cmd_gennml="${GENNML}.pl"
     cmd_mknemo="${MKNEMO} -v0"
+fi
+if [ $DEBUG ]; then
+    cmd_gen=${cmd_gen}" -d"
+    cmd_gennml=${cmd_gennml}" -d"
 fi
 
 myGlobalConf="${PRESET}/configuration"
@@ -385,7 +394,7 @@ if [ ${GEN} ]; then
         fi
 
         #substitute BFM/src/nemo path in cpp according to the version
-        [ ${VERBOSE} ] && echo "Changing nemo version"
+        [ ${VERBOSE} ] && echo "Changing nemo version to: \"$VER\""
         sed -ie "s;inc.*;inc \$BFMDIR/src/nemo${VER}/bfm\.fcm;" ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/cpp_${PRESET}.fcm
 
 
@@ -403,7 +412,7 @@ if [ ${GEN} ]; then
         sed -e "s/_place_keys_/${FCMMacros}/" -e "s;_place_def_;${myGlobalConf};" \
             -e "s;_place_ben_;${FCMBen};g"     -e "s;_place_ice_;${FCMIce};"       \
             ${BFMDIR}/${SCRIPTS_PROTO}/Default_bfm.fcm | tr "\&" "\n" > ${blddir}/bfm.fcm
-        [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}."
+        [ ${VERBOSE} ] && echo "Memory Layout generated in local folder: ${blddir}"
 
         # Move BFM Layout files to target folders 
         cp ${blddir}/*.F90 ${BFMDIR}/src/BFM/General
@@ -552,7 +561,7 @@ if [ ${DEP} ]; then
         -e "s,_VERBOSE_,${VERBOSE},g" \
         -e "s,_PRESET_,${PRESET},g"   \
         -e "s,_QUEUE_,${QUEUE},g"     \
-        -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/runscript > ${exedir}/runscript_${EXP}
-    printf "Go to ${exedir} and execute command:\n\tbsub < ./runscript_${EXP}\n"
+        -e "s,_PROC_,${PROC},g"     ${BFMDIR}/${SCRIPTS_PROTO}/${RUNPROTO} > ${exedir}/${RUNPROTO}_${EXP}
+    printf "Go to ${exedir} and execute command:\n\tbsub < ./${RUNPROTO}_${EXP}\n"
 
 fi

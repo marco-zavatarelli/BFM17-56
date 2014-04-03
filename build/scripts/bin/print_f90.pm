@@ -40,7 +40,7 @@ our @EXPORT= qw(print_f90);
 
 
 ########### VARIABLES GLOBAL ##########################
-my $VERBOSE = 0;
+my $DEBUG = 0;
 my $SPACE = "   ";
 my $MAX_CHAR_PER_LINE = 76;
 my $STRING_INDEX=1;
@@ -119,7 +119,7 @@ my $dispatch = {
 
 sub print_f90 {
 
-    my ($templ_mem, $output, $lst_group, $lst_param, $lst_sta, $lst_const, $lst_index, $lst_nml, $verbose) = @_;
+    my ($templ_mem, $output, $lst_group, $lst_param, $lst_sta, $lst_const, $lst_index, $lst_nml, $debug) = @_;
 
     $LST_PARAM = $lst_param;
     $LST_GROUP = $lst_group;
@@ -127,7 +127,7 @@ sub print_f90 {
     $LST_CONST = $lst_const;
     $LST_INDEX = $lst_index;
     $LST_NML = $lst_nml;
-    $VERBOSE   = $verbose;
+    $DEBUG   = $debug;
 
     #open the template file
     open TEMPL_MEM, "<", "$templ_mem" or die "$templ_mem cannot be opened: $!";
@@ -150,7 +150,7 @@ sub print_f90 {
                 else         { &{$$dispatch{$key}}($OUT);                             }
                 print $OUT "\n";
                 $replaced=1;
-                if( $VERBOSE ){ print " $line_raw"; }
+                if( $DEBUG ){ print " $line_raw"; }
             }
             if ($replaced){ last; }
         }
@@ -304,7 +304,7 @@ sub func_COMMENT {}
 
 sub func_ALLOC {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC: "; }
 
     #if the variable does not exists => dont print anything
     if( ! checkDimType($dim, $type, $subt)  ){ return; }
@@ -345,7 +345,7 @@ sub func_ALLOC {
 
 sub func_POINT_ALLOC  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC: "; }
 
     my $line = "";
     my $TYPE = uc($type);
@@ -376,7 +376,7 @@ sub func_POINT_ALLOC  {
 
 sub func_PP_ASSIGN  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_PP_ASSIGN: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_PP_ASSIGN: "; }
     
     my $line = "";
     my $TYPE = uc($type);
@@ -405,7 +405,7 @@ sub func_PP_ASSIGN  {
 
 sub func_POINT_ALLOC_DIAGG  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_PP_ALLOC_DIAG: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_PP_ALLOC_DIAG: "; }
     
     my $line = "";
     my $SUBTYPE= '_' . uc($subt);
@@ -439,7 +439,7 @@ sub func_POINT_ALLOC_DIAGG  {
 
 sub func_POINT_ALLOC_FIELD  {
     my ( $file, $subt, $spec) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC_FIELD: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_POINT_ALLOC_FIELD: "; }
 
     if( $subt ne 'pel' ){ print "ERROR: Subtype can only be \'pel\' for field $spec\n"; exit; }
 
@@ -486,7 +486,7 @@ sub func_POINT_ALLOC_FIELD  {
 
 sub func_ALLOC_INTVAR  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC_INTVAR: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_ALLOC_INTVAR: "; }
     
     my $line = "";
     my $j = "";
@@ -525,7 +525,7 @@ sub func_ALLOC_INTVAR  {
 
 sub func_FLUX_ALLOC  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
 
     my $line = "";
    
@@ -551,7 +551,7 @@ sub func_FLUX_ALLOC  {
 
 sub func_FLUX_FILL  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
+    if ( $DEBUG ){ print "AllocateMem -> FUNCTION CALLED func_FLUX_ALLOC: "; }
     my $line = "";
 
     my $SUBTYPE= '_' . uc($subt);
@@ -649,7 +649,7 @@ sub func_FLUX_FILL  {
 
 sub func_DESC  {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_DESC: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_DESC: "; }
 
     my $line     = "";
     my $line_par = "";
@@ -689,7 +689,7 @@ sub func_DESC  {
 
 sub func_ARRAY_FIELD  {
     my ( $file, $before, $subt, $spec) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_ARRAY_FIELD: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_ARRAY_FIELD: "; }
 
     #save the spec in stadistics for further calculations of number of variables
     if( ! exists $$LST_STA{"spec num $subt"} ){ $$LST_STA{"spec num $subt"} = 1; }
@@ -703,7 +703,7 @@ sub func_ARRAY_FIELD  {
 
 sub func_NR  {
     my ( $file, $before, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_NR: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_NR: "; }
 
     my $title  = "${type} ${dim}d ${subt}";
     my $number = 0;
@@ -731,7 +731,7 @@ sub func_NR  {
 
 sub func_PP  {
     my ( $file, $before, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_PP: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_PP: "; }
 
     my @line_par = ();
 
@@ -772,7 +772,7 @@ sub func_PP  {
 
 sub func_POINT  {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_POINT: "; }
     
     my $line     = "";
     my @line_par = ();
@@ -805,7 +805,7 @@ sub func_POINT  {
 
 sub func_CONSTITUENT  {
     my ( $file, $before, $dim, $type) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_CONSTITUENT: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_CONSTITUENT: "; }
     
     my @line_par = ();
 
@@ -823,7 +823,7 @@ sub func_CONSTITUENT  {
 
 sub func_GROUP_PARAMETER  {
     my ( $file, $before, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_PARAMETER: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_PARAMETER: "; }
 
     foreach my $group_name ( sort { $$LST_GROUP{$a}->getIndex() cmp $$LST_GROUP{$b}->getIndex() } keys %$LST_GROUP ) {
         my $group = $$LST_GROUP{$group_name};
@@ -847,7 +847,7 @@ sub func_GROUP_PARAMETER  {
 
 sub func_GROUP_CALC {
     my ( $file, $before, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_CALC: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_CALC: "; }
 
     my $line = '';
     my $name = '';
@@ -868,7 +868,7 @@ sub func_GROUP_CALC {
 
 sub func_VARIABLE  {
     my ( $file, $before, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_VARIABLE: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_VARIABLE: "; }
 
     my $line_par = "";
 
@@ -900,7 +900,7 @@ sub func_VARIABLE  {
 
 sub func_DESC_DIAGG  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_DESC_DIAGG: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_DESC_DIAGG: "; }
 
     foreach my $root ( sort { $$LST_PARAM{$a}->getIndex() cmp $$LST_PARAM{$b}->getIndex() } keys %$LST_PARAM ){
         my $param = $$LST_PARAM{$root};
@@ -921,7 +921,7 @@ sub func_DESC_DIAGG  {
 
 sub func_PP_DIAGG  {
     my ( $file, $before, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_PP_DIAGG: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_PP_DIAGG: "; }
 
     my @line_par = ();
 
@@ -942,7 +942,7 @@ sub func_PP_DIAGG  {
 
 sub func_POINT_DIAGG  {
     my ( $file, $before, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT_DIAGG: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_POINT_DIAGG: "; }
     
     my $line     = "";
     my @line_par = ();
@@ -965,7 +965,7 @@ sub func_POINT_DIAGG  {
 
 sub func_POINT_FIELD  {
     my ( $file, $before, $subt, $spec) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_POINT_FIELD: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_POINT_FIELD: "; }
 
     my @line_par = ();
 
@@ -995,7 +995,7 @@ sub func_POINT_FIELD  {
 
 sub func_GROUP_FUNCTION_NAME  {
     my ( $file, $before, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_FUNCTION_NAME: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_GROUP_FUNCTION_NAME: "; }
 
     my @line_par = ();
 
@@ -1014,7 +1014,7 @@ sub func_GROUP_FUNCTION_NAME  {
 
 sub func_GROUP_FUNCTIONS  {
     my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "ModuleMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
+    if ( $DEBUG ){ print "ModuleMem -> FUNCTION CALLED func_GROUPFUNCTIONS: "; }
 
     my $SUBTYPE= '_' . uc($subt);
     if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
@@ -1097,7 +1097,7 @@ sub func_GROUP_FUNCTIONS  {
 
 sub func_STRING  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING: $dim, $type, $subt"; }
+    if ( $DEBUG ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING: $dim, $type, $subt"; }
 
     my $line  = "";
 
@@ -1143,7 +1143,7 @@ sub func_STRING  {
 
 sub func_STRING_DIAGG  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_DIAGG: $dim, $type, $subt"; }
+    if ( $DEBUG ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_DIAGG: $dim, $type, $subt"; }
 
     my $line  = "";
     my $index = 1;
@@ -1185,7 +1185,7 @@ sub func_STRING_DIAGG  {
 
 sub func_STRING_FIELD  {
     my ( $file, $subt, $spec ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $subt, $spec"; }
+    if ( $DEBUG ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_FIELD: $subt, $spec"; }
 
     my $line;
     
@@ -1233,7 +1233,7 @@ sub func_STRING_FIELD  {
 
 sub func_STRING_INDEX  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX:"; }
+    if ( $DEBUG ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX:"; }
 
     my $line;
 
@@ -1277,7 +1277,7 @@ sub func_STRING_INDEX  {
 
 sub func_STRING_INDEX_FIELD  {
     my ( $file, $subt, $spec ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_FIELD:"; }
+    if ( $DEBUG ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_FIELD:"; }
 
     my $line;
 
@@ -1304,7 +1304,7 @@ sub func_STRING_INDEX_FIELD  {
 
 sub func_STRING_INDEX_STARTEND  {
     my ( $file, $subt ) = @_;
-    if ( $VERBOSE ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_STARTEND:"; }
+    if ( $DEBUG ){ print "SET_VAR_INFO_BFM -> FUNCTION CALLED func_STRING_INDEX_STARTEND:"; }
 
     my $line = '';
     my $subt_short = '';
@@ -1342,7 +1342,7 @@ sub func_STRING_INDEX_STARTEND  {
 
 sub func_INIT_VALUE_CALC {
     my ( $file, $before, $subt, $value ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_VALUE_CALC: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_VALUE_CALC: "; }
 
     my $line = '';
 
@@ -1362,7 +1362,7 @@ sub func_INIT_VALUE_CALC {
 
 sub func_INIT_PP  {
     my ( $file, $before, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_PP: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_PP: "; }
 
     #if the variable does not exists => dont print anything
     if( ! checkDimType($dim, $type, $subt)  ){ return; }
@@ -1394,7 +1394,7 @@ sub func_INIT_PP  {
 
 sub func_INIT_FUNC_CONST {
     my ( $file ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_CONST: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_CONST: "; }
 
     my $line = '';
     my @constList = ();
@@ -1444,7 +1444,7 @@ sub func_INIT_FUNC_CONST {
 
 sub func_INIT_NAMELIST {
     my ( $file, $subt, $num1, $num2 ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_NAMELIST: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_NAMELIST: "; }
 
     my $line = '';
 
@@ -1473,7 +1473,7 @@ sub func_INIT_NAMELIST {
 
 sub func_INIT_OUTPUT_VARIABLES {
     my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_OUTPUT_VARIABLES: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_OUTPUT_VARIABLES: "; }
 
     my $line = '';
 
@@ -1493,7 +1493,7 @@ sub func_INIT_OUTPUT_VARIABLES {
 
 sub func_INIT_FUNC_ZERO {
     my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_ZERO: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_FUNC_ZERO: "; }
     my $line = '';
 
     #if the variable does not exists => dont print anything
@@ -1529,7 +1529,7 @@ sub func_INIT_FUNC_ZERO {
 
 sub func_INIT_DEFAULT  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_DEFAULT: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_DEFAULT: "; }
 
     my $line = '';
 
@@ -1556,7 +1556,7 @@ sub func_INIT_DEFAULT  {
 
 sub func_INIT_SETS  {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INITS_SETS: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INITS_SETS: "; }
 
     my $line = '';
 
@@ -1583,7 +1583,7 @@ sub func_INIT_SETS  {
 
 sub func_INIT_INTERNAL {
     my ( $file, $dim, $type, $subt ) = @_;
-    if ( $VERBOSE ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_INTERNAL: "; }
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_INTERNAL: "; }
 
     my $line = '';
     my @constList         = ();
@@ -1651,7 +1651,7 @@ sub func_INIT_INTERNAL {
 
 sub func_HEADER  {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER: "; }
+    if ( $DEBUG ){ print "INCLUDE -> FUNCTION CALLED func_HEADER: "; }
 
     my $line = '';
     my $TYPE = uc($type);
@@ -1683,7 +1683,7 @@ sub func_HEADER  {
 
 sub func_GROUP_HEADER  {
     my ( $file, $dim, $subt ) = @_;
-    if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_GROUP_HEADER: "; }
+    if ( $DEBUG ){ print "INCLUDE -> FUNCTION CALLED func_GROUP_HEADER: "; }
 
     my $line = '';
 
@@ -1704,7 +1704,7 @@ sub func_GROUP_HEADER  {
 
 sub func_HEADER_FIELD  {
     my ( $file, $subt, $spec) = @_;
-    if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_FIELD: "; }
+    if ( $DEBUG ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_FIELD: "; }
 
     if( $subt ne 'pel' ){ print "ERROR: Subtype can only be \'pel\' for field $spec\n"; exit; }
 
@@ -1746,7 +1746,7 @@ sub func_HEADER_FIELD  {
 
 sub func_HEADER_DIAGG  {
     my ( $file, $dim, $type, $subt) = @_;
-    if ( $VERBOSE ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_DIAGG: "; }
+    if ( $DEBUG ){ print "INCLUDE -> FUNCTION CALLED func_HEADER_DIAGG: "; }
 
     my $line = '';
 

@@ -38,6 +38,7 @@ my ($in_dir, $input_nmls, $out_dir);
 
 #fix values
 my $VERBOSE = 0;
+my $DEBUG   = 0;
 my $HELP    = 0;
 
 sub usage(){
@@ -49,6 +50,7 @@ sub usage(){
     print "\t-o [output_dir]      output directory for generated files\n";
     print "alternative OPTIONS are:\n";
     print "\t-v                   verbose mode\n";
+    print "\t-d                   debug mode\n";
 }
 
 use Getopt::Long qw(:config bundling noignorecase); # for getopts compat
@@ -57,6 +59,7 @@ GetOptions(
     'n=s'  => \$input_nmls,
     'o=s'  => \$out_dir,  
     'v'    => \$VERBOSE,
+    'd'    => \$DEBUG,
     'h'    => \$HELP,
     ) or &usage() && exit;
 if ( $HELP ){ &usage(); exit; }
@@ -71,11 +74,11 @@ foreach my $nml (@lists){
 
     #process namelists removing them from the input file
     if( $VERBOSE ){ print "Reading namelist $nml...\n"; }
-    process_namelist("$in_dir/$nml", \@lst_nml, \@lst_com);
+    process_namelist("$in_dir/$nml", \@lst_nml, \@lst_com, $DEBUG);
     
     #write namelists output files
     if( $VERBOSE ){ print "Writing namelist $nml...\n"; }
-    print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $VERBOSE );
+    print_namelists( \@lst_nml, \@lst_com, \%lst_index, $out_dir, $DEBUG );
 }
 
 if( $VERBOSE ){ print "Print namelists finished\n"; }

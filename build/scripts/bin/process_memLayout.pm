@@ -223,7 +223,7 @@ sub process_memLayout{
     my $lst_sta   = shift; #output for stadistics about parameters
     my $lst_const = shift; #output for constituents
     my $cpp_defs  = shift; #include directives
-    my $VERBOSE   = shift; #verbose mode
+    my $DEBUG   = shift; #debug mode
 
     my $blk_dim;
     my $blk_type;
@@ -268,7 +268,7 @@ sub process_memLayout{
         }
         elsif( $line =~ /$XPR_START_GROUP/ ){
             #extract name and units
-            if( $VERBOSE ){ print "Processing GROUP: $line_raw"; }
+            if( $DEBUG ){ print "Processing GROUP: $line_raw"; }
             my ( $obj, $name, $units, $par_compo, @par_const );
             my ( $in_name, $in_acro, $in_units ) = ($1, $2, $3);
             if ( ! process_name($in_name, $blk_dim, $blk_subtype, \$name, \$units, undef, undef, undef, undef) ){ print "WARNING: Group not found: $in_name\n"; next; }
@@ -289,7 +289,7 @@ sub process_memLayout{
                         $const_idx++;
                     }
                 }
-                if ( $VERBOSE ){ $obj->print(); }
+                if ( $DEBUG ){ $obj->print(); }
             }#else{ print "INFO: not included GROUP $blk_group\n" }
         }
         elsif( $line =~ /$XPR_END_GROUP/ )  { 
@@ -297,7 +297,7 @@ sub process_memLayout{
         }
         elsif( $line =~ /$XPR_PARAM/ ){
             #extract name, comment and units
-            if( $VERBOSE ){ print "Processing PARAM: $line_raw"; }
+            if( $DEBUG ){ print "Processing PARAM: $line_raw"; }
             if( $blk_is_include ){
                 my ( $units, $size );
                 my ( $obj, $par_name, $par_unit, $par_type, $par_compo, $par_compoEx, $par_comm, $par_func, $par_group, $par_quota, @par_const );
@@ -324,7 +324,7 @@ sub process_memLayout{
                         $$lst_param{$par_name} = $obj;
                         $$lst_sta{"${par_type} ${blk_dim}d ${blk_subtype}"} += $size;
                         #@{$lst_const}{@par_const} = 0; # create the list of constituents
-                        if ( $VERBOSE ){ $obj->print(); }
+                        if ( $DEBUG ){ $obj->print(); }
                     }
                 }else{
                     $par_comm  = trim($2);
@@ -342,7 +342,7 @@ sub process_memLayout{
                     $$lst_param{$par_name} = $obj;
                     $$lst_sta{"${par_type} ${blk_dim}d ${blk_subtype}"} += $size;
                     #@{$lst_const}{@par_const} = 0; # create the list of constituents
-                    if ( $VERBOSE ){ $obj->print(); }
+                    if ( $DEBUG ){ $obj->print(); }
                 }
             }#else{ print "INFO: not included PARAM $par_name\n" }
         }#else { print "INFO: line without processing: $line_raw"; }
