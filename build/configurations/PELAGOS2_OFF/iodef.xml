@@ -89,7 +89,7 @@
 	  <variable id="buffer_size"               type="integer">5000000</variable>
 	  <variable id="buffer_server_factor_size" type="integer">2</variable>
 	  <variable id="info_level"                type="integer">0</variable>
-	  <variable id="using_server"              type="boolean">false</variable>
+	  <variable id="using_server"              type="boolean">true</variable>
 	  <variable id="using_oasis"               type="boolean">false</variable>
 	  <variable id="oasis_codes_id"            type="string" >oceanx</variable>
 	

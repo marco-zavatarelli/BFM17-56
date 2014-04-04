@@ -128,7 +128,7 @@ DESCRIPTION
        -D EXPDIR
                   Input dir where are files to copy to experiment directory (Default: "${TEMPDIR}/${PRESET}")
        -e EXECMD
-                  Executable command to insert in runscript (Default for NEMO: "${EXE_NEMO}", empty for others)
+                  Executable command to insert in runscript (Default for NEMO: "${MPICMD}", empty for others)
        -V VALGRIND
                   Executable valgrind command to insert in runscript
        -r PROC
