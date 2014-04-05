@@ -496,9 +496,6 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   misn  =   sadap*( p_xqn(phyto)* p_qncPPY(phyto)* phytoc- phyton)  ! Intracellular missing amount of N
   rupn  =   p_xqn(phyto)* p_qncPPY(phyto)* run  ! N uptake based on net assimilat. C
-#ifdef EXTRACOST
-  rupn  =   p_xqn(phyto)* p_qncPPY(phyto)* run-( srs+ sdo)* phyton  ! N uptake based on net assimilat. C
-#endif
   runn  =   min(  rumn,  rupn+ misn)  ! actual uptake of NI
 
   r  =   insw_vector(  runn)
