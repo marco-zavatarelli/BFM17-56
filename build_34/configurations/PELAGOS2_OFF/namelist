@@ -575,7 +575,7 @@
    sn_tem  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'votemper' ,  .true.    , .true. ,   'yearly'  , ''       , ''
    sn_sal  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'vosaline' ,  .true.    , .true. ,   'yearly'  , ''       , ''
    sn_mld  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'somixhgt' ,  .true.    , .true. ,   'yearly'  , ''       , ''
-   sn_emp  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'sowaflup' ,  .true.    , .true. ,   'yearly'  , ''       , ''
+   sn_emp  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'sowaflcd' ,  .true.    , .true. ,   'yearly'  , ''       , ''
    sn_ice  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'soicecov' ,  .true.    , .true. ,   'yearly'  , ''       , ''
    sn_qsr  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'soshfldo' ,  .false.   , .true. ,   'yearly'  , ''       , ''
    sn_wnd  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24            , 'sowindsp' ,  .true.    , .true. ,   'yearly'  , ''       , ''

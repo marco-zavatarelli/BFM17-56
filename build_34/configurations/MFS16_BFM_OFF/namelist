@@ -585,7 +585,7 @@
    sn_tem  = '_NemoExp__grid_T' ,    24            , 'votemper' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
    sn_sal  = '_NemoExp__grid_T' ,    24            , 'vosaline' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
    sn_mld  = '_NemoExp__grid_T' ,    24            , 'somixhgt' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
-   sn_emp  = '_NemoExp__grid_T' ,    24            , 'sowaflup' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
+   sn_emp  = '_NemoExp__grid_T' ,    24            , 'sowaflcd' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
    sn_qsr  = '_NemoExp__grid_T' ,    24            , 'soshfldo' ,  .false.   , _FFCLIM_ ,   'monthly'  , ''       , ''
    sn_wnd  = '_NemoExp__grid_T' ,    24            , 'sowindsp' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
    sn_rnf  = '_NemoExp__grid_T' ,    24            , 'sorunoff' ,  .true.    , _FFCLIM_ ,   'monthly'  , ''       , ''
