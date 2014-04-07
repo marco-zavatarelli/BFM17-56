@@ -19,7 +19,7 @@ subroutine read_input
   use mod_bnmerge, ONLY : jpkglo,jpiglo,jpjglo, jpnij, &
        nimppt, njmppt, &
        nlcit , nlcjt, &
-       chunk_fname, bfm_restart, inp_dir, out_dir, ln_mask, var_save, cf_nml_bnmerge
+       chunk_fname, bfm_restart, out_fname, inp_dir, out_dir, ln_mask, var_save, cf_nml_bnmerge
 
   implicit none
 
@@ -30,7 +30,7 @@ subroutine read_input
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
   integer, allocatable, dimension(:) :: nldit, nldjt, nleit, nlejt
-  namelist /bnmerge_nml/ chunk_fname,bfm_restart,inp_dir,out_dir,layout,ln_mask,var_save
+  namelist /bnmerge_nml/ chunk_fname,bfm_restart,out_fname,inp_dir,out_dir,layout,ln_mask,var_save
 
   ! Reading directory names and file name specification
   open(namlst,file=trim(cf_nml_bnmerge),action='read',status='old',err=99)

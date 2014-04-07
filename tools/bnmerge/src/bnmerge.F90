@@ -16,7 +16,7 @@
 
 program bnmerge
 
-  use mod_bnmerge, ONLY: GET_ARGUMENTS, chunk_fname, bfm_restart, do_restart, do_output, tick, tock
+  use mod_bnmerge, ONLY: GET_ARGUMENTS, chunk_fname, bfm_restart, out_fname, do_restart, do_output, tick, tock
   use create_output, ONLY: create_output_init
   use merge_vars, ONLY: merge_vars_init
 
@@ -56,6 +56,16 @@ program bnmerge
   else
      do_restart=.FALSE.
   end if
+  
+  if( TRIM(out_fname) .EQ. "" .and. do_output ) then
+     out_fname = chunk_fname
+     write(*,*) "out_fname not provided. Use chunk_fname instead for data output name."
+     write(*,*)
+  end if
+
+  if (do_output)  write(*,*) "Output data file is: ", TRIM(out_fname),'.nc'
+  if (do_restart) write(*,*) "Output restart file is: ", TRIM(bfm_restart),'.nc'
+  write(*,*)
 
 #ifdef DEBUG
     write(*,*) "Merge Output  files? ", do_output

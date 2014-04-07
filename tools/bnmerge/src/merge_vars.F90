@@ -37,7 +37,7 @@ contains
     use mod_bnmerge, ONLY : n_bfmvar_out, bfmvarid_out, bfmvartype_out, bfmvartarget_out, &
          n_bfmvar_res, bfmvarid_res, bfmvartype_res, bfmvartarget_res, &
          do_output, do_restart, &
-         out_dir, inp_dir, chunk_fname, bfm_restart, &
+         out_dir, inp_dir, chunk_fname, bfm_restart, out_fname, &
          jpnij
 
     implicit none
@@ -72,7 +72,7 @@ contains
        write(*,*) "Merging output init..."
 #ifdef PARAL
        ! open for parallel access 
-       call handle_err(nf90_open_par(path = trim(out_dir)//"/"//trim(chunk_fname)//".nc", &
+       call handle_err(nf90_open_par(path = trim(out_dir)//"/"//trim(out_fname)//".nc", &
             cmode = IOR(NF90_WRITE, NF90_MPIIO), ncid = ncid_out, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL), &
             errstring="opening output file ")
        ! put variables also in parallel mode
@@ -81,7 +81,7 @@ contains
                 errstring="changing variable access mode in output")
         end do
 #else
-       call handle_err(nf90_open(path = trim(out_dir)//"/"//trim(chunk_fname)//".nc", &
+       call handle_err(nf90_open(path = trim(out_dir)//"/"//trim(out_fname)//".nc", &
             mode = NF90_WRITE, ncid = ncid_out), &
             errstring="opening output file ")
 #endif

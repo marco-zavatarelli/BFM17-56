@@ -38,7 +38,7 @@ contains
 
   subroutine create_output_init
     use netcdf
-    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, do_restart, do_output, n_bfmvar_out, n_bfmvar_res
+    use mod_bnmerge, ONLY: chunk_fname, bfm_restart, out_fname, do_restart, do_output, n_bfmvar_out, n_bfmvar_res
 
     implicit none
     integer :: ncidout, ncidres, ncid_chunk_out, ncid_chunk_res
@@ -47,8 +47,8 @@ contains
     integer :: ntime_out, ntime_res
 
     ! Create file and attribute and dimensions
-    if ( do_output  ) call define_output(chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out)
-    if ( do_restart ) call define_output(bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res)
+    if ( do_output  ) call define_output(out_fname, chunk_fname, ncidout, ncid_chunk_out, id_array_out, IDvartime_out, ntime_out)
+    if ( do_restart ) call define_output(bfm_restart, bfm_restart, ncidres, ncid_chunk_res, id_array_res, IDvartime_res, ntime_res)
 
     write(*,*) "Writing variables..."
     if( do_output  ) call define_variables_out(ncid_chunk_out, ncidout, id_array_out, n_bfmvar_out )
@@ -80,12 +80,12 @@ contains
   end subroutine create_output_init
 
 
-  subroutine define_output(fname, ncid_out, ncid_chunk, id_array, id_vartime, ntime)
+  subroutine define_output(fname, chunkname, ncid_out, ncid_chunk, id_array, id_vartime, ntime)
     use netcdf
     use mod_bnmerge, ONLY : jpiglo, jpjglo, jpkglo, inp_dir, out_dir, ln_mask
 
     implicit none
-    character(len=100), intent(in)  :: fname
+    character(len=100), intent(in)  :: fname, chunkname
     integer,            intent(out) :: ncid_out, ncid_chunk, id_array(4), id_vartime, ntime
 
     integer                        :: status
@@ -115,13 +115,13 @@ contains
 
     ! read variables from domain 0000 and copy attributes
 #ifdef PARAL
-    status = nf90_open_par(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", &
+    status = nf90_open_par(path = trim(inp_dir)//"/"//trim(chunkname)//"_0000.nc", &
          cmode=IOR(NF90_NOWRITE, NF90_MPIIO), &
          ncid = ncid_chunk, comm = MPI_COMM_WORLD, info = MPI_INFO_NULL)
 #else
-    status = nf90_open(path = trim(inp_dir)//"/"//trim(fname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
+    status = nf90_open(path = trim(inp_dir)//"/"//trim(chunkname)//"_0000.nc", mode = NF90_NOWRITE, ncid = ncid_chunk)
 #endif
-    if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(fname)//"_0000.nc!" )
+    if (status /= NF90_NOERR) call handle_err(status,errstring="opening named "//trim(chunkname)//"_0000.nc!" )
     status = nf90_inquire(ncid_chunk, nAttributes=nGlobalAtts, unlimitedDimId=IDunlimdim)
     if (status /= NF90_NOERR) call handle_err(status,errstring="reading info")
     status = nf90_inquire_dimension(ncid_chunk, IDunlimdim, len = ntime)
@@ -161,7 +161,7 @@ contains
     write(*,*) "define time variable and attributes ..."
 #endif
     status = nf90_inq_varid(ncid_chunk, "time", IDtimetmp)
-    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//fname)
+    if (status /= NF90_NOERR) call handle_err(status,errstring="inquiring time var in "//chunkname)
     status = nf90_def_var(ncid_out, "time", NF90_REAL, (/ IDtime /), id_vartime)
     if (status /= NF90_NOERR) call handle_err(status)
     status = nf90_copy_att(ncid_chunk, IDtimetmp, "units", ncid_out, id_vartime)
