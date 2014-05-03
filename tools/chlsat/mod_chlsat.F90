@@ -69,13 +69,20 @@ module mod_chlsat
                optlen = eps(i,j,k,t)*e3t(i,j,k)
                store = store + optlen
                dep = dep + e3t(i,j,k)
-               if (store .lt. tau) then
-                  expterm = exp(-optlen)
+               if ((store .lt. tau) .and. (mask(i,j,k)>ZERO)) then
+                  expterm = exp(-optlen) 
                   chlsat(i,j,t) = chlsat(i,j,t)+chla(i,j,k,t)*expterm
+
                   norm = norm+expterm
                else
-                  ezd(i,j,t) = dep - e3t(i,j,k)*0.5_RLEN
-                  chlsat(i,j,t) = chlsat(i,j,t)/norm
+                  ! special case if absorption is high in the first layer
+                  if (k==1) then
+                     ezd(i,j,t) = e3t(i,j,1)
+                     chlsat(i,j,t) = chla(i,j,1,t)
+                  else
+                     ezd(i,j,t) = dep - e3t(i,j,k)*0.5_RLEN
+                     chlsat(i,j,t) = chlsat(i,j,t)/norm
+                  end if
                   exit
                end if
             end do
