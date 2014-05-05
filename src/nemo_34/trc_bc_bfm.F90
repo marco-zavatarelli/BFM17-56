@@ -77,7 +77,7 @@ SUBROUTINE trc_bc_bfm ( kt, m )
    ! Coupling offline : runoff are in emp which contains E-P-R
    ! If there is no input of biogeochemical variables associated to the river, it is assumed that
    ! there is no dilution associated with the river runoff (the freshwater has the same concentration of the sea)
-   zsfx(:,:) = emps(:,:)                                   ! - standard case: on/offline coupling with const vol
+   zsfx(:,:) = emp(:,:)                                    ! - standard case: on/offline coupling with const vol
    IF( .NOT. lk_offline .AND. lk_vvl )  zsfx(:,:) = 0._wp  ! - online coupling with variable volume
    IF( ln_rnf .AND. .NOT. ln_trc_cbc(m) )  &               ! - remove river dilution effect in the absence
       zsfx(:,:) = zsfx(:,:) + rnf(:,:)                     ! of a river load

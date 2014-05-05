@@ -576,7 +576,7 @@
    sn_tem  = 'ORCA025_1d_grid_T' ,    24            , 'votemper' ,  .true.    , .false. ,   'monthly'  , ''       , ''
    sn_sal  = 'ORCA025_1d_grid_T' ,    24            , 'vosaline' ,  .true.    , .false. ,   'monthly'  , ''       , ''
    sn_mld  = 'ORCA025_1d_grid_T' ,    24            , 'somixhgt' ,  .true.    , .false. ,   'monthly'  , ''       , ''
-   sn_emp  = 'ORCA025_1d_grid_T' ,    24            , 'sowaflcd' ,  .true.    , .false. ,   'monthly'  , ''       , ''
+   sn_emp  = 'ORCA025_1d_grid_T' ,    24            , 'sowaflup' ,  .true.    , .false. ,   'monthly'  , ''       , ''
    sn_ice  = 'ORCA025_1d_grid_T' ,    24            , 'soicecov' ,  .true.    , .false. ,   'monthly'  , ''       , ''
    sn_qsr  = 'ORCA025_1d_grid_T' ,    24            , 'soshfldo' ,  .false.   , .false. ,   'monthly'  , ''       , ''
    sn_wnd  = 'ORCA025_1d_grid_T' ,    24            , 'sowindsp' ,  .true.    , .false. ,   'monthly'  , ''       , ''
