@@ -218,8 +218,9 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 &bfm_save_nml
    ave_save = 'B1c', 'P1c','P2c', 'P3c','P4c','Chla','Z3c','Z5c'
           'O2o','N1p','N3n','N4n','N5s','N6r','jsurO2o','jbotR6c',
-          'EIR','ETW','EWIND','O3c','O3h','DIC','EPCO2air',
+          'EIR','ETW','O3h','DIC','EPCO2air',
           'pH','CO2','pCO2','HCO3','CO3','CO2airflux',
+          'ruPPYc', 'resPPYc', 'resPBAc', 'resZOOc', 'ruZOOc', 'resPELo',
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -233,7 +234,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_burvel_PI     [m/d]              Bottom Burial Velocity for plankton 
 !-------------------------------------------------------------------------!
 &Settling_parameters
-  p_burvel_R6 = 1.5,
+  p_burvel_R6 = 0.5,
   p_burvel_R2 = 0.0,
   p_burvel_PI = 0.0
 	filename_nml_conf = 'Benthic_Environment.nml',

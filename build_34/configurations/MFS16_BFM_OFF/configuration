@@ -26,7 +26,7 @@
 
 &BFM_conf
         MODE     = 'NEMO',
-        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2',
+        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_DIAG',
         ARCH     = 'ifort_athena',
         PROC     = 8,
         EXP      = 'MFS16_BFM_OFF',
