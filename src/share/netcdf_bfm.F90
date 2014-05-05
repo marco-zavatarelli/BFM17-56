@@ -162,14 +162,14 @@
 !!
 !-------------------------------------------------------------------------
 !BOC
-   LEVEL1 'init_netcdf_bfm'
+   LEVEL1 'init_netcdf_bfm: create output data file(s) ...'
 
    !---------------------------------------------
    ! Prepare the netcdf file
    !---------------------------------------------
    ext = 'nc'
    fname = TRIM(out_dir) //'/'// TRIM(title) // '.' // ext
-   LEVEL2 'Output in NetCDF (time unit is set to seconds):'
+   LEVEL2 'Output NetCDF file is (time unit is set to seconds):'
    LEVEL2 TRIM(fname)
    call check_err(NF90_CREATE(fname,NF90_NETCDF4,ncid_bfm), fname)
 
@@ -371,14 +371,14 @@
 !!
 !-------------------------------------------------------------------------
 !BOC
-   LEVEL1 'init_netcdf_rst_bfm'
+   LEVEL1 'init_netcdf_rst_bfm: create output restart file(s) ...'
 
    !---------------------------------------------
    ! Prepare the netcdf file
    !---------------------------------------------
    ext = 'nc'
    fname = './'// TRIM(title) // '.' // ext
-   LEVEL2 'Restart file in NetCDF'
+   LEVEL2 'Restart NetCDF file is :'
    LEVEL2 TRIM(fname)
    call check_err(NF90_CREATE(fname,NF90_NETCDF4,ncid_rst), fname)
 
@@ -574,6 +574,9 @@
    !---------------------------------------------
    call check_err(NF90_SYNC(ncid_rst), fname)
 
+   LEVEL1 'init_netcdf_rst_bfm: output restart file(s) creation ... DONE!'
+   LEVEL1 ' '
+
    ! Flush the log File
    Call FLUSH (LOGUNIT)
 
@@ -715,7 +718,7 @@ end subroutine init_netcdf_rst_bfm
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATEB_BEN(:,:),start,edges), restfile)
 #endif
 #endif
-     LEVEL1 'Restart has been written in NetCDF'
+     LEVEL1 'save_rst_bfm: Restart has been written in NetCDF'
 ! the file is closed in the main (in case of more restart files)
 
   end subroutine save_rst_bfm 
@@ -771,12 +774,14 @@ end subroutine init_netcdf_rst_bfm
 !EOP
 !-----------------------------------------------------------------------
 !BOC
+   LEVEL1 'read_rst_bfm: READ initial conditions from multiple restart files ...'
+
    !---------------------------------------------
    ! open the netcdf restart file
    !---------------------------------------------
    ext = 'nc'
    fname = './'// TRIM(title) // '.' // ext
-   LEVEL2 'Reading Restart file in NetCDF'
+   LEVEL2 'Restart NetCDF file is:'
    LEVEL2 TRIM(fname)
    call check_err(NF90_OPEN(fname,NF90_NOWRITE,ncid_rst_in), fname)
    !---------------------------------------------
@@ -866,8 +871,8 @@ end subroutine init_netcdf_rst_bfm
 #endif
 #endif
 
-   LEVEL1 'Finished reading Restart file'
-   LEVEL2 TRIM(fname)
+   LEVEL2 'read_rst_bfm: READ multiple restart files ... DONE! '
+   LEVEL2 ' '
    call check_err(NF90_CLOSE(ncid_rst_in), fname)
 
   end subroutine read_rst_bfm
@@ -879,7 +884,7 @@ end subroutine init_netcdf_rst_bfm
 ! !IROUTINE: Read the restart file
 !
 ! !INTERFACE:
-  subroutine read_rst_bfm_3d(title, narea, jpnij, &
+  subroutine read_rst_bfm_glo(title, narea, jpnij, &
         jpiglo, jpjglo, jpkglo, &
         nlcit, nlcjt, &
         nldit, nldjt, &
@@ -934,15 +939,7 @@ end subroutine init_netcdf_rst_bfm
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-   ! write(*,*)         'FILE NAME '//trim(title)
-   ! write(*,'(A,9i5)') 'DOMAIN_number_total'   , jpnij
-   ! write(*,'(A,9i5)') 'DOMAIN_size_global'    , (/jpiglo, jpjglo, jpkglo/) 
-   ! write(*,*)
-   ! write(*,'(A,9i5)') 'DOMAIN_number'        , narea
-   ! write(*,'(A,9i5)') 'DOMAIN_size_local'    , nlcit(narea), nlcjt(narea)        
-   ! write(*,'(A,9i5)') 'DOMAIN_indoor_first'  , nldit(narea), nldjt(narea)
-   ! write(*,'(A,9i5)') 'DOMAIN_indoor_last'   , nleit(narea), nlejt(narea)
-   ! write(*,'(A,9i5)') 'DOMAIN_for processor' , nimppt(narea), njmppt(narea)       
+   LEVEL1 'read_rst_bfm_glo: READ initial conditions from single restart file ...'
 
    !---------------------------------------------
    ! open the netcdf restart file
@@ -961,7 +958,7 @@ end subroutine init_netcdf_rst_bfm
       LEVEL2 TRIM(fname)
       LEVEL3 "DIM X in model:", jpiglo
       LEVEL3 "DIM X in file:",  ncomp_len
-      stop "STOP in read_rst_bfm_3d contained in netcdf_bfm.F90"
+      stop "STOP in read_rst_bfm_glo contained in netcdf_bfm.F90"
    end if
    call check_err(NF90_INQ_DIMID(ncid_rst_3d,"y",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_3d,ncomp_id, len=ncomp_len), fname)
@@ -970,7 +967,7 @@ end subroutine init_netcdf_rst_bfm
       LEVEL2 TRIM(fname)
       LEVEL3 "DIM Y in model:", jpjglo
       LEVEL3 "DIM Y in file:",  ncomp_len
-      stop "STOP in read_rst_bfm_3d contained in netcdf_bfm.F90"
+      stop "STOP in read_rst_bfm_glo contained in netcdf_bfm.F90"
    end if
    call check_err(NF90_INQ_DIMID(ncid_rst_3d,"depth",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_3d,ncomp_id, len=ncomp_len), fname)
@@ -979,7 +976,7 @@ end subroutine init_netcdf_rst_bfm
       LEVEL2 TRIM(fname)
       LEVEL3 "DIM Z in model:", jpkglo
       LEVEL3 "DIM Z in file:",  ncomp_len
-      stop "STOP in read_rst_bfm_3d contained in netcdf_bfm.F90"
+      stop "STOP in read_rst_bfm_glo contained in netcdf_bfm.F90"
    end if
 
    !---------------------------------------------
@@ -999,7 +996,7 @@ end subroutine init_netcdf_rst_bfm
    array_3d_end   = (/ iniI+cntI-1, iniJ+cntJ-1, cntk, 1 /)
 
    !---------------------------------------------
-   ! Initialize 3D variable
+   ! Initialize 3D Pelagic variables
    !---------------------------------------------
    do idx_var=stPelStateS, stPelStateE
       idx_var_array = idx_var - stPelStateS + 1
@@ -1051,39 +1048,23 @@ end subroutine init_netcdf_rst_bfm
       end do
    end do
 
-   ! ! write(*,'(A,i3,A)') "VAR: ", pppH, ' - pH'
-   ! write(*,*) "NAREA: ", narea, " NOCE: ", noce, " IDI: ", idx_i, "IDJ: ", idx_j, "IDK: ", idx_k
-   ! write(*,*) "NAREA: ", narea, " Start: ", array_3d_start
-   ! write(*,*) "NAREA: ", narea, " Count: ", array_3d_count
-   ! write(*,*) "NAREA: ", narea, " End:   ", array_3d_end
-
-   ! call check_err(NF90_INQ_VARID(ncid_rst_3d,"O2o", vid), fname)
-   ! call check_err(nf90_get_var(ncid_rst_3d, vid, array_3d, &
-   !      start=array_3d_start, count=array_3d_count), fname)
-
-   ! write(fname_ph,'(A,i1,A)') './O2o_initial_', narea , '.nc'
-   ! call check_err( nf90_create(fname_ph, NF90_SHARE, ncid_ph) )
-   ! ! call check_err( nf90_def_dim(ncid_ph, "x"         , jpiglo, IDx), fname_ph )
-   ! ! call check_err( nf90_def_dim(ncid_ph, "y"         , jpjglo, IDy), fname_ph )
-   ! ! call check_err( nf90_def_dim(ncid_ph, "depth"     , jpkglo, IDz), fname_ph )
-   ! ! call check_err( nf90_def_dim(ncid_ph, "time"      , NF90_UNLIMITED, IDtime), fname_ph )
-   ! call check_err( nf90_def_dim(ncid_ph, "oceanpoint", noce, IDboxes), fname_ph )
-   ! ! call check_err( nf90_def_var(ncid_ph, "O2o"     , NF90_DOUBLE, (/ IDx, IDy, IDz, IDtime /), IDtarget))
-   ! call check_err( nf90_def_var(ncid_ph, "D3STATE" , NF90_DOUBLE, (/ IDboxes /), IDtarget_box))
-   ! ! call check_err( nf90_def_var(ncid_ph, "mask"    , NF90_BYTE, (/ IDx, IDy, IDz /), IDtarget_mask))
-   ! call check_err( nf90_enddef(ncid_ph), fname_ph )
-   ! ! call check_err( nf90_put_var(ncid_ph, IDtarget, array_3d, &
-   ! !      start=array_3d_start, count=array_3d_count), fname_ph )
-   ! call check_err( nf90_put_var(ncid_ph, IDtarget_box, D3STATE(1,1:noce)), fname_ph )
-   ! ! call check_err( nf90_put_var(ncid_ph, IDtarget_mask, SEAmask), fname_ph )
-   ! call check_err( nf90_close(ncid_ph), fname_ph )
+#endif
+   !---------------------------------------------
+   ! Initialize 2D Benthic variables
+   !---------------------------------------------
+#if defined INCLUDE_BEN
+      LEVEL2 "read_rst_bfm_glo: READ 2D benthic initial conditions"
+      stop "STOP in read_rst_bfm_glo: read benthic initial conditions not yet implemented"
 #endif
 
    call check_err(nf90_close(ncid_rst_3d),fname)
 
+   LEVEL2 'read_rst_bfm_glo: READ single restart file ... DONE! '
+   LEVEL2 ' '
+
    if(allocated(array_3d)) deallocate(array_3d)
 
-  end subroutine read_rst_bfm_3d
+  end subroutine read_rst_bfm_glo
 !EOC
 
 !-----------------------------------------------------------------------
@@ -1189,7 +1170,8 @@ end subroutine init_netcdf_rst_bfm
 
    DEALLOCATE(dims)
    iret = define_mode(ncid_bfm,.false.)
-   LEVEL2 'NetCDF definitions completed.'
+   LEVEL1 'init_save_bfm: output data file(s) creation ... DONE!'
+   LEVEL1 ' '
 
    !---------------------------------------------
    ! Store the initial conditions
@@ -1197,7 +1179,8 @@ end subroutine init_netcdf_rst_bfm
    if (bfm_rstctl) then
       ltime=0.0
       call save_bfm(ltime)
-      LEVEL2 'BFM Initial conditions saved into the output file.'
+      LEVEL1 'init_save_bfm: BFM data at initial step saved into the output file.'
+      LEVEL1 ' '
    endif
    return
    end subroutine init_save_bfm
@@ -1241,7 +1224,7 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
 #ifndef BFM_STANDALONE
-   LEVEL1 'Save bfm output at ',time/SEC_PER_DAY
+   LEVEL1 'save_bfm: SAVE bfm output data at ',time/SEC_PER_DAY
 #endif
 ! increase the time record number
    recnum = recnum + 1
@@ -1399,6 +1382,9 @@ end subroutine init_netcdf_rst_bfm
 
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret, 'Save_bfm: writing output')
+
+   LEVEL2 'save_bfm: SAVE bfm output ... DONE! '
+   LEVEL2 ' '
 
    ! Flush the log File
    Call FLUSH (LOGUNIT)

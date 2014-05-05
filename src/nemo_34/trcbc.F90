@@ -295,20 +295,23 @@ CONTAINS
 
       ! OPEN boundary conditions: DOES NOT WORK. Waiting for stable BDY
       IF( nb_trcobc > 0 ) THEN
-        if (lwp) write(numout,'(a,i5,a,i5)') '   reading OBC data for ', nb_trcobc ,' variables at step ', kt
+        if (lwp .and. MOD(kt,100)==0 ) &
+          & write(numout,'(a,i5,a,i5)') '   reading OBC data for ', nb_trcobc ,' variables at step ', kt
         CALL fld_read(kt,1,sf_trcobc)
         ! vertical interpolation on s-grid and partial step to be added
       ENDIF
 
       ! SURFACE boundary conditions       
       IF( nb_trcsbc > 0 ) THEN
-        if (lwp) write(numout,'(a,i5,a,i5)') '   reading SBC data for ', nb_trcsbc ,' variables at step ', kt
+        if (lwp .and. MOD(kt,100)==0 ) &
+          & write(numout,'(a,i5,a,i5)') '   reading SBC data for ', nb_trcsbc ,' variables at step ', kt
         CALL fld_read(kt,1,sf_trcsbc)
       ENDIF
 
       ! COASTAL boundary conditions       
       IF( nb_trccbc > 0 ) THEN
-        if (lwp) write(numout,'(a,i5,a,i5)') '   reading CBC data for ', nb_trccbc ,' variables at step ', kt
+        if (lwp .and. MOD(kt,100)==0 ) &
+          & write(numout,'(a,i5,a,i5)') '   reading CBC data for ', nb_trccbc ,' variables at step ', kt
         CALL fld_read(kt,1,sf_trccbc)
       ENDIF   
       !

@@ -47,7 +47,7 @@
         D3STATEB, D3STATE_tot, &
         find, update_save_delta, init_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
-   use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm,read_rst_bfm_3d
+   use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm,read_rst_bfm_glo
    use time,       only: bfmtime, julian_day, calendar_date
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
@@ -358,17 +358,10 @@
    ENDIF
 
    !-------------------------------------------------------
-   ! initialise (new) and read (previous) restart file
-   ! (override any previous initialisation)
+   ! READ restart file(s) and overwrite previous initialisation
    !-------------------------------------------------------
-   call init_netcdf_rst_bfm(out_rst_fname,TRIM(bfmtime%datestring),0,  &
-             lat2d=gphit,lon2d=glamt,z=fsdept(1,1,:),  &
-             oceanpoint=ocepoint,                      &
-             surfacepoint=surfpoint,                   &
-             bottompoint=botpoint,                     &
-             mask3d=tmask)
    if (bfm_init == 1) call read_rst_bfm(in_rst_fname)
-   if (bfm_init == 2) call read_rst_bfm_3d(in_rst_fname, narea, jpnij, &
+   if (bfm_init == 2) call read_rst_bfm_glo(in_rst_fname, narea, jpnij, &
         jpiglo, jpjglo, jpk, &
         nlcit, nlcjt, &
         nldit, nldjt, &
@@ -376,8 +369,7 @@
         nimppt, njmppt, &
         SEAmask )
    !-------------------------------------------------------
-   ! compute and report global statistics
-   ! in ocean.output
+   ! compute and report global statistics in bfm.log
    !-------------------------------------------------------
    if (lwp) write(LOGUNIT,*) 'Statistics at the initial time-step: ' , nit000
    D3STATE_tot(:) = ZERO
@@ -399,8 +391,16 @@
       &      '    max :',e18.10)
 
    !-------------------------------------------------------
-   ! initialise netcdf output
+   ! Initialise output netcdf file(s)
    !-------------------------------------------------------
+   ! RESTART
+   call init_netcdf_rst_bfm(out_rst_fname,TRIM(bfmtime%datestring),0,  &
+             lat2d=gphit,lon2d=glamt,z=fsdept(1,1,:),  &
+             oceanpoint=ocepoint,                      &
+             surfacepoint=surfpoint,                   &
+             bottompoint=botpoint,                     &
+             mask3d=tmask)
+   ! DATA
    call calcmean_bfm(INIT)
    call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
              TRIM(out_title) , 0 ,                     &

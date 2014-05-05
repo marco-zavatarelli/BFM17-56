@@ -585,7 +585,8 @@ contains
       tmptime = int( julian2 - julian1 ) * int(SEC_PER_DAY) / bfmtime%timestep
       savedelta = savedelta + int( julian2 - julian1 ) * int(SEC_PER_DAY) / bfmtime%timestep
 
-      write(LOGUNIT,*) 'bfm_save : Output will be saved for the real monthly value at step ', savedelta 
+      write(LOGUNIT,*)
+      write(LOGUNIT,*) 'update_save_delta : Output will be saved for the real monthly value at step ', savedelta 
       write(LOGUNIT,*) 
    endif
    !
@@ -593,8 +594,8 @@ contains
    if ( bfmtime%stepEnd .lt. savedelta ) then
       tmptime = bfmtime%stepEnd - ( savedelta - tmptime )  
       savedelta = bfmtime%stepEnd  
-      write(LOGUNIT,*) 'bfm_save : Last output saving is beyond the end of the simulation.'
-      write(LOGUNIT,*) 'bfm_save : Output saved at the end of the experiment at ', savedelta
+      write(LOGUNIT,*) 'update_save_delta : Last output saving is beyond the end of the simulation.'
+      write(LOGUNIT,*) 'update_save_delta : Output saved at the end of the experiment at ', savedelta
       write(LOGUNIT,*)
    endif
    ! set timestep for time output 
