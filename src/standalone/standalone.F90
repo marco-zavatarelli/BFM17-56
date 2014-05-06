@@ -141,10 +141,14 @@
 !-----------------------------------------------------------------------
 !BOC
    call Date_And_Time(datestr,timestr)
+   STDERR ' '
    STDERR LINE
-   STDERR 'BFM standalone Simulation started on  ',datestr,' ',timestr
+   STDERR '          BFM STANDALONE EXPERIMENT '
    STDERR LINE
-   LEVEL1 'init_standalone'
+   LEVEL1 'INITIALIZE STANDALONE'
+   LEVEL1 ' '
+   LEVEL1 'Simulation started on  ',datestr,' ',timestr
+
    !---------------------------------------------
    ! Give initial default values
    ! (overwritten with namelist)
@@ -191,8 +195,8 @@
    NO_STATES_ICE = NO_BOXES_ICE * NO_D2_BOX_STATES_ICE
 #endif
 
-   LEVEL3 'Number of Boxes:',nboxes
-   LEVEL3 'Box Depth:',indepth
+   LEVEL2 'Number of Boxes:',nboxes
+   LEVEL2 'Box Depth:',indepth
    ! set where surface and bottom boxes are 
    ! (actually all boxes in standalone mode)
    allocate(SRFindices(NO_BOXES_XY))
@@ -215,12 +219,12 @@
       timesec=ZERO
    end if
    nmaxdelt=1
-   LEVEL3 'nmaxdelt: ',nmaxdelt
+   !LEVEL3 'nmaxdelt: ',nmaxdelt
    tt=maxdelt/2.
    do while (tt.ge.mindelt)
       tt=tt/2.
       nmaxdelt=nmaxdelt*2
-      LEVEL3 'nmaxdelt: ',nmaxdelt
+      !LEVEL3 'nmaxdelt: ',nmaxdelt
    end do
    mindelt=maxdelt/nmaxdelt ! maxdelt = nmaxdelt*mindelt
    nendtim=MaxN
@@ -229,14 +233,22 @@
    nmin=0
    dtm1=maxdelt
    delt=maxdelt
+   LEVEL2 'max delta T (sec): ',maxdelt
+   LEVEL2 'min delta T (sec): ',mindelt
+   LEVEL2 'nmaxdelt: ',nmaxdelt
+   LEVEL2 'Simulation time (days): ',simdays
+   LEVEL2 'End time: ',nendtim
+
    if (method.eq.3) delt=2.0_RLEN*delt
-   LEVEL3 'Integration method: ',method
-   LEVEL3 'maxdelt (sec): ',maxdelt
-   LEVEL3 'mindelt (sec): ',mindelt
-   LEVEL3 'nmaxdelt: ',nmaxdelt
-   LEVEL3 'Simulation time (days): ',simdays
-   LEVEL3 'nendtim: ',nendtim
-   LEVEL3 'Initial time (sec): ',timesec
+   LEVEL1 ' '
+   select case (method)
+      case (1)
+        LEVEL1 'Integration method : Euler forward'
+      case (2)
+        LEVEL1 'Integration method : Runge-Kutta 2nd order'
+      case (3)
+        LEVEL1 'Integration method : Leap-frog'
+   end select
 
    !---------------------------------------------
    ! Initialise the BFM with standalone settings
@@ -439,7 +451,7 @@ real(RLEN) :: localtime
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call calcmean_bfm(ACCUMULATE)
       if ( ntime .eq. save_delta ) then
-         localtime = real((time_delta - bfmtime%step0),RLEN) * bfmtime%timestep
+         localtime = (time_delta - real(bfmtime%step0,RLEN)) * bfmtime%timestep
          LEVEL1 'OUTPUT' , localtime / SEC_PER_DAY
          call calcmean_bfm(MEAN)
          call save_bfm(localtime)
@@ -490,7 +502,7 @@ real(RLEN) :: localtime
 !-----------------------------------------------------------------------
 !BOC
    ! save and close the restart file
-   localtime = real((time_delta - bfmtime%step0),RLEN) * bfmtime%timestep
+   localtime = (time_delta - real(bfmtime%step0,RLEN)) * bfmtime%timestep
    call save_rst_bfm(localtime)
    call close_ncdf(ncid_rst)
    call close_ncdf(ncid_bfm)

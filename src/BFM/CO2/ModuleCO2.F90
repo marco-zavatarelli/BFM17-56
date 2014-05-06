@@ -158,16 +158,16 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-    write(LOGUNIT,*) "#       BFM Pelagic CO2 SETTINGS                        "
-    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-    write(LOGUNIT,*) "#"
-    write(LOGUNIT,*) "#  Reading PelCO2 parameters.."
+    LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+    LEVEL1 ' '
+    LEVEL1 '     INITIALIZE PELAGIC CARBONATE SYSTEM       ' 
+    LEVEL1 ' '
+    LEVEL2 'Namelist content:'
     open(NMLUNIT,file='Carbonate_Dynamics.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=CO2_parameters,err=101)
     close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=CO2_parameters)
+    LEVEL1 ' '
  
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set initial conditions
@@ -259,8 +259,8 @@
     if (calcAtmpCO2) write(LOGUNIT,*) 'BFM computes pCO2 with method: ', pCO2Method
     if (AtmSLP%init == 4 ) write(LOGUNIT,*) 'SLP is provided by external model.' 
     if (AtmTDP%init == 4 ) write(LOGUNIT,*) 'TDP is provided by external model.' 
-    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-    write(LOGUNIT,*)
+    LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+    LEVEL1 ' '
 
     FLUSH(LOGUNIT)
     return

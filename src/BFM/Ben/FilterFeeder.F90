@@ -214,14 +214,14 @@
 
   select case (sw_uptake)
    case(1)
-    ! This uptake procedure was developed for the one/two layer orginal ERSEM
-    ! model where the layer above the sediment could have depths upto a few
-    ! hunder meters. p_dwat is in this case the layer depth seen by the
-    ! filterfeeders. o_dwat is used as an imporatent calibration parameter.
+    ! This uptake procedure was developed for the one/two layer original ERSEM
+    ! model where the layer above the sediment could have depths up to a few
+    ! hundred meters. p_dwat is in this case the layer depth seen by the
+    ! filterfeeders. o_dwat is used as an important calibration parameter.
 
-    ! In the orginal model the sedimentation of detritus (R6) was equal to the
-    ! the sinking rate. By doing this we implicetly assumed that this rate was
-    ! a gros seimentation rate. Therefor in the orignal setup filter took
+    ! In the original model the sedimentation of detritus (R6) was equal to the
+    ! the sinking rate. By doing this we implictly assumed that this rate was
+    ! a gross sedimentation rate. Therefore in the original setup filter took
     ! also food from the benthic system.
 
     fdepth=p_dwat
@@ -257,11 +257,11 @@
    case(2)
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      !  Alternative food uptake as in zooplankton:
-     !  using the modifed Holling response equation which tkae in account
+     !  using the modifed Holling response equation which take in account
      !  the maximum growth rate and the volume filtered.
      !
-     !  It is assumed that the detritus sedimentation is defined as a netto ptocess
-     !  ( p_bursel << P_sediR6). Therefor it assumed that filterfeeders do noet eat Q6.  
+     !  It is assumed that the detritus sedimentation is defined as a net process
+     !  ( p_bursel << P_sediR6). Therefore it assumed that filterfeeders do not eat Q6.  
      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
      cmm = ZERO;
 

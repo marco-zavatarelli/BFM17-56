@@ -26,14 +26,14 @@
 
    type TimeInfo
       character(len=25)      :: datestring   ! calendar date string for NetCDF
-      character(len=25)      :: date0        ! calendar date of run end
+      character(len=25)      :: date0        ! calendar date of run start
       character(len=25)      :: dateEnd      ! calendar date of run end
       real(RLEN)             :: time0        ! Julian day start of run 
       real(RLEN)             :: timeEnd      ! Julian day end of run
       integer                :: step0        ! Initial step # 
-      integer                :: timestep     ! Delta t
       integer                :: stepnow      ! Actual step #
       integer                :: stepEnd      ! Actual step #
+      integer                :: timestep     ! Delta t
    end type TimeInfo
 !
 ! tom: maybe this structure can be used to replace maby time parameters
@@ -129,7 +129,7 @@
 !BOC
 !  Read time specific things from the namelist.
 !
-   LEVEL1 'init_time'
+   LEVEL1 'EXPERIMENT TIME SETTINGS'
 !
 !  Calculate MaxN -> MinN is 1 if not changed by HotStart
 !
@@ -154,7 +154,8 @@
          ndays = jul2-jul1
          if (nsecs .lt. 86400 .and. jul1 .ne. jul2) ndays = ndays-1
          nsecs = nsecs - 86400*ndays
-         STDERR '  ==> ',ndays,' day(s) and ',nsecs,' seconds ==> ',MaxN,' time steps'
+         STDERR '  ==> ',ndays,' day(s) and ',nsecs,' seconds'
+         STDERR '  ==> ',MaxN,' time steps'
       case (3)
          LEVEL2 'Start:          ',start
          LEVEL2 '# of timesteps: ',MaxN
@@ -201,8 +202,6 @@
    bfmtime%stepEnd  = MaxN
    call calendar_date(bfmtime%timeEnd,yy,mm,dd,hh,nn)
    write(bfmtime%dateEnd,'(i4.4,i2.2,i2.2)') yy,mm,dd
-
-   LEVEL2 'bfmtime : ', bfmtime
 
    return
    end subroutine init_time

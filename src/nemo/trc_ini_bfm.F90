@@ -45,9 +45,10 @@
         InitVar, bio_setup, in_rst_fname, out_rst_fname, save_delta, time_delta, &
         lat_len, lon_len, out_delta, out_fname, out_title, parallel_rank, &
         D3STATEB, D3STATE_tot, &
-        find, update_save_delta, init_bfm
+        find, update_save_delta, init_bfm, &
+        ocepoint, surfpoint, botpoint
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
-   use netcdf_bfm, only: init_netcdf_rst_bfm,read_rst_bfm,read_rst_bfm_glo
+   use netcdf_bfm, only: read_rst_bfm,read_rst_bfm_glo
    use time,       only: bfmtime, julian_day, calendar_date
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
@@ -82,7 +83,8 @@
    integer    :: i,j,k,ll,m
    integer    :: status, yy, mm, dd, hh, nn
    integer,parameter    :: namlst=10,unit=11
-   integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:),msktmp(:,:)
+   !integer,allocatable  :: ocepoint(:),surfpoint(:),botpoint(:),msktmp(:,:)
+   integer,allocatable  :: msktmp(:,:)
    logical,allocatable  :: mask1d(:)
    integer              :: nc_id ! logical unit for data initialization
    character(len=40)    :: thistime
@@ -306,9 +308,10 @@
       ! found in the top_namelist
       call trc_dta_init(NO_D3_BOX_STATES)
       if (bfm_lwp) then
-         write(LOGUNIT,*)
-         write(LOGUNIT,*) '           ---- BFM Initialization ----             '
-         write(LOGUNIT,*)
+         LEVEL1 ' '
+         LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+         LEVEL1 '              BFM INITIALIZATION               '
+         LEVEL1 ' '
          write(LOGUNIT,157) 'Init', 'Unif', 'Filename    ', 'Var', 'Anal. Z1', 'Anal. V1', &
               'Anal. Z2', 'Anal. V2', 'OBC', 'SBC', 'CBC'
       endif
@@ -338,9 +341,10 @@
       end do
    end if
    if (bfm_lwp) then 
-      write(LOGUNIT, *) 
-      write(LOGUNIT, *) '           ---- End BFM Initialization ----             '
-      write(LOGUNIT, *) 
+         LEVEL1 ' '
+         LEVEL1 '         BFM INITIALIZATION ... DONE!          '
+         LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+         LEVEL1 ' '
    end if
 
    deallocate(rtmp3Da)
@@ -371,7 +375,13 @@
    !-------------------------------------------------------
    ! compute and report global statistics in bfm.log
    !-------------------------------------------------------
-   if (lwp) write(LOGUNIT,*) 'Statistics at the initial time-step: ' , nit000
+   if (bfm_lwp) then
+     LEVEL1 ' '
+     LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+     LEVEL1 'VARIABLES STATISTICS AT BEGINNING OF EXPERIMENT'
+     LEVEL1 ' '
+   endif
+
    D3STATE_tot(:) = ZERO
    do m = 1,NO_D3_BOX_STATES
          ! compute statistics (need to map to 3D shape for global sum)
@@ -390,17 +400,13 @@
 9000  FORMAT(' tracer :',i2,'    name :',a10,'    mean :',e18.10,'    min :',e18.10, &
       &      '    max :',e18.10)
 
+   if (bfm_lwp) then
+     LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+     LEVEL1 ' '
+   endif
    !-------------------------------------------------------
-   ! Initialise output netcdf file(s)
+   ! Initialise DATA output netcdf file(s)
    !-------------------------------------------------------
-   ! RESTART
-   call init_netcdf_rst_bfm(out_rst_fname,TRIM(bfmtime%datestring),0,  &
-             lat2d=gphit,lon2d=glamt,z=fsdept(1,1,:),  &
-             oceanpoint=ocepoint,                      &
-             surfacepoint=surfpoint,                   &
-             bottompoint=botpoint,                     &
-             mask3d=tmask)
-   ! DATA
    call calcmean_bfm(INIT)
    call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
              TRIM(out_title) , 0 ,                     &
@@ -458,18 +464,24 @@
 #ifdef INCLUDE_PELCO2
    ! control consistency between namelists setting
    if (AtmCO2%init .eq. 4 .and. .NOT. ln_trc_sbc(ppO3c)) then
-     write(LOGUNIT,*) 'CO2 data from Nemo not available in surface BC for O3c (check namelist_top and BFM_General).'
+     LEVEL1 'CO2 data from Nemo not available in surface BC for O3c (check namelist_top and BFM_General).'
      stop
    endif   
    if (AtmSLP%init .eq. 4 .and. .NOT. ln_trc_sbc(ppO3h)) then
-     write(LOGUNIT,*) 'Sea Level Pressure data from Nemo not available in surface BC for O3h (check namelist_top and BFM_General).'
+     LEVEL1 'Sea Level Pressure data from Nemo not available in surface BC for O3h (check namelist_top and BFM_General).'
      stop
    endif
    if (AtmTDP%init .eq. 4 .and. .NOT. ln_trc_sbc(ppN6r)) then
-     write(LOGUNIT,*) 'Dew Point Temperature data from Nemo not available in surface BC for N6r (check namelist_top and BFM_General).'
+     LEVEL1 'Dew Point Temperature data from Nemo not available in surface BC for N6r (check namelist_top and BFM_General).'
      stop
    endif
 #endif
+
+   LEVEL1 ' '
+   LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+   LEVEL1 '               EXPERIMENT START                '
+   LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+   LEVEL1 ' '
 
    return
 

@@ -35,8 +35,10 @@
    integer                            :: calc_init_bennut_states
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
-   integer                            :: out_delta,out_secs,save_delta,time_delta
+   integer                            :: out_delta,out_secs,save_delta
+   real(RLEN)                         :: time_delta
    character(len=PATH_MAX)            :: in_rst_fname, out_rst_fname
+   logical                            :: unpad_out
 
    !---------------------------------------------
    ! parameters for massive parallel computation
@@ -174,7 +176,7 @@
    !---------------------------------------------
    ! Additional 1D arrays
    !---------------------------------------------
-   ! indices of bottom and surface points
+   ! progressive indices of bottom and surface points
    integer,allocatable,dimension(:),public     :: BOTindices,SRFindices
    ! real mask of river points at surface
    real(RLEN),allocatable,dimension(:),public  :: RIVmask
@@ -189,6 +191,13 @@
 
 
 #ifdef BFM_NEMO
+   !---------------------------------------------
+   ! Additional 1D arrays
+   !---------------------------------------------
+   ! absolute indices ocean, surface and bottom points
+   integer,allocatable,dimension(:),public     :: ocepoint
+   integer,allocatable,dimension(:),public     :: surfpoint, botpoint
+
    !---------------------------------------------
    ! Additional 3D arrays
    !---------------------------------------------
@@ -233,6 +242,13 @@
 #endif
 
 #ifdef BFM_POM
+   !---------------------------------------------
+   ! Additional 1D arrays
+   !---------------------------------------------
+   ! absolute indices ocean, surface and bottom points
+   integer,allocatable,dimension(:),public     :: ocepoint
+   integer,allocatable,dimension(:),public     :: surfpoint, botpoint
+
    !---------------------------------------------
    ! Additional 3D arrays
    !---------------------------------------------
@@ -337,14 +353,14 @@ contains
 !
 ! !LOCAL VARIABLES:
    integer                   :: rc,n
-   character(len=PATH_MAX)   :: logfname, thistime
+   character(len=PATH_MAX)   :: logfname, thistime, tmpname
 #if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
 #endif
    namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,bfm_rstctl,   &
                       out_fname,out_dir,out_units,out_title,    &
                       out_delta,out_secs,bioshade_feedback,     &
-                      parallel_log
+                      parallel_log,unpad_out
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -357,7 +373,7 @@ contains
    bio_setup     = 1
    bfm_init      = 0
    bfm_rstctl    = .FALSE.
-   out_fname     = 'bfm'
+   out_fname     = 'BFM'
    in_rst_fname  = 'in_bfm_restart'
    out_rst_fname = 'out_bfm_restart'
    out_dir       = '.'
@@ -366,6 +382,7 @@ contains
    out_delta     = 100
    out_secs      = 100
    bioshade_feedback = .FALSE.
+   unpad_out     = .FALSE.
 
    !---------------------------------------------
    !  Open and read the namelist
@@ -374,6 +391,7 @@ contains
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
+   tmpname = TRIM(out_fname)
 #ifdef BFM_PARALLEL
    LEVEL2 "BFM is running in Parallel"
    parallel = .TRUE.
@@ -402,8 +420,7 @@ contains
    ! provide different file names for each process domain
    !
    ! restart output file
-   write(thistime,'(I8.8)') bfmtime%stepEnd
-   out_rst_fname=TRIM(out_fname)//'_'//TRIM(thistime)//'_restart_bfm_'//str
+   out_rst_fname=TRIM(out_fname)
    !
    ! restart input file
    if (bfm_init == 1 ) then
@@ -416,11 +433,7 @@ contains
    thistime=outdeltalab(out_delta)
    out_fname=TRIM(out_fname)//'_'//TRIM(thistime)//'_'//TRIM(bfmtime%date0)//'_'//TRIM(bfmtime%dateEnd)//'_bfm_'//str
 
-   LEVEL1 'init_bfm'
-   LEVEL3 "Producing log for process rank:",parallel_rank
-
 #else
-   LEVEL1 'init_bfm'
    LOGUNIT = 1069
    logfname = 'bfm.log'
    bfm_lwp = .TRUE.
@@ -431,23 +444,34 @@ contains
    !-------------------------------------------------------
    ! Write to log bfmtime setting
    !-------------------------------------------------------
-   LEVEL2 'BFM time informations:'
-   WRITE(LOGUNIT,*) '  Start Date  ,  End Date  ,Julianday0, JuliandayEnd, step0, timestep, stepnow, stepEnd'
-   WRITE(LOGUNIT,*) bfmtime   
-   !
-   LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
-   LEVEL3 "Output frequency every ",out_delta,"time-steps"
+   LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+   LEVEL1 ' BIOGEOCHEMICAL FLUX MODEL (BFM) ACTIVITY LOG  '
+   LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+   LEVEL1 '           BFM System Team (2014)              '
+   LEVEL1 ' '
+   LEVEL1 ' '
+   LEVEL1 'Step 1 - INITIALIZATION (init_bfm)'
+   LEVEL1 ' '
+#ifdef BFM_PARALLEL
+   LEVEL2 'Producing log for process rank:',parallel_rank
+#endif
+   if ( .not. bio_calc ) &
+    write(LOGUNIT,*) 'WARNING =>  BFM IS NOT ACTIVE (bio_calc=FALSE) '
 
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT NAME : ', trim(tmpname)
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT SETUP :'
    select case (bio_setup)
       case (0)
       case (1) ! Pelagic only
-        LEVEL2 "Using a Pelagic setup (bio_setup=1)"
+        LEVEL2 "Using only Pelagic component (bio_setup=1)"
         LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
         LEVEL3 'pelagic transported variables ='
         LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
 #ifdef INCLUDE_BEN
       case (2) ! Benthic only
-        LEVEL2 "Using a Benthic-only setup (bio_setup=2)"
+        LEVEL2 "Using only Benthic component (bio_setup=2)"
         LEVEL3 'benthic variables =',NO_D2_BOX_STATES_BEN
         LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS_BEN
       case (3) ! Pelagic-Benthic coupling
@@ -460,7 +484,7 @@ contains
 #endif
 #ifdef INCLUDE_SEAICE
       case (4) ! SeaIce only
-        LEVEL2 "Using a Seauce-only setup (bio_setup=4)"
+        LEVEL2 "Using only Seaice component (bio_setup=4)"
         LEVEL3 'seaice variables =',NO_D2_BOX_STATES_ICE
         LEVEL3 'seaice diagnostic variables=', NO_D2_BOX_DIAGNOSS_ICE
       case (5) ! Pelagic-SeaIce coupling
@@ -474,25 +498,73 @@ contains
    end select
 
    LEVEL2 'Dimensional informations:'
-   LEVEL3 'NO_BOXES_X=',NO_BOXES_X
-   LEVEL3 'NO_BOXES_Y=',NO_BOXES_Y
-   LEVEL3 'NO_BOXES_Z=',NO_BOXES_Z
-   LEVEL3 'NO_BOXES=',NO_BOXES
-   LEVEL3 'NO_BOXES_XY=',NO_BOXES_XY
-   LEVEL3 'NO_STATES=',NO_STATES
+   LEVEL3 'NO_BOXES_X  =',NO_BOXES_X
+   LEVEL3 'NO_BOXES_Y  =',NO_BOXES_Y
+   LEVEL3 'NO_BOXES_Z  =',NO_BOXES_Z
+   LEVEL3 'NO_BOXES    =',NO_BOXES
+   LEVEL3 'NO_BOXES_XY =',NO_BOXES_XY
+   LEVEL3 'NO_STATES   =',NO_STATES
 #ifdef INCLUDE_SEAICE
    LEVEL2 'Dimensional seaice informations:'
-   LEVEL3 'NO_BOXES_Z_ICE=',NO_BOXES_Z_ICE
-   LEVEL3 'NO_BOXES_ICE=',NO_BOXES_ICE
-   LEVEL3 'NO_STATES_ICE=',NO_STATES_ICE
+   LEVEL3 'NO_BOXES_Z_ICE =',NO_BOXES_Z_ICE
+   LEVEL3 'NO_BOXES_ICE   =',NO_BOXES_ICE
+   LEVEL3 'NO_STATES_ICE  =',NO_STATES_ICE
 #endif
 #ifdef INCLUDE_BEN
    LEVEL2 'Dimensional benthic informations:'
-   LEVEL3 'NO_BOXES_Z_BEN=',NO_BOXES_Z_BEN
-   LEVEL3 'NO_BOXES_BEN=',NO_BOXES_BEN
-   LEVEL3 'NO_STATES_BEN=',NO_STATES_BEN
+   LEVEL3 'NO_BOXES_Z_BEN =',NO_BOXES_Z_BEN
+   LEVEL3 'NO_BOXES_BEN   =',NO_BOXES_BEN
+   LEVEL3 'NO_STATES_BEN  =',NO_STATES_BEN
 #endif
-   LEVEL3 'Step 1 of BFM initialisation done ...'
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT INITIALIZATION :'
+   select case (bfm_init)
+      case (0)
+        LEVEL2 'Initial conditions from user setting (bfm_init=0)'
+      case (1)
+        LEVEL2 'Multiple restart files (bfm_init=1)'
+        LEVEL2 '(Required filename ',trim(in_rst_fname),')'
+      case (2)
+        LEVEL2 'Single restart file of the global domain (bfm_init=2)'
+        LEVEL2 '(Required filename ',trim(in_rst_fname),')'
+   end select
+
+#ifndef BFM_STANDALONE
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT TIME SETTINGS :'
+   LEVEL2 ' Start Date (yyyymmdd)  : ', trim(bfmtime%date0)
+   LEVEL2 ' End Date   (yyyymmdd)  : ', trim(bfmtime%dateEnd)
+   LEVEL2 ' Initial step           : ', bfmtime%step0
+   LEVEL2 ' Final step             : ', bfmtime%stepEnd
+   LEVEL2 ' Timestep (seconds)     : ', bfmtime%timestep
+#endif
+   
+   !WRITE(LOGUNIT,'(1a)') 'NetCDF date  Start Date  End Date  Julianday0 &
+   !                      & JuliandayEnd   step0  stepnow  stepEnd  timestep'
+   !WRITE(LOGUNIT,'(a10,4x,a8,3x,a8,2x,f10.1,2x,f10.1,1x,i9,i9,i9,i9)') bfmtime
+   !
+   LEVEL2 ' '
+   LEVEL2 "OUTPUT SETTINGS "
+   LEVEL3 "Output DATA filename is: ",trim(out_fname)
+   WRITE(LOGUNIT,'(12x,a,i8,a)') "Model data saved every ", out_delta, &
+                      & " time-steps (if -1 save exact 1 month freq.)"
+
+   LEVEL3 ' '
+   LEVEL3 "RESTART filename prefix is: ",trim(out_rst_fname)
+   if ( unpad_out ) then
+     LEVEL3 "Restart file(s) saved with the same frequency of the output data."
+     LEVEL3 ' '
+     LEVEL3 "WARNING => NO padding of output step if larger than the final one."
+   else
+     LEVEL3 "Restart file(s) saved at the end of this experiment."
+   endif
+
+   LEVEL1 ' '
+   LEVEL1 ' Step 1 ... DONE!'
+   LEVEL1 ' '
+   LEVEL1 ' -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- '
+   LEVEL1 ' '
+
    ! dimension lengths used in the netcdf output
    lon_len = NO_BOXES_X
    lat_len = NO_BOXES_Y
@@ -564,7 +636,7 @@ contains
    implicit none
    integer,intent(IN)     :: outdelta
    integer,intent(OUT)    :: savedelta
-   integer,intent(OUT)    :: timedelta
+   real(RLEN),intent(OUT) :: timedelta
    real(RLEN)             :: julian1, julian2  
    integer                :: yyyy,mm,dd,hh,nn,tmptime
 
@@ -591,7 +663,7 @@ contains
    endif
    !
    ! check if output is after the end of simulation and adjust the value
-   if ( bfmtime%stepEnd .lt. savedelta ) then
+   if ( bfmtime%stepEnd .lt. savedelta .and. .NOT. unpad_out ) then
       tmptime = bfmtime%stepEnd - ( savedelta - tmptime )  
       savedelta = bfmtime%stepEnd  
       write(LOGUNIT,*) 'update_save_delta : Last output saving is beyond the end of the simulation.'
@@ -599,8 +671,8 @@ contains
       write(LOGUNIT,*)
    endif
    ! set timestep for time output 
-   timedelta = savedelta
-   if (ave_ctl) timedelta = savedelta - (tmptime / 2) 
+   timedelta = real(savedelta,RLEN)
+   if (ave_ctl) timedelta = real(savedelta,RLEN) - (real(tmptime,RLEN) / 2.0) 
 
    end subroutine  update_save_delta
 !EOC

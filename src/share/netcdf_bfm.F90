@@ -371,7 +371,7 @@
 !!
 !-------------------------------------------------------------------------
 !BOC
-   LEVEL1 'init_netcdf_rst_bfm: create output restart file(s) ...'
+   LEVEL2 'init_netcdf_rst_bfm: define output restart file(s) ...'
 
    !---------------------------------------------
    ! Prepare the netcdf file
@@ -574,9 +574,6 @@
    !---------------------------------------------
    call check_err(NF90_SYNC(ncid_rst), fname)
 
-   LEVEL1 'init_netcdf_rst_bfm: output restart file(s) creation ... DONE!'
-   LEVEL1 ' '
-
    ! Flush the log File
    Call FLUSH (LOGUNIT)
 
@@ -718,7 +715,7 @@ end subroutine init_netcdf_rst_bfm
      call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATEB_BEN(:,:),start,edges), restfile)
 #endif
 #endif
-     LEVEL1 'save_rst_bfm: Restart has been written in NetCDF'
+     LEVEL2 'save_rst_bfm: Restart data has been written'
 ! the file is closed in the main (in case of more restart files)
 
   end subroutine save_rst_bfm 
@@ -1023,8 +1020,6 @@ end subroutine init_netcdf_rst_bfm
             end do
          end do
 
-         ! write(*,'(A,i3,A)') "VAR: ", idx_var_array, ' - '//trim(string)
-         ! write(*,*) "NAREA: ", narea, " NOCE: ", noce, " IDI: ", idx_i, "IDJ: ", idx_j, "IDK: ", idx_k
       end if
    end do
 
@@ -1224,7 +1219,7 @@ end subroutine init_netcdf_rst_bfm
 !-----------------------------------------------------------------------
 !BOC
 #ifndef BFM_STANDALONE
-   LEVEL1 'save_bfm: SAVE bfm output data at ',time/SEC_PER_DAY
+   LEVEL1 'save_bfm: SAVE bfm output data at day ',time/SEC_PER_DAY
 #endif
 ! increase the time record number
    recnum = recnum + 1
@@ -1383,8 +1378,8 @@ end subroutine init_netcdf_rst_bfm
    iret = NF90_SYNC(ncid_bfm)
    call check_err(iret, 'Save_bfm: writing output')
 
-   LEVEL2 'save_bfm: SAVE bfm output ... DONE! '
-   LEVEL2 ' '
+   LEVEL1 'save_bfm: SAVE bfm output ... DONE! '
+   LEVEL1 ' '
 
    ! Flush the log File
    Call FLUSH (LOGUNIT)
