@@ -1,4 +1,4 @@
-digraph "" {
+digraph G {
   graph [fontname="ArialMT", rankdir="LR", fontsize="11", bgcolor="white", label=""];
   node [fontname="ArialMT", fillcolor="white", fontsize="11", style="filled", shape="box", label="", color="blue"];
   edge [fontname="ArialMT", fontsize="11", label="", color="#CC0044"];
@@ -23,6 +23,10 @@ trcsub.f90"];
 step.f90"];
   __N13 [label="nemo_gcm
 nemogcm.f90"];
+  __N71 [label="envforcing_bfm
+envforcing_bfm.f90", color="green"];
+  __N72 [label="EcologyDynamics
+Ecology.f90", color="green"];
   __N1 -> __N3;
   __N1 -> __N4;
   __N1 -> __N5;
@@ -32,4 +36,6 @@ nemogcm.f90"];
   __N1 -> __N10;
   __N13 -> __N12;
   __N12 -> __N1;
+  __N7 -> __N71;
+  __N7 -> __N72;
 }

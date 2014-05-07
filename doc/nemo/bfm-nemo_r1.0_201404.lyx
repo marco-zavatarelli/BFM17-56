@@ -308,6 +308,25 @@ end{titlepage}
 \end_layout
 
 \begin_layout Quote
+The authors wish to thank Christian Eth
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+'e
+\end_layout
+
+\end_inset
+
+ and all the members of the NEMO System Team for their collaboration during
+ the implementation of the coupling.
+ 
+\begin_inset Newline newline
+\end_inset
+
 This document should be cited as:
 \begin_inset Newline newline
 \end_inset
@@ -505,7 +524,7 @@ Both terms in eq.
  (
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "eq:primitive"
+reference "eq:ADR"
 
 \end_inset
 
@@ -521,11 +540,11 @@ reference "eq:primitive"
 \end_layout
 
 \begin_layout Standard
-This approximation brings us to the well-known form of an advection-diffusion-re
-action equation in a moving ocean with incompressible fluid:
+This approximation brings us to the typical form of an advection-diffusion-react
+ion equation in a moving ocean with incompressible fluid:
 \begin_inset Formula 
 \begin{equation}
-\frac{\partial C}{\partial t}=-\mathbf{u}\cdot\nabla C+\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+\left.\frac{\partial C}{\partial t}\right|_{bio}\label{eq:primitive}
+\frac{\partial C}{\partial t}=-\mathbf{u}\cdot\nabla C+\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+\left.\frac{\partial C}{\partial t}\right|_{bio}\label{eq:ADR}
 \end{equation}
 
 \end_inset
@@ -538,37 +557,83 @@ where
 \begin_inset Formula $\left(A_{H},A_{V}\right)$
 \end_inset
 
- are the horizontal and vertical turbulent diffusivity coefficients.
- 
-\end_layout
+ are the horizontal and vertical turbulent diffusivity coefficient for tracers.
+ To highlight the coupling between physical and biogeochemical processes,
+ we may rewrite this equation indicating more explicitely the ocean variables
+ that are resolved by the OGCM and needed for the reaction term 
+\begin_inset Formula $R$
+\end_inset
 
-\begin_layout Standard
-The primitive form (
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:primitive"
+: 
+\begin_inset Formula 
+\begin{equation}
+\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\, S,\, W,\, E\right)\label{eq:ADR-explicit}
+\end{equation}
 
 \end_inset
 
-) is at the basis of biomass-based ecosystem modelling in the ocean 
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-citep[e.g.][]{hofmann98}
+where the symbols within brackets indicate water temperature, salinity,
+ wind velocity and shortwave irradiance.
 \end_layout
+
+\begin_layout Section
+Information flow and numerical integration
+\end_layout
+
+\begin_layout Standard
+Equation (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ADR"
+
+\end_inset
+
+) is an approximated form of the primitive equation for biogeochemical variables
+ in the ocean.
+ The time evolution of physical variables is carried out by the OGCM and
+ transferred to the biogeochemical model.
+ A typical, generic scheme of the information flow between the two models
+ is presented in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:information-flow"
 
 \end_inset
 
 .
- 
-\end_layout
+ The physical variables are used to compute the advection, diffusion and
+ reaction terms in eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:ADR"
 
-\begin_layout Section
-Information coupling
+\end_inset
+
+) and then combined to obtain the forward in time biogeochemical states.
+ This equation cannot be solved analytically but requires a numerical integratio
+n just as it happens for temperature and salinity on OGCM.
+ Usually, the same kind of numerical scheme is used.
+ The sensitivity of the BFM to integration schemes has been tested by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "butenschoen12"
+
+\end_inset
+
+, and it was concluded that the source splitting method is more accurate.
+ Currently, NEMO uses a time integration based on source splitting with
+ a leapfrog scheme for active tracers 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "madec08"
+
+\end_inset
+
+; in the case of BFM-NEMO the final integration is carried out with a simple
+ Euler-forward step, but still with source splitting .
+ 
 \end_layout
 
 \begin_layout Standard
@@ -592,6 +657,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:information-flow"
+
+\end_inset
+
 Scheme of the information flow between the ocean model and the biogeochemical
  state variables.
  The blue boxes indicate that the computation is carried out directly by
@@ -608,14 +679,6 @@ Scheme of the information flow between the ocean model and the biogeochemical
 \end_inset
 
 
-\end_layout
-
-\begin_layout Subsection
-Numerical integration
-\end_layout
-
-\begin_layout Standard
-The integrator momme paper
 \end_layout
 
 \begin_layout Chapter
@@ -638,6 +701,16 @@ BFM and NEMO are separated codes that are maintained by different groups
  of developers.
  The coupled configuration is therefore the result of a joint compilation
  of the two codes, where the BFM is a modular external library of NEMO.
+ This document assumes that you are already familiar with NEMO and it does
+ not substitute the NEMO documentation 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "madec08"
+
+\end_inset
+
+ which should be used as reference for the specific namelist parameters
+ and code macros.
 \end_layout
 
 \begin_layout Standard
@@ -736,7 +809,7 @@ namtrc_dta
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=Fortran"
+lstparams "basicstyle={\tiny\ttfamily},breaklines=true,language=Fortran"
 inline false
 status open
 
@@ -886,7 +959,7 @@ key "BFM-manual"
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\footnotesize\ttfamily},breaklines=true,language=Fortran"
+lstparams "basicstyle={\scriptsize\ttfamily},breaklines=true,language=Fortran"
 inline false
 status open
 
@@ -1145,16 +1218,163 @@ reference "sec:Boundary-conditions-TOP"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Note Note
+Another important parameter to be checked in coupled configurations is the
+ sinking velocity of BFM variables.
+ BFM computes a dynamical sinking velocity for phytoplankton that is dependent
+ on nutrient stress (if activated) and a constant background sinking rate
+ for phytoplankton and detritus.
+ These are considered to be global variables and they are included in the
+ namelist 
+\family typewriter
+PelGlobal_parameters
+\family default
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Fortran"
+inline false
 status open
 
 \begin_layout Plain Layout
-Sinking in PelGlobal
+
+!-------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+
+!NAMELIST PelGlobal_parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+!-------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+
+! Sinking rates of Pelagic Variables
+\end_layout
+
+\begin_layout Plain Layout
+
+!  : for mem_PelGlobal filled by InitPelGlobal
+\end_layout
+
+\begin_layout Plain Layout
+
+! NAME           UNIT      DESCRIPTION
+\end_layout
+
+\begin_layout Plain Layout
+
+! p_rR6m         [m/d]   detritus sinking rate
+\end_layout
+
+\begin_layout Plain Layout
+
+! KSINK_rPPY      [m]    prescribe sinking rate for phytoplankton below
+ this
+\end_layout
+
+\begin_layout Plain Layout
+
+!                        depth threshold to p_rR6m value.
+ Use 0.0 to disable.
+\end_layout
+
+\begin_layout Plain Layout
+
+! AggregateSink  logic   use aggregation = true to enhance the sink rate
+\end_layout
+
+\begin_layout Plain Layout
+
+!                        below a certain depth and bypass the prescribed
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+!                        sinking
+\end_layout
+
+\begin_layout Plain Layout
+
+! depth_factor    [m]    depth factor for aggregation method
+\end_layout
+
+\begin_layout Plain Layout
+
+! p_rPIm         [m/d]   phytoplankton background sinking rate
+\end_layout
+
+\begin_layout Plain Layout
+
+!-------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+
+&PelGlobal_parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+  p_rR6m         = 10.0
+\end_layout
+
+\begin_layout Plain Layout
+
+  KSINK_rPPY     = 150.0
+\end_layout
+
+\begin_layout Plain Layout
+
+  AggregateSink  = .FALSE.
+\end_layout
+
+\begin_layout Plain Layout
+
+  depth_factor   = 2000.0
+\end_layout
+
+\begin_layout Plain Layout
+
+!               P1      P2      P3      P4
+\end_layout
+
+\begin_layout Plain Layout
+
+  p_rPIm =      0.0,    0.0,    0.0,    0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+/
 \end_layout
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+The coupling with NEMO adds 3 parameters that allow to parameterize the
+ change in the sinking rate at depth.
+ Below a certain depth, it is assumed that aggregation takes place.
+ This is parametrized either by imposing the sinking rate of detritus to
+ phytoplankton concentration below a fixed depth 
+\family typewriter
+KSINK_rPPy
+\family default
+ (in metres), or by activating the enhancement of background velocity also
+ found in the PISCES model of NEMO (
+\family typewriter
+AggregateSink = .TRUE.
+\family default
+).
 \end_layout
 
 \begin_layout Section
@@ -1187,13 +1407,23 @@ butterfly
 \end_layout
 
 \begin_layout Standard
-Initialization.
- This routine is different from the standard BFM initialization of the STANDALON
-E configuration because it includes the reading of 
+TO BE CONTINUED
 \end_layout
 
-\begin_layout Standard
-Stepping: The main stepping routine of NEMO is stp, which calls 
+\begin_layout Itemize
+Initialization.
+ This routine is different from the standard BFM initialization of the STANDALON
+E configuration because it includes the transfer of grid parameters and
+ the reading of three-dimensional field data
+\end_layout
+
+\begin_layout Itemize
+Stepping: The main stepping routine of NEMO is stp, which calls trc_stp.
+ 
+\end_layout
+
+\begin_layout Itemize
+trc_bfm and transfer of environmental variables
 \end_layout
 
 \begin_layout Standard
@@ -1328,10 +1558,6 @@ trc_dia_bfm
 
 \end_layout
 
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
@@ -1397,9 +1623,9 @@ Since version 3.6, NEMO allows to define different types of boundary conditions
 fld_read
 \family default
  function.
- The same facility is available to include river inputs (effectively lateral
- boundary conditions) and it is under development the treatment of open
- boundary conditions.
+ The same facility is available to include river inputs (coastal boundary
+ conditions) and it is under development the treatment of open boundary
+ conditions.
 \end_layout
 
 \begin_layout Standard
@@ -1420,8 +1646,15 @@ reference "sec:Configuring-BFM-NEMO"
 \end_inset
 
 ) and allows to specify the name of the files, the frequency of the input
- and .
- It also 
+ and the time and space interpolation as done for any other field using
+ the 
+\family typewriter
+fld_read
+\family default
+ interface.
+ It also allows to specify how freshwater fluxes from sea ice freezing and
+ melting affect the concetration of tracers.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -1523,8 +1756,15 @@ status open
 
 \begin_layout Plain Layout
 
-   cn_dir       = './'  !  root directory for the location of the boundary
- condition files
+   ln_dynsiw   =  .false.
+       !  parameterize the water flux from sea ice as virtual salt flux
+ (T) or no flux (F)   
+\end_layout
+
+\begin_layout Plain Layout
+
+   cn_dir       = './'          !  root directory for the location of the
+ boundary condition files
 \end_layout
 
 \begin_layout Plain Layout
@@ -1543,11 +1783,15 @@ Missing features
 
 \begin_layout Standard
 BFM-NEMO is still not complete.
- Dynamical free surface and variable volume.
+ 
 \end_layout
 
-\begin_layout Standard
-XIOS library
+\begin_layout Itemize
+Dynamical free surface and variable volume.
+\end_layout
+
+\begin_layout Itemize
+XIOS library not implemented
 \end_layout
 
 \begin_layout Chapter
@@ -1775,7 +2019,7 @@ This file uses the F90 namelist format to set values and strings must be
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily}"
+lstparams "basicstyle={\footnotesize\ttfamily}"
 inline false
 status open
 
@@ -2109,13 +2353,48 @@ Together with the BFM, the GYRE configuration increases substantially the
  computational burden, therefore it is also a good example to learn how
  to use the model with multiple processes.
  In this case, it is necessary to install an MPI library (like http://www.open-mp
-i.org/) and use a NEMO ARCH file with the mpif90 compiler.
+i.org/) and use a NEMO ARCH file with the 
+\family typewriter
+mpif90
+\family default
+ compiler.
  When GYRE_BFM is run in parallel, the BFM netcdf output is produced for
- each sub-domain 
+ each sub-domain just like it happens for NEMO and the same naming convention
+ is used.
+ The output can be 
+\begin_inset Quotes eld
+\end_inset
+
+rebuilt
+\begin_inset Quotes erd
+\end_inset
+
+, that is all the tiles are combined together, to obtain the full domani
+ using the tool described in Sec.
+ 
 \end_layout
 
 \begin_layout Section
 Results
+\end_layout
+
+\begin_layout Standard
+This example demonstrates the role of the major physical factors in driving
+ the plankton response.
+ The double gyre is characterized by a warm subtropical cell and a cold
+ subpolar cell (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Example-GYRE_BFM"
+
+\end_inset
+
+) that are separated by a simplified current that should mimic the features
+ of a western boundary current.
+ Phytoplankton production is generally localized around the current bordering
+ the gyres and in correspondance with the cold and less stratified parts
+ of the sub-polar gyre.
 \end_layout
 
 \begin_layout Standard
@@ -2150,6 +2429,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Example-GYRE_BFM"
+
+\end_inset
+
 Example output from GYRE_BFM after 9 years of simulation.
  Mean annual surface temperature and net primary production.
 \end_layout
@@ -2398,12 +2683,444 @@ The PELAGOS2_OFF preset
 \end_layout
 
 \begin_layout Standard
-It must be considered that the grid is entirely determined by the mesh_mask.nc
+The name PELAGOS2_OFF identifies the model runs in off-line mode done by
+ reading the ocean data produced with the ORCA2_LIM configuration.
+ Differently from the on-line coupling, the code reads the ocean states
+ contained in previously computed NEMO outputs and it does not do any other
+ dynamical computation (vertical velocity can be prescribed in the input
+ file or recomputed from horizontal velocities to ensure zero divergence).
+ The off-line case is activated with the macro 
+\family typewriter
+key_offline
+\family default
+ and all the other macros related to the computation of dynamics should
+ be removed; the model domain and computational grid are entirely determined
+ by the 
+\family typewriter
+mesh_mask.nc
+\family default
  file given as input.
- Please note that the model will not work properly if the meshmask was generated
+ 
+\end_layout
+
+\begin_layout Standard
+The off-line coupling has two major advantages: 1) it allows to use a previously
+-validated ocean simulation and 2) the use of time-averaged model output
+ (usually at daily frequency) may allow to apply a longer time-step, likely
+ 2 to 3 times larger than the on-line coupling.
+\end_layout
+
+\begin_layout Subsection
+Input data
+\end_layout
+
+\begin_layout Standard
+The following three-dimensional NEMO physical fields are the minimum requirement
+s for the correct off-line coupling, and they are extracted from the respective
+ NEMO grids: 
+\end_layout
+
+\begin_layout Description
+grid_T: temperature, salinity, mixed layer depth, ice cover, shortwave flux,
+ wind speed, river runoff and freshwater flux ( 
+\family typewriter
+votemper, vosaline, somixhgt, soicecov, soshfldo, sowindsp, sorunoff
+\family default
+ , 
+\family typewriter
+[NEMO version<3.6: sowaflcd;NEMO version>=3.6, sowaflup and fmmflx]
+\family default
+ )
+\end_layout
+
+\begin_layout Description
+grid_U: zonal velocity 
+\family typewriter
+(vozocrtx)
+\family default
+ 
+\end_layout
+
+\begin_layout Description
+grid_V: meridional velocity (vomecrty) 
+\end_layout
+
+\begin_layout Description
+grid_W: vertical velocity and vertical turbulent diffusivity (vovecrtz,
+ votkeavt)
+\end_layout
+
+\begin_layout Standard
+The initialisation of the NEMO components in the off-line configuration
+ requires the following files : 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+mesh_mask.nc
+\family default
+ produced by the on-line model simulation, setting 
+\family typewriter
+nn_msh = 1
+\family default
+ in the 
+\family typewriter
+namelist_cfg
+\family default
+.
+ Please note that the model will not work properly if this file was generated
  from a parallel simulation where land domains have been excluded.
  This will create a mismatch with the number of grid points generating a
- set of NAN in the diagnostics that will slow down the simulation.
+ set of NaN in the diagnostics that will slow down the simulation;
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+bathy_meter.nc
+\family default
+ as prescribed in the on-line original simulation; 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+coordinates.nc
+\family default
+ for configurations with irregular grid as prescribed in the on-line original
+ simulation;
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+runoff.nc
+\family default
+, required if rivers are used with the flag 
+\family typewriter
+ln_rnf = .true.
+
+\family default
+ in 
+\family typewriter
+namelist_cfg
+\family default
+ to allocate the river data structure.
+\end_layout
+
+\begin_layout Subsection
+NEMO Namelist
+\end_layout
+
+\begin_layout Standard
+The following part of the NEMO namelist (
+\family typewriter
+namdta_dym
+\family default
+) prescribes the data from the input files (this case assumes that NEMO3.4.1
+ was used to create the ocean data):
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\tiny\ttfamily},language=Fortran"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+!-----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+&namdta_dyn        !   offline dynamics read in files                ("key_offli
+ne")
+\end_layout
+
+\begin_layout Plain Layout
+
+!-----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+!          !  file name  ! frequency (hours) ! variable  ! time interp.
+ !  clim  ! 'yearly'/ ! weights  ! rotation !
+\end_layout
+
+\begin_layout Plain Layout
+
+!          !             !  (if <0  months)  !   name    !   (logical) 
+ !  (T/F) ! 'monthly' ! filename ! pairing  !
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_tem  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'votemper'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_sal  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'vosaline'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_mld  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'somixhgt'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_emp  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'sowaflcd'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_ice  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'soicecov'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_qsr  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'soshfldo'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_wnd  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'sowindsp'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_rnf  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'sorunoff'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_uwd  = 'PELAGOS2_1d_20000101_20001230_grid_U' ,    24     , 'vozocrtx'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_vwd  = 'PELAGOS2_1d_20000101_20001230_grid_V' ,    24     , 'vomecrty'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_wwd  = 'PELAGOS2_1d_20000101_20001230_grid_W' ,    24     , 'vovecrtz'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_avt  = 'PELAGOS2_1d_20000101_20001230_grid_W' ,    24     , 'votkeavt'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , '' , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+!
+\end_layout
+
+\begin_layout Plain Layout
+
+   cn_dir      = './'       !  root directory for the location of the dynamical
+ files
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_degrad   =  .false.
+   !  degradation option enabled (T) or not (F) - requires ("key_degrad")
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_dynwzv   =  .false.
+   !  vertical velocity read from file (T) or computed (F)
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_dynbbl   =  .false.
+   !  bbl coef read from file (T) or computed (F) - requires ("key_trabbl")
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_dynrnf   =  .true.
+    !  read runoff data in file (T) or set to zero (F)
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The same namelist using data from NEMO3.6 and above 
+\end_layout
+
+\begin_layout Standard
+activation of the keys 
+\family typewriter
+ln_dynwzv
+\family default
+ and 
+\family typewriter
+ln_dynbbl
+\family default
+ requires the availability of additional variables which are read from the
+ nemo files
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\tiny\ttfamily},language=Fortran"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+ln_dynwzv   =  .true.
+     requires
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_eiu  = 'PELAGOS2_1d_20000101_20001230_grid_U' ,    24 , 'vozoeivu'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , ''       , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_eiv  = 'PELAGOS2_1d_20000101_20001230_grid_V' ,    24 , 'vomeeivv'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , ''       , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_eiw  = 'PELAGOS2_1d_20000101_20001230_grid_W' ,    24 , 'voveeivw'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , ''       , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+-----
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+ln_dynbbl   =  .true.
+      requires
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_ubl  = 'PELAGOS2_1d_20000101_20001230_grid_U' ,    24 , 'sobblcox'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , ''       , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_vbl  = 'PELAGOS2_1d_20000101_20001230_grid_V' ,    24 , 'sobblcoy'
+ ,  .true.
+    , .true.
+ ,   'yearly'  , ''       , ''
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+while if these keys are set to false the related fields are recomputed by
+ the code.
+ After some testing we noticed that setting these keys to false determine
+ a difference of about 1% in the BFM fields, while the computational times
+ remains similar.
+ Therefore, it seems acceptable to save some space and recalculate these
+ variables during the execution of the off-line code.
+\end_layout
+
+\begin_layout Standard
+The key ln_dynrnf was specifically created to be used with BFM and at the
+ moment it is included only to the CMCC local branches of the code.
+\end_layout
+
+\begin_layout Standard
+Note that the sbc part of the namelists can be left empty.
+ The runoff namelist must be filled and data should be provided if rivers
+ are used.
 \end_layout
 
 \begin_layout Chapter
@@ -2415,12 +3132,23 @@ Introduction
 \end_layout
 
 \begin_layout Standard
-BFM uses its own libraries for NetCDF output.
+BFM uses its own libraries for NetCDF output that are specifically built
+ to create diagnostic rates bewteen the biogeochemical variables 
+\begin_inset CommandInset citation
+LatexCommand citep
+before "see Chap. 6 in"
+key "BFM-manual"
+
+\end_inset
+
+.
  One new feature of NEMO 3.6 is the availability of the external library
  XIOS (REF), which allows to use an external I/O server and distribute the
  computation and preparation of output over different processes and with
  a different domain decomposition.
- 
+ The XIOS library functions cannot be used with the BFM yet, therefore it
+ is needed to post-process the output before accessing the three-dimensional
+ domain fields.
 \end_layout
 
 \begin_layout Section
@@ -2428,7 +3156,37 @@ Rebuilding the output
 \end_layout
 
 \begin_layout Standard
-The BFM is by construction defined only on
+The BFM is by construction defined only in the ocean grid points and the
+ output file consists of a one-dimensional vector.
+ It is therefore required to post-process the output to obtain the three-dimensi
+onal fields on the ocean model grid.
+ This operation is done with the tools 
+\family typewriter
+bnremap
+\family default
+ and 
+\family typewriter
+bnmerge
+\family default
+ found in the 
+\family typewriter
+$BFMDIR/tools
+\family default
+ directory.
+ 
+\family typewriter
+bnremap
+\family default
+ works with a serial single-domain simulation while 
+\family typewriter
+bnmerge
+\family default
+ must be used when the model is run in parallel mode.
+ In this case the model produces one output file per domain containing a
+ vector with the ocean grid points of that specific domain only and the
+ domains must be merged together to obtain the full domain.
+ Both applications are controlled with a namelist where it is possible to
+ specify the list of variables to be remapped and the names of the files.
 \end_layout
 
 \begin_layout Section
@@ -2491,7 +3249,7 @@ chlsat.nml
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\scriptsize\ttfamily},language=Fortran"
+lstparams "basicstyle={\tiny\ttfamily},language=Fortran"
 inline false
 status open
 
