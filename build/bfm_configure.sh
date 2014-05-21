@@ -381,11 +381,14 @@ if [ ${GEN} ]; then
         cp ${blddir}/init_var_bfm.F90 ${BFMDIR}/src/share
         cp ${blddir}/INCLUDE.h ${BFMDIR}/src/BFM/include
     elif [[ "$MODE" == "NEMO" || "$MODE" == "NEMO_3DVAR" ]]; then 
-        #Generate NEMO configuration with subdirs and copy cpp
+        #Generate NEMO configuration with subdirs
         if [ ! -d ${NEMODIR}/NEMOGCM/CONFIG/${PRESET} ]; then
             if [ "$NEMOSUB" ] ; then
                 ${NEMODIR}/NEMOGCM/CONFIG/${cmd_mknemo} -j0 -n ${PRESET} -m ${ARCH} -d "${NEMOSUB}"
-                cp "${presetdir}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
+                if [ ! -f "${presetdir}/cpp_${PRESET}.fcm" ]; then 
+                    echo "ERROR: cpp_${PRESET}.fcm must exist in ${presetdir}" 
+                    exit
+                fi
             else
                 echo "ERROR: NEMO configuration not exists. If you want to create a NEMO configuration, you have to specify NEMOSUB option"
                 echo ${ERROR_MSG}
@@ -393,6 +396,10 @@ if [ ${GEN} ]; then
             fi
         fi
 
+        #if cpp_PRESET exists in configuration folder => copy to nemo preset folder
+        if [ -f "${presetdir}/cpp_${PRESET}.fcm" ]; then 
+            cp "${presetdir}/cpp_${PRESET}.fcm" "${NEMODIR}/NEMOGCM/CONFIG/${PRESET}"
+        fi
         #substitute BFM/src/nemo path in cpp according to the version
         [ ${VERBOSE} ] && echo "Changing nemo version to: \"$VER\""
         sed -ie "s;inc.*;inc \$BFMDIR/src/nemo${VER}/bfm\.fcm;" ${NEMODIR}/NEMOGCM/CONFIG/${PRESET}/cpp_${PRESET}.fcm
