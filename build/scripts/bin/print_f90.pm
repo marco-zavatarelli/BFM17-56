@@ -1590,6 +1590,9 @@ sub func_INIT_INTERNAL {
     my @constNoC          = ();
     my @constOptionalList = ();
 
+    my $SUBTYPE= '_' . uc($subt);
+    if ( $SUBTYPE eq '_PEL' ){ $SUBTYPE = '' } #fix because pel is default and vars has no suffix
+
     foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
         push(@constList, $const);
         if($const ne $constList[0]){ 
@@ -1605,14 +1608,16 @@ sub func_INIT_INTERNAL {
         my $groupname_nml = $groupname; $groupname_nml =~ s/Plankton//; $groupname_nml .= "_parameters";
 
         if( $group->getDim() == $dim
-            && $subt eq $group->getSubtype()){
+            && $subt eq $group->getSubtype()
+            && exists ${$$LST_GROUP{$groupname}->getComponents()}{'c'}
+            && ! ( keys %{$$LST_GROUP{$groupname}->getComponents()} == 2 && exists ${$$LST_GROUP{$groupname}->getComponents()}{'h'} ) ){
 
             $line .= "${SPACE}do i = 1 , ( ii". $groupname ." )\n";
             $line .= "${SPACE}  call init_constituents( c=" . $groupname  . "(i,iiC), &\n${SPACE}";
             my @temp_line;
             foreach my $const (@constNoC){
                 if( exists ${$$LST_GROUP{$groupname}->getComponents()}{$const} ){
-                    push( @temp_line, "    " . $const . "=D3STATE(pp" . $groupname . "(i,ii" . uc($const) . "),:)" );
+                    push( @temp_line, "    " . $const . "=D" . $dim . "STATE" . $SUBTYPE . "(pp" . $groupname . "(i,ii" . uc($const) . "),:)" );
                 }
             }
             my @temp_line2;
