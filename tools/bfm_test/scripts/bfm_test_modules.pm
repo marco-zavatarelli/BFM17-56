@@ -56,7 +56,7 @@ sub get_configuration{
     $VERBOSE = $verbose;
 
     get_configuration_test($conf_dir, $preset, \%user_conf);
-    get_configuration_bfm($build_dir , \%user_conf);
+    get_configuration_bfm($build_dir, \%user_conf);
     check_conf(\%user_conf);
     return fill_tests(\%user_conf);
 }
@@ -86,14 +86,18 @@ sub get_configuration_test{
     close(CONFIG);
 }
 
+#get parameters from BFM configuration file
 sub get_configuration_bfm{
     my ($build_dir, $user_conf) = @_;
 
     my @modes = ();
     my @exes = ();
+    my @runprotos = ();
     foreach my $preset (@{$$user_conf{PRESET}}){
+        print $preset . "\n";
         my $mode = '';
         my $exe = '';
+        my $runproto = '';
         my $conf_file = "$build_dir/configurations/$preset/configuration";
         if( ! open CONFIG, "<$conf_file" ){ print "\tProblems opening configuration file \"$conf_file\": $!\n"; next; }
         while (<CONFIG>) {
@@ -104,15 +108,18 @@ sub get_configuration_bfm{
             s/\,$//;                # no coma at the end
             next unless length;     # anything left?
             my ($var, $value) = split(/\s*=\s*/, $_, 2);
-            if( $var =~ 'MODE'   ){ $mode  = $value;  }
-            if( $var =~ 'BFMEXE' ){ $exe   = $value;  }
+            if( $var =~ 'MODE'     ){ $mode     = $value;  }
+            if( $var =~ 'BFMEXE'   ){ $exe      = $value;  }
+            if( $var =~ 'RUNPROTO' ){ $runproto = $value;  }
         }
         close CONFIG;
-        push( @modes, $mode);
-        push( @exes,  $exe );
+        push( @modes    , $mode     );
+        push( @exes     , $exe      );
+        push( @runprotos, $runproto );
     }
-    $$user_conf{MODE} = \@modes;
-    $$user_conf{EXE}  = \@exes;
+    $$user_conf{MODE}     = \@modes;
+    $$user_conf{EXE}      = \@exes;
+    $$user_conf{RUNPROTO} = \@runprotos;
 }
 
 sub check_conf{
@@ -234,14 +241,14 @@ sub run_test{
     `chmod u+x $exe_path`;
 
     #get the script name
-    my $script_name = 'runscript_' . $test->getName();
+    my $script_name = $test->generate_scriptName();
 
     #generate the execution command
-    #generate de change dir
     my $cmd  = '';
+    #generate de change dir
+    $cmd .= "cd $test_dir; ";
     #add pre-running commands if exists
     if( $test->getPrerun() ){ $cmd .= $test->getPrerun() . "; "; }
-    $cmd .= "cd $test_dir; ";
     #generate the part to execute before the test command
     if( $test->getPrecmd() ){ $cmd   .= $test->getPrecmd() . "; "; }
     #generate permissions change
@@ -277,7 +284,7 @@ sub wait_proc{
 
     #get command to list process and executable name to wait for
     my $command = 'ps -w';
-    my $proc = 'runscript_' . $test->getName();
+    my $proc = $test->generate_scriptName();
     if( $test->getRun() eq 'bsub' ){ 
         $command = 'bjobs -w';
         $proc = $test->getPreset();
@@ -390,7 +397,7 @@ sub analyze_test{
         if($VERBOSE){ print "\t- No timming information present\n"; }
     }elsif( $VERBOSE ){ print "\t- Timming: " . $test->getTimming() . "\n"; }
 
-    #get comapre information
+    #get compare information
     if( $test->getCompare() ){
         my $cmp_dir = $test->getCompare();
         if($VERBOSE){ print "\tComparing results:\n"; }
@@ -413,8 +420,10 @@ sub analyze_test{
                 close NAMELIST;
                 if( $out_bfm ){
                     if($VERBOSE){ print "\t- from file: $test_dir/BFM_General.nml: $out_bfm\n"; }
-                    my @temp_list = glob( "$test_dir/${out_bfm}_*.nc" );
-                    foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}_\d+.nc/ ) {push( @filelist_test, $file ); } }
+                    # my @temp_list = glob( "$test_dir/${out_bfm}_*.nc" );
+                    # foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}_\d+.nc/ ) {push( @filelist_test, $file ); } }
+                    my @temp_list = glob( "$test_dir/${out_bfm}*.nc" );
+                    foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}.*.nc/ ) {push( @filelist_test, $file ); } }
                 }
             }
             #get all outptut files from BFM in the compare dir
@@ -426,13 +435,16 @@ sub analyze_test{
                 close NAMELIST;
                 if( $out_bfm ){
                     if($VERBOSE){ print "\t- from file: $cmp_dir/BFM_General.nml: $out_bfm\n"; }
-                    my @temp_list = glob( "$cmp_dir/${out_bfm}_*.nc" );
-                    foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}_\d+.nc/ ) {push( @filelist_cmp, $file ); } }
+                    # my @temp_list = glob( "$cmp_dir/${out_bfm}_*.nc" );
+                    # foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}_\d+.nc/ ) {push( @filelist_cmp, $file ); } }
+                    my @temp_list = glob( "$cmp_dir/${out_bfm}*.nc" );
+                    foreach my $file ( @temp_list ){ if( $file =~ /${out_bfm}.*.nc/ ) {push( @filelist_cmp, $file ); } }
                 }
             }
 
             #check if are the same or not null
-            if( ($#filelist_test != $#filelist_cmp) || $#filelist_test < 1 || $#filelist_cmp < 1 ){
+            #if( ($#filelist_test != $#filelist_cmp) || $#filelist_test < 1 || $#filelist_cmp < 1 ){
+            if( (scalar(@filelist_test) != scalar(@filelist_cmp)) || scalar(@filelist_test) < 1 || scalar(@filelist_cmp) < 1 ){
                 if($VERBOSE){ 
                     print "\tWARNING in ". $test->getName() . ": Comparison impossible, not same or null number of NETCDF files: $#filelist_test <> $#filelist_cmp.\n";
                 }

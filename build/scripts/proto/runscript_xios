@@ -42,6 +42,6 @@ do
   i=`expr $i + 1`
 done
 
-mpirun.lsf -cmdfile ./cmd_file
+time mpirun.lsf -cmdfile ./cmd_file
 
 echo " _EXP_ DONEEE!!!"

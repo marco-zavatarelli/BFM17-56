@@ -32,12 +32,13 @@ my $DEF_MODE      = 'STANDALONE';
 my $DEF_MODE_NEMO = 'NEMO.*';
 my $DEF_EXE_STD   = 'bfm_standalone.x';
 my $DEF_EXE_NEMO  = 'nemo.exe';
+my $DEF_RUNPROTO  = 'runscript';
 my $DEF_ACTIVE    = 'Y';
 my $DEF_TIMMING   = '?';
 my $DEF_COMPTHR   = '1e-3';
 
 # order is important in options, has to follow same order as used in "new"
-my @OPTIONS= ('ACTIVE', 'PRESET', 'COPY', 'ARCH', 'RUN', 'MODE', 'EXE', 'QUEUE', 'FORCING', 'VALGRIND', 'PRECMD', 'PRERUN', 'COMPARE', 'COMPTHR', 'PROC', 'PAREXE' );
+my @OPTIONS= ('ACTIVE', 'PRESET', 'COPY', 'ARCH', 'RUN', 'MODE', 'EXE', 'RUNPROTO', 'RUNEXE', 'QUEUE', 'FORCING', 'VALGRIND', 'PRECMD', 'PRERUN', 'COMPARE', 'COMPTHR', 'PROC', 'PAREXE' );
 sub get_options{ my ( $self ) = @_; return @OPTIONS; }
 
 #output codes for compilation, running and analysis
@@ -62,6 +63,8 @@ sub new{
        _run      => shift,
        _mode     => shift,
        _exe      => shift,
+       _runproto => shift,
+       _runexe   => shift,
        _queue    => shift,
        _forcing  => shift,
        _valgrind => shift,
@@ -100,6 +103,8 @@ sub getExe     {
         return $DEF_EXE_STD;
     }
 }
+sub getRunproto{ my( $self ) = @_; return $self->{_runproto}; }
+sub getRunexe  { my( $self ) = @_; return $self->{_runexe};   }
 sub getQueue   { my( $self ) = @_; return $self->{_queue};    }
 sub getForcing { my( $self ) = @_; return $self->{_forcing};  }
 sub getValgrind{ my( $self ) = @_; return $self->{_valgrind}; }
@@ -134,6 +139,8 @@ sub setArch    { my ( $self, $arch      ) = @_; $self->{_arch}     = $arch     i
 sub setRun     { my ( $self, $run       ) = @_; $self->{_run}      = $run      if defined($run);      }
 sub setMode    { my ( $self, $mode      ) = @_; $self->{_mode}     = $mode     if defined($mode);     }
 sub setExe     { my ( $self, $exe       ) = @_; $self->{_exe}      = $exe      if defined($exe);      }
+sub setRunproto{ my ( $self, $runproto  ) = @_; $self->{_runproto} = $runproto if defined($runproto); }
+sub setRunexe  { my ( $self, $runexe    ) = @_; $self->{_runexe}   = $runexe   if defined($runexe);   }
 sub setQueue   { my ( $self, $queue     ) = @_; $self->{_queue}    = $queue    if defined($queue);    }
 sub setForcing { my ( $self, $forcing   ) = @_; $self->{_forcing}  = $forcing  if defined($forcing);  }
 sub setValgrind{ my ( $self, $valgrind  ) = @_; $self->{_valgrind} = $valgrind if defined($valgrind); }
@@ -159,8 +166,10 @@ sub print{
     if( $self->getCopy()     ){ print "\tCopy:     " . $self->getCopy()       . "\n"; }
     if( $self->getArch()     ){ print "\tArch:     " . $self->getArch()       . "\n"; }
     if( $self->getRun()      ){ print "\tRun:      " . $self->getRun()        . "\n"; }
-    if( $self->getExe()      ){ print "\tExe:      " . $self->getExe()        . "\n"; }
     if( $self->getMode()     ){ print "\tMode:     " . $self->getMode()       . "\n"; }
+    if( $self->getExe()      ){ print "\tExe:      " . $self->getExe()        . "\n"; }
+    if( $self->getRunproto() ){ print "\tRunproto: " . $self->getRunproto()   . "\n"; }
+    if( $self->getRunexe()   ){ print "\tRunexe  : " . $self->getRunexe  ()   . "\n"; }
     if( $self->getQueue()    ){ print "\tQueue:    " . $self->getQueue()      . "\n"; }
     if( $self->getForcing()  ){ print "\tForcing:  " . $self->getForcing()    . "\n"; }
     if( $self->getValgrind() ){ print "\tValgrind: " . $self->getValgrind()   . "\n"; }
@@ -234,11 +243,24 @@ sub generate_opt{
     if( $self->getPreset()   ){ $cmd .= "-p "   . $self->getPreset()   . " "; }
     if( $self->getArch()     ){ $cmd .= "-a "   . $self->getArch()     . " "; }
     if( $self->getProc()     ){ $cmd .= "-r "   . $self->getProc()     . " "; }
+    if( $self->getRunexe()   ){ $cmd .= "-R "   . $self->getRunexe()   . " "; }
     if( $self->getQueue()    ){ $cmd .= "-q "   . $self->getQueue()    . " "; }
     if( $self->getForcing()  ){ $cmd .= "-i \"" . $self->getForcing()  . "\" "; }
     if( $self->getParexe()   ){ $cmd .= "-e \"" . $self->getParexe()   . "\" "; }
     if( $self->getValgrind() ){ $cmd .= "-V \"" . $self->getValgrind() . "\" "; }
     return $cmd;
+}
+
+sub generate_scriptName{
+    my ( $self ) = @_;
+
+    if( $self->getRunexe() ){
+        return $self->getRunexe() . '_' . $self->getName();
+    }elsif( $self->getRunproto() ){
+        return $self->getRunproto() . '_' . $self->getName();
+    }else{
+        return $DEF_RUNPROTO . '_' . $self->getName();
+    }
 }
 
 1;

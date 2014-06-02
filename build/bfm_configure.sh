@@ -162,7 +162,7 @@ exec &> ${LOGDIR}/${LOGFILE}.pipe
 rm ${LOGDIR}/${LOGFILE}.pipe
 
 #get user options from commandline
-while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:V:r:q:o:" opt; do
+while getopts "hvgcdPp:m:k:N:S:a:fx:F:i:D:e:V:r:q:o:R:" opt; do
     case $opt in
       h ) usage;            rm ${LOGDIR}/${LOGFILE}         ; exit             ;;
       v )                   echo "verbose mode"             ; VERBOSE=1        ;;
