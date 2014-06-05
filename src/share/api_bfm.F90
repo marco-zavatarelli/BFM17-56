@@ -38,7 +38,8 @@
    integer                            :: out_delta,out_secs,save_delta
    real(RLEN)                         :: time_delta
    character(len=PATH_MAX)            :: in_rst_fname, out_rst_fname
-   logical                            :: unpad_out
+   logical                            :: unpad_out, nc_compres
+   integer                            :: nc_shuffle, nc_deflate, nc_defllev
 
    !---------------------------------------------
    ! parameters for massive parallel computation
@@ -360,7 +361,8 @@ contains
    namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,bfm_rstctl,   &
                       out_fname,out_dir,out_units,out_title,    &
                       out_delta,out_secs,bioshade_feedback,     &
-                      parallel_log,unpad_out
+                      parallel_log,unpad_out,                   &
+                      nc_compres,nc_shuffle,nc_defllev
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -383,6 +385,9 @@ contains
    out_secs      = 100
    bioshade_feedback = .FALSE.
    unpad_out     = .FALSE.
+   nc_compres   = .FALSE.
+   nc_shuffle   = 0
+   nc_defllev   = 0
 
    !---------------------------------------------
    !  Open and read the namelist
@@ -440,6 +445,9 @@ contains
    open(LOGUNIT,file=logfname,action='write',  &
         form='formatted',err=100)
 #endif
+   ! Set NetCDF compression
+   nc_deflate = 0
+   if ( nc_defllev > 0) nc_deflate = 1
    !
    !-------------------------------------------------------
    ! Write to log bfmtime setting
@@ -558,7 +566,19 @@ contains
    else
      LEVEL3 "Restart file(s) saved at the end of this experiment."
    endif
-
+   if ( nc_compres ) then
+     LEVEL3 ' '
+     LEVEL3 "Output/Restart files generated using the following NetCDF options:"
+     LEVEL3 " - Shuffling (0=off/1=on) :  ",nc_shuffle
+     if ( nc_deflate == 1 ) then
+       LEVEL3 " - Data deflation active with compression level (0-9) : ",nc_defllev
+     else
+       LEVEL3 " - Data deflation is not active."
+     endif 
+   else
+     LEVEL3 ' '
+     LEVEL3 "Output/Restart files generated without NetCDF data compression."
+   endif
    LEVEL1 ' '
    LEVEL1 ' Step 1 ... DONE!'
    LEVEL1 ' '

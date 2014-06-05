@@ -24,6 +24,7 @@ module create_output
 
   use netcdf
   use mod_bnmerge, ONLY : handle_err, RLEN
+  use mod_bnmerge, ONLY : nc_compres,nc_shuffle,nc_deflate,nc_defllev
   implicit none
 
 #ifdef PARAL
@@ -130,6 +131,8 @@ contains
     ! define geographic variables
     if ( ln_mask ) then
        call handle_err (nf90_def_var(ncid_out, "mask", NF90_REAL, (/ IDx, IDy, IDz /), IDatt))
+       if ( nc_compres )  &
+          call handle_err( nf90_def_var_deflate(ncid_out, IDatt, nc_shuffle, nc_deflate, nc_defllev) )
        call handle_err (nf90_put_att(ncid_out, IDatt, "coordinates", "lon lat"))
     end if
     call handle_err (nf90_def_var(ncid_out, "lat", NF90_REAL, (/ IDx, IDy /), IDatt))
@@ -294,7 +297,8 @@ contains
           write(*,*) "Dimension name not recognized: "//trim(dimname_out)
           stop
        end select
-       if (status /= NF90_NOERR) call handle_err(status)
+       if ( nc_compres )  &
+          call handle_err( nf90_def_var_deflate(ncidout, IDtarget, nc_shuffle, nc_deflate, nc_defllev) )
        bfmvartarget_out(n) = IDtarget
 
        ! copy attributes
@@ -405,6 +409,8 @@ contains
        if (dimname_res == "oceanpoint") then ! 3D array
           status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, id_array_res, IDtarget)
           if (status /= NF90_NOERR) call handle_err(status)
+          if ( nc_compres )  &
+            call handle_err( nf90_def_var_deflate(ncidres, IDtarget, nc_shuffle, nc_deflate, nc_defllev) ) 
        else
           write(*,*) "Variable suppose to be 3D oceanpoint."
           stop
@@ -479,6 +485,8 @@ contains
              status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, &
                   (/ id_array_res(1), id_array_res(2), id_array_res(4) /), IDtarget)
              if (status /= NF90_NOERR) call handle_err(status)
+          if ( nc_compres )  &
+            call handle_err( nf90_def_var_deflate(ncidres, IDtarget, nc_shuffle, nc_deflate, nc_defllev) )
           else
              write(*,*) "Variable suppose to be 2D bottompoint."
              stop
@@ -548,6 +556,8 @@ contains
              status = nf90_def_var(ncidres, trim(res_names(n)), NF90_DOUBLE, &
                   (/ id_array_res(1), id_array_res(2), id_array_res(4) /), IDtarget)
              if (status /= NF90_NOERR) call handle_err(status)
+          if ( nc_compres )  &
+            call handle_err( nf90_def_var_deflate(ncidres, IDtarget, nc_shuffle, nc_deflate, nc_defllev) )
           else
              write(*,*) "Variable suppose to be 2D surfacepoint."
              stop

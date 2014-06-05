@@ -59,7 +59,8 @@ module mod_bnmerge
   integer,parameter  :: NSAVE=120      ! Maximum no variables which can be saved
   character(len=64),dimension(NSAVE):: var_save="NotVar"
   logical :: ln_mask=.FALSE.
-
+  logical :: nc_compres=.FALSE.
+  integer,public :: nc_shuffle=0,nc_deflate=0,nc_defllev=0
 
   public 
 contains 

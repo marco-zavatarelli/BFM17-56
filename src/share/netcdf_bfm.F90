@@ -21,6 +21,7 @@
         c1dim, &
         bfm_rstctl, out_dir, &
         D3ave, D2ave, &
+        nc_compres,nc_shuffle,nc_deflate,nc_defllev, &
 #if defined INCLUDE_SEAICE
         D2ave_ice, &
         stIceStateS, stIceDiag2dS, stIceFlux2dS, stIceStateE, &
@@ -224,6 +225,7 @@
    dims(2) = y_dim
    dims(3) = depth_dim
       call check_err(NF90_DEF_VAR(ncid_bfm,'mask',NF90_REAL,dims,mask_id), fname)
+      if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_bfm,mask_id,nc_shuffle,nc_deflate,nc_defllev))
    DEALLOCATE(dims)
    end if
 
@@ -407,14 +409,17 @@
    dims(1) = d3vars_rdim
    dims(2) = ocepoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE',NF90_DOUBLE,dims,d3state_rid), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,d3state_rid,nc_shuffle,nc_deflate,nc_defllev))
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE_NAME',NF90_CHAR,(/chars_rdim, d3vars_rdim/),d3state_name_rid), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE_UNITS',NF90_CHAR,(/chars_rdim, d3vars_rdim/),d3state_units_rid), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATE_LONG',NF90_CHAR,(/chars_rdim, d3vars_rdim/),d3state_long_rid), fname)
 #ifdef INCLUDE_PELCO2
    call check_err(NF90_DEF_VAR(ncid_rst,'pH',NF90_DOUBLE,ocepoint_rdim,ph_rid), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,ph_rid,nc_shuffle,nc_deflate,nc_defllev))
 #endif
 #ifdef BFM_POM
    call check_err(NF90_DEF_VAR(ncid_rst,'D3STATEB',NF90_DOUBLE,dims,d3stateb_rid), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,d3stateb_rid,nc_shuffle,nc_deflate,nc_defllev))
 #endif
 
    !---------------------------------------------
@@ -446,11 +451,13 @@
    dims(1) = d2vars_rdim_ice
    dims(2) = surfpoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE',NF90_DOUBLE,dims,d2state_rid_ice), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,d2state_rid_ice,nc_shuffle,nc_deflate,nc_defllev))
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_name_rid_ice), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_units_rid_ice), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_ICE_LONG',NF90_CHAR,(/chars_rdim, d2vars_rdim_ice/),d2state_long_rid_ice), fname)
 #ifdef BFM_POM
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_ICE',NF90_DOUBLE,dims,d2stateb_rid_ice), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,d2stateb_rid_ice,nc_shuffle,nc_deflate,nc_defllev))
 #endif
 #endif
 
@@ -463,11 +470,13 @@
    dims(1) = d2vars_rdim_ben
    dims(2) = botpoint_rdim
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN',NF90_DOUBLE,dims,d2state_rid_ben), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,d2state_rid_ben,nc_shuffle,nc_deflate,nc_defllev))
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_NAME',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_name_rid_ben), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_UNITS',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_units_rid_ben), fname)
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATE_BEN_LONG',NF90_CHAR,(/chars_rdim, d2vars_rdim_ben/),d2state_long_rid_ben), fname)
 #ifdef BFM_POM
    call check_err(NF90_DEF_VAR(ncid_rst,'D2STATEB_BEN',NF90_DOUBLE,dims,d2stateb_rid_ben), fname)
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_rst,d2stateb_rid_ben,nc_shuffle,nc_deflate,nc_defllev))
 #endif
 #endif
 
@@ -1501,6 +1510,7 @@ end subroutine init_netcdf_rst_bfm
    call replace_char(str=string, tar='()', rep='_')
    iret = NF90_DEF_VAR(ncid,string,data_type,dimids,id)
    call check_err(iret, ('caller: new_nc_variable with input '//trim(string)))
+   if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid,id,nc_shuffle,nc_deflate,nc_defllev))
    new_nc_variable = iret
    return
    end function new_nc_variable

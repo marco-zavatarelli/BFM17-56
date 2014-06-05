@@ -19,7 +19,8 @@ subroutine read_input
   use mod_bnmerge, ONLY : jpkglo,jpiglo,jpjglo, jpnij, &
        nimppt, njmppt, &
        nlcit , nlcjt, &
-       chunk_fname, bfm_restart, out_fname, inp_dir, out_dir, ln_mask, var_save, cf_nml_bnmerge
+       chunk_fname, bfm_restart, out_fname, inp_dir, out_dir, ln_mask, var_save, cf_nml_bnmerge, &
+       nc_compres, nc_shuffle, nc_deflate, nc_defllev
 
   implicit none
 
@@ -30,12 +31,28 @@ subroutine read_input
   character(LEN=120) :: dummyline,layout
   integer,parameter    :: namlst=10,unit=11
   integer, allocatable, dimension(:) :: nldit, nldjt, nleit, nlejt
-  namelist /bnmerge_nml/ chunk_fname,bfm_restart,out_fname,inp_dir,out_dir,layout,ln_mask,var_save
-
+  namelist /bnmerge_nml/ chunk_fname,bfm_restart,out_fname,inp_dir,out_dir,layout,ln_mask,var_save, &
+                         nc_compres,nc_shuffle,nc_defllev
   ! Reading directory names and file name specification
   open(namlst,file=trim(cf_nml_bnmerge),action='read',status='old',err=99)
   read(namlst,nml=bnmerge_nml,err=98)
   close(namlst)
+  ! Set use of NetCDF compression for output file
+  if ( nc_defllev > 0 ) nc_deflate=1
+  if ( nc_deflate == 1 ) then
+    write (*,*) 'bnmerge NetCDF data compression with this setup:.'
+    write (*,*) " - Shuffling (0=off/1=on) :  ",nc_shuffle
+    if ( nc_deflate == 1 ) then
+      write (*,*) " - Data deflation active with compression level (0-9) : ",nc_defllev
+    else
+      write (*,*) " - Data deflation is not active."
+    endif
+    write (*,*) ''
+  else
+    write (*,*) 'bnmerge is NOT using NetCDF data compression.'
+    write (*,*) ''
+  endif
+
   ! read processor layout from layout.dat file 
   open ( UNIT=inum, FILE=layout, FORM='FORMATTED', ACCESS='SEQUENTIAL',   &
        STATUS='UNKNOWN', ERR=100, IOSTAT=iost)
@@ -47,6 +64,7 @@ subroutine read_input
   end if
 #endif
   read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
+
   ! get rid of the problem with different forms of the layout.dat file
   if ( iost /= 0 ) read (inum,'(6i8)',iostat=iost) jpnij,jpi,jpj,jpk,jpiglo,jpjglo
   read (inum,'(a)') dummyline
