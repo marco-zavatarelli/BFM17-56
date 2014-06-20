@@ -826,7 +826,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    call check_err(NF90_INQ_DIMID(ncid_rst_in,"d2vars_ice",nstate_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len), fname)
-   call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint_ice",ncomp_id), fname)
+   call check_err(NF90_INQ_DIMID(ncid_rst_in,"surfacepoint",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len), fname)
    if (nstate_len/=NO_D2_BOX_STATES_ICE .OR. ncomp_len/=NO_BOXES_XY) then
       LEVEL1 '2D Seaice Dimension mismatch in restart file:'
@@ -855,7 +855,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    call check_err(NF90_INQ_DIMID(ncid_rst_in,"d2vars_ben",nstate_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len), fname)
-   call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint_ben",ncomp_id), fname)
+   call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len), fname)
    if (nstate_len/=NO_D2_BOX_STATES_BEN .OR. ncomp_len/=NO_BOXES_XY) then
       LEVEL1 '2D Benthic Dimension mismatch in restart file:'
@@ -1137,7 +1137,7 @@ end subroutine init_netcdf_rst_bfm
 #if defined INCLUDE_SEAICE
       do n=stIceStart,stIceEnd
 
-         dims(1) = botpoint_dim
+         dims(1) = surfpoint_dim
 
          if ( var_ids(n) /= 0 )  then 
             iret = new_nc_variable(ncid_bfm,var_names(n),NF90_REAL, &
