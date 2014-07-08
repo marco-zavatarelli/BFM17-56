@@ -224,7 +224,7 @@ M.
 
 \begin_layout Standard
 \align center
-DRAFT REVISION Release 1.0, April 2014
+DRAFT REVISION Release 1.0, July 2014
 \begin_inset Newline newline
 \end_inset
 
@@ -336,7 +336,7 @@ Vichi M., Lovato T., Gutierrez Mlot E., McKiver W.
  European Modelling of the Ocean).
  Release 1.0; BFM Report series N.
  2.
- April 2014, Bologna, Italy, http://bfm-community.eu
+ July 2014, Bologna, Italy, http://bfm-community.eu
 \end_layout
 
 \begin_layout Address
@@ -1377,6 +1377,56 @@ AggregateSink = .TRUE.
 ).
 \end_layout
 
+\begin_layout Standard
+\begin_inset Float figure
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Graphics
+	filename ../manual/Figures/variable-mapping.eps
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Remapping"
+
+\end_inset
+
+Layout of the main memory array for the pelagic variables and schematic
+ of the remapping into the NEMO three-dimensional ocean grid for transport
+ processes (see 
+\begin_inset CommandInset citation
+LatexCommand citealp
+key "BFM-manual"
+
+\end_inset
+
+ for a description of the code naming).
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
 \begin_layout Section
 The flow chart
 \end_layout
@@ -1385,7 +1435,16 @@ The flow chart
 The BFM is zero-dimensional by construction and defined only in the ocean
  points.
  This implies that the BFM memory is one dimensional, with all the land
- points stripped out from the 3D domain as shown in Fig.
+ points stripped out from the 3D domain and the remapping into the ocean
+ grid is done only when dealing with transport processes as shown in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Remapping"
+
+\end_inset
+
+ taken from the BFM manual.
  
 \end_layout
 
@@ -2708,6 +2767,8 @@ The off-line coupling has two major advantages: 1) it allows to use a previously
 -validated ocean simulation and 2) the use of time-averaged model output
  (usually at daily frequency) may allow to apply a longer time-step, likely
  2 to 3 times larger than the on-line coupling.
+ It should be noticed that results may differ from the on-line coupling
+ because ocean physics and time integration are different.
 \end_layout
 
 \begin_layout Subsection
@@ -2998,11 +3059,7 @@ ne")
 \end_layout
 
 \begin_layout Standard
-The same namelist using data from NEMO3.6 and above 
-\end_layout
-
-\begin_layout Standard
-activation of the keys 
+The activation of the keys 
 \family typewriter
 ln_dynwzv
 \family default
@@ -3011,7 +3068,7 @@ ln_dynwzv
 ln_dynbbl
 \family default
  requires the availability of additional variables which are read from the
- nemo files
+ NEMO output files
 \end_layout
 
 \begin_layout Standard
@@ -3108,18 +3165,27 @@ while if these keys are set to false the related fields are recomputed by
  After some testing we noticed that setting these keys to false determine
  a difference of about 1% in the BFM fields, while the computational times
  remains similar.
- Therefore, it seems acceptable to save some space and recalculate these
- variables during the execution of the off-line code.
+ Therefore, it seems acceptable to save some disk space and recalculate
+ these variables during the execution of the off-line code.
 \end_layout
 
 \begin_layout Standard
-The key ln_dynrnf was specifically created to be used with BFM and at the
- moment it is included only to the CMCC local branches of the code.
-\end_layout
-
-\begin_layout Standard
-Note that the sbc part of the namelists can be left empty.
- The runoff namelist must be filled and data should be provided if rivers
+The key 
+\family typewriter
+ln_dynrnf
+\family default
+ was specifically created to be used with BFM and at the moment it is not
+ yet included in NEMO 3.6.
+ Note that the namelists related to the surface boundary conditions (
+\family typewriter
+sbc
+\family default
+) can be left empty.
+ The runoff (
+\family typewriter
+rnf
+\family default
+) namelist must instead be filled and data should be provided if rivers
  are used.
 \end_layout
 
@@ -3143,9 +3209,9 @@ key "BFM-manual"
 
 .
  One new feature of NEMO 3.6 is the availability of the external library
- XIOS (REF), which allows to use an external I/O server and distribute the
- computation and preparation of output over different processes and with
- a different domain decomposition.
+ XIOS, which allows to use an external I/O server and distribute the computation
+ and preparation of output over different processes and with a different
+ domain decomposition.
  The XIOS library functions cannot be used with the BFM yet, therefore it
  is needed to post-process the output before accessing the three-dimensional
  domain fields.
