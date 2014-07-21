@@ -1,0 +1,48 @@
+% bfmProfilingReport.tex
+% $Header: bfmProfilingReport.tex,v 0.1$
+
+\documentclass[]{report}   % list options between brackets
+%fonts and format
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{pslatex}
+%math theorems and definitions
+\usepackage{amsthm}
+\newtheorem{mydef}{Definition}
+%version
+%\usepackage{vrsion}
+%graphics
+\usepackage{graphicx}
+\graphicspath{../img/}
+\usepackage{hyperref}
+\usepackage{rotating}
+%for printing source code
+\usepackage{listings}
+%for color inside tables
+\usepackage{colortbl}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+
+\begin{document}
+
+%Version \version
+\title{BFM Profiling Report}   % type title between braces
+\author{Esteban Dami\'an Guti\'errez Mlot}         % type author(s) between braces
+\date{\today}    % type date between braces
+\maketitle
+
+\tableofcontents
+
+\chapter{Introduction}
+\input{introduction.tex}
+
+\chapter{Technical Info}
+\input{techinfo.tex}
+
+\chapter{Tests}\label{chap:tests}
+\input{tests.tex}
+
+\bibliography{./bib/bfmProfilingReport}
+\bibliographystyle{./sty/IEEEtran} 
+%% \bibliographystyle{plain}
+
+\end{document}

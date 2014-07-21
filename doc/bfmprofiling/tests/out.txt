@@ -1,0 +1,458 @@
+Reading configuration...
+STANDALONE_PELAGIC
+GYRE_BFM
+PELAGOS2
+Test list: 
+	Test:     test_STD_PEL
+	Active:   A
+	Preset:   STANDALONE_PELAGIC
+	Arch:     ifort.inc
+	Run:      bsub
+	Mode:     STANDALONE
+	Exe:      bfm_standalone.x
+	Precmd:   module load HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_GYRE_BFM
+	Active:   A
+	Preset:   GYRE_BFM
+	Arch:     ifort_athena_xios
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Queue:    poe_long
+	Forcing:  /work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*
+	Precmd:   module load HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1
+	Prerun:   cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_cfg ./namelist_cfg
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_PELAGOS2
+	Active:   A
+	Preset:   PELAGOS2
+	Arch:     ifort_athena_xios
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Runproto: runscript_xios
+	Queue:    poe_long
+	Forcing:  /work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*;/work/ans040/FORCING/PELAGOS2_36_OFF/*
+	Precmd:   module load HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1
+	Prerun:   cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_off_cfg ./namelist_cfg
+	Compthr:  1e-3
+	Proc:     132
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+----------
+Analyzing test_STD_PEL
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL/STANDALONE_PELAGIC.err
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL/STANDALONE_PELAGIC.err
+	- Timming: 0m3.469s
+----------
+Analyzing test_GYRE_BFM
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/time.step: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/namelist_cfg: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/GYRE_BFM.err
+	- Timming: 6m21.115s
+----------
+Analyzing test_PELAGOS2
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2/time.step: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2/namelist_cfg: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2/PELAGOS2.err
+	- Timming: 1m40.228s
+----------
+TEST                          COMPILATION  RUN  ANALYSIS                                          
+test_STD_PEL                  -            -    SUCCEED: Y; TIMMING: 0m3.469s; COMPARISON: ?; VALGRIND: ?; 
+test_GYRE_BFM                 -            -    SUCCEED: Y; TIMMING: 6m21.115s; COMPARISON: ?; VALGRIND: ?; 
+test_PELAGOS2                 -            -    SUCCEED: Y; TIMMING: 1m40.228s; COMPARISON: ?; VALGRIND: ?; 
+Reading configuration...
+STANDALONE_PELAGIC
+GYRE_BFM
+PELAGOS2
+PELAGOS2_OFF
+Test list: 
+	Test:     test_STD_PEL_C
+	Active:   A
+	Preset:   STANDALONE_PELAGIC
+	Arch:     gfortran_debug.inc
+	Run:      bsub
+	Mode:     STANDALONE
+	Exe:      bfm_standalone.x
+	Valgrind: valgrind --tool=callgrind --collect-jumps=yes --dump-instr=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_GYRE_BFM_CI
+	Active:   A
+	Preset:   GYRE_BFM
+	Arch:     ifort_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Queue:    poe_long
+	Valgrind: valgrind --tool=callgrind --collect-jumps=yes --dump-instr=yes
+	Precmd:   module load HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_PELAGOS2_C
+	Active:   A
+	Preset:   PELAGOS2
+	Arch:     gfortran_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Runproto: runscript_xios
+	Runexe  : runscript
+	Queue:    poe_long
+	Forcing:  /work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*
+	Valgrind: valgrind --tool=callgrind --collect-jumps=yes --dump-instr=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Prerun:   cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_d_iodef.xml ./iodef.xml; cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_cfg ./namelist_cfg
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2
+	Compthr:  1e-3
+	Proc:     128
+	Parexe:   mpirun.lsf
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_PELAGOS2_OFF_C
+	Active:   A
+	Preset:   PELAGOS2_OFF
+	Arch:     gfortran_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Runproto: runscript_xios
+	Runexe  : runscript
+	Queue:    poe_long
+	Forcing:  /work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*;/work/ans040/FORCING/PELAGOS2_36_OFF/*
+	Valgrind: valgrind --tool=callgrind --collect-jumps=yes --dump-instr=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Prerun:   cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_off_d_iodef.xml ./iodef.xml; cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_off_cfg ./namelist_cfg
+	Compthr:  1e-3
+	Proc:     128
+	Parexe:   mpirun.lsf
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+----------
+Analyzing test_STD_PEL_C
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_C/STANDALONE_PELAGIC.err
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_C/STANDALONE_PELAGIC.err
+	- Timming: 6m50.013s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_C VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_C/BFM_General.nml: BFM_standalone_pelagic
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL/BFM_General.nml: BFM_standalone_pelagic
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_C/bfm.out.com
+	- Comparison OK
+	Getting Valgrind results
+----------
+Analyzing test_GYRE_BFM_CI
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI/time.step: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI/namelist_cfg: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI/GYRE_BFM.err
+	- Timming: 419m22.108s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI/BFM_General.nml: GYRE_BFM
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/BFM_General.nml: GYRE_BFM
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_CI/bfm.out.com
+	- Comparison OK
+	Getting Valgrind results
+----------
+Analyzing test_PELAGOS2_C
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C/time.step: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C/namelist_cfg: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C/PELAGOS2.err
+	- Timming: 0m20.297s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C/BFM_General.nml: PELAGOS2
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2/BFM_General.nml: PELAGOS2
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_C/bfm.out.com
+	- Comparison FAIL. Variables differs: syyc1 vtau_b sxxice u_ice tn sxyc0 avmu sya avmv sxysn vb syyc0 sxxc1 ssh_m syysn sfx_b sxxc0 sxyc2 DIMENSION sysn fsbbq sxyice syice syyice sb avm utau_b hicif sst_m sbc_hc_b tbif3 frld rhop sxc0 sss_m ub tbif1 syc1 tb sxc1 sxxa sxya D3STATE syyc2 sxxsn sbc_sc_b en un sxxc2 sn sxa pH qns_b sshn ssv_m stress1_i tbif2 stress2_i syc2 syc0 vn sxc2 ssu_m avt hsnif sshb syya sxice stress12_i emp_b sist sxyc1 v_ice sxsn dissl
+	Getting Valgrind results
+----------
+Analyzing test_PELAGOS2_OFF_C
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_C/time.step: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_C/namelist_cfg: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_C/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_C/PELAGOS2_OFF.err
+	- Timming: 9m58.484s
+	Getting Valgrind results
+----------
+TEST                          COMPILATION  RUN  ANALYSIS                                          
+test_STD_PEL_C                -            -    SUCCEED: Y; TIMMING: 6m50.013s; COMPARISON: Y; VALGRIND: Y; 
+test_GYRE_BFM_CI              -            -    SUCCEED: Y; TIMMING: 419m22.108s; COMPARISON: Y; VALGRIND: Y; 
+test_PELAGOS2_C               -            -    SUCCEED: Y; TIMMING: 0m20.297s; COMPARISON: N; VALGRIND: Y; 
+test_PELAGOS2_OFF_C           -            -    SUCCEED: Y; TIMMING: 9m58.484s; COMPARISON: ?; VALGRIND: Y; 
+Reading configuration...
+STANDALONE_PELAGIC
+GYRE_BFM
+GYRE_BFM
+PELAGOS2
+PELAGOS2_OFF
+Test list: 
+	Test:     test_STD_PEL_M
+	Active:   A
+	Preset:   STANDALONE_PELAGIC
+	Arch:     gfortran_debug.inc
+	Run:      bsub
+	Mode:     STANDALONE
+	Exe:      bfm_standalone.x
+	Valgrind: valgrind --tool=massif --run-libc-freeres=no --stacks=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_GYRE_BFM_MI
+	Active:   A
+	Preset:   GYRE_BFM
+	Arch:     ifort_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Queue:    poe_long
+	Valgrind: valgrind --tool=massif --stacks=yes
+	Precmd:   module load HDF5/hdf5-1.8.11_parallel NETCDF/netcdf-4.3_parallel NETCDF/parallel-netcdf-1.3.1
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_GYRE_BFM_MG
+	Active:   A
+	Preset:   GYRE_BFM
+	Arch:     gfortran_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Queue:    poe_long
+	Valgrind: valgrind --tool=massif --run-libc-freeres=no --stacks=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM
+	Compthr:  1e-3
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_PELAGOS2_M
+	Active:   A
+	Preset:   PELAGOS2
+	Arch:     gfortran_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Runproto: runscript_xios
+	Runexe  : runscript
+	Queue:    poe_long
+	Forcing:  /work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*
+	Valgrind: valgrind --tool=massif --run-libc-freeres=no --stacks=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Prerun:   cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_d_iodef.xml ./iodef.xml; cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_cfg ./namelist_cfg
+	Compare:  /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2
+	Compthr:  1e-3
+	Proc:     128
+	Parexe:   mpirun.lsf
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+	Test:     test_PELAGOS2_OFF_M
+	Active:   A
+	Preset:   PELAGOS2_OFF
+	Arch:     gfortran_athena_xios_debug
+	Run:      bsub
+	Mode:     NEMO
+	Exe:      nemo.exe
+	Runproto: runscript_xios
+	Runexe  : runscript
+	Queue:    poe_long
+	Forcing:  /work/ans040/FORCING/NEMO/*;/work/ans040/FORCING/BFM/*;/work/ans040/FORCING/PELAGOS2_36_OFF/*
+	Valgrind: valgrind --tool=massif --run-libc-freeres=no --stacks=yes
+	Precmd:   export NETCDF=/users/home/ans040/local; export LD_LIBRARY_PATH=/users/home/ans040/local/lib:$LD_LIBRARY_PATH
+	Prerun:   cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_off_d_iodef.xml ./iodef.xml; cp $BFMDIR/tools/bfm_test/configurations/PROFILING_TESTS/pelagos_off_cfg ./namelist_cfg
+	Compthr:  1e-3
+	Proc:     128
+	Parexe:   mpirun.lsf
+	Statcmp:  NOT_EXE
+	Statrun:  NOT_EXE
+	Statana:  NOT_EXE
+	Statcom:  NOT_EXE
+	Statval:  NOT_EXE
+	Timming:  ?
+
+----------
+Analyzing test_STD_PEL_M
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_M/STANDALONE_PELAGIC.err
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_M/STANDALONE_PELAGIC.err
+	- Timming: 4m22.227s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_M VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_M/BFM_General.nml: BFM_standalone_pelagic
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL/BFM_General.nml: BFM_standalone_pelagic
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_M/bfm.out.com
+	- Comparison OK
+	Getting Valgrind results
+	- Getting Massif results
+	- memory summary in files: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_STD_PEL_M/bfm.out.mem
+----------
+Analyzing test_GYRE_BFM_MI
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/time.step: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/namelist_cfg: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/GYRE_BFM.err
+	- Timming: 130m31.915s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/BFM_General.nml: GYRE_BFM
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/BFM_General.nml: GYRE_BFM
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/bfm.out.com
+	- Comparison FAIL. Variables differs: sbc_sc_b timeStamp sbc_hc_b
+	Getting Valgrind results
+	- Getting Massif results
+	- memory summary in files: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MI/bfm.out.mem
+----------
+Analyzing test_GYRE_BFM_MG
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/time.step: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/namelist_cfg: 4320
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/GYRE_BFM.err
+	- Timming: 83m34.733s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/BFM_General.nml: GYRE_BFM
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM/BFM_General.nml: GYRE_BFM
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/bfm.out.com
+	- Comparison FAIL. Variables differs: R1p R6s P1c ruPPYs tn votemper avmu vozocrtx time_counter Z5p avmv vb N3n ruPPYc R6n Z4c vosaline Z5c eiPPY_iiP3_ R6p P2c resZOOc pCO2 Z6c P2p P1n vomecrty ruPPYn votkeavt N4n P3n sb eiPPY_iiP2_ avm B1c P1p sohefldo B1n sosstsst sbc_hc_b P3l Z5n rhop jsurO3c sosaline ub exPPYc somxl010 tb eiPPY_iiP1_ resPBAc N1p D3STATE O2o DIC O3h jsurO2o sbc_sc_b xEPS somixhgt un sn remZOOn R6c pH ETW EIR P3c R1c P1l N5s timeStamp qns_b ruPPYp Z6n P2n Z6p P2l ALK vn R1n ruZOOc time_centered B1p avt qsr_hc_b N7f remPBAn P3p R6f Chla
+	Getting Valgrind results
+	- Getting Massif results
+	- memory summary in files: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_GYRE_BFM_MG/bfm.out.mem
+----------
+Analyzing test_PELAGOS2_M
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/time.step: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/namelist_cfg: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/PELAGOS2.err
+	- Timming: 3m51.012s
+	Comparing results:
+	- /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M VS /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/BFM_General.nml: PELAGOS2
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2/BFM_General.nml: PELAGOS2
+	- See more info in: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/bfm.out.com
+	- Comparison FAIL. Variables differs: syyc1 R6s vtau_b P1c ruPPYs sxxice u_ice tn sxyc0 avmu sya avmv sxysn vb N3n syyc0 sxxc1 R6n Z4c ruPPYc ssh_m syysn sfx_b Z5c eiPPY_iiP3_ P2c resZOOc Z6c pCO2 sxxc0 sxyc2 sysn P1n ruPPYn fsbbq sxyice syice syyice N4n P3n eiPPY_iiP2_ sb B1c avm utau_b hicif sst_m sbc_hc_b P3l tbif3 frld jsurO3c rhop sxc0 sss_m exPPYc ub syc1 tbif1 eiPPY_iiP1_ tb sxc1 sxya sxxa resPBAc N1p D3STATE DIC O2o syyc2 O3h jsurO2o sxxsn xEPS sbc_sc_b en un sn sxxc2 sxa R6c pH EIR ETW EICE P3c jbotR6c R1c P1l N5s qns_b ruPPYp sshn P2n ssv_m stress1_i tbif2 syc2 stress2_i P2l ALK ruZOOc vn syc0 sxc2 ssu_m avt qsr_hc_b N7f hsnif sshb syya sxice P3p Chla stress12_i emp_b sist sxyc1 v_ice dissl sxsn
+	Getting Valgrind results
+	- Getting Massif results
+	- memory summary in files: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_M/bfm.out.mem
+----------
+Analyzing test_PELAGOS2_OFF_M
+	Getting status information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_M/time.step: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_M/namelist_cfg: 50
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_M/ocean.output
+	- Status OK
+	Getting timming information
+	- from file: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_M/PELAGOS2_OFF.err
+	- Timming: 3m29.556s
+	Getting Valgrind results
+	- Getting Massif results
+	- memory summary in files: /users/home/ans040/dev/repo/bfm/tools/bfm_test/tmp/test_PELAGOS2_OFF_M/bfm.out.mem
+----------
+TEST                          COMPILATION  RUN  ANALYSIS                                          
+test_STD_PEL_M                -            -    SUCCEED: Y; TIMMING: 4m22.227s; COMPARISON: Y; VALGRIND: Y; 
+test_GYRE_BFM_MI              -            -    SUCCEED: Y; TIMMING: 130m31.915s; COMPARISON: N; VALGRIND: Y; 
+test_GYRE_BFM_MG              -            -    SUCCEED: Y; TIMMING: 83m34.733s; COMPARISON: N; VALGRIND: Y; 
+test_PELAGOS2_M               -            -    SUCCEED: Y; TIMMING: 3m51.012s; COMPARISON: N; VALGRIND: Y; 
+test_PELAGOS2_OFF_M           -            -    SUCCEED: Y; TIMMING: 3m29.556s; COMPARISON: ?; VALGRIND: Y; 

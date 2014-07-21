@@ -1,0 +1,27 @@
+STANDALONE_PELAGIC
+GYRE_BFM
+PELAGOS2
+TEST                          COMPILATION  RUN  ANALYSIS                                          
+test_STD_PEL                  -            -    SUCCEED: Y; TIMMING: 0m3.469s; COMPARISON: ?; VALGRIND: ?; 
+test_GYRE_BFM                 -            -    SUCCEED: Y; TIMMING: 6m21.115s; COMPARISON: ?; VALGRIND: ?; 
+test_PELAGOS2                 -            -    SUCCEED: Y; TIMMING: 1m40.228s; COMPARISON: ?; VALGRIND: ?; 
+STANDALONE_PELAGIC
+GYRE_BFM
+PELAGOS2
+PELAGOS2_OFF
+TEST                          COMPILATION  RUN  ANALYSIS                                          
+test_STD_PEL_C                -            -    SUCCEED: Y; TIMMING: 6m50.013s; COMPARISON: Y; VALGRIND: Y; 
+test_GYRE_BFM_CI              -            -    SUCCEED: Y; TIMMING: 419m22.108s; COMPARISON: Y; VALGRIND: Y; 
+test_PELAGOS2_C               -            -    SUCCEED: Y; TIMMING: 0m20.297s; COMPARISON: N; VALGRIND: Y; 
+test_PELAGOS2_OFF_C           -            -    SUCCEED: Y; TIMMING: 9m58.484s; COMPARISON: ?; VALGRIND: Y; 
+STANDALONE_PELAGIC
+GYRE_BFM
+GYRE_BFM
+PELAGOS2
+PELAGOS2_OFF
+TEST                          COMPILATION  RUN  ANALYSIS                                          
+test_STD_PEL_M                -            -    SUCCEED: Y; TIMMING: 4m22.227s; COMPARISON: Y; VALGRIND: Y; 
+test_GYRE_BFM_MI              -            -    SUCCEED: Y; TIMMING: 130m31.915s; COMPARISON: N; VALGRIND: Y; 
+test_GYRE_BFM_MG              -            -    SUCCEED: Y; TIMMING: 83m34.733s; COMPARISON: N; VALGRIND: Y; 
+test_PELAGOS2_M               -            -    SUCCEED: Y; TIMMING: 3m51.012s; COMPARISON: N; VALGRIND: Y; 
+test_PELAGOS2_OFF_M           -            -    SUCCEED: Y; TIMMING: 3m29.556s; COMPARISON: ?; VALGRIND: Y; 

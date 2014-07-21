@@ -1,0 +1,7 @@
+This preset is divided in three parts. To execute it you have to run three times bfm_test.
+Prior to each executio copy the correspondant profile part with the name PROFILING_TESTS.
+
+This is the generic command to run this preset. Substitute "XXX" by 1,2,3 :
+
+cp configurations/PROFILING_TESTS/PROFILING_TESTS_partXXX configurations/PROFILING_TESTS/PROFILING_TESTS
+./bfm_test.pl -vo -p PROFILING_TESTS
