@@ -88,7 +88,7 @@
 !              !  file name   ! frequency (hours) ! variable ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
 !              !              !  (if <0  months)  !   name   !  (logical)   !  (T/F) ! 'monthly' ! filename ! pairing  !
    sn_hicif    = 'ice_damping',  -1.              , 'hicif'  ,   .true.     , .true. , 'yearly'  , ''       , ''
-   sn_cnf      = 'ice_damping',  -1.              , 'frld'   ,   .true.     , .true. , 'yearly'  , ''       , ''
+   sn_frld     = 'ice_damping',  -1.              , 'frld'   ,   .true.     , .true. , 'yearly'  , ''       , ''
 !
    cn_dir      = './'      !  root directory for the location of the runoff files
 /

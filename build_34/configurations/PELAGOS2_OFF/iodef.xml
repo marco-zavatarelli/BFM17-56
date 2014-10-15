@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-<simulation>
+<simulation> 
   
-  <context id="nemo"> 
+  <context id="nemo">
     
     <!-- $id$ -->
-
+    
     <!-- 
 ============================================================================================================
 =                                  definition of all existing variables                                    =
@@ -55,6 +55,7 @@
 
 	<field id="empmr"        description="Net Upward Water Flux"                                        unit="kg/m2/s"  />
 	<field id="empsmr"       description="concentration/dilution water flux"                            unit="kg/m2/s"  />
+	<field id="prec"         description="Total precipitation"                                          unit="Kg/m2/s"  />
 	<field id="snowpre"      description="Snow precipitation"                                           unit="kg/m2/s"  />
 	<field id="runoffs"      description="River Runoffs"                                                unit="Kg/m2/s"  />
 
@@ -67,8 +68,8 @@
 	<field id="taum"         description="wind stress module"                                           unit="N/m2"     />
 	<field id="wspd"         description="Wind speed module at 10 m"                                    unit="m/s"      />
 	
-        <!-- * variable relative to atmospheric pressure forcing : available with ln_apr_dyn -->
-        <field id="ssh_ib"       description="Inverse barometer sea surface height"                         unit="m"        />
+	<!-- * variable relative to atmospheric pressure forcing : available with ln_apr_dyn -->
+	<field id="ssh_ib"       description="Inverse barometer sea surface height"                         unit="m"        />
 
 	<!-- *_oce variables available with ln_blk_clio or ln_blk_core -->
 	<field id="qns_oce"      description="Non solar Downward Heat Flux over open ocean"                 unit="W/m2"     />
@@ -138,8 +139,8 @@
 	<field id="uocetr_eff"   description="Effective ocean transport along i-axis"      unit="m3/s"                  />
 	<!-- uoce_eiv: available with key_traldf_eiv and key_diaeiv -->
 	<field id="uoce_eiv"     description="EIV ocean current along i-axis"              unit="m/s"                  />
-	<!-- uoce_eiv: available with key_trabbl_adv -->
-	<field id="uoce_bbl"     description="BBL ocean current along i-axis"              unit="m/s"                  />
+	<!-- uoce_eiv: available with key_trabbl -->
+	<field id="uoce_bbl"     description="BBL ocean current along i-axis"              unit="m/s"  axis_ref="none" />
 	<field id="ahu_bbl"      description="BBL diffusive flux along i-axis"             unit="m3/s" axis_ref="none" />
  	<!-- variables available with key_diaar5 -->
 	<field id="u_masstr"     description="ocean eulerian mass transport along i-axis"  unit="kg/s"                 />
@@ -156,8 +157,8 @@
 	<field id="vocetr_eff"   description="Effective ocean transport along j-axis"      unit="m3/s"                  />
 	<!-- voce_eiv: available with key_traldf_eiv and key_diaeiv -->
 	<field id="voce_eiv"     description="EIV ocean current along j-axis"              unit="m/s"                  />
-	<!-- voce_eiv: available with key_trabbl_adv -->
-	<field id="voce_bbl"     description="BBL ocean current along j-axis"              unit="m/s"                  />
+	<!-- voce_eiv: available with key_trabbl -->
+	<field id="voce_bbl"     description="BBL ocean current along j-axis"              unit="m/s" axis_ref="none"  />
 	<field id="ahv_bbl"      description="BBL diffusive flux along j-axis"             unit="m3/s" axis_ref="none" />
 	<!-- variables available with key_diaar5 -->
 	<field id="v_masstr"     description="ocean eulerian mass transport along j-axis"  unit="kg/s"                 />
@@ -205,46 +206,90 @@
 	<field id="fram_trans" description="Sea Ice Mass Transport Through Fram Strait" unit="kg/s" />
       </group>
 
+      <!-- variables available with key_float -->
+      <group id="floatvar" axis_ref="nfloat" grid_ref="scalarpoint" zoom_ref="1point">
+        <field id="traj_lon"   description="floats longitude"   unit="deg"   operation="inst(X)"  />
+        <field id="traj_lat"   description="floats latitude"    unit="deg"   operation="inst(X)"  />
+        <field id="traj_dep"   description="floats depth"       unit="m"     operation="inst(X)"  />
+        <field id="traj_temp"  description="floats temperature" unit="degC"  operation="inst(X)"  />
+        <field id="traj_salt"  description="floats salinity"    unit="psu"   operation="inst(X)"  />
+        <field id="traj_dens"  description="floats density"     unit="kg/m3" operation="inst(X)"  />
+        <field id="traj_group" description="floats group"       unit="none"  operation="inst(X)"  />
+      </group>
+     
       <!-- ptrc on T grid -->
 
      <group id="ptrc_T" axis_ref="deptht" grid_ref="grid_T">
-       <field id="DET"      description="Detritus"                                      unit="mmole-N/m3" />
-       <field id="ZOO"      description="Zooplankton Concentration"                     unit="mmole-N/m3" />
-       <field id="PHY"      description="Phytoplankton Concentration"                   unit="mmole-N/m3" />
-       <field id="NO3"      description="Nitrate Concentration"                         unit="mmole-N/m3" />
-       <field id="NH4"      description="Ammonium Concentration"                        unit="mmole-N/m3" />
-       <field id="DOM"      description="Dissolved Organic Matter"                      unit="mmole-N/m3" />
+       <field id="DIC"      description="Dissolved inorganic Concentration"        unit="mmol/m3" />
+       <field id="Alkalini" description="Total Alkalinity Concentration"           unit="mmol/m3"    />
+       <field id="O2"       description="Oxygen Concentration"                     unit="mmol/m3" />
+       <field id="CaCO3"    description="Calcite Concentration"                    unit="mmol/m3" />
+       <field id="PO4"      description="Phosphate Concentration"                  unit="mmol/m3" />
+       <field id="POC"      description="Small organic carbon Concentration"       unit="mmol/m3" />
+       <field id="Si"       description="Silicate Concentration"                   unit="mmol/m3" />
+       <field id="PHY"      description="Nanophytoplankton Concentration"          unit="mmol/m3" />
+       <field id="ZOO"      description="Microzooplankton Concentration"           unit="mmol/m3" />
+       <field id="DOC"      description="Dissolved organic Concentration"          unit="mmol/m3" />
+       <field id="PHY2"     description="Diatoms Concentration"                    unit="mmol/m3" />
+       <field id="ZOO2"     description="Mesozooplankton Concentration"            unit="mmol/m3" />
+       <field id="DSi"      description="Diatoms Silicate Concentration"           unit="mmol/m3" />
+       <field id="Fer"      description="Dissolved Iron Concentration"             unit="mmol/m3" />
+       <field id="BFe"      description="Big iron particles Concentration"         unit="mmol/m3" />
+       <field id="GOC"      description="Big organic carbon Concentration"         unit="mmol/m3" />
+       <field id="SFe"      description="Small iron particles Concentration"       unit="mmol/m3" />
+       <field id="DFe"      description="Diatoms iron  Concentration"              unit="mmol/m3" />
+       <field id="GSi"      description="Sinking biogenic Silicate Concentration"  unit="mmol/m3" />
+       <field id="NFe"      description="Nano iron Concentration"                  unit="mmol/m3" />
+       <field id="NCHL"     description="Nano chlorophyl Concentration"            unit="mg/m3" />
+       <field id="DCHL"     description="Diatoms chlorophyl Concentration"         unit="mg/m3" />
+       <field id="NO3"      description="Nitrates Concentration"                   unit="mmol/m3" />
+       <field id="NH4"      description="Ammonium Concentration"                   unit="mmol/m3" />
      </group>
 
-     <!-- diad on T grid -->
+      <!-- diad on T grid : variables available with key_diatrc -->
 
-     <group id="diad_T" axis_ref="none" grid_ref="grid_T">  
-       <field id="FNO3PHY"  description="FNO3PHY"                             unit="-"  axis_ref="deptht" /> 
-       <field id="FNH4PHY"  description="FNH4PHY"                             unit="-"  axis_ref="deptht" /> 
-       <field id="FNH4NO3"  description="FNH4NO3"                             unit="-"  axis_ref="deptht" /> 
-       <field id="TNO3PHY"  description="TNO3PHY"                             unit="-"  /> 
-       <field id="TNH4PHY"  description="TNH4PHY"                             unit="-"  /> 
-       <field id="TPHYDOM"  description="TPHYDOM"                             unit="-"  /> 
-       <field id="TPHYNH4"  description="TPHYNH4"                             unit="-"  /> 
-       <field id="TPHYZOO"  description="TPHYZOO"                             unit="-"  /> 
-       <field id="TPHYDET"  description="TPHYDET"                             unit="-"  /> 
-       <field id="TDETZOO"  description="TDETZOO"                             unit="-"  /> 
-       <field id="TDETSED"  description="TDETSED"                             unit="-"  /> 
-       <field id="TZOODET"  description="TZOODET"                             unit="-"  /> 
-       <field id="TZOOBOD"  description="TZOOBOD"                             unit="-"  /> 
-       <field id="TZOONH4"  description="TZOONH4"                             unit="-"  /> 
-       <field id="TZOODOM"  description="TZOODOM"                             unit="-"  /> 
-       <field id="TNH4NO3"  description="TNH4NO3"                             unit="-"  /> 
-       <field id="TDOMNH4"  description="TDOMNH4"                             unit="-"  /> 
-       <field id="TDETNH4"  description="TDETNH4"                             unit="-"  /> 
-       <field id="TPHYTOT"  description="TPHYTOT"                             unit="-"  /> 
-       <field id="TZOOTOT"  description="TZOOTOT"                             unit="-"  /> 
-       <field id="TDETDOM"  description="TDETDOM"                             unit="-"  /> 
-       <field id="SEDPOC"   description="SEDPOC"                              unit="-"  /> 
+     <group id="diad_T" axis_ref="none" grid_ref="grid_T">
+       <field id="PH"          description="PH"                                       unit="-"          axis_ref="deptht" />
+       <field id="CO3"         description="Bicarbonates"                             unit="mol/m3"     axis_ref="deptht" />
+       <field id="CO3sat"      description="CO3 saturation"                           unit="mol/m3"     axis_ref="deptht" />
+       <field id="PAR"         description="Photosynthetically Available Radiation"   unit="W/m2"       axis_ref="deptht" />
+       <field id="PPPHY"       description="Primary production of nanophyto"          unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PPPHY2"      description="Primary production of diatoms"            unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PPNEWN"      description="New Primary production of nanophyto"      unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PPNEWD"      description="New Primary production of diatoms"        unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PBSi"        description="Primary production of Si diatoms"         unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PFeN"        description="Primary production of nano iron"          unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PFeD"        description="Primary production of diatoms iron"       unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="PCAL"        description="Calcite production"                       unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="DCAL"        description="Calcite dissolution"                      unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="GRAZ"        description="Grazing by zooplankton"                   unit="mol/m3/s"   axis_ref="deptht" />
+       <field id="Mumax"       description="Maximum growth rate"                      unit="s-1"        axis_ref="deptht" />
+       <field id="MuN"         description="Realized growth rate for nanophyto"       unit="s-1"        axis_ref="deptht" />
+       <field id="MuD"         description="Realized growth rate for diatomes"        unit="s-1"        axis_ref="deptht" />
+       <field id="MuNlight"    description="Light limited growth rate for nanophyto"  unit="s-1"        axis_ref="deptht" />
+       <field id="MuDlight"    description="Light limited growth rate for diatomes"   unit="s-1"        axis_ref="deptht" />
+       <field id="LNnut"       description="Nutrient limitation term in Nanophyto"    unit="-"          axis_ref="deptht" />
+       <field id="LDnut"       description="Nutrient limitation term in Diatoms"      unit="-"          axis_ref="deptht" />
+       <field id="LNFe"        description="Iron limitation term in Nanophyto"        unit="-"          axis_ref="deptht" />
+       <field id="LDFe"        description="Iron limitation term in Diatoms"          unit="-"          axis_ref="deptht" />
+       <field id="LNlight"     description="Light limitation term in Nanophyto"       unit="-"          axis_ref="deptht" />
+       <field id="LDlight"     description="Light limitation term in Diatoms"         unit="-"          axis_ref="deptht" />
+       <field id="Nfix"        description="Nitrogen fixation at surface"             unit="mol/m2/s"                     />
+       <field id="EPC100"      description="Export of carbon particles at 100 m"      unit="mol/m2/s"                     />
+       <field id="EPFE100"     description="Export of biogenic iron at 100 m"         unit="mol/m2/s"                     />
+       <field id="EPSI100"     description="Export of Silicate at 100 m"              unit="mol/m2/s"                     />
+       <field id="EPCAL100"    description="Export of Calcite at 100 m"               unit="mol/m2/s"                     />
+       <field id="Cflx"        description="DIC flux"                                 unit="mol/m2/s"                     />
+       <field id="Oflx"        description="Oxygen flux"                              unit="mol/m2/s"                     />
+       <field id="Kg"          description="Gas transfer"                             unit="mol/m2/s/uatm"                />
+       <field id="Dpco2"       description="Delta CO2"                                unit="uatm"                         />
+       <field id="Dpo2"        description="Delta O2"                                 unit="uatm"                         />
+       <field id="Heup"        description="Euphotic layer depth"                     unit="m"                            />
+       <field id="Irondep"     description="Iron deposition"                          unit="mol/m2/s"                     />
      </group>
-
-  </field_definition>
-
+       
+    </field_definition>
+    
     <!-- 
 ============================================================================================================
 =                                           output files definition                                        =
@@ -252,25 +297,24 @@
 =                                         put the variables you want...                                    =
 ============================================================================================================
     -->
-
-  <file_definition output_level="10" enabled=".TRUE.">
-
+    
+    <file_definition >
 
       <group id="1h" output_freq="3600"   output_level="10" enabled=".TRUE.">                      <!-- 1h files -->
       </group>
-
+      
       <group id="2h" output_freq="7200"   output_level="10" enabled=".TRUE.">                      <!-- 2h files -->
       </group>
-
+      
       <group id="3h" output_freq="10800"  output_level="10" enabled=".TRUE.">                      <!-- 3h files -->
       </group>
-
+      
       <group id="4h" output_freq="14400"  output_level="10" enabled=".TRUE.">                      <!-- 4h files -->
       </group>
-
+      
       <group id="6h" output_freq="21600"  output_level="10" enabled=".TRUE.">                      <!-- 6h files -->
       </group>
-
+      
       <group id="1d" output_freq="86400"  output_level="10" enabled=".TRUE.">                      <!-- 1d files -->
       </group>
 
@@ -307,24 +351,24 @@
       <group id="10y" output_freq="-120"  output_level="10" enabled=".TRUE.">                      <!-- real 10y files -->
       </group>
 
- 
-  </file_definition>
-
+    </file_definition>
+    
     <!-- 
 ============================================================================================================
 =                                           grid definition                                                =
 =                                            DO NOT CHANGE                                                 =
 ============================================================================================================
     -->
-
+    
   <axis_definition>  
      <axis id="deptht" description="Vertical T levels" unit="m" positive=".false." />
      <axis id="depthu" description="Vertical U levels" unit="m" positive=".false." />
      <axis id="depthv" description="Vertical V levels" unit="m" positive=".false." />
      <axis id="depthw" description="Vertical W levels" unit="m" positive=".false." />
+     <axis id="nfloat" description="Number of float"   unit="no unit" positive=".false." />
      <axis id="none" description="axe non defini" unit="none" size="1" />
   </axis_definition> 
-
+    
   <grid_definition>
     <grid id="grid_T" description="grid T" />
     <grid id="grid_U" description="grid U" />
@@ -334,7 +378,7 @@
       <zoom id="1point" ibegin="1" jbegin="1" ni="1" nj="1" />
     </grid>
   </grid_definition>    
-
-</context>
-
+    
+  </context>
+  
 </simulation>

@@ -29,7 +29,7 @@
    nn_nchunks_k   =   31      !  number of chunks in k-dimension
                               !  setting nn_nchunks_k = jpk will give a chunk size of 1 in the vertical which
                               !  is optimal for postprocessing which works exclusively with horizontal slabs
-   ln_nc4zip      =   .FALSE.  !  (T) use netcdf4 chunking and compression
+   ln_nc4zip      =   .FALSE. !  (T) use netcdf4 chunking and compression
                               !  (F) ignore chunking information and produce netcdf3-compatible files  
 /
   

@@ -53,6 +53,7 @@
    out_title    = 'PELAGOS2'
    out_delta    = -1
    parallel_log = .TRUE.
+   unpad_out    = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -204,16 +205,16 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    O3c0 = 27060.0,
    O3h0 = 2375.0,
    O4n0 = 200.0,
-   P1c0 = 0.1
-   P2c0 = 0.1
-   P3c0 = 0.1
-   P4c0 = 0.1
-   Z3c0 = 0.1
-   Z4c0 = 0.1
-   Z5c0 = 0.1
-   Z6c0 = 0.1
-   B1c0 = 0.1
-   R1c0 = 0.1
+   B1c0 = 0.1,
+   P1c0 = 0.1,
+   P2c0 = 0.1,
+   P3c0 = 0.1,
+   P4c0 = 0.1,
+   Z3c0 = 0.1,
+   Z4c0 = 0.1,
+   Z5c0 = 0.1,
+   Z6c0 = 0.1,
+   R1c0 = 0.1,
    R2c0 = 0.0,
    R3c0 = 0.0,
    R6c0 = 0.1,

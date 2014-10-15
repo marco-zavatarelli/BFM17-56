@@ -23,13 +23,13 @@
 !-----------------------------------------------------------------------
 &namrun        !   parameters of the run
 !-----------------------------------------------------------------------
-   nn_no       =    1   !  job number
+   nn_no       =    1      !  job number
    cn_exp      = "PELAGOS025" !  experience name 
-   nn_it000    =  1 !  first time step
-   nn_itend    =  80 !  last  time step (std 5475)
+   nn_it000    =  1        !  first time step
+   nn_itend    =  80       !  last  time step (std 5475)
    nn_date0    =  19990101 !  initial calendar date yymmdd (used if nn_rstctl=1)
    nn_leapy    =       1   !  Leap year calendar (1) or not (0)
-   ln_rstart   =  .false. !  start from rest (F) or from a restart file (T)
+   ln_rstart   =  .false.  !  start from rest (F) or from a restart file (T)
    nn_rstctl   =       0   !  restart control = 0 nn_it000 is not compared to the restart file value
                            !                  = 1 use nn_date0 in namelist (not the value in the restart file)
                            !                  = 2 calendar parameters read in the restart file

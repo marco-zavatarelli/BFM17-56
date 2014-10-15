@@ -26,13 +26,14 @@
 #  EXPLICIT_SINK    : use of D3SOURCE and D3SINK
 
 &BFM_conf
-        MODE    = 'NEMO',
-        CPPDEFS = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_PELFE INCLUDE_DIAG',
-        ARCH    = 'ifort_athena_debug',
-        PROC    = 16,
-        EXP     = 'pelagos2_off',
-        QUEUE   = 'poe_short',
-        EXPFILES = 'iodef.xml xmlio_server.def namelist namelist_top'
+        MODE     = 'NEMO',
+        CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 INCLUDE_PELFE INCLUDE_DIAG',
+        ARCH     = 'ifort_athena',
+        PROC     = 256,
+        EXP      = 'pelagos2_off',
+        EXPFILES = 'iodef.xml xmlio_server.def namelist namelist_top',
+        NEMOSUB  = 'OPA_SRC OFF_SRC TOP_SRC',
+        QUEUE    = 'poe_short'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

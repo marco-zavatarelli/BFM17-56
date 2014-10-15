@@ -31,9 +31,9 @@
         ARCH     = 'ifort_athena',
         PROC     = 256,
         EXP      = 'pelagos1',
-        QUEUE    = 'poe_short',
-        EXPFILES = 'iodef.xml xmlio_server.def namelist namelist_ice namelist_top'
-        NEMOSUB  = 'OPA_SRC TOP_SRC LIM_SRC_2'
+        EXPFILES = 'iodef.xml xmlio_server.def namelist namelist_ice namelist_top',
+        NEMOSUB  = 'OPA_SRC LIM_SRC_2 TOP_SRC',
+        QUEUE    = 'poe_short'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

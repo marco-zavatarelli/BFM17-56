@@ -278,7 +278,7 @@
 !-----------------------------------------------------------------------
 &namlbc        !   lateral momentum boundary condition
 !-----------------------------------------------------------------------
-   rn_shlat    =    1.0    !  shlat = 0  !  0 < shlat < 2  !  shlat = 2  !  2 < shlat
+   rn_shlat    =    0.5    !  shlat = 0  !  0 < shlat < 2  !  shlat = 2  !  2 < shlat
                            !  free slip  !   partial slip  !   no slip   ! strong slip
    ln_vorlat   = .false.   !  consistency of vorticity boundary condition with analytical eqs.
 /
@@ -566,7 +566,7 @@
    !                       !  Coefficient
    rn_ahm_0_lap     =     0.    !  horizontal laplacian eddy viscosity   [m2/s]
    rn_ahmb_0        =     0.    !  background eddy viscosity for ldf_iso [m2/s]
-   rn_ahm_0_blp     =   -1.0e11 !  horizontal bilaplacian eddy viscosity [m4/s] 
+   rn_ahm_0_blp     =   -1.8e11 !  horizontal bilaplacian eddy viscosity [m4/s] 
 /
 !-----------------------------------------------------------------------
 &namdta_dyn        !   offline dynamics read in files                ("key_offline")

@@ -1,0 +1,2 @@
+bld::tool::fppkeys key_trabbl key_orca_r025 key_dynspg_flt key_ldfslp key_traldf_c2d key_dynldf_c2d key_zdftke key_zdfddm key_mpp_mpi key_vectopt_loop key_top key_my_trc key_offline
+inc $BFMDIR/src/nemo/bfm.fcm

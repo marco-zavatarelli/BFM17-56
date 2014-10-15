@@ -1,13 +1,13 @@
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-# BFM - Biogeochemical Flux Model 
+# BFM - Biogeochemical Flux Model
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #
 # COPYING
-#   
+#
 #   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-#                                                                                                     
+#
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
 #   the Free Software Foundation;
@@ -19,8 +19,9 @@
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #  Currently available macros (cppdefs) are:
 #  BFM_STANDALONE   : mandatory when using the STANDALONE model
+#  BFM_PARALLEL     : activate parallel coupling with BFM
 #  INCLUDE_PELFE    : add Iron component to the pelagic system
-#  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics 
+#  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics
 #  INCLUDE_DIAG   : activate flux diagnostics defined in .mem file
 #  EXPLICIT_SINK    : use of D3SOURCE and D3SINK
 
@@ -28,9 +29,11 @@
         MODE     = 'NEMO',
         CPPDEFS  = 'BFM_PARALLEL INCLUDE_PELCO2 USE_MFSBULK',
         ARCH     = 'ifort_athena',
-        PROC     = 8,
+        PROC     = 256,
         EXP      = 'MFS16_BFM',
-        EXPFILES = 'iodef.xml namelist xmlio_server.def namelist_top'
+        EXPFILES = 'iodef.xml xmlio_server.def namelist namelist_top',
+        NEMOSUB  = 'OPA_SRC TOP_SRC',
+        QUEUE    = 'poe_short'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES

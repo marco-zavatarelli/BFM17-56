@@ -63,7 +63,7 @@
 &namicethd     !   ice thermodynamic
 !-----------------------------------------------------------------------
    hmelt       = -0.15     !  maximum melting at the bottom
-   hiccrit     = 0.3 , 0.6 !  ice thickness for lateral accretion in the Northern (Southern) Hemisphere
+   hiccrit     = 0.3 , 0.3 !  ice thickness for lateral accretion in the Northern (Southern) Hemisphere
    !                       !  (caution 1.0, 1.0 best value to be used!!! (gilles G.))
    hicmin      = 0.2       !  ice thickness corr. to max. energy stored in brine pocket
    hiclim      = 0.05      !  minimum ice thickness
@@ -88,7 +88,7 @@
 !              !  file name   ! frequency (hours) ! variable ! time interp. !  clim  ! 'yearly'/ ! weights  ! rotation !
 !              !              !  (if <0  months)  !   name   !  (logical)   !  (T/F) ! 'monthly' ! filename ! pairing  !
    sn_hicif    = 'ice_damping',  -1.              , 'hicif'  ,   .true.     , .true. , 'yearly'  , ''       , ''
-   sn_cnf      = 'ice_damping',  -1.              , 'frld'   ,   .true.     , .true. , 'yearly'  , ''       , ''
+   sn_frld     = 'ice_damping',  -1.              , 'frld'   ,   .true.     , .true. , 'yearly'  , ''       , ''
 !
    cn_dir      = './'      !  root directory for the location of the runoff files
 /
