@@ -532,7 +532,7 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
 !-----------------------------------------------------------------------
    ln_traadv_cen2   =  .false.  !  2nd order centered scheme   
    ln_traadv_tvd    =  .true.   !  TVD scheme
-   ln_traadv_muscl  =  .false   !  MUSCL scheme
+   ln_traadv_muscl  =  .false.  !  MUSCL scheme
    ln_traadv_muscl2 =  .false.  !  MUSCL2 scheme + cen2 at boundaries  
    ln_traadv_ubs    =  .false.  !  UBS scheme                 
    ln_traadv_qck    =  .false.  !  QUICKEST scheme                 

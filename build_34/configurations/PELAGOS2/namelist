@@ -102,7 +102,7 @@
    !
    cn_dir        = './'     !  root directory for the location of the runoff files
    ln_tsd_init   = .true.   !  Initialisation of ocean T & S with T &S input data (T) or not (F)
-   ln_tsd_tradmp = .false.  !  damping of ocean T & S toward T &S input data (T) or not (F)
+   ln_tsd_tradmp = .true.   !  damping of ocean T & S toward T &S input data (T) or not (F)
 /
 !!======================================================================
 !!            ***  Surface Boundary Condition namelists  ***
@@ -520,8 +520,8 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
 &namtra_adv    !   advection scheme for tracer
 !-----------------------------------------------------------------------
    ln_traadv_cen2   =  .false.  !  2nd order centered scheme
-   ln_traadv_tvd    =  .false.  !  TVD scheme
-   ln_traadv_muscl  =  .true.   !  MUSCL scheme
+   ln_traadv_tvd    =  .true.   !  TVD scheme
+   ln_traadv_muscl  =  .false.  !  MUSCL scheme
    ln_traadv_muscl2 =  .false.  !  MUSCL2 scheme + cen2 at boundaries
    ln_traadv_ubs    =  .false.  !  UBS scheme
    ln_traadv_qck    =  .false.  !  QUICKEST scheme
@@ -554,13 +554,13 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
 &namtra_dmp    !   tracer: T & S newtonian damping
 !-----------------------------------------------------------------------
    ln_tradmp   =  .true.   !  add a damping termn (T) or not (F)
-   nn_hdmp     =   60      !  horizontal shape =-1, damping in Med and Red Seas only
+   nn_hdmp     =   -1      !  horizontal shape =-1, damping in Med and Red Seas only
                            !                   =XX, damping poleward of XX degrees (XX>0)
                            !                      + F(distance-to-coast) + Red and Med Seas
-   nn_zdmp     =    2      !  vertical   shape =0    damping throughout the water column
+   nn_zdmp     =    0      !  vertical   shape =0    damping throughout the water column
                            !                   =1 no damping in the mixing layer (kz  criteria)
                            !                   =2 no damping in the mixed  layer (rho crieria)
-   rn_surf     =   60.     !  surface time scale of damping   [days]
+   rn_surf     =   50.     !  surface time scale of damping   [days]
    rn_bot      =  360.     !  bottom  time scale of damping   [days]
    rn_dep      =  800.     !  depth of transition between rn_surf and rn_bot [meters]
    nn_file     =    0      !  create a damping.coeff NetCDF file (=1) or not (=0)
