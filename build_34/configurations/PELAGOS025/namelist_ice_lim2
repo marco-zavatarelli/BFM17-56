@@ -51,7 +51,7 @@
    ecc         =   2.0     !  eccentricity of the elliptical yield curve
    ahi0        = 100.e0    !  horizontal eddy diffusivity coefficient for sea-ice [m2/s]
    nevp        =   360     !  number of EVP subcycling iterations
-   telast      =   300    !  timescale for EVP elastic waves
+   telast      =  3600     !  timescale for EVP elastic waves
    alphaevp    =   1.0     !  coefficient for the solution of EVP int. stresses
 /
 !-----------------------------------------------------------------------
@@ -63,7 +63,7 @@
 &namicethd     !   ice thermodynamic
 !-----------------------------------------------------------------------
    hmelt       = -0.15     !  maximum melting at the bottom
-   hiccrit     = 0.6 , 0.5 !  ice thickness for lateral accretion in the Northern (Southern) Hemisphere
+   hiccrit     = 0.3 , 0.5 !  ice thickness for lateral accretion in the Northern (Southern) Hemisphere
    !                       !  (caution 1.0, 1.0 best value to be used!!! (gilles G.))
    hicmin      = 0.2       !  ice thickness corr. to max. energy stored in brine pocket
    hiclim      = 0.05      !  minimum ice thickness
