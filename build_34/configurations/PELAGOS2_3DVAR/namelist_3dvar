@@ -77,11 +77,11 @@
 ! NAMELIST BFMLST
 ! ---
 &BFMLST
-   OBS_DIC = _OBSDIC_
-   OBS_ALK = _OBSALK_
-   OBS_CHL = _OBSCHL_
-   OBS_OXY = _OBSOXY_
-   OBS_pCO = _OBSpCO_
+   OBS_DIC = 1
+   OBS_ALK = 1
+   OBS_CHL = 0
+   OBS_OXY = 0
+   OBS_pCO = 0
 /
 !-----------------------------------------------
 !
