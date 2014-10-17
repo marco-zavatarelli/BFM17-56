@@ -53,6 +53,7 @@
    out_title    = 'PELAGOS025'
    out_delta    = -1
    parallel_log = .TRUE.
+   unpad_out    = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -363,7 +364,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! M2PHDELT       [pH]             Delta of pH for the root search (realized pH+/-DELT)
 !                                 in the OCMIP scheme (default 0.5)
 ! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
-!              ----------------------------------------------------- 
+!              ---------  Parameters for calcium and calcite ---------
 ! Caconc0        [mol/m3]         Calcium ion concentration 
 !                                 ["Seawater : Its composition, properties and behaviour" 
 !                                 (2nd Edition), Open University Course Team, 1995]
@@ -391,7 +392,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    AtmCO20       = 370.0E0
    calcAtmpCO2   = .TRUE.
    pCO2Method    = 1  
-   AtmCO2_N  =    2  , 'CMIP5_RCP85_GHG_1765_2500.nc' , .TRUE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
+   AtmCO2_N  =    2  , 'CMIP5_scenarios_RCP_CO2_mixing_ratio.nc' , .TRUE.  , 'RCP85'   , '1765-01-01 00:00:00' ,  'yearly'  ,  .TRUE.
    AtmSLP_N  =    0  , 'AtmSLP.nc' , .TRUE.  ,'AtmSLP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.
    AtmTDP_N  =    0  , 'AtmTDP.nc' , .TRUE.  ,'AtmTDP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.
    phstart       = 8.10E0
@@ -657,6 +658,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    p_minfood =  20.0,   20.0
     p_qpcMIZ =  1.85d-3,1.85d-3
     p_qncMIZ =  1.67d-2,1.67d-2
+! Food matrix parameters: take care of the indices
+!               Z5      Z6
      p_paPBA =  0.1,    0.9
 !               P1      P2      P3      P4
 !       Z5
@@ -793,7 +796,7 @@ p_paMEZ(2,:)=   0.0,    1.0
   depth_factor   = 2000.0
 !               P1      P2      P3      P4
   p_rPIm =      0.0,    0.0,    0.0,    0.0
-        filename_nml_conf = 'Pelagic_Environment.nml',
+	filename_nml_conf = 'Pelagic_Environment.nml',
 /
 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -1006,14 +1009,14 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   conditions for each BFM variable 
 !   sn_trc?bc(VARNAME): structure with file name and interpolatio
 !   rn_tr?fac(VARNAME): conversion factor
-!              ! file name   ! frequency (hr) ! variable ! time interp. ! clim    !'yearly' or ! weights  ! rotation
-!              !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing
+!                   ! file name              ! freq (hr) ! variable ! time interp. ! clim    !'yearly' or ! weights  ! rotation
+!                   !                        ! (<0 mon)  !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing
 !-----------------------------------------------------------------------
 &namtrc_bc
    sn_trcsbc(N3n)  = 'ndeposition.orca',        -1      ,  'ndep'      ,  .false.  , .true.  , 'yearly'   , ''       , ''
-   sn_trcsbc(N7f)  = 'fe_deposition_tegen_fung_murray_nomask',       -12      ,  'fedep'      ,  .false.  , .true.  , 'yearly'   , ''       , ''
+   sn_trcsbc(N7f)  = 'ORCA025L50_fedep_INCA_monthly',       -12      ,  'fedep'      ,  .false.  , .true.  , 'yearly'   , ''       , ''
    rn_trsfac(N3n)  = 1.0
-   rn_trsfac(N7f)  =  5.0e-03        ! umol/m2/day, dissolution fraction 5o/oo
+   rn_trsfac(N7f)  =  2.0e-02        ! umol/m2/day, dissolution fraction 2%
    sn_trccbc(N1p)  = 'river' ,       -12      ,  'RIVERPHOS'  ,  .false.  , .true.  , 'yearly'   , ''       , ''
    sn_trccbc(N3n)  = 'river' ,       -12      ,  'RIVERNIT'   ,  .false.  , .true.  , 'yearly'   , ''       , ''
    sn_trccbc(N5s)  = 'river' ,       -12      ,  'RIVERSIL'   ,  .false.  , .true.  , 'yearly'   , ''       , ''
@@ -1024,9 +1027,9 @@ p_paMEZ(2,:)=   0.0,    1.0
    rn_trcfac(N3n)  =  1.9556e+11     ! 1 mol N = 14.01 g; 1.e12*1.e3/14.01/365 conversion factor from Tg/y to mmol/d
    rn_trcfac(N5s)  =  9.7534e+10     ! 1 mol Si = 28.09 g; 1.e12*1.e3/28.09/365 conversion factor from Tg/y to mmol/d
    rn_trcfac(N7f)  =  4.9055e+11     ! 1 mol Fe = 55.85 g; 1.e12*1.e6/55.85/365 conversion factor from Tg/y to umol/d
-                                   ! NOTE ADDED A FACTOR 1.e-2 BECAUSE THIS VALUE IS TOO HIGH (was 4.9055e+13)
+                                   ! NOTE: ADDED A FACTOR 1.e-2 BECAUSE THIS VALUE IS TOO HIGH (was 4.9055e+13)
    rn_trcfac(R1c) =  2.7397e+12     ! 1.e15/365 ! conversion factor from Tg/y to mg/d
    rn_trcfac(O3c) =  2.7397e+12     ! 1.e15/365 ! conversion factor from Tg/y to mg/d
-   cn_dir       = '/work/ans032/BFM_inputs/ORCA025-TOP/'  !  root directory for the location of the boundary condition files
+   cn_dir       = './'  !  root directory for the location of the boundary condition files
         filename_nml_conf = 'namelist_top',
 /

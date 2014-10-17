@@ -53,6 +53,7 @@
    out_title    = 'BFM_NEMO'
    out_delta    = '_out_delta_'  !every 30 days
    parallel_log = .TRUE.
+   unpad_out    = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -840,7 +841,7 @@ p_paMEZ(2,:)=   0.0,    1.0
    sn_trcdta(O3c)  = 'MFS16_CSYS'        ,        -12      , 'TC'       ,     .true.   , .true.  , 'yearly'   , ''       , ''
    sn_trcdta(O3h)  = 'MFS16_CSYS'        ,        -12      , 'TA'       ,     .true.   , .true.  , 'yearly'   , ''       , ''
    cn_dir = './'     !  root dir for the location of the Initial Conditions files
-   rn_trfac(O2o)   = 22.4                ! conversion factor from ml/l to mmol/m3 (1 mol O2 = 22.4 l)
+   rn_trfac(O2o)   =  44.661 !  conversion factor from ml/l to mmol/m3 (1 ml/l = 10^3/22.391 = 44.661 umol/l)
    rn_trfac(O3c)   = 12.294             ! conversion from ug/kg to mg C/m3
    rn_trfac(O3h)   = 1.0245             ! conversion from ug/kg to mmol eq/m3
         filename_nml_conf = 'namelist_top',

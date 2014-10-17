@@ -53,6 +53,7 @@
    out_title    = 'PELAGOS2'
    out_delta    = -1
    parallel_log = .TRUE.
+   unpad_out    = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -901,7 +902,7 @@ p_paMEZ(2,:)=   0.0,    1.0
    rn_trfac(N5s)   =   1.0   !  no conversion
    rn_trfac(N7f)   =   1.0   !  no conversion
    rn_trfac(O3c)  =  12.288  !  conversion factor from umol/kg to mg/m3 (rho=1024 kg/m3)
-   rn_trfac(O3h)  =   1.0   !  no conversion
+   rn_trfac(O3h)  =   1.024  !  no conversion
         filename_nml_conf = 'namelist_top',
 /
 
