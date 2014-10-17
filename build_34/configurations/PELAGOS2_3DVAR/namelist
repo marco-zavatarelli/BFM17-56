@@ -891,10 +891,15 @@ sn_rcv_co2    =       'coupled'              ,    'no'    ,     ''      ,       
 !-----------------------------------------------------------------------
     ln_bkgwri = .false.    !  Logical switch for writing out background state 
     ln_trjwri = .false.    !  Logical switch for writing out state trajectory
-    ln_trainc = .true.    !  Logical switch for applying tracer increments
+    ln_trainc = .true.     !  Logical switch for applying tracer increments
+    ln_bfminc = .false.    !  Logical switch for applying biochemical increments
+    ln_dicinc = .true.     !  Logical switch for applying DIC increments
+    ln_alkinc = .true.     !  Logical switch for applying ALK increments
+    ln_chlinc = .false.    !  Logical switch for applying CHL increments
+    ln_oxyinc = .false.    !  Logical switch for applying OXY increments
     ln_dyninc = .false.    !  Logical switch for applying velocity increments
     ln_sshinc = .false.    !  Logical switch for applying SSH increments
-    ln_asmdin = .false.    !  Logical switch for Direct Initialization (DI)
+    ln_asmdin = .true.     !  Logical switch for Direct Initialization (DI)
     ln_asmiau = .false.    !  Logical switch for Incremental Analysis Updating (IAU)
     nitbkg    = 0          !  Timestep of background in [0,nitend-nit000-1]
     nitdin    = 0          !  Timestep of background for DI in [0,nitend-nit000-1]

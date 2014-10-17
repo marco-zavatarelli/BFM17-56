@@ -5,10 +5,10 @@
 ! NAMELIST RUNLST
 ! ---
 &RUNLST
-   NCONF = _NCONF_
-   NSUBDOMAINS = _NDOMAINS_
+   NCONF       = 102
+   NSUBDOMAINS = 128
 !   NFGFREQOUT = 86400
-   LLVARMDT = .FALSE.
+   LLVARMDT    = .FALSE.
 /
 !-----------------------------------------------
 !
@@ -27,6 +27,10 @@
    LL_BOUNDANAL = .FALSE.
    ZANMAXTEM = 6.0
    ZANMAXSAL = 2.0
+   ZANMAXDIC = 10.0
+   ZANMAXALK = 10.0
+   ZANMAXCHL = 100.0
+   ZANMAXOXY = 100.0
    LLSHAPIROANL = .FALSE.
    NN_ITERSHAP = 6
    LL_IAU = .TRUE.
@@ -54,7 +58,7 @@
 ! ---
 &EOFLST
    NEOF= 10
-   NKMT = 62
+   NKMT = 31
    NREGS = 27118
    EOGNX = 182
    EOGNY = 149
@@ -68,7 +72,17 @@
    NN_DENSREC = -1
    LL_WRITE_MDEOFS = .FALSE.
 /
-
+!-----------------------------------------------
+!
+! NAMELIST BFMLST
+! ---
+&BFMLST
+   OBS_DIC = _OBSDIC_
+   OBS_ALK = _OBSALK_
+   OBS_CHL = _OBSCHL_
+   OBS_OXY = _OBSOXY_
+   OBS_pCO = _OBSpCO_
+/
 !-----------------------------------------------
 !
 ! NAMELIST OBSLST
@@ -82,12 +96,12 @@
    OBS_TRJ = 0
    OBS_SST = 0
    OBS_SSS = 0
-   OBS_AMSRE_SST = .FALSE.
-   OBS_MWOI_SST = .FALSE.
+   OBS_AMSRE_SST       = .FALSE.
+   OBS_MWOI_SST        = .FALSE.
    OBS_AMSRE_SWATH_SST = .FALSE.
-   OBS_TMI_SWATH_SST = .FALSE.
-   OBS_TMI_SWATH_SST = .FALSE.
-   OBS_AQUAR_SSS = .FALSE.
+   OBS_TMI_SWATH_SST   = .FALSE.
+   OBS_SMOS_SSS        = .FALSE.
+   OBS_AQUAR_SSS       = .FALSE.
 /
 !-----------------------------------------------
 !
@@ -126,13 +140,13 @@
    RCF_LLTSAPART = .FALSE.
    RCF_EFC  = 5.
    LLPRINTRCFLC = .FALSE.
-   LL_RFLV = .FALSE.
+   LL_RFLV = .TRUE.
    RF_CRMN = 25000.
-   RF_CRMX = 1300000.
+   RF_CRMX = 2000000.
    RF_NRES = 50
-   RF_NCR = 200
-   RF_CORRAD_MFACT = 1000.
-   LL_READCOMPSC_LV = .TRUE.
+   RF_NCR = 250
+   RF_CORRAD_MFACT = 1.
+   LL_READCOMPSC_LV = .FALSE.
    LL_WRITECOMPSC_LV = .FALSE.
    LLRFMASK = .FALSE.
 /
@@ -256,19 +270,30 @@
 &BGQCLST
    LLBGQC_SLA = .TRUE.
    LLBGQC_INS = .TRUE.
+   LLBGQC_BGC = .FALSE.
    LLBGQC_SST = .TRUE.
    LLBGQC_SSS = .TRUE.
    RALFA_SLA=9.0
-   RALFA_INS=9.0
+   RALFA_INS=17.0
+   RALFA_BGC=17.0
    RALFA_SST=9.0
    RALFA_SSS=9.0
    LLUSEBGERR = .FALSE.
    RBGERR_SSH=0.06
    RBGERR_SAL=0.25
    RBGERR_TEM=0.80
+   RBGERR_DIC=10.0
+   RBGERR_ALK=10.0
+   RBGERR_CHL=0.1
+   RBGERR_OXY=0.1
+   RBGERR_pCO=0.1
    RBGERR_SST=0.50
    RBGERR_SSS=0.25
- /
+   ERCOEF_TEM=0.333
+   ERCOEF_SAL=0.333
+   ERCOEF_DIC=0.001
+   ERCOEF_ALK=0.001
+/
 !-----------------------------------------------
 !
 ! NAMELIST CLCKLST
@@ -277,7 +302,7 @@
    LLCLCK_INS = .TRUE.
    LLCLCK_SST = .TRUE.
    LLCLCK_SSS = .TRUE.
-   CLIMLIM = 3., 9., 9.
+   CLIMLIM = 3., 9., 100., 100., 0.1, 0.1
  /
 &CREJLST
    LL_COASTREJ_INS = .FALSE.

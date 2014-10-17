@@ -32,7 +32,7 @@
         PROC     = 256,
         EXP      = 'pelagos2_3dvar',
         EXPFILES = 'iodef.xml namelist xmlio_server.def namelist namelist_ice namelist_top namelist.assim'
-        NEMOSUB  = 'OPA_SRC LIM_SRC_2 TOP_SRC NST_SRC',
+        NEMOSUB  = 'OPA_SRC LIM_SRC_2 TOP_SRC',
         QUEUE    = 'poe_short'
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
