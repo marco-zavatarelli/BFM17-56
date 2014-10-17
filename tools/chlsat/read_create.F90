@@ -31,13 +31,15 @@ subroutine read_create
   integer           :: IDtime,IDtimetmp,IDunlimdim,IDvartime
   integer           :: IDx, IDy, IDz, IDvar, IDtarget, IDatt
   integer           :: IDmask, IDe3t, IDchla, IDeps
+  integer           :: IDgpp, IDrsp, ncrspid, ncgppid
   real, allocatable, dimension(:) :: time
   integer           :: npoints
   character(len = NF90_MAX_NAME) :: fname1,fname2,attname
   integer,parameter    :: namlst=10
   namelist /chlsat_nml/ inp_dir,out_dir,out_fname,chla_fname,eps_fname,      &
   &                     chla_name,eps_name,mask_fname,tolerance,compute_eps, &
-  &                     p_eps0,p_epsChla
+  &                     p_eps0,p_epsChla,gpp_fname,rsp_fname,gpp_name,rsp_name, &
+  &                     compute_intpp,compute_chlsat
 
      ! Reading directory names and file name specifications
      open(namlst,file=trim(cf_nml),action='read',status='old',err=99)
@@ -114,15 +116,43 @@ subroutine read_create
      end if
 
      ! compute the satellite-like chl
+     ! this is always done because optical depths are computed here
      allocate(ezd_od(jpi,jpj,ntime))
      allocate(chlsat_od(jpi,jpj,ntime))
      call chlcalc(ONE+tolerance,ezd_od,chlsat_od)
      allocate(ezd_01(jpi,jpj,ntime))
      allocate(chlsat_01(jpi,jpj,ntime))
-     call chlcalc(-log(0.1_RLEN),ezd_01,chlsat_01)
+     call chlcalc(-log(0.01_RLEN),ezd_01,chlsat_01)
      allocate(ezd_001(jpi,jpj,ntime))
      allocate(chlsat_001(jpi,jpj,ntime))
-     call chlcalc(-log(0.01_RLEN),ezd_001,chlsat_001)
+     call chlcalc(-log(0.001_RLEN),ezd_001,chlsat_001)
+
+     if (compute_intpp) then
+        fname1 = trim(inp_dir)//"/"//trim(gpp_fname)
+        call handle_err( nf90_open(path = fname1, mode = NF90_WRITE, ncid = ncgppid), &
+        &                errstring="Error opening "//trim(gpp_fname))
+        fname1 = trim(inp_dir)//"/"//trim(rsp_fname)
+        call handle_err( nf90_open(path = fname1, mode = NF90_WRITE, ncid = ncrspid), &
+        &                errstring="Error opening "//trim(rsp_fname))
+        ! get GPP and RSP data
+        allocate(gpp(jpi,jpj,jpk,ntime))
+        call handle_err(nf90_inq_varid(ncgppid, gpp_name, IDgpp), &
+        &               errstring="Error inquiring GPP values")
+        call handle_err(nf90_get_var(ncgppid, IDgpp,gpp), &
+        &               errstring="Error in getting GPP values")
+        allocate(rsp(jpi,jpj,jpk,ntime))
+        call handle_err(nf90_inq_varid(ncrspid, rsp_name, IDrsp), &
+        &               errstring="Error inquiring RSP values")
+        call handle_err(nf90_get_var(ncrspid, IDrsp,rsp), &
+        &               errstring="Error in getting RSP values")
+        ! compute the integrated gross and net PP
+        allocate(gpp_01(jpi,jpj,ntime))
+        allocate(npp_01(jpi,jpj,ntime))
+        call intppcalc(-log(0.01_RLEN),gpp_01,npp_01)
+        allocate(gpp_001(jpi,jpj,ntime))
+        allocate(npp_001(jpi,jpj,ntime))
+        call intppcalc(-log(0.001_RLEN),gpp_001,npp_001)
+     end if
 
      ! create the output file
      call handle_err( nf90_create(trim(out_dir)//"/"//trim(out_fname), NF90_NOCLOBBER, ncid), &
@@ -159,6 +189,7 @@ subroutine read_create
      call handle_err( nf90_def_var(ncid, "time", NF90_REAL, (/ IDtime /), IDvartime) )
      call handle_err( nf90_copy_att(ncchlid, IDtimetmp, "units", ncid, IDvartime) )
 
+     if (compute_chlsat) then
      ! define the output variable: chlsat
      call handle_err( nf90_def_var(ncid, "Chlsat_od", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
      ! add attributes
@@ -183,26 +214,27 @@ subroutine read_create
      call handle_err( nf90_def_var(ncid, "Chlsat_01", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
      ! add attributes
      call handle_err( nf90_put_att(ncid, IDvar, "units", "mg Chla/m3") )
-     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Satellite-like Chl (10% light)") )
+     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Satellite-like Chl (1% light)") )
      ! Add fill value
      call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
      ! Add reference coordinate names (needed with CDO)
      call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
-     ! define the output variable: depth
-     call handle_err( nf90_def_var(ncid, "PZdepth_01", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
-     ! add attributes
-     call handle_err( nf90_put_att(ncid, IDvar, "units", "m") )
-     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Photic zone depth (10% light)") )
-     ! Add fill value
-     call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
-     ! Add reference coordinate names (needed with CDO)
-     call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
-
      ! define the output variable: chlsat
      call handle_err( nf90_def_var(ncid, "Chlsat_001", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
      ! add attributes
      call handle_err( nf90_put_att(ncid, IDvar, "units", "mg Chla/m3") )
-     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Satellite-like Chl (1% light)") )
+     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Satellite-like Chl (0.1% light)") )
+     ! Add fill value
+     call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
+     ! Add reference coordinate names (needed with CDO)
+     call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
+     end if
+
+     ! define the output variable: depth
+     call handle_err( nf90_def_var(ncid, "PZdepth_01", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
+     ! add attributes
+     call handle_err( nf90_put_att(ncid, IDvar, "units", "m") )
+     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Photic zone depth (1% light)") )
      ! Add fill value
      call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
      ! Add reference coordinate names (needed with CDO)
@@ -211,11 +243,51 @@ subroutine read_create
      call handle_err( nf90_def_var(ncid, "PZdepth_001", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
      ! add attributes
      call handle_err( nf90_put_att(ncid, IDvar, "units", "m") )
-     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Photic zone depth (1% light)") )
+     call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Photic zone depth (0.1% light)") )
      ! Add fill value
      call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
      ! Add reference coordinate names (needed with CDO)
      call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
+
+     if (compute_intpp) then
+        ! define the output variable: gpp
+        call handle_err( nf90_def_var(ncid, "gpp_01", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
+        ! add attributes
+        call handle_err( nf90_put_att(ncid, IDvar, "units", "mg C/m2/day") )
+        call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Integrated Gross Primary Production (1% light)") )
+        ! Add fill value
+        call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
+        ! Add reference coordinate names (needed with CDO)
+        call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
+        !
+        call handle_err( nf90_def_var(ncid, "gpp_001", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
+        ! add attributes
+        call handle_err( nf90_put_att(ncid, IDvar, "units", "mg C/m2/day") )
+        call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Integrated Gross Primary Production (0.1% light)") )
+        ! Add fill value
+        call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
+        ! Add reference coordinate names (needed with CDO)
+        call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
+   
+        ! define the output variable: npp
+        call handle_err( nf90_def_var(ncid, "npp_01", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
+        ! add attributes
+        call handle_err( nf90_put_att(ncid, IDvar, "units", "mg C/m2/day") )
+        call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Integrated Net Primary Production (1% light)") )
+        ! Add fill value
+        call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
+        ! Add reference coordinate names (needed with CDO)
+        call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
+        !
+        call handle_err( nf90_def_var(ncid, "npp_001", NF90_REAL, (/ IDx, IDy, IDtime /), IDvar) )
+        ! add attributes
+        call handle_err( nf90_put_att(ncid, IDvar, "units", "mg C/m2/day") )
+        call handle_err( nf90_put_att(ncid, IDvar, "long_name", "Integrated Net Primary Production (0.1% light)") )
+        ! Add fill value
+        call handle_err( nf90_put_att(ncid, IDvar, "_FillValue", NF90_FILL_REAL) )
+        ! Add reference coordinate names (needed with CDO)
+        call handle_err( nf90_put_att(ncid, IDvar, "coordinates", "lon lat") )
+     end if
 
      ! close the input netcdf files
      call handle_err( nf90_close(ncchlid) )
@@ -239,24 +311,28 @@ subroutine read_create
      ! Depth levels
      call handle_err(nf90_inq_varid(ncid, "depth", IDvar))
      call handle_err(nf90_put_var(ncid, IDvar, real(depth,4)),errstring="Writing: depth")
-     ! Write chl
-     call handle_err( nf90_inq_varid(ncid, "Chlsat_od", IDvar), &
-     &                       errstring="inquiring variable: chlsat")
-     call handle_err( nf90_put_var(ncid, IDvar, real(chlsat_od,4), start = (/ 1, 1, 1 /),     &
-     &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
-     call handle_err( nf90_inq_varid(ncid, "Chlsat_01", IDvar), &
-     &                       errstring="inquiring variable: chlsat")
-     call handle_err( nf90_put_var(ncid, IDvar, real(chlsat_01,4), start = (/ 1, 1, 1 /),     &
-     &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
-     call handle_err( nf90_inq_varid(ncid, "Chlsat_001", IDvar), &
-     &                       errstring="inquiring variable: chlsat")
-     call handle_err( nf90_put_var(ncid, IDvar, real(chlsat_001,4), start = (/ 1, 1, 1 /),     &
-     &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
-     ! Write depth
-     call handle_err( nf90_inq_varid(ncid, "PZdepth_od", IDvar), &
-     &                       errstring="inquiring variable: chlsat")
-     call handle_err( nf90_put_var(ncid, IDvar, real(ezd_od,4), start = (/ 1, 1, 1 /),     &
-     &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
+
+     if (compute_intpp) then
+        ! Write chl
+        call handle_err( nf90_inq_varid(ncid, "Chlsat_od", IDvar), &
+        &                       errstring="inquiring variable: chlsat")
+        call handle_err( nf90_put_var(ncid, IDvar, real(chlsat_od,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
+        call handle_err( nf90_inq_varid(ncid, "Chlsat_01", IDvar), &
+        &                       errstring="inquiring variable: chlsat")
+        call handle_err( nf90_put_var(ncid, IDvar, real(chlsat_01,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
+        call handle_err( nf90_inq_varid(ncid, "Chlsat_001", IDvar), &
+        &                       errstring="inquiring variable: chlsat")
+        call handle_err( nf90_put_var(ncid, IDvar, real(chlsat_001,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
+        ! Write depth
+        call handle_err( nf90_inq_varid(ncid, "PZdepth_od", IDvar), &
+        &                       errstring="inquiring variable: chlsat")
+        call handle_err( nf90_put_var(ncid, IDvar, real(ezd_od,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
+     end if
+
      call handle_err( nf90_inq_varid(ncid, "PZdepth_01", IDvar), &
      &                       errstring="inquiring variable: chlsat")
      call handle_err( nf90_put_var(ncid, IDvar, real(ezd_01,4), start = (/ 1, 1, 1 /),     &
@@ -265,6 +341,27 @@ subroutine read_create
      &                       errstring="inquiring variable: chlsat")
      call handle_err( nf90_put_var(ncid, IDvar, real(ezd_001,4), start = (/ 1, 1, 1 /),     &
      &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: chlsat")
+
+     if (compute_intpp) then
+        ! Write gpp
+        call handle_err( nf90_inq_varid(ncid, "gpp_01", IDvar), &
+        &                       errstring="inquiring variable: gpp_01")
+        call handle_err( nf90_put_var(ncid, IDvar, real(gpp_01,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: gpp_01")
+        call handle_err( nf90_inq_varid(ncid, "gpp_001", IDvar), &
+        &                       errstring="inquiring variable: gpp_001")
+        call handle_err( nf90_put_var(ncid, IDvar, real(gpp_001,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: gpp_001")
+        ! Write npp
+        call handle_err( nf90_inq_varid(ncid, "npp_01", IDvar), &
+        &                       errstring="inquiring variable: npp_01")
+        call handle_err( nf90_put_var(ncid, IDvar, real(gpp_01,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: npp_01")
+        call handle_err( nf90_inq_varid(ncid, "npp_001", IDvar), &
+        &                       errstring="inquiring variable: npp_001")
+        call handle_err( nf90_put_var(ncid, IDvar, real(npp_001,4), start = (/ 1, 1, 1 /),     &
+        &                      count = (/ jpi, jpj, ntime/)), errstring="Writing: npp_001")
+     end if
      ! close
      call handle_err( nf90_close(ncid) )
 

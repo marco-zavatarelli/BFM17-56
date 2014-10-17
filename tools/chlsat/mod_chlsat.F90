@@ -1,5 +1,5 @@
 ! BFM_NEMO chlsat
-!    Copyright (C) 2013 Marcello Vichi (marcello.vichi@bo.ingv.it)
+!    Copyright (C) 2014 Marcello Vichi (marcello.vichi@bo.ingv.it)
 !
 !    This program is free software: you can redistribute it and/or modify
 !    it under the terms of the GNU General Public License as published by
@@ -29,6 +29,9 @@ module mod_chlsat
    real(RLEN), public, allocatable, dimension(:,:,:,:) :: chla,eps
    real(RLEN), public, allocatable, dimension(:,:,:)   :: chlsat_od,chlsat_01,chlsat_001
    real(RLEN), public, allocatable, dimension(:,:,:)   :: ezd_od,ezd_01,ezd_001
+   real(RLEN), public, allocatable, dimension(:,:,:,:) :: gpp,rsp
+   real(RLEN), public, allocatable, dimension(:,:,:)   :: gpp_01,gpp_001
+   real(RLEN), public, allocatable, dimension(:,:,:)   :: npp_01,npp_001
 
    ! namelist variables
    character(LEN=400) :: cf_nml='chlsat.nml'     ! namelist name
@@ -36,15 +39,17 @@ module mod_chlsat
    character(LEN=100) :: mask_fname
    character(LEN=20)  :: chla_name,eps_name
    real(RLEN)         :: tolerance=ZERO
-   logical            :: compute_eps=.FALSE.
+   logical            :: compute_eps=.FALSE.,compute_chlsat=.TRUE.,compute_intpp=.FALSE.
    real(RLEN)         :: p_eps0=0.0435_RLEN, p_epsChla=0.03
+   character(LEN=100) :: gpp_fname,rsp_fname
+   character(LEN=20)  :: gpp_name,rsp_name
 
    public 
    contains 
 !
 !   ------------------------------------------------------------------------------    
 !    Compute photic zone depth and average chlorophyll
-!    given a certain optical threshold tau (e.g. tau = -log(0.1))
+!    given a certain optical threshold tau (e.g. tau = -log(0.01))
 !   ------------------------------------------------------------------------------
 !
    subroutine chlcalc(tau,ezd,chlsat)
@@ -100,6 +105,60 @@ module mod_chlsat
 !    Additional parameterizations
 !   ------------------------------------------------------------------------------
 !
+
+!
+!   ------------------------------------------------------------------------------    
+!    Integrated gross and net primary production
+!    given a certain optical threshold tau (e.g. tau = -log(0.01))
+!   ------------------------------------------------------------------------------
+!
+   subroutine intppcalc(tau,intgpp,intnpp)
+   use netcdf
+   implicit none
+   real(RLEN),                         intent(in)  :: tau
+   real(RLEN),dimension(jpi,jpj,ntime),intent(out) :: intgpp,intnpp
+   integer                                         :: i,j,k,t
+   real(RLEN)                                      :: store
+   real(RLEN)                                      :: optlen
+
+   intgpp(:,:,:) = ZERO
+   intnpp(:,:,:) = ZERO
+   do t = 1,ntime
+      do j = 1,jpj
+         do i = 1,jpi
+          store = ZERO
+          if (mask(i,j,1) > ZERO) then
+            do k = 1,jpk-1
+               optlen = eps(i,j,k,t)*e3t(i,j,k)
+               store = store + optlen
+               if ((store .lt. tau) .and. (mask(i,j,k)>ZERO)) then
+                  intgpp(i,j,t) = intgpp(i,j,t)+gpp(i,j,k,t)*e3t(i,j,k)
+                  intnpp(i,j,t) = intnpp(i,j,t)+(gpp(i,j,k,t)-rsp(i,j,k,t))*e3t(i,j,k)
+               else
+                  ! special case if absorption is high in the first layer
+                  if (k==1) then
+                     intgpp(i,j,t) = gpp(i,j,1,t)*e3t(i,j,1)
+                     intnpp(i,j,t) = (gpp(i,j,1,t)-rsp(i,j,1,t))*e3t(i,j,1)
+                  end if
+                  if (intgpp(i,j,t)>NF90_FILL_REAL) then
+                     intgpp(i,j,t)=NF90_FILL_REAL
+                     write(*,*) 'WARNING: incompatible mask for gpp at point',i,j,k,t,gpp(i,j,1,t)
+                  end if
+                  if (intnpp(i,j,t)>NF90_FILL_REAL) then
+                     intnpp(i,j,t)=NF90_FILL_REAL
+                     write(*,*) 'WARNING: incompatible mask for rsp at point',i,j,k,t,rsp(i,j,1,t)
+                  end if
+                  exit
+               end if
+            end do
+          else
+            intgpp(i,j,t) = NF90_FILL_REAL
+            intnpp(i,j,t) = NF90_FILL_REAL
+          end if
+         end do
+      end do
+   end do
+   end subroutine intppcalc
 
 !
 !   ------------------------------------------------------------------------------    

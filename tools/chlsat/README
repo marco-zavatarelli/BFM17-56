@@ -10,4 +10,9 @@ It also allows to compute the attenuation coefficient using the BFM formula from
 concentration, background attenuation and chl specific absorption but neglecting 
 the contribution from inorganic suspended matter and detritus.
 Check the ORCA2 mask to see in the history how to generate the mask file from the mesh_mask.
-Check the namelist chlsat.nml for explanations on the input parameters
+The standard mesh_mask.nc file can also be used directly.
+Check the namelist chlsat.nml for explanations of the input parameters
+
+This tool also computes the integrated primary production (gross and net) down to 1% and
+0.1% light level by setting the flag compute_intpp and providing the paths to the files
+containing BFM diagnostics ruPPYc and resPPYc.
