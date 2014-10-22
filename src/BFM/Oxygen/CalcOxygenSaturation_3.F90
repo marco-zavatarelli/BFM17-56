@@ -86,11 +86,10 @@
   ! convert units to ml(STP)/l
   h  =   exp(h)
 
-  ! convert to mMol/m3
-  !   calc volume of an ideal gas at standard temp (25C) and
-  !   pressure (1.e-3 atm)
-  !   p_videal = (8.3145 * 298.15 / 101325.0) = 24.4665e-3;
-  cxoO2(:)  =   h/ 24.4665E-3_RLEN
+  ! convert ml/l to mMol/m3
+  ! Use the volume of a mole of DO at STP : 22.391 l (ICES conversions)
+  ! Conversion:  1 ml/l = 1/22.391 = 44.661 mMol/m3
+  cxoO2(:)  =   h * 44.661_RLEN
   eO2mO2(:)  =   max(p_small,O2o(:))/ cxoO2(:)
 
   end subroutine CalcOxygenSaturation
