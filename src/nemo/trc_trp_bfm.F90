@@ -149,12 +149,8 @@ SUBROUTINE trc_trp_bfm( kt )
             CALL prxy( LOGUNIT, 'tra:ZDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
 
-            ! Compute tracer fields at next time step
-            IF (ln_top_euler) THEN
-               CALL trc_nxt_bfm( kt, m ) 
-            ELSE
-               CALL trc_nxt( kt )
-            END IF
+            ! Apply lateral boundary conditions (and special open boundary)
+            CALL trc_nxt_bfm( kt, m ) 
 
             ! Remap the biochemical variables from 3D
             ! to 1D (apply land-sea mask)

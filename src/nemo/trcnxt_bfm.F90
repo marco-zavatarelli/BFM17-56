@@ -31,11 +31,10 @@ MODULE trcnxtbfm
 
    !!----------------------------------------------------------------------
    !! NEMO/TOP 3.3 , NEMO Consortium (2010)
-   !! $Id: trcnxt.F90 2690 2011-03-15 15:27:46Z gm $
    !! Software governed by the CeCILL licence     (NEMOGCM/NEMO_CeCILL.txt)
    !!----------------------------------------------------------------------
 CONTAINS
-!
+
    INTEGER FUNCTION trc_nxt_alloc()
       !!----------------------------------------------------------------------
       !!                   ***  ROUTINE trc_nxt_alloc  ***
@@ -51,7 +50,7 @@ CONTAINS
       !!----------------------------------------------------------------------
       !!                   ***  ROUTINE trcnxt  ***
       !!
-      !! ** Purpose :   Compute the passive tracers fields at the
+      !! ** Purpose :   Compute the passive tracers fields at the 
       !!      next time-step from their temporal trends and swap the fields.
       !!      This is a modified version for the BFM to include
       !!      open boundary conditions
@@ -72,24 +71,8 @@ CONTAINS
       !!
       !!
       !! ** Action  : - update trb, trn
-      !!
-      !! History :
-      !!   7.0  !  91-11  (G. Madec)  Original code
-      !!        !  93-03  (M. Guyon)  symetrical conditions
-      !!        !  95-02  (M. Levy)   passive tracers
-      !!        !  96-02  (G. Madec & M. Imbard)  opa release 8.0
-      !!   8.0  !  96-04  (A. Weaver)  Euler forward step
-      !!   8.2  !  99-02  (G. Madec, N. Grima)  semi-implicit pressure grad.
-      !!   8.5  !  02-08  (G. Madec)  F90: Free form and module
-      !!        !  02-11  (C. Talandier, A-M Treguier) Open boundaries
-      !!   9.0  !  04-03  (C. Ethe) passive tracers
       !!----------------------------------------------------------------------
       !! * Arguments
-      USE oce_trc         ! ocean dynamics and tracers variables
-      USE trc             ! ocean passive tracers variables
-      USE lbclnk          ! ocean lateral boundary conditions (or mpp link)
-      USE trcnam_trp      ! pasive tracers transport
-      USE prtctl_trc      ! Print control for debbuging
 #ifdef key_obcbfm
       USE obctrc_bfm
 #endif
@@ -103,11 +86,12 @@ CONTAINS
       REAL(wp), DIMENSION(:,:,:,:), ALLOCATABLE ::  ztrdt
       CHARACTER (len=22) :: charout
       !!----------------------------------------------------------------------
-
-       IF( kt == nit000 .AND. lwp ) THEN
+      !
+      IF( nn_timing == 1 )  CALL timing_start('trc_nxt_bfm')
+      IF( kt == nit000 .AND. lwp ) THEN
          WRITE(numout,*)
          WRITE(numout,*) 'trc_nxt_bfm : time stepping on BFM tracer',m
-       ENDIF
+      ENDIF
 
 
       jn = 1 ! BFM uses only one tracer as a working array
