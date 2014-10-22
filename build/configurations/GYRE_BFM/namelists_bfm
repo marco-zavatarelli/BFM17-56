@@ -51,7 +51,8 @@
    out_fname    = 'GYRE_BFM'
    out_dir      = '.'
    out_title    = 'GYRE_BFM'
-   out_delta    = 60 ! store every 5 days
+   in_rst_fname = 'in_bfm_restart'
+   out_delta    = 60 ! store every 5 days (depends on the timestep of nemo nn_rdt)
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
 /
@@ -94,7 +95,7 @@
 !                                       1 = Instantanous irradiance
 !                                       2 = Daily average
 !                                       3 = Daylight average with explicit
-!                                           photoperiod                                       
+!                                           photoperiod
 ! LightLocationFlag             numeric Choose the parameterization of light
 !                                       location in the discrete grid
 !                                       1 = Light at the top of the cell

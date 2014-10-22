@@ -51,6 +51,7 @@
    out_fname    = 'BFM_NEMO'
    out_dir      = '.'
    out_title    = 'BFM_NEMO'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = '_out_delta_'  !every 30 days
    parallel_log = .TRUE.
    unpad_out    = .FALSE.

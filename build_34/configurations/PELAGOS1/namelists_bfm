@@ -51,6 +51,7 @@
    out_fname    = 'PELAGOS1'
    out_dir      = '.'
    out_title    = 'PELAGOS1'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = -1
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',

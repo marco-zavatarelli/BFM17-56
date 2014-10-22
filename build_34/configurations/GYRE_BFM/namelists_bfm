@@ -51,6 +51,7 @@
    out_fname    = 'NEMO_GYRE_BFM'
    out_dir      = '.'
    out_title    = 'NEMO_GYRE_BFM'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = 60  !every 5 days (depends on the timestep of nemo nn_rdt)
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',

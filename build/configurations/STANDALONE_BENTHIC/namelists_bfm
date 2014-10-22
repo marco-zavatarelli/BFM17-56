@@ -50,6 +50,7 @@
    out_fname    = 'BFM_standalone_benthic'
    out_dir      = '.'
    out_title    = 'BFM_STANDALONE_BENTHIC'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = 300  !every 30 days
    parallel_log = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',

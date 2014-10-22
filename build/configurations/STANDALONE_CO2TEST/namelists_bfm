@@ -50,6 +50,7 @@
    out_fname    = 'BFM_co2test'
    out_dir      = '.'
    out_title    = 'BFM_CO2TEST'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = 600  !every 90 days
    parallel_log = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',

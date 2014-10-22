@@ -40,7 +40,7 @@
 ! out_dir        string  Path to the output file
 ! out_title      string  Name of the experiment in NetCDF file
 ! out_delta      integer Output is saved every out_delta timesteps
-!                        Set to -1 to store real monthly output
+!                        Use -1 to store with real monthly frequency
 ! parallel_log   logical Set true in parallel jobs for a single log file 
 !-------------------------------------------------------------------------!
 &bfm_nml
@@ -51,7 +51,8 @@
    out_fname    = 'NEMO_GYRE_BFM'
    out_dir      = '.'
    out_title    = 'NEMO_GYRE_BFM'
-   out_delta    = 60  !every 5 days (depends on the timestep of nemo nn_rdt)
+   in_rst_fname = 'in_bfm_restart'
+   out_delta    = 60 ! store every 5 days (depends on the timestep of nemo nn_rdt)
    parallel_log = .TRUE.
 	filename_nml_conf = 'BFM_General.nml',
 /

@@ -51,6 +51,7 @@
    out_fname    = 'PELAGOS2'
    out_dir      = '.'
    out_title    = 'PELAGOS2'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = -1
    parallel_log = .TRUE.
    unpad_out    = .TRUE.

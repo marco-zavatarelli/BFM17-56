@@ -52,6 +52,7 @@
    out_fname    = 'BFM_standalone_seaice_Kobbefjord'
    out_dir      = '.'
    out_title    = 'BFM_STANDALONE_SEAICE_KOBBEFJORD'
+   in_rst_fname = 'in_bfm_restart'
    out_delta    = 100
    parallel_log = .FALSE.
 	filename_nml_conf = 'BFM_General.nml',

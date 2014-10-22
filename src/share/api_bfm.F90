@@ -362,6 +362,7 @@ contains
                       out_fname,out_dir,out_units,out_title,    &
                       out_delta,out_secs,bioshade_feedback,     &
                       parallel_log,unpad_out,                   &
+                      in_rst_fname,                             &
                       nc_compres,nc_shuffle,nc_defllev
 !EOP
 !-----------------------------------------------------------------------
