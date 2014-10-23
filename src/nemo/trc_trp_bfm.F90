@@ -164,20 +164,28 @@ SUBROUTINE trc_trp_bfm( kt )
 #ifdef DEBUG
             CALL prxy( LOGUNIT, 'trn:NXT',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
-         END IF ! transported
 
-         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-         ! compute global statistics
-         !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-         ztraf = glob_sum( trn(:,:,:,1) * cvol(:,:,:) )
-         zmin  = MINVAL( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
-         zmax  = MAXVAL( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
-         IF( lk_mpp ) THEN
-            CALL mpp_min( zmin )      ! min over the global domain
-            CALL mpp_max( zmax )      ! max over the global domain
-         END IF
-         zmean  = ztraf / areatot
-         zdrift = ( ( ztraf - D3STATE_tot(m) ) / ( D3STATE_tot(m) + 1.e-12_RLEN )  ) * 100._RLEN
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            ! compute global statistics
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            ztraf = glob_sum( trn(:,:,:,1) * cvol(:,:,:) )
+            zmin  = MINVAL( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
+            zmax  = MAXVAL( trn(:,:,:,1), mask= ((tmask*SPREAD(tmask_i,DIM=3,NCOPIES=jpk).NE.0.)) )
+            IF( lk_mpp ) THEN
+               CALL mpp_min( zmin )      ! min over the global domain
+               CALL mpp_max( zmax )      ! max over the global domain
+            END IF
+            zmean  = ztraf / areatot
+            zdrift = ( ( ztraf - D3STATE_tot(m) ) / ( D3STATE_tot(m) + 1.e-12_RLEN )  ) * 100._RLEN
+         ELSE
+            ! Compute values for non transported variables from D3STATE to fill statistics
+            zmin = MINVAL(D3STATE(m,:))
+            zmax = MAXVAL(D3STATE(m,:))
+            zmean  = SUM(D3STATE(m,:)) / NO_BOXES
+            zdrift = 0.0_RLEN
+         END IF ! transported
+ 
+         ! Print statistics into bfm.log file (only for the transported variables)
          IF(lwp .and. m==1) WRITE(LOGUNIT,*) 'Statistics on tracer at step: ' , kt
          IF(lwp) WRITE(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax, zdrift
 
