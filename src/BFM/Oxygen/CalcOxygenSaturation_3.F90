@@ -88,7 +88,7 @@
 
   ! convert ml/l to mMol/m3
   ! Use the volume of a mole of DO at STP : 22.391 l (ICES conversions)
-  ! Conversion:  1 ml/l = 1/22.391 = 44.661 mMol/m3
+  ! Conversion:  1 ml/l = 10^3/22.391 = 44.661 uMol/L [ = mMol/m3 ]
   cxoO2(:)  =   h * 44.661_RLEN
   eO2mO2(:)  =   max(p_small,O2o(:))/ cxoO2(:)
 
