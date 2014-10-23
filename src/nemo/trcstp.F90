@@ -11,9 +11,6 @@ MODULE trcstp
    USE oce_trc          ! ocean dynamics and active tracers variables
    USE api_bfm,    ONLY: bio_calc
    USe global_mem, ONLY: LOGUNIT
-#ifdef key_obcbfm
-   USE trcobcdta_bfm
-#endif
    USE iom
    USE in_out_manager
    USE trcsub

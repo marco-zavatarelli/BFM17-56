@@ -70,11 +70,8 @@ SUBROUTINE trc_trp_bfm( kt )
 
    !-----------------------------------------------------------------------
    ! Read Open boundary conditions data (only if transport is computed)
+   ! Not yet implemented with NEMO 3.6 BDY
    !-----------------------------------------------------------------------
-
-#if defined key_obcbfm
-      CALL trcobc_dta_bfm( kt )    ! OBC for BFM
-#endif
 
 #ifdef DEBUG
    CALL prxy( LOGUNIT, 'tmask',tmask(:,:,1), jpi, 1, jpj, 1, ZERO)
