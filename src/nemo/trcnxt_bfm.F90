@@ -106,10 +106,12 @@ CONTAINS
       IF( .NOT.Agrif_Root() )    CALL Agrif_Update_Trc( kt )      ! children only
 #endif
 
-!  case of smolar scheme or muscl (only ones allowed with BFM)
+!  case of smolar scheme or muscl (the only ones allowed with BFM)
+      DO jk = 1, jpk
             trb(:,:,jk,jn) = tra(:,:,jk,jn)
             trn(:,:,jk,jn) = tra(:,:,jk,jn)
             tra(:,:,jk,jn) = 0.
+      END DO
 
 
    END SUBROUTINE trc_nxt_bfm
