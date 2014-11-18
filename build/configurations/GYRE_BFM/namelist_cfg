@@ -1,13 +1,14 @@
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-!! NEMO/OPA  : GYRE_PISCES Configuration namelist to overwrite reference dynamical namelist
+!! NEMO/OPA  : GYRE_BFM Configuration namelist to overwrite reference dynamical namelist
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 !-----------------------------------------------------------------------
 &namrun        !   parameters of the run
 !-----------------------------------------------------------------------
    cn_exp      =  "GYRE_BFM"   !  experience name
+   nn_date0    =    010101 !  date at nit_0000 (format yyyymmdd) used if ln_rstart=F or (ln_rstart=T and nn_rstctl=0 or 1)
    nn_it000    =       1   !  first time step
    nn_itend    =    4320   !  last  time step
-   nn_leapy    =      30   !  Leap year calendar (1) or not (0)
+   nn_leapy    =       0   !  Leap year calendar (1) or not (0)
    nn_stock    =    4320   !  frequency of creation of a restart file (modulo referenced to 1)
    nn_write    =      60   !  frequency of write in the output file   (modulo referenced to nn_it000)
 /
