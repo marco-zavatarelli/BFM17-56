@@ -66,6 +66,10 @@ subroutine read_create
      call handle_err( nf90_inquire_dimension(ncchlid, IDx, len = jpi), "5" )
      call handle_err( nf90_inquire_dimension(ncchlid, IDy, len = jpj), "6" )
      call handle_err( nf90_inquire_dimension(ncchlid, IDz, len = jpk), "7" )
+#ifdef DEBUG
+     write(*,*) "Input file dimensions (X,Y,Z,Time) : ", jpi, jpj, jpk, ntime
+     write(*,*)
+#endif
 
      ! open mesh_mask file, get mask and vertical length scale
      fname1 = trim(mask_fname)
@@ -295,6 +299,7 @@ subroutine read_create
 
      ! exit definition mode
      call handle_err( nf90_enddef(ncid), errstring="while exiting definition mode")
+
      ! write time values
      call handle_err( nf90_put_var(ncid, IDvartime, time, &
      &               start = (/ 1 /), count = (/ ntime /)), errstring="variable: time")
@@ -312,7 +317,7 @@ subroutine read_create
      call handle_err(nf90_inq_varid(ncid, "depth", IDvar))
      call handle_err(nf90_put_var(ncid, IDvar, real(depth,4)),errstring="Writing: depth")
 
-     if (compute_intpp) then
+     if (compute_chlsat) then
         ! Write chl
         call handle_err( nf90_inq_varid(ncid, "Chlsat_od", IDvar), &
         &                       errstring="inquiring variable: chlsat")

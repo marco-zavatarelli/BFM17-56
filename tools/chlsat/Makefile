@@ -1,6 +1,8 @@
 # Makefile created by mkmf $Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ 
 
-include ${BFMDIR}/compilers/ifort.inc
+include ${BFMDIR}/compilers/gfortran.inc
+
+# CPPDEFS=-DDEBUG
 
 .DEFAULT:
 	-touch $@
