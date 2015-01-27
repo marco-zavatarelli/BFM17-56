@@ -27,7 +27,15 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   use global_mem, ONLY:RLEN
-  use mem,  ONLY: LocalDelta, iiBen, iiPel, ppG3c, ppG3h, flux
+#ifdef NOPOINTERS
+  use mem
+#else
+  use mem,  ONLY: LocalDelta, iiBen, iiPel, flux
+#ifdef BENCO2
+  use mem,  ONLY: ppG3c, ppG3h
+#endif
+#endif
+
 !  
 !
 ! !AUTHORS

@@ -372,7 +372,7 @@
       reR2c = max((ONE-(qpcPBA(bac,:)/p_qpcPBA(bac))), &
               (ONE-(qncPBA(bac,:)/p_qncPBA(bac))))*p_rec(bac)
       reR2c = max(ZERO,reR2c)*bacc
-      reR3c = rug*p_pu_ea_R3(bac)
+      reR3c = rug*(ONE-p_pu_ra(bac))*(p_pu_ra(bac)*p_pu_ea_R3(bac))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics

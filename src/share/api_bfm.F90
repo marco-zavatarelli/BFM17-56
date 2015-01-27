@@ -340,9 +340,7 @@ contains
 
    use global_mem, only: LOGUNIT
    use time, only: bfmtime, outdeltalab
-#if defined key_obcbfm
-   use global_mem, only: LOGUNITOBC
-#endif
+
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:

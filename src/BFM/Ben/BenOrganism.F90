@@ -342,8 +342,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 
   rrc  =   p_sr(y)* yc* et+ p_pur(y)*( sgu* food- rqt6c)
-
+#ifdef INCLUDE_BENCO2 
   call flux_vector( iiBen, ppyc, ppG3c, rrc )
+#endif
   call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C))
   rtyc  =   rtyc- rrc
 

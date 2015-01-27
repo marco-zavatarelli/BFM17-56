@@ -470,9 +470,9 @@
   rrc  =   rrc+ p_pur*( foodpm2* sgu- retR6c- retQ6c)
   
   !jnetY3c(:)=rtY3c(:)- p_pur*( foodpm2* sgu- retR6c- retQ6c)-retQ6c-retR6c
-
-
+#ifdef INCLUDE_BENCO2 
   call flux_vector( iiBen, ppY3c,ppG3c, rrc*(ONE-p_pePel) )
+#endif
   call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C)* ( ONE-p_pePel))
   call flux_vector(iiBen, ppY3c,ppY3c, -rrc*p_pePel )
 

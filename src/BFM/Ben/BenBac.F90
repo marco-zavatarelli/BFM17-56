@@ -333,7 +333,9 @@
   select case ( hx)
 
     case ( iiH1 )
+#ifdef INCLUDE_BENCO2
       call flux_vector( iiBen, pphxc,ppG3c,rrc )
+#endif
       call flux_vector(iiBen, ppG2o,ppG2o,-( rrc/ MW_C))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -344,7 +346,9 @@
       reBTp(:)  =   reBTp(:)+ rep
 
     case ( iiH2 )
+#ifdef INCLUDE_BENCO2
       call flux_vector( iiBen, pphxc,ppG13c,rrc )
+#endif
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Respiration in anoxic circumstances produces reduced material
