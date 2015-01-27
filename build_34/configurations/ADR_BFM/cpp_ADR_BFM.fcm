@@ -1,0 +1,2 @@
+bld::tool::fppkeys key_adr key_dynspg_ts key_zdftke key_diainstant key_obc key_mpp_mpi key_top key_my_trc
+inc $BFMDIR/src/nemo_34/bfm.fcm
