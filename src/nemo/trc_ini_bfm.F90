@@ -100,7 +100,7 @@
    write(bfmtime%date0,'(I4.4,I2.2,I2.2)') nyear,nmonth,nday
    call julian_day(nyear,nmonth,nday,0,0,julianday)
    bfmtime%time0    = julianday
-   bfmtime%timeEnd  = julianday + ((nitend-nit000)* rdt) / SEC_PER_DAY
+   bfmtime%timeEnd  = julianday + ( ( REAL(nitend - nit000, RLEN) ) * rdt ) / SEC_PER_DAY
    bfmtime%step0    = nit000 - 1
    bfmtime%timestep = rdt
    bfmtime%stepnow  = nit000 - 1
