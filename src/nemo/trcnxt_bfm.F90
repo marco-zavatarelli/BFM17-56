@@ -11,15 +11,15 @@ MODULE trcnxtbfm
    USE oce_trc         ! ocean dynamics and tracers variables
    USE trc             ! ocean passive tracers variables
    USE lbclnk          ! ocean lateral boundary conditions (or mpp link)
-   USE trcnam_trp      ! pasive tracers transport
-   USE trdmod_oce
+   USE prtctl_trc      ! Print control for debbuging
+   USE trd_oce
    USE trdtra
    USE tranxt
-   USE prtctl_trc      ! Print control for debbuging
-#if defined key_agrif
-   USE agrif_top_update
+   USE trcnam_trp
+# if defined key_agrif
    USE agrif_top_interp
-#endif
+# endif
+
    IMPLICIT NONE
    PRIVATE
 
@@ -77,6 +77,7 @@ CONTAINS
       !!----------------------------------------------------------------------
       !
       IF( nn_timing == 1 )  CALL timing_start('trc_nxt_bfm')
+      !
       IF( kt == nit000 .AND. lwp ) THEN
          WRITE(numout,*)
          WRITE(numout,*) 'trc_nxt_bfm : time stepping on BFM tracer',m

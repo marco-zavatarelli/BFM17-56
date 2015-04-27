@@ -1,14 +1,20 @@
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-!! NEMO/OPA  : GYRE_BFM Configuration namelist to overwrite reference dynamical namelist
+!! NEMO/OPA  : GYRE_PISCES Configuration namelist to overwrite reference dynamical namelist
 !!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+!!======================================================================
+!!                   ***  Run management namelists  ***
+!!======================================================================
+!!   namrun        parameters of the run
+!!======================================================================
+!
 !-----------------------------------------------------------------------
 &namrun        !   parameters of the run
 !-----------------------------------------------------------------------
-   cn_exp      =  "GYRE_BFM"   !  experience name
-   nn_date0    =    010101 !  date at nit_0000 (format yyyymmdd) used if ln_rstart=F or (ln_rstart=T and nn_rstctl=0 or 1)
+   cn_exp      =  "GYRE"   !  experience name
    nn_it000    =       1   !  first time step
    nn_itend    =    4320   !  last  time step
-   nn_leapy    =       0   !  Leap year calendar (1) or not (0)
+   nn_leapy    =      30   !  Leap year calendar (1) or not (0)
    nn_stock    =    4320   !  frequency of creation of a restart file (modulo referenced to 1)
    nn_write    =      60   !  frequency of write in the output file   (modulo referenced to nn_it000)
 /
@@ -26,7 +32,6 @@
    jpjzoom     =       1                 !  in data domain indices
    jperio      =       0                 !  lateral cond. type (between 0 and 6)
 /
-!-----------------------------------------------------------------------
 &namzgr        !   vertical coordinate
 !-----------------------------------------------------------------------
    ln_zco      = .true.    !  z-coordinate - full    steps   (T/F)      ("key_zco" may also be defined)
@@ -74,6 +79,8 @@
 !-----------------------------------------------------------------------
 &namtsd    !   data : Temperature  & Salinity
 !-----------------------------------------------------------------------
+!          ! file name ! frequency (hours)    ! variable ! time interp. ! clim  !'yearly' or ! weights  ! rotation !
+!          !           !  (if <0  months)     !   name   !  (logical)   ! (T/F) ! 'monthly'  ! filename ! pairing  
    cn_dir        = './'      !  root directory for the location of the runoff files
    ln_tsd_init   = .false.   !  Initialisation of ocean T & S with T &S input data (T) or not (F)
    ln_tsd_tradmp = .false.   !  damping of ocean T & S toward T &S input data (T) or not (F)
@@ -198,7 +205,24 @@
 !-----------------------------------------------------------------------
 &nameos        !   ocean physical parameters
 !-----------------------------------------------------------------------
-   nn_eos      =   2       !  type of equation of state and Brunt-Vaisala frequency
+   nn_eos      =  0       !  type of equation of state and Brunt-Vaisala frequency
+                                 !  =-1, TEOS-10
+                                 !  = 0, EOS-80
+                                 !  = 1, S-EOS   (simplified eos)
+   ln_useCT    = .false.  ! use of Conservative Temp. ==> surface CT converted in Pot. Temp. in sbcssm
+   !                             !
+   !                      ! S-EOS coefficients :
+   !                             !  rd(T,S,Z)*rau0 = -a0*(1+.5*lambda*dT+mu*Z+nu*dS)*dT+b0*dS
+   rn_a0       =  1.6550e-1      !  thermal expension coefficient (nn_eos= 1)
+   rn_b0       =  7.6554e-1      !  saline  expension coefficient (nn_eos= 1)
+   rn_lambda1  =  5.9520e-2      !  cabbeling coeff in T^2  (=0 for linear eos)
+   rn_lambda2  =  7.4914e-4      !  cabbeling coeff in S^2  (=0 for linear eos)
+   rn_mu1      =  1.4970e-4      !  thermobaric coeff. in T (=0 for linear eos)
+   rn_mu2      =  1.1090e-5      !  thermobaric coeff. in S (=0 for linear eos)
+   rn_nu       =  2.4341e-3      !  cabbeling coeff in T*S  (=0 for linear eos)
+!!org GYRE   rn_alpha    =   2.0e-4  !  thermal expension coefficient (nn_eos= 1 or 2)
+!!org GYRE   rn_beta     =   7.7e-4  !  saline  expension coefficient (nn_eos= 2)
+!!org  caution  now a0 = alpha / rau0   with rau0 = 1026
 /
 !-----------------------------------------------------------------------
 &namtra_adv    !   advection scheme for tracer
@@ -219,8 +243,6 @@
 &namtra_dmp    !   tracer: T & S newtonian damping
 !-----------------------------------------------------------------------
    ln_tradmp   =  .false.  !  add a damping termn (T) or not (F)
-   nn_zdmp     =    1      !  vertical   shape =0    damping throughout the water column
-   nn_file     =    1      !  create a damping.coeff NetCDF file (=1) or not (=0)
 /
 !-----------------------------------------------------------------------
 &namdyn_adv    !   formulation of the momentum advection

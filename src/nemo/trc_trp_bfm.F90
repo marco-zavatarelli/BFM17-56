@@ -1,5 +1,5 @@
 #include"cppdefs.h"
-SUBROUTINE trc_trp_bfm( kt )
+SUBROUTINE trc_trp_bfm( kstp )
 !!----------------------------------------------------------------------
 !!                     ***  ROUTINE trc_trp_bfm  ***
 !!
@@ -30,6 +30,11 @@ SUBROUTINE trc_trp_bfm( kt )
    USE trcsbc          ! surface boundary condition          (trc_sbc routine)  
    USE zpshde          ! partial step: hor. derivative       (zps_hde routine)
 
+#if defined key_agrif
+   USE agrif_top_sponge ! tracers sponges
+   USE agrif_top_update ! tracers updates
+#endif
+
    !! * BFM Modules used
    USE constants, ONLY: SEC_PER_DAY
    USE global_mem
@@ -46,11 +51,11 @@ SUBROUTINE trc_trp_bfm( kt )
 
    IMPLICIT NONE
 
-   !! * Substitutions (fse3t for partial-steps and z-coords)
-#  include "domzgr_substitute.h90"
+   !! * Substitutions
+#  include "top_substitute.h90"
 
    !! * Arguments
-      INTEGER, INTENT( in ) ::  kt  ! ocean time-step index
+      INTEGER, INTENT( in ) ::  kstp  ! ocean time-step index
    !! ---------------------------------------------------------------------
       integer :: m,k,n
       real(RLEN) :: dummy(NO_BOXES)
@@ -104,63 +109,83 @@ SUBROUTINE trc_trp_bfm( kt )
                end do
             end do
 #endif
-            ! COMPUTE biogeochemical trends
+            ! Get biogeochemical trends for every variable
             tra(:,:,:,1) = unpack(dummy,SEAmask,ZEROS)
 #ifdef DEBUG
-            LEVEL2 'trc_trp_bfm at',kt
+            LEVEL2 'trc_trp_bfm at',kstp
             CALL prxy( LOGUNIT, 'trn for '//trim(var_names(m)),trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
             CALL prxy( LOGUNIT, 'tra:BIO',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
             ! Add surface, coastal, and open boundary forcing
             IF (.NOT.CalcConservationFlag) THEN
-               ! NOTE: these routines do not conserve mass, because non-dynamical volume is used;
+               ! NOTE: these routines do not conserve mass, because non-dynamical volume may not be used;
                ! thus, excluded for mass conservation checkings
-                CALL trc_bc_bfm( kt, m )
+                CALL trc_bc_bfm( kstp, m )
             END IF
             ! Add Vertical Sinking 
-            CALL trc_set_bfm( kt, m)      ! set other boundary conditions and compute sinking
+            CALL trc_set_bfm( kstp, m)      ! set other boundary conditions and compute sinking
 
-            ! Add Physical trends
-            IF( lk_trabbl )        CALL trc_bbl( kt )            ! advective (and/or diffusive) bottom boundary layer scheme
-!MAV: still no defined for BFM
-!            IF( lk_trcdmp     )   CALL trc_dmp( kt )            ! internal damping trends
-             CALL trc_adv( kt )                                  ! horizontal & vertical advection
-
+            IF( .NOT. lk_c1d ) THEN ! Compute and integrate physical trends for 3D case
+               IF( lk_trabbl )     CALL trc_bbl( kstp )     ! advective (and/or diffusive) bottom boundary layer scheme
+               !MAV: still no defined for BFM
+               !IF( lk_trcdmp )     CALL trc_dmp( kstp )     ! internal damping trends
+               !IF( ln_trcdmp_clo ) CALL trc_dmp_clo( kstp ) ! internal damping trends on closed seas only
+                                   CALL trc_adv( kstp )     ! horizontal & vertical advection
 #ifdef DEBUG
-            CALL prxy( LOGUNIT, 'tra:ADV',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
+                                   CALL prxy( LOGUNIT, 'tra:ADV',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
+#endif
+                                   CALL trc_ldf( kstp )     ! lateral mixing
+#ifdef DEBUG
+                                   CALL prxy( LOGUNIT, 'tra:LDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
+#endif
+#if defined key_agrif
+               IF(.NOT. Agrif_Root()) CALL Agrif_Sponge_trc ! tracers sponge
+#endif
+               !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+               ! Partial steps:  now horizontal gradient of passive
+               ! tracers at the bottom ocean level  gtru and gtrv 
+               ! are computed for each BFM tracer therefore it is 
+               ! computed here before vertical diffusion zdf
+               !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+               IF( ln_zps  .AND. .NOT. ln_isfcav)        &
+                 &                 CALL zps_hde    ( kstp, jptra, trn, gtru, gtrv )   
+               IF( ln_zps .AND.        ln_isfcav)        &  ! case with ice shelf cavities
+                 &                 CALL zps_hde_isf( kstp, jptra, trn, pgtu=gtru, pgtv=gtrv, pgtui=gtrui, pgtvi=gtrvi ) 
+
+               IF( .NOT. lk_offline .AND. lk_zdfkpp )    &
+                 &                 CALL trc_kpp( kstp )     ! KPP non-local tracer fluxes
+                                   CALL trc_zdf( kstp )     ! vertical mixing and after tracer fields
+#ifdef DEBUG
+                                   CALL prxy( LOGUNIT, 'trn:ZDF',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
+                                   CALL prxy( LOGUNIT, 'tra:ZDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
 
-            IF( ln_zps .AND. .NOT. lk_c1d ) &
-               &     CALL zps_hde( kt, jptra, trb, gtru, gtrv )  ! Partial steps: now horizontal gradient
-                                                                 ! gtru and gtrv are computed for each tracer
-                                                                 ! therefore it is moved here
-            CALL trc_ldf( kt )                                   ! lateral mixing
+                                   ! Apply lateral boundary conditions (and special open boundary)
+                                   CALL trc_nxt_bfm( kstp, m ) 
 #ifdef DEBUG
-            CALL prxy( LOGUNIT, 'tra:LDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
+                                   CALL prxy( LOGUNIT, 'trn:NXT',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
-            IF( .NOT. lk_offline .AND. lk_zdfkpp )    &
-               &                 CALL trc_kpp( kt )              ! KPP non-local tracer fluxes
-            CALL trc_zdf( kt )                                   ! vertical mixing and after tracer fields
-#ifdef DEBUG
-            CALL prxy( LOGUNIT, 'trn:ZDF',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
-            CALL prxy( LOGUNIT, 'tra:ZDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
+#if defined key_agrif
+               IF( .NOT. Agrif_Root())   CALL Agrif_Update_Trc( kstp )   ! Update tracer at AGRIF zoom boundaries : children only
 #endif
+            ELSE ! Compute and integrate physical trends for 1D case
+               IF( .NOT. lk_offline .AND. lk_zdfkpp )    &
+                 &                 CALL trc_kpp( kstp )     ! KPP non-local tracer fluxes
+                                   CALL trc_zdf( kstp )     ! vertical mixing and after tracer fields
+                                   CALL trc_nxt_bfm( kstp, m ) 
+            END IF ! 3D and 1D cases
 
-            ! Apply lateral boundary conditions (and special open boundary)
-            CALL trc_nxt_bfm( kt, m ) 
-
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             ! Remap the biochemical variables from 3D
             ! to 1D (apply land-sea mask)
             ! Values have been updated in trcnxt
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             D3STATE(m,:) = pack(trn(:,:,:,1),SEAmask)
             IF (ln_top_euler) THEN
                D3STATEB(m,:) = D3STATE(m,:)
             ELSE
                D3STATEB(m,:) = pack(trb(:,:,:,1),SEAmask)        ! Leap-frog scheme 
             END IF
-#ifdef DEBUG
-            CALL prxy( LOGUNIT, 'trn:NXT',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)
-#endif
 
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             ! compute global statistics
@@ -174,19 +199,23 @@ SUBROUTINE trc_trp_bfm( kt )
             END IF
             zmean  = ztraf / areatot
             zdrift = ( ( ztraf - D3STATE_tot(m) ) / ( D3STATE_tot(m) + 1.e-12_RLEN )  ) * 100._RLEN
-         ELSE
-            ! Compute values for non transported variables from D3STATE to fill statistics
+         ELSE ! non-trasported variables
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            ! Time integration of benthic (non-transported) variables  
+            ! is done, if active, with an ODE solver in trcbfm.F90
+            !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+            ! Compute values from D3STATE to fill statistics
             zmin = MINVAL(D3STATE(m,:))
             zmax = MAXVAL(D3STATE(m,:))
             zmean  = SUM(D3STATE(m,:)) / NO_BOXES
             zdrift = 0.0_RLEN
          END IF ! transported
  
-         ! Print statistics into bfm.log file (only for the transported variables)
-         IF(lwp .and. m==1) WRITE(LOGUNIT,*) 'Statistics on tracer at step: ' , kt
+         ! Print statistics into bfm.log file 
+         IF(lwp .and. m==1) WRITE(LOGUNIT,*) 'Statistics on tracer at step: ' , kstp
          IF(lwp) WRITE(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax, zdrift
 
-      END DO ! over state vars
+      END DO ! over BFM state vars
       IF(lwp) WRITE(LOGUNIT,*)       
 
       IF (ln_trcrad) THEN
@@ -208,7 +237,7 @@ SUBROUTINE trc_trp_bfm( kt )
             END DO
             nneg(m) = min(nneg(m),NO_BOXES-1)
             if (nneg(m)>ZERO) then
-               LEVEL2 'Negative concentration at ',kt,'for ',trim(var_names(m))
+               LEVEL2 'Negative concentration at ',kstp,'for ',trim(var_names(m))
                LEVEL3 'number of negative grid points ',nneg(m)
                LEVEL3 'largest negative value ',minval(dummy(:))
                LEVEL3 'total mass added ',total(m),trim(var_units(m))
