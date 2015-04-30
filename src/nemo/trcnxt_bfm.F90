@@ -16,6 +16,7 @@ MODULE trcnxtbfm
    USE trdtra
    USE tranxt
    USE trcnam_trp
+   USE c1d, only: lk_c1d
 # if defined key_agrif
    USE agrif_top_interp
 # endif
@@ -91,13 +92,15 @@ CONTAINS
       CALL lbc_lnk( tra(:,:,:,jn), 'T', 1. )
 
       ! Check that the BFM compliant integrations are used
-      IF( ln_trczdf_exp .OR. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) THEN
-         WRITE(numout,*)
-         WRITE(numout,*) 'The following must all be set to FALSE with the BFM:'
-         WRITE(numout,*) 'ln_trczdf_exp: ',ln_trczdf_exp
-         WRITE(numout,*) 'ln_trcadv_cen2: ',ln_trcadv_cen2
-         WRITE(numout,*) 'ln_trcadv_tvd: ',ln_trcadv_tvd
-         CALL ctl_stop( ' BFM can only be run with implicit integration and Euler stepping ' )
+      IF(.NOT.lk_c1d) THEN
+        IF( ln_trczdf_exp .OR. ( ln_trcadv_cen2 .OR. ln_trcadv_tvd) ) THEN
+           WRITE(numout,*)
+           WRITE(numout,*) 'The following must all be set to FALSE with the BFM:'
+           WRITE(numout,*) 'ln_trczdf_exp: ',ln_trczdf_exp
+           WRITE(numout,*) 'ln_trcadv_cen2: ',ln_trcadv_cen2
+           WRITE(numout,*) 'ln_trcadv_tvd: ',ln_trcadv_tvd
+           CALL ctl_stop( ' BFM can only be run with implicit integration and Euler stepping ' )
+        ENDIF
       ENDIF
 
       r2dt(:) =     rdttrc(:)           ! ( Euler step ) 

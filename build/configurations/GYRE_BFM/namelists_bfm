@@ -816,7 +816,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 !-------------------------------------------------------------------------!
 &namtrc_adv    
    ln_trcadv_cen2   =  .false.
-   ln_trcadv_tvd    =  .true.
+   ln_trcadv_tvd    =  .false.
+   ln_trcadv_muscl  =  .true.
         filename_nml_conf = 'namelist_top_cfg',
 /
 
