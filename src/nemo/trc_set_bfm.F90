@@ -15,7 +15,7 @@
    use oce_trc          ! ocean dynamics and active tracers variables
    use trc              ! ocean passive tracers variables
    ! BFM
-   use global_mem, only:RLEN
+   use global_mem, only:RLEN,ZERO,ONE
    use mem_param,  only: AssignAirPelFluxesInBFMFlag,        &
                          AssignPelBenFluxesInBFMFlag
    use mem_PelGlobal, only: p_rR6m, KSINK_rPPY,              &
@@ -46,6 +46,7 @@
    integer               :: ji, jj, jk,n
    real(RLEN)            :: zfact,timestep,wsmax
    real(RLEN)            :: wbio(jpi,jpj,jpk)   
+   logical               :: dosink
 !
 !EOP
 !-----------------------------------------------------------------------
@@ -60,6 +61,7 @@
    ! Transfer sinking velocities 
    ! (negative, z-axis is positive upwards)
    !---------------------------------------------
+   dosink = .TRUE. ! sinking is initially set to true
    select case (m)
       !
       ! Phytoplankton group with silicate (namely, diatoms)
@@ -85,8 +87,6 @@
             wbio(iwet(n),jwet(n),kwet(n)) = -sediPPY(iiP1,n)
          end do
 #endif
-         ! vertical sinking
-         CALL trc_sink_bfm(wbio)
       !
       ! Detritus
 #ifdef INCLUDE_PELFE
@@ -101,9 +101,8 @@
             wbio(iwet(n),jwet(n),kwet(n)) = -sediR6(n)
          END DO
 #endif
-         ! vertical sinking
-         CALL trc_sink_bfm(wbio)
       case default
+         dosink = .FALSE. ! sinking is disabled 
          wbio = 0.0_RLEN
    end select
    !
@@ -111,23 +110,28 @@
    ! Sinking speeds increase with depth below 
    ! the turbocline depth (aggregation).
    ! Velocity is limited according to the depth 
-   ! of the layer.
-   ! This substitutes the prescribed sinking
+   ! of the layer (80% of it).
+   ! This modulates the assigned sinking rate
    !---------------------------------------------
    !
-   if ( AggregateSink ) then
+   if ( AggregateSink .and. dosink) then
       do jk=1,jpk-1
          do jj=1,jpj
             do ji=1,jpi
-               wsmax=0.8*fse3t(ji,jj,jk)/timestep
-               zfact = max(0.0_RLEN,exp((fsdepw(ji,jj,jk)-hmld(ji,jj)) &
-                                        /depth_factor)-1.0_RLEN);
-               wbio(ji,jj,jk) = min(wsmax,(1.0_RLEN+zfact)*wbio(ji,jj,jk))
+               wsmax=0.8_RLEN*fse3t(ji,jj,jk)/timestep
+               zfact = max(ZERO,exp((fsdepw(ji,jj,jk)-hmld(ji,jj)) &
+                                        /depth_factor)-ONE)
+               wbio(ji,jj,jk) = min(wsmax,(ONE+zfact)*wbio(ji,jj,jk))
 
              end do
          end do
       end do
    endif
+
+   !---------------------------------------------
+   ! Compute vertical sinking with upwind scheme
+   !---------------------------------------------
+   if (dosink)  CALL trc_sink_bfm(wbio)
 
    return
    end subroutine trc_set_bfm
