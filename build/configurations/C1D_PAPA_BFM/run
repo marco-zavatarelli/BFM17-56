@@ -1,0 +1,45 @@
+#!/bin/sh
+
+## ======================================================================
+## Paths
+## ======================================================================
+MAINPATH=${NEMODIR}             # path of NEMO trunk
+INPUTDIR=/Users/vichi/WORKS/OCEAN_MODELS/NEMO/INPUTS/C1D_PAPA
+DIR_ARCHI_INIT=${INPUTDIR}     # PATH for the initial condition file
+DIR_ARCHI_FORC=${INPUTDIR}     # PATH for the forcing input files
+
+
+## ======================================================================
+## =======  Nothing to be changed below this line  =====================
+## ======================================================================
+
+mkdir rundir
+cd rundir
+## ======================================================================
+## file needed for the run
+## ======================================================================
+cp ../namelist_ref . 
+cp ../namelist_top_* . 
+cp ../*.xml            .
+cp ../*.nml            .
+cp ../namelist_cfg     .
+cp ../nemo.exe         .
+
+## ======================================================================
+## Climatology of temperature and chlorophyll
+## ======================================================================
+ln -s ${DIR_ARCHI_INIT}/init_PAPASTATION_m06d15.nc  ./init_PAPASTATION_m06d15.nc
+ln -s ${DIR_ARCHI_INIT}/chlorophyll_PAPASTATION.nc  ./chlorophyll.nc
+
+## ======================================================================
+## Atmospherical forcings
+## ======================================================================
+ln -s ${DIR_ARCHI_FORC}/forcin* .
+
+time ./nemo.exe
+
+
+
+
+
+

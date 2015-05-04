@@ -52,7 +52,8 @@ CONTAINS
       IF (bio_calc) THEN
 
           IF( (nn_dttrc /= 1 ) .AND. (kt == nit000) ) THEN
-             CALL trc_sub_ini                              ! Initialize variables for substepping passive tracers
+             ! this is now done in trcini.F90. may not be necessary here
+             !CALL trc_sub_ini                              ! Initialize variables for substepping passive tracers
              CALL trc_bc_read( kt )                        ! Read initial Boundary Conditions
           ENDIF
 

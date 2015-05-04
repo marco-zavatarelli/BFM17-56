@@ -126,9 +126,11 @@
 ! !IROUTINE: Initialize the netcdf output
 !
 ! !INTERFACE:
-   subroutine init_netcdf_bfm(title,start_time,expinfo,time_unit,lat,lon,z,dz, &
-                              lat2d,lon2d,oceanpoint,surfacepoint,             &
-                              bottompoint,mask3d)
+   subroutine init_netcdf_bfm(title,start_time,expinfo,time_unit,      &
+                              lat,lon,z,dz,lat2d,lon2d,                &
+                              oceanpoint,surfacepoint,bottompoint,     &
+                              roceanpoint,rsurfacepoint,rbottompoint,  &
+                              mask3d,column)
 !
 ! !DESCRIPTION:
 !  Prepare the netcdf output file which is finalized in init_save_bfm
@@ -144,7 +146,10 @@
    real(RLEN), intent(in),dimension(:),optional   :: z,dz
    integer, intent(in),dimension(:),optional    :: oceanpoint
    integer, intent(in),dimension(:),optional    :: surfacepoint,bottompoint
+   real(RLEN), intent(in),dimension(:),optional :: roceanpoint
+   real(RLEN), intent(in),optional              :: rsurfacepoint,rbottompoint
    real(RLEN),intent(in),dimension(:,:,:),optional:: mask3d
+   logical, intent(in),optional                   :: column
 !
 ! !REVISION HISTORY:
 !  Original author(s): Karsten Bolding & Hans Burchard
@@ -188,7 +193,8 @@
    else
       stop '### init_netcdf_bfm: lat and lon must be given'
    end if
-   call check_err(NF90_DEF_DIM(ncid_bfm, 'z', NO_BOXES_Z, depth_dim), fname)
+   if (present(z).or.present(dz)) &
+      call check_err(NF90_DEF_DIM(ncid_bfm, 'z', NO_BOXES_Z, depth_dim), fname)
    call check_err(NF90_DEF_DIM(ncid_bfm, 'oceanpoint', max(NO_BOXES,1), ocepoint_dim), fname)
    call check_err(NF90_DEF_DIM(ncid_bfm, 'surfacepoint', max(NO_BOXES_XY,1), surfpoint_dim), fname)
    call check_err(NF90_DEF_DIM(ncid_bfm, 'bottompoint', max(NO_BOXES_XY,1), botpoint_dim), fname)
@@ -211,22 +217,30 @@
      call check_err(NF90_DEF_VAR(ncid_bfm,'lat',NF90_REAL,dims,lat_id), fname)
    end if
    DEALLOCATE(dims)
-   call check_err(NF90_DEF_VAR(ncid_bfm,'z',NF90_REAL,depth_dim,depth_id), fname)
-   call check_err(NF90_DEF_VAR( ncid_bfm, 'oceanpoint', NF90_INT,ocepoint_dim,ocepoint_id), fname)
-   call check_err(NF90_DEF_VAR(ncid_bfm,'surfacepoint',NF90_INT,surfpoint_dim,surfpoint_id), fname)
-   call check_err(NF90_DEF_VAR(ncid_bfm,'bottompoint',NF90_INT,botpoint_dim,botpoint_id), fname)
+   if (present(z)) &
+      call check_err(NF90_DEF_VAR(ncid_bfm,'z',NF90_REAL,depth_dim,depth_id), fname)
+   if (present(column)) then
+      ! in 1D case coordinate variables are real and store the depth
+      call check_err(NF90_DEF_VAR( ncid_bfm, 'oceanpoint', NF90_REAL,ocepoint_dim,ocepoint_id), fname)
+      call check_err(NF90_DEF_VAR(ncid_bfm,'surfacepoint',NF90_REAL,surfpoint_dim,surfpoint_id), fname)
+      call check_err(NF90_DEF_VAR(ncid_bfm,'bottompoint',NF90_REAL,botpoint_dim,botpoint_id), fname)
+   else
+      call check_err(NF90_DEF_VAR( ncid_bfm, 'oceanpoint', NF90_INT,ocepoint_dim,ocepoint_id), fname)
+      call check_err(NF90_DEF_VAR(ncid_bfm,'surfacepoint',NF90_INT,surfpoint_dim,surfpoint_id), fname)
+      call check_err(NF90_DEF_VAR(ncid_bfm,'bottompoint',NF90_INT,botpoint_dim,botpoint_id), fname)
+   end if
    call check_err(NF90_DEF_VAR(ncid_bfm,'time',NF90_REAL,time_dim,time_id), fname)
    !---------------------------------------------
    ! define mask variables
    !---------------------------------------------
    if (present(mask3d)) then
-   ALLOCATE(dims(3))
-   dims(1) = x_dim
-   dims(2) = y_dim
-   dims(3) = depth_dim
+      ALLOCATE(dims(3))
+      dims(1) = x_dim
+      dims(2) = y_dim
+      dims(3) = depth_dim
       call check_err(NF90_DEF_VAR(ncid_bfm,'mask',NF90_REAL,dims,mask_id), fname)
       if (nc_compres) call check_err(NF90_DEF_VAR_DEFLATE(ncid_bfm,mask_id,nc_shuffle,nc_deflate,nc_defllev))
-   DEALLOCATE(dims)
+      DEALLOCATE(dims)
    end if
 
    !---------------------------------------------
@@ -235,7 +249,8 @@
    !  coordinates
    call check_err(set_attributes(ncid_bfm,lon_id,units='degrees_east'), fname)
    call check_err(set_attributes(ncid_bfm,lat_id,units='degrees_north'), fname)
-   call check_err(set_attributes(ncid_bfm,depth_id,units='meters'), fname)
+   if (present(z)) &
+      call check_err(set_attributes(ncid_bfm,depth_id,units='meters'), fname)
 #ifndef NOT_STANDALONE
    call check_err(set_attributes(ncid_bfm,ocepoint_id,formula_term='water points'), fname)
    call check_err(set_attributes(ncid_bfm,ocepoint_id,compress='none'), fname)
@@ -253,12 +268,24 @@
    call check_err(set_attributes(ncid_bfm,botpoint_id,compress='z'), fname)
 #endif
 #ifdef BFM_NEMO
-   call check_err(set_attributes(ncid_bfm,ocepoint_id,formula_term='water points'), fname)
-   call check_err(set_attributes(ncid_bfm,ocepoint_id,compress='x y z'), fname)
-   call check_err(set_attributes(ncid_bfm,botpoint_id,formula_term='bottom points'), fname)
-   call check_err(set_attributes(ncid_bfm,botpoint_id,compress='x y z'), fname)
-   call check_err(set_attributes(ncid_bfm,surfpoint_id,formula_term='surface points'), fname)
-   call check_err(set_attributes(ncid_bfm,surfpoint_id,compress='x y z'), fname)
+   if (present(column)) then
+      call check_err(set_attributes(ncid_bfm,ocepoint_id,formula_term='watercolumn levels'), fname)
+      call check_err(set_attributes(ncid_bfm,ocepoint_id,units='meters'), fname)
+      call check_err(set_attributes(ncid_bfm,ocepoint_id,long_name='depth'), fname)
+      call check_err(set_attributes(ncid_bfm,surfpoint_id,formula_term='watercolumn surface'), fname)
+      call check_err(set_attributes(ncid_bfm,surfpoint_id,units='meters'), fname)
+      call check_err(set_attributes(ncid_bfm,surfpoint_id,long_name='depth'), fname)
+      call check_err(set_attributes(ncid_bfm,botpoint_id,formula_term='watercolumn bottom'), fname)
+      call check_err(set_attributes(ncid_bfm,botpoint_id,units='meters'), fname)
+      call check_err(set_attributes(ncid_bfm,botpoint_id,long_name='depth'), fname)
+   else
+      call check_err(set_attributes(ncid_bfm,ocepoint_id,formula_term='water points'), fname)
+      call check_err(set_attributes(ncid_bfm,ocepoint_id,compress='x y z'), fname)
+      call check_err(set_attributes(ncid_bfm,botpoint_id,formula_term='bottom points'), fname)
+      call check_err(set_attributes(ncid_bfm,botpoint_id,compress='x y z'), fname)
+      call check_err(set_attributes(ncid_bfm,surfpoint_id,formula_term='surface points'), fname)
+      call check_err(set_attributes(ncid_bfm,surfpoint_id,compress='x y z'), fname)
+   end if
 #endif
    select case (ncdf_time_unit)
       case(0)                           ! seconds
@@ -313,6 +340,12 @@
    if (present(mask3d)) &
       call check_err(store_data(ncid_bfm,mask_id,XYZ_SHAPE,NO_BOXES_Z, &
                         array3d=mask3d), fname)
+   if (present(roceanpoint)) &
+      call check_err(store_data(ncid_bfm,ocepoint_id,G_SHAPE,NO_BOXES,array=roceanpoint), fname)
+   if (present(rbottompoint)) &
+      call check_err(store_data(ncid_bfm,botpoint_id,POINT,NO_BOXES_XY,scalar=rbottompoint), fname)
+   if (present(rsurfacepoint)) &
+      call check_err(store_data(ncid_bfm,surfpoint_id,POINT,NO_BOXES_XY,scalar=rsurfacepoint), fname)
 
    !---------------------------------------------
    ! syncronize

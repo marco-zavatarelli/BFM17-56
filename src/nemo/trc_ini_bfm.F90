@@ -68,6 +68,7 @@
    use dom_oce
    use lib_mpp, only : lk_mpp, mpp_max, mpp_min
    use in_out_manager, only: numout, nitend, nit000, lwp
+   use c1d, only : lk_c1d
 
    IMPLICIT NONE
 !
@@ -128,11 +129,23 @@
    allocate(rtmp3Db(jpi,jpj,jpk)) ! allocate temporary 3D array
    rtmp3Da = ZERO; rtmp3Db = ZERO
 
-   where (tmask > ZERO)         ! assign logical Land-Sea mask
-     SEAmask = .TRUE.
-   elsewhere
-     SEAmask = .FALSE.
-   end where
+   !-------------------------------------------------------
+   ! assign logical Land-Sea mask
+   ! in the 1D case only the central column is used by the BFM
+   !-------------------------------------------------------
+   if (lk_c1d) then
+      where (tmask(2,2,:) > ZERO)         
+        SEAmask(2,2,:) = .TRUE.
+      elsewhere
+        SEAmask(2,2,:) = .FALSE.
+      end where
+   else
+      where (tmask > ZERO)         
+        SEAmask = .TRUE.
+      elsewhere
+        SEAmask = .FALSE.
+      end where
+   end if
 
    !-------------------------------------------------------
    ! Prepares the spatial information and the masks
@@ -408,13 +421,23 @@
    ! Initialise DATA output netcdf file(s)
    !-------------------------------------------------------
    call calcmean_bfm(INIT)
-   call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
+   if (lk_c1d) then
+      call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
+             TRIM(out_title) , 0 ,                     &
+             lat=gphit(2,2),lon=glamt(2,2),            &
+             roceanpoint=fsdept(1,1,1:NO_BOXES),       &
+             rsurfacepoint=fsdept(1,1,1),              &
+             rbottompoint=fsdept(1,1,NO_BOXES),        &
+             column=.true.)
+   else
+      call init_netcdf_bfm(out_fname,TRIM(bfmtime%datestring), &
              TRIM(out_title) , 0 ,                     &
              lat2d=gphit,lon2d=glamt,z=fsdept(1,1,:),  &
              oceanpoint=ocepoint,                      &
              surfacepoint=surfpoint,                   &
              bottompoint=botpoint,                     &
              mask3d=tmask)
+   end if
    call init_save_bfm
 
    !---------------------------------------------
