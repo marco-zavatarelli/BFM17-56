@@ -21,8 +21,6 @@ trcldf.f90"];
 trczdf.f90"];
   __N12 [label="trc_nxt_bfm
 trcnxt_bfm.f90", color="green"];
-  __N13 [label="trc_nxt
-trcnxt.f90", color="red"];
   __N25 [label="trc_stp
 trcstp.f90", color="red"];
   __N26 [label="stp
@@ -35,7 +33,6 @@ step.f90"];
   __N1 -> __N9;
   __N1 -> __N11;
   __N1 -> __N12;
-  __N1 -> __N13;
   __N26 -> __N25;
   __N25 -> __N1;
 }
