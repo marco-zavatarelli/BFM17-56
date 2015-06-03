@@ -76,6 +76,10 @@
       qncOMT(i,:)  =  PelDetritus(i,iiN)/( p_small+ PelDetritus(i,iiC))
     if ( ppPelDetritus(i,iiS) > 0 ) &
       qscOMT(i,:)  =   PelDetritus(i,iiS)/( p_small+ PelDetritus(i,iiC))
+#ifdef INCLUDE_PELFE
+    if ( ppPelDetritus(i,iiF) > 0 ) &
+      qfcOMT(i,:)  =   PelDetritus(i,iiF)/( p_small+ PelDetritus(i,iiC))
+#endif
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

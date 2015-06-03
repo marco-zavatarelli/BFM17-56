@@ -50,6 +50,7 @@
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: read_rst_bfm,read_rst_bfm_glo
    use time,       only: bfmtime, julian_day, calendar_date
+   use init_var_bfm_local
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
    use trc, only : ln_trc_sbc, ln_trc_ini, ln_trc_obc, ln_trc_cbc, &
@@ -187,29 +188,6 @@
    NO_BOXES_Z_ICE  = 1
    NO_BOXES_ICE = NO_BOXES_XY * NO_BOXES_Z_ICE
    NO_STATES_ICE = NO_BOXES_ICE * NO_D2_BOX_STATES_ICE
-#endif
-
-   !-------------------------------------------------------
-   ! Allocate and build the indices of ocean points in
-   ! the 3D nemo arrays
-   !-------------------------------------------------------
-#ifdef NOPACK
-   allocate (iwet(NO_BOXES))
-   allocate (jwet(NO_BOXES))
-   allocate (kwet(NO_BOXES))
-   ll=0
-   do k = 1, jpk
-      do j = 1, jpj
-         do i = 1, jpi
-            if (SEAmask(i,j,k)) then
-               ll=ll+1
-               iwet(ll)=i
-               jwet(ll)=j
-               kwet(ll)=k
-            endif
-         enddo
-      enddo
-    enddo
 #endif
 
    !-------------------------------------------------------
@@ -352,6 +330,9 @@
          Initvar(m)%varname=var_names(m)
          if (bfm_lwp) write(LOGUNIT, 158) InitVar(m)
       end do
+      ! Initialize the other internal constitutents
+      ! From carbon components
+      call init_all_constituents() 
    end if
    if (bfm_lwp) then 
          LEVEL1 ' '
@@ -458,11 +439,6 @@
       allocate(D2STATEB_BEN(NO_D2_BOX_STATES_BEN,NO_BOXES_XY))
       D2STATEB_BEN = D2STATE_BEN
 #endif
-
-
-   ! Initialise the array containing light bioshading
-   !-------------------------------------------------------
-   if ( ln_qsr_bio ) etot3(:,:,:) = ZERO
 
    ! Initialise the arrays containing external boundary data
    !-------------------------------------------------------

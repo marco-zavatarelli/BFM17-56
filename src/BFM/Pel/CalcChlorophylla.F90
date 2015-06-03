@@ -18,7 +18,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  use global_mem, ONLY:RLEN
+  use global_mem, ONLY:RLEN,ZERO
 #ifdef NOPOINTERS
   use mem
 #else
@@ -26,15 +26,12 @@
   use mem, ONLY: ppPhytoPlankton, Chla, iiPhytoPlankton, iiC, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector
 #endif
-  use mem_Param,  ONLY: ChlDynamicsFlag
+  use mem_PAR,  ONLY: ChlDynamicsFlag
   use mem_Phyto,  ONLY: p_qlcPPY
-
 !  
 !
 ! !AUTHORS
 !   M. Vichi 
-!
-!
 !
 ! !REVISION_HISTORY
 !   !
@@ -68,35 +65,20 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
 
-
-  Chla(:)  =   0.0D+00
-
+  Chla(:) = ZERO
   select case ( ChlDynamicsFlag)
-
     case ( 1 )
       do i = 1 , ( iiPhytoPlankton)
-
-        Chla(:)  =   Chla(:)+ p_qlcPPY( i)* PhytoPlankton(i,iiC)
+        Chla(:) = Chla(:) + p_qlcPPY(i)*PhytoPlankton(i,iiC)
       end do
-
-
-
-
     case ( 2 )
       do i = 1 , ( iiPhytoPlankton)
-
-        Chla(:)  =   Chla(:)+ PhytoPlankton(i,iiL)
+        Chla(:) = Chla(:) + PhytoPlankton(i,iiL)
       end do
-
-
-
   end select
 
-
-
-
-  end
-!BOP
+  end subroutine CalcChlorophylla
+!EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

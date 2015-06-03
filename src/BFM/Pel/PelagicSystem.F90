@@ -26,8 +26,9 @@
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF
 #endif
-  use mem_Param, ONLY: ChlDynamicsFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
+  use mem_Param, ONLY: CalcPhytoPlankton,CalcMicroZooPlankton, &
     CalcMesoZooPlankton, CalcPelBacteria, CalcPelChemistry
+  use mem_PAR, ONLY: ChlDynamicsFlag
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
   use global_interface, ONLY: PhotoAvailableRadiation, &
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics

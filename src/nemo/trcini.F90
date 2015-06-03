@@ -31,7 +31,7 @@ MODULE trcini
    USE lib_mpp         ! distribued memory computing library
    USE sbc_oce
    ! BFM
-   USE mem_Param, ONLY : LightPeriodFlag
+   USE mem_PAR, ONLY : LightPeriodFlag
    
    IMPLICIT NONE
    PRIVATE

@@ -23,7 +23,7 @@
   use mem_MesoZoo
   use mem_MicroZoo
   use mem_Phyto
-  use mem_PhotoAvailableRadiation
+  use mem_PAR
   use mem_LightAdaptation
   use mem_Settling
 #ifdef INCLUDE_BEN
@@ -106,7 +106,7 @@
       call InitMesoZoo
       call InitMicroZoo
       call InitPhyto
-      call InitPhotoAvailableRadiation
+      call InitPAR
       call InitLightAdaptation
       call InitSettling
 #ifdef INCLUDE_BEN

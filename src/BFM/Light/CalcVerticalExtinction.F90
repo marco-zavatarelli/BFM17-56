@@ -1,3 +1,4 @@
+#include "cppdefs.h"
 #include "DEBUG.h"
 #include "INCLUDE.h"
 
@@ -23,12 +24,13 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem, ONLY: R6c, PhytoPlankton
+  use mem, ONLY: R6c, PhytoPlankton, Chla
   use mem, ONLY: ppR6c, ppPhytoPlankton, xEPS, ABIO_eps, ESS, iiPhytoPlankton, &
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Param, ONLY: p_eps0, p_epsR6, p_epsESS, ChlDynamicsFlag
   use mem_Phyto, ONLY: p_qlcPPY, p_epsChla
+  use mem_Param, ONLY: p_small
+  use mem_PAR
 !
 ! !AUTHORS
 !   ERSEM-team
@@ -64,36 +66,49 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer  :: i
+  integer  :: i, irgb
   real(RLEN), dimension(:), pointer  ::lcl_PhytoPlankton
+  real(RLEN) :: limitedChl, par
 
-
-
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! This case is used when abiotic extinction comes
+  ! from a sediment model
+  ! Only relevant for broadband attenuation
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   select case ( p_eps0 == ZERO)
-
     case( .TRUE. )
       xEPS(:)  =   ABIO_eps(:) + p_epsR6* R6c(:)
-
     case( .FALSE. )
       xEPS(:)  =   p_eps0 + p_epsESS*ESS(:)+ p_epsR6* R6c(:)
-
   end select
 
-
-  select case ( ChlDynamicsFlag)
-
-    case ( 1 )
-      do i = 1 , ( iiPhytoPlankton)
-        lcl_PhytoPlankton => PhytoPlankton(i,iiC)
-        xEPS(:) = xEPS(:) + p_epsChla(i) * p_qlcPPY(i) * lcl_PhytoPlankton
-      end do
-
-    case ( 2 )
-      do i = 1 , ( iiPhytoPlankton)
-        lcl_PhytoPlankton => PhytoPlankton(i,iiL)
-        xEPS(:) = xEPS(:) + p_epsChla(i) * lcl_PhytoPlankton
-      end do
-
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  select case ( ChlAttenFlag)
+  case ( 1 ) ! broadband linear attenuation
+     select case ( ChlDynamicsFlag)
+       case ( 1 )
+         do i = 1 , ( iiPhytoPlankton)
+           lcl_PhytoPlankton => PhytoPlankton(i,iiC)
+           xEPS(:) = xEPS(:) + p_epsChla(i) * p_qlcPPY(i) * lcl_PhytoPlankton
+         end do
+       case ( 2 )
+         do i = 1 , ( iiPhytoPlankton)
+           lcl_PhytoPlankton => PhytoPlankton(i,iiL)
+           xEPS(:) = xEPS(:) + p_epsChla(i) * lcl_PhytoPlankton
+         end do
+     end select
+  case ( 2 ) ! 3-band tabulated attenuation coefficients
+     do i = 1 , NO_BOXES
+        limitedChl = min(  10._RLEN , max( 0.05_RLEN, Chla(i) )  )
+        irgb = nint( 41._RLEN + 20._RLEN * log10( limitedChl ) + p_small )
+        B_eps(i) = xepsRGB(1,irgb)
+        G_eps(i) = xepsRGB(2,irgb)
+        R_eps(i) = xepsRGB(3,irgb)
+        ! weighted broadband diffuse attenuation coefficient for diagnostics
+        par = EIRB(i) + EIRG(i) + EIRR(i)
+        xEPS(i)  = (EIRB(i)*B_eps(i) + EIRG(i)*G_eps(i) + EIRR(i)*R_eps(i))/par
+     end do
   end select
 
   end subroutine CalcVerticalExtinction

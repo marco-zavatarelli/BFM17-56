@@ -10,7 +10,8 @@
 !
 ! DESCRIPTION
 !   This process computes the depth-integrated PAR and expresses
-!	this in eiPPY for each compartment (I). The change in ELiPPY
+!	this in eiPPY for each phytoplankton. 
+!       The change in ELiPPY
 !	(optimal irradiance Iopt) due to daily variations is calculated in 
 !	LightAdaptation.p.
 !	The daily irradiance in each compartment is calculated
@@ -24,8 +25,8 @@
 !     iswLtyp = 2 : Ebenhoeh            2y/(1+y^2)
 !     iswLtyp = 3 : ramp                min(1,y)
 !     iswLtyp = 4 : step                1 if y>1 , 0 elsewhere
-!	iswLtyp = 5 : Smith_average
-!	iswLtyp = 6 : Smith II (actual_Irr)		
+!     iswLtyp = 5 : Smith_average
+!     iswLtyp = 6 : Smith II (actual_Irr)		
 !
 !     with y = irradiance/optimal
 ! 
@@ -47,8 +48,7 @@
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, EIR, xEPS, Depth, ELiPPY, eiPPY, &
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Param,  ONLY: LightPeriodFlag
-  use mem_PhotoAvailableRadiation
+  use mem_PAR
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

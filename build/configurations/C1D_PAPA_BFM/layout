@@ -156,7 +156,7 @@ end
 3d-variable
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    # Variables to check totmass of C N P Si in pelagic
+    # Variables to check total mass in pelagic
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     totpel[cnpsf]  : Total Mass in Pelagic: g C: g N: g P: g Si: g Fe
 
@@ -170,13 +170,15 @@ end
     # Diagnostic collective variables 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     Chla : Chlorophyll-a : mg Chl/m3
+    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Water column diagnostic rates
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    flPTN6r : Pelagic Anaerobic Mineralization Rate : mmol O2/m3/d
-    flN3O4n : Pelagic Denitrification Rate : mmol N/m3/d
-    flN4N3n : Pelagic Nitrification Rate   : mmol N/m3/d
+    flPTN6r  : Pelagic Anaerobic Mineralization Rate : mmol O2/m3/d
+    flN3O4n  : Pelagic Denitrification Rate : mmol N/m3/d
+    flN4N3n  : Pelagic Nitrification Rate   : mmol N/m3/d
+    fscavN7f : Pelagic Fe Scavenging Rate   : umol Fe/m3/d
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Variables holding quota of elements in species
@@ -204,16 +206,15 @@ end
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    # Sinking rates of phytoplankton and detritus
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    sediPPY(PhytoPlankton)     : PhytoPlankton sedimentation rate :m/d
-    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate :m/d
+    sediPPY(PhytoPlankton)    : PhytoPlankton sedimentation rate   :m/d
+    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate:m/d
     sediMEZ(MesoZooPlankton)  : MesoZooPlankton sedimentation rate :m/d
-    sediR2                    : Detritus sedimentation rate:m/d
-    sediR6                    : Detritus sedimentation rate:m/d
+    sediR2                    : Detritus sedimentation rate        :m/d
+    sediR6                    : Detritus sedimentation rate        :m/d
 
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   # Sinking rates of phytoplankton and detritus
+   # Light diagnostics
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
     eiPPY(PhytoPlankton)  : Regulating Factor for Light in PhytoPlankton : -
     xEPS                  : Total Extinction Coefficient : 1/m
     ELiPPY(PhytoPlankton) : Optimal light in PhytoPlankton : W/m2
@@ -253,4 +254,6 @@ end
   remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
   remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
   remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
+  remN7f=(N7f<-R1f+R6f): Fe Remineralization : umol Fe/m3/d
+  remN5s=(N5s<-R6s): Si Remineralization : mmol Si/m3/d
 end

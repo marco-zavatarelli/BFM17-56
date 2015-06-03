@@ -80,22 +80,6 @@
   !                                       time integration
   ! AssignAirPelFluxesInBFMFlag   logical Air-sea fluxes are added to the
   !                                       time integration
-  ! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
-  !                                       1 = diagnostic, optimal light property
-  !                                           in phytoplankton 
-  !                                           (Ebenhoeh et al 1995, ERSEM-II) 
-  !                                       2 = state variable, constituent of 
-  !                                           phytoplankton
-  ! LightPeriodFlag               numeric Choose the light averaging period
-  !                                       1 = Instantanous irradiance
-  !                                       2 = Daily average
-  !                                       3 = Daylight average with explicit
-  !                                           photoperiod                                       
-  ! LightLocationFlag             numeric Choose the parameterization of light
-  !                                       location in the discrete grid
-  !                                       1 = Light at the top of the cell
-  !                                       2 = Light in the middle of the cell 
-  !                                       3 = Average Light in the cell
   ! check_fixed_quota             numeric Check whether zooplankton have fixed quota
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   logical   :: CalcPelagicFlag=.TRUE.  
@@ -107,10 +91,6 @@
   logical   :: CalcPelChemistry=.TRUE.
   logical   :: AssignPelBenFluxesInBFMFlag=.TRUE.
   logical   :: AssignAirPelFluxesInBFMFlag=.TRUE.
-  integer   :: &
-      ChlDynamicsFlag=2,  & 
-      LightPeriodFlag=1,  & 
-      LightLocationFlag=3 
   integer   :: check_fixed_quota=0
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -119,12 +99,6 @@
   ! NAME          UNIT          DESCRIPTION
   ! p_small      [-]           Smallest numeric value (the model "zero")
   ! slp0         [mbar]        Reference sea level pressure
-  ! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
-  ! p_eps0       [1/m]         Background extinction coefficient
-  ! p_epsESS     [m2/g]        Specific attenuation coefficient of
-  !                            suspended sediments
-  ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
-  !                            detritus
   ! p_pe_R1c     [-]           Fractional content of C in cytoplasm 
   ! p_pe_R1n     [-]           Fractional content of N in cytoplasm
   ! p_pe_R1p     [-]           Fractional content of P in cytoplasm
@@ -142,10 +116,6 @@
       p_small=1.0E-20_RLEN,  &
       slp0=1013.25_RLEN
   real(RLEN)   :: &
-      p_PAR=0.50_RLEN,      &  
-      p_eps0=0.04_RLEN  ,  &  
-      p_epsESS=0.04e-3_RLEN  ,  &
-      p_epsR6=0.1e-3_RLEN , & 
       p_pe_R1c=0.60_RLEN  ,     &
       p_pe_R1n=0.72_RLEN  ,     &
       p_pe_R1p=0.832_RLEN  ,    &
@@ -216,12 +186,12 @@
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
     CalcPelChemistry,CalcMesoZooPlankton, CalcPelBacteria,                    &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
-    p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,         &
-    p_eps0, p_epsESS, p_sedlevels, p_sedsigma,                                &
+    slp0,                                                                     &
     p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,                                   &
-    p_epsR6, check_fixed_quota, p_d_tot, p_poro0 
+    check_fixed_quota
 #ifdef INCLUDE_BEN
   namelist /Param_parameters_ben/                                             &
+    p_sedlevels, p_sedsigma,p_d_tot, p_poro0,                                 &
     CalcBenOrganisms,CalcBenBacteria,                                         &
     calc_init_bennut_states, p_qnQIc, p_qpQIc, p_qsQIc,                       &
     p_InitSink, p_d_tot_2, p_clD1D2m, p_clDxm, p_q10diff

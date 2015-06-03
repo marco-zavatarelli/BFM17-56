@@ -37,7 +37,8 @@
 #endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small, ChlDynamicsFlag, LightPeriodFlag, &
+  use mem_Param,  ONLY: p_small
+  use mem_PAR,    ONLY: ChlDynamicsFlag, LightPeriodFlag, &
                         LightLocationFlag
   use mem_Phyto
   use mem_globalfun,   ONLY: eTq_vector, MM_vector, insw_vector
@@ -333,12 +334,13 @@
   et  =   max(ZERO,et-p_temp(phyto))
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Photosynthesis 
-  ! Irradiance EIR is in uE m-2 s-1, 
-  ! Irr is top, middle or average irradiance in uE m-2 day-1
+  ! Light limitation with Chl dynamics
+  ! If Chl is a diagnostic variable the limiting factor has been 
+  ! computed in Light/PhotoAvailableRadiation.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
   if ( ChlDynamicsFlag== 2) then
+    ! Irradiance EIR is in uE m-2 s-1, 
+    ! Irr is top, middle or average irradiance in uE m-2 day-1
     select case ( LightLocationFlag)
        case ( 1 )
           ! Light at the top of the cell
@@ -353,28 +355,29 @@
           r = EIR(:)/xEPS(:)/Depth(:)*(ONE-exp(-r))
           Irr = max(p_small,r*SEC_PER_DAY)
     end select
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! Compute exponent E_PAR/E_K = alpha0/PBmax
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    r(:) = qlcPPY(phyto, :)*p_alpha_chl(phyto)/p_sum(phyto)* Irr
+    select case ( LightPeriodFlag)
+      case ( 1 ) ! instantaneous light
+        ! no other factors needed
+      case ( 2 ) ! daylight average is used
+        ! recompute r and photsynthesis limitation using daylight scaling
+        fpplim  =   fpplim*SUNQ(:)/HOURS_PER_DAY
+        r(:) = r(:)*HOURS_PER_DAY/SUNQ(:)
+      case ( 3 ) ! on-off
+        fpplim  =   fpplim*ThereIsLight
+    end select
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    ! Light limitation factor according to Platt
+    !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    eiPPY(phyto,:) = ( ONE- exp( - r))
   end if
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Compute exponent E_PAR/E_K = alpha0/PBmax
+  ! Total photosynthesis
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  r(:) = qlcPPY(phyto, :)*p_alpha_chl(phyto)/p_sum(phyto)* Irr
-
-  select case ( LightPeriodFlag)
-    case ( 1 ) ! instantaneous light
-      ! no other factors needed
-    case ( 2 ) ! daylight average is used
-      ! recompute r and photsynthesis limitation using daylight scaling
-      fpplim  =   fpplim*SUNQ(:)/HOURS_PER_DAY
-      r(:) = r(:)*HOURS_PER_DAY/SUNQ(:)
-    case ( 3 ) ! on-off
-      fpplim  =   fpplim*ThereIsLight
-  end select
-
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Light limitation factor and total photosynthesis
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  eiPPY(phyto,:) = ( ONE- exp( - r))
   sum  =   p_sum(phyto)*et*eiPPY(phyto,:)*fpplim
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
