@@ -248,6 +248,7 @@ end
   ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
   ruPPYf=P.f <- N7f : Net Iron Uptake : umol Fe/m3/d
   exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
+  exPPYs=(P.s->R6s): biogenic Si loss from phytoplankton :mmol Si/m3/d
   ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross/Net Secondary Production:mg C/m3/d
   resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
   remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
