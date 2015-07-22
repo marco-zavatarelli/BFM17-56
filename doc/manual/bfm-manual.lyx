@@ -1,5 +1,5 @@
-#LyX 2.1 created this file. For more info see http://www.lyx.org/
-\lyxformat 474
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
 \begin_document
 \begin_header
 \textclass scrbook
@@ -51,13 +51,13 @@ eqs-within-sections
 \font_roman times
 \font_sans helvet
 \font_typewriter courier
-\font_math auto
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
+
 \graphics dvips
 \default_output_format default
 \output_sync 0
@@ -68,24 +68,15 @@ eqs-within-sections
 \use_hyperref false
 \papersize a4paper
 \use_geometry true
-\use_package amsmath 1
-\use_package amssymb 1
-\use_package cancel 1
-\use_package esint 0
-\use_package mathdots 1
-\use_package mathtools 1
-\use_package mhchem 1
-\use_package stackrel 1
-\use_package stmaryrd 1
-\use_package undertilde 1
-\cite_engine natbib
-\cite_engine_type authoryear
-\biblio_style plainnat
+\use_amsmath 1
+\use_esint 0
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine natbib_authoryear
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date true
-\justification true
 \use_refstyle 0
 \index Index
 \shortcut idx
@@ -198,7 +189,7 @@ Equation Description and User Manual
 \begin_inset Newline newline
 \end_inset
 
-BFM version 5.1 (BFM-V5)
+BFM version 5 (BFM-V5)
 \end_layout
 
 \begin_layout Standard
@@ -232,7 +223,7 @@ Edited by M.
 
 \begin_layout Standard
 \align center
-Release 1.1, 2015
+Release 1.0, March 2013
 \begin_inset Newline newline
 \end_inset
 
@@ -323,10 +314,11 @@ Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Mas
  S., McKiver W., Pinardi N., Solidoro C., Zavatarelli M.
  (2013) The Biogeochemical Flux Model (BFM): Equation Description and User
  Manual.
- BFM version 5.1 (BFM-V5).
- Release 1.1; BFM Report series N.
+ BFM version 5 (BFM-V5).
+ Release 1.0; BFM Report series N.
  1.
- July 2014, Bologna, Italy, http://bfm-community.eu
+ March 2013, Bologna, Italy, http://bfm-community.eu, pp.
+ 87
 \end_layout
 
 \begin_layout Address
@@ -489,16 +481,7 @@ The structure of the code was instead extensively modified with respect
  state-of-the-art ocean general circulation models (OGCM) required a re-organiza
 tion of the structure, yet the fundamentals of the coupling strategy are
  very similar to the first coupled implementations.
- From BFM version 5.1 the coupled configurations are publicly supported.
- An example of the coupled configuration with the NEMO ocean model (http://nemo-
-ocean.eu) is described in 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "BFM-NEMO-manual"
-
-\end_inset
-
-.
+ 
 \end_layout
 
 \begin_layout Section*
@@ -904,7 +887,7 @@ centerline{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="23" columns="6">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="block" valignment="top" width="1.5cm">
 <column alignment="block" valignment="top" width="2cm">
 <column alignment="block" valignment="top" width="1cm">
@@ -2803,7 +2786,7 @@ status collapsed
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -2813,7 +2796,7 @@ name "tab:model_variables"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -2868,9 +2851,9 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="11" columns="2">
-<features rotate="0" tabularvalignment="middle">
-<column alignment="left" valignment="top">
-<column alignment="left" valignment="top">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
 <row>
 <cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
@@ -3123,7 +3106,7 @@ Biochemical remineralization
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -3133,7 +3116,7 @@ name "tab:abbreviations"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -3196,7 +3179,7 @@ status collapsed
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -3391,7 +3374,7 @@ LightPeriodFlag
 \family default
  in 
 \family typewriter
-BFM_General.nml
+Pelagic_Ecology.nml
 \family default
 :
 \end_layout
@@ -3435,7 +3418,7 @@ LightLocationFlag
 \family default
  in 
 \family typewriter
-BFM_General.nml
+Pelagic_Ecology.nml
 \family default
 : light at the upper interface 
 \begin_inset Formula $E_{PAR}=E_{PAR}^{k}$
@@ -3533,7 +3516,7 @@ centering{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="9" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -4031,7 +4014,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -4041,7 +4024,7 @@ name "tab:env-variables"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -4249,7 +4232,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -4259,7 +4242,7 @@ name "box:phytoplankton"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -4357,7 +4340,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="33" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -5860,7 +5843,7 @@ E
 \begin_inset Formula $^{2}$
 \end_inset
 
- 
+ s
 \end_layout
 
 \end_inset
@@ -6158,7 +6141,7 @@ Relaxation rate toward the optimal Chl:C value
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -6168,7 +6151,7 @@ name "tab:phytoplankton_parameters"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -7243,7 +7226,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -7253,7 +7236,7 @@ name "box:phytoplankton_Chl_synthesis"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -7728,7 +7711,7 @@ status collapsed
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="9" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="3cm">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -8235,7 +8218,7 @@ Specific dissolution fraction of dust iron
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -8245,7 +8228,7 @@ name "tab:iron_parameters"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -8734,7 +8717,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -8744,7 +8727,7 @@ name "box:bacteria"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -8776,7 +8759,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="23" columns="5">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -10332,7 +10315,7 @@ Switch for bacteria parameterization: 1=BACT1; 2=BACT2; 3=BACT3
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -10342,7 +10325,7 @@ name "tab:bacteria-parameters"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -11237,7 +11220,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -11247,7 +11230,7 @@ name "box:zooplankton"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -11281,7 +11264,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="18" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -12246,7 +12229,7 @@ Oxygen-dependent specific mortality rate
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -12256,7 +12239,7 @@ name "tab:microzoo-parameters"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -12293,7 +12276,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="15" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="3cm">
@@ -13123,7 +13106,7 @@ Exponent for density dependent mortality
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -13133,7 +13116,7 @@ name "tab:mesozoo-parameters"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -13492,11 +13475,11 @@ centerline{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="center" valignment="middle" width="2cm">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
-<column alignment="center" valignment="top">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top" width="0">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
@@ -14044,10 +14027,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -14852,10 +14835,10 @@ centerline{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="19" columns="4">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="block" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="3cm">
-<column alignment="left" valignment="top">
+<column alignment="left" valignment="top" width="0">
 <column alignment="block" valignment="top" width="7cm">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
@@ -15958,7 +15941,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -15968,7 +15951,7 @@ name "tab:Chemical-parameters"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -16055,8 +16038,7 @@ label{eq:zooplankton}
 \left.\frac{dN^{(1)}}{dt}\right|_{bio} & = & -\sum_{j=1}^{4}\left.\frac{dP_{p}^{(j)}}{dt}\right|_{N^{(1)}}^{upt}+f_{_{B}}^{p}\,\left.\frac{dB_{p}}{dt}\right|_{N^{(1)}}^{upt,rel}+\sum_{k=4,5,6}\left.\frac{dZ_{p}^{(k)}}{dt}\right|_{N^{(1)}}^{rel}\label{eq:phosphate_N1p}\\
 \left.\frac{dN^{(3)}}{dt}\right|_{bio} & = & -\sum_{j=1}^{4}\left.\frac{dP_{n}^{(j)}}{dt}\right|_{N^{(3)}}^{upt}+\left.\frac{dN^{(3)}}{dt}\right|_{N^{(4)}}^{nit}-\left.\frac{dN^{(3)}}{dt}\right|_{sink_{n}}^{denit}\label{eq:nitrate_N3n}\\
 \left.\frac{dN^{(4)}}{dt}\right|_{bio} & = & -\sum_{j=1}^{4}\left.\frac{dP_{n}^{(j)}}{dt}\right|_{N^{(4)}}^{upt}+f_{_{B}}^{p}\,\left.\frac{dB_{n}}{dt}\right|_{N^{(4)}}^{upt,rel}+\sum_{k=4,5,6}\left.\frac{dZ_{n}^{(k)}}{dt}\right|_{N^{(4)}}^{rel}-\left.\frac{dN^{(4)}}{dt}\right|_{N3}^{nit}\label{eq:ammonium_N4n}\\
-\left.\frac{dN^{(5)}}{dt}\right|_{bio} & = & -\left.\frac{dP_{s}^{(1)}}{dt}\right|_{N^{(5)}}^{upt}+\left.\frac{dR_{s}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}\label{eq:silicate_N5s}\\
-\left.\frac{dN^{(7)}}{dt}\right|_{bio} & = & -\left.\frac{dP_{f}}{dt}\right|_{N^{(7)}}^{upt}+\sum_{i=1,6}\left.\frac{dR_{f}^{(i)}}{dt}\right|_{N^{(7)}}^{rmn}+\left.\frac{dN^{(7)}}{dt}\right|_{sink_{f}}^{scv}\label{eq:iron_N7f}
+\left.\frac{dN^{(5)}}{dt}\right|_{bio} & = & -\left.\frac{dP_{s}^{(1)}}{dt}\right|_{N^{(5)}}^{upt}+\left.\frac{dR_{s}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}\label{eq:silicate_N5s}
 \end{eqnarray}
 
 \end_inset
@@ -16081,7 +16063,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -16324,7 +16306,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -16334,7 +16316,7 @@ name "box:DOM"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -16357,21 +16339,13 @@ Dissolved organic matter equations
 \end_layout
 
 \begin_layout Standard
-Iron (eq.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "eq:iron_N7f"
-
-\end_inset
-
-) is made available in dissolved form through the remineralization of biogenic
- dissolved and particulate iron produced by phytoplankton and zooplankton.
- The biochemical pathways of the remineralization process involving both
- ligands, siderophores and photochemical reactions are implicitely assumed.
+Iron is made available in dissolved form through remineralization of biogenic
+ particles produced by phytoplankton and zooplankton.
+ The biochemical pathways of the remineralization process are not completely
+ clear and involve both siderophores and photochemical reactions.
  Since all these processes are primarily bacterial-mediated, it is  assumed
- here that dissolved Fe is released from the biogenic form according to
- a first-order relationship as for silicate (
+ here that dissolved Fe is released from detritus according to a first-order
+ relationship as for silicate (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:silicate_rmn"
@@ -16381,7 +16355,7 @@ reference "eq:silicate_rmn"
 ):
 \begin_inset Formula 
 \begin{equation}
-\sum_{i=1,6}\left.\frac{dR_{f}^{(i)}}{dt}\right|_{N^{(7)}}^{rmn}=\Lambda1_{f}^{rmn1}\, f_{_{R^{(6)}}}^{T}\, R_{f}^{(1)}+\Lambda6_{f}^{rmn6}\, f_{_{R^{(6)}}}^{T}\, R_{f}^{(6)}\label{eq:iron_rmn}
+\left.\frac{dR_{f}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}=\Lambda_{f}^{rmn}\, f_{_{R^{(6)}}}^{T}\, R_{f}^{(6)}\label{eq:iron_rmn}
 \end{equation}
 
 \end_inset
@@ -16390,22 +16364,13 @@ where
 \begin_inset Formula $\Lambda_{f}^{rmn}$
 \end_inset
 
- are the constant specific dissolution rates for dissolved and particulate
- and 
+ is a constant specific dissolution rate and 
 \begin_inset Formula $f_{_{R^{(6)}}}^{T}$
 \end_inset
 
- is the temperature dependence (Tab.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "tab:iron_parameters"
-
-\end_inset
-
-).
- Both specific remineralization rates need to be adjusted by trial-and-error
- to balance the iron cycle in the ocean.
+ is the temperature dependence.
+ Both numbers are currently unknown, and therefore they need to be adjusted
+ by trial-and-error for balancing the iron cycle in the ocean.
  The  inclusion of iron as an explicit component of zooplankton and bacteria
  may link this process to the direct excretion of organisms and bacterial
  regeneration activity, once the important pathways and time-scales have
@@ -16698,7 +16663,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -17226,8 +17191,8 @@ centering{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="16" columns="3">
-<features rotate="0" tabularvalignment="middle">
-<column alignment="left" valignment="top">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="6cm">
 <row>
@@ -17872,7 +17837,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -17882,7 +17847,7 @@ name "tab:Parameters-carbonate"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -18028,7 +17993,7 @@ reference "sec:Test-cases"
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "fig:Source-directory-tree"
+reference "tab:Source-directory-tree"
 
 \end_inset
 
@@ -18036,7 +18001,7 @@ reference "fig:Source-directory-tree"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float figure
+\begin_inset Float table
 wide true
 sideways false
 status open
@@ -18055,12 +18020,150 @@ centering
 \end_inset
 
 
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+|-- bin
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Graphics
-	filename Figures/dirtree_51.png
-	height 90theight%
+
+|-- build
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |-- configurations
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |-- logs
+\end_layout
+
+\begin_layout Plain Layout
+
+|   `-- scripts
+\end_layout
+
+\begin_layout Plain Layout
+
+|       `-- conf
+\end_layout
+
+\begin_layout Plain Layout
+
+|-- compilers
+\end_layout
+
+\begin_layout Plain Layout
+
+|-- doc
+\end_layout
+
+\begin_layout Plain Layout
+
+|-- include
+\end_layout
+
+\begin_layout Plain Layout
+
+|-- run
+\end_layout
+
+\begin_layout Plain Layout
+
+|-- src
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |-- BFM
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- CO2
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- Forcing
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- General
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- Light
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- Oxygen
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- Pel
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- PelBen
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   |-- include
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |   `-- proto
+\end_layout
+
+\begin_layout Plain Layout
+
+|   |-- share
+\end_layout
+
+\begin_layout Plain Layout
+
+|   `-- standalone
+\end_layout
+
+\begin_layout Plain Layout
+
+`-- tools
+\end_layout
+
+\begin_layout Plain Layout
+
+    |-- bnmerge
+\end_layout
+
+\begin_layout Plain Layout
+
+    |-- bnremap
+\end_layout
+
+\begin_layout Plain Layout
+
+    |-- matlab
+\end_layout
+
+\begin_layout Plain Layout
+
+    `-- scripts
+\end_layout
 
 \end_inset
 
@@ -18068,17 +18171,17 @@ centering
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
 LatexCommand label
-name "fig:Source-directory-tree"
+name "tab:Source-directory-tree"
 
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -18087,7 +18190,7 @@ BFM directory tree
 
 \end_inset
 
- Directory tree of the current BFM version.
+Source directory tree and description of the directory contents.
 \end_layout
 
 \end_inset
@@ -18105,9 +18208,19 @@ System Requirements
 \end_layout
 
 \begin_layout Standard
-The BFM can be run on any UNIX-based architecture and it has been tested
- on linux, Mac OSX and IBM-AIX systems.
- 
+The currently supported architectures are
+\end_layout
+
+\begin_layout Itemize
+linux
+\end_layout
+
+\begin_layout Itemize
+Mac OSX (Darwin)
+\end_layout
+
+\begin_layout Itemize
+AIX
 \end_layout
 
 \begin_layout Standard
@@ -18321,7 +18434,7 @@ status open
 \end_inset
 
 
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -18366,9 +18479,9 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="17" columns="3">
-<features rotate="0" tabularvalignment="middle">
-<column alignment="left" valignment="top">
-<column alignment="left" valignment="top">
+<features tabularvalignment="middle">
+<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top" width="0">
 <column alignment="left" valignment="top" width="0pt">
 <row>
 <cell alignment="left" valignment="top" topline="true" usebox="none">
@@ -18878,7 +18991,7 @@ Name of the queue number of procs used for running
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -19066,7 +19179,7 @@ reference "sec:Memory-layout"
 \begin_layout Subsubsection*
 
 \family typewriter
-namelists_bfm:
+namelists:
 \family default
  namelist file with standard values
 \end_layout
@@ -19098,13 +19211,6 @@ target "http://publib.boulder.ibm.com/infocenter/comphelp/v101v121/topic/com.ibm
 $BFMDIR/run
 \shape default
  directory.
- During this phase the BFM named constants corresponding to state variables
- are substituted by the progressive number which is a function of the chosen
- 
-\family typewriter
-layout
-\family default
- file.
  This check will guarantee an executable file compatible with the namelists
  provided.
  The regular user will generally work with generated namelists and usually
@@ -19221,7 +19327,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="7" columns="3">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="2.22956in">
@@ -19512,10 +19618,10 @@ out_delta
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -19579,7 +19685,7 @@ CL{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="13" columns="3">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="middle" width="5cm">
 <column alignment="left" valignment="middle" width="2cm">
 <column alignment="left" valignment="middle" width="6cm">
@@ -20237,10 +20343,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -20415,7 +20521,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="8" columns="3">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="5cm">
@@ -20736,10 +20842,10 @@ Leap-frog
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -20799,7 +20905,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="3">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="2.27546in">
 <column alignment="none" valignment="top" width="2.59696in">
@@ -21134,10 +21240,10 @@ Stop date
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -21327,7 +21433,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="16" columns="3">
-<features rotate="0" tabularvalignment="middle">
+<features tabularvalignment="middle">
 <column alignment="left" valignment="top" width="4cm">
 <column alignment="left" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="5cm">
@@ -22048,10 +22154,10 @@ Filename for external data
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -22279,7 +22385,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -22581,7 +22687,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE test case temperate.pelagic.
@@ -22680,7 +22786,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE test case standalone.pelagic.
@@ -22772,7 +22878,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE test case temperate.pelagic.
@@ -23112,7 +23218,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -23320,7 +23426,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -23415,7 +23521,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -23585,7 +23691,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -23979,7 +24085,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -24118,9 +24224,42 @@ BFM_NOPOINTERS
 \begin_layout Description
 
 \family typewriter
+ONESOURCE:
+\family default
+ Join together the elements of 
+\family typewriter
+D3(D2)SOURCE
+\family default
+ and 
+\family typewriter
+D3(D2)SINK 
+\family default
+arrays to reduce memory storage 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+D1SOURCE:
+\family default
+ Further reduce memory storage by defining one source matrix 
+\family typewriter
+D3(D2)SOURCE(NO_BOX_STATES,NO_BOXES)
+\family default
+ where all the right-hand side terms are summed when computed (this is incompati
+ble with macro 
+\family typewriter
+INCLUDE_DIAG
+\family default
+)
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
 INCLUDE_PELCO2:
 \family default
- Define and activate the pelagic variables of the carbonate system.
+ Define and activate the pelagic variables of the carbonate system;
 \end_layout
 
 \begin_layout Description
@@ -24128,7 +24267,7 @@ INCLUDE_PELCO2:
 \family typewriter
 INCLUDE_PELFE:
 \family default
- Add iron dynamics to the system.
+ Add iron dynamics to the system
 \end_layout
 
 \begin_layout Description
@@ -24136,16 +24275,12 @@ INCLUDE_PELFE:
 \family typewriter
 INCLUDE_DIAG:
 \family default
- Activate the computation and storage of customizable diagnostics described
- in Chap.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "chap:Diagnostics"
-
-\end_inset
-
-.
+ Activate the customizable diagnostics described in Sec.
+ (this is incompatible with macro 
+\family typewriter
+D1SOURCE
+\family default
+)
 \end_layout
 
 \begin_layout Standard
@@ -24336,7 +24471,7 @@ end
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption Standard
+\begin_inset Caption
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -24346,7 +24481,7 @@ name "alg:Example-of-layout-pelagic"
 \end_inset
 
 
-\begin_inset Argument 1
+\begin_inset Argument
 status open
 
 \begin_layout Plain Layout
@@ -25912,8 +26047,8 @@ BFM_General.nml
  when running the STANDALONE model.
  Other couplings may have different names.
  Additionally, a set of other variables can be saved, such as the ones obtained
- from the physical model and other diagnostics such as total chlorophyll,
- nutrient quota or aggregated rates.
+ from the physical model and other diagnostics such as total chlorophyll
+ and the nutrient quota.
  
 \end_layout
 
@@ -25946,8 +26081,8 @@ name "sec:Aggregated-diagnostics-rates"
 \end_layout
 
 \begin_layout Standard
-All the ancillary 2D and 3D variables (like wind velocity or temperature,
- for instance) and diagnostics are grouped in two memory arrays, 
+All the ancillary 2D and 3D variables and diagnostics are grouped in two
+ memory arrays, 
 \family typewriter
 D3DIAGNOS
 \family default
@@ -25955,7 +26090,7 @@ D3DIAGNOS
 \family typewriter
 D2DIAGNOS
 \family default
-, which are accessed by means of pointers.
+, accessed by means of pointers.
  The dimensions of these arrays change according to the number of model
  elements in the 
 \family typewriter
@@ -25975,7 +26110,7 @@ D3(D2)SOURCE
 D3(D2)SINK
 \family default
  arrays where all the rates are stored.
- Some examples are already included at the end of the 
+ Some examples are already present at the end of the 
 \family typewriter
 STANDALONE_PELAGIC/layout
 \family default
@@ -25983,119 +26118,29 @@ STANDALONE_PELAGIC/layout
 \family typewriter
 INCLUDE_DIAG
 \family default
+ and 
+\family typewriter
+INCLUDE_DIAG2D
+\family default
 :
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily},breaklines=true,language=sh"
+lstparams "basicstyle={\small\ttfamily},breaklines=true,language=Fortran"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+fP1Z4c=P1c->Z4c: diatom grazing by omnivorous zooplankton: mg C/m3/d
 \end_layout
 
 \begin_layout Plain Layout
 
-#                       DIAGNOSTIC RATES
+ruPTc=P.c<-*: gross primary production: mg C/m3/d
 \end_layout
 
 \begin_layout Plain Layout
 
-#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-\end_layout
-
-\begin_layout Plain Layout
-
-3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
-\end_layout
-
-\begin_layout Plain Layout
-
-  ruPPYc=P.c <- O3c : Gross Primary Production : mg C/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-end
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-3d-flux -if-exist INCLUDE_DIAG
-\end_layout
-
-\begin_layout Plain Layout
-
-  ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross Secondary Production:mg C/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-  remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
-\end_layout
-
-\begin_layout Plain Layout
-
-end
+ruZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): gross secondary production: mg C/m3/d
 \end_layout
 
 \end_inset
@@ -26104,79 +26149,10 @@ end
 \end_layout
 
 \begin_layout Standard
-The names used for the diagnostics are derived from the short names of the
- groups defined above in the 
-\family typewriter
-layout
-\family default
- file, preceded by the letter 
-\family typewriter
-r
-\family default
- for rate and the identifier of the chemical constituent.
- This is not mandatory, but it is suggested to follow this convention derived
- from the original ERSeM code 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "blackford95"
-
-\end_inset
-
- to easily identify the type of rate.
- The first line, for instance, defines the combined rate of gross primary
- production 
-\family typewriter
-ruPPYc
-\family default
- (
-\family typewriter
-r
-\family default
-ate of 
-\family typewriter
-u
-\family default
-ptake of pelagic phytoplankton 
-\family typewriter
-PPY
-\family default
- expressed in 
-\family typewriter
-c
-\family default
-arbon), which is the sum of all the carbon fluxes to all the phytoplankton
- groups (notice the syntax using the wildcard 
-\begin_inset Quotes eld
-\end_inset
-
-.
-\begin_inset Quotes erd
-\end_inset
-
- to indicate all sub-groups).
-\end_layout
-
-\begin_layout Standard
-An example of aggregated flux is the carbon excretion from phytoplankton
- 
-\family typewriter
-exPPYc
-\family default
- or gross secondary production 
-\family typewriter
-ruZOOc
-\family default
-, which is defined as the sum of carbon ingestion by all zooplankton groups.
- The diagnostics also define the 
-\family typewriter
-long_name
-\family default
- and 
-\family typewriter
-units
-\family default
- attributes for the NetCDF output.
- Diagnostics can be included in the output just by adding the name to the
+The first line defines a diagnostic storing the carbon flux between diatoms
+ and mesozooplankton.
+ This diagnostic also defines the long_name and units attributes of the
+ NetCDF and it can thus be included in the output just by adding it to the
  
 \family typewriter
 bfm_save_nml
@@ -26186,7 +26162,12 @@ bfm_save_nml
 BFM_General.nml
 \family default
 .
- 
+ The second line defines the combined rate gross primary production, which
+ is the sum of all the carbon fluxes to all the phytoplankton groups (notice
+ the syntax without the subgroup number).
+ The last example is the gross secondary production, which is defined as
+ the difference between the carbon ingestion by all zooplankton groups and
+ the carbon loss to dissolved and particulate detritus.
 \end_layout
 
 \begin_layout Standard
@@ -26213,11 +26194,11 @@ PELBOTTOM(NO_D3_BOX_STATES,NO_BOXES_XY)
 \end_layout
 
 \begin_layout Standard
-are also pointers to the main diagnostic memory 
+are themselves pointers to the main diagnostic memory 
 \family typewriter
 D2DIAGNOS
 \family default
- and store the surface and bottom boundary flux for any state variable.
+.
  They can be accessed by means of specific pointers allocated in the generated
  subroutine 
 \family typewriter
@@ -26262,28 +26243,15 @@ jsurN4n => D2DIAGNOS(17+ppN4n,:); jsurN4n=ZERO
 
 \begin_layout Standard
 The boundary rates (always in units per day) are accessed in the code by
- means of both the direct value 
+ means of the 
 \family typewriter
 PELSURFACE(ppO2o,:)
 \family default
- or the pointer 
+ or 
 \family typewriter
 jsurO2o(:)
 \family default
-, but can be added to the output in the 
-\family typewriter
-bfm_save_nml
-\family default
- section of 
-\family typewriter
-BFM_General.nml
-\family default
- only with the pointer name (e.g.
- 
-\family typewriter
-jsurO2o
-\family default
-).
+ names.
 \end_layout
 
 \begin_layout Section
@@ -26373,7 +26341,7 @@ twocolumn
 \begin_layout Standard
 \begin_inset CommandInset bibtex
 LatexCommand bibtex
-bibfiles "bfm-V5-references"
+bibfiles "bfm-manual-references"
 options "bibtotoc,elsart-harv"
 
 \end_inset
