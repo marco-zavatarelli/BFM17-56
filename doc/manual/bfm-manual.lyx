@@ -223,7 +223,7 @@ Edited by M.
 
 \begin_layout Standard
 \align center
-Release 1.1, July 2014
+Release 1.1, July 2015
 \begin_inset Newline newline
 \end_inset
 
@@ -312,12 +312,11 @@ This document should be cited as:
 
 Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Masina
  S., McKiver W., Pinardi N., Solidoro C., Zavatarelli M.
- (2013) The Biogeochemical Flux Model (BFM): Equation Description and User
+ (2015) The Biogeochemical Flux Model (BFM): Equation Description and User
  Manual.
- BFM version 5.1 (BFM-V5).
- Release 1.1; BFM Report series N.
- 1.
- July 2014, Bologna, Italy, http://bfm-community.eu
+ BFM version 5.1.
+ BFM Report series N.
+ 1, Release 1.1, July 2015, Bologna, Italy, http://bfm-community.eu
 \end_layout
 
 \begin_layout Address
@@ -326,7 +325,7 @@ Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Mas
 \begin_inset VSpace 13cm
 \end_inset
 
-Copyright 2013, The BFM System Team.
+Copyright 2015, The BFM System Team.
  This work is licensed under the Creative Commons Attribution-Noncommercial-No
  Derivative Works 2.5 License.
  To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-
@@ -481,8 +480,9 @@ The structure of the code was instead extensively modified with respect
 tion of the structure, yet the fundamentals of the coupling strategy are
  very similar to the first coupled implementations.
  From BFM version 5.1 the coupled configurations are publicly supported.
- An example of the coupled configuration with the NEMO ocean model (http://nemo-
-ocean.eu) is described in 
+ The BFM module can be easily coupled with different ocean models and an
+ example of the coupled configuration with the NEMO ocean model (http://nemo-oce
+an.eu) is given in the companying manual of this release 
 \begin_inset CommandInset citation
 LatexCommand citet
 key "BFM-NEMO-manual"
@@ -511,7 +511,8 @@ reference "part:The-BFM-Equations"
  the standard set of transformations for the major chemical constituents.
  The BFM by construction solves the cycles of C, O, N, P, Si in the lower
  trophic levels of marine ecosystems and it also allows the inclusion of
- the Fe cycle and carbonate chemistry by means of user-controlled flags.
+ the Fe cycle and carbonate system chemistry by means of user-controlled
+ flags.
  Different parameterizations are proposed for the various functional groups
  as they have been demonstrated valid in certain model applications.
  Given the inherent empirical nature of biogeochemical 
@@ -534,9 +535,7 @@ as they are
 \end_layout
 
 \begin_layout Standard
-The BFM module can be easily coupled with different ocean models and some
- of these couplings will be illustrated in separate documents.
- The equations of Part 
+The equations of Part 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "part:The-BFM-Equations"
@@ -636,7 +635,7 @@ The code support and development is currently done by the BFM System Team
  and Marcello Vichi.
  The BFM system team is grateful to Job Baretta, Hanneke Baretta-Bekker,
  Piet Ruardij and Wolfgang Ebenhoeh for their contribution to the science
- of biogeochemical modelling.
+ of biogeochemical modeling.
 \end_layout
 
 \begin_layout Part
@@ -844,7 +843,8 @@ functional process form
 \emph on
 i.e.
 \emph default
-: all the rates of change in (
+: all the rates of change in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:fluxes_form"
@@ -1045,7 +1045,7 @@ mmol P m
 \begin_layout Plain Layout
 
 \size footnotesize
-Phosphate ()
+Phosphate
 \end_layout
 
 \end_inset
@@ -1120,7 +1120,7 @@ mmol N m
 \begin_layout Plain Layout
 
 \size footnotesize
-Nitrate ()
+Nitrate
 \end_layout
 
 \end_inset
@@ -1195,7 +1195,7 @@ mmol N m
 \begin_layout Plain Layout
 
 \size footnotesize
-Ammonium ()
+Ammonium
 \end_layout
 
 \end_inset
@@ -1270,7 +1270,7 @@ mmol Si m
 \begin_layout Plain Layout
 
 \size footnotesize
-Silicate ()
+Silicate
 \end_layout
 
 \end_inset
@@ -1427,15 +1427,7 @@ mol Fe m
 \begin_layout Plain Layout
 
 \size footnotesize
-Reduction equivalents, HS
-\begin_inset Formula $^{-}$
-\end_inset
-
- (mmol S m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-r)
+Dissolved Iron
 \end_layout
 
 \end_inset
@@ -3247,7 +3239,13 @@ This section describes the dependencies of the pelagic biogeochemical processes
  from the physical environment.
  The BFM has defined a set of environmental variables that are provided
  by external data or by a physical model (Tab.
- ).
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:env-variables"
+
+\end_inset
+
+).
  The local coupling between physics and biogeochemistry is realized explicitly
  through surface irradiance and temperature.
  Temperature regulates all physiological processes in the model and its
@@ -3278,21 +3276,15 @@ sis is the downwelling amount of the incident solar radiation at the sea
 \begin_inset Formula $E_{_{PAR}}$
 \end_inset
 
- 
-\begin_inset ERT
-status collapsed
-
-\begin_layout Plain Layout
-
-
-\backslash
-citep[the notation of][is used here]{sakshaug97}
-\end_layout
+ (the notation of 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "sakshaug97"
 
 \end_inset
 
- is parameterized according to the Lambert-Beer formulation with depth-dependent
- extinction coefficients
+ is used here) is parameterized according to the Lambert-Beer formulation
+ with depth-dependent extinction coefficients
 \begin_inset Formula 
 \begin{equation}
 E_{_{PAR}}(z)=\varepsilon_{_{PAR}}\,\, Q_{S}\, e^{\lambda_{w}z+\int_{z}^{0}\lambda_{bio}(z')dz'}\label{eq:irradiance_bio}
@@ -3428,23 +3420,36 @@ LightLocationFlag
 \family typewriter
 Pelagic_Ecology.nml
 \family default
-: light at the upper interface 
+: 
+\end_layout
+
+\begin_layout Enumerate
+light at the upper interface 
 \begin_inset Formula $E_{PAR}=E_{PAR}^{k}$
 \end_inset
 
-, light in the middle of the cell as in 
+ (
+\family typewriter
+LightLocationFlag=
+\family default
+1), 
+\end_layout
+
+\begin_layout Enumerate
+light in the middle of the cell as in 
 \begin_inset CommandInset citation
 LatexCommand citet
 key "lazzari12"
 
 \end_inset
 
-,
-\end_layout
-
-\begin_layout Standard
-
+ (
+\family typewriter
+LightLocationFlag=
+\family default
+2),
 \lang english
+
 \begin_inset Formula 
 \begin{equation}
 E_{PAR}=E_{PAR}^{k}\exp\left(-\lambda^{k}\frac{\Delta z^{k}}{2}\right)
@@ -3452,17 +3457,26 @@ E_{PAR}=E_{PAR}^{k}\exp\left(-\lambda^{k}\frac{\Delta z^{k}}{2}\right)
 
 \end_inset
 
-and integrated light over the level depth as in 
+
+\end_layout
+
+\begin_layout Enumerate
+
+\lang english
+integrated light over the level depth as in 
 \begin_inset CommandInset citation
 LatexCommand citet
 key "vichi07_part1"
 
 \end_inset
 
-:
-\end_layout
-
-\begin_layout Standard
+ 
+\lang american
+(
+\family typewriter
+LightLocationFlag=
+\family default
+3),
 \begin_inset Formula 
 \begin{equation}
 E_{PAR}=\frac{E_{PAR}^{k}}{\lambda^{k}\Delta z^{k}}\left(1-\exp\left(-\lambda^{k}\Delta z^{k}\right)\right)\label{eq:avail_rad}
@@ -4068,7 +4082,7 @@ name "sec:Phytoplankton"
 
 \begin_layout Standard
 Primary producers are divided in four principal sub-groups coarsely representing
-  the functional spectrum of phytoplankton in marine systems.
+ the functional spectrum of phytoplankton in marine systems.
  The operational model definitions of the phytoplankton groups are:
 \end_layout
 
@@ -6857,7 +6871,8 @@ and
 
 \end_inset
 
-When the nitrogen uptake rate in (
+When the nitrogen uptake rate in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_upt_N"
@@ -6922,7 +6937,8 @@ Silicate
 
 \begin_layout Standard
 Silicate is not stored in the cell and therefore the uptake is directly
- proportional to the net carbon growth (
+ proportional to the net carbon growth (see eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_net_growth"
@@ -7031,7 +7047,8 @@ reference "tab:model_variables"
 
 \end_inset
 
-, Sec.
+) and phytoplankton excretion must be consistent with the bacteria parameterizat
+ion (Sec.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -7039,8 +7056,7 @@ reference "sec:Bacterioplankton"
 
 \end_inset
 
-) and phytoplankton excretion must be consistent with the bacteria parameterizat
-ion.
+).
  Carbohydrates are excreted when phytoplankton cannot equilibrate the fixed
  C with sufficient nutrients to maintain the minimum quotum needed for the
  synthesis of new biomass.
@@ -7278,7 +7294,7 @@ name "sub:Chlorophyll-synthesis-acclimation"
 \end_layout
 
 \begin_layout Standard
-The chl equation in (
+The chlorophyll equation in (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_Chl"
@@ -7300,8 +7316,8 @@ key "geider96,geider97"
 \end_layout
 
 \begin_layout Standard
-Net chl synthesis is namely a function of acclimation to light conditions,
- nutrient availability and turnover rate.
+Net chlorophyll synthesis is namely a function of acclimation to light condition
+s, nutrient availability and turnover rate.
  The former process is taken into account by Geider's parameterization,
  while the latter is generally parameterized with different formulations,
  for instance by assuming a dependence on gross carbon uptake 
@@ -7327,21 +7343,21 @@ reference "box:phytoplankton_Chl_synthesis"
 
 \end_inset
 
- that have been used in different applications of the BFM 
+ that have been used in different applications of the BFM (
 \begin_inset CommandInset citation
-LatexCommand citep
+LatexCommand citet
 key "vichi09"
 
 \end_inset
 
 , 
 \begin_inset CommandInset citation
-LatexCommand citep
+LatexCommand citet
 key "lazzari12"
 
 \end_inset
 
- (Clementi et al., in preparation).
+, Clementi et al., in preparation).
  The synthesis part is rather similar as it is controlled by the dynamical
  chl:C ratio 
 \begin_inset Formula $\rho_{chl}$
@@ -7354,8 +7370,9 @@ key "geider97"
 
 \end_inset
 
- which regulates the amount of chl in the cell according to a non-dimensional
- ratio between the realized photosynthetic rate in (
+, which regulates the amount of chlorophyll in the cell according to a non-dimen
+sional ratio between the realized photosynthetic rate in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_gpp"
@@ -7514,8 +7531,8 @@ reference "eq:light-regfac"
 \end_layout
 
 \begin_layout Standard
-The theoretical chl concentration corresponding to optimal light acclimation
- in eq.
+The theoretical chlorophyll concentration corresponding to optimal light
+ acclimation in eq.
  (
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -7560,14 +7577,14 @@ reference "eq:chlsyn_NIOZ"
 
 \end_inset
 
-) has instead an explicit term for the turn-over rate of chl 
+) has instead an explicit term for the turn-over rate of chl, 
 \begin_inset Formula $d_{P}^{chl}$
 \end_inset
 
- and includes .
- The losses of chl are not considered as mass losses in the model because
- we have currently not implemented a chl component in detritus and dissolved
- organic matter.
+.
+ The losses of chlorophyll are not considered as mass losses in the model
+ because we have currently not implemented a chl component in detritus and
+ dissolved organic matter.
  The same consideration applies to the ingested chl fraction in zooplankton.
  All these terms are presently collected into a generic sink term  used
  for mass conservation purposes, which can be easily split into its major
@@ -7632,7 +7649,15 @@ reference "eq:phytoplankton_Ek"
 A note of caution on the application of this parameterization: the model
  was formulated to simulate the daily production, therefore it is suggested
  to apply it with the daylight-averaged irradiance, possibly modulated by
- the duration of the daylight period.
+ the duration of the daylight period (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:The-environmental-parameters"
+
+\end_inset
+
+).
  Several forms of the P-E curve are available:
 \begin_inset Formula 
 \[
@@ -8305,7 +8330,7 @@ reference "tab:iron_parameters"
 \end_inset
 
 .
- The iron cycle involves a phytoplankton, particulate and dissolved component
+ The iron cycle involves phytoplankton, particulate and dissolved component
  (Sec.
  ), while the zooplankton and bacteria fraction is neglected.
 \end_layout
@@ -8322,7 +8347,7 @@ reference "eq:phytoplankton_Fe"
 \begin_inset Formula $P_{f}$
 \end_inset
 
- contains a term for the uptake of [Fe'], a loss term related to turnover/cell
+ contains a term for the uptake of Fe, a loss term related to turnover/cell
  lysis and a predation term.
  Similarly to N and P content, intracellular Fe:C quota are allowed to vary
  between a maximum and a minimum thresholds (
@@ -8369,7 +8394,7 @@ reference "eq:phytoplankton_gpp"
 
 \end_inset
 
-) since there is a clear decrease in the activity of PSUs due to insufficient
+), since there is a clear decrease in the activity of PSUs due to insufficient
  cellular Fe 
 \begin_inset CommandInset citation
 LatexCommand citep
@@ -8496,7 +8521,7 @@ reference "part:BFM-code-description"
 
 \end_inset
 
- of this document by providing new dynamical equations.
+ of this document and by providing new dynamical equations in the code.
  
 \end_layout
 
@@ -8554,15 +8579,23 @@ key "polimene06"
 \begin_layout Standard
 The different parameterizations consider that dissolved organic matter (DOM)
  available to pelagic bacteria may have different degrees of lability/refractivi
-ty.
+ty (see Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:model_variables"
+
+\end_inset
+
+).
  The lability/refractivity characteristics of DOM are dependent on two factors:
  the C:N and C:P ratios of bacteria and the structure of organic molecules
  constituting the DOM matrix.
  DOM is assumed to be partitioned into three broad and distinct state variables,
  each of them corresponding to different degrees of lability/refractivity
  and having different production pathways.
- The parameterizations described below consider only 1, 2 or all of the
- three classes.
+ The parameterizations described below consider only one, two or all of
+ the 3 classes.
  It is important to remark that the DOC fraction considered by the model
  covers only the labile and the semi-labile DOC part.
  Therefore, in the following we define, as 
@@ -8593,8 +8626,8 @@ The most labile fraction of the total DOM pool
 \begin_inset Formula $R_{c}^{(2)}$
 \end_inset
 
- is produced by excretion by phytoplankton and bacteria in order to achieve/main
-tain their internal 
+ is produced through excretion by phytoplankton and bacteria in order to
+ achieve/maintain their internal 
 \begin_inset Quotes eld
 \end_inset
 
@@ -8612,8 +8645,8 @@ s).
 \end_inset
 
  is also introduced in BACT2 and BACT3, and it represents the semi-refractory
- fraction of the DOM, but it is only considered a source of carbon in BACT3
- 
+ fraction of the DOM, but it is only considered as a source of carbon in
+ BACT3 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "polimene06"
@@ -8639,7 +8672,7 @@ key "stoderegger98"
 
 .
  Therefore, the characteristic turnover time-scale is assumed to be longer
- (100 days) as this material is only degradable by bacteria at time-scales
+ (100 days), as this material is only degradable by bacteria at time-scales
  of 2-3 orders of magnitude longer with respect to the labile DOC 
 \begin_inset CommandInset citation
 LatexCommand citep
@@ -10547,16 +10580,16 @@ name "sub:BACT1"
 \end_layout
 
 \begin_layout Standard
-In this parameterization labile 
+In this parameterization labile DOC (
 \begin_inset Formula $R_{c,n,p}^{(1)}$
 \end_inset
 
- is the only class of dissolved organic matter resolved by the model and,
- together with 
+) is the only class of dissolved organic matter resolved by the model and,
+ together with Particulate Organic Detritus (
 \begin_inset Formula $R_{c,n,p}^{(6)}$
 \end_inset
 
-, constitute the organic substrate available to bacteria.
+), constitute the organic substrate available to bacteria.
  This parameterization requires that phytoplankton 
 \end_layout
 
@@ -11085,7 +11118,7 @@ microzooplankton
 \end_inset
 
 , representing the biomass concentration of microzooplankton with a ESD
- in the range 20- 200 
+ in the range 20-200 
 \begin_inset Formula $\mu$
 \end_inset
 
@@ -11127,7 +11160,7 @@ citep{broekhuizen95}
 
 .
  The BFM core contains a specific parameterization for microzooplankton
- and mesozooplankton but the formal description is presented for the generic
+ and mesozooplankton, but the formal description is presented for the generic
  zooplankton as in 
 \begin_inset CommandInset citation
 LatexCommand citet
@@ -13251,7 +13284,8 @@ reference "eq:zooplankton_C"
 ) is the total carbon ingestion, which corresponds to the sum of all the
  predation loss terms in the carbon equations of the other functional groups
  preyed by zooplankton.
- Applying the inter-functional group conversion defined in (
+ Applying the inter-functional group conversion defined in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:flip_flop_rule"
@@ -14038,6 +14072,13 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:Mesozooplankton-formulation-to"
+
+\end_inset
+
+
 \begin_inset Argument
 status open
 
@@ -14097,8 +14138,15 @@ The balancing flows of C, N, P,
 \end_inset
 
  factor is the assimilation fraction of element uptake.
- The SWITCH indicates which is the limiting element, default is carbon,
- if the 
+ The SWITCH (see Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Mesozooplankton-formulation-to"
+
+\end_inset
+
+) indicates which is the limiting element, default is carbon, if the 
 \begin_inset Formula $\Gamma_{Z}^{i}$
 \end_inset
 
@@ -14133,7 +14181,7 @@ is lower than the internal quota
 \color inherit
 \lang american
  indicates that i is limiting.
- The ratios between the
+ The ratios between the 
 \begin_inset Formula $\Gamma_{Z}^{i}$
 \end_inset
 
@@ -14421,7 +14469,7 @@ for microzooplankton is subsequently partitioned between particulate and
 \begin_inset Formula $\varepsilon_{_{Z}}^{i}$
 \end_inset
 
- which parameterizes the different distribution of nutrients between structural
+, which parameterizes the different distribution of nutrients between structural
  parts and cytoplasm.
   Mesozooplankton only releases particulate organic detritus.
 \end_layout
@@ -14431,7 +14479,7 @@ Inorganic nutrients
 \end_layout
 
 \begin_layout Standard
-The third terms on the right hand side of eq.
+The third terms on the right hand side of eqs.
  (
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -14475,7 +14523,7 @@ and the time scales of excretion are controlled by the specific constant
 \begin_inset Formula $\nu_{Z}^{n}$
 \end_inset
 
- (see Appendix).
+.
  The excretion is in the form of phosphate and urea, but the latter in the
  model is assumed to be as labile as the ammonium, therefore the rate is
  directed to the 
@@ -14556,7 +14604,7 @@ Anaerobic processes and denitrification dynamics are a consequence of oxygen
  limited impact in the well-oxygenated euphotic zones of the open ocean.
  Nevertheless, these processes are important for the sulfur cycle and for
  the fate of exported carbon in the meso- and bathypelagic layers of the
- ocean where bacteria are the major drivers of these processes.
+ ocean, where bacteria are the major drivers of these processes.
  To account for hypoxic and anoxic remineralization in the water, the original
  ERSEM parameterization of anaerobic processes in the sediments proposed
  by 
@@ -14636,7 +14684,8 @@ The pelagic net production of oxygen is derived from the sum of gross primary
 All the rates are converted into oxygen units by means of constant stoichiometri
 c coefficients.
   Since bacteria are active both under aerobic and anaerobic conditions
- the bacterial oxygen demand (
+ the bacterial oxygen demand (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:bacteria_rsp"
@@ -14663,14 +14712,15 @@ reference "eq:nitrate_N3n"
 
 \end_inset
 
-), and a sink term for ammonium (
+), and a sink term for ammonium (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:ammonium_N4n"
 
 \end_inset
 
-) and oxygen (
+) and oxygen (eq.
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:oxygen_O2"
@@ -14695,7 +14745,8 @@ where
 \begin_inset Formula $f_{n}^{T}$
 \end_inset
 
- a temperature regulating factor with the Q10 formulation shown in (
+ a temperature regulating factor with the Q10 formulation shown in (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:Q10"
@@ -14712,7 +14763,7 @@ l oxygen demand of bacteria (under low oxygen conditions) into sulphide
 \begin_inset Formula $\Omega_{_{o}}^{r}$
 \end_inset
 
- (see Appendix) as:
+ as:
 \begin_inset Formula 
 \begin{align}
 \left.\frac{dN^{(6)}}{dt}\right|_{bio}= & \Omega_{_{o}}^{r}\Omega_{_{c}}^{o}\left(1-f_{_{B1}}^{o}\right)\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}+\nonumber \\
@@ -14732,15 +14783,16 @@ The utilization of nitrate as an electron acceptor in microbial metabolic
 \end_inset
 
  (eq.
- (
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:bacteria_regfac_O"
 
 \end_inset
 
-)), the metabolic formation of reduction equivalents begins according to
- the carbon mineralization rate (
+), the metabolic formation of reduction equivalents begins according to
+ the carbon mineralization rate (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:bacteria_rsp"
@@ -16098,28 +16150,32 @@ The pelagic cycle of phosphate
 \begin_inset Formula $N^{(1)}$
 \end_inset
 
- in (
+ in (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phosphate_N1p"
 
 \end_inset
 
-) is affected by phytoplankton uptake (
+) is affected by phytoplankton uptake (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_upt_N"
 
 \end_inset
 
-), bacterial uptake/release (
+), bacterial uptake/release (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:bacteria_upt/rel_P"
 
 \end_inset
 
-) and excretion from zooplankton groups (
+) and excretion from zooplankton groups (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:zooplankton_out_P"
@@ -16135,14 +16191,16 @@ The pelagic processes for nitrate
 \begin_inset Formula $N^{(3)}$
 \end_inset
 
- shown in (
+ shown in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:nitrate_N3n"
 
 \end_inset
 
-), involve phytoplankton uptake described in (
+), involve phytoplankton uptake described in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_N"
@@ -16150,7 +16208,7 @@ reference "eq:phytoplankton_N"
 \end_inset
 
 ) and the nitrification and denitrification process parameterizations described
- in (
+ in equations (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:nitrogen_nitrification"
@@ -16169,14 +16227,15 @@ reference "eq:nitrate_denitrification"
 
 \begin_layout Standard
 Ammonium (eq.
- (
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:ammonium_N4n"
 
 \end_inset
 
-)) is consumed by phytoplankton as described in (
+) is consumed by phytoplankton as described in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_upt_N"
@@ -16210,7 +16269,8 @@ reference "eq:zooplankton_out_N"
 The pelagic cycle of silicate is quite simple in the model because of the
  many uncertainties linked to the complex dynamics of this element in the
  water.
- Silicate concentration was originally only affected by diatom uptake (
+ Silicate concentration was originally only affected by diatom uptake (eq.
+ 
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_Si"
@@ -16397,7 +16457,7 @@ key "johnson97"
 \end_inset
 
  suggested that iron scavenging can be parameterized with a constant rate
- when the [Fe'] is above this threshold.
+ when the iron is above this threshold.
  Ligand dynamics have been further investigated by 
 \begin_inset CommandInset citation
 LatexCommand citet
@@ -16467,8 +16527,8 @@ reference "sec:Bacterioplankton"
 \end_inset
 
  because they are tightly linked to the parameterizations of pelagic bacteria.
- 3 biogeochemical basic constituents C, N and P and are thus described by
- 3 equations shown in.
+ Three biogeochemical basic constituents C, N and P and are thus described
+ by 3 equations shown in.
  DOM is produced by phytoplankton, bacteria and microzooplankton and used
  as organic substrate by bacteria.
  The different degrees of lability of DOM are reflected in the nutrient
@@ -16476,7 +16536,8 @@ reference "sec:Bacterioplankton"
 \begin_inset Formula $R_{j}^{(1)}$
 \end_inset
 
-, which regulates bacterial uptake as shown in eq (
+, which regulates bacterial uptake as shown in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:bacteria_bcd"
@@ -16539,7 +16600,7 @@ reference "box:detritus"
 
 .
  The carbon, nitrogen and phosphorus component of particulate detritus in
- (
+ equations (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:POC_R6c"
@@ -16553,9 +16614,10 @@ reference "eq:PON_POP_R6j"
 
 \end_inset
 
-) respectively) are produced by all the members of the planktonic community
+), respectively, are produced by all the members of the planktonic community
  except bacteria, which are the only utilizers of this component according
- to (
+ to eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:bacteria_bcd"
@@ -16568,7 +16630,8 @@ reference "eq:bacteria_bcd"
 
 \begin_layout Standard
 The pelagic cycle of biogenic silica is instead restricted to the release
- of diatom frustules through mortality and other lysis processes as in (
+ of diatom frustules through mortality and other lysis processes as in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_upt_Si"
@@ -16576,7 +16639,8 @@ reference "eq:phytoplankton_upt_Si"
 \end_inset
 
 ) and via micro/mesozooplankton predation (including sloppy feeding) with
- the addition of the chemical dissolution shown in (
+ the addition of the chemical dissolution shown in eq.
+ (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:silicate_rmn"
@@ -16588,7 +16652,7 @@ reference "eq:silicate_rmn"
 
 \begin_layout Standard
 Particulate iron dynamics are the consequence of processes described in
- (
+ equations (
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "eq:phytoplankton_lys_R6"
@@ -16698,11 +16762,7 @@ The carbonate system
 \end_layout
 
 \begin_layout Standard
-The aquatic chemistry of CO
-\begin_inset Formula $_{2}$
-\end_inset
-
- and carbonates (dissolved inorganic carbon forms, DIC, state variable 
+The aquatic chemistry of inorganic carbon forms (state variable 
 \begin_inset Formula $O^{(3)}$
 \end_inset
 
@@ -16712,7 +16772,8 @@ The aquatic chemistry of CO
 INCLUDE_PELCO2
 \family default
 .
- The theory of DIC chemical reactions is well understood 
+ The theory of dissolved inorganic carbon chemical reactions is well understood
+ 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "zeebe01book"
@@ -16726,7 +16787,7 @@ key "blackford02"
 
 \end_inset
 
- which also takes into account the algorithms proposed by the Ocean Carbon
+, which also takes into account the algorithms proposed by the Ocean Carbon
  Model Intercomparison Project 
 \begin_inset CommandInset citation
 LatexCommand citep
@@ -16739,7 +16800,8 @@ key "doney04"
 \end_layout
 
 \begin_layout Standard
-In the ocean, DIC exists in three different forms: free carbon dioxide 
+In the ocean, inorganic carbon is present in three different forms: free
+ carbon dioxide 
 \begin_inset Formula $([CO_{2}]=[CO_{2}]_{aq}+[H_{2}CO_{3}]),$
 \end_inset
 
@@ -16752,13 +16814,13 @@ In the ocean, DIC exists in three different forms: free carbon dioxide
 \end_inset
 
 .
- The carbonate species reach the following equilibrium:
+ These carbonate species reach the following equilibrium:
 \end_layout
 
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-CO_{2}+H_{2}O\rightleftharpoons HCO_{3}^{-}+H^{+}\rightleftharpoons CO_{3}^{2-}+2H^{+}
+CO_{2}+H_{2}O\rightleftharpoons HCO_{3}^{-}+H^{+}\rightleftharpoons CO_{3}^{2-}+2H^{+}\label{eq:K1K2equilibria}
 \end{equation}
 
 \end_inset
@@ -16793,7 +16855,7 @@ defined by the equilibrium constants
 \begin_inset Formula $(pH=-log_{10}([H^{+}]))$
 \end_inset
 
-, total carbon concentration (
+, dissolved inorganic carbon concentration (
 \begin_inset Formula $DIC$
 \end_inset
 
@@ -16808,7 +16870,7 @@ defined by the equilibrium constants
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-K_{1}=\frac{[HCO_{3}^{-}]\cdot[H^{+}]}{[CO_{2}]}
+K_{1}=\frac{[HCO_{3}^{-}]\cdot[H^{+}]}{[CO_{2}]}\label{eq:K1}
 \end{equation}
 
 \end_inset
@@ -16819,7 +16881,7 @@ K_{1}=\frac{[HCO_{3}^{-}]\cdot[H^{+}]}{[CO_{2}]}
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-K_{2}=\frac{[CO_{3}^{2-}]\cdot[H^{+}]}{[HCO_{3}^{-}]}
+K_{2}=\frac{[CO_{3}^{2-}]\cdot[H^{+}]}{[HCO_{3}^{-}]}\label{eq:K2}
 \end{equation}
 
 \end_inset
@@ -16830,7 +16892,7 @@ K_{2}=\frac{[CO_{3}^{2-}]\cdot[H^{+}]}{[HCO_{3}^{-}]}
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-DIC=[CO_{2}]+[HCO_{3}^{-}]+[CO_{3}^{2-}]
+DIC=[CO_{2}]+[HCO_{3}^{-}]+[CO_{3}^{2-}]\label{eq:DIC}
 \end{equation}
 
 \end_inset
@@ -16841,7 +16903,7 @@ DIC=[CO_{2}]+[HCO_{3}^{-}]+[CO_{3}^{2-}]
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-pCO_{2}=\frac{[CO_{2}]}{K_{0}}
+pCO_{2}=\frac{[CO_{2}]}{K_{0}}\label{eq:pco2}
 \end{equation}
 
 \end_inset
@@ -16853,7 +16915,7 @@ pCO_{2}=\frac{[CO_{2}]}{K_{0}}
 \begin_inset Formula 
 \begin{eqnarray}
 TA & = & [HCO_{3}^{-}]+2[CO_{3}^{2-}]+[B(OH)_{4}^{-}]+\nonumber \\
- &  & +[OH^{-}]+[HPO_{4}^{2-}]+2[PO_{4}^{3-}]+\nonumber \\
+ &  & +[OH^{-}]+[HPO_{4}^{2-}]+2[PO_{4}^{3-}]+\label{eq:TA}\\
  &  & +[H_{3}SiO_{4}^{-}]-[H^{+}]_{F}-[HSO_{4}^{-}]+\nonumber \\
  &  & -[HF]-[H_{3}PO_{4}]
 \end{eqnarray}
@@ -16865,7 +16927,7 @@ TA & = & [HCO_{3}^{-}]+2[CO_{3}^{2-}]+[B(OH)_{4}^{-}]+\nonumber \\
 
 \begin_layout Standard
 The species appearing in this latter equation are expressed in terms of
- their equilibrium constants and of their total elemental concentrations.
+ their equilibrium constants and their total elemental concentrations.
  Total alkalinity is therefore computed as a function of: 
 \end_layout
 
@@ -16873,7 +16935,7 @@ The species appearing in this latter equation are expressed in terms of
 \begin_inset Formula 
 \begin{align}
 TA & =f\,([H^{+}],\, DIC,\, K_{1},\, K_{2},\, K_{w},\, K_{b},\nonumber \\
- & \, K_{1p},\, K_{2p},\, K_{3p},\, K_{si},\, K_{s},\, K_{f},\, bt,\, st,\, ft,\nonumber \\
+ & \, K_{1p},\, K_{2p},\, K_{3p},\, K_{si},\, K_{s},\, K_{f},\, bt,\, st,\, ft,\label{eq:Ta_function}\\
  & \, O^{(3)},\, O^{(5)},\, N^{(5)},\, N^{(1)})
 \end{align}
 
@@ -17098,16 +17160,30 @@ key "zeebe01book"
 \end_layout
 
 \begin_layout Standard
-This is a five equation system with seven unknown variables: the system
- is therefore determined when two of the seven variables are known, which
- in this case are DIC and TA.
+This is a five equation system (eqs.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:K1"
+
+\end_inset
+
+-
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:TA"
+
+\end_inset
+
+) with seven unknown variables: the system is therefore determined when
+ two of the seven variables are known, which in this case are DIC and TA.
  Total alkalinity equation is used to compute 
 \begin_inset Formula $[H^{+}]$
 \end_inset
 
  by means of the Newton-Raphson convergence method.
- A new state variable is also introduced to store the total hydrogen ions
- and to allow the restart of the model from previous simulations.
+ A dedicated diagnostic variable is also introduced to store the total hydrogen
+ ions and to allow the restart of the model from previous simulations.
  The other carbon species are eventually computed from the carbonate equilibrium
  equations.
 \end_layout
@@ -17159,7 +17235,7 @@ reference "eq:oxygen_O2"
 
 \begin_layout Standard
 The parameters of the carbonate system are controlled with a specific namelist
- found in file CO2.nml and listed in Tab.
+ found in file Carbonate_Dynamics.nml and listed in Tab.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -17864,7 +17940,8 @@ Carbonate system
 
 \end_inset
 
-Parameters controlling the carbonate system (from namelist CO2.nml)
+Parameters controlling the carbonate system (from namelist Carbonate_Dynamics.nml
+)
 \end_layout
 
 \end_inset
@@ -17941,8 +18018,32 @@ Installation
 \end_layout
 
 \begin_layout Standard
-After downloading the tarball from the website, create a directory for the
- BFM and cd into that directory.
+The BFM code repository is made available through a distributed git repository,
+ which requires access authentication by using the username and password
+ provided in the registration to the BFM website (http://www.bfm-community.eu/).
+ The code can be downloaded using the following git instruction
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+% git clone  http://username:password@dev.cmcc.it/git/bfm.git 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Alternatively, it is possible to retrieve a tarball archive from the website.
+ After downloading the tarball file, create a directory for the BFM and
+ move into that directory.
  Uncompress and extract the contents of the tarball.
  The downloaded file will have a different name based on the version.
  For example: 
@@ -18006,6 +18107,16 @@ reference "fig:Source-directory-tree"
 \end_inset
 
 .
+\end_layout
+
+\begin_layout Standard
+The minimal user local settings to use BFM configuration/compilation tools
+ is provided by means of the environmental shell variable:
+\end_layout
+
+\begin_layout Itemize
+BFMDIR The root directory of the BFM model (the path to the installed bfm-<versi
+on> directory).
 \end_layout
 
 \begin_layout Standard
@@ -18073,13 +18184,13 @@ BFM directory tree
 
 \end_layout
 
-\begin_layout Section
+\begin_layout Subsection
 System Requirements
 \end_layout
 
 \begin_layout Standard
 The BFM can be run on any UNIX-based architecture and it has been tested
- on linux, Mac OSX and IBM-AIX systems.
+ on linux, Mac OSX and IBM-iDataplex systems.
  
 \end_layout
 
@@ -18103,18 +18214,468 @@ reference "sec:Model-structure-changes"
 \begin_layout Itemize
 FORTRAN 90/95 compiler.
  Under linux and Mac OSX the model can be currently compiled with gfortran
- (version 4.5 and above) and ifort.
- For AIX xlf90 is required.
+ (version 4.5 and above) and ifort (version 12 and above).
 \end_layout
 
 \begin_layout Itemize
-NetCDF library (http://www.unidata.ucar.edu/software/netcdf) .
+NetCDF library (version 4 and above are recommended, http://www.unidata.ucar.edu/so
+ftware/netcdf) .
  It is mandatory that the library has been compiled with the same compiler
  used for the model compilation since the F90 netcdf module is used.
 \end_layout
 
 \begin_layout Section
-Configuring the BFM STANDALONE
+Configuration: BFM Presets
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Presets"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+An experiment is defined by a model layout structure and initial input values.
+ These definitions put together with compilation and run options is what
+ is called a 
+\series bold
+PRESET
+\series default
+.
+ A preset is contained together in a folder and it is all you need to create
+ a particular experiment.
+\end_layout
+
+\begin_layout Standard
+The basic operations for configuration, compilation, and deployment of the
+ model are performed automatically by the script 
+\series bold
+\shape italic
+bfm_configure.sh
+\series default
+\shape default
+ in the folder
+\shape italic
+ ${BFMDIR}/build
+\shape default
+/, while the folder containing the presets is 
+\shape italic
+${BFMDIR}/build/configurations/
+\shape default
+.
+ 
+\end_layout
+
+\begin_layout Standard
+Execute the following command to show a list of all available presets: 
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -P
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Presets are composed of three different main files:
+\end_layout
+
+\begin_layout Subsection*
+-
+\family typewriter
+ configuration
+\family default
+ (compilation and deployment options)
+\end_layout
+
+\begin_layout Standard
+This file uses the F90 namelist format to set values.
+ Below an example of the configuration file format:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+&BFM_conf         
+\end_layout
+
+\begin_layout Plain Layout
+
+  MODE    = 'STANDALONE',         
+\end_layout
+
+\begin_layout Plain Layout
+
+  CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG',         
+\end_layout
+
+\begin_layout Plain Layout
+
+  ARCH    = 'gfortran.inc',         
+\end_layout
+
+\begin_layout Plain Layout
+
+  PROC    = 1,         
+\end_layout
+
+\begin_layout Plain Layout
+
+  EXP     = 'standalone.pelagic', /
+\end_layout
+
+\begin_layout Plain Layout
+
+  ...
+\end_layout
+
+\begin_layout Plain Layout
+
+  <option>=<value>
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Not all the options available in Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:bfm_configure-optional-args"
+
+\end_inset
+
+ can be specified in the configuration file and all the values are overridden
+ by the command line options.
+ Available options are: MODE, CPPDEFS, BFMDIR, NEMODIR, ARCH, CLEAN, PROC,
+ NETCDF, EXP, NMLDIR, PROC and QUEUE.
+ Do not use the character " to surround values, but use ' instead.
+\end_layout
+
+\begin_layout Standard
+There are 2 major macros that belong to the core of the BFM source code
+ and additional compilation keywords that activates model components.
+ The first 2 macros are 
+\begin_inset Quotes eld
+\end_inset
+
+negative
+\begin_inset Quotes erd
+\end_inset
+
+, which means that their options are activated by default and needs to be
+ deactivated when desired.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+BFM_STANDALONE
+\family default
+: This macro controls the main memory structure of the BFM.
+ In default configuration the BFM allocates its own memory array.
+ When the macro is defined at compilation (
+\family typewriter
+-DBFM_STANDALONE
+\family default
+) all the variables belonging to the main memory are defined as pointers
+ and are not allocated during the initialization phase.
+ 
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+BFM_NOPOINTERS
+\family default
+: by default, all the F90 symbols of the BFM state variables are defined
+ as pointers to the main memory (cf.
+ Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Memory-layout"
+
+\end_inset
+
+).
+ By defining this macro, it is possible to substitute all the pointers with
+ the actual memory location.
+ For instance, all the occurrences of the keyword 
+\family typewriter
+P1c(:)
+\family default
+ which are pointers to the memory address of phytoplankton carbon content,
+ are substituted with the name 
+\family typewriter
+D3STATE(ppP1c,:)
+\family default
+.
+ To facilitate this feature, it is requested that all the references to
+ the pointers in the code are written with the indication of the number
+ of dimensions: 
+\family typewriter
+P1c
+\family default
+ should always be indicated as 
+\family typewriter
+P1c(:)
+\family default
+, otherwise a pre-compiler error is generated when 
+\family typewriter
+BFM_NOPOINTERS
+\family default
+ is defined.
+ This macro is strongly recommended when BFM is coupled to hydrodynamical
+ models.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+INCLUDE_PELCO2:
+\family default
+ Define and activate the pelagic variables of the carbonate system.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+INCLUDE_PELFE:
+\family default
+ Add iron component and activate the related dynamics in the system.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+INCLUDE_DIAG:
+\family default
+ Activate the computation and storage of user-defined diagnostics described
+ in Chap.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Model_outputs"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Description
+
+\family typewriter
+EXPLICIT_SINK:
+\family default
+ Activate the explicit usage of serapate source and sinks arrays (Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Memory-layout"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Subsection*
+-
+\family typewriter
+ layout
+\family default
+ (memory layout configuration file)
+\end_layout
+
+\begin_layout Standard
+This file is the template to define the model components layout (Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Design-model-layout"
+
+\end_inset
+
+) and user-defined diagnostics (Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Aggregated-diagnostics-rates"
+
+\end_inset
+
+).
+ For a detailed description of the BFM memory layout content refer to Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Memory-layout"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection*
+-
+\family typewriter
+ namelists_bfm
+\family default
+ (namelist file with standard values)
+\end_layout
+
+\begin_layout Standard
+This file contains all the standard values of the namelists
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+BFM input namelists follows 
+\begin_inset CommandInset href
+LatexCommand href
+name "F90 namelist standard"
+target "http://publib.boulder.ibm.com/infocenter/comphelp/v101v121/topic/com.ibm.xlf121.aix.doc/language_ref/namelistio.html"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+ used for the experiment.
+ Namelists are checked for consistency against the source code at generation
+ time and the files effectively used for the simulation will be copied in
+ the 
+\shape italic
+$BFMDIR/run/<PRESETNAME>
+\shape default
+ directory.
+ 
+\end_layout
+
+\begin_layout Standard
+During this phase the BFM named constants corresponding to state variables
+ are substituted by the progressive number which is a function of the chosen
+ 
+\family typewriter
+layout
+\family default
+ file.
+ This check will guarantee an executable file compatible with the namelists
+ provided.
+ The regular user will generally work with generated namelists and usually
+ there is no need to change any keyword in this file besides the values
+ in case there is the willingness to generate a new standard set of values.
+\end_layout
+
+\begin_layout Standard
+After running the experiments, common behavior is to modify generated namelists
+ in the deployed experiment folder ( 
+\family typewriter
+$BFMDIR/run/$EXP
+\family default
+ ).
+ If you want to preserve these changes into a new "preset" you can use the
+ tool "
+\family typewriter
+nmlcreator
+\family default
+".
+ This is for instance desired when a new group is added as in Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Adding-subgroup"
+
+\end_inset
+
+ and the parameters of the new group have to become default for the preset.
+ To execute this tool do the following steps 
+\begin_inset listings
+lstparams "basicstyle={\small\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+cd $BFMDIR/build/scripts/conf
+\end_layout
+
+\begin_layout Plain Layout
+
+./nmlcreator.pl -i NAMELIST_IN -o NAMELIST_OUT
+\end_layout
+
+\end_inset
+
+where 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+NAMELIST_IN
+\family default
+: Complete path of the file containing namelist/s to read (e.g..
+ $BFMDIR/run/standalone.pelagic/Pelagic_Ecology.nml) 
+\end_layout
+
+\begin_layout Itemize
+
+\family typewriter
+NAMELIST_OUT
+\family default
+: Complete path of the "namelist" file of the preset where to append at
+ the end of the input (e.g.: 
+\family typewriter
+$BFMDIR/build/configurations/STANDALONE_PELAGIC_Z/namelists
+\family default
+).
+\end_layout
+
+\begin_layout Standard
+Basically, 
+\family typewriter
+nmlcreator
+\family default
+ adds the "
+\family typewriter
+filename_nml_conf
+\family default
+" key with the name of the file at the end of each namelist read.
+ It is important to note that it will not delete the existing namelists
+ in the target preset, it will only append the new namelist at the end.
+ Note that, a back substitution of variables indexes with the corresponding
+ names is not possible, but it has to be done by the user if required.
+\end_layout
+
+\begin_layout Section
+Compiling the BFM STANDALONE
 \end_layout
 
 \begin_layout Standard
@@ -18124,18 +18685,8 @@ Configuration and deployment of the model is done automatically by the script
 bfm_configure.sh
 \shape default
 .
- The minimal user local settings for compilation is provided by means of
- the environmental shell variable:
-\end_layout
-
-\begin_layout Itemize
-BFMDIR The root directory of the BFM model (the path to the installed bfm-<versi
-on> directory).
-\end_layout
-
-\begin_layout Standard
-After setting-up $BFMDIR variable in your shell environment you can go to
- 
+ After setting-up $BFMDIR variable in your shell environment, you can go
+ to 
 \shape italic
 $BFMDIR/build
 \shape default
@@ -18143,7 +18694,7 @@ $BFMDIR/build
 \shape italic
 bfm_configure.sh
 \shape default
- using default values:
+ using default preset, namely the STANDALONE_PELAGIC:
 \end_layout
 
 \begin_layout Standard
@@ -18160,6 +18711,38 @@ status open
 \end_inset
 
 
+\end_layout
+
+\begin_layout Standard
+
+\shape italic
+bfm_configure.sh
+\shape default
+ generates, compiles and/or deploys files needed for the BFM model, as specified
+ in the preset folder.
+ There are three different steps to have an executable model (see Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:bfm_configure-steps"
+
+\end_inset
+
+): 
+\shape italic
+g - Generation
+\shape default
+ (generate .h , .f90 needed for compilation and .nml files needed for execution),
+ 
+\shape italic
+c - Compilation
+\shape default
+ (compile and create the executable file) and 
+\shape italic
+d - Deployment
+\shape default
+ (create experiment folder and copy namelists for execution).
+ At least one of these three basic instruction is mandatory.
 \end_layout
 
 \begin_layout Standard
@@ -18197,22 +18780,28 @@ status open
 
 \begin_layout Plain Layout
 
-...
+..................................
+ Makefile is ready.
 \end_layout
 
 \begin_layout Plain Layout
 
-Go to .../bfm/run/standalone.pelagic and execute command:
+STANDALONE_PELAGIC generation done!
 \end_layout
 
 \begin_layout Plain Layout
 
-./bfm_standalone.x
+Starting STANDALONE_PELAGIC compilation...
 \end_layout
 
 \begin_layout Plain Layout
 
-...
+STANDALONE_PELAGIC compilation done!
+\end_layout
+
+\begin_layout Plain Layout
+
+Go to $BFMDIR/run/standalone.pelagic and execute command: ./bfm_standalone.x
 \end_layout
 
 \end_inset
@@ -18221,33 +18810,31 @@ Go to .../bfm/run/standalone.pelagic and execute command:
 \end_layout
 
 \begin_layout Standard
+Presets are loaded using option 
+\begin_inset Quotes eld
+\end_inset
 
-\shape italic
-bfm_configure.sh
-\shape default
- generates, compiles and/or deploys files needed for the BFM model.
- There are three different steps to have an executable model (see Fig.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "fig:bfm_configure-steps"
+-p
+\begin_inset Quotes erd
+\end_inset
+
+ followed by the preset name, e.g.:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\ttfamily}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+./bfm_configure.sh -gcd -p CO2TEST
+\end_layout
 
 \end_inset
 
-): 
-\shape italic
-Generation
-\shape default
- (generate .h , .f90 needed for compilation and .nml files needed for execution),
- 
-\shape italic
-Compilation
-\shape default
- (compile and create the executable file) and 
-\shape italic
-Deployment
-\shape default
- (create experiment folder and copy namelists for execution).
+
 \end_layout
 
 \begin_layout Standard
@@ -18575,7 +19162,7 @@ NEMODIR
 \begin_inset Text
 
 \begin_layout Plain Layout
-path to root directory of NEMO
+path to root directory of NEMO (only for NEMO coupling) 
 \end_layout
 
 \end_inset
@@ -18663,7 +19250,7 @@ FAST
 
 \begin_layout Plain Layout
 Fast mode.
- Dont execute "clean" command in compilation
+ Don't execute "clean" command in compilation
 \end_layout
 
 \end_inset
@@ -18873,218 +19460,6 @@ List of optional arguments for bfm_configure
 
 \end_layout
 
-\begin_layout Subsection
-Presets
-\begin_inset CommandInset label
-LatexCommand label
-name "sub:Presets"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-An experiment is defined by a model layout structure and initial input values.
- These definitions put together with compilation and run options is what
- is called a PRESET.
- A preset is contained together in a folder and it is all you need to execute
- a particular experiment.
-\end_layout
-
-\begin_layout Standard
-The folder containing presets is 
-\shape italic
-${BFMDIR}/build/configurations/
-\shape default
-.
- Execute the following command to show a list of all available presets:
- 
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-lstparams "basicstyle={\ttfamily}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-./bfm_configure.sh -P
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Presets are loaded using option 
-\begin_inset Quotes eld
-\end_inset
-
--p
-\begin_inset Quotes erd
-\end_inset
-
- followed by the preset name, eg.:
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-lstparams "basicstyle={\ttfamily}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-./bfm_configure.sh -p STANDALONE_PELAGIC
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Presets are composed of three different main files:
-\end_layout
-
-\begin_layout Subsubsection*
-
-\family typewriter
-configuration:
-\family default
- compilation and deployment options
-\end_layout
-
-\begin_layout Standard
-This file uses the F90 namelist format to set values.
- Below a schematic view of the configuration file format:
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-lstparams "basicstyle={\ttfamily}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-&BFM_conf
-\end_layout
-
-\begin_layout Plain Layout
-
-	<option>=<value>,
-\end_layout
-
-\begin_layout Plain Layout
-
-	...
-\end_layout
-
-\begin_layout Plain Layout
-
-	<option>=<value>
-\end_layout
-
-\begin_layout Plain Layout
-
-/
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Not all the options available in Tab.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "tab:bfm_configure-optional-args"
-
-\end_inset
-
- can be specified in the configuration file and all the values are overridden
- by the command line options.
- Available options are: MODE, CPPDEFS, BFMDIR, NEMODIR, ARCH, CLEAN, PROC,
- NETCDF, EXP, NMLDIR, PROC and QUEUE.
- Do not use the character " to surround values, but use ' instead.
-\end_layout
-
-\begin_layout Subsubsection*
-
-\family typewriter
-layout:
-\family default
- memory layout configuration file
-\end_layout
-
-\begin_layout Standard
-This file is the template for the memory model.
- For a detailed description of the memory layout content goes to Sec.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sec:Memory-layout"
-
-\end_inset
-
-.
-\end_layout
-
-\begin_layout Subsubsection*
-
-\family typewriter
-namelists_bfm:
-\family default
- namelist file with standard values
-\end_layout
-
-\begin_layout Standard
-This file contains all the standard values of the namelists
-\begin_inset Foot
-status collapsed
-
-\begin_layout Plain Layout
-BFM input namelists follows 
-\begin_inset CommandInset href
-LatexCommand href
-name "F90 namelist standard"
-target "http://publib.boulder.ibm.com/infocenter/comphelp/v101v121/topic/com.ibm.xlf121.aix.doc/language_ref/namelistio.html"
-
-\end_inset
-
-
-\end_layout
-
-\end_inset
-
- used for the experiment.
- Namelists are checked for consistency against the source code at generation
- time and the files effectively used for the simulation will be copied in
- the 
-\shape italic
-$BFMDIR/run
-\shape default
- directory.
- During this phase the BFM named constants corresponding to state variables
- are substituted by the progressive number which is a function of the chosen
- 
-\family typewriter
-layout
-\family default
- file.
- This check will guarantee an executable file compatible with the namelists
- provided.
- The regular user will generally work with generated namelists and usually
- there is no need to change any keyword in this file besides the values
- in case there is the willingness to generate a new standard set of values.
-\end_layout
-
 \begin_layout Chapter
 Running the STANDALONE model
 \begin_inset CommandInset label
@@ -19133,7 +19508,9 @@ to redirect the output messages to a file in bash
 \family typewriter
 .
  
-\family default
+\end_layout
+
+\begin_layout Standard
 Most of the BFM settings can be controlled via namelists.
  The STANDALONE model behaviour is controlled with 2 major namelist files
  
@@ -19145,7 +19522,11 @@ BFM_General.nml
 Standalone.nml
 \family default
 .
- The first file contains the namelist to control the model setup (Tab.
+ The first file contains the 
+\lang british
+namelist
+\lang american
+ to control the model setup (Tab.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -19161,15 +19542,41 @@ reference "tab:Parameters-Param"
 
 \end_inset
 
-) and the parameters for all the functional groups described in Part 
+) and the initial conditions for all the functional groups declared in the
+ preset layout file (see also 
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "part:The-BFM-Equations"
+reference "tab:model_variables"
 
 \end_inset
 
-.
- The second fie contains 
+).
+ The second file control the simulation environment of the standalone model,
+ like e.g., simulation setup (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:parameters-standalone"
+
+\end_inset
+
+), time settings (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:parameters-time-manager"
+
+\end_inset
+
+), and environmental forcing (Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:Parameters-forcings"
+
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Standard
@@ -20247,9 +20654,66 @@ name "tab:Parameters-Param"
 \end_layout
 
 \begin_layout Section
+State variables initial conditions (IC)
+\end_layout
+
+\begin_layout Standard
+The initial conditions of the model state variables are declared in the
+ file 
+\family typewriter
+BFM_General.nml
+\family default
+ within the 
+\family typewriter
+bfm_init_nml
+\family default
+ namelist.
+ As a general rule, the IC of each state variable is indicated with its
+ code abbreviation and 0, for example Phosphate initial value will be declared
+ as  N1p0 = 1.0.
+ 
+\end_layout
+
+\begin_layout Standard
+ICs for living and non-living components of the model (see Tab.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:model_variables"
+
+\end_inset
+
+) has to be treated as follow:
+\end_layout
+
+\begin_layout Itemize
+Dissolved Inorganic (IO) components require the specification of the initial
+ value; 
+\end_layout
+
+\begin_layout Itemize
+Living organic (LO) components require only the initial content of carbon
+ (e.g., P1c0, Z3c0), while the other constituents are automatically set by
+ the model using the optimal ratios to carbon set in the specific namelists;
+\end_layout
+
+\begin_layout Itemize
+Non-living organic (NO) components require only the initial content of carbon
+ (e.g., R1c0) and for those groups with more than one constituent, these are
+ set using the Redfield ratios.
+\end_layout
+
+\begin_layout Section
 
 \family roman
 Numerical integration
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Numerical-integration"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -22959,7 +23423,7 @@ reference "sub:Presets"
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "chap:Advanced-features"
+reference "chap:Design-model-layout"
 
 \end_inset
 
@@ -23189,21 +23653,6 @@ sum(D3SOURCE(j,:,:)-D3SINK(j,:,:))
 \end_layout
 
 \begin_layout Standard
-This separation between positive and negative terms allow to use more sophistica
-ted positive-definite integration schemes although it may result in excessive
- memory usage.
- It is therefore possible to combine the two symmetrical matrices into one
- (
-\family typewriter
-D3SOURCE
-\family default
-), that contains all the source terms in the upper-left part and the sink
- terms in the lower-right part.
- It is finally allowed to further shrink the memory by adding all the terms
- 
-\end_layout
-
-\begin_layout Standard
 Fluxes which involve a variable not defined in the model, such as oxygen
  production from water during photosynthesis can be taken into account by
  using the diagonal of the matrix.
@@ -23259,6 +23708,37 @@ NO_D2_BOX_STATES
  NO_BOXES_XY
 \family default
 .
+\end_layout
+
+\begin_layout Standard
+However, this separation between positive and negative terms allow to use
+ more sophisticated positive-definite integration schemes although it may
+ result in excessive memory usage.
+ Thus, the default setting of BFM make use of a shrank version of 
+\family typewriter
+D3SOURCE
+\family default
+ (
+\family typewriter
+NO_D3_BOX_STATES
+\family default
+ 
+\begin_inset Formula $\times$
+\end_inset
+
+
+\family typewriter
+ NO_BOXES
+\family default
+), which is the result of the addition of all the terms after the combination
+ of the two symmetrical matrices into one that contains all the source (upper-le
+ft part) and sink (lower-right part) terms.
+ It is possible to use the two separated matrices for source and sinks terms
+ through the inclusion of the compilation macro 
+\family typewriter
+EXPLICIT_SINK 
+\family default
+in the preset configuration file.
 \end_layout
 
 \begin_layout Standard
@@ -23495,7 +23975,15 @@ EcologyDynamics,
 \begin_layout Enumerate
 numerical integration of the biogeochemical terms.
  In the Standalone model there are three different numerical schemes that
- can be used (see the quickstart guide for the specific namelist values).
+ can be used (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Numerical-integration"
+
+\end_inset
+
+).
  Note that 
 \family typewriter
 EcologyDynamics
@@ -23653,7 +24141,7 @@ ChlDynamicsFlag=1
 \end_layout
 
 \begin_layout Standard
-The standard groups, phytoplankton, meso- micro-zooplankton and bacteria
+The standard groups, phytoplankton, meso- and micro-zooplankton and bacteria
  are computed in 
 \family typewriter
 PhytoDynamics
@@ -23931,7 +24419,7 @@ reference "fig:Invocation-tree-pelagic"
 
 ).
  This part computes all the parameterized bacteria-mediated biochemical
- processes such as nitrification and denitrification, reoxidation of reduction
+ processes such as nitrification and denitrification, re-oxidation of reduction
  equivalents and dissolution of biogenic silica.
 \end_layout
 
@@ -23979,153 +24467,64 @@ Declaration scheme of PhytoDynamics.
 \end_layout
 
 \begin_layout Chapter
-Advanced features
+Design model layout components
 \begin_inset CommandInset label
 LatexCommand label
-name "chap:Advanced-features"
+name "chap:Design-model-layout"
 
 \end_inset
 
 
+\end_layout
+
+\begin_layout Section
+Layout syntax and modular structure
 \end_layout
 
 \begin_layout Standard
 The BFM is conceived in a modular way and the number of state variables
  and biogeochemical basic components can be modified according to the modelling
  needs.
- This section addresses the advanced features that are useful to change
- the structure of the model and to optimize some behaviour at compilation.
-\end_layout
-
-\begin_layout Section
-Compilation macros
-\begin_inset CommandInset label
-LatexCommand label
-name "sec:Compilation-macros"
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-There are 2 major macros that belong to the core of the BFM source code
- and additional compilation keywords that activates model components.
- The first 2 macros are 
-\begin_inset Quotes eld
-\end_inset
-
-negative
-\begin_inset Quotes erd
-\end_inset
-
-, which means that their options are activated by default and needs to be
- deactivated when desired.
-\end_layout
-
-\begin_layout Description
-
+ In fact, each state variable is not defined directly in the code, but through
+ a model template 
 \family typewriter
-NOT_STANDALONE
+layout
 \family default
-: This macro controls the main memory structure of the BFM.
- In default configuration the BFM allocates its own memory array.
- When the macro is defined at compilation (
-\family typewriter
--DNOT_STANDALONE
-\family default
-) all the variables belonging to the main memory are defined as pointers
- and are not allocated during the initialization phase.
- This is the configuration used in combination with hydrodynamical models
- that already defines a memory array for biogeochemical variables.
-\end_layout
-
-\begin_layout Description
-
-\family typewriter
-BFM_NOPOINTERS
-\family default
-: by default, all the F90 symbols of the BFM state variables are defined
- as pointers to the main memory (cf.
- Sec.
- 
+ found in the PRESET directories (Sec.
+  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "sec:Memory-layout"
+reference "sub:Presets"
 
 \end_inset
 
+, 
+\family typewriter
+$BFMDIR/build/configurations
+\family default
 ).
- By defining the macro 
+ All the ancillary F90 memory layout files (
 \family typewriter
--DBFM_NOPOINTERS
+AllocateMem.F90, INCLUDE.h, ModuleMem.f90, set_var_info_bfm.f90
 \family default
-, it is possible to substitute all the pointers with the actual memory location.
- For instance, all the occurrences of the keyword 
+) are automatically generated from this meta-data structure by way of a
+ perl script (
 \family typewriter
-P1c(:)
+$BFMDIR/build/script
 \family default
- which are pointers to the memory address of phytoplankton carbon content,
- are substituted with the name 
+).
+ The prototypes of these files are found in directory 
 \family typewriter
-D3STATE(ppP1c,:)
+$BFMDIR/BFM/proto
 \family default
-.
- To facilitate this feature, it is requested that all the references to
- the pointers in the code are written with the indication of the number
- of dimensions: 
-\family typewriter
-P1c
-\family default
- should always be indicated as 
-\family typewriter
-P1c(:)
-\family default
-, otherwise a pre-compiler error is generated when 
-\family typewriter
-BFM_NOPOINTERS
-\family default
- is defined.
-\end_layout
-
-\begin_layout Description
-
-\family typewriter
-INCLUDE_PELCO2:
-\family default
- Define and activate the pelagic variables of the carbonate system.
-\end_layout
-
-\begin_layout Description
-
-\family typewriter
-INCLUDE_PELFE:
-\family default
- Add iron dynamics to the system.
-\end_layout
-
-\begin_layout Description
-
-\family typewriter
-INCLUDE_DIAG:
-\family default
- Activate the computation and storage of customizable diagnostics described
- in Chap.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "chap:Diagnostics"
-
-\end_inset
-
-.
+ and filled in with the user-defined state variables and diagnostics.
 \end_layout
 
 \begin_layout Standard
 \begin_inset Float table
 wide true
 sideways false
-status open
+status collapsed
 
 \begin_layout Plain Layout
 \begin_inset listings
@@ -24344,53 +24743,6 @@ layout
 \end_inset
 
 
-\end_layout
-
-\begin_layout Section
-\begin_inset CommandInset label
-LatexCommand label
-name "sec:Model-structure-changes"
-
-\end_inset
-
-Model layout changes
-\end_layout
-
-\begin_layout Standard
-BFM is built in a modular and flexible way because each state variable is
- not defined directly in the code but through a model template 
-\family typewriter
-layout
-\family default
- found in the PRESET directories (Sec.
-  
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Presets"
-
-\end_inset
-
-, 
-\family typewriter
-$BFMDIR/build/configurations
-\family default
-).
- All the ancillary F90 memory layout files (
-\family typewriter
-AllocateMem.F90, INCLUDE.h, ModuleMem.f90, set_var_info_bfm.f90
-\family default
-) are automatically generated from this meta-data structure by way of a
- perl script (
-\family typewriter
-$BFMDIR/build/script
-\family default
-).
- The prototypes of these files are found in directory 
-\family typewriter
-$BFMDIR/BFM/proto
-\family default
- and filled in with the user-defined state variables and diagnostics.
- 
 \end_layout
 
 \begin_layout Standard
@@ -25020,7 +25372,7 @@ end
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Example 1.
  Adding a subgroup
 \begin_inset CommandInset label
@@ -25463,7 +25815,7 @@ run/STANDALONE_PELAGIC_Z/BFM_General.nml
 .
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Example 2.
  Adding a biochemical component and a group
 \end_layout
@@ -25675,7 +26027,7 @@ status open
 
 \end_layout
 
-\begin_layout Subsection
+\begin_layout Section
 Example 3.
  Removing components from zooplankton
 \begin_inset CommandInset label
@@ -25769,95 +26121,11 @@ Param_parameters
  the nutrients in excess of the given fixed quota.
 \end_layout
 
-\begin_layout Subsection
-Example 4.
- Creating new presets from experiments
-\end_layout
-
-\begin_layout Standard
-After running the experiments, common behavior is to modify generated namelists
- in the deployed experiment folder ( 
-\family typewriter
-$BFMDIR/run/$EXP
-\family default
- ).
- If you want to preserve these changes into a "preset" you can use the tool
- "
-\family typewriter
-nmlcreator
-\family default
-".
- This is for instance desired when a new group is added as in Sec.
- 
-\begin_inset CommandInset ref
-LatexCommand ref
-reference "sub:Adding-subgroup"
-
-\end_inset
-
- and the parameters of the new group have to become default for the preset.
- To execute this tool do the following steps 
-\begin_inset listings
-lstparams "basicstyle={\small\ttfamily}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-cd $BFMDIR/build/scripts/conf
-\end_layout
-
-\begin_layout Plain Layout
-
-./nmlcreator.pl -i NAMELIST_IN -o NAMELIST_OUT
-\end_layout
-
-\end_inset
-
-where 
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-NAMELIST_IN
-\family default
-: Complete path of the file containing namelist/s to read (eg.
- $BFMDIR/run/standalone.pelagic/Pelagic_Ecology.nml) 
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-NAMELIST_OUT
-\family default
-: Complete path of the "namelist" file of the preset where to append at
- the end of the input (eg: 
-\family typewriter
-$BFMDIR/build/configurations/STANDALONE_PELAGIC_Z/namelists
-\family default
-).
-\end_layout
-
-\begin_layout Standard
-Basically, 
-\family typewriter
-nmlcreator
-\family default
- adds the "
-\family typewriter
-filename_nml_conf
-\family default
-" key with the name of the file at the end of each namelist read.
- It is important to note that it will not delete the existing namelists
- in the target preset, it will only append the new namelist at the end.
-\end_layout
-
 \begin_layout Chapter
-Diagnostics
+Model outputs
 \begin_inset CommandInset label
 LatexCommand label
-name "chap:Diagnostics"
+name "chap:Model_outputs"
 
 \end_inset
 
@@ -25872,17 +26140,21 @@ Output
 The variables that can be stored in the output file are the ones defined
  in file 
 \family typewriter
-l
+layout
 \family default
-ayout.
+.
  All the state variables can be stored (provided that they have a long name
  and units), both as instantaneous values and as means over the chosen output
  period.
  This behavior is controlled via the namelist 
 \family typewriter
+bfm_save_nml 
+\family default
+contained in the 
+\family typewriter
 BFM_General.nml
 \family default
- when running the STANDALONE model.
+ file when running the STANDALONE model.
  Other couplings may have different names.
  Additionally, a set of other variables can be saved, such as the ones obtained
  from the physical model and other diagnostics such as total chlorophyll,
@@ -25897,7 +26169,7 @@ Restart
 \begin_layout Standard
 The length of each BFM simulation is controlled by the physical transport
  model except for the STANDALONE model which has its own time marching.
- It is common practice in modelling to split the simulation in several chunks
+ It is common practice in modeling to split the simulation in several chunks
  and to continue the simulation from the end values of each state variable
  at the end of a previous run.
  The BFM stores this information in a NetCDF file which is always generated
@@ -25905,6 +26177,19 @@ The length of each BFM simulation is controlled by the physical transport
  There is no automatic control on the date (neither it is stored as an attribute
  inside the NetCDF file), so it is totally up to the user to check that
  the initial restart file is the proper one.
+ The input/output restart file names and the restart switch (
+\family typewriter
+bfm_init
+\family default
+) are set in the 
+\family typewriter
+BFM_General.nml
+\family default
+ file within the namelist 
+\family typewriter
+bfm_init_nml
+\family default
+.
 \end_layout
 
 \begin_layout Section
@@ -25938,8 +26223,13 @@ layout
  generation of the memory layout.
  Some fluxes are already defined by default, such as the gross/net primary
  production rates, total respiration rates and (de)nitrification rates.
- Any exchange of mass between every state variable can be tracked by means
- of a special syntax that access and combines the elements of the 
+ 
+\end_layout
+
+\begin_layout Standard
+Any exchange of mass between every state variable can be tracked by means
+ of a special syntax that allows the user to access and combine the elements
+ of the 
 \family typewriter
 D3(D2)SOURCE
 \family default
@@ -26082,13 +26372,21 @@ The names used for the diagnostics are derived from the short names of the
 \family typewriter
 layout
 \family default
- file, preceded by the letter 
+ file (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Design-model-layout"
+
+\end_inset
+
+), preceded by the letter 
 \family typewriter
 r
 \family default
  for rate and the identifier of the chemical constituent.
- This is not mandatory, but it is suggested to follow this convention derived
- from the original ERSeM code 
+ This is not mandatory, but it is suggested to follow the convention derived
+ from the original ERSEM code 
 \begin_inset CommandInset citation
 LatexCommand citep
 key "blackford95"
@@ -26154,7 +26452,7 @@ units
 \family typewriter
 bfm_save_nml
 \family default
- section in 
+ namelist in 
 \family typewriter
 BFM_General.nml
 \family default
