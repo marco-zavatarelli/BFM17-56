@@ -189,7 +189,7 @@ Equation Description and User Manual
 \begin_inset Newline newline
 \end_inset
 
-BFM version 5 (BFM-V5)
+BFM version 5.1 (BFM-V5)
 \end_layout
 
 \begin_layout Standard
@@ -223,7 +223,7 @@ Edited by M.
 
 \begin_layout Standard
 \align center
-Release 1.0, March 2013
+Release 1.1, July 2014
 \begin_inset Newline newline
 \end_inset
 
@@ -314,11 +314,10 @@ Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Mas
  S., McKiver W., Pinardi N., Solidoro C., Zavatarelli M.
  (2013) The Biogeochemical Flux Model (BFM): Equation Description and User
  Manual.
- BFM version 5 (BFM-V5).
- Release 1.0; BFM Report series N.
+ BFM version 5.1 (BFM-V5).
+ Release 1.1; BFM Report series N.
  1.
- March 2013, Bologna, Italy, http://bfm-community.eu, pp.
- 87
+ July 2014, Bologna, Italy, http://bfm-community.eu
 \end_layout
 
 \begin_layout Address
@@ -481,7 +480,16 @@ The structure of the code was instead extensively modified with respect
  state-of-the-art ocean general circulation models (OGCM) required a re-organiza
 tion of the structure, yet the fundamentals of the coupling strategy are
  very similar to the first coupled implementations.
- 
+ From BFM version 5.1 the coupled configurations are publicly supported.
+ An example of the coupled configuration with the NEMO ocean model (http://nemo-
+ocean.eu) is described in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "BFM-NEMO-manual"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Section*
@@ -5843,7 +5851,7 @@ E
 \begin_inset Formula $^{2}$
 \end_inset
 
- s
+ 
 \end_layout
 
 \end_inset
@@ -17993,7 +18001,7 @@ reference "sec:Test-cases"
  
 \begin_inset CommandInset ref
 LatexCommand ref
-reference "tab:Source-directory-tree"
+reference "fig:Source-directory-tree"
 
 \end_inset
 
@@ -18001,7 +18009,7 @@ reference "tab:Source-directory-tree"
 \end_layout
 
 \begin_layout Standard
-\begin_inset Float table
+\begin_inset Float figure
 wide true
 sideways false
 status open
@@ -18020,150 +18028,12 @@ centering
 \end_inset
 
 
-\begin_inset listings
-lstparams "basicstyle={\ttfamily}"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-|-- bin
 \end_layout
 
 \begin_layout Plain Layout
-
-|-- build
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |-- configurations
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |-- logs
-\end_layout
-
-\begin_layout Plain Layout
-
-|   `-- scripts
-\end_layout
-
-\begin_layout Plain Layout
-
-|       `-- conf
-\end_layout
-
-\begin_layout Plain Layout
-
-|-- compilers
-\end_layout
-
-\begin_layout Plain Layout
-
-|-- doc
-\end_layout
-
-\begin_layout Plain Layout
-
-|-- include
-\end_layout
-
-\begin_layout Plain Layout
-
-|-- run
-\end_layout
-
-\begin_layout Plain Layout
-
-|-- src
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |-- BFM
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- CO2
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- Forcing
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- General
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- Light
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- Oxygen
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- Pel
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- PelBen
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   |-- include
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |   `-- proto
-\end_layout
-
-\begin_layout Plain Layout
-
-|   |-- share
-\end_layout
-
-\begin_layout Plain Layout
-
-|   `-- standalone
-\end_layout
-
-\begin_layout Plain Layout
-
-`-- tools
-\end_layout
-
-\begin_layout Plain Layout
-
-    |-- bnmerge
-\end_layout
-
-\begin_layout Plain Layout
-
-    |-- bnremap
-\end_layout
-
-\begin_layout Plain Layout
-
-    |-- matlab
-\end_layout
-
-\begin_layout Plain Layout
-
-    `-- scripts
-\end_layout
+\begin_inset Graphics
+	filename Figures/dirtree_51.png
+	height 90theight%
 
 \end_inset
 
@@ -18176,7 +18046,7 @@ status open
 \begin_layout Plain Layout
 \begin_inset CommandInset label
 LatexCommand label
-name "tab:Source-directory-tree"
+name "fig:Source-directory-tree"
 
 \end_inset
 
@@ -18190,7 +18060,7 @@ BFM directory tree
 
 \end_inset
 
-Source directory tree and description of the directory contents.
+ Directory tree of the current BFM version.
 \end_layout
 
 \end_inset
@@ -18208,19 +18078,9 @@ System Requirements
 \end_layout
 
 \begin_layout Standard
-The currently supported architectures are
-\end_layout
-
-\begin_layout Itemize
-linux
-\end_layout
-
-\begin_layout Itemize
-Mac OSX (Darwin)
-\end_layout
-
-\begin_layout Itemize
-AIX
+The BFM can be run on any UNIX-based architecture and it has been tested
+ on linux, Mac OSX and IBM-AIX systems.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -19179,7 +19039,7 @@ reference "sec:Memory-layout"
 \begin_layout Subsubsection*
 
 \family typewriter
-namelists:
+namelists_bfm:
 \family default
  namelist file with standard values
 \end_layout
@@ -19211,6 +19071,13 @@ target "http://publib.boulder.ibm.com/infocenter/comphelp/v101v121/topic/com.ibm
 $BFMDIR/run
 \shape default
  directory.
+ During this phase the BFM named constants corresponding to state variables
+ are substituted by the progressive number which is a function of the chosen
+ 
+\family typewriter
+layout
+\family default
+ file.
  This check will guarantee an executable file compatible with the namelists
  provided.
  The regular user will generally work with generated namelists and usually
@@ -24224,42 +24091,9 @@ BFM_NOPOINTERS
 \begin_layout Description
 
 \family typewriter
-ONESOURCE:
-\family default
- Join together the elements of 
-\family typewriter
-D3(D2)SOURCE
-\family default
- and 
-\family typewriter
-D3(D2)SINK 
-\family default
-arrays to reduce memory storage 
-\end_layout
-
-\begin_layout Description
-
-\family typewriter
-D1SOURCE:
-\family default
- Further reduce memory storage by defining one source matrix 
-\family typewriter
-D3(D2)SOURCE(NO_BOX_STATES,NO_BOXES)
-\family default
- where all the right-hand side terms are summed when computed (this is incompati
-ble with macro 
-\family typewriter
-INCLUDE_DIAG
-\family default
-)
-\end_layout
-
-\begin_layout Description
-
-\family typewriter
 INCLUDE_PELCO2:
 \family default
- Define and activate the pelagic variables of the carbonate system;
+ Define and activate the pelagic variables of the carbonate system.
 \end_layout
 
 \begin_layout Description
@@ -24267,7 +24101,7 @@ INCLUDE_PELCO2:
 \family typewriter
 INCLUDE_PELFE:
 \family default
- Add iron dynamics to the system
+ Add iron dynamics to the system.
 \end_layout
 
 \begin_layout Description
@@ -24275,12 +24109,16 @@ INCLUDE_PELFE:
 \family typewriter
 INCLUDE_DIAG:
 \family default
- Activate the customizable diagnostics described in Sec.
- (this is incompatible with macro 
-\family typewriter
-D1SOURCE
-\family default
-)
+ Activate the computation and storage of customizable diagnostics described
+ in Chap.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Diagnostics"
+
+\end_inset
+
+.
 \end_layout
 
 \begin_layout Standard
@@ -26047,8 +25885,8 @@ BFM_General.nml
  when running the STANDALONE model.
  Other couplings may have different names.
  Additionally, a set of other variables can be saved, such as the ones obtained
- from the physical model and other diagnostics such as total chlorophyll
- and the nutrient quota.
+ from the physical model and other diagnostics such as total chlorophyll,
+ nutrient quota or aggregated rates.
  
 \end_layout
 
@@ -26081,8 +25919,8 @@ name "sec:Aggregated-diagnostics-rates"
 \end_layout
 
 \begin_layout Standard
-All the ancillary 2D and 3D variables and diagnostics are grouped in two
- memory arrays, 
+All the ancillary 2D and 3D variables (like wind velocity or temperature,
+ for instance) and diagnostics are grouped in two memory arrays, 
 \family typewriter
 D3DIAGNOS
 \family default
@@ -26090,7 +25928,7 @@ D3DIAGNOS
 \family typewriter
 D2DIAGNOS
 \family default
-, accessed by means of pointers.
+, which are accessed by means of pointers.
  The dimensions of these arrays change according to the number of model
  elements in the 
 \family typewriter
@@ -26110,7 +25948,7 @@ D3(D2)SOURCE
 D3(D2)SINK
 \family default
  arrays where all the rates are stored.
- Some examples are already present at the end of the 
+ Some examples are already included at the end of the 
 \family typewriter
 STANDALONE_PELAGIC/layout
 \family default
@@ -26118,29 +25956,119 @@ STANDALONE_PELAGIC/layout
 \family typewriter
 INCLUDE_DIAG
 \family default
- and 
-\family typewriter
-INCLUDE_DIAG2D
-\family default
 :
 \begin_inset listings
-lstparams "basicstyle={\small\ttfamily},breaklines=true,language=Fortran"
+lstparams "basicstyle={\small\ttfamily},breaklines=true,language=sh"
 inline false
 status open
 
 \begin_layout Plain Layout
 
-fP1Z4c=P1c->Z4c: diatom grazing by omnivorous zooplankton: mg C/m3/d
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 \end_layout
 
 \begin_layout Plain Layout
 
-ruPTc=P.c<-*: gross primary production: mg C/m3/d
+#                       DIAGNOSTIC RATES
 \end_layout
 
 \begin_layout Plain Layout
 
-ruZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): gross secondary production: mg C/m3/d
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+\end_layout
+
+\begin_layout Plain Layout
+
+3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
+\end_layout
+
+\begin_layout Plain Layout
+
+  ruPPYc=P.c <- O3c : Gross Primary Production : mg C/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+end
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+3d-flux -if-exist INCLUDE_DIAG
+\end_layout
+
+\begin_layout Plain Layout
+
+  ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross Secondary Production:mg C/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+  remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
+\end_layout
+
+\begin_layout Plain Layout
+
+end
 \end_layout
 
 \end_inset
@@ -26149,10 +26077,79 @@ ruZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): gross secondary production: mg C/m3/d
 \end_layout
 
 \begin_layout Standard
-The first line defines a diagnostic storing the carbon flux between diatoms
- and mesozooplankton.
- This diagnostic also defines the long_name and units attributes of the
- NetCDF and it can thus be included in the output just by adding it to the
+The names used for the diagnostics are derived from the short names of the
+ groups defined above in the 
+\family typewriter
+layout
+\family default
+ file, preceded by the letter 
+\family typewriter
+r
+\family default
+ for rate and the identifier of the chemical constituent.
+ This is not mandatory, but it is suggested to follow this convention derived
+ from the original ERSeM code 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "blackford95"
+
+\end_inset
+
+ to easily identify the type of rate.
+ The first line, for instance, defines the combined rate of gross primary
+ production 
+\family typewriter
+ruPPYc
+\family default
+ (
+\family typewriter
+r
+\family default
+ate of 
+\family typewriter
+u
+\family default
+ptake of pelagic phytoplankton 
+\family typewriter
+PPY
+\family default
+ expressed in 
+\family typewriter
+c
+\family default
+arbon), which is the sum of all the carbon fluxes to all the phytoplankton
+ groups (notice the syntax using the wildcard 
+\begin_inset Quotes eld
+\end_inset
+
+.
+\begin_inset Quotes erd
+\end_inset
+
+ to indicate all sub-groups).
+\end_layout
+
+\begin_layout Standard
+An example of aggregated flux is the carbon excretion from phytoplankton
+ 
+\family typewriter
+exPPYc
+\family default
+ or gross secondary production 
+\family typewriter
+ruZOOc
+\family default
+, which is defined as the sum of carbon ingestion by all zooplankton groups.
+ The diagnostics also define the 
+\family typewriter
+long_name
+\family default
+ and 
+\family typewriter
+units
+\family default
+ attributes for the NetCDF output.
+ Diagnostics can be included in the output just by adding the name to the
  
 \family typewriter
 bfm_save_nml
@@ -26162,12 +26159,7 @@ bfm_save_nml
 BFM_General.nml
 \family default
 .
- The second line defines the combined rate gross primary production, which
- is the sum of all the carbon fluxes to all the phytoplankton groups (notice
- the syntax without the subgroup number).
- The last example is the gross secondary production, which is defined as
- the difference between the carbon ingestion by all zooplankton groups and
- the carbon loss to dissolved and particulate detritus.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -26194,11 +26186,11 @@ PELBOTTOM(NO_D3_BOX_STATES,NO_BOXES_XY)
 \end_layout
 
 \begin_layout Standard
-are themselves pointers to the main diagnostic memory 
+are also pointers to the main diagnostic memory 
 \family typewriter
 D2DIAGNOS
 \family default
-.
+ and store the surface and bottom boundary flux for any state variable.
  They can be accessed by means of specific pointers allocated in the generated
  subroutine 
 \family typewriter
@@ -26243,15 +26235,28 @@ jsurN4n => D2DIAGNOS(17+ppN4n,:); jsurN4n=ZERO
 
 \begin_layout Standard
 The boundary rates (always in units per day) are accessed in the code by
- means of the 
+ means of both the direct value 
 \family typewriter
 PELSURFACE(ppO2o,:)
 \family default
- or 
+ or the pointer 
 \family typewriter
 jsurO2o(:)
 \family default
- names.
+, but can be added to the output in the 
+\family typewriter
+bfm_save_nml
+\family default
+ section of 
+\family typewriter
+BFM_General.nml
+\family default
+ only with the pointer name (e.g.
+ 
+\family typewriter
+jsurO2o
+\family default
+).
 \end_layout
 
 \begin_layout Section
