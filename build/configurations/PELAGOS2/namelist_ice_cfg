@@ -21,4 +21,5 @@
 !-----------------------------------------------------------------------
 &namicethd     !   ice thermodynamic
 !-----------------------------------------------------------------------
+   hiccrit     = 0.3 , 0.6 !  ice thickness for lateral accretion in the Northern (Southern) Hemisphere
 /
