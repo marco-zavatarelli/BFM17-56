@@ -258,6 +258,6 @@ realclean: bfmrealclean clean
 	$(RM) *.o *~
 
 #-----------------------------------------------------------------------
-# Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+# Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 # Copyright (C) 2008 - the GOTM-team and the BFM-team
 #-----------------------------------------------------------------------

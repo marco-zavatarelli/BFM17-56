@@ -454,7 +454,7 @@ contains
    LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
    LEVEL1 ' BIOGEOCHEMICAL FLUX MODEL (BFM) ACTIVITY LOG  '
    LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
-   LEVEL1 '           BFM System Team (2014)              '
+   LEVEL1 '               BFM System Team                 '
    LEVEL1 ' '
    LEVEL1 ' '
    LEVEL1 'Step 1 - INITIALIZATION (init_bfm)'
@@ -781,6 +781,6 @@ contains
  end module api_bfm
 
  !-----------------------------------------------------------------------
- !Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+ !Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
  !Copyright (C) 2006 - Marcello Vichi
 

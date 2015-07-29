@@ -103,6 +103,6 @@ realclean: clean bfmclean
 distclean: realclean bfmrealclean
 
 #-----------------------------------------------------------------------
-# Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+# Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 # Copyright (C) 2008 - Hans Burchard and Karsten Bolding (BBH)         !
 #-----------------------------------------------------------------------
