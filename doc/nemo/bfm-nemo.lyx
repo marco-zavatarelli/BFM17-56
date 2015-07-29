@@ -212,6 +212,7 @@ M.
  Vichi, T.
  Lovato, E.
  Gutierrez Mlot and W.
+ J.
  McKiver
 \end_layout
 
@@ -335,8 +336,7 @@ Vichi M., Lovato T., Gutierrez Mlot E., McKiver W.
  (2015) Coupling BFM with Ocean models: the NEMO model (Nucleus for the
  European Modelling of the Ocean).
  BFM Report series N.
- 2.
- Release 1.0, July 2015, Bologna, Italy, http://bfm-community.eu
+ 2, Release 1.0, July 2015, Bologna, Italy, http://bfm-community.eu
 \end_layout
 
 \begin_layout Address
@@ -425,8 +425,28 @@ parts
 \end_inset
 
  of the fluid.
- This theoretical formulation has been proposed initially by Wroblewsky,
- then Robinson (1997) and summarized in Hoffmann (1998) and 
+ This theoretical formulation has been proposed initially by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Wroblewski1977"
+
+\end_inset
+
+, then 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Robinson1997"
+
+\end_inset
+
+ and summarized in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "HofmanLascara1998"
+
+\end_inset
+
+ and 
 \begin_inset CommandInset citation
 LatexCommand citet
 key "vichi07_part1"
@@ -566,7 +586,7 @@ where
 
  are the horizontal and vertical turbulent diffusivity coefficient for tracers.
  To highlight the coupling between physical and biogeochemical processes,
- we may rewrite this equation indicating more explicitely the ocean variables
+ we may rewrite this equation indicating more explicitly the ocean variables
  that are resolved by the OGCM and needed for the reaction term 
 \begin_inset Formula $R$
 \end_inset
@@ -929,7 +949,7 @@ The parameters of the
  fld_read
 \family default
  structure sn_trcdta allow to specify the name of the file, the frequency
- of input data and the interpolation wheights.
+ of input data and the interpolation weights.
  Note that the interpolation is still two-dimensional only and the input
  data must already be on the vertical grid of the model.
  It is possible to give a conversion factor that may also be used to increase
@@ -1376,7 +1396,7 @@ The coupling with NEMO adds three parameters that allow to parameterize
 \family typewriter
 KSINK_rPPy
 \family default
- (in metres), or by activating the enhancement of background velocity also
+ (in meters), or by activating the enhancement of background velocity also
  found in the PISCES model of NEMO (
 \family typewriter
 AggregateSink = .TRUE.
@@ -1443,7 +1463,7 @@ The BFM is zero-dimensional by construction and defined only in the ocean
  points.
  This implies that the BFM memory is one dimensional, with all the land
  points stripped out from the 3D domain and the remapping into the ocean
- grid is done only when dealing with transport processes as shown in Fig.
+ grid is done only when dealing with transport processes (as shown in Fig.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -1451,7 +1471,7 @@ reference "fig:Remapping"
 
 \end_inset
 
- taken from the BFM manual.
+ taken from the BFM manual).
  
 \end_layout
 
@@ -1469,27 +1489,138 @@ butterfly
  By convention, the routines of NEMO are indicated with blue boxes while
  the BFM routines are in green.
  Routines indicated with red boxes originally belong to NEMO TOP_SRC but
- are subtituted by the ones provided in the BFM directory.
+ are substituted by the ones provided in the BFM directory (
+\family typewriter
+$BFMDIR/src/nemo
+\family default
+).
 \end_layout
 
 \begin_layout Standard
-TO BE CONTINUED
-\end_layout
+A scheme of the NEMO initialization of passive tracers is shown in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:NEMO_init_tracers"
 
-\begin_layout Itemize
-Initialization.
- This routine is different from the standard BFM initialization of the STANDALON
-E configuration because it includes the transfer of grid parameters and
- the reading of three-dimensional field data
-\end_layout
+\end_inset
 
-\begin_layout Itemize
-Stepping: The main stepping routine of NEMO is stp, which calls trc_stp.
+, where a specific routine was designed to handle the information flow toward
+ BFM (
+\family typewriter
+trc_ini_bfm).
+ 
+\family default
+The initialization of BFM (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM_init_in_NEMO"
+
+\end_inset
+
+) in the coupling is different from the STANDALONE configuration, because
+ it includes also the transfer of grid parameters from NEMO and the reading
+ of three-dimensional field data of initial conditions (see Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Boundary-conditions-TOP"
+
+\end_inset
+
+).
  
 \end_layout
 
-\begin_layout Itemize
-trc_bfm and transfer of environmental variables
+\begin_layout Standard
+The time marching computation in NEMO are performed in the 
+\family typewriter
+stp
+\family default
+ routine (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM-NEMO_Stepping"
+
+\end_inset
+
+) and the passive tracers are specifically addressed in 
+\family typewriter
+trc_stp
+\family default
+.
+ A modified version of the latter subroutine was created to include three
+ different routines for the solution of BFM core processes (
+\family typewriter
+trc_bfm
+\family default
+), the advection and diffusion of state variables (
+\family typewriter
+trc_trp_bfm
+\family default
+), and the computation of output data (
+\family typewriter
+trc_dia_bfm
+\family default
+).
+ In particular, the 
+\family typewriter
+trc_bfm
+\family default
+ routine includes the retrieval of environmental conditions from NEMO (
+\family typewriter
+envforcing_bfm
+\family default
+), like e.g., temperature, salinity, light, and the computation of BFM biogeochemi
+cal processes (
+\family typewriter
+EcologyDynamics
+\family default
+).
+\end_layout
+
+\begin_layout Standard
+The transport of BFM state variables is operated by 
+\family typewriter
+trc_trp_bfm
+\family default
+ subroutine (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM-NEMO_transport"
+
+\end_inset
+
+), which is derived from the general one of NEMO for passive tracers (namely,
+ 
+\family typewriter
+trc_trp
+\family default
+).
+ In fact, this subroutine also handles the application of external boundary
+ conditions (
+\family typewriter
+trc_bc_bfm
+\family default
+), vertical sinking (
+\family typewriter
+trc_set_bfm
+\family default
+) and it prepares the model variables to perform the Euler Forward integration
+ (
+\family typewriter
+trc_nxt_bfm
+\family default
+).
+ 
+\end_layout
+
+\begin_layout Standard
+.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -1513,6 +1644,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:NEMO_init_tracers"
+
+\end_inset
+
 Graph of the initialization routine for passive tracers.
  This routine is not the default TOP routine but it is substituted by the
  version contained in 
@@ -1558,6 +1695,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BFM_init_in_NEMO"
+
+\end_inset
+
 Butterfly graph of the BFM initialization within NEMO.
  
 \end_layout
@@ -1593,6 +1736,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BFM-NEMO_Stepping"
+
+\end_inset
+
 Graph of the stepping routine 
 \family typewriter
 trc_stp
@@ -1650,6 +1799,12 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BFM-NEMO_transport"
+
+\end_inset
+
 Call graph of the transport routine 
 \family typewriter
 trc_trp_bfm
@@ -2152,7 +2307,7 @@ c output).
 BFM_PARALLEL 
 \family default
 macro is used to enable the creation of a simulation log file when using
- parallel exectuion on multiple processors.
+ parallel execution on multiple processors.
  Please refer to the BFM manual 
 \begin_inset CommandInset citation
 LatexCommand citep
@@ -2477,7 +2632,7 @@ reference "fig:Example-GYRE_BFM"
 ) that are separated by a simplified current that should mimic the features
  of a western boundary current.
  Phytoplankton production is generally localized around the current bordering
- the gyres and in correspondance with the cold and less stratified parts
+ the gyres and in correspondence with the cold and less stratified parts
  of the sub-polar gyre.
 \end_layout
 
@@ -2520,7 +2675,7 @@ name "fig:Example-GYRE_BFM"
 \end_inset
 
 Example output from GYRE_BFM after 9 years of simulation.
- Mean annual surface temperature and net primary production.
+ Mean annual sea surface temperature (top) and net primary production (bottom).
 \end_layout
 
 \end_inset
@@ -2553,7 +2708,7 @@ Description
 \end_layout
 
 \begin_layout Standard
-PELAGOS stands for PELAGic biogeochemistry for Global Ocean Symulations
+PELAGOS stands for PELAGic biogeochemistry for Global Ocean Simulations
  
 \begin_inset CommandInset citation
 LatexCommand citep
@@ -2683,7 +2838,7 @@ By default, PELAGOS2 is compiled with the embedded I/O library XIOS (
 key_iomput
 \family default
 ) which must be compiled as an external library.
- On a modern super-computer, 1 month of simulation takes about 6-10 minutes
+ On a modern super-computer, 1 month of simulation takes about 5 minutes
  using 128 processors.
 \end_layout
 
@@ -2768,319 +2923,118 @@ $BFMDIR_RUN/pelagos2
 \end_layout
 
 \begin_layout Section
-The PELAGOS2_OFF preset
+Results
 \end_layout
 
 \begin_layout Standard
-The name PELAGOS2_OFF identifies the model runs in off-line mode done by
- reading the ocean data produced with the ORCA2_LIM configuration.
- Differently from the on-line coupling, the code reads the ocean states
- contained in previously computed NEMO outputs and it does not do any other
- dynamical computation (vertical velocity can be prescribed in the input
- file or recomputed from horizontal velocities to ensure zero divergence).
- The off-line case is activated with the macro 
-\family typewriter
-key_offline
-\family default
- and all the other macros related to the computation of dynamics should
- be removed; the model domain and computational grid are entirely determined
- by the 
-\family typewriter
-mesh_mask.nc
-\family default
- file given as input.
+A 9 years-long simulation was performed with the PELAGOS2 configuration
+ by using the normal year CORE II atmospheric forcing (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "LargeYager2008"
+
+\end_inset
+
+) and climatological river runoff (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "DaiTren2002"
+
+\end_inset
+
+) and nutrients loads (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "dacunha2007"
+
+\end_inset
+
+).
+ The initial conditions of both physical and biogeochemical variables were
+ set using the World Ocean Atlas 2009 climatological fields (
+\begin_inset CommandInset citation
+LatexCommand citet
+key "WOA09"
+
+\end_inset
+
+).
+ In Fig.
  
-\end_layout
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:Example-output-PELAGOS2"
 
-\begin_layout Standard
-The off-line coupling has two major advantages: 1) it allows to use a previously
--validated ocean simulation and 2) the use of time-averaged model output
- (usually at daily frequency) may allow to apply a longer time-step, likely
- 2 to 3 times larger than the on-line coupling.
- It should be noticed that results may differ from the on-line coupling
- because ocean physics and time integration are different.
-\end_layout
+\end_inset
 
-\begin_layout Subsection
-Input data
-\end_layout
-
-\begin_layout Standard
-The following three-dimensional NEMO physical fields are the minimum requirement
-s for the correct off-line coupling, and they are extracted from the respective
- NEMO grids: 
-\end_layout
-
-\begin_layout Description
-grid_T: temperature, salinity, mixed layer depth, ice cover, shortwave flux,
- wind speed, river runoff and freshwater flux ( 
-\family typewriter
-votemper, vosaline, somixhgt, soicecov, soshfldo, sowindsp, sorunoff
-\family default
- , 
-\family typewriter
-[NEMO version<3.6: sowaflcd;NEMO version>=3.6, sowaflup and fmmflx]
-\family default
- )
-\end_layout
-
-\begin_layout Description
-grid_U: zonal velocity 
-\family typewriter
-(vozocrtx)
-\family default
+ are shown the mean annual fields for the sea surface temperature and the
+ satellite-like chlorophyll concentration (using 1% light threshold for
+ depth integration, see Sec.
  
-\end_layout
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Diagnostic-satellite-chl"
 
-\begin_layout Description
-grid_V: meridional velocity (vomecrty) 
-\end_layout
+\end_inset
 
-\begin_layout Description
-grid_W: vertical velocity and vertical turbulent diffusivity (vovecrtz,
- votkeavt)
-\end_layout
-
-\begin_layout Standard
-The initialisation of the NEMO components in the off-line configuration
- requires the following files : 
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-mesh_mask.nc
-\family default
- produced by the on-line model simulation, setting 
-\family typewriter
-nn_msh = 1
-\family default
- in the 
-\family typewriter
-namelist_cfg
-\family default
-.
- Please note that the model will not work properly if this file was generated
- from a parallel simulation where land domains have been excluded.
- This will create a mismatch with the number of grid points generating a
- set of NaN in the diagnostics that will slow down the simulation;
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-bathy_meter.nc
-\family default
- as prescribed in the on-line original simulation; 
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-coordinates.nc
-\family default
- for configurations with irregular grid as prescribed in the on-line original
- simulation;
-\end_layout
-
-\begin_layout Itemize
-
-\family typewriter
-runoff.nc
-\family default
-, required if rivers are used with the flag 
-\family typewriter
-ln_rnf = .true.
-
-\family default
- in 
-\family typewriter
-namelist_cfg
-\family default
- to allocate the river data structure.
-\end_layout
-
-\begin_layout Subsection
-NEMO Namelist
+) computed in the last year of simulation.
+ PELAGOS2 is capable to reproduce the main distribution patterns of primary
+ producers across the different oceanic regions, by preserving also the
+ minimum concentration within the subtropical oceanic gyres.
 \end_layout
 
 \begin_layout Standard
-The following part of the NEMO namelist (
-\family typewriter
-namdta_dym
-\family default
-) prescribes the data from the input files (this case assumes that NEMO3.4.1
- was used to create the ocean data):
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-lstparams "basicstyle={\tiny\ttfamily},language=Fortran"
-inline false
+\begin_inset Float figure
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/PELAGOS2_SST.png
+	lyxscale 20
+	scale 70
 
-!-----------------------------------------------------------------------
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/PELAGOS2_Chlsat_01.png
+	lyxscale 20
+	scale 70
 
-&namdta_dyn        !   offline dynamics read in files                ("key_offli
-ne")
+\end_inset
+
+
 \end_layout
 
 \begin_layout Plain Layout
-
-!-----------------------------------------------------------------------
-\end_layout
+\begin_inset Caption
 
 \begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:Example-output-PELAGOS2"
 
-!          !  file name  ! frequency (hours) ! variable  ! time interp.
- !  clim  ! 'yearly'/ ! weights  ! rotation !
-\end_layout
+\end_inset
 
-\begin_layout Plain Layout
+Example output from PELAGOS2 after 9 years of simulation.
+ Mean annual surface temperature (top) and satellite-like chlorophyll at
+ 1% light level (bottom).
+ See Sec.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sec:Diagnostic-satellite-chl"
 
-!          !             !  (if <0  months)  !   name    !   (logical) 
- !  (T/F) ! 'monthly' ! filename ! pairing  !
-\end_layout
+\end_inset
 
-\begin_layout Plain Layout
-
-   sn_tem  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'votemper'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_sal  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'vosaline'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_mld  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'somixhgt'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_emp  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'sowaflcd'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_ice  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'soicecov'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_qsr  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'soshfldo'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_wnd  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'sowindsp'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_rnf  = 'PELAGOS2_1d_20000101_20001230_grid_T' ,    24     , 'sorunoff'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_uwd  = 'PELAGOS2_1d_20000101_20001230_grid_U' ,    24     , 'vozocrtx'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_vwd  = 'PELAGOS2_1d_20000101_20001230_grid_V' ,    24     , 'vomecrty'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_wwd  = 'PELAGOS2_1d_20000101_20001230_grid_W' ,    24     , 'vovecrtz'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_avt  = 'PELAGOS2_1d_20000101_20001230_grid_W' ,    24     , 'votkeavt'
- ,  .true.
-    , .true.
- ,   'yearly'  , '' , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-!
-\end_layout
-
-\begin_layout Plain Layout
-
-   cn_dir      = './'       !  root directory for the location of the dynamical
- files
-\end_layout
-
-\begin_layout Plain Layout
-
-   ln_degrad   =  .false.
-   !  degradation option enabled (T) or not (F) - requires ("key_degrad")
-\end_layout
-
-\begin_layout Plain Layout
-
-   ln_dynwzv   =  .false.
-   !  vertical velocity read from file (T) or computed (F)
-\end_layout
-
-\begin_layout Plain Layout
-
-   ln_dynbbl   =  .false.
-   !  bbl coef read from file (T) or computed (F) - requires ("key_trabbl")
-\end_layout
-
-\begin_layout Plain Layout
-
-   ln_dynrnf   =  .true.
-    !  read runoff data in file (T) or set to zero (F)
-\end_layout
-
-\begin_layout Plain Layout
-
-/
+ for satellite-like chlorophyll computation.
 \end_layout
 
 \end_inset
@@ -3088,135 +3042,9 @@ ne")
 
 \end_layout
 
-\begin_layout Standard
-The activation of the keys 
-\family typewriter
-ln_dynwzv
-\family default
- and 
-\family typewriter
-ln_dynbbl
-\family default
- requires the availability of additional variables which are read from the
- NEMO output files
-\end_layout
-
-\begin_layout Standard
-\begin_inset listings
-lstparams "basicstyle={\tiny\ttfamily},language=Fortran"
-inline false
-status open
-
-\begin_layout Plain Layout
-
-ln_dynwzv   =  .true.
-     requires
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_eiu  = 'PELAGOS2_1d_20000101_20001230_grid_U' ,    24 , 'vozoeivu'
- ,  .true.
-    , .true.
- ,   'yearly'  , ''       , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_eiv  = 'PELAGOS2_1d_20000101_20001230_grid_V' ,    24 , 'vomeeivv'
- ,  .true.
-    , .true.
- ,   'yearly'  , ''       , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_eiw  = 'PELAGOS2_1d_20000101_20001230_grid_W' ,    24 , 'voveeivw'
- ,  .true.
-    , .true.
- ,   'yearly'  , ''       , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
------
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-ln_dynbbl   =  .true.
-      requires
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_ubl  = 'PELAGOS2_1d_20000101_20001230_grid_U' ,    24 , 'sobblcox'
- ,  .true.
-    , .true.
- ,   'yearly'  , ''       , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-   sn_vbl  = 'PELAGOS2_1d_20000101_20001230_grid_V' ,    24 , 'sobblcoy'
- ,  .true.
-    , .true.
- ,   'yearly'  , ''       , ''
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-while if these keys are set to false the related fields are recomputed by
- the code.
- After some testing we noticed that setting these keys to false determine
- a difference of about 1% in the BFM fields, while the computational times
- remains similar.
- Therefore, it seems acceptable to save some disk space and recalculate
- these variables during the execution of the off-line code.
-\end_layout
-
-\begin_layout Standard
-The key 
-\family typewriter
-ln_dynrnf
-\family default
- was specifically created to be used with BFM and at the moment it is not
- yet included in NEMO 3.6.
- Note that the namelists related to the surface boundary conditions (
-\family typewriter
-sbc
-\family default
-) can be left empty.
- The runoff (
-\family typewriter
-rnf
-\family default
-) namelist must instead be filled and data should be provided if rivers
- are used.
 \end_layout
 
 \begin_layout Chapter
@@ -3229,7 +3057,7 @@ Introduction
 
 \begin_layout Standard
 BFM uses its own libraries for NetCDF output that are specifically built
- to create diagnostic rates bewteen the biogeochemical variables 
+ to create diagnostic rates between the biogeochemical variables 
 \begin_inset CommandInset citation
 LatexCommand citep
 before "see Chap. 6 in"
@@ -3329,6 +3157,13 @@ BFM_General.nml
 
 \begin_layout Section
 Diagnostic computation of satellite chlorophyll
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Diagnostic-satellite-chl"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard

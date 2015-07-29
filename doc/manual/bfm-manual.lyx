@@ -311,7 +311,8 @@ This document should be cited as:
 \end_inset
 
 Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Masina
- S., McKiver W., Pinardi N., Solidoro C., Zavatarelli M.
+ S., McKiver W.
+ J., Pinardi N., Solidoro C., Zavatarelli M.
  (2015) The Biogeochemical Flux Model (BFM): Equation Description and User
  Manual.
  BFM version 5.1.
@@ -8522,7 +8523,20 @@ reference "part:BFM-code-description"
 \end_inset
 
  of this document and by providing new dynamical equations in the code.
- 
+ The main source of carbon for bacterioplankton is the organic matter pool
+ that is composed of particulate detritus (variables 
+\begin_inset Formula $R^{(6)}$
+\end_inset
+
+) and dissolved organic matter (DOM, variables 
+\begin_inset Formula $R^{(1)}$
+\end_inset
+
+ and 
+\begin_inset Formula $R^{(2)}$
+\end_inset
+
+).
 \end_layout
 
 \begin_layout Standard
@@ -10590,7 +10604,7 @@ In this parameterization labile DOC (
 \end_inset
 
 ), constitute the organic substrate available to bacteria.
- This parameterization requires that phytoplankton 
+ 
 \end_layout
 
 \begin_layout Subsubsection
@@ -18389,6 +18403,16 @@ negative
 
 , which means that their options are activated by default and needs to be
  deactivated when desired.
+ 
+\end_layout
+
+\begin_layout Standard
+Note that, the MODE field is used to specify if the code is compiled for
+ standalone or coupled execution, thus meaning that specific settings of
+ the script generator will be used.
+ Beside the STANDALONE mode, additional fields will be made available following
+ the release of the official coupling support for external hydrodynamic
+ models.
 \end_layout
 
 \begin_layout Description
@@ -22773,17 +22797,17 @@ name "sec:Test-cases"
 \end_layout
 
 \begin_layout Subsection
-CO2TEST: carbonate system model
+STANDALONE_CO2TEST: carbonate system model
 \end_layout
 
 \begin_layout Standard
 The most simple test case is
 \family typewriter
- CO2TEST
+ STANDALONE_CO2TEST
 \family default
  that generates the run directory
 \family typewriter
- run/co2test
+ run/standalone.co2test
 \family default
 .
  if the BFM is configured with 
@@ -22910,7 +22934,7 @@ http://www.cgd.ucar.edu/ cms/eaton/cf-metadata/
 \end_inset
 
 ).
- The STANDALONE output can be visualized with the all-round 
+ The STANDALONE test cases output can be visualized with the all-round 
 \family typewriter
 ncview
 \family default
@@ -23021,7 +23045,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Sample output of the STANDALONE test case temperate.pelagic.
+Sample output of the STANDALONE_PELAGIC test case.
  a) temperature; b) irradiance
 \begin_inset CommandInset label
 LatexCommand label
@@ -23120,7 +23144,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Sample output of the STANDALONE test case standalone.pelagic.
+Sample output of the STANDALONE_PELAGIC test case.
  a) phosphate; b) nitrate 
 \end_layout
 
@@ -23212,7 +23236,7 @@ status open
 \begin_inset Caption
 
 \begin_layout Plain Layout
-Sample output of the STANDALONE test case temperate.pelagic.
+Sample output of the STANDALONE_PELAGIC test case.
  a) Chlorophyll-a; b) gross primary production
 \begin_inset CommandInset label
 LatexCommand label
@@ -23286,7 +23310,7 @@ The BFM is structured similarly as the original ERSEM used to be.
  of vertical layers while the benthic and surface variables have dimension
  1 (the bottom and surface levels, with the index depending on the definitions
  of the physical model).
- In a 0-D setup (as in the STANDALONE test case described in Chap.
+ In a 0-D setup (as in the STANDALONE test cases described in Chap.
  
 \begin_inset CommandInset ref
 LatexCommand ref
