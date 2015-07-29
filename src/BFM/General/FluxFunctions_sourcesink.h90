@@ -27,7 +27,7 @@
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           subroutine flux_vector(iiSub,origin,destination,flux)
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-            use constants, only: RLEN, ZERO,  SEC_PER_DAY
+            use constants, only: RLEN, ZERO,  SEC_PER_DAY, DAY_PER_SEC
             use global_mem, only: LOGUNIT
             !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
             ! Implicit typing is never allowed
@@ -92,11 +92,10 @@
 #endif
               select case ( iiSub )
                 case (iiPel)
-                   !               write(LOGUNIT,*) origin,destination,flux/SEC_PER_DAY,D3SINK(origin,destination,:),D3SOURCE(destination,origin,:)
                    D3SINK(origin,destination,:)  =  D3SINK(origin,destination,:) + & 
-                        flux/SEC_PER_DAY
+                        flux*DAY_PER_SEC
                    D3SOURCE(destination,origin,:)=  D3SOURCE(destination,origin,:) + &
-                        flux/SEC_PER_DAY
+                        flux*DAY_PER_SEC
                    if( allocated( D3FLUX_MATRIX ) .AND. &
                         allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
                       do j=1, SIZE(D3FLUX_MATRIX(origin,destination)%p)
@@ -107,11 +106,10 @@
                    endif
 #if defined INCLUDE_SEAICE
                 case (iiIce)
-                   !               write(LOGUNIT,*) origin,destination,flux/SEC_PER_DAY,D2SINK_ICE(origin,destination,:),D2SOURCE_ICE(destination,origin,:)
                    D2SINK_ICE(origin,destination,:)  =  D2SINK_ICE(origin,destination,:) + & 
-                        flux/SEC_PER_DAY
+                        flux*DAY_PER_SEC
                    D2SOURCE_ICE(destination,origin,:)=  D2SOURCE_ICE(destination,origin,:) + &
-                        flux/SEC_PER_DAY
+                        flux*DAY_PER_SEC
                    if( allocated( D2FLUX_MATRIX_ICE ) .AND. &
                         allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
                       do j=1, SIZE(D2FLUX_MATRIX_ICE(origin,destination)%p)
@@ -123,11 +121,10 @@
 #endif
 #if defined INCLUDE_BEN
                 case (iiBen)
-                   !               write(LOGUNIT,*) origin,destination,flux/SEC_PER_DAY,D2SINK_BEN(origin,destination,:),D2SOURCE_BEN(destination,origin,:)
                    D2SINK_BEN(origin,destination,:)  =  D2SINK_BEN(origin,destination,:) + & 
-                        flux/SEC_PER_DAY
+                        flux*DAY_PER_SEC
                    D2SOURCE_BEN(destination,origin,:)=  D2SOURCE_BEN(destination,origin,:) + &
-                        flux/SEC_PER_DAY
+                        flux*DAY_PER_SEC
                    if( allocated( D2FLUX_MATRIX_BEN ) .AND. &
                         allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
                       do j=1, SIZE(D2FLUX_MATRIX_BEN(origin,destination)%p)
@@ -143,10 +140,10 @@
                 case (iiPel)
                   where ( flux > ZERO )
                     D3SOURCE(origin,destination,:) =D3SOURCE(origin,destination,:) + &
-                      flux/SEC_PER_DAY
+                      flux*DAY_PER_SEC
                   elsewhere
                     D3SINK(destination,origin,:) =D3SINK(destination,origin,:) - &
-                      flux/SEC_PER_DAY
+                      flux*DAY_PER_SEC
                   end where
                   if( allocated( D3FLUX_MATRIX ) .AND. &
                        allocated( D3FLUX_MATRIX(origin,destination)%p ) ) then
@@ -168,10 +165,10 @@
                 case (iiIce)
                   where ( flux > ZERO )
                     D2SOURCE_ICE(origin,destination,:) =D2SOURCE_ICE(origin,destination,:) + &
-                      flux/SEC_PER_DAY
+                      flux*DAY_PER_SEC
                   elsewhere
                     D2SINK_ICE(destination,origin,:) =D2SINK_ICE(destination,origin,:) - &
-                      flux/SEC_PER_DAY
+                      flux*DAY_PER_SEC
                   end where
                   if( allocated( D2FLUX_MATRIX_ICE ) .AND. &
                        allocated( D2FLUX_MATRIX_ICE(origin,destination)%p ) ) then
@@ -194,10 +191,10 @@
                 case (iiBen)
                   where ( flux > ZERO )
                     D2SOURCE_BEN(origin,destination,:) =D2SOURCE_BEN(origin,destination,:) + &
-                      flux/SEC_PER_DAY
+                      flux*DAY_PER_SEC
                   elsewhere
                     D2SINK_BEN(destination,origin,:) =D2SINK_BEN(destination,origin,:) - &
-                      flux/SEC_PER_DAY
+                      flux*DAY_PER_SEC
                   end where
                   if( allocated( D2FLUX_MATRIX_BEN ) .AND. &
                        allocated( D2FLUX_MATRIX_BEN(origin,destination)%p ) ) then
@@ -231,7 +228,7 @@
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
           subroutine flux(grid_nr,iiSub,origin,destination,flow,error)
           !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-          use constants, only: RLEN, ZERO, SEC_PER_DAY
+          use constants, only: RLEN, ZERO, SEC_PER_DAY, DAY_PER_SEC
           use global_mem, only: LOGUNIT
           implicit none
           integer,intent(IN)                 :: grid_nr
@@ -279,17 +276,17 @@
 #endif
             select case ( iiSub )
               case (iiPel)
-                D3SINK(origin,destination,grid_nr)=flow/SEC_PER_DAY
-                D3SOURCE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+                D3SINK(origin,destination,grid_nr)=flow*DAY_PER_SEC
+                D3SOURCE(destination,origin,grid_nr)= flow*DAY_PER_SEC
 #if defined INCLUDE_SEAICE
               case (iiIce)
-                D2SINK_ICE(origin,destination,grid_nr)= flow/SEC_PER_DAY
-                D2SOURCE_ICE(destination,origin,grid_nr)= flow/SEC_PER_DAY
+                D2SINK_ICE(origin,destination,grid_nr)= flow*DAY_PER_SEC
+                D2SOURCE_ICE(destination,origin,grid_nr)= flow*DAY_PER_SEC
 #endif
 #if defined INCLUDE_BEN
               case (iiBen)
-                D2SINK_BEN(origin,destination,grid_nr)= flow/SEC_PER_DAY
-                D2SOURCE_BEN(destination,origin,grid_nr)= flow/SEC_PER_DAY
+                D2SINK_BEN(origin,destination,grid_nr)= flow*DAY_PER_SEC
+                D2SOURCE_BEN(destination,origin,grid_nr)= flow*DAY_PER_SEC
 #endif
             end select
           else
@@ -297,29 +294,29 @@
               case (iiPel)
                 if (flow > ZERO ) then
                   D3SOURCE(destination,origin,grid_nr)=  &
-                           D3SOURCE(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                           D3SOURCE(destination,origin,grid_nr)+flow*DAY_PER_SEC
                 else
                   D3SINK(origin,destination,grid_nr)=    &
-                         D3SINK(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                         D3SINK(origin,destination,grid_nr)-flow*DAY_PER_SEC
                 endif
 #if defined INCLUDE_SEAICE
               case (iiIce)
                 if (flow > ZERO ) then
                   D2SOURCE_ICE(destination,origin,grid_nr)=  &
-                           D2SOURCE_ICE(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                           D2SOURCE_ICE(destination,origin,grid_nr)+flow*DAY_PER_SEC
                 else
                   D2SINK_ICE(origin,destination,grid_nr)=    &
-                         D2SINK_ICE(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                         D2SINK_ICE(origin,destination,grid_nr)-flow*DAY_PER_SEC
                 endif
 #endif
 #if defined INCLUDE_BEN
               case (iiBen)
                 if (flow > ZERO ) then
                   D2SOURCE_BEN(destination,origin,grid_nr)=  &
-                           D2SOURCE_BEN(destination,origin,grid_nr)+flow/SEC_PER_DAY
+                           D2SOURCE_BEN(destination,origin,grid_nr)+flow*DAY_PER_SEC
                 else
                   D2SINK_BEN(origin,destination,grid_nr)=    &
-                         D2SINK_BEN(origin,destination,grid_nr)-flow/SEC_PER_DAY
+                         D2SINK_BEN(origin,destination,grid_nr)-flow*DAY_PER_SEC
                 endif
 #endif
             end select
