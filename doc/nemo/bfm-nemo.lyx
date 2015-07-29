@@ -1,5 +1,5 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
 \begin_document
 \begin_header
 \textclass scrbook
@@ -51,13 +51,13 @@ eqs-within-sections
 \font_roman times
 \font_sans helvet
 \font_typewriter courier
+\font_math auto
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics dvips
 \default_output_format default
 \output_sync 0
@@ -68,15 +68,24 @@ eqs-within-sections
 \use_hyperref false
 \papersize a4paper
 \use_geometry true
-\use_amsmath 1
-\use_esint 0
-\use_mhchem 1
-\use_mathdots 1
-\cite_engine natbib_authoryear
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date true
+\justification true
 \use_refstyle 0
 \index Index
 \shortcut idx
@@ -428,7 +437,7 @@ parts
  This theoretical formulation has been proposed initially by 
 \begin_inset CommandInset citation
 LatexCommand citet
-key "Wroblewski1977"
+key "obrien73"
 
 \end_inset
 
@@ -469,28 +478,30 @@ key "vichi07_part1"
 \end_inset
 
 , and we acknowledge that a similar theoretical formulation was previously
- proposed by Robinson (1997) who also provided a mathematical analysis of
- the analytical solutions.
+ proposed by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "Robinson1997"
+
+\end_inset
+
+, who also provided a mathematical derivation of the analytical solutions.
  Passively transported variables can be basically described using concentrations
  of functional living and non-living components (the chemical functional
  families proposed by 
 \begin_inset CommandInset citation
-LatexCommand citet
+LatexCommand citealp
 key "vichi07_part1"
 
 \end_inset
 
-, and we write the conservation equation for an infinitesimal volume of
+), and we write the conservation equation for an infinitesimal volume of
  fluid containing the concentration 
 \begin_inset Formula $C$
 \end_inset
 
-.
- We apply the continuum hypothesis that if 
-\begin_inset Formula $C$
-\end_inset
-
- indicates a BFM variable concentration, the value of 
+ for a BFM variable.
+ We apply the continuum hypothesis that the value of 
 \begin_inset Formula $C$
 \end_inset
 
@@ -562,13 +573,13 @@ reference "eq:ADR"
 \begin_inset Formula $w_{B}$
 \end_inset
 
- is introduced for those state variables that have a vertical velocity other
- than the fluid vertical velocity, as for instance sinking particulate material.
+ is introduced for those state variables that have a mass-related vertical
+ velocity other than the fluid vertical velocity.
 \end_layout
 
 \begin_layout Standard
 This approximation brings us to the typical form of an advection-diffusion-react
-ion equation in a moving ocean with incompressible fluid:
+ion equation in an incompressible fluid:
 \begin_inset Formula 
 \begin{equation}
 \frac{\partial C}{\partial t}=-\mathbf{u}\cdot\nabla C+\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+\left.\frac{\partial C}{\partial t}\right|_{bio}\label{eq:ADR}
@@ -586,8 +597,9 @@ where
 
  are the horizontal and vertical turbulent diffusivity coefficient for tracers.
  To highlight the coupling between physical and biogeochemical processes,
- we may rewrite this equation indicating more explicitly the ocean variables
- that are resolved by the OGCM and needed for the reaction term 
+ we may rewrite this equation in component froms, also indicating the ocean
+ variables that are resolved by the OGCM and needed for the reaction term
+ 
 \begin_inset Formula $R$
 \end_inset
 
@@ -599,8 +611,8 @@ where
 
 \end_inset
 
-where the symbols within brackets indicate water temperature (T), salinity
- (S), wind velocity (W), and shortwave irradiance (E).
+where the scalar symbols in the last term indicate water temperature (T),
+ salinity (S), the intensity of wind (W), and shortwave irradiance (E).
 \end_layout
 
 \begin_layout Section
@@ -615,8 +627,9 @@ reference "eq:ADR"
 
 \end_inset
 
-) is an approximated form of the primitive equation for biogeochemical variables
- in the ocean.
+) is one approximated form of a primitive equation for biogeochemical variables
+ in the ocean and requires the knowledge of ocean physical variables to
+ be solved.
  The time evolution of physical variables is carried out by the OGCM and
  transferred to the biogeochemical model.
  A typical, generic scheme of the information flow between the two models
@@ -640,7 +653,7 @@ reference "eq:ADR"
 
 ) and then combined to obtain the forward in time biogeochemical states.
  This equation cannot be solved analytically but requires a numerical integratio
-n just as it happens for temperature and salinity on OGCM.
+n, just as it happens for temperature and salinity on OGCM.
  Usually, the same kind of numerical scheme is used.
  The sensitivity of the BFM to integration schemes has been tested by 
 \begin_inset CommandInset citation
@@ -681,7 +694,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -1423,7 +1436,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -1641,7 +1654,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -1692,7 +1705,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -1733,7 +1746,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -1796,7 +1809,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -1998,22 +2011,6 @@ status open
 
 \end_layout
 
-\begin_layout Section
-Missing features
-\end_layout
-
-\begin_layout Standard
-BFM-NEMO is still not completed:
-\end_layout
-
-\begin_layout Itemize
-Dynamical free surface and variable volume.
-\end_layout
-
-\begin_layout Itemize
-XIOS library not implemented on the BFM side.
-\end_layout
-
 \begin_layout Chapter
 Installation, configuration and compilation
 \end_layout
@@ -2097,11 +2094,11 @@ perl
 \end_layout
 
 \begin_layout Standard
-Download the source code from the BFM website, create a directory and extract
- the contents of the tarball.
+Download the source code from the BFM website or through the git repository.
+ In the example below it is assumed that you downloaded the tarball.
  The downloaded file may have a different name based on the version.
- Then create the required basic environmental variables pointing at the
- root directories as: 
+ As a final step create the required basic environmental variables pointing
+ at the root directories as: 
 \end_layout
 
 \begin_layout Standard
@@ -2167,8 +2164,15 @@ bfm_configure.sh
 ./bfm_configure.sh -h
 \family default
 ).
- The default configuration is generated, compiled and deployed with the
- command:
+ The default configuration (see Chap.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:Running-GYRE_BFM"
+
+\end_inset
+
+) is generated, compiled and deployed with the command:
 \end_layout
 
 \begin_layout Standard
@@ -2328,8 +2332,7 @@ EXPFILES
 \family default
 , that contains the name of the ancillary files (the configuration namelist
  for NEMO and TOP interface), as well as the the I/O definition that have
- to be copied to the running directory.
- In the specific case of NEMO > 3.6, the configuration script also copies
+ to be copied to the running directory.The configuration script also copies
  the reference configurations from the 
 \family typewriter
 CONFIG/SHARED
@@ -2553,7 +2556,7 @@ GYRE_BFM is an analytical configuration of NEMO that simulates a warm and
  year of 360 days and starts from homogeneous initial conditions for biogeochemi
 stry.
  The model output is in NetCDF.
- The default grid is 22 x 32 with 31 depth levels.
+ The default grid is 22 x 32 with 31 vertical levels.
 \end_layout
 
 \begin_layout Section
@@ -2665,7 +2668,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -2950,6 +2953,8 @@ key "dacunha2007"
 \end_inset
 
 ).
+ All data are available on the NEMO web sute (http://www.nemo-ocean.eu/Using-NEMO/
+Configurations/ORCA2_LIM_PISCES).
  The initial conditions of both physical and biogeochemical variables were
  set using the World Ocean Atlas 2009 climatological fields (
 \begin_inset CommandInset citation
@@ -3014,7 +3019,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -3214,7 +3219,7 @@ chlsat.nml
 
 \begin_layout Standard
 \begin_inset listings
-lstparams "basicstyle={\tiny\ttfamily},language=Fortran"
+lstparams "language=Fortran,basicstyle={\scriptsize\ttfamily}"
 inline false
 status open
 
