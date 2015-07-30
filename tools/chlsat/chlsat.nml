@@ -29,12 +29,12 @@
 !
 !------------------------------------------------------------------------------------!
 &chlsat_nml
-   out_fname='Manual_chlsat.nc'
-   inp_dir='/users/home/ans033/GIT/bfm/run/pelagos2'
-   out_dir='.'
+   out_fname='chlsat_output.nc'
+   inp_dir='/path/to/inp_dir'
+   out_dir='/path/to/out_dir'
    compute_chlsat=.true.
-   mask_fname='ORCA2_chlmask.nc'
-   chla_fname='PELAGOS2_1y_20000101_20081231_bfm.nc'
+   mask_fname='chlmask.nc'
+   chla_fname='bfm_output.nc'
    chla_name='Chla'
    compute_eps=.true.
    p_eps0=0.0435

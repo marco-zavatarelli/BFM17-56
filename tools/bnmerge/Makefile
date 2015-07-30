@@ -1,3 +1,5 @@
+# Makefile bnmerge
+
 ifeq ($(DEBUG),yes)
 	OPTDEBUG=-DDEBUG
 endif
@@ -9,7 +11,7 @@ else
 	COMPILER=ifort.inc
 endif
 
-include ../../compilers/$(COMPILER)
+include ${BFMDIR}/compilers/$(COMPILER)
 
 .DEFAULT:
 	-touch $@

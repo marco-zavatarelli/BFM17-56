@@ -1,4 +1,4 @@
-# Makefile created by mkmf $Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ 
+# Makefile chlsat 
 
 include ${BFMDIR}/compilers/ifort.inc
 
@@ -7,13 +7,13 @@ include ${BFMDIR}/compilers/ifort.inc
 .DEFAULT:
 	-touch $@
 all: chlsat
-chlsat.o: ./src/chlsat.F90 mod_chlsat.o
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./src/chlsat.F90
-mod_chlsat.o: ./src/mod_chlsat.F90
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./src/mod_chlsat.F90
-read_create.o: ./src/read_create.F90 mod_chlsat.o
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./src/read_create.F90
-SRC = ./src/read_create.F90 ./src/mod_chlsat.F90 ./src/chlsat.F90
+chlsat.o: src/chlsat.F90 mod_chlsat.o
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/chlsat.F90
+mod_chlsat.o: src/mod_chlsat.F90
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/mod_chlsat.F90
+read_create.o: src/read_create.F90 mod_chlsat.o
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/read_create.F90
+SRC = src/read_create.F90 src/mod_chlsat.F90 src/chlsat.F90
 OBJ = read_create.o mod_chlsat.o chlsat.o
 clean: neat
 	-rm -f .cppdefs $(OBJ) *.mod chlsat.x
