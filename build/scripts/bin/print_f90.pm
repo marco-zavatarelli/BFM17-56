@@ -104,6 +104,7 @@ my $dispatch = {
     #INIT
     '([^\%]*)\%value-init-calc-(pel|ben|ice)\s*(\S*)(?:\s|\n)' => \&func_INIT_VALUE_CALC ,
     '([^\%]*)\%(3|2)d-(state)-(pel|ben|ice)-Initpp(?:\s|\n)'   => \&func_INIT_PP ,
+    '\%init-ratiodefault-constituents(?:\s|\n)'                => \&func_INIT_RATIO_CONST ,
     '\%init-func-constituents(?:\s|\n)'                        => \&func_INIT_FUNC_CONST ,
     '\%init-(pel|ben|ice)-namelist\s*(\d*)\s*(\d*)(?:\s|\n)'   => \&func_INIT_NAMELIST ,
     '\%(3|2)d-init-(pel|ben|ice)-output-variables(?:\s|\n)'    => \&func_INIT_OUTPUT_VARIABLES ,
@@ -1391,6 +1392,38 @@ sub func_INIT_PP  {
         printList($file, \@line_par, $before ); print $file "\n";
     }
 }
+
+sub func_INIT_RATIO_CONST {
+    my ( $file ) = @_;
+    if ( $DEBUG ){ print "INIT_VAR_BFM -> FUNCTION CALLED func_INIT_RATIO_CONST: "; }
+
+    my $line = '';
+    my $defratio = '';
+    my @constList = ();
+    my @constNoCList = ();
+    my @constOptionalList = ();
+    my @constOptionalRatioList = ();
+
+    foreach my $const ( sort { $$LST_CONST{$a} cmp $$LST_CONST{$b} } keys %$LST_CONST ){
+        push(@constList, $const);
+        if($const ne $constList[0]){
+            push( @constNoCList, $const );
+            push( @constOptionalList, $const . $constList[0] );
+        }
+    }
+    foreach my $constOpt (@constOptionalList){
+     $defratio = "ZERO";
+     if($constOpt eq "nc") {$defratio = "0.0126_RLEN    ! Redfield" };
+     if($constOpt eq "pc") {$defratio = "0.7862e-3_RLEN ! Redfield" };
+     if($constOpt eq "sc") {$defratio = "0.0145_RLEN    ! Redfield" };
+     if($constOpt eq "lc") {$defratio = "0.03_RLEN      ! standard diatom value" };
+     if($constOpt eq "fc") {$defratio = "3.e-04_RLEN    ! standard diatom value" };
+     $line .="   real(RLEN),parameter :: " . $constOpt . "_ratio_default = " . $defratio . "\n";
+    }
+
+    if( $line ){ print $file $line; }
+}
+
 
 sub func_INIT_FUNC_CONST {
     my ( $file ) = @_;

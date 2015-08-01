@@ -5,12 +5,7 @@ MODULE init_var_bfm_local
    USE global_mem,ONLY: RLEN,ZERO
    IMPLICIT NONE
 
-   real(RLEN),parameter :: nc_ratio_default = 0.0126_RLEN    ! Redfield
-   real(RLEN),parameter :: pc_ratio_default = 0.7862e-3_RLEN ! Redfield
-   real(RLEN),parameter :: sc_ratio_default = 0.0145_RLEN    ! Redfield
-   real(RLEN),parameter :: lc_ratio_default = 0.03_RLEN      ! standard diatom value
-   real(RLEN),parameter :: fc_ratio_default = 3.e-04_RLEN    ! standard diatom value
-   real(RLEN),parameter :: hc_ratio_default = ZERO           ! standard diatom value
+%init-ratiodefault-constituents
 
    character(len=*),parameter :: bfm_init_fname      = 'BFM_General.nml'
    character(len=*),parameter :: bfm_init_fname_ice  = 'BFM_General.nml'
