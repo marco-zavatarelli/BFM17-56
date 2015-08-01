@@ -1,5 +1,5 @@
-#LyX 2.0 created this file. For more info see http://www.lyx.org/
-\lyxformat 413
+#LyX 2.1 created this file. For more info see http://www.lyx.org/
+\lyxformat 474
 \begin_document
 \begin_header
 \textclass scrbook
@@ -51,13 +51,13 @@ eqs-within-sections
 \font_roman times
 \font_sans helvet
 \font_typewriter courier
+\font_math auto
 \font_default_family default
 \use_non_tex_fonts false
 \font_sc false
 \font_osf false
 \font_sf_scale 100
 \font_tt_scale 100
-
 \graphics dvips
 \default_output_format default
 \output_sync 0
@@ -68,15 +68,24 @@ eqs-within-sections
 \use_hyperref false
 \papersize a4paper
 \use_geometry true
-\use_amsmath 1
-\use_esint 0
-\use_mhchem 1
-\use_mathdots 1
-\cite_engine natbib_authoryear
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 0
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine natbib
+\cite_engine_type authoryear
+\biblio_style plainnat
 \use_bibtopic false
 \use_indices false
 \paperorientation portrait
 \suppress_date true
+\justification true
 \use_refstyle 0
 \index Index
 \shortcut idx
@@ -310,9 +319,9 @@ This document should be cited as:
 \begin_inset Newline newline
 \end_inset
 
-Vichi M., Cossarini G., Gutierrez Mlot E., Lazzari P., Lovato T., Mattia G., Masina
+Vichi M., Lovato T., Lazzari P., Cossarini G., Gutierrez Mlot E., Mattia G., Masina
  S., McKiver W.
- J., Pinardi N., Solidoro C., Zavatarelli M.
+ J., Pinardi N., Solidoro C., Tedesco L., Zavatarelli M.
  (2015) The Biogeochemical Flux Model (BFM): Equation Description and User
  Manual.
  BFM version 5.1.
@@ -652,6 +661,13 @@ name "part:The-BFM-Equations"
 
 \begin_layout Chapter
 The formalism of the BFM equations
+\begin_inset CommandInset label
+LatexCommand label
+name "chap:BFM-formalism"
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Standard
@@ -896,7 +912,7 @@ centerline{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="23" columns="6">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="block" valignment="top" width="1.5cm">
 <column alignment="block" valignment="top" width="2cm">
 <column alignment="block" valignment="top" width="1cm">
@@ -2787,7 +2803,7 @@ status collapsed
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -2797,7 +2813,7 @@ name "tab:model_variables"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -2852,9 +2868,9 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="11" columns="2">
-<features tabularvalignment="middle">
-<column alignment="left" valignment="top" width="0">
-<column alignment="left" valignment="top" width="0">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
 <row>
 <cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
@@ -3107,7 +3123,7 @@ Biochemical remineralization
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -3117,7 +3133,7 @@ name "tab:abbreviations"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -3180,7 +3196,7 @@ status collapsed
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -3539,7 +3555,7 @@ centering{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="9" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -4037,7 +4053,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -4047,7 +4063,7 @@ name "tab:env-variables"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -4255,7 +4271,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -4265,7 +4281,7 @@ name "box:phytoplankton"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -4363,7 +4379,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="33" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -6164,7 +6180,7 @@ Relaxation rate toward the optimal Chl:C value
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -6174,7 +6190,7 @@ name "tab:phytoplankton_parameters"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -7251,7 +7267,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -7261,7 +7277,7 @@ name "box:phytoplankton_Chl_synthesis"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -7745,7 +7761,7 @@ status collapsed
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="9" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="3cm">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -8252,7 +8268,7 @@ Specific dissolution fraction of dust iron
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -8262,7 +8278,7 @@ name "tab:iron_parameters"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -8772,7 +8788,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -8782,7 +8798,7 @@ name "box:bacteria"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -8814,7 +8830,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="23" columns="5">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -10370,7 +10386,7 @@ Switch for bacteria parameterization: 1=BACT1; 2=BACT2; 3=BACT3
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -10380,7 +10396,7 @@ name "tab:bacteria-parameters"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -11275,7 +11291,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -11285,7 +11301,7 @@ name "box:zooplankton"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -11319,7 +11335,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="18" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="2cm">
@@ -12284,7 +12300,7 @@ Oxygen-dependent specific mortality rate
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -12294,7 +12310,7 @@ name "tab:microzoo-parameters"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -12331,7 +12347,7 @@ status open
 \align left
 \begin_inset Tabular
 <lyxtabular version="3" rows="15" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="3cm">
@@ -13161,7 +13177,7 @@ Exponent for density dependent mortality
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -13171,7 +13187,7 @@ name "tab:mesozoo-parameters"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -13531,11 +13547,11 @@ centerline{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="5" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="center" valignment="middle" width="2cm">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
-<column alignment="center" valignment="top" width="0">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
 \begin_inset Text
@@ -14083,7 +14099,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -14093,7 +14109,7 @@ name "tab:Mesozooplankton-formulation-to"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -14909,10 +14925,10 @@ centerline{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="19" columns="4">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="block" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="3cm">
-<column alignment="left" valignment="top" width="0">
+<column alignment="left" valignment="top">
 <column alignment="block" valignment="top" width="7cm">
 <row>
 <cell alignment="center" valignment="top" topline="true" bottomline="true" usebox="none">
@@ -16015,7 +16031,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -16025,7 +16041,7 @@ name "tab:Chemical-parameters"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -16137,7 +16153,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -16388,7 +16404,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -16398,7 +16414,7 @@ name "box:DOM"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -16749,7 +16765,7 @@ end{subequations}
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -17289,8 +17305,8 @@ centering{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="16" columns="3">
-<features tabularvalignment="middle">
-<column alignment="left" valignment="top" width="0">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top">
 <column alignment="left" valignment="top" width="2cm">
 <column alignment="left" valignment="top" width="6cm">
 <row>
@@ -17935,7 +17951,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -17945,7 +17961,7 @@ name "tab:Parameters-carbonate"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -17982,6 +17998,3790 @@ balance
 \end_inset
 
 
+\end_layout
+
+\begin_layout Chapter
+The sea ice biogeochemical model
+\begin_inset CommandInset label
+LatexCommand label
+name "chap:sea-ice"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+A model for sea ice biogeochemistry
+\end_layout
+
+\begin_layout Standard
+Sea ice is a rich habitat for microbial community.
+ The most abundant species found are unicellular microalgae, mostly diatoms.
+ When sea ice forms, many organisms are either passively or actively entrapped
+ in the salty brines.
+ Their rate of survival in the new habitat depends on their adaptation and/or
+ acclimation to the new environmental conditions (low temperature, high
+ salinity and low light intensities) and on the external supply of nutrients
+ and gases from seawater.
+ Some organisms may die in isolated brines, some may survive or encyst,
+ some may find a favorable habitat and actively grow.
+ Concentrations up to 1000 mg m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+of diatom chlorophyll have been found in Antarctic sea ice 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "thomas02"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The sea ice biogeochemical cycle is also strongly related to its oceanic
+ counterpart.
+ This is of extreme biological importance at the end of the ice season,
+ when sea ice starts melting and a sea ice algae bloom occurs.
+ The fate of this biomass depends on the rate of melting and on the vertical
+ stability of the water column.
+ If the stratification is high and the rate of melting is low, sea ice algae
+ may stay long time in the upper part of the water column and may seed a
+ pelagic phytoplankton bloom.
+ Polar blooms represent a relevant fraction of the carbon production in
+ some regions of the world, such as the Ross Sea and the Weddell Sea in
+ Antarctica, and the Barents Sea in the Arctic.
+ If the rate of melting is high and the stratification is low, the sea ice
+ biomass may rapidly sink to the bottom of the ocean and likely become a
+ sink for the atmospheric CO
+\begin_inset Formula $_{\text{2}}$
+\end_inset
+
+.
+ In both cases, the size and weight of the organisms affect the sinking
+ velocity, together with the grazing rate by zooplankton.
+\end_layout
+
+\begin_layout Standard
+Sea ice biota has been studied for only a few decades.
+ Few regions have been highly characterized, but sea ice biological variability
+ at different temporal and spatial scales is still lacking.
+ Sea ice is one of the largest ecosystem on earth, but is also one of the
+ less sampled: sampling sea ice biota is in fact not an easy task.
+ It is costly and time-consuming and often it is done in severe environmental
+ conditions.
+ In absence of data and remote sensing facilities, modelling can give a
+ large contribution to the understanding of the sea ice ecosystem, as well
+ as it can provide the wider picture of its qualitative and quantitative
+ importance, which is still missing.
+\end_layout
+
+\begin_layout Standard
+The sea ice extension of the BFM described here (BFM-SI) has been published
+ in a series of papers 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "tedesco09a,tedesco10,tedesco12,tedesco14"
+
+\end_inset
+
+ and this chapter is a modified version of 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco2010bfm"
+
+\end_inset
+
+.
+ The reader interested in a full theoretical description and a review of
+ the existing techniques for sea ice biogeochemical modelling is addressed
+ to 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco14"
+
+\end_inset
+
+.
+ This latter paper also describes the default example available as part
+ of the BFM presets, STANDALONE_SEAICE.
+\end_layout
+
+\begin_layout Section
+Model structure
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:BFM-SI"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+This implementation focuses on primary producers, which are the most abundant
+ group of organisms found in sea ice and the most relevant group in terms
+ of export of biomass to the ocean.
+ The biogeochemical equations of the sea ice algae dynamics are written
+ according to the formulation explained in Chapter .
+ 
+\end_layout
+
+\begin_layout Standard
+The model layout (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM-SI"
+
+\end_inset
+
+) takes advantage of the same biological processes of the pelagic BFM.
+ The focus is here on primary producers, which are assumed to differently
+ adapt and acclimatize to the new physical environment.
+ The main differences between BFM and BFM-SI stand in the type and number
+ of functional groups (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_variables"
+
+\end_inset
+
+), in the parameters assigned to several physiological and ecological processes
+ (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+) and in the dimensional form they represent.
+ While pelagic state variables are expressed in terms of their constituent
+ per cubic meters, the BFM-SI state variables are expressed in terms of
+ constituent per square meters.
+ The strategy of coupling will be further described.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement t
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics
+	filename Figures/BFM-SI.eps
+	width 100text%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\lang english
+Scheme of the state variables of BFM-SI and interactions within BFM-SI and
+ with external systems.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BFM-SI"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement t
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+
+\lang english
+List of the sea ice model state variables
+\end_layout
+
+\end_inset
+
+
+\lang english
+List of the sea ice model state variables.
+ 
+\lang american
+Legend: IO = Inorganic; LO = Living organic; NO = Non-living organic.
+ The subscript 
+\begin_inset Formula $i$
+\end_inset
+
+ indicates the basic components of the group, e.g.
+ 
+\begin_inset Formula $A_{i}^{(1)}\equiv(A_{c}^{(1)};\: A_{n}^{(1)};\: A_{p}^{(1)};\: A_{s}^{(1)};\: A_{l}^{(1)})$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Tabular
+<lyxtabular version="3" rows="13" columns="4">
+<features rotate="0" tabularvalignment="middle" tabularwidth="100text%">
+<column alignment="none" valignment="top" special="@{\extracolsep\fill\vrule height 12pt depth 8pt width0pt\ }l">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Variable
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Type
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Components
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $I^{(1)}$
+\end_inset
+
+
+\shape default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Phosphate (mmol P m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $I^{(3)}$
+\end_inset
+
+
+\shape default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Nitrate (mmol N m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $I^{(4)}$
+\end_inset
+
+
+\shape default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+N
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Ammonium (mmol N m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $I^{(5)}$
+\end_inset
+
+
+\shape default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Si
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Silicate (mmol Si m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $F^{(2)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+O
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Dissolved oxygen (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $F^{(3)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+IO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Carbon dioxide (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $A_{i}^{(1)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+LO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C N P Si Chl
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Adapted diatoms (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mmol N-P-Si m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mg Chl-a m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $A_{i}^{(2)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+LO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C N P Chl
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Surviving sea ice algae (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+,mg Chl-a m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $T_{i}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+LO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C N P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sea ice bacteria (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $X_{i}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+LO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C N P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Sea ice microzooplankton (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $U_{i}^{(1)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C N P
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Dissolved organic detritus (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mmol N-P m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\shape italic
+\begin_inset Formula $U_{i}^{(6)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+NO
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+C N P Si
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Particulate organic detritus (mg C m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+, mmol N-P-Si m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:BFM-SI_variables"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement p
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\lang english
+Ecological and physiological parameters in BFM-SI.
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Tabular
+<lyxtabular version="3" rows="26" columns="4">
+<features rotate="0" tabularvalignment="middle" tabularwidth="100text%">
+<column alignment="none" valignment="top" special="@{\extracolsep\fill\vrule height 12pt depth 8pt width0pt\ }l">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
+<row>
+<cell alignment="none" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Symbol
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A
+\begin_inset Formula $^{(1)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+A
+\begin_inset Formula $^{(2)}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" topline="true" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Description
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $r_{0}^{A}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum specific photosynthetic rate (d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $Q_{10}^{A}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Characteristic Q
+\begin_inset Formula $_{10}$
+\end_inset
+
+ coefficient (-)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\theta_{chl}^{0}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.035
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.03
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Optimal quotum chl-a:C (mg chl mg C
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\alpha_{chl}^{0}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.8 e
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.8 e
+\begin_inset Formula $^{-6}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum light utilization coefficient (mg C (mg chl)
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ mE
+\begin_inset Formula $^{-1}$
+\end_inset
+
+m
+\begin_inset Formula $^{2}$
+\end_inset
+
+s)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $d_{s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Half saturation value for Si-limitation (mmol Si m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $b_{A}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.05
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Basal specific respiration rate (d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\gamma_{A}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Activity respiration fraction (-)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\beta_{A}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.05
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.20
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Excreted fraction of primary production (-)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $d_{A}^{p,n,s}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Nutrient stress threshold (-)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $d_{O_{A}}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum specific lysis rate (d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.5 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.5 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Specific affinity constant for P (m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ mg C
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a_{3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.5 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.5 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Specific affinity constant for N-NO
+\begin_inset Formula $_{3}$
+\end_inset
+
+ (m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ mg C
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $a_{4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.5 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.5 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Specific affinity constant for N-NH
+\begin_inset Formula $_{4}$
+\end_inset
+
+ (m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ mg C
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $s_{{A}^{(1)}}^{opt}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.03
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Standard Si:C ratio in sea ice diatoms (mmol Si mg C
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $s_{{A}^{(1)}}^{max}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.085
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum Si:C ratio in sea ice diatoms (mmol Si mg C
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $p_{A}^{min}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.97 10
+\begin_inset Formula $^{-4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.97 10
+\begin_inset Formula $^{-4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Minimum phosphorus quota (mmol P mgC
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $p_{A}^{opt}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.86 10
+\begin_inset Formula $^{-4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.86 10
+\begin_inset Formula $^{-4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Optimal phosphorus quota (mmol P mgC
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $p_{A}^{max}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.57 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.5710
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum phosphorus quota (mmol P mgC
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $n_{A}^{min}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.78 10
+\begin_inset Formula $^{-4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.78 10
+\begin_inset Formula $^{-4}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Minimum nitrogen quota (mmol N mgC
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $n_{A}^{opt}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.26 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.26 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Optimal nitrogen quota (mmol N mgC
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $n_{A}^{max}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.52 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.52 10
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Maximum nitrogen quota (mmol N mgC
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $c_{A}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.0 e
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.0
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Specific absorption coefficient for chlorophyll-
+\begin_inset Formula ${a}$
+\end_inset
+
+ (m
+\begin_inset Formula $^{2}$
+\end_inset
+
+ (mg Chl-
+\begin_inset Formula $a$
+\end_inset
+
+)
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $c_{U}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1 e
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.1e
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Specific absorption coefficient for detritus contribution to extiction (m
+\begin_inset Formula $^{2}$
+\end_inset
+
+ (mg C)
+\begin_inset Formula $^{-1}$
+\end_inset
+
+)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\Omega_{c}^{o}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\frac{1}{12}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $\frac{1}{12}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Unit converison factor and stochiometric coefficient (mmol O
+\begin_inset Formula $_{2}$
+\end_inset
+
+ mgC)
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "tab:BFM-SI_parameters"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="none" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+BFM-SI totally resolves 28 state variables (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM-SI"
+
+\end_inset
+
+, Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_variables"
+
+\end_inset
+
+): 
+\end_layout
+
+\begin_layout Itemize
+2 sea ice algae functional groups (adapted diatoms and surviving sea ice
+ algae, mostly represented by autotrophic nanoflagellates) 
+\end_layout
+
+\begin_layout Itemize
+6 inorganic variables for nutrients and gases (phosphate, nitrate, ammonium,
+ silicate, oxygen and carbon dioxide) 
+\end_layout
+
+\begin_layout Itemize
+2 organic non-living groups for dissolved and particulate detritus 
+\end_layout
+
+\begin_layout Itemize
+1 generic group of aerobic and anaerobic sea ice bacteria 
+\end_layout
+
+\begin_layout Itemize
+1 generic group of sea ice microzooplankton 
+\end_layout
+
+\begin_layout Standard
+Each state variable interacts with the others through the universal physiologica
+l and ecological processes depicted in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM-SI"
+
+\end_inset
+
+.
+ This component already includes parameterizations of sea ice bacteria and
+ zooplankton, which follow the same dynamics as their counterpart in the
+ pelagic realm.
+ However, those two groups have not been addressed in the published studies,
+ since their role is relatively small and/or not fully understood.
+ Nonetheless, both groups are ready to be included in future more extensive
+ studies.
+\end_layout
+
+\begin_layout Standard
+As for the pelagic model, nitrate is assumed here to be the sum of both
+ nitrite and nitrate.
+ All the nutrient:carbon ratios in chemical organic and living functional
+ groups are allowed to vary within their given range and each component
+ has a distinct biological time rate of change.
+ This kind of parametrization is meant to mimic the adaptation of organisms
+ to the diverse availability of nutrients and light observed in nature,
+ and also allow to recycle organic matter depending on the actual nutrient
+ content.
+\end_layout
+
+\begin_layout Section
+Sea ice Algae Dynamics
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:algae"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+As mentioned earlier, the focus is here on primary producers, while other
+ groups such as bacteria and zooplankton are considered in the model layout
+ (and code) but not described in this manual.
+ As a first implementation of the BFM in sea ice, 2 distinct subgroups have
+ been chosen as representative of sea ice primary producers: 
+\end_layout
+
+\begin_layout Itemize
+Adapted diatoms, which are meant to be highly adapted to the environment
+ and also show distinct skills in acclimatize.
+ They are supposed to be first light-limited and, later in the bloom, dependent
+ on nutrient availability.
+ They have an Equivalent Spherical Diameter (ESD) of 20-200 
+\begin_inset Formula $\mu$
+\end_inset
+
+m and preyed by adult mesozooplankton (> 200 
+\begin_inset Formula $\mu$
+\end_inset
+
+m) and microzooplankton of larger dimensions (20-200 
+\begin_inset Formula $\mu$
+\end_inset
+
+m), which are not currently present in the sea ice system, but act externally
+ in the pelagic BFM when sea ice melts and algae are released in the water
+ column.
+ Sea ice diatoms are the main source of biogenic silica and differ from
+ the other subgroup being their growth limited by dissolved silicate.
+ 
+\end_layout
+
+\begin_layout Itemize
+Surviving sea ice algae, which may be mostly represented by autotrophic
+ nanoflagellates, are meant to only survive in the sea ice environment,
+ being less adapted to it and showing less possibilities of acclimatization.
+ However, they may be able to grow in sea ice if the diatoms bloom is quickly
+ exhausted - for instance, for depletion of silicate - and a sufficient
+ amount of nutrients is still available for their growth.
+ Their ESD is 2-20 
+\begin_inset Formula $\mu$
+\end_inset
+
+m and are mainly externally preyed by pelagic microzooplankton.
+ 
+\end_layout
+
+\begin_layout Standard
+The mathematical notation used here is the same defined for the pelagic
+ BFM (Chap 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:BFM-formalism"
+
+\end_inset
+
+).
+ Sea ice algae are involved in several processes: gross primary production
+ (gpp), respiration (rsp), exudation (exu), cell lysis (lys), nutrient uptake
+ (upt), predation (prd) and biochemical synthesis (syn).
+ Both subgroups share the same form of primitive equations, but are differentiat
+ed in terms of the values of the physiological parameters (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+ There are 5 living CFFs that describe the constituents of the generic variable
+ sea ice algae 
+\begin_inset Formula $A$
+\end_inset
+
+ (with constituents C, N, P, Si and Chl, see Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_variables"
+
+\end_inset
+
+) and thus for each group we have 4 or 5 equations: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{c}}{dt}=\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}-\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{resp}\nonumber \\
+-\sum_{j=1,6}\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(j)}}^{lys}\label{eq:algae_c}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{n}}{dt}=\sum_{j=3,4}\frac{dA_{n}}{dt}\Biggr|_{I^{(j)}}^{upt}-\sum_{j=1,6}\frac{dA_{n}}{dt}\Biggr|_{U_{n}^{(j)}}^{lys}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{p}}{dt}=\frac{dA_{p}}{dt}\Biggr|_{I^{(1)}}^{upt}-\sum_{j=1,6}\frac{dA_{p}}{dt}\Biggr|_{U_{p}^{(j)}}^{lys}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{s}^{(1)}}{dt}=\frac{dA_{s}^{(1)}}{dt}\Biggr|_{I^{(5)}}^{upt}-\frac{dA_{s}^{(1)}}{dt}\Biggr|_{U_{s}^{(6)}}^{lys}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{l}}{dt}\Biggr|^{syn}=\theta_{chl}\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}\Biggl)-\nonumber \\
+\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{resp}+\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(6)}}^{lys}\Biggl)\frac{A_{l}}{A_{c}}\label{eq:algae_chl}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $\theta_{chl}$
+\end_inset
+
+ is the dynamical chl:C ratio (see further).
+\end_layout
+
+\begin_layout Standard
+The rate of change of carbon in sea ice algae depends on gross primary productio
+n, exudation, respiration, lysis and predation (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_c"
+
+\end_inset
+
+).
+ Gross primary production is the rate of change of sea ice algae carbon
+ 
+\begin_inset Formula $A_{c}$
+\end_inset
+
+ due to photosynthesis, which involves an uptake of dissolved carbon dioxide
+ 
+\begin_inset Formula $F^{(3)}.$
+\end_inset
+
+ It is written as: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}=f_{A}^{T}\, f_{A}^{E}\, f_{A}^{s}\, r_{A}^{0}\, A_{c}
+\end{eqnarray}
+
+\end_inset
+
+where the 
+\begin_inset Formula $r_{A}^{0}$
+\end_inset
+
+ is the maximum specific photosynthetic rate under nutrient-replete, light
+ saturated conditions (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+ The 
+\shape italic
+f
+\shape default
+ functions are multiplicative, non-dimensional regulating factors for temperatur
+e, light and silicate, which vary from 0 to 1.
+\end_layout
+
+\begin_layout Standard
+Temperature is regulating several physiological processes.
+ Its effect is expressed in a non-dimensional form by 
+\begin_inset Formula $f_{A}^{T}$
+\end_inset
+
+: 
+\begin_inset Formula 
+\begin{eqnarray}
+f_{A}^{T}=Q{_{10}^{A}}^{\frac{T-10}{10}}\label{eq:q10}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $Q_{10}^{A}$
+\end_inset
+
+ is the characteristic doubling temperature parameter (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Many relevant biological processes, such as potential photosynthesis, are
+ also affected by the non-dimensional light regulating factor 
+\begin_inset Formula $f_{A}^{E}$
+\end_inset
+
+: 
+\begin_inset Formula 
+\begin{eqnarray}
+f_{A}^{E}=1-exp\:\Biggl(-\frac{E_{PAR}}{E_{K}}\Biggr)
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $E_{PAR}$
+\end_inset
+
+ is the Photosynthetic Available Radiation (PAR).
+ 
+\begin_inset Formula $E_{PAR}$
+\end_inset
+
+ is parametrized according to the Lambert-Beer formulation with depth-dependent
+ extinction coefficients: 
+\begin_inset Formula 
+\begin{eqnarray}
+E_{PAR}(z)=\varepsilon_{PAR}F_{sw}e^{(\lambda_{s}+\lambda_{i})z+\intop_{z}^{0}\lambda_{bio}(z')dz'}\label{eq:PAR}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $F_{sw}$
+\end_inset
+
+ is the short-wave surface irradiance flux and may be derived from data
+ or from a coupled physical model, such as the one of 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco09a,tedesco10"
+
+\end_inset
+
+.
+ The irradiance flux is then converted by BFM-SI from W m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ to the units of 
+\begin_inset Formula $\mu$
+\end_inset
+
+E m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+ s
+\begin_inset Formula $^{-1}$
+\end_inset
+
+ as done in the pelagic model.
+ 
+\begin_inset Formula $\varepsilon_{PAR}$
+\end_inset
+
+ is the coefficient determining the portion of PAR in 
+\begin_inset Formula $F_{sw}$
+\end_inset
+
+.
+ Light propagation takes into account the extinction due to the background
+ extinction of snow/sea ice 
+\begin_inset Formula $\lambda_{s,i}$
+\end_inset
+
+ and due to particles in the sea ice 
+\begin_inset Formula $\lambda_{bio}$
+\end_inset
+
+, where: 
+\begin_inset Formula 
+\begin{eqnarray}
+\lambda_{bio}=\sum_{j}^{2}c_{A}A_{l}^{(j)}+c_{U^{(6)}}U_{c}^{(6)}.
+\end{eqnarray}
+
+\end_inset
+
+Thus, 
+\begin_inset Formula $\lambda_{bio}$
+\end_inset
+
+ takes into consideration the extinction due to sea ice algae chlorophyll
+ and to particulate detritus, while dissolved substances and other inorganic
+ matter are not currently taken into account.
+ The 
+\begin_inset Formula $c_{A}$
+\end_inset
+
+ and 
+\begin_inset Formula $c_{U}$
+\end_inset
+
+ constants are the specific absorption coefficients of each suspended substance
+ (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $E_{K}$
+\end_inset
+
+ is the light saturation parameter, that is the ratio between the maximum
+ chl-
+\shape slanted
+a
+\shape default
+ specific photosynthetic rate and the maximum light utilization coefficient,
+ i.e.: 
+\begin_inset Formula 
+\begin{eqnarray}
+E_{K}=\frac{P_{m}^{*}}{\alpha^{*}}.
+\end{eqnarray}
+
+\end_inset
+
+As for pelagic phytoplankton of BFM: 
+\begin_inset Formula 
+\begin{eqnarray}
+P_{m}^{*}=f_{A}^{T}f_{A}^{s}r_{A}^{0}\frac{A_{c}}{A_{l}}
+\end{eqnarray}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray}
+\alpha^{*}=f_{A}^{T}f_{A}^{s}\alpha_{chl}^{0}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $f_{A}^{T}$
+\end_inset
+
+ is the regulating factor for temperature, 
+\begin_inset Formula $f_{A}^{s}$
+\end_inset
+
+ is the regulating factor for silicate, 
+\begin_inset Formula $r_{A}^{0}$
+\end_inset
+
+ is the maximum specific photosynthetic rate under nutrient-replete, light-satur
+ated conditions and 
+\begin_inset Formula $\alpha_{chl}^{0}$
+\end_inset
+
+ is the maximum slope of the production-irradiance curve at optimal conditions
+ (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Formula $f_{A}^{s}\,$
+\end_inset
+
+ is parametrized as an external limiting factor with a Michaelis-Menten
+ form: 
+\begin_inset Formula 
+\begin{eqnarray}
+f_{A}^{s}=\frac{I^{(5)}}{I^{(5)}+d_{s}}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $d_{s}$
+\end_inset
+
+ is the Michaelis-Menten constant for SiO
+\begin_inset Formula $_{2}$
+\end_inset
+
+ uptake inhibition (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The exudation rate of Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_c"
+
+\end_inset
+
+) reads: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}=[\beta_{A}+\nonumber \\
+(1-\beta_{A})(1-f_{A}^{n,p})]\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}\label{eq:exuC}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $\beta_{A}$
+\end_inset
+
+ is a constant fraction of carbon uptake (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+) and 
+\begin_inset Formula $f_{A}^{n,p}$
+\end_inset
+
+ is a Liebig-like regulating factor for internal nutrient ratio: 
+\begin_inset Formula 
+\begin{eqnarray}
+f_{A}^{n,p}=min\Biggr(\frac{A_{n}/A_{c}-n_{A}^{min}}{n_{A}^{opt}-n_{A}^{min}},\nonumber \\
+\frac{A_{p}/A_{c}-p_{A}^{min}}{p_{A}^{opt}-p_{A}^{min}}\Biggr)
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $n(p)_{A}^{opt}$
+\end_inset
+
+ is the nitrate(phosphate) optimal ratio, while 
+\begin_inset Formula $n(p)_{A}^{min}$
+\end_inset
+
+ is the nitrate(phosphate) minimum quota (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The respiration rate of Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_c"
+
+\end_inset
+
+) is written as: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{rsp}=f_{A}^{T}b_{A}A_{c}+\nonumber \\
+\gamma_{A}\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}\Biggr)
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $f_{A}^{T}$
+\end_inset
+
+ is the metabolic regulating factor for temperature, 
+\begin_inset Formula $b_{A}$
+\end_inset
+
+ is a constant specific rate of respiration and 
+\begin_inset Formula $\gamma_{A}$
+\end_inset
+
+ is a fraction of the assimilated production (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The loss of carbon via lysis of Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_c"
+
+\end_inset
+
+) is written as: 
+\begin_inset Formula 
+\begin{eqnarray}
+\sum_{j=1,6}\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(j)}}^{lys}=\frac{1}{f_{A}^{p,n}+d_{A}^{p,n}}d_{O_{A}}A_{c}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $d_{A}^{p,n}$
+\end_inset
+
+ is the nutrient stress threshold and 
+\begin_inset Formula $d_{O_{A}}$
+\end_inset
+
+ is the maximum specific lysis rate (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The chlorophyll rate of change of Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_chl"
+
+\end_inset
+
+) is due to chlorophyll synthesis.
+ The net chlorophyll synthesis is a function of acclimation to light conditions,
+ nutrient availability and turnover rate.
+ As in BFM, it is assumed that nutrient-stressed cells releasing substantial
+ amounts of dissolved organic carbon tend to regulate their internal chl:C
+ ratio in order to avoid unconstrained decreases.
+\end_layout
+
+\begin_layout Standard
+The rate of change of net photosynthesis is thus primarily controlled by
+ the dynamical chl:C ratio 
+\begin_inset Formula $\theta_{chl}$
+\end_inset
+
+ proposed by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "geider98"
+
+\end_inset
+
+, which regulates the amount of chl-
+\shape slanted
+a
+\shape default
+ in the cell according to a non-dimensional ratio between the realized photosynt
+hetic rate in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_chl"
+
+\end_inset
+
+) and the maximum potential photosynthesis, i.e.: 
+\begin_inset Formula 
+\begin{eqnarray}
+\theta_{chl}=\theta_{chl}^{0}\frac{f_{A}^{E}r_{A}^{0}A_{c}}{\alpha_{chl}^{0}E_{PAR}A_{l}}\label{eq:photosynthesis}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $\theta_{chl}^{0}$
+\end_inset
+
+ is the maximum quotum chl-
+\shape slanted
+a
+\shape default
+:C and 
+\begin_inset Formula $\alpha_{chl}^{0}$
+\end_inset
+
+is the maximum slope of the production-irradiance curve at optimal growth
+ conditions (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+ The same considerations about down-regulation and chlorophyll losses as
+ detailed in Sec.
+  
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Chlorophyll-synthesis-acclimation"
+
+\end_inset
+
+ for phytoplankton are valid for sea ice algae.
+\end_layout
+
+\begin_layout Section
+Nutrient Supply and Dynamics
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:seaice_nutrients"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nutrients supply for algal growth comes from the mixed layer up to the ice
+ sheet for sustaining bottom communities, but also from snow deposition
+ through brine drainage for surface communities and from 
+\shape slanted
+in situ
+\shape default
+ regeneration processes.
+\end_layout
+
+\begin_layout Standard
+Even in isolated brine pockets, bacteria, heterotrophic protozoa and small
+ metazoans have been shown to regenerate the major nutrients 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "arri95"
+
+\end_inset
+
+, but not silicate.
+ Silicate dissolution and regeneration may be slower than demand and can
+ be the major limiting factor for diatoms growth 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "lizo91"
+
+\end_inset
+
+, shifting the community from being diatom-dominated to flagellates-dominated
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "diec91"
+
+\end_inset
+
+.
+ The slow regeneration of silicate in sea ice is parametrized in BFM-SI
+ as a smaller value for the half saturation of silica and a larger value
+ for the standard Si:C quotum in adapted diatoms (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The boundary fluxes are currently added as additional source terms to the
+ biogeochemical equations and solved explicitly.
+ For instance, in the case of an inorganic nutrient in sea ice (e.g.
+ nitrate, 
+\begin_inset Formula $I^{(3)}$
+\end_inset
+
+), the complete equation is written as 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dI^{(3)}}{dt}=\frac{dA_{n}^{(1)}}{dt}\Biggr|_{I^{(3)}}^{upt}+\frac{dA_{n}^{(2)}}{dt}\Biggr|_{I^{(3)}}^{upt}+\frac{dI^{(3)}}{dt}\Biggr|_{N^{(3)}}^{flux}\label{eq:tot_nut}
+\end{eqnarray}
+
+\end_inset
+
+where the first two terms on the right hand side represent the uptake from
+ sea ice algae and the last one is the flux of nutrient at the boundaries.
+ The external mechanisms of nutrients replenishment (exchange with the ocean
+ and atmospheric deposition) will be analyzed in the next sections.
+\end_layout
+
+\begin_layout Standard
+The uptake of nitrogen and phosphorous by algae (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:tot_nut"
+
+\end_inset
+
+) is regulated by a Droop kinetics: 
+\begin_inset Formula 
+\begin{eqnarray}
+\sum_{i=3,4}\frac{dA_{n}}{dt}\Biggr|_{I^{(i)}}^{upt}=min\Biggr(\Big(a_{A}^{3}I^{(3)}\nonumber \\
++a_{A}^{4}I^{(4)}\Big)A_{c},n_{A}^{opt}G_{A}\nonumber \\
++f_{A}^{T}r_{A}^{0}\Big(n_{A}^{max}-\frac{A_{n}}{A_{c}}\Big)A_{c}\Biggr)
+\end{eqnarray}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{p}}{dt}\Biggr|_{I^{(1)}}^{upt}=min\Biggr(a_{A}^{1}I^{(1)}A_{c},p_{A}^{opt}G_{A}\nonumber \\
++f_{A}^{T}r_{A}^{0}\Big(p_{A}^{max}-\frac{A_{p}}{A_{c}}\Big)A_{c}\Biggr)
+\end{eqnarray}
+
+\end_inset
+
+where the 
+\begin_inset Formula $a$
+\end_inset
+
+ constants are the membrane affinity for nitrate, ammonium and phosphate
+ (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+The uptake of silicate is, instead, only function of the maximum Si:C ratio
+ 
+\begin_inset Formula $s_{A^{(1)}}^{max}$
+\end_inset
+
+ and of the net production 
+\begin_inset Formula $G_{A^{(1)}}$
+\end_inset
+
+ of Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:algae_c"
+
+\end_inset
+
+): 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{s}}{dt}\Biggr|_{I^{(5)}}^{upt}=s_{A^{(1)}}^{max}G_{A^{(1)}}
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Whenever sea ice algae carbon is lost by lysis, a proportional loss is found
+ for algae nutrient content and is distributed between a dissolved and a
+ particulate fraction.
+ For instance, the equations of the lysis rate for phosphorous are: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{p}}{dt}\Biggr|_{U_{p}^{(6)}}^{lys}=p_{A}^{min}\frac{\partial A_{c}}{\partial t}\Biggr|_{U_{c}^{(6)}}^{lys}
+\end{eqnarray}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{p}}{dt}\Biggr|_{U_{p}^{(1)}}^{lys}=\frac{A_{p}}{A_{c}}\sum_{j=1,6}\frac{\partial A_{c}}{\partial t}\Biggr|_{U_{c}^{(j)}}^{lys}-\frac{\partial A_{p}}{\partial t}\Biggr|_{U_{p}^{(6)}}^{lys}.
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Silicate is instead only released in particulate form: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{\partial A_{s}^{(1)}}{dt}\Biggr|_{U_{s}^{(6)}}^{lys}=\frac{A_{s}^{(1)}}{A_{c}^{(1)}}\frac{\partial A_{c}^{(1)}}{\partial t}\Biggr|_{U_{c}^{(6)}}^{lys}.
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Gases and Detritus 
+\end_layout
+
+\begin_layout Standard
+The following equations are derived by combining terms from the previous
+ sections in order to ensure mass conservation.
+ The net production of oxygen is due to the gross primary production and
+ to algae respiration rates: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{\partial F^{(2)}}{\partial t}\Biggr|_{bio}=\Omega_{c}^{o}\sum_{j=1}^{2}\Biggr(\frac{\partial A_{c}^{(j)}}{\partial t}\Biggr|_{F^{(3)}}^{gpp}-\frac{\partial A_{c}^{j}}{\partial t}\Biggr|_{F^{(3)}}^{rsp}\Biggr)
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $\Omega_{c}^{o}$
+\end_inset
+
+ is the stoichiometric conversion factor to oxygen units in respiration
+ and photosynthesis (Table 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "tab:BFM-SI_parameters"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Standard
+Dissolved organic matter (DOM, 
+\shape italic
+
+\begin_inset Formula $U_{i}^{(1)}$
+\end_inset
+
+
+\shape default
+ in BFM-SI) is a non-living functional group including C, N and P constituents.
+ In this current implementation, DOM is produced by sea ice algae (Eq.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:exuC"
+
+\end_inset
+
+), though in the complete setup shown in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BFM-SI"
+
+\end_inset
+
+ , DOM will be produced also by sea ice bacteria and microzooplankton: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{\partial U_{c}^{(1)}}{\partial t}\Biggr|_{bio}=\sum_{j=1}^{2}\frac{\partial A_{c}^{(j)}}{\partial t}\Biggr|_{U_{c}^{(1)}}^{exu}
+\end{eqnarray}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{\partial U_{i}^{(1)}}{\partial t}\Biggr|_{bio}=\sum_{j=1}^{2}\frac{\partial A_{i}^{(j)}}{\partial t}\Biggr|_{U_{i}^{(1)}}^{exu}i=n,p.
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Particulate organic matter (POM, 
+\shape italic
+
+\begin_inset Formula $U_{i}^{(6)}$
+\end_inset
+
+
+\shape default
+ in BFM-SI) is made of C, N, P and Si: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{\partial U_{c}^{(6)}}{\partial t}\Biggr|_{bio}=\sum_{j=1}^{2}\frac{\partial A_{c}^{(j)}}{\partial t}\Biggr|_{U_{c}^{(6)}}^{lys}
+\end{eqnarray}
+
+\end_inset
+
+
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{\partial U_{i}^{(6)}}{\partial t}\Biggr|_{bio}=\sum_{j=1}^{2}\frac{\partial A_{i}^{(j)}}{\partial t}\Biggr|_{U_{i}^{(6)}}^{lys}i=n,p,s
+\end{eqnarray}
+
+\end_inset
+
+where the silicate component of POM is only valid for the release of sea
+ ice diatoms frustules.
+\end_layout
+
+\begin_layout Section
+The coupling strategy
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:seaice_coupling"
+
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+The construction of a biological system in sea ice implies the coupling
+ with the underlying biology of the ocean.
+ BFM-SI is in fact coupled to a simplified version of the pelagic lower
+ trophic levels in a surface layer of ice-covered oceans.
+ The standard pelagic BFM has been simplified in a way that every sea ice
+ group has its own pelagic counterpart and there is no loss of material
+ between the two systems (Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BAL_coupling"
+
+\end_inset
+
+).
+ The number of functional groups is reduced and the total number of state
+ variables computed are 34.
+ The included groups and subgroups in the pelagic BFM are: 
+\end_layout
+
+\begin_layout Itemize
+2 phytoplankton (diatoms and autotrophic nanoflagellates) 
+\end_layout
+
+\begin_layout Itemize
+3 zooplankton (omnivorous mesozooplankton, microzooplankton and heterotrophic
+ nanoflagellates) 
+\end_layout
+
+\begin_layout Itemize
+1 pelagic bacteria 
+\end_layout
+
+\begin_layout Itemize
+9 inorganic variables for nutrients and gases (phosphate, nitrate, ammonium,
+ silicate,oxygen, carbon dioxide) 
+\end_layout
+
+\begin_layout Itemize
+2 organic non-living variables for dissolved and particulate detritus.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement t
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics
+	filename Figures/BAL_coupling.eps
+	width 100col%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\lang english
+Structure of the current coupling between physics and biogeochemistry (boxes
+ with continuos line).
+ The sea ice physical model passes offline the Environmental Sea Ice Variables
+ (ESIV) to BFM-SI.
+ BFM-SI is online coupled to BFM through the exchange of Non Living Inorganic
+ (NLI), Non Living Organic (NLO) and Living Organic (LO) matter.
+ Boxes with dashed lines represent the possibility for the sea ice physical
+ model to be also coupled to an ocean physical model, which would pass the
+ Environmental Ocean Variables (EOV) to BFM.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BAL_coupling"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Differently to BFM-SI, the pelagic zooplankton includes 3 different subgroups
+ and mesozooplankton may effectively control the fate of the sea ice algae
+ released into the water and the magnitude of the phytoplankton bloom.
+ Consequently, the diversity of feeding behaviors of zooplankton is maintained.
+\end_layout
+
+\begin_layout Standard
+The exchange of matter between the ocean system and the sea ice system will
+ be the subject of the next section.
+ We focus here on the coupling strategy.
+ BFM-SI has been built as a layer model, in a similar way as the benthic
+ component of BFM is designed.
+ A layer model means that the model is two-dimensional (concentrations are
+ expressed in units of mass per square meters): all the members of a generic
+ layer of the system, as for instance the benthic oxic layer, have to be
+ thought as their constituents are homogeneously distributed on a stratum
+ at the interface with the ocean.
+ However, the state variables of the pelagic BFM are expressed as concentrations
+ in a volume of sea water.
+ The thickness of the considered layer is taken into account in order to
+ have every CFF of both systems (pelagic ad benthic) in the same units per
+ cubic meters.
+ This concept can be applied also to the coupling between BFM and BFM-SI,
+ considering that the sea ice biology is distributed in a certain layer
+ of sea ice (the sea ice bio, BAL of Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BAL_scheme"
+
+\end_inset
+
+).
+ The thickness of the layer can be prescribed, as it has been done previously
+ by, or it can be computed by a physical model, such as the one developed
+ by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco09a,tedesco10"
+
+\end_inset
+
+, which is a time-varying layer whose thickness depends on the physical
+ properties of sea ice (temperature, salinity and brine volume).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement t
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+centering
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Graphics
+	filename Figures/BAL_scheme.eps
+	width 100col%
+
+\end_inset
+
+ 
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+
+\lang english
+Model representation of the sea ice and pelagic coupling during a generic
+ ice season.
+ The pelagic BFM exchange matter and gases with the SEA ICE BIO layer.
+\end_layout
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:BAL_scheme"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Boundary fluxes: the sea ice-ocean interface
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:ice-ocean"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The major exchanges between the sea ice and the pelagic systems are the
+ fluxes of organic and inorganic matter at the interface.
+ Ice structure determines the porosity and therefore the rate of exchange:
+ frazil ice is less porous than congelation ice and algae may experience,
+ for instance, nutrient depletion in the former.
+\end_layout
+
+\begin_layout Standard
+The rates of advection and diffusion of dissolved and particulate substances
+ from seawater into the porous bottom layer of ice may also depend on under-ice
+ current velocities, tides and atmospheric pressure cycles 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "cota91a"
+
+\end_inset
+
+.
+ Additionally, high algal biomass in the platelet layer has been found to
+ reduce the flux of nutrients to algae communities of the upper congelation
+ layer in Antarctica 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "lizo91"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+High biomass is usually found in area of slow ice growth rate 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "lege92"
+
+\end_inset
+
+.
+ During the growth season, convection in the skeletal layer enhances nutrient
+ fluxes 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "cota91a"
+
+\end_inset
+
+.
+ During the melting season, the supply of freshwater increases the stratificatio
+n just below the ice and reduces the flux of nutrients upward by reducing
+ mixing and friction velocity 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "goss85"
+
+\end_inset
+
+.
+ Even if the enlargement and interconnections of the brine channels allows
+ a greater biomass accumulation and nutrient supply, it also leads to an
+ increase in the biological loss by cells sinking in the water column.
+\end_layout
+
+\begin_layout Standard
+It is assumed here that the entrapment of dissolved matter follows the same
+ partitioning of salt in sea ice, that is the dynamics of dissolved constituents
+ is treated as the salinity dynamics, as proposed by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco09a"
+
+\end_inset
+
+, considering the concentration of dissolved matter in seawater and sea
+ ice growth rate.
+ Fluxes are defined positive upward, i.e.
+ towards sea ice in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BAL_coupling"
+
+\end_inset
+
+.
+ The nitrate flux is described here as an example of an inorganic nutrient
+ exchange.
+ The flux is composed of a positive part (entrapment) during sea ice formation
+ when sea ice growth is positive, and of a negative part during the melting
+ phase: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dI^{(3)}}{dt}\Biggr|_{N^{(3)}}^{flux-oce}=\max\left(0,\frac{\partial h_{i}}{\partial t}\right)\cdot\nonumber \\
+\max\left(0,\: N^{(3)}-\frac{I^{(3)}}{h_{bio}}\right)\nonumber \\
++\min\left(0,\frac{\partial h_{i}}{\partial t}\right)\frac{I^{(3)}}{h_{bio}}\ \label{eq:seaice_nutrient_flux}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $N^{(3)}$
+\end_inset
+
+ is the nitrate concentration in seawater, 
+\begin_inset Formula $h_{i}$
+\end_inset
+
+ is the ice thickness and 
+\begin_inset Formula $h_{bio}$
+\end_inset
+
+ is the thickness of the biologically active layer in sea ice.
+ When ice starts melting (the last term in the equation above), the release
+ to the water column depends only on the sea ice melting rate and on the
+ sea ice concentration.
+ The same flux, converted into units of volume concentration, is included
+ with opposite sign in the dynamical equation for pelagic nutrients.
+\end_layout
+
+\begin_layout Standard
+The entrapment of particulate matter is assumed to be only a function of
+ the seawater concentration, the sea ice growth rate and the actual available
+ space in the sea ice matrix (brine volume, 
+\begin_inset Formula $V_{bio}$
+\end_inset
+
+), while the release during the melting phase is parametrized as function
+ of the sea ice melting rate and sea ice concentrations, as in Eq.
+ (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:seaice_nutrient_flux"
+
+\end_inset
+
+).
+ For instance, the flux of the chlorophyll component of sea ice algae 
+\begin_inset Formula $A_{l}^{(1)}$
+\end_inset
+
+, from the pelagic variable 
+\begin_inset Formula $P_{l}^{(1)}$
+\end_inset
+
+ to sea ice is defined as: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dA_{l}^{(1)}}{dt}\Biggr|_{P^{(1)}}^{flux-oce}=\max\left(0,\frac{\partial h_{i}}{\partial t}\right)P_{l}^{(1)}\, V_{bio}\nonumber \\
++\min\left(0,\frac{\partial h_{i}}{\partial t}\right)\frac{A_{l}^{(1)}}{h_{bio}}.
+\end{eqnarray}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Boundary fluxes: the sea ice-atmosphere interface
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:ice-atmosphere"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nutrient content in snow and liquid precipitation may directly lead to additiona
+l nutrient availability for surface communities, and indirectly to internal
+ and bottom communities, and finally to surface waters once sea ice has
+ totally melted away.
+ In the Baltic Sea, for instance, 5% of the total annual flux of N and P
+ and 20--40% of lead and cadmium are deposited as snow: due to the intense
+ stratification of most of the Baltic waters, sea ice is the major source
+ of nutrients and trace elements to the surface Baltic waters during the
+ melting season 
+\begin_inset CommandInset citation
+LatexCommand citep
+key "gran06a"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+The physical processes responsible of the bioavailability of atmospheric
+ nutrients to the sea ice community are snow ice formation and snow flushing.
+ When snow ice forms the fraction of snow that mixes with flooding seawater
+ may bring an additional source of nutrients for internal communities, while
+ during snow flushing episodes the accumulated nutrients in the melting
+ snow may become available also for bottom communities, if brines are permeable.
+ This latter process is the one that it is currently considered in the model
+ for the parametrization of the flux of atmospheric nutrients to bottom
+ sea ice, as shown in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:BAL_coupling"
+
+\end_inset
+
+.
+ Phosphate and nitrogen concentration in snow may be derived from an atmospheric
+ model or may be prescribed using available observations.
+ The flux of nutrients due to precipitation becomes then a linear function
+ of the snow melting rate, similarly to the flux of matter from sea ice
+ to the ocean during melting of sea ice, i.e.
+ for nitrate: 
+\begin_inset Formula 
+\begin{eqnarray}
+\frac{dI^{(3)}}{dt}\Biggr|_{N^{snow}}^{flux-atm}=\min\left(0,\frac{\partial h_{s}}{\partial t}\right)N^{snow}
+\end{eqnarray}
+
+\end_inset
+
+where 
+\begin_inset Formula $N^{snow}$
+\end_inset
+
+ is the nitrate concentration in snow and 
+\begin_inset Formula $h_{s}$
+\end_inset
+
+ is the snow thickness.
+ 
 \end_layout
 
 \begin_layout Part
@@ -18166,7 +21966,7 @@ centering
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -18176,7 +21976,7 @@ name "fig:Source-directory-tree"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -18905,7 +22705,7 @@ status open
 \end_inset
 
 
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -18950,9 +22750,9 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="17" columns="3">
-<features tabularvalignment="middle">
-<column alignment="left" valignment="top" width="0">
-<column alignment="left" valignment="top" width="0">
+<features rotate="0" tabularvalignment="middle">
+<column alignment="left" valignment="top">
+<column alignment="left" valignment="top">
 <column alignment="left" valignment="top" width="0pt">
 <row>
 <cell alignment="left" valignment="top" topline="true" usebox="none">
@@ -19462,7 +23262,7 @@ Name of the queue number of procs used for running
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -19625,7 +23425,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="7" columns="3">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="2.22956in">
@@ -19916,10 +23716,10 @@ out_delta
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -19983,7 +23783,7 @@ CL{
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="13" columns="3">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="middle" width="5cm">
 <column alignment="left" valignment="middle" width="2cm">
 <column alignment="left" valignment="middle" width="6cm">
@@ -20641,10 +24441,10 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -20876,7 +24676,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="8" columns="3">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="5cm">
@@ -21197,10 +24997,10 @@ Leap-frog
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -21260,7 +25060,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="6" columns="3">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="none" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="2.27546in">
 <column alignment="none" valignment="top" width="2.59696in">
@@ -21595,10 +25395,10 @@ Stop date
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -21788,7 +25588,7 @@ centering
 
 \begin_inset Tabular
 <lyxtabular version="3" rows="16" columns="3">
-<features tabularvalignment="middle">
+<features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="4cm">
 <column alignment="left" valignment="top" width="3cm">
 <column alignment="none" valignment="top" width="5cm">
@@ -22509,10 +26309,10 @@ Filename for external data
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout
@@ -22740,7 +26540,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -22917,6 +26717,34 @@ reference "fig:test-case-CHLA-ruPPYc"
  for comparison.
 \end_layout
 
+\begin_layout Subsection
+STANDALONE_SEAICE: sea ice biogeochemistry
+\end_layout
+
+\begin_layout Standard
+This configuration is the standard preset for the sea ice model described
+ in Chap.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:sea-ice"
+
+\end_inset
+
+.
+ It describes the evolution of a sea ice season using external forcing data
+ from a sea ice model (the data are copied from the directory inputs/seaice
+ into the running directory by the configurator).
+ The forcing functions and model output are fully described in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco14"
+
+\end_inset
+
+.
+\end_layout
+
 \begin_layout Section
 Output visualization
 \end_layout
@@ -23042,7 +26870,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE_PELAGIC test case.
@@ -23141,7 +26969,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE_PELAGIC test case.
@@ -23233,7 +27061,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 Sample output of the STANDALONE_PELAGIC test case.
@@ -23573,7 +27401,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -23797,7 +27625,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -23892,7 +27720,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -24070,7 +27898,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -24464,7 +28292,7 @@ status open
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -24732,7 +28560,7 @@ end
 \end_layout
 
 \begin_layout Plain Layout
-\begin_inset Caption
+\begin_inset Caption Standard
 
 \begin_layout Plain Layout
 \begin_inset CommandInset label
@@ -24742,7 +28570,7 @@ name "alg:Example-of-layout-pelagic"
 \end_inset
 
 
-\begin_inset Argument
+\begin_inset Argument 1
 status open
 
 \begin_layout Plain Layout

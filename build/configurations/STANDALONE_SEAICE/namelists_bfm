@@ -150,12 +150,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
           LightLocationFlag = 3
           check_fixed_quota = 0
 ! Parameters : 
-                    p_small   = 1.0e-30
-                       slp0   = 1013.25
+                    p_small = 1.0e-20
+                       slp0 = 1013.25E0
                       p_PAR   = 0.50
                      p_eps0   = 0.20
-                    p_epsR6   = 0.1e-3
-                   p_epsESS   = 0.04e-3
+                    p_epsR6   = 0.1d-3
+                   p_epsESS   = 0.04d-3
                    p_pe_R1c   = 0.60
                    p_pe_R1n   = 0.72
                    p_pe_R1p   = 0.832
