@@ -597,7 +597,7 @@ where
 
  are the horizontal and vertical turbulent diffusivity coefficient for tracers.
  To highlight the coupling between physical and biogeochemical processes,
- we may rewrite this equation in component froms, also indicating the ocean
+ we may rewrite this equation in component forms, also indicating the ocean
  variables that are resolved by the OGCM and needed for the reaction term
  
 \begin_inset Formula $R$
@@ -606,7 +606,7 @@ where
 : 
 \begin_inset Formula 
 \begin{equation}
-\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\, S,\, W,\, E\right)\label{eq:ADR-explicit}
+\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\,S,\,W,\,E\right)\label{eq:ADR-explicit}
 \end{equation}
 
 \end_inset
@@ -1887,7 +1887,7 @@ fld_read
 \family default
  interface.
  It also allows to specify how freshwater fluxes from sea ice freezing and
- melting affect the concetration of tracers.
+ melting affect the concentration of tracers.
  
 \end_layout
 
@@ -2953,7 +2953,7 @@ key "dacunha2007"
 \end_inset
 
 ).
- All data are available on the NEMO web sute (http://www.nemo-ocean.eu/Using-NEMO/
+ All data are available on the NEMO web site (http://www.nemo-ocean.eu/Using-NEMO/
 Configurations/ORCA2_LIM_PISCES).
  The initial conditions of both physical and biogeochemical variables were
  set using the World Ocean Atlas 2009 climatological fields (
