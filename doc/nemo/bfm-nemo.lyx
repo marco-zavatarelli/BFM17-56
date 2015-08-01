@@ -3210,7 +3210,23 @@ xEPS
  from total chlorophyll concentration, background attenuation and chlorophyll-sp
 ecific absorption coefficient but neglecting the contribution from inorganic
  suspended matter and detritus.
- The input parameters are in the namelist 
+\end_layout
+
+\begin_layout Standard
+This tool also computes the integrated primary production (gross and net)
+ down to 1% and 0.1% light level by setting the flag 
+\family typewriter
+compute_intpp
+\family default
+ and providing the paths to the files containing the BFM diagnostics 
+\family typewriter
+ruPPYc
+\family default
+ (gross primary production) and resPPYc (respiration).
+\end_layout
+
+\begin_layout Standard
+The input parameters are in the namelist 
 \family typewriter
 chlsat.nml
 \family default
@@ -3267,6 +3283,12 @@ status open
 \begin_layout Plain Layout
 
 !chla_name        string        Name of Chl variable in file
+\end_layout
+
+\begin_layout Plain Layout
+
+!compute_chlsat   logical       Compute chlsat (true by default useful only
+ for NPP) 
 \end_layout
 
 \begin_layout Plain Layout
@@ -3328,6 +3350,37 @@ status open
 
 \begin_layout Plain Layout
 
+!
+\end_layout
+
+\begin_layout Plain Layout
+
+!compute_intpp    logical       Compute integrated GPP and NPP down to 1%
+ and 0.1%
+\end_layout
+
+\begin_layout Plain Layout
+
+!gpp_fname        string        Name of data file containing 3D GPP
+\end_layout
+
+\begin_layout Plain Layout
+
+!gpp_name         string        Name of GPP variable in file
+\end_layout
+
+\begin_layout Plain Layout
+
+!rsp_fname        string        Name of data file containing 3D RSP
+\end_layout
+
+\begin_layout Plain Layout
+
+!rsp_name         string        Name of RSP variable in file
+\end_layout
+
+\begin_layout Plain Layout
+
 !-------------------------------------------------------------------------------
 -----!
 \end_layout
@@ -3369,6 +3422,12 @@ status open
 
 \begin_layout Plain Layout
 
+   compute_chlsat=.true.
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
    compute_eps=.false.
 \end_layout
 
@@ -3395,6 +3454,31 @@ status open
 \begin_layout Plain Layout
 
    tolerance=0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+   compute_intpp=.false.
+\end_layout
+
+\begin_layout Plain Layout
+
+   gpp_fname='bfm_output.nc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   gpp_name='ruPPYc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   rsp_fname='bfm_output.nc'
+\end_layout
+
+\begin_layout Plain Layout
+
+   rsp_name='resPPYc'
 \end_layout
 
 \begin_layout Plain Layout
