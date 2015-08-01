@@ -1,29 +1,27 @@
-# Makefile created by mkmf $Id: mkmf,v 14.0 2007/03/20 22:13:27 fms Exp $ 
+# Makefile bnremap
 
-# compile for serial queue
-include ../../compilers/xlf90_calypso_serial.inc
+include ${BFMDIR}/compilers/ifort.inc
 
-# compile for parallel queue
-# include ../../compilers/mpxlf90_calypso.inc
+# CPPDEFS=-DDEBUG
 
 .DEFAULT:
 	-touch $@
 all: bnremap
-bnremap.o: ./bnremap.F90
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./bnremap.F90
-create_outputfile.o: ./create_outputfile.F90 mod_bnremap.o
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./create_outputfile.F90
-remap_vars.o: ./remap_vars.F90 mod_bnremap.o
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./remap_vars.F90
-mod_bnremap.o: ./mod_bnremap.F90
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./mod_bnremap.F90
-read_input.o: ./read_input.F90 mod_bnremap.o
-	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	./read_input.F90
-SRC = ./create_outputfile.F90 ./mod_bnremap.F90 ./remap_vars.F90 ./bnremap.F90 ./read_input.F90
+bnremap.o: src/bnremap.F90
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/bnremap.F90
+create_outputfile.o: src/create_outputfile.F90 mod_bnremap.o
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/create_outputfile.F90
+remap_vars.o: src/remap_vars.F90 mod_bnremap.o
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/remap_vars.F90
+mod_bnremap.o: src/mod_bnremap.F90
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/mod_bnremap.F90
+read_input.o: src/read_input.F90 mod_bnremap.o
+	$(FC) $(CPPDEFS) $(CPPFLAGS) $(FFLAGS) $(OTHERFLAGS) -c	src/read_input.F90
+SRC = src/create_outputfile.F90 src/mod_bnremap.F90 src/remap_vars.F90 src/bnremap.F90 src/read_input.F90
 OBJ = create_outputfile.o mod_bnremap.o remap_vars.o bnremap.o read_input.o
 clean: neat
-	-rm -f .cppdefs *.mod $(OBJ) bnremap
+	-rm -f .cppdefs *.mod $(OBJ) bnremap.x
 neat:
 	-rm -f $(TMPFILES)
 bnremap: $(OBJ) 
-	$(LD) $(OBJ) -o bnremap  $(LDFLAGS)
+	$(LD) $(OBJ) -o bnremap.x  $(LDFLAGS)

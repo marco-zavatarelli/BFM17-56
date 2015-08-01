@@ -29,14 +29,14 @@
 !
 !------------------------------------------------------------------------------------!
 &chlsat_nml
-   out_fname='chlsat.nc'
-   inp_dir='.'
-   out_dir='.'
+   out_fname='chlsat_output.nc'
+   inp_dir='/path/to/inp_dir'
+   out_dir='/path/to/out_dir'
    compute_chlsat=.true.
-   mask_fname='ORCA2_chlmask.nc'
+   mask_fname='chlmask.nc'
    chla_fname='bfm_output.nc'
    chla_name='Chla'
-   compute_eps=.false.
+   compute_eps=.true.
    p_eps0=0.0435
    p_epsChla=0.03
    eps_fname='bfm_output.nc'

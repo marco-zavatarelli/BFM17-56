@@ -530,7 +530,7 @@ diff -u -p -r1.11 init_3d_ncdf.F90
 +
 +!EOC
  !-----------------------------------------------------------------------
- ! Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+ ! Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
  ! Copyright (C) 2001 - Hans Burchard and Karsten Bolding (BBH)         !
  !-----------------------------------------------------------------------
 Index: src/ncdf/ncdf_3d.F90

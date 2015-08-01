@@ -16,7 +16,7 @@
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO
-   use mem_Param,  only: p_PAR
+   use mem_PAR,    only: p_PAR
    use constants,  only: E2W
 #ifdef NOPOINTERS
    use mem

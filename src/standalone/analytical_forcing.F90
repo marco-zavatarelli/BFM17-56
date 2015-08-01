@@ -25,7 +25,7 @@ subroutine analytical_forcing
    use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
 #endif
 #endif
-   use mem_Param,  only: p_PAR
+   use mem_PAR,    only: p_PAR
    use constants,  only: E2W, SEC_PER_DAY
    use standalone, only: timesec,latitude
    use envforcing

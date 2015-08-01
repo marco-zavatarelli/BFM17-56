@@ -25,7 +25,7 @@
 !
 ! COPYING
 !
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -152,9 +152,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
    use global_mem, only: RLEN,ZERO,ONE
-   use mem_Param,  only: p_PAR,CalcSeaiceAlgae
-   use mem_Param,  only: CalcSeaiceZoo,CalcSeaiceBacteria 
-   use mem_Param,  only: p_epsR6, p_small
+   use mem_PAR,    only: p_PAR, p_epsR6
+   use mem_Param,  only: CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria 
+   use mem_Param,  only: p_small
    use constants,  only: E2W, SEC_PER_DAY
    use mem
    use api_bfm,    only: SRFindices, BOTindices 
@@ -192,7 +192,7 @@
 
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by

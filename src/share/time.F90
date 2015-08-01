@@ -71,7 +71,6 @@
 !  removed tabs
 !
 !  Revision 1.5  2003/03/28 09:20:36  kbk
-!  added new copyright 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !  added new copyright to files
 !
 !  Revision 1.4  2003/03/28 07:56:05  kbk

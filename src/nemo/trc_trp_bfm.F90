@@ -127,33 +127,36 @@ SUBROUTINE trc_trp_bfm( kstp )
 
             IF( .NOT. lk_c1d ) THEN ! Compute and integrate physical trends for 3D case
                IF( lk_trabbl )     CALL trc_bbl( kstp )     ! advective (and/or diffusive) bottom boundary layer scheme
-               !MAV: still no defined for BFM
+               !ST: still no defined for BFM
                !IF( lk_trcdmp )     CALL trc_dmp( kstp )     ! internal damping trends
                !IF( ln_trcdmp_clo ) CALL trc_dmp_clo( kstp ) ! internal damping trends on closed seas only
                                    CALL trc_adv( kstp )     ! horizontal & vertical advection
 #ifdef DEBUG
                                    CALL prxy( LOGUNIT, 'tra:ADV',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
+               !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+               ! Partial steps:  now horizontal gradient of passive
+               ! tracers at the bottom ocean level  gtru and gtrv
+               ! are computed for each BFM tracer here, 
+               ! as they are needed in lateral mixing 
+               !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+               IF( ln_zps  .AND. .NOT. ln_isfcav)        &
+                 &                 CALL zps_hde    ( kstp, jptra, trn, gtru, gtrv )
+               IF( ln_zps .AND.        ln_isfcav)        &  ! case with ice shelf cavities
+                 &                 CALL zps_hde_isf( kstp, jptra, trn, pgtu=gtru, pgtv=gtrv, pgtui=gtrui, pgtvi=gtrvi )
+
                                    CALL trc_ldf( kstp )     ! lateral mixing
 #ifdef DEBUG
                                    CALL prxy( LOGUNIT, 'tra:LDF',tra(:,:,1,1), jpi, 1, jpj, 1, ZERO)
 #endif
-#if defined key_agrif
-               IF(.NOT. Agrif_Root()) CALL Agrif_Sponge_trc ! tracers sponge
-#endif
-               !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-               ! Partial steps:  now horizontal gradient of passive
-               ! tracers at the bottom ocean level  gtru and gtrv 
-               ! are computed for each BFM tracer therefore it is 
-               ! computed here before vertical diffusion zdf
-               !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-               IF( ln_zps  .AND. .NOT. ln_isfcav)        &
-                 &                 CALL zps_hde    ( kstp, jptra, trn, gtru, gtrv )   
-               IF( ln_zps .AND.        ln_isfcav)        &  ! case with ice shelf cavities
-                 &                 CALL zps_hde_isf( kstp, jptra, trn, pgtu=gtru, pgtv=gtrv, pgtui=gtrui, pgtvi=gtrvi ) 
 
                IF( .NOT. lk_offline .AND. lk_zdfkpp )    &
                  &                 CALL trc_kpp( kstp )     ! KPP non-local tracer fluxes
+
+#if defined key_agrif
+               IF(.NOT. Agrif_Root()) CALL Agrif_Sponge_trc ! tracers sponge
+#endif
+
                                    CALL trc_zdf( kstp )     ! vertical mixing and after tracer fields
 #ifdef DEBUG
                                    CALL prxy( LOGUNIT, 'trn:ZDF',trn(:,:,1,1), jpi, 1, jpj, 1, ZERO)

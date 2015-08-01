@@ -4,7 +4,8 @@
 !------------------------------------------------------------------------------------!
 !Main initialisation and output specifications
 !NAME             KIND    DESCRIPTION
-!chunk_fname 	  string 	 Name of NetCDF chunks (also name of output)
+!chunk_fname 	  string 	 Name of NetCDF chunks (do not inclue chunk value, e.g. _0000 )
+!out_fname        string         Name of output NetCDF file (leave empty to set as chunk_fname)
 !bfm_restart 	  string 	 Name of NetCDF restart chunk files (also name of restart output)
 !inp_dir 	  string 	 Path to the input files (chunks)
 !out_dir 	  string 	 Path to the output file (merged)
@@ -20,6 +21,7 @@
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
    chunk_fname='FILENAME'
+   out_fname='OUTPUT_FILENAME'
    bfm_restart='FILENAME_RESTART'
    inp_dir='/path/to/inp_dir'
    out_dir='/path/to/out_dir'

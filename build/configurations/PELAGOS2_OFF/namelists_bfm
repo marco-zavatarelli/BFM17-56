@@ -7,7 +7,7 @@
 #
 # COPYING
 #   
-#   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+#   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 #
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -158,7 +158,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                    p_pe_R1p = 0.832
                       p_qro = 0.5
                p_qon_dentri = 1.25
-                p_qon_nitri = 1.5
+                p_qon_nitri = 2.0
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -196,30 +196,30 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !-------------------------------------------------------------------------!
 &bfm_init_nml
    O2o0 = 300.0,
-   N1p0 = 0.3,
-   N3n0 = 2.0,
-   N4n0 = 0.5,
-   N5s0 = 4.0,
-   N7f0 = 0.3,
+   N1p0 = 1.0,
+   N3n0 = 5.0,
+   N4n0 = 1.0,
+   N5s0 = 8.0,
    N6r0 = 1.0,
+   N7f0 = 0.3,
    O3c0 = 27060.00,
-   O3h0 = 2375.0,
+   O3h0 = 2660.0,
    O4n0 = 200.0,
-   P1c0 = 0.1
-   P2c0 = 0.1
-   P3c0 = 0.1
-   P4c0 = 0.1
-   Z3c0 = 0.1
-   Z4c0 = 0.1
-   Z5c0 = 0.1
-   Z6c0 = 0.1
-   B1c0 = 0.1
-   R1c0 = 0.1
-   R2c0 = 0.0,
-   R3c0 = 0.0,
-   R6c0 = 0.1,
+   P1c0 = 1.0, 
+   P2c0 = 1.0, 
+   P3c0 = 1.0, 
+   P4c0 = 1.0, 
+   Z3c0 = 1.0, 
+   Z4c0 = 1.0, 
+   Z5c0 = 1.0, 
+   Z6c0 = 1.0, 
+   B1c0 = 1.0, 
+   R1c0 = 1.0, 
+   R2c0 = 0.1,
+   R3c0 = 1.0,
+   R6c0 = 1.0,
 
-   InitVar(O2o)%init = 0,
+   InitVar(O2o)%init = 2,
    InitVar(O2o)%sbc  = .false.,
    InitVar(O2o)%cbc  = .false.,
    InitVar(O2o)%obc  = .false.,
@@ -290,7 +290,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! p_burvel_PI     [m/d]              Bottom Burial Velocity for plankton 
 !-------------------------------------------------------------------------!
 &Settling_parameters
-  p_burvel_R6 = 1.5,
+  p_burvel_R6 = 0.5,
   p_burvel_R2 = 0.0,
   p_burvel_PI = 0.0
 	filename_nml_conf = 'Benthic_Environment.nml',
@@ -353,7 +353,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    AtmCO20       = 370.0E0
    calcAtmpCO2   = .TRUE.
    pCO2Method    = 1  
-   AtmCO2_N  =    2  , 'CMIP5_RCP85_GHG_1765_2500.nc' , .TRUE.  , 'CO2'   , '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
+   AtmCO2_N  =    2  , 'CMIP5_scenarios_RCP_CO2_mixing_ratio.nc' , .TRUE.  , 'RCP85'   , '1765-01-01 00:00:00' ,  'yearly'  ,  .TRUE.
    AtmSLP_N  =    0  , 'AtmSLP.nc' , .TRUE.  ,'AtmSLP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.
    AtmTDP_N  =    0  , 'AtmTDP.nc' , .TRUE.  ,'AtmTDP' , '1764-07-01 00:00'  , 'dummy' ,  .TRUE.
    phstart       = 8.10E0
@@ -518,7 +518,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 &Phyto_parameters
 !               P1      P2      P3      P4
         p_q10 = 2.0,    2.0,    2.0,    2.0
-       p_temp = 0.0,    0.0,    0.0,    0.0
+       p_temp = 0.0,    0.0,    0.75,    0.0
         p_sum = 2.0,    2.5,    3.0,    0.75
         p_srs = 0.01,   0.05,   0.1,    0.1
        p_sdmo = 0.05,   0.05,   0.05,   0.0
@@ -530,12 +530,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
   p_switchDOC = 1,      1,      1,      1
   p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
      p_limnut = 1,      1,      1,      1
-        p_qun = 0.025,  0.025,  0.025,  0.025
+        p_qun = 0.025,  0.025,  0.25,  0.025
         p_lN4 = 1.0,    1.0,    0.0,    1.0
        p_qnlc = 4.193e-3,4.193e-3,4.193e-3,0.00687
        p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
-        p_qup = 0.025,  0.025,  0.025,  0.025
+        p_qup = 0.025,  0.025,  0.25,  0.025
        p_qplc = 1.80e-4,1.80e-4,1.80e-4,4.29e-4
        p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
@@ -543,8 +543,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
        p_chPs = 1.0,    0.0,    0.0,    0.0
     p_Contois = 0.0,    0.0,    0.0,    0.0
         p_qus = 0.0,    0.0,    0.0,    0.0
-       p_qslc = 4.3e-3, 0.0,    0.0,    0.0
-       p_qscPPY = 8.5e-3, 0.0,    0.0,    0.0
+       p_qslc = 8.5e-3, 0.0,    0.0,    0.0
+       p_qscPPY = 0.01, 0.0,    0.0,    0.0
        p_esNI = 0.1,    0.00,   0.00,   0.00
        p_res  = 5.0,    0.0,    0.0,    0.0
   p_switchChl = 1,      1,      1,      1
@@ -729,7 +729,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 &PelChem_parameters_iron
   p_q10R6N7 = 1.50
     p_sR6N7 = 1.0e-03
-  p_scavN7f = 0.7e-04
+  p_scavN7f = 0.01
    p_N7fsol = 0.6
 	filename_nml_conf = 'Pelagic_Environment.nml',
 /
@@ -749,7 +749,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 ! p_rPIm         [m/d]   phytoplankton background sinking rate
 !-------------------------------------------------------------------------!
 &PelGlobal_parameters
-  p_rR6m         = 10.0
+  p_rR6m         = 3.0
   KSINK_rPPY     = 150.0
   AggregateSink  = .FALSE.
   depth_factor   = 2000.0
@@ -810,8 +810,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   ln_trcadv_qck      QUICKEST scheme
 !-------------------------------------------------------------------------!
 &namtrc_adv    
-   ln_trcadv_tvd     =  .false.  !  TVD scheme
-   ln_trcadv_muscl   =  .true.   !  MUSCL scheme
+   ln_trcadv_tvd    =  .false.
+   ln_trcadv_muscl  =  .true.
         filename_nml_conf = 'namelist_top_cfg',
 /
 
@@ -897,19 +897,21 @@ p_paMEZ(2,:)=   0.0,    1.0
 !   and the conversion factor rn_trfac(VARNAME)
 !-------------------------------------------------------------------------!
 &namtrc_dta      
-   sn_trcdta(N1p)  = 'phos_WOA01_1y_orca2_nomask.nc',  -12        ,  'PO4'     ,    .false.   , .true. , 'yearly'  , ''       , '', ''
-   sn_trcdta(N3n)  = 'nitr_WOA01_1y_orca2_nomask.nc',  -12        ,  'NO3'     ,    .false.   , .true. , 'yearly'  , ''       , '', ''
-   sn_trcdta(N5s)  = 'sili_WOA01_1y_orca2_nomask.nc',  -12        ,  'Si'      ,    .false.   , .true. , 'yearly'  , ''       , '', ''
-   sn_trcdta(N7f)  = 'smooth_zonal_Fe_nomask.nc',      -12        ,  'Fe'      ,    .false.   , .true. , 'yearly'  , ''       , '', ''
-   sn_trcdta(O3c) = 'data_1m_DIC_nomask'     ,         -12        ,  'DIC'     ,    .false.   , .true. , 'yearly'  , ''       , '', ''
-   sn_trcdta(O3h) = 'data_1m_Alkalini_nomask',         -12        ,  'Alkalini',    .false.   , .true. , 'yearly'  , ''       , '', ''
+   sn_trcdta(O2o)  = 'DOX_WOA09-ORCA2_L31_annual',  -12   ,  'DOX'     ,    .false.   , .true. , 'yearly'  , ''       , ''
+   sn_trcdta(N1p)  = 'PO4_WOA09-ORCA2_L31_annual',  -12   ,  'PO4'     ,    .false.   , .true. , 'yearly'  , ''       , ''
+   sn_trcdta(N3n)  = 'NO3_WOA09-ORCA2_L31_annual',  -12   ,  'NO3'     ,    .false.   , .true. , 'yearly'  , ''       , ''
+   sn_trcdta(N5s)  = 'SIL_WOA09-ORCA2_L31_annual',  -12   ,  'SIL'     ,    .false.   , .true. , 'yearly'  , ''       , ''
+   sn_trcdta(N7f)  = 'DFE_SMOOTH-ORCA2_L31_annual', -12   ,  'DFE'     ,    .false.   , .true. , 'yearly'  , ''       , ''
+   sn_trcdta(O3c) = 'DIC_GLODAP-ORCA2_L31_annual' , -12   ,  'DIC'     ,    .false.   , .true. , 'yearly'  , ''       , ''
+   sn_trcdta(O3h) = 'ALK_GLODAP-ORCA2_L31_annual',  -12   ,  'ALK'     ,    .false.   , .true. , 'yearly'  , ''       , ''
    cn_dir        =  './'      !  root directory for the location of the data files
+   rn_trfac(O2o)   =  44.661 !  conversion factor from ml/l to mmol/m3 (1 ml/l = 10^3/22.391 = 44.661 umol/l)
    rn_trfac(N1p)   =   1.0   !  no conversion
    rn_trfac(N3n)   =   1.0   !  no conversion
    rn_trfac(N5s)   =   1.0   !  no conversion
    rn_trfac(N7f)   =   1.0   !  no conversion
-   rn_trfac(O3c)  =  12.0   !  conversion factor from umol/l to mg/m3
-   rn_trfac(O3h)  =   1.0   !  no conversion
+   rn_trfac(O3c)  =  12.288  !  conversion factor from umol/kg to mg/m3 (rho=1024 kg/m3)
+   rn_trfac(O3h)  =   1.024  !  conversion factor from umol/kg to umol/m3 (rho=1024 kg/m3)
         filename_nml_conf = 'namelist_top_cfg',
 /
 
@@ -924,21 +926,21 @@ p_paMEZ(2,:)=   0.0,    1.0
 !              !             !  (if <0 mon)   !   name   !  (logical)   ! (T/F)   ! 'monthly'  ! filename ! pairing  | mask
 !-----------------------------------------------------------------------
 &namtrc_bc
-   sn_trcsbc(N3n)  = 'ndeposition.orca',        -1      ,  'ndep'      ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
-   sn_trcsbc(N7f)  = 'fe_deposition_tegen_fung_murray_nomask',       -12      ,  'fedep'      ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
+   sn_trcsbc(N3n)  = 'dummy.nc',                 -1     ,  'ndep'   ,  .false. , .true.  , 'yearly'   , '', '', ''
+   sn_trcsbc(N7f)  = 'FEDEP_INCA-ORCA2_monthly', -1     , 'fedep'   ,  .false. , .true.  , 'yearly'   , ''       , ''
    rn_trsfac(N3n)  = 1.0
-   rn_trsfac(N7f)  =  5.0e-03        ! umol/m2/day, dissolution fraction 5o/oo
-   sn_trccbc(N1p)  = 'river' ,       -12      ,  'RIVERPHOS'  ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
-   sn_trccbc(N3n)  = 'river' ,       -12      ,  'RIVERNIT'   ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
-   sn_trccbc(N5s)  = 'river' ,       -12      ,  'RIVERSIL'   ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
-   sn_trccbc(N7f)  = 'river' ,       -12      ,  'RIVERFe80'  ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
-   sn_trccbc(R1c)  = 'river' ,       -12      ,  'RIVERDOC'   ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
-   sn_trccbc(O3c)  = 'river' ,       -12      ,  'RIVERDIC'   ,  .false.  , .true.  , 'yearly'   , ''       , '', ''
+   rn_trsfac(N7f)  =  2.0e-02        ! umol/m2/day, dissolution fraction 2%
+   sn_trccbc(N1p)  = 'RIVER_DACUNHA-ORCA2_annual' , -12 ,  'RIVERPHOS'  ,  .false.  , .true.  , 'yearly'   , ''       , ''
+   sn_trccbc(N3n)  = 'RIVER_DACUNHA-ORCA2_annual' , -12 ,  'RIVERNIT'   ,  .false.  , .true.  , 'yearly'   , ''       , ''
+   sn_trccbc(N5s)  = 'RIVER_DACUNHA-ORCA2_annual' , -12 ,  'RIVERSIL'   ,  .false.  , .true.  , 'yearly'   , ''       , ''
+   sn_trccbc(N7f)  = 'RIVER_DACUNHA-ORCA2_annual' , -12 ,  'RIVERFe80'  ,  .false.  , .true.  , 'yearly'   , ''       , ''
+   sn_trccbc(R1c)  = 'RIVER_DACUNHA-ORCA2_annual' , -12 ,  'RIVERDOC'   ,  .false.  , .true.  , 'yearly'   , ''       , ''
+   sn_trccbc(O3c)  = 'RIVER_DACUNHA-ORCA2_annual' , -12 ,  'RIVERDIC'   ,  .false.  , .true.  , 'yearly'   , ''       , ''
    rn_trcfac(N1p)  =  8.8464e+10     ! 1 mol P = 30.97 g; 1.e12*1.e3/30.97/365 conversion factor from Tg/y to mmol/d
    rn_trcfac(N3n)  =  1.9556e+11     ! 1 mol N = 14.01 g; 1.e12*1.e3/14.01/365 conversion factor from Tg/y to mmol/d
    rn_trcfac(N5s)  =  9.7534e+10     ! 1 mol Si = 28.09 g; 1.e12*1.e3/28.09/365 conversion factor from Tg/y to mmol/d
-   rn_trcfac(N7f)  =  4.9055e+11     ! 1 mol Fe = 55.85 g; 1.e12*1.e6/55.85/365 conversion factor from Tg/y to umol/d
-                                   ! NOTE ADDED A FACTOR 1.e-2 BECAUSE THIS VALUE IS TOO HIGH (was 4.9055e+13)
+   rn_trcfac(N7f)  =  4.9055e+10     ! 1 mol Fe = 55.85 g; 1.e12*1.e6/55.85/365 conversion factor from Tg/y to umol/d
+                                   ! NOTE ADDED A FACTOR 1.e-3 BECAUSE THE SUM DOES NOT CORRESPOND TO THE PAPER (was 4.9055e+13)
    rn_trcfac(R1c) =  2.7397e+12     ! 1.e15/365 ! conversion factor from Tg/y to mg/d
    rn_trcfac(O3c) =  2.7397e+12     ! 1.e15/365 ! conversion factor from Tg/y to mg/d
    cn_dir       = './'  !  root directory for the location of the boundary condition files
