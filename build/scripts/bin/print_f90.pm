@@ -1658,9 +1658,11 @@ sub func_INIT_INTERNAL {
                 #get the constituents active inside the group
                 if( exists ${$$LST_GROUP{$groupname}->getComponents()}{ (split('',$constOpt))[0] } ){
                     my $temp_compo = "p_q" . $constOpt . $groupAcro;
+                    #print $temp_compo . " " . $groupname_nml . " ";
                     #if the optional initialization element exists in the namelist => add to initialize constituents
                     foreach my $list (@$LST_NML){
-                        if( $list->name() eq $groupname_nml ){
+                        # search for namelists starting with groupname_paramters*
+                        if( $list->name() =~ m/^$groupname_nml/ ){
                             foreach my $param ( @{$list->slots()} ){
                                 if( $param eq $temp_compo){ 
                                     push( @temp_line2, $constOpt . "=" . $temp_compo . "(i)" );

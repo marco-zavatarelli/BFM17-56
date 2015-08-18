@@ -283,7 +283,6 @@ END MODULE init_var_bfm_local
 
    !---------------------------------------------
    ! Initialise other pelagic internal components
-   ! with Redfield
    !---------------------------------------------
 
 %3d-state-pel-InitInternal
@@ -291,7 +290,6 @@ END MODULE init_var_bfm_local
 #ifdef INCLUDE_BEN
    !---------------------------------------------
    ! Initialise other benthic internal components
-   ! with Redfield
    !---------------------------------------------
 
 %2d-state-ben-InitInternal
@@ -301,7 +299,6 @@ END MODULE init_var_bfm_local
 #ifdef INCLUDE_SEAICE
    !---------------------------------------------
    ! Initialise other seaice internal components
-   ! with Redfield
    !---------------------------------------------
 
 %2d-state-ice-InitInternal
