@@ -22578,20 +22578,57 @@ reference "fig:bfm_configure-steps"
 \end_inset
 
 ): 
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
 \shape italic
-g - Generation
+g (Generation)
 \shape default
- (generate .h , .f90 needed for compilation and .nml files needed for execution),
+ generate fortran files (.h , .f90) based on layout information and the single
+ namelist files (.nml) from namelists_bfm in 
+\shape italic
+$BFMDIR/build/tmp/<PRESETNAME>
+\shape default
+ and also place fortran files in the main code tree (
+\shape italic
+$BFMDIR/src
+\shape default
+);
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\shape italic
+c (Compilation)
+\shape default
+ compile the fortran code usig files of the main code tree (
+\shape italic
+$BFMDIR/src
+\shape default
+) and create the executable file (.x) in 
+\shape italic
+$BFMDIR/bin;
+\end_layout
+
+\begin_layout Labeling
+\labelwidthstring 00.00.0000
+
+\shape italic
+d (Deployment
+\shape default
+) create experiment folder in 
+\shape italic
+$BFMDIR/run/<PRESETNAME>
+\shape default
+ and copy namelists and executable for the simulation.
  
-\shape italic
-c - Compilation
-\shape default
- (compile and create the executable file) and 
-\shape italic
-d - Deployment
-\shape default
- (create experiment folder and copy namelists for execution).
- At least one of these three basic instruction is mandatory.
+\end_layout
+
+\begin_layout Standard
+At least one of these three basic instruction is mandatory.
 \end_layout
 
 \begin_layout Standard
