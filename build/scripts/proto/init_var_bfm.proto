@@ -15,6 +15,79 @@ MODULE init_var_bfm_local
 
 %init-func-constituents
 
+!-----------------------------------------------------------------------
+!BOP
+!
+! !ROUTINE: Initialise constituents of BFM variables
+!
+! !INTERFACE:
+   subroutine init_organic_constituents()
+!
+! !DESCRIPTION:
+!  Call the initialization of internal ratios for the living
+! and non-living organic components
+!
+! !USES:
+   use mem
+   use mem_PelGlobal
+   use mem_PelChem
+   use mem_PelBac
+   use mem_MesoZoo
+   use mem_MicroZoo
+   use mem_Phyto
+
+   use constants, ONLY: HOURS_PER_DAY
+   use mem_Param, ONLY: p_small,          &
+                        CalcPelagicFlag,  &
+                        CalcBenthicFlag,  &
+                        CalcSeaiceFlag,   &
+                        CalcPelChemistry, &
+                        CalcTransportFlag
+#ifdef INCLUDE_SEAICE
+   use mem_SeaiceAlgae
+   use mem_SeaiceBac
+   use mem_SeaiceZoo
+#endif
+   IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi
+!
+! !LOCAL VARIABLES:
+   integer              :: i
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   !---------------------------------------------
+   ! Initialise other pelagic internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%3d-state-pel-InitInternal
+
+#ifdef INCLUDE_BEN
+   !---------------------------------------------
+   ! Initialise other benthic internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%2d-state-ben-InitInternal
+
+#endif
+
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Initialise other seaice internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%2d-state-ice-InitInternal
+
+#endif
+
+end subroutine init_organic_constituents
+
+
 END MODULE init_var_bfm_local
 
 
@@ -29,8 +102,6 @@ END MODULE init_var_bfm_local
 ! !DESCRIPTION:
 !  Allocate BFM variables and give initial values of
 !  parameters and state variables
-!  Only pelagic variables are initialized here.
-!  Benthic variables are done in a special routine init_benthic_bfm
 !
 ! !USES:
 #ifndef NOT_STANDALONE
@@ -281,30 +352,13 @@ END MODULE init_var_bfm_local
 
 #endif
 
+#ifndef BFM_NEMO
    !---------------------------------------------
-   ! Initialise other pelagic internal components
+   ! Initialise constituents of organic components
    !---------------------------------------------
-
-%3d-state-pel-InitInternal
-
-#ifdef INCLUDE_BEN
-   !---------------------------------------------
-   ! Initialise other benthic internal components
-   !---------------------------------------------
-
-%2d-state-ben-InitInternal
+   call init_organic_constituents()
 
 #endif
-
-#ifdef INCLUDE_SEAICE
-   !---------------------------------------------
-   ! Initialise other seaice internal components
-   !---------------------------------------------
-
-%2d-state-ice-InitInternal
-
-#endif
-
    !---------------------------------------------
    ! Check setup settings
    ! and finalize initialization

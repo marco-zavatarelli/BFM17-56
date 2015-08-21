@@ -215,11 +215,13 @@ SUBROUTINE trc_trp_bfm( kstp )
          END IF ! transported
  
          ! Print statistics into bfm.log file 
-         IF(lwp .and. m==1) WRITE(LOGUNIT,*) 'Statistics on tracer at step: ' , kstp
-         IF(lwp) WRITE(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax, zdrift
+         IF ( lwp .AND. ( kstp < 100 .OR. MOD(kstp,50) == 0 ) ) THEN
+           IF(m==1) WRITE(LOGUNIT,*) 'Statistics on tracer at step: ' , kstp
+           WRITE(LOGUNIT,9000) m, trim(var_names(stPelStateS+m-1)), zmean, zmin, zmax, zdrift
+           IF(m==NO_D3_BOX_STATES) WRITE(LOGUNIT,*)
+         ENDIF
 
       END DO ! over BFM state vars
-      IF(lwp) WRITE(LOGUNIT,*)       
 
       IF (ln_trcrad) THEN
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
