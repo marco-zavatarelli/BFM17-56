@@ -83,6 +83,9 @@
   end select
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Attenuation depends on a main flag ChlAttenFlag
+  ! 1. broadband linear attenuation (standard BFM)
+  ! 2. 3-band tabulated attenuation coefficients (Morel, 1988; Lengaigne et al)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   select case ( ChlAttenFlag)
   case ( 1 ) ! broadband linear attenuation

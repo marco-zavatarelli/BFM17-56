@@ -85,22 +85,6 @@
 !                                       time integration
 ! AssignAirPelFluxesInBFMFlag   logical Air-sea fluxes are added to the
 !                                       time integration
-! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
-!                                       1 = diagnostic, optimal light property
-!                                           in phytoplankton 
-!                                           (Ebenhoeh et al 1995, ERSEM-II) 
-!                                       2 = state variable, constituent of 
-!                                           phytoplankton
-! LightPeriodFlag               numeric Choose the light averaging period
-!                                       1 = Instantanous irradiance
-!                                       2 = Daily average
-!                                       3 = Daylight average with explicit
-!                                           photoperiod
-! LightLocationFlag             numeric Choose the parameterization of light
-!                                       location in the discrete grid
-!                                       1 = Light at the top of the cell
-!                                       2 = Light in the middle of the cell
-!                                       3 = Average Light in the cell
 ! check_fixed_quota             numeric Check whether zooplankton have fixed quota
 !
 ! Global Parameters : used throughout the model and not related 
@@ -108,12 +92,6 @@
 ! NAME          UNIT          DESCRIPTION
 ! p_small      [-]           Smallest numeric value (the model "zero")
 ! slp0         [mbar]        Reference sea level pressure
-! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
-! p_eps0       [1/m]         Background extinction coefficient
-! p_epsESS     [m2/g]        Specific attenuation coefficient of
-!                            suspended sediments
-! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
-!                            detritus
 ! p_pe_R1c     [-]           Fractional content of C in cytoplasm 
 ! p_pe_R1n     [-]           Fractional content of N in cytoplasm
 ! p_pe_R1p     [-]           Fractional content of P in cytoplasm
@@ -142,17 +120,10 @@
            CalcPelChemistry = .TRUE.
 AssignPelBenFluxesInBFMFlag = .FALSE.
 AssignAirPelFluxesInBFMFlag = .TRUE.
-            ChlDynamicsFlag = 2
-            LightPeriodFlag = 1
-          LightLocationFlag = 3
           check_fixed_quota = 0
 ! Parameters : 
                     p_small = 1.0e-20
                        slp0 = 1013.25E0
-                      p_PAR = 0.40
-                     p_eps0 = 0.0435
-                    p_epsR6 = 0.1d-3
-                   p_epsESS = 0.04d-3
                    p_pe_R1c = 0.60
                    p_pe_R1n = 0.72
                    p_pe_R1p = 0.832
@@ -177,13 +148,13 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! available fields:
 ! integer init: select the initialization
 !               0 = homogeneous
-!               1 = analytical
+!               1 = analytical (linear)
 !               2 = from file
 ! options for init==1
 !   real anv1: value in the surface layer
-!   real anz1: depth of the surface layer
+!   real anz1: thickness of the surface layer
 !   real anv2: value in the bottom layer
-!   real anz2: depth of the bottom layer
+!   real anz2: starting depth of the bottom layer
 ! options for init==2 
 ! * Options currently used when coupled with NEMO
 !   logical obc: variable has open boundary data
@@ -348,6 +319,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
           'ruPPYc','resPBAc','resZOOc',
           'ruPPYn','ruPPYp','ruPPYs','ruPPYf','exPPYc',
           'ruZOOc','remZOOn','remZOOp','remPBAn','remPBAp',
+          'fscavN7f','remN7f','remN5s',
           'EICE','ETW','EIR','EWIND','xEPS',
           'R6p','R6n','R6s','B1p','B1n','Z5p','Z6p','Z5n','Z6n'
 	filename_nml_conf = 'BFM_General.nml',
@@ -398,7 +370,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! M2PHDELT       [pH]             Delta of pH for the root search (realized pH+/-DELT)
 !                                 in the OCMIP scheme (default 0.5)
 ! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
-!              ----------------------------------------------------- 
+!              ---------  Parameters for calcium and calcite ---------
 ! Caconc0        [mol/m3]         Calcium ion concentration 
 !                                 ["Seawater : Its composition, properties and behaviour" 
 !                                 (2nd Edition), Open University Course Team, 1995]
@@ -487,10 +459,10 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
           p_sd = 0.1
          p_sd2 = 0.0
        p_suhR1 = 0.3
-       p_sulR1 = 0.0
+       p_sulR1 = 0.05
         p_suR2 = 0.0
         p_suR3 = 0.0
-        p_suR6 = 0.01
+        p_suR6 = 0.05
          p_sum = 8.38
        p_pu_ra = 0.6
      p_pu_ra_o = 0.2
@@ -511,7 +483,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 /
 
 !-------------------------------------------------------------------------!
-!NAMELIST Phyto_parameters, Phyto_parameters_iron, PAR_parameters, LightAdaptation_parameters
+!NAMELIST Phyto_parameters, Phyto_parameters_iron
 !-------------------------------------------------------------------------!
 !  PELAGIC PHYTOPLANKTON
 ! NAME         [UNIT]/KIND            DESCRIPTION
@@ -562,6 +534,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_qus       [m3/mgC/d]     Membrane affinity for Si
 !  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C 
 !  p_qscPPY      [mmolSi/mgC]   Reference quotum Si:C
+!                             Brzezinski (1985) 0.13 mol/mol
 !                   ---- nutrient stressed sinking ----
 !  p_esNI      [-]            Nutrient stress threshold for sinking
 !  p_res       [m/d]          Maximum Sinking vel city (m/d)
@@ -580,13 +553,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !                             Sunda & Huntsman (1997), Nature, 390, p 389-392
 !  p_qfcPPY      [umolFe/mgC]   Reference quotum Fe:C 
 !  p_xqf       [-]            Multiplication factor for luxury storage
-!              --------- Light parameters ERSEM-II -----------
-!  p_iswLtyp                  Shape of the productivity function
-!  p_isw                      Switch between parameterizations
-!  p_chELiPPY    [W/m2]         Maximum Iopt
-!  p_clELiPPY    [W/m2]         Minimum Iopt
-!  p_ruELiPPY    [1/d]          Maximum daily shift in Iopt (1/d)
-!  p_addepth   [m]            Adaptation depth. Meaningless with high-res models
 !
 !-------------------------------------------------------------------------!
 &Phyto_parameters
@@ -604,12 +570,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
   p_switchDOC = 1,      1,      1,      1
   p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
      p_limnut = 1,      1,      1,      1
-        p_qun = 0.025,  0.025,  0.025,  0.025
+        p_qun = 0.025,  0.025,  0.25,  0.025
         p_lN4 = 1.0,    1.0,    0.0,    1.0
        p_qnlc = 4.193e-3,4.193e-3,4.193e-3,0.00687
        p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
-        p_qup = 0.025,  0.025,  0.025,  0.025
+        p_qup = 0.025,  0.025,  0.25,  0.025
        p_qplc = 1.80e-4,1.80e-4,1.80e-4,4.29e-4
        p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
@@ -617,8 +583,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
        p_chPs = 1.0,    0.0,    0.0,    0.0
     p_Contois = 0.0,    0.0,    0.0,    0.0
         p_qus = 0.0,    0.0,    0.0,    0.0
-       p_qslc = 4.3e-3, 0.0,    0.0,    0.0
-       p_qscPPY = 8.5e-3, 0.0,    0.0,    0.0
+       p_qslc = 0.0,    0.0,    0.0,    0.0
+     p_qscPPY = 0.01,   0.0,    0.0,    0.0
        p_esNI = 0.1,    0.00,   0.00,   0.00
        p_res  = 5.0,    0.0,    0.0,    0.0
   p_switchChl = 1,      1,      1,      1
@@ -639,7 +605,56 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 	filename_nml_conf = 'Pelagic_Ecology.nml',
 /
 
+!-------------------------------------------------------------------------!
+!NAMELIST PAR_parameters, LightAdaptation_parameters
+!-------------------------------------------------------------------------!
+! ChlDynamicsFlag    numeric Choose the dynamics of Chl-a
+!                            1 = diagnostic, optimal light property
+!                                in phytoplankton
+!                                (Ebenhoeh et al 1995, ERSEM-II)
+!                            2 = state variable, constituent of
+!                                phytoplankton
+! LightPeriodFlag    numeric Choose the light averaging period
+!                            1 = Instantanous irradiance
+!                            2 = Daily average
+!                            3 = Daylight average with explicit
+!                                photoperiod
+! LightLocationFlag  numeric Choose the parameterization of light
+!                            location in the discrete grid
+!                            1 = Light at the top of the cell
+!                            2 = Light in the middle of the cell
+!                            3 = Average Light in the cell
+! ChlAttenFlag	     numeric Choose the PAR attenuation due to Chl
+!                            1 = broadband linear attenuation 
+!                            2 = 3-band tabulated attenuation coefficients
+!                                (Morel, 1988; Lengaigne et al, 2007)
+! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
+! p_eps0       [1/m]         Background extinction coefficient
+! p_epsIR      [1/m]         Infrared extinction coefficient 
+!                            (for 2-band attenuation with NEMO)
+! p_epsESS     [m2/g]        Specific attenuation coefficient of
+!                            suspended sediments
+! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
+!                            detritus
+!              --------- Light parameters ERSEM-II -----------
+!  p_iswLtyp                  Shape of the productivity function
+!  p_isw                      Switch between parameterizations
+!  p_chELiPPY    [W/m2]         Maximum Iopt
+!  p_clELiPPY    [W/m2]         Minimum Iopt
+!  p_ruELiPPY    [1/d]          Maximum daily shift in Iopt (1/d)
+!  p_addepth   [m]            Adaptation depth. Meaningless with high-res models
+!-------------------------------------------------------------------------!
+
 &PAR_parameters
+  ChlDynamicsFlag    =  2
+  LightPeriodFlag    =  1
+  LightLocationFlag  =  3
+  ChlAttenFlag       =  2
+  p_PAR        =  0.40
+  p_eps0       =  0.0435
+  p_epsIR      =  0.35
+  p_epsESS     =  0.04d-3
+  p_epsR6      =  0.1d-3
 !               P1      P2      P3      P4
   p_iswLtyp =   5,      5,      5,      5
 	filename_nml_conf = 'Pelagic_Ecology.nml',
@@ -802,7 +817,8 @@ p_paMEZ(2,:)=   0.0,    1.0
 
 &PelChem_parameters_iron
   p_q10R6N7 = 1.50
-    p_sR6N7 = 1.0e-03
+    p_sR6N7 = 1.0e-02
+    p_sR1N7 = 1.0e-01
   p_scavN7f = 0.7e-04
    p_N7fsol = 0.6
 	filename_nml_conf = 'Pelagic_Environment.nml',
@@ -823,9 +839,9 @@ p_paMEZ(2,:)=   0.0,    1.0
 ! p_rPIm         [m/d]   phytoplankton background sinking rate
 !-------------------------------------------------------------------------!
 &PelGlobal_parameters
-  p_rR6m         = 10.0
-  KSINK_rPPY     = 150.0
-  AggregateSink  = .FALSE.
+  p_rR6m         = 1.5
+  KSINK_rPPY     = 0.0
+  AggregateSink  = .TRUE.
   depth_factor   = 2000.0
 !               P1      P2      P3      P4
   p_rPIm =      0.0,    0.0,    0.0,    0.0

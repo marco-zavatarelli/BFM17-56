@@ -236,7 +236,7 @@ end
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
-  ruPPYc=P.c <- O3c : Gross/Net Primary Production : mg C/m3/d
+  ruPPYc=P.c <- O3c : Gross Primary Production : mg C/m3/d
   resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
   resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
   resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d

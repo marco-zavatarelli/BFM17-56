@@ -75,7 +75,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer, save :: first =0
   integer       :: AllocStatus
-  real(RLEN),allocatable,save,dimension(:) :: fR1N7f, fR6N7f, fscavN7f
+  real(RLEN),allocatable,save,dimension(:) :: fR1N7f, fR6N7f
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   if (first==0) then
@@ -84,8 +84,6 @@
      if (AllocStatus  /= 0) stop "error allocating fR6N7f"
      allocate(fR1N7f(NO_BOXES),stat=AllocStatus)
      if (AllocStatus  /= 0) stop "error allocating fR1N7f"
-     allocate(fscavN7f(NO_BOXES),stat=AllocStatus)
-     if (AllocStatus  /= 0) stop "error allocating fscavN7f"
   end if
 
   !-=-==-=-=-=-=-===--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=--=

@@ -302,7 +302,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! M2PHDELT       [pH]             Delta of pH for the root search (realized pH+/-DELT)
 !                                 in the OCMIP scheme (default 0.5)
 ! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
-!              ----------------------------------------------------- 
+!              ---------  Parameters for calcium and calcite ---------
 ! Caconc0        [mol/m3]         Calcium ion concentration 
 !                                 ["Seawater : Its composition, properties and behaviour" 
 !                                 (2nd Edition), Open University Course Team, 1995]
@@ -502,12 +502,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
   p_switchDOC = 1,      1,      1,      1
   p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
      p_limnut = 1,      1,      1,      1
-        p_qun = 0.025,  0.025,  0.025,  0.025
+        p_qun = 0.025,  0.025,  0.25,  0.025
         p_lN4 = 1.0,    1.0,    0.0,    1.0
        p_qnlc = 4.193e-3,4.193e-3,4.193e-3,0.00687
        p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
-        p_qup = 0.025,  0.025,  0.025,  0.025
+        p_qup = 0.025,  0.025,  0.25,  0.025
        p_qplc = 1.80e-4,1.80e-4,1.80e-4,4.29e-4
        p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
@@ -556,8 +556,14 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !                            1 = Light at the top of the cell
 !                            2 = Light in the middle of the cell
 !                            3 = Average Light in the cell
+! ChlAttenFlag	     numeric Choose the PAR attenuation due to Chl
+!                            1 = broadband linear attenuation 
+!                            2 = 3-band tabulated attenuation coefficients
+!                                (Morel, 1988; Lengaigne et al, 2007)
 ! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
 ! p_eps0       [1/m]         Background extinction coefficient
+! p_epsIR      [1/m]         Infrared extinction coefficient 
+!                            (for 2-band attenuation with NEMO)
 ! p_epsESS     [m2/g]        Specific attenuation coefficient of
 !                            suspended sediments
 ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
@@ -572,15 +578,15 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !-------------------------------------------------------------------------!
 
 &PAR_parameters
-  ChlAttenFlag       =  2
   ChlDynamicsFlag    =  2
   LightPeriodFlag    =  1
   LightLocationFlag  =  3
+  ChlAttenFlag       =  2
   p_PAR        =  0.40
   p_eps0       =  0.0435
   p_epsIR      =  0.35
-  p_epsR6      =  0.1d-3
   p_epsESS     =  0.04d-3
+  p_epsR6      =  0.1d-3
 !               P1      P2      P3      P4
   p_iswLtyp =   5,      5,      5,      5
 	filename_nml_conf = 'Pelagic_Ecology.nml',
@@ -839,27 +845,3 @@ p_paMEZ(2,:)=   0.0,    1.0
         filename_nml_conf = 'namelist_top_cfg',
 /
 
-!------------------------------------------------------------------------------------!
-!NAMELIST bnmerge_nml
-!------------------------------------------------------------------------------------!
-!Main initialisation and output specifications
-!NAME             KIND    DESCRIPTION
-!chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
-!bfm_restart      string        Name of NetCDF restart chunk files (also name of restart output)
-!inp_dir 	  string 	Path to the input files (chunks)
-!out_dir 	  string 	Path to the output file (merged)
-!layout 	  string 	Path to the layout.dat file
-!ln_mask 	  logical       Write global mask specification
-!var_save 	  string 	List of output variables (set according to bfm output) 
-!
-!------------------------------------------------------------------------------------!
-&bnmerge_nml
-   chunk_fname='GYRE_BFM'
-   bfm_restart=''
-   inp_dir='./'
-   out_dir='./'
-   layout='./layout.dat'
-   ln_mask=.FALSE.
-   var_save='O2o'  'O3h'  'DIC'  'ALK'  'pCO2'  'pH'  'N1p'  'N3n'  'N4n'  'N5s'  'N7f'  'P1c'  'P1l'  'P1f'  'P2c'  'P2l'  'P3c'  'P3l'  'Z4c'  'Z5c'  'Z6c'  'B1c'  'R1c'  'R2c'  'R6c'  'R6f'  'Chla'  'R1n'  'R1p'  'eiPPY(iiP1)'  'eiPPY(iiP2)'  'eiPPY(iiP3)'  'P1n'  'P2n'  'P3n'  'P1p'  'P2p'  'P3p'  'jbotR6c'  'jsurO2o'  'jsurO3c'  'ruPPYc'  'resPBAc'  'resZOOc'  'ruPPYn'  'ruPPYp'  'ruPPYs'  'ruPPYf'  'exPPYc'  'ruZOOc'  'remZOOn'  'remZOOp'  'remPBAn'  'remPBAp'  'EICE'  'ETW'  'EIR'  'EWIND'  'xEPS'  'R6p'  'R6n'  'R6s'  'B1p'  'B1n'  'Z5p'  'Z6p'  'Z5n'  'Z6n'
-   filename_nml_conf = 'bnmerge.nml',
-/

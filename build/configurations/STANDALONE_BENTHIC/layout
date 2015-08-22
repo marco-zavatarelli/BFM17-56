@@ -387,6 +387,7 @@ end
     # Diagnostic collective variables 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     Chla : Chlorophyll-a : mg Chl/m3
+    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
 
     #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     # Water column diagnostic rates
@@ -420,15 +421,14 @@ end
    # Sinking rates of phytoplankton and detritus
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
     sediPPY(PhytoPlankton)     : PhytoPlankton sedimentation rate :m/d
-    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate :m/d
+    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate:m/d
     sediMEZ(MesoZooPlankton)  : MesoZooPlankton sedimentation rate :m/d
-    sediR2                    : Detritus sedimentation rate:m/d
-    sediR6                    : Detritus sedimentation rate:m/d
+    sediR2                    : Detritus sedimentation rate        :m/d
+    sediR6                    : Detritus sedimentation rate        :m/d
 
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-   # Sinking rates of phytoplankton and detritus
+   # Light diagnostics
    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
     eiPPY(PhytoPlankton)  : Regulating Factor for Light in PhytoPlankton : -
     xEPS                  : Total Extinction Coefficient : 1/m
     ELiPPY(PhytoPlankton) : Optimal light in PhytoPlankton : W/m2
@@ -449,22 +449,23 @@ end
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
-  ruPTc=P.c <- O3c : Gross Primary Production     : mg C/m3/d
-  resPP=P.c -> O3c : Respiration of phytoplankton : mg C/m3/d
-  resZT=(Z.c->O3c) : Respiration of zooplankton   : mg C/m3/d
+  ruPPYc=P.c  <- O3c : Gross Primary Production    : mg C/m3/d
+  resPPYc=P.c -> O3c : Phytoplankton Respiration   : mg C/m3/d
+  resPBAc=B.c -> O3c : Bacterial Respiration       : mg C/m3/d
+  resZOOc=Z.c -> O3c : Zooplankton Respiration     : mg C/m3/d
 end
 
 3d-flux -if-exist INCLUDE_DIAG
-  ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
-  ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
-  exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
-  ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
-  netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
-  rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
-  rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
-  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
-  reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
-  ruBn=(N4n->B1n): bacterial uptake : mmol N/m3/d
-  fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
-  fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
+  ruPPYn=P.n <- N3n+N4n: Net Nitrogen Uptake:mmol N/m3/d
+  ruPPYp=P.p <- N1p : Net Phosphate Uptake : mmol P/m3/d
+  ruPPYs=P.s <- N5s : Net Silicate Uptake : mmol Si/m3/d
+  exPPYc=(P.c->R1c+R2c+R3c+R6c): C excretion from phytoplankton :mg C/m3/d
+  exPPYs=(P.s->R6s): biogenic Si loss from phytoplankton :mmol Si/m3/d
+  ruZOOc=(Z.c<-P.c+B.c+Z.c): Gross/Net Secondary Production:mg C/m3/d
+  resPELo=(O2o->*): Pelagic Oxygen Demand : mmol O2/m3/d
+  remZOOn=(N4n<-B.n+Z.n): Zooplankton N Remineralization : mmol N/m3/d
+  remZOOp=(N1p<-B.p+Z.p): Zooplankton P Remineralization : mmol P/m3/d
+  remPBAn=(N4n<-B.n): Bacterial N Uptake/Remineralization : mmol N/m3/d
+  remPBAp=(N1p<-B.p): bacterial P Uptake/Remineralization : mmol P/m3/d
+  remN5s=(N5s<-R6s): Si Remineralization : mmol Si/m3/d
 end
