@@ -330,9 +330,8 @@
          Initvar(m)%varname=var_names(m)
          if (bfm_lwp) write(LOGUNIT, 158) InitVar(m)
       end do
-      ! Initialize the other internal constitutents
-      ! From carbon components
-      call init_all_constituents() 
+      ! Initialize internal constitutents of organic components
+      call init_organic_constituents() 
    end if
    if (bfm_lwp) then 
          LEVEL1 ' '
