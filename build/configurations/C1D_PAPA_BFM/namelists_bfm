@@ -158,7 +158,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
                    p_pe_R1p = 0.832
                       p_qro = 0.5
                p_qon_dentri = 1.25
-                p_qon_nitri = 1.5
+                p_qon_nitri = 2.0
 	filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -220,41 +220,20 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    R6c0 = 0.1,
 
    InitVar(O2o)%init = 0,
-   InitVar(O2o)%sbc  = .false.,
-   InitVar(O2o)%cbc  = .false.,
-   InitVar(O2o)%obc  = .false.,
    InitVar(N1p)%init = 0,
-   InitVar(N1p)%sbc  = .false.,
-   InitVar(N1p)%cbc  = .false.,
-   InitVar(N1p)%obc  = .false.,
    InitVar(N3n)%init = 0,
-   InitVar(N3n)%sbc  = .false.,
-   InitVar(N3n)%cbc  = .false.,
-   InitVar(N3n)%obc  = .false.,
    InitVar(N5s)%init = 0,
-   InitVar(N5s)%sbc  = .false.,
-   InitVar(N5s)%cbc  = .false.,
-   InitVar(N5s)%obc  = .false.,
    InitVar(N7f)%init = 0,
-   InitVar(N7f)%sbc  = .false.,
-   InitVar(N7f)%cbc  = .false.,
-   InitVar(N7f)%obc  = .false.,
    InitVar(O3c)%init = 1,
    InitVar(O3c)%anv1 = 25800.,
    InitVar(O3c)%anz1 = 0.,
    InitVar(O3c)%anv2 = 27900.,
    InitVar(O3c)%anz2 = 1500.,
-   InitVar(O3c)%sbc  = .false.,
-   InitVar(O3c)%cbc  = .false.,
-   InitVar(O3c)%obc  = .false.,
    InitVar(O3h)%init = 1,
    InitVar(O3h)%anv1 = 2375.,
    InitVar(O3h)%anz1 = 0.,
    InitVar(O3h)%anv2 = 2420.,
    InitVar(O3h)%anz2 = 2000.,
-   InitVar(O3h)%sbc  = .false.,
-   InitVar(O3h)%cbc  = .false.,
-   InitVar(O3h)%obc  = .false.,
    filename_nml_conf = 'BFM_General.nml',
 /
 
@@ -329,7 +308,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 ! M2PHDELT       [pH]             Delta of pH for the root search (realized pH+/-DELT)
 !                                 in the OCMIP scheme (default 0.5)
 ! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
-!              ----------------------------------------------------- 
+!              ---------  Parameters for calcium and calcite ---------
 ! Caconc0        [mol/m3]         Calcium ion concentration 
 !                                 ["Seawater : Its composition, properties and behaviour" 
 !                                 (2nd Edition), Open University Course Team, 1995]
@@ -477,12 +456,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_qun       [m3/mgC/d]     Membrane affinity for N
 !  p_lN4       [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
 !  p_qnlc      [mmolN/mgC]    Minimum quotum Si:C 
-!  p_qncPPY      [mmolN/mgC]    Reference quotum Si:C
+!  p_qncPPY    [mmolN/mgC]    Reference quotum Si:C
 !  p_xqn       [-]            Multiplication factor for luxury storage
 !                   ---- P limitation control ----
 !  p_qup       [m3/mgC/d]     Membrane affinity for P
 !  p_qplc      [mmolP/mgC]    Minimum quotum Si:C 
-!  p_qpcPPY      [mmolP/mgC]    Reference quotum Si:C
+!  p_qpcPPY    [mmolP/mgC]    Reference quotum Si:C
 !  p_xqp       [-]            Multiplication factor for luxury storage
 !                   ---- Si limitation control ----
 !  p_switchSi  [1-2]          Switch for Silica limitation
@@ -492,7 +471,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_Contois   [>=0]          If >0, use Contois formulation
 !  p_qus       [m3/mgC/d]     Membrane affinity for Si
 !  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C 
-!  p_qscPPY      [mmolSi/mgC]   Reference quotum Si:C
+!  p_qscPPY    [mmolSi/mgC]   Reference quotum Si:C
 !                   ---- nutrient stressed sinking ----
 !  p_esNI      [-]            Nutrient stress threshold for sinking
 !  p_res       [m/d]          Maximum Sinking vel city (m/d)
@@ -501,7 +480,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_sdchl     [1/d]          Specific turnover rate for Chla 
 !  p_alpha_chl [mgC s m2/     Initial slope of the P-E curve
 !               mgChl/uE] 
-!  p_qlcPPY     [mgChla/mgC]   Fixed/Maximum quotum Chla:C
+!  p_qlcPPY    [mgChla/mgC]   Reference quotum Chla:C 
 !  p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
 !  p_tochl_relt  [1/d]        Relaxation rate towards maximum Chla:C
 !  p_EpEk_or   [-]            Optimal value of E_PAR/E_K
@@ -509,7 +488,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_quf       [m3/mgC/d]     Membrane affinity for Fe
 !  p_qflc      [umolFe/mgC]   Minimum quotum Fe:C derived from 3 umol Fe/mol C
 !                             Sunda & Huntsman (1997), Nature, 390, p 389-392
-!  p_qfcPPY      [umolFe/mgC]   Reference quotum Fe:C 
+!  p_qfcPPY    [umolFe/mgC]   Reference quotum Fe:C
 !  p_xqf       [-]            Multiplication factor for luxury storage
 !              --------- Light parameters ERSEM-II -----------
 !  p_iswLtyp                  Shape of the productivity function
@@ -523,7 +502,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 &Phyto_parameters
 !               P1      P2      P3      P4
         p_q10 = 2.0,    2.0,    2.0,    2.0
-       p_temp = 0.0,    0.0,    0.0,    0.0
+       p_temp = 0.0,    0.0,    0.75,    0.0
         p_sum = 2.0,    2.5,    3.0,    0.75
         p_srs = 0.01,   0.05,   0.1,    0.1
        p_sdmo = 0.05,   0.05,   0.05,   0.0
@@ -535,12 +514,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
   p_switchDOC = 1,      1,      1,      1
   p_netgrowth = .FALSE.,.FALSE.,.FALSE.,.FALSE.
      p_limnut = 1,      1,      1,      1
-        p_qun = 0.025,  0.025,  0.025,  0.025
+        p_qun = 0.025,  0.025,  0.25,  0.025
         p_lN4 = 1.0,    1.0,    0.0,    1.0
        p_qnlc = 4.193e-3,4.193e-3,4.193e-3,0.00687
        p_qncPPY = 1.26e-2,1.26e-2,1.26e-2,1.26e-2
         p_xqn = 2.0,    2.0,    2.0,    2.0
-        p_qup = 0.025,  0.025,  0.025,  0.025
+        p_qup = 0.025,  0.025,  0.25,  0.025
        p_qplc = 1.80e-4,1.80e-4,1.80e-4,4.29e-4
        p_qpcPPY = 7.86e-4,7.86e-4,7.86e-4,7.86e-4
         p_xqp = 2.0,    2.0,    2.0,    2.0
@@ -548,8 +527,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
        p_chPs = 1.0,    0.0,    0.0,    0.0
     p_Contois = 0.0,    0.0,    0.0,    0.0
         p_qus = 0.0,    0.0,    0.0,    0.0
-       p_qslc = 4.3e-3, 0.0,    0.0,    0.0
-       p_qscPPY = 8.5e-3, 0.0,    0.0,    0.0
+       p_qslc = 8.5e-3, 0.0,    0.0,    0.0
+       p_qscPPY = 0.01, 0.0,    0.0,    0.0
        p_esNI = 0.1,    0.00,   0.00,   0.00
        p_res  = 5.0,    0.0,    0.0,    0.0
   p_switchChl = 1,      1,      1,      1
@@ -624,6 +603,8 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
    p_minfood =  20.0,   20.0
     p_qpcMIZ =  1.85d-3,1.85d-3
     p_qncMIZ =  1.67d-2,1.67d-2
+! Food matrix parameters: take care of the indices
+!               Z5      Z6
      p_paPBA =  0.1,    0.9
 !               P1      P2      P3      P4
 !       Z5
@@ -733,7 +714,7 @@ p_paMEZ(2,:)=   0.0,    1.0
 
 &PelChem_parameters_iron
   p_q10R6N7 = 1.50
-    p_sR6N7 = 1.0e-03
+    p_sR6N7 = 1.0e-02
   p_scavN7f = 0.7e-04
    p_N7fsol = 0.6
 	filename_nml_conf = 'Pelagic_Environment.nml',
