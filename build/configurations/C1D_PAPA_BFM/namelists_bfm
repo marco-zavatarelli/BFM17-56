@@ -558,12 +558,12 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !                            3 = Average Light in the cell
 ! ChlAttenFlag	     numeric Choose the PAR attenuation due to Chl
 !                            1 = broadband linear attenuation 
-!                            2 = 3-band tabulated attenuation coefficients
+!                            2 = 4-band tabulated attenuation coefficients
 !                                (Morel, 1988; Lengaigne et al, 2007)
 ! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
 ! p_eps0       [1/m]         Background extinction coefficient
 ! p_epsIR      [1/m]         Infrared extinction coefficient 
-!                            (for 2-band attenuation with NEMO)
+!                            (to use with ChlAttenFlag=2)
 ! p_epsESS     [m2/g]        Specific attenuation coefficient of
 !                            suspended sediments
 ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
@@ -584,7 +584,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
   ChlAttenFlag       =  2
   p_PAR        =  0.40
   p_eps0       =  0.0435
-  p_epsIR      =  0.35
+  p_epsIR      =  2.857
   p_epsESS     =  0.04d-3
   p_epsR6      =  0.1d-3
 !               P1      P2      P3      P4
