@@ -17,6 +17,7 @@
 !  default: all is private.
    use global_mem, only:RLEN,ONE
    use constants,  only:SEC_PER_DAY
+   use init_var_bfm_local
 #ifdef INCLUDE_PELCO2
    use mem_CO2, ONLY: CloseCO2
 #endif   
@@ -263,6 +264,10 @@
    ! to the pelagic system
    !---------------------------------------------
    call init_var_bfm(bio_setup)
+   !---------------------------------------------
+   ! Initialize internal constitutents of functional groups
+   !---------------------------------------------
+   call init_organic_constituents()
    !---------------------------------------------
    ! Set output stepping
    !---------------------------------------------

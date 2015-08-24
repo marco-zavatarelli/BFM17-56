@@ -353,7 +353,7 @@
          Initvar(m)%varname=var_names(m)
          if (bfm_lwp) write(LOGUNIT, 158) InitVar(m)
       end do
-      ! Initialize internal constitutents of organic components
+      ! Initialize internal constitutents of functional groups
       call init_organic_constituents() 
    end if
    if (bfm_lwp) then 
