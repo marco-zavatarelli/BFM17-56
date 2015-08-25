@@ -68,7 +68,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i, irgb
   real(RLEN), dimension(:), pointer  ::lcl_PhytoPlankton
-  real(RLEN) :: limitedChl, par
+  real(RLEN) :: limitedChl
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! This case is used when abiotic extinction comes
@@ -108,9 +108,6 @@
         B_eps(i) = xepsRGB(1,irgb)
         G_eps(i) = xepsRGB(2,irgb)
         R_eps(i) = xepsRGB(3,irgb)
-        ! weighted broadband diffuse attenuation coefficient for diagnostics
-        par = EIRB(i) + EIRG(i) + EIRR(i)
-        xEPS(i)  = (EIRB(i)*B_eps(i) + EIRG(i)*G_eps(i) + EIRR(i)*R_eps(i))/par
      end do
   end select
 

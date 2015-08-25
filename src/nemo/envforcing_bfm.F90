@@ -124,7 +124,7 @@ IMPLICIT NONE
    ! for the BFM (convert W/m2 to PAR in uE,
    ! add parametric zero for nighttime)
    ! Initialise the bioshading array if ln_qsr_bio
-   ! and put irradiance (not PAR!) in the middle,
+   ! using irradiance (not PAR!) 
    ! also including the IR extinction
    !---------------------------------------------
    select case (ChlAttenFlag) 
@@ -145,10 +145,10 @@ IMPLICIT NONE
          allocate(zetotb(jpi,jpj,jpk))
          allocate(zetotg(jpi,jpj,jpk))
          allocate(zetotr(jpi,jpj,jpk))
-         etot3(:,:,1) = (ONE-p_PAR)*qsr(:,:)*exp(-p_epsIR*0.5_RLEN*fse3t(:,:,1))   ! infrared
-         zetotb(:,:,1)= p_PARRGB*qsr(:,:)*exp(-zepsb(:,:,1)*0.5_RLEN*fse3t(:,:,1)) ! blue
-         zetotg(:,:,1)= p_PARRGB*qsr(:,:)*exp(-zepsg(:,:,1)*0.5_RLEN*fse3t(:,:,1)) ! green
-         zetotr(:,:,1)= p_PARRGB*qsr(:,:)*exp(-zepsr(:,:,1)*0.5_RLEN*fse3t(:,:,1)) ! red
+         etot3(:,:,1) = (ONE-p_PAR)*qsr(:,:)   ! infrared
+         zetotb(:,:,1)= p_PARRGB*qsr(:,:) ! blue
+         zetotg(:,:,1)= p_PARRGB*qsr(:,:) ! green
+         zetotr(:,:,1)= p_PARRGB*qsr(:,:) ! red
       end if
    case default ! broadband
       allocate(zpar(jpi,jpj,jpk))
@@ -157,8 +157,8 @@ IMPLICIT NONE
       zepsv(:,:,:) = unpack(xEPS(:),SEAmask,ZEROS)
       if (ln_qsr_bio) then
          allocate(zetotv(jpi,jpj,jpk))
-         etot3(:,:,1) = (ONE-p_PAR)*qsr(:,:)*exp(-p_epsIR*0.5_RLEN*fse3t(:,:,1))  ! infrared
-         zetotv(:,:,1)= p_PAR*qsr(:,:)*exp(-zepsv(:,:,1)*0.5_RLEN*fse3t(:,:,1))   ! visible
+         etot3(:,:,1) = (ONE-p_PAR)*qsr(:,:)  ! infrared
+         zetotv(:,:,1)= p_PAR*qsr(:,:)        ! visible
       end if
    end select
    !---------------------------------------------
@@ -166,6 +166,10 @@ IMPLICIT NONE
    ! Distinguish the broadband and 3-band
    ! and store the array etot3 to be used by 
    ! NEMO when ln_qsr_bio
+   ! Note that NEMO prescribes absorption
+   ! of shortwave in the first 400 m.
+   ! This is not done here and results may 
+   ! slightly differ at depth when coupled
    !---------------------------------------------
    select case (ChlAttenFlag) 
    case (2) ! 3-band
@@ -182,14 +186,16 @@ IMPLICIT NONE
       EIRG(:) = pack(zparg(:,:,:),SEAmask)
       EIRR(:) = pack(zparr(:,:,:),SEAmask)
       EIR(:) = EIRB(:) + EIRG(:) + EIRR(:)
+      ! weighted broadband diffuse attenuation coefficient for diagnostics
+      xEPS(:) = (EIRB(:)*B_eps(:) + EIRG(:)*G_eps(:) + EIRR(:)*R_eps(:))/EIR(:)
       if (ln_qsr_bio) then
-         do k = 1,jpkm1
+         do k = 2,jpk
             do j = 1,jpj
                do i = 1,jpi
-                  etot3(i,j,k+1) = etot3(i,j,k)*exp(-0.5_RLEN*p_epsIR*(fse3t(i,j,k)+fse3t(i,j,k+1)))   ! infrared
-                  zetotb(i,j,k+1)= zetotb(i,j,k)*exp(-0.5_RLEN*(zepsb(i,j,k)*fse3t(i,j,k)+zepsb(i,j,k+1)*fse3t(i,j,k+1))) ! blue
-                  zetotg(i,j,k+1)= zetotg(i,j,k)*exp(-0.5_RLEN*(zepsg(i,j,k)*fse3t(i,j,k)+zepsg(i,j,k+1)*fse3t(i,j,k+1))) ! green
-                  zetotr(i,j,k+1)= zetotr(i,j,k)*exp(-0.5_RLEN*(zepsr(i,j,k)*fse3t(i,j,k)+zepsr(i,j,k+1)*fse3t(i,j,k+1))) ! red
+                  etot3(i,j,k) = etot3(i,j,k-1)*exp(-p_epsIR*fse3t(i,j,k-1))       ! infrared
+                  zetotb(i,j,k)= zetotb(i,j,k-1)*exp(-zepsb(i,j,k)*fse3t(i,j,k-1)) ! blue
+                  zetotg(i,j,k)= zetotg(i,j,k-1)*exp(-zepsg(i,j,k)*fse3t(i,j,k-1)) ! green
+                  zetotr(i,j,k)= zetotr(i,j,k-1)*exp(-zepsr(i,j,k)*fse3t(i,j,k-1)) ! red
                end do 
             end do 
          end do 
@@ -205,11 +211,11 @@ IMPLICIT NONE
       end do 
       EIR(:) = pack(zpar(:,:,:),SEAmask)
       if (ln_qsr_bio) then
-         do k = 1,jpkm1
+         do k = 2,jpk
             do j = 1,jpj
                do i = 1,jpi
-                  etot3(i,j,k+1) = etot3(i,j,k)*exp(-0.5_RLEN*p_epsIR*(fse3t(i,j,k)+fse3t(i,j,k+1)))   ! infrared
-                  zetotv(i,j,k+1)= zetotv(i,j,k)*exp(-0.5_RLEN*(zepsb(i,j,k)*fse3t(i,j,k)+zepsb(i,j,k+1)*fse3t(i,j,k+1))) ! visible
+                  etot3(i,j,k) = etot3(i,j,k-1)*exp(-p_epsIR*fse3t(i,j,k-1))         ! infrared
+                  zetotv(i,j,k)= zetotv(i,j,k-1)*exp(-zepsv(i,j,k-1)*fse3t(i,j,k-1)) ! visible
                end do 
             end do 
          end do 
