@@ -16,13 +16,16 @@
 !
 ! !USES:
    use global_mem, only: RLEN,ZERO
-   use mem_PAR,    only: p_PAR
+   use mem_PAR,    only: ChlAttenFlag, P_PARRGB, P_PAR, &
+                         R_EPS, B_EPS, G_EPS,           &
+                         EIRR, EIRB, EIRG
    use constants,  only: E2W
+   use mem_param,  only: p_small
 #ifdef NOPOINTERS
    use mem
 #else
    use mem,        only: ETW,ESW,EIR,SUNQ,EWIND,  &
-                         EICE,ERHO,Depth
+                         EICE,ERHO,Depth,xEPS
 #ifdef INCLUDE_PELCO2
    use mem,        only: EPCO2air
 #endif
@@ -120,6 +123,21 @@
    ! Irradiance is assumed to be at the top of the box
    ! convert from irradiance (W/m2) to PAR in uE/m2/s
    alpha = (obs2(iEIR)-obs1(iEIR))/dt
+   select case (ChlAttenFlag)
+      case (1) ! Broadband
+         EIR(:) = (obs1(iEIR) + t*alpha) * p_PAR / E2W 
+      case (2) ! RGB
+         EIR(:) = p_PARRGB * (obs1(iEIR) + t*alpha + p_small) / E2W
+         EIRR(:) = EIR(:) * exp ( -R_eps(:) )
+         EIRG(:) = EIR(:) * exp ( -G_eps(:) )
+         EIRB(:) = EIR(:) * exp ( -B_eps(:) )
+         EIR(:) = EIRB(:) + EIRG(:) + EIRR(:)
+         ! weighted broadband diffuse attenuation coefficient for diagnostics
+         xEPS(:) = (EIRB(:)*B_eps(:) + EIRG(:)*G_eps(:) + EIRR(:)*R_eps(:))/EIR(:)
+      case default
+         call BFM_ERROR("external_forcing","Bad value for ChlAttenFlag.")
+   end select
+
    EIR(:) = (obs1(iEIR) + t*alpha)*p_PAR/E2W 
 
    ! Compute day length: leap years not considered (small error)

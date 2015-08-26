@@ -12,9 +12,11 @@
 ! !USES
 ! BFM modules
    use constants,  only: E2W
-   use global_mem, only:RLEN,ZERO,LOGUNIT
+   use global_mem, only: RLEN,ZERO,LOGUNIT,ONE
    use mem_param,  only: p_small
-   use mem_PAR
+   use mem_PAR,    only: ChlAttenFlag, P_PARRGB, P_PAR, &
+                         R_EPS, B_EPS, G_EPS, P_EPSIR,  &
+                         EIRR, EIRB, EIRG
    use mem,        only: xEPS, ESS, ETW, ESW, EWIND,    &
                          Depth, EIR, ERHO, EICE, EPR,   &
                          NO_BOXES, NO_BOXES_XY
