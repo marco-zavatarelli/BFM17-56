@@ -606,7 +606,7 @@ where
 : 
 \begin_inset Formula 
 \begin{equation}
-\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\,S,\,W,\,E\right)\label{eq:ADR-explicit}
+\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\, S,\, W,\, E\right)\label{eq:ADR-explicit}
 \end{equation}
 
 \end_inset
@@ -2004,6 +2004,313 @@ status open
 \begin_layout Plain Layout
 
 /
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Coupling of the underwater shortwave irradiance
+\end_layout
+
+\begin_layout Standard
+One of the largest coupling mechanism between ocean physics and biogeochemistry
+ is the irradiance attenuation driven by suspended and dissolved components
+ 
+\begin_inset CommandInset citation
+LatexCommand citep
+before "e.g."
+key "patara12"
+
+\end_inset
+
+.
+ In NEMO this is controlled by the namelist 
+\family typewriter
+namtra_qsr
+\family default
+, which is usally not modified in the configuration files and it is located
+ in 
+\family typewriter
+namelist_ref
+\family default
+ 
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Fortran"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+!-----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+&namtra_qsr    !   penetrative solar radiation
+\end_layout
+
+\begin_layout Plain Layout
+
+!-----------------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+   sn_chl      ='chlorophyll',    .......
+\end_layout
+
+\begin_layout Plain Layout
+
+   cn_dir      = './'      !  root directory for the location of the runoff
+ files
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_traqsr   = .true.
+    !  Light penetration (T) or not (F)
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_qsr_rgb  = .true.
+    !  RGB (Red-Green-Blue) light penetration
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_qsr_2bd  = .false.
+   !  2 bands              light penetration
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_qsr_bio  = .false.
+   !  bio-model light penetration
+\end_layout
+
+\begin_layout Plain Layout
+
+   nn_chldta   =      1    !  RGB : Chl data (=1) or cst value (=0)
+\end_layout
+
+\begin_layout Plain Layout
+
+   rn_abs      =   0.58    !  RGB & 2 bands: fraction of light (rn_si1)
+\end_layout
+
+\begin_layout Plain Layout
+
+   rn_si0      =   0.35    !  RGB & 2 bands: shortest depth of extinction
+\end_layout
+
+\begin_layout Plain Layout
+
+   rn_si1      =   23.0    !  2 bands: longest depth of extinction
+\end_layout
+
+\begin_layout Plain Layout
+
+   ln_qsr_ice  = .true.
+    !  light penetration for ice-model LIM3
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The coupling with a biogeochemical model is controlled by the parameter
+ 
+\family typewriter
+ln_qsr_bio
+\family default
+.
+ If this is set to false as in the default settings above, shortwave radiation
+ penetrates the interior of the ocean according to a 4 waveband algorithm
+ (
+\family typewriter
+ln_qsr_rgb=.true.
+\family default
+), where the incident spectrum is decomposed in infrared, red, green and
+ blue (RGB) portions that are attenuated differentially as a function of
+ chlorophyll concentration.
+ This approximated tabulated solution has been proposed by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "lengaigne07"
+
+\end_inset
+
+ using original data by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "morel88"
+
+\end_inset
+
+ for 68 wavelengths.
+ If available for the specific configuration, the chlorophyll field is read
+ from a data file (given in the structure 
+\family typewriter
+sn_chl
+\family default
+) and used to compute the attenuation coefficients for RGB and the shortwave
+ radiation that is absorbed at every level.
+ This information is used to compute the trend of ocean temperature.
+ The alternative uncupled configuration is the standard formulation by Paulson
+ and Simpson (
+\family typewriter
+ln_qsr_2bd=.true.
+\family default
+) where light is attenuated according to a 2 waveband formulation, near-infrared
+ and visible.
+\end_layout
+
+\begin_layout Standard
+In both of the cases above the BFM is not coupled to NEMO, that is the evolution
+ of BFM chlorophyll does not feedback into the physical model to determine
+ the vertical divergence of the shortwave field.
+ When 
+\family typewriter
+ln_qsr_bio=.true.
+\family default
+, the control of light propagation is completely passed to the BFM (
+\family typewriter
+PAR_parameters
+\family default
+ in 
+\family typewriter
+Pelagic_Environment.nml
+\family default
+) and the namelist above is not considered.
+ The infrared attenuation depth is substituted by the attenuation coefficient
+ (
+\family typewriter
+p_epsIR=1/rn_si0
+\family default
+) and the fraction of visible light spectral energy is equivalent to 
+\family typewriter
+p_PAR=1-rn_abs
+\family default
+: 
+\begin_inset listings
+lstparams "basicstyle={\scriptsize\ttfamily},language=Fortran"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+!-------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+
+! PAR_parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+!-------------------------------------------------------------------------!
+\end_layout
+
+\begin_layout Plain Layout
+
+&PAR_parameters
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_PAR              =  0.42
+\end_layout
+
+\begin_layout Plain Layout
+
+    p_epsIR            =  2.857
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+/
+\end_layout
+
+\end_inset
+
+The difference between a coupled and uncoupled simulation depends on two
+ factors: how different the chlorophyll seasonality is from the climatological
+ dataset used to compute the attenuation coefficient and the vertical distributi
+on of dynamical chlorophyll, because the satellite-derived chlorophyll is
+ assumed to be homogeneous in the vertical.
+ An example of the difference in the resulting shortwave flux at every depth
+ is given in Fig.
+ 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "fig:shortwave-coupled-uncoupled"
+
+\end_inset
+
+ for a station in the North Pacific (Station PAPA).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Figures/qsr_bio.eps
+	scale 80
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "fig:shortwave-coupled-uncoupled"
+
+\end_inset
+
+Difference of shortwave heat flux between an uncoupled and coupled simulation,
+ where light attenuation is a function of the BFM chlorophyll.
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
 \end_layout
 
 \end_inset
