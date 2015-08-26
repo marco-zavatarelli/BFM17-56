@@ -352,13 +352,6 @@ END MODULE init_var_bfm_local
 
 #endif
 
-#ifndef BFM_NEMO
-   !---------------------------------------------
-   ! Initialise constituents of organic components
-   !---------------------------------------------
-   call init_organic_constituents()
-
-#endif
    !---------------------------------------------
    ! Check setup settings
    ! and finalize initialization

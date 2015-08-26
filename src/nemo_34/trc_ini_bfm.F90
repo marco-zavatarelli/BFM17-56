@@ -50,6 +50,7 @@
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm
    use netcdf_bfm, only: read_rst_bfm,read_rst_bfm_glo
    use time,       only: bfmtime, julian_day, calendar_date
+   use init_var_bfm_local
    ! NEMO modules
    USE trcnam_trp, only: ln_trczdf_exp,ln_trcadv_cen2,ln_trcadv_tvd
    use trc, only : ln_trc_sbc, ln_trc_ini, ln_trc_obc, ln_trc_cbc, &
@@ -339,6 +340,8 @@
          Initvar(m)%varname=var_names(m)
          if (bfm_lwp) write(LOGUNIT, 158) InitVar(m)
       end do
+      ! Initialize internal constitutents of functional groups
+      call init_organic_constituents()
    end if
    if (bfm_lwp) then 
          LEVEL1 ' '
