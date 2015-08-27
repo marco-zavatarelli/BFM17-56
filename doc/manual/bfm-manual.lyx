@@ -18119,7 +18119,7 @@ The sea ice biogeochemical cycle is also strongly related to its oceanic
 
 .
  In both cases, the size and weight of the organisms affect the sinking
- velocity, together with the grazing rate by zooplankton.
+ velocity.
 \end_layout
 
 \begin_layout Standard
@@ -18130,10 +18130,9 @@ Sea ice biota has been studied for only a few decades.
  less sampled: sampling sea ice biota is in fact not an easy task.
  It is costly and time-consuming and often it is done in severe environmental
  conditions.
- In absence of data and remote sensing facilities, modelling can give a
- large contribution to the understanding of the sea ice ecosystem, as well
- as it can provide the wider picture of its qualitative and quantitative
- importance, which is still missing.
+ In absence of data and remote sensing facilities, modelling can help understand
+ing the sea ice ecosystem, as well as it can provide the wider picture of
+ its qualitative and quantitative importance, which is still missing.
 \end_layout
 
 \begin_layout Standard
@@ -18141,7 +18140,7 @@ The sea ice extension of the BFM described here (BFM-SI) has been published
  in a series of papers 
 \begin_inset CommandInset citation
 LatexCommand citep
-key "tedesco09a,tedesco10,tedesco12,tedesco14"
+key "tedesco10,tedesco12,tedesco14"
 
 \end_inset
 
@@ -18183,7 +18182,14 @@ This implementation focuses on primary producers, which are the most abundant
  group of organisms found in sea ice and the most relevant group in terms
  of export of biomass to the ocean.
  The biogeochemical equations of the sea ice algae dynamics are written
- according to the formulation explained in Chapter .
+ according to the formulation explained in Chapter 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "chap:BFM-formalism"
+
+\end_inset
+
+.
  
 \end_layout
 
@@ -18198,7 +18204,7 @@ reference "fig:BFM-SI"
 
 ) takes advantage of the same biological processes of the pelagic BFM.
  The focus is here on primary producers, which are assumed to differently
- adapt and acclimatize to the new physical environment.
+ adapt to the new physical environment.
  The main differences between BFM and BFM-SI stand in the type and number
  of functional groups (Table 
 \begin_inset CommandInset ref
@@ -18244,7 +18250,7 @@ centering
 
  
 \begin_inset Graphics
-	filename Figures/BFM-SI.eps
+	filename Figures/BFM-SI.png
 	width 100text%
 
 \end_inset
@@ -18855,7 +18861,7 @@ C N P
 \begin_inset Text
 
 \begin_layout Plain Layout
-Sea ice microzooplankton (mg C m
+Sea ice fauna (mg C m
 \begin_inset Formula $^{-2}$
 \end_inset
 
@@ -20226,8 +20232,7 @@ Specific absorption coefficient for chlorophyll-
 \begin_inset Text
 
 \begin_layout Plain Layout
-Specific absorption coefficient for detritus contribution to extinction
- (m
+Specific absorption coefficient for detritus (m
 \begin_inset Formula $^{2}$
 \end_inset
 
@@ -20390,7 +20395,7 @@ reference "tab:BFM-SI_variables"
 \end_layout
 
 \begin_layout Itemize
-1 generic group of sea ice microzooplankton 
+1 generic group of sea ice fauna 
 \end_layout
 
 \begin_layout Standard
@@ -20405,12 +20410,9 @@ reference "fig:BFM-SI"
 
 .
  This component already includes parameterizations of sea ice bacteria and
- zooplankton, which follow the same dynamics as their counterpart in the
- pelagic realm.
- However, those two groups have not been addressed in the published studies,
- since their role is relatively small and/or not fully understood.
- Nonetheless, both groups are ready to be included in future more extensive
- studies.
+ fauna, which follow the same dynamics as their counterpart in the pelagic
+ realm.
+ Nonetheless, both groups are technically available for future studies.
 \end_layout
 
 \begin_layout Standard
@@ -20437,16 +20439,13 @@ name "sec:algae"
 \end_layout
 
 \begin_layout Standard
-As mentioned earlier, the focus is here on primary producers, while other
- groups such as bacteria and zooplankton are considered in the model layout
- (and code) but not described in this manual.
- As a first implementation of the BFM in sea ice, 2 distinct subgroups have
+As a first implementation of the BFM in sea ice, 2 distinct subgroups have
  been chosen as representative of sea ice primary producers: 
 \end_layout
 
 \begin_layout Itemize
 Adapted diatoms, which are meant to be highly adapted to the environment
- and also show distinct skills in acclimatize.
+ and also show distinct skills in acclimation.
  They are supposed to be first light-limited and, later in the bloom, dependent
  on nutrient availability.
  They have an Equivalent Spherical Diameter (ESD) of 20-200 
@@ -20461,9 +20460,8 @@ m) and microzooplankton of larger dimensions (20-200
 \begin_inset Formula $\mu$
 \end_inset
 
-m), which are not currently present in the sea ice system, but act externally
- in the pelagic BFM when sea ice melts and algae are released in the water
- column.
+m), which are not currently present in the sea ice system, but act in the
+ pelagic BFM when sea ice melts and algae are released in the water column.
  Sea ice diatoms are the main source of biogenic silica and differ from
  the other subgroup being their growth limited by dissolved silicate.
  
@@ -20472,7 +20470,7 @@ m), which are not currently present in the sea ice system, but act externally
 \begin_layout Itemize
 Surviving sea ice algae, which may be mostly represented by autotrophic
  nanoflagellates, are meant to only survive in the sea ice environment,
- being less adapted to it and showing less possibilities of acclimatization.
+ being less adapted to it and showing lower skills of acclimation.
  However, they may be able to grow in sea ice if the diatoms bloom is quickly
  exhausted - for instance, for depletion of silicate - and a sufficient
  amount of nutrients is still available for their growth.
@@ -20518,11 +20516,50 @@ reference "tab:BFM-SI_variables"
 
 \end_inset
 
-) and thus for each group we have 4 or 5 equations: 
+) and thus for each group we have 4 or 5 equations as shown in Equation
+ Box 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "box:Seaice-algae"
+
+\end_inset
+
+:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement htbp
+wide true
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{subequations}
+\backslash
+label{eq:seaice-algae}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
 \begin_inset Formula 
 \begin{eqnarray}
-\frac{dA_{c}}{dt}=\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}-\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{resp}\nonumber \\
--\sum_{j=1,6}\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(j)}}^{lys}\label{eq:algae_c}
+\frac{dA_{c}}{dt}= & = & -\sum_{j=1,6}\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(j)}}^{lys}\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}-\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{resp}\label{eq:algae_c}\\
+\frac{dA_{n}}{dt} & = & \sum_{j=3,4}\frac{dA_{n}}{dt}\Biggr|_{I^{(j)}}^{upt}-\sum_{j=1,6}\frac{dA_{n}}{dt}\Biggr|_{U_{n}^{(j)}}^{lys}\label{eq:algae_n}\\
+\frac{dA_{p}}{dt} & = & \frac{dA_{p}}{dt}\Biggr|_{I^{(1)}}^{upt}-\sum_{j=1,6}\frac{dA_{p}}{dt}\Biggr|_{U_{p}^{(j)}}^{lys}\label{eq:algae_p}\\
+\frac{dA_{s}^{(1)}}{dt} & = & \frac{dA_{s}^{(1)}}{dt}\Biggr|_{I^{(5)}}^{upt}-\frac{dA_{s}^{(1)}}{dt}\Biggr|_{U_{s}^{(6)}}^{lys}\\
+\frac{dA_{l}}{dt} & = & \theta_{chl}\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}\Biggl)-\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{rsp}+\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(6)}}^{lys}\Biggl)\frac{A_{l}}{A_{c}}\label{eq:algae_chl}
 \end{eqnarray}
 
 \end_inset
@@ -20530,53 +20567,53 @@ reference "tab:BFM-SI_variables"
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray}
-\frac{dA_{n}}{dt}=\sum_{j=3,4}\frac{dA_{n}}{dt}\Biggr|_{I^{(j)}}^{upt}-\sum_{j=1,6}\frac{dA_{n}}{dt}\Biggr|_{U_{n}^{(j)}}^{lys}
-\end{eqnarray}
+\begin_layout Plain Layout
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+ 
+\backslash
+end{subequations}
+\end_layout
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray}
-\frac{dA_{p}}{dt}=\frac{dA_{p}}{dt}\Biggr|_{I^{(1)}}^{upt}-\sum_{j=1,6}\frac{dA_{p}}{dt}\Biggr|_{U_{p}^{(j)}}^{lys}
-\end{eqnarray}
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "box:Seaice-algae"
+
+\end_inset
+
+
+\begin_inset Argument 1
+status open
+
+\begin_layout Plain Layout
+Sea ice algae
+\end_layout
+
+\end_inset
+
+Sea ice algae equations
+\end_layout
 
 \end_inset
 
 
 \end_layout
 
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray}
-\frac{dA_{s}^{(1)}}{dt}=\frac{dA_{s}^{(1)}}{dt}\Biggr|_{I^{(5)}}^{upt}-\frac{dA_{s}^{(1)}}{dt}\Biggr|_{U_{s}^{(6)}}^{lys}
-\end{eqnarray}
-
 \end_inset
 
 
-\end_layout
-
-\begin_layout Standard
-\begin_inset Formula 
-\begin{eqnarray}
-\frac{dA_{l}}{dt}\Biggr|^{syn}=\theta_{chl}\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}-\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(1)}}^{exu}\Biggl)-\nonumber \\
-\Biggr(\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{resp}+\frac{dA_{c}}{dt}\Biggr|_{U_{c}^{(6)}}^{lys}\Biggl)\frac{A_{l}}{A_{c}}\label{eq:algae_chl}
-\end{eqnarray}
-
-\end_inset
-
-where 
-\begin_inset Formula $\theta_{chl}$
-\end_inset
-
- is the dynamical chl:C ratio (see further).
 \end_layout
 
 \begin_layout Standard
@@ -21281,15 +21318,15 @@ Gases and Detritus
 The following equations are derived by combining terms from the previous
  sections in order to ensure mass conservation.
  The net production of oxygen is due to the gross primary production and
- to algae respiration rates: 
+ to algae respiration rates:
 \begin_inset Formula 
-\begin{eqnarray}
+\[
 \frac{\partial F^{(2)}}{\partial t}\Biggr|_{bio}=\Omega_{c}^{o}\sum_{j=1}^{2}\Biggr(\frac{\partial A_{c}^{(j)}}{\partial t}\Biggr|_{F^{(3)}}^{gpp}-\frac{\partial A_{c}^{j}}{\partial t}\Biggr|_{F^{(3)}}^{rsp}\Biggr)
-\end{eqnarray}
+\]
 
 \end_inset
 
-where 
+ where 
 \begin_inset Formula $\Omega_{c}^{o}$
 \end_inset
 
@@ -21390,7 +21427,15 @@ name "sec:seaice_coupling"
 \end_layout
 
 \begin_layout Standard
-The construction of a biological system in sea ice implies the coupling
+A full description of the coupling issues is given in 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "tedesco14"
+
+\end_inset
+
+; here we briefly mention some major aspects.
+ The construction of a biological system in sea ice implies the coupling
  with the underlying biology of the ocean.
  BFM-SI is in fact coupled to a simplified version of the pelagic lower
  trophic levels in a surface layer of ice-covered oceans.
@@ -21531,12 +21576,11 @@ reference "fig:BAL_scheme"
 \end_inset
 
 ).
- The thickness of the layer can be prescribed, as it has been done previously
- by, or it can be computed by a physical model, such as the one developed
- by 
+ The thickness of the layer is computed by a physical sea ice model, such
+ as the one developed by 
 \begin_inset CommandInset citation
 LatexCommand citet
-key "tedesco09a,tedesco10"
+key "tedesco10"
 
 \end_inset
 
