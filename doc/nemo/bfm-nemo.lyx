@@ -606,7 +606,7 @@ where
 : 
 \begin_inset Formula 
 \begin{equation}
-\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\, S,\, W,\, E\right)\label{eq:ADR-explicit}
+\frac{\partial C}{\partial t}+u\frac{\partial C}{\partial x}+v\frac{\partial C}{\partial y}+w\frac{\partial C}{\partial z}=\nabla_{H}\cdot\left(A_{H}\nabla_{H}C\right)+\frac{\partial}{\partial z}A_{V}\frac{\partial C}{\partial z}-w_{B}\frac{\partial C}{\partial z}+R\left(T,\,S,\,W,\,E\right)\label{eq:ADR-explicit}
 \end{equation}
 
 \end_inset
@@ -1347,11 +1347,6 @@ status open
 
 \begin_layout Plain Layout
 
-! p_rPIm         [m/d]   phytoplankton background sinking rate
-\end_layout
-
-\begin_layout Plain Layout
-
 !-------------------------------------------------------------------------!
 \end_layout
 
@@ -1378,16 +1373,6 @@ status open
 \begin_layout Plain Layout
 
   depth_factor   = 2000.0
-\end_layout
-
-\begin_layout Plain Layout
-
-!               P1      P2      P3      P4
-\end_layout
-
-\begin_layout Plain Layout
-
-  p_rPIm =      0.0,    0.0,    0.0,    0.0
 \end_layout
 
 \begin_layout Plain Layout
