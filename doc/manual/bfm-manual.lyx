@@ -714,12 +714,12 @@ P_{i}^{(1)}\equiv\left(P_{c}^{(1)},P_{n}^{(1)},P_{p}^{(1)},P_{s}^{(1)},P_{f}^{(1
 
 \begin_layout Standard
 The standard model resolves 4 different groups for phytoplankton 
-\begin_inset Formula $P^{(j)},\, j=1,2,3,4$
+\begin_inset Formula $P^{(j)},\,j=1,2,3,4$
 \end_inset
 
  (diatoms, autotrophic nanoflagellates, picophytoplankton and large phytoplankto
 n), 4 for zooplankton 
-\begin_inset Formula $Z^{(j)},\, j=3,4,5,6$
+\begin_inset Formula $Z^{(j)},\,j=3,4,5,6$
 \end_inset
 
  (carnivorous and omnivorous mesozooplankton, microzooplankton and heterotrophic
@@ -3336,7 +3336,7 @@ In the default case we assume that PAR is propagated according to the Lambert-Be
 er formulation with broadband, depth-dependent extinction coefficients
 \begin_inset Formula 
 \begin{equation}
-E_{_{PAR}}(z)=\varepsilon_{_{PAR}}\,\, Q_{S}\, e^{\lambda_{w}z+\int_{z}^{0}\lambda_{bio}(z')dz'}\label{eq:irradiance_bio}
+E_{_{PAR}}(z)=\varepsilon_{_{PAR}}\,\,Q_{S}\,e^{\lambda_{w}z+\int_{z}^{0}\lambda_{bio}(z')dz'}\label{eq:irradiance_bio}
 \end{equation}
 
 \end_inset
@@ -3417,7 +3417,7 @@ With the 4-band wavelength parameterization the model considers differential
  The visible portion is divided equally in the 3 bands such as
 \begin_inset Formula 
 \begin{equation}
-E_{_{PAR}}(z)=\frac{\varepsilon_{_{PAR}}}{3}\,\, Q_{S}\,\left(e^{\int_{z}^{0}\lambda_{R}(Chl,z')dz'}+e^{\int_{z}^{0}\lambda_{G}(Chl,z')dz'}+e^{\int_{z}^{0}\lambda_{B}(Chl,z')dz'}\right)\label{eq:irradiance_rgb}
+E_{_{PAR}}(z)=\frac{\varepsilon_{_{PAR}}}{3}\,\,Q_{S}\,\left(e^{\int_{z}^{0}\lambda_{R}(Chl,z')dz'}+e^{\int_{z}^{0}\lambda_{G}(Chl,z')dz'}+e^{\int_{z}^{0}\lambda_{B}(Chl,z')dz'}\right)\label{eq:irradiance_rgb}
 \end{equation}
 
 \end_inset
@@ -4436,7 +4436,7 @@ status open
 \begin_layout Plain Layout
 \align left
 \begin_inset Tabular
-<lyxtabular version="3" rows="33" columns="4">
+<lyxtabular version="3" rows="37" columns="4">
 <features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
@@ -5043,7 +5043,7 @@ p_switchDOC
 
 \size scriptsize
 Switch for the type of DOC excretion.
- This choice must be consistent with bacteria parameterization in Sec.
+ Choice consistent with bacteria parameterization in Sec.
  
 \begin_inset CommandInset ref
 LatexCommand ref
@@ -5057,38 +5057,17 @@ reference "sec:Bacterioplankton"
 \begin_inset Formula $R_{c}^{^{(1)}}$
 \end_inset
 
- 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "vichi07_part1"
-
-\end_inset
-
-, consistent with BACT1; 2.
+ (BACT1); 2.
  Activity DOC is released as 
 \begin_inset Formula $R_{c}^{^{(2)}}$
 \end_inset
 
- as there is no nutrient-stress excretion in BACT2 parameterization 
-\begin_inset CommandInset citation
-LatexCommand citep
-key "vichi04"
-
-\end_inset
-
-; 3.
+ (BACT2); 3.
  All DOC is released as 
 \begin_inset Formula $R_{c}^{^{(2)}}$
 \end_inset
 
-, consistent with BACT3 in 
-\begin_inset CommandInset citation
-LatexCommand citet
-key "polimene06"
-
-\end_inset
-
-
+ (BACT3)
 \end_layout
 
 \end_inset
@@ -5307,7 +5286,7 @@ Half saturation constant for ammonium uptake preference over ammonium
 \begin_layout Plain Layout
 
 \size scriptsize
-\begin_inset Formula $n_{_{P}}^{min},\, n_{_{P}}^{opt},\, n_{_{P}}^{max}$
+\begin_inset Formula $n_{_{P}}^{min},\,n_{_{P}}^{opt},\,n_{_{P}}^{max}$
 \end_inset
 
 
@@ -5425,7 +5404,7 @@ Specific affinity constant for P
 \begin_layout Plain Layout
 
 \size scriptsize
-\begin_inset Formula $p_{_{P}}^{min},\, p_{_{P}}^{opt},\, p_{_{P}}^{max}$
+\begin_inset Formula $p_{_{P}}^{min},\,p_{_{P}}^{opt},\,p_{_{P}}^{max}$
 \end_inset
 
 
@@ -5619,8 +5598,8 @@ p_Contois
 \begin_layout Plain Layout
 
 \size scriptsize
-Contois parameter for variable half saturation constant for Si-limitation
- (reverts to Monod if 0)
+Variable half saturation constant for Si-limitation of Contois (like Monod
+ if 0)
 \end_layout
 
 \end_inset
@@ -5708,6 +5687,12 @@ Specific affinity constant for Si
 \begin_layout Plain Layout
 
 \size scriptsize
+p_qslc
+\end_layout
+
+\begin_layout Plain Layout
+
+\size scriptsize
 p_qscPPY
 \end_layout
 
@@ -5738,7 +5723,7 @@ mg C
 \begin_layout Plain Layout
 
 \size scriptsize
-Standard Si:C ratio in silicifiers 
+Minimum and optimal Si:C ratio in silicifiers 
 \end_layout
 
 \end_inset
@@ -5866,7 +5851,7 @@ Nutrient stress threshold for sinking
 \begin_layout Plain Layout
 
 \size scriptsize
-p_ChlSynthesis
+p_switchChl
 \end_layout
 
 \end_inset
@@ -5887,6 +5872,59 @@ p_ChlSynthesis
 
 \size scriptsize
 Choice of the Chl synthesis parameterization 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+\begin_inset Formula $d_{_{P}}^{chl}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+p_sdchl
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Chlorophyll turn-over rate
 \end_layout
 
 \end_inset
@@ -6078,59 +6116,6 @@ Chl-specific light absorption coefficient
 \begin_layout Plain Layout
 
 \size scriptsize
-\begin_inset Formula $d_{_{P}}^{chl}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
-p_sdmo
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
-d
-\begin_inset Formula $^{-1}$
-\end_inset
-
-
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="block" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
-Chlorophyll turn-over rate
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="center" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size scriptsize
 \begin_inset Formula $\epsilon^{opt}$
 \end_inset
 
@@ -6178,7 +6163,7 @@ Optimal value of
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -6192,7 +6177,7 @@ Optimal value of
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -6203,7 +6188,7 @@ p_tochl_relt
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -6218,13 +6203,225 @@ d
 
 \end_inset
 </cell>
-<cell alignment="block" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size scriptsize
 Relaxation rate toward the optimal Chl:C value 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+p_swLtyp
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+0-6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Shape of the productivity function (diagnostic Chl, ChlDynamicsFlag=1)
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+\begin_inset Formula $E_{P}^{max}$
+\end_inset
+
+,
+\begin_inset Formula $E_{P}^{min}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+p_chELiPPY
+\end_layout
+
+\begin_layout Plain Layout
+
+\size scriptsize
+p_clELiPPY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+W m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Maximum and minimum light 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+\begin_inset Formula $v_{P}^{I}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+p_ruELiPPY
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Relaxation rate toward the optimal light
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+p_rPIm
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+m
+\begin_inset space ~
+\end_inset
+
+d
+\begin_inset Formula $^{-1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size scriptsize
+Additional background skinking rate
 \end_layout
 
 \end_inset
@@ -6317,8 +6514,8 @@ where
 \begin_inset Formula 
 \begin{eqnarray}
 E_{k} & = & P_{m}^{*}/\alpha^{*}\nonumber \\
-P_{m}^{*} & = & f_{P}^{T}\, f_{P}^{PP}\, r_{P}^{0}\,\frac{P_{c}}{P_{l}}\label{eq:phytoplankton_Ek}\\
-\alpha^{*} & = & f_{P}^{T}\, f_{P}^{PP}\alpha_{chl}^{0}\nonumber 
+P_{m}^{*} & = & f_{P}^{T}\,f_{P}^{PP}\,r_{P}^{0}\,\frac{P_{c}}{P_{l}}\label{eq:phytoplankton_Ek}\\
+\alpha^{*} & = & f_{P}^{T}\,f_{P}^{PP}\alpha_{chl}^{0}\nonumber 
 \end{eqnarray}
 
 \end_inset
@@ -6381,7 +6578,7 @@ while in case the length of the photoperiod is considered, this is implicitly
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-P_{m}^{*}=f_{P}^{T}\, f_{P}^{PP}\, r_{P}^{0}\,\frac{P_{c}}{P_{l}}\frac{\Phi}{24}
+P_{m}^{*}=f_{P}^{T}\,f_{P}^{PP}\,r_{P}^{0}\,\frac{P_{c}}{P_{l}}\frac{\Phi}{24}
 \end{equation}
 
 \end_inset
@@ -6413,7 +6610,7 @@ key "vichi07_part2"
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dP_{c}}{dt}\right|_{O^{(3)}}^{gpp}=f_{P}^{T}f_{P}^{E}f_{P}^{PP}\, r_{P}^{0}P_{c}.\label{eq:phytoplankton_gpp}
+\left.\frac{dP_{c}}{dt}\right|_{O^{(3)}}^{gpp}=f_{P}^{T}f_{P}^{E}f_{P}^{PP}\,r_{P}^{0}P_{c}.\label{eq:phytoplankton_gpp}
 \end{equation}
 
 \end_inset
@@ -6437,7 +6634,7 @@ key "vichi07_part2"
  to control the growth of picophytoplankton at high latitudes:
 \begin_inset Formula 
 \begin{equation}
-f^{T}=\max\left(0,\, f^{T}-c_{P}^{T}\right).
+f^{T}=\max\left(0,\,f^{T}-c_{P}^{T}\right).
 \end{equation}
 
 \end_inset
@@ -6997,7 +7194,7 @@ Phosphate uptake is simpler than N uptake as one single species is considered:
 \begin_layout Standard
 \begin_inset Formula 
 \begin{align}
-\left.\frac{dP_{p}}{dt}\right|_{N^{(1)}}^{upt} & =\min\left(a_{P}^{(1)}N^{(1)}P_{c},\, p_{P}^{opt}G_{P}+\right.\nonumber \\
+\left.\frac{dP_{p}}{dt}\right|_{N^{(1)}}^{upt} & =\min\left(a_{P}^{(1)}N^{(1)}P_{c},\,p_{P}^{opt}G_{P}+\right.\nonumber \\
  & \left.+\nu_{P}\left(p_{P}^{\max}-\frac{P_{p}}{P_{c}}\right)P_{c}\right)\label{eq:phytoplankton_upt_P}
 \end{align}
 
@@ -7296,11 +7493,11 @@ label{eq:bacteria}
 \begin_layout Plain Layout
 \begin_inset Formula 
 \begin{eqnarray}
-\left.\frac{dP_{l}}{dt}\right|^{syn} & = & \rho_{chl}\, G_{P\,}-\frac{P_{l}}{P_{c}}\left.\frac{dP_{c}}{dt}\right|^{lys}\label{eq:chlsyn_PELAGOS}\\
-\left.\frac{dP_{l}}{dt}\right|^{syn} & = & f_{P}^{p,n}\rho_{chl}\, G_{P}-\max\left(0,d_{P}^{\circ}(1-f_{P}^{p,n})\right)P_{l}-\label{eq:chlsyn_OGS}\\
+\left.\frac{dP_{l}}{dt}\right|^{syn} & = & \rho_{chl}\,G_{P\,}-\frac{P_{l}}{P_{c}}\left.\frac{dP_{c}}{dt}\right|^{lys}\label{eq:chlsyn_PELAGOS}\\
+\left.\frac{dP_{l}}{dt}\right|^{syn} & = & f_{P}^{p,n}\rho_{chl}\,G_{P}-\max\left(0,d_{P}^{\circ}(1-f_{P}^{p,n})\right)P_{l}-\label{eq:chlsyn_OGS}\\
  &  & \min\left(0,G_{P}\right)*\max\left(0,P_{l}-\theta_{chl}^{0}P_{c}\right)\nonumber \\
-\left.\frac{dP_{l}}{dt}\right|^{syn} & = & \rho_{chl}\, G_{P\,}-\theta_{chl}\left(\left.\frac{dP_{c}}{dt}\right|^{lys}+\left.\frac{dP_{c}}{dt}\right|^{rsp}\right)-\max\left(0,P_{l}-P_{l}^{opt}\right)\,\tau_{chl}\label{eq:chlsyn_UNIBO}\\
-\left.\frac{dP_{l}}{dt}\right|^{syn} & = & \rho_{chl}\, G_{P\,}-d_{P}^{chl}P_{l}\left(h_{_{P}}^{p,n,s}-f_{P}^{nut}\right)-\frac{P_{l}}{P_{c}}\frac{1}{1+E_{PAR}}\left.\frac{dP_{c}}{dt}\right|^{rsp}\label{eq:chlsyn_NIOZ}
+\left.\frac{dP_{l}}{dt}\right|^{syn} & = & \rho_{chl}\,G_{P\,}-\theta_{chl}\left(\left.\frac{dP_{c}}{dt}\right|^{lys}+\left.\frac{dP_{c}}{dt}\right|^{rsp}\right)-\max\left(0,P_{l}-P_{l}^{opt}\right)\,\tau_{chl}\label{eq:chlsyn_UNIBO}\\
+\left.\frac{dP_{l}}{dt}\right|^{syn} & = & \rho_{chl}\,G_{P\,}-d_{P}^{chl}P_{l}\left(h_{_{P}}^{p,n,s}-f_{P}^{nut}\right)-\frac{P_{l}}{P_{c}}\frac{1}{1+E_{PAR}}\left.\frac{dP_{c}}{dt}\right|^{rsp}\label{eq:chlsyn_NIOZ}
 \end{eqnarray}
 
 \end_inset
@@ -7508,7 +7705,7 @@ reference "eq:phytoplankton_Ek"
 , Geider's original  formulation is rewritten after some algebra as:
 \begin_inset Formula 
 \begin{equation}
-\rho_{chl}=\theta_{chl}^{0}\,\frac{f_{P}^{E}r_{P}^{0}P_{c}}{\alpha_{chl}^{0}\, E_{PAR}P_{l}}\label{eq:chl-rho}
+\rho_{chl}=\theta_{chl}^{0}\,\frac{f_{P}^{E}r_{P}^{0}P_{c}}{\alpha_{chl}^{0}\,E_{PAR}P_{l}}\label{eq:chl-rho}
 \end{equation}
 
 \end_inset
@@ -7622,7 +7819,7 @@ reference "eq:chlsyn_UNIBO"
 \begin_inset Formula 
 \begin{eqnarray}
 \frac{r_{P}^{0}P_{c}}{P_{l}^{opt}\alpha_{chl}^{0}} & = & \frac{E_{PAR}}{\epsilon^{opt}}\nonumber \\
-P_{l}^{opt} & = & \epsilon^{opt}\frac{r_{P}^{0}P_{c}}{\alpha_{chl}^{0}\, E_{PAR}}
+P_{l}^{opt} & = & \epsilon^{opt}\frac{r_{P}^{0}P_{c}}{\alpha_{chl}^{0}\,E_{PAR}}
 \end{eqnarray}
 
 \end_inset
@@ -7747,7 +7944,7 @@ prod=f_{P}^{T}f_{P}^{s}r_{0P}\min\left(1,\frac{E_{PAR}}{\hat{P_{l}}}\right)\quad
 \begin_layout Standard
 \begin_inset Formula 
 \[
-prod=f_{P}^{T}f_{P}^{s}r_{0P}\,\frac{E_{PAR}}{\hat{P_{l}}}\, e^{1-\frac{E_{PAR}}{\hat{P_{l}}}}\quad\textrm{(Steele)}
+prod=f_{P}^{T}f_{P}^{s}r_{0P}\,\frac{E_{PAR}}{\hat{P_{l}}}\,e^{1-\frac{E_{PAR}}{\hat{P_{l}}}}\quad\textrm{(Steele)}
 \]
 
 \end_inset
@@ -7760,7 +7957,7 @@ The light regulating factor is computed by integrating the P-E curve over
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-f_{_{P}}^{E}=\frac{1}{f_{P}^{T}f_{P}^{s}r_{0P}D}\int_{-D}^{0}prod\left(\frac{E_{_{PAR}}}{\hat{P_{l}}}\right)\; dz\label{eq:phytoplankton_f(I)}
+f_{_{P}}^{E}=\frac{1}{f_{P}^{T}f_{P}^{s}r_{0P}D}\int_{-D}^{0}prod\left(\frac{E_{_{PAR}}}{\hat{P_{l}}}\right)\;dz\label{eq:phytoplankton_f(I)}
 \end{equation}
 
 \end_inset
@@ -7801,7 +7998,7 @@ The irradiance level to which phytoplankton may adapt is
 \begin_layout Standard
 \begin_inset Formula 
 \[
-E_{P}^{^{opt}}=\min\left(E_{P}^{max},\,\max\left(E_{P}^{min},\, E_{PAR}\right)\right)
+E_{P}^{^{opt}}=\min\left(E_{P}^{max},\,\max\left(E_{P}^{min},\,E_{PAR}\right)\right)
 \]
 
 \end_inset
@@ -7813,7 +8010,7 @@ which is a constrained ramp function over the  range of  saturating irradiance.
 \begin_inset Float table
 wide true
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \align left
@@ -8561,7 +8758,7 @@ reference "eq:phytoplankton_allnut_regfac"
 ) as follows:
 \begin_inset Formula 
 \begin{equation}
-w_{_{P^{(1)}}}=\omega^{^{sink}}\max\left(0,\, l^{sink}-f_{_{P}}^{nut}\right)\label{eq:phytoplankton_sinking_velocity}
+w_{_{P^{(1)}}}=\omega^{^{sink}}\max\left(0,\,l^{sink}-f_{_{P}}^{nut}\right)\label{eq:phytoplankton_sinking_velocity}
 \end{equation}
 
 \end_inset
@@ -8702,7 +8899,7 @@ semi-refractory
 
 \begin_layout Standard
 The most labile fraction of the total DOM pool 
-\begin_inset Formula $R_{i}^{(1)},\, i=c,n,p$
+\begin_inset Formula $R_{i}^{(1)},\,i=c,n,p$
 \end_inset
 
  is produced by phytoplankton, zooplankton and bacteria via the lysis, mortality
@@ -10096,7 +10293,7 @@ BACT3
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $n_{_{B}}^{opt},\; p_{_{B}}^{opt}$
+\begin_inset Formula $n_{_{B}}^{opt},\;p_{_{B}}^{opt}$
 \end_inset
 
 
@@ -10110,7 +10307,13 @@ BACT3
 \begin_layout Plain Layout
 
 \size footnotesize
-p_qnc, p_qpc
+p_qncPBA
+\end_layout
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_qpcPBA
 \end_layout
 
 \end_inset
@@ -10172,7 +10375,7 @@ All
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $n_{_{B}}^{min},\; p_{_{B}}^{min}$
+\begin_inset Formula $n_{_{B}}^{min},\;p_{_{B}}^{min}$
 \end_inset
 
 
@@ -10726,7 +10929,7 @@ where
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-f_{_{R^{(j)}}}^{n,p}=\min\left(1,\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{p^{^{opt}}},\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{n^{^{opt}}}\right)\, j=1,6f_{_{R^{(j)}}}^{n,p}\label{eq:Bact_quota}
+f_{_{R^{(j)}}}^{n,p}=\min\left(1,\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{p^{^{opt}}},\,\frac{R_{p}^{(j)}/R_{c}^{(j)}}{n^{^{opt}}}\right)\,j=1,6f_{_{R^{(j)}}}^{n,p}\label{eq:Bact_quota}
 \end{equation}
 
 \end_inset
@@ -10742,7 +10945,7 @@ The uptake of the nutrient components in the dissolved and particulate fractions
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dB_{i}}{dt}\right|_{R_{i}^{(j)}}^{upt}=\frac{R_{i}^{(j)}}{R_{c}^{(j)}}\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(j)}}^{upt},\quad i=n,p;\, j=1,6\label{eq:subnut_upt}
+\left.\frac{dB_{i}}{dt}\right|_{R_{i}^{(j)}}^{upt}=\frac{R_{i}^{(j)}}{R_{c}^{(j)}}\left.\frac{dB_{c}}{dt}\right|_{R_{c}^{(j)}}^{upt},\quad i=n,p;\,j=1,6\label{eq:subnut_upt}
 \end{equation}
 
 \end_inset
@@ -11005,7 +11208,7 @@ optimal
 \begin_inset Formula 
 \begin{align}
 \NSP\NSP\left.\frac{dB_{p}}{dt}\right|_{N^{(1)}}^{upt} & =\label{eq:bacteria_upt_P}\\
- & \NSP\NSP\NSP\NSP\min\left[a_{B}^{1}N^{(1)}B_{c},\max\left(0,\, p_{B}^{opt}G_{B}-\NSP\sum_{j=1,6}\left.\frac{dB_{p}}{dt}\right|_{R_{p}^{(j)}}^{upt}\right)\right]\nonumber 
+ & \NSP\NSP\NSP\NSP\min\left[a_{B}^{1}N^{(1)}B_{c},\max\left(0,\,p_{B}^{opt}G_{B}-\NSP\sum_{j=1,6}\left.\frac{dB_{p}}{dt}\right|_{R_{p}^{(j)}}^{upt}\right)\right]\nonumber 
 \end{align}
 
 \end_inset
@@ -11038,8 +11241,8 @@ optimal
 \begin_layout Standard
 \begin_inset Formula 
 \begin{align}
-\NSP\!\!\sum_{i=3,4}\!\!\!\!\left.\frac{dB_{n}}{dt}\right|_{N^{(i)}}^{upt} & \!\!\!\NSP=\!\!\min\!\!\,\left(a4_{B}\frac{h_{B}^{n}}{h_{B}^{n}+N^{(4)}}N^{(3)}+a4_{B}N^{(4)}\!\!\right)\! B_{n},\nonumber \\
- & \left.\max\left(0,\, n_{B}^{opt}G_{B}-\sum_{j=1,6}\left.\frac{dB_{n}}{dt}\right|_{R_{n}^{(j)}}^{upt}\right)\right)\label{eq:bacteria_upt_N}
+\NSP\!\!\sum_{i=3,4}\!\!\!\!\left.\frac{dB_{n}}{dt}\right|_{N^{(i)}}^{upt} & \!\!\!\NSP=\!\!\min\!\!\,\left(a4_{B}\frac{h_{B}^{n}}{h_{B}^{n}+N^{(4)}}N^{(3)}+a4_{B}N^{(4)}\!\!\right)\!B_{n},\nonumber \\
+ & \left.\max\left(0,\,n_{B}^{opt}G_{B}-\sum_{j=1,6}\left.\frac{dB_{n}}{dt}\right|_{R_{n}^{(j)}}^{upt}\right)\right)\label{eq:bacteria_upt_N}
 \end{align}
 
 \end_inset
@@ -11392,7 +11595,7 @@ status open
 \begin_layout Plain Layout
 \align left
 \begin_inset Tabular
-<lyxtabular version="3" rows="18" columns="4">
+<lyxtabular version="3" rows="19" columns="4">
 <features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
@@ -12133,7 +12336,7 @@ Partition between dissolved and particulate excretion of P
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $n_{_{Z}}^{opt},\; p_{_{Z}}^{opt}$
+\begin_inset Formula $n_{_{Z}}^{opt},\;p_{_{Z}}^{opt}$
 \end_inset
 
 
@@ -12298,7 +12501,7 @@ Specific mortality rate
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -12312,7 +12515,7 @@ Specific mortality rate
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -12323,7 +12526,7 @@ p_sdo
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -12338,13 +12541,61 @@ d
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
 Oxygen-dependent specific mortality rate
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_chro
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmolO2 m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Half saturtion value for oxygen
 \end_layout
 
 \end_inset
@@ -12383,6 +12634,7 @@ Mathematical and code symbols, units and description of the microzooplankton
 Pelagic_Ecology.nml: MicroZoo_parameters
 \family default
 ).
+ 
 \end_layout
 
 \end_inset
@@ -12404,7 +12656,7 @@ status open
 \begin_layout Plain Layout
 \align left
 \begin_inset Tabular
-<lyxtabular version="3" rows="15" columns="4">
+<lyxtabular version="3" rows="16" columns="4">
 <features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="top" width="0pt">
 <column alignment="left" valignment="top" width="2cm">
@@ -12953,7 +13205,7 @@ Excreted fraction of uptake (faeces production)
 \begin_layout Plain Layout
 
 \size footnotesize
-\begin_inset Formula $n_{_{Z}}^{opt},\; p_{_{Z}}^{opt}$
+\begin_inset Formula $n_{_{Z}}^{opt},\;p_{_{Z}}^{opt}$
 \end_inset
 
 
@@ -13179,7 +13431,7 @@ Density-dependent specific mortality rate
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -13193,7 +13445,7 @@ Density-dependent specific mortality rate
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -13204,7 +13456,7 @@ p_sds
 
 \end_inset
 </cell>
-<cell alignment="left" valignment="top" bottomline="true" usebox="none">
+<cell alignment="left" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -13215,13 +13467,61 @@ p_sds
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
 
 \size footnotesize
 Exponent for density dependent mortality
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+p_clO2o
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+mmolO2 m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Half saturtion value for oxygen
 \end_layout
 
 \end_inset
@@ -13391,7 +13691,7 @@ key "gentleman03"
 , 
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dZ_{c}}{dt}\right|_{X_{c}}^{prd}=-\left.\frac{dX_{c}}{dt}\right|_{Z_{c}}^{prd}=f_{_{Z}}^{T}\, r_{_{Z}}^{0}\frac{\delta_{_{Z,X}}e_{_{Z,X}}\, X_{c}}{F_{c}}\frac{F_{c}}{F_{c}+h_{Z}^{F}}Z_{c}\label{eq:zooplankton_predation}
+\left.\frac{dZ_{c}}{dt}\right|_{X_{c}}^{prd}=-\left.\frac{dX_{c}}{dt}\right|_{Z_{c}}^{prd}=f_{_{Z}}^{T}\,r_{_{Z}}^{0}\frac{\delta_{_{Z,X}}e_{_{Z,X}}\,X_{c}}{F_{c}}\frac{F_{c}}{F_{c}+h_{Z}^{F}}Z_{c}\label{eq:zooplankton_predation}
 \end{equation}
 
 \end_inset
@@ -13409,7 +13709,7 @@ which is traditionally rewritten in terms of the specific search volume
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-I_{j}=\sum_{X}\left.\frac{dZ_{j}}{dt}\right|_{X_{j}}^{prd}\, j=c,n,p.\label{eq:zooplankton_ingestion}
+I_{j}=\sum_{X}\left.\frac{dZ_{j}}{dt}\right|_{X_{j}}^{prd}\,j=c,n,p.\label{eq:zooplankton_ingestion}
 \end{equation}
 
 \end_inset
@@ -13534,7 +13834,7 @@ reference "eq:zooplankton_C"
  For the microzooplankton the carbon loos term reads: 
 \begin_inset Formula 
 \begin{equation}
-\sum_{j=1,6}\left.\frac{dZ_{c}}{dt}\right|_{R_{c}^{(j)}}^{rel}=\beta_{_{Z}}I_{c}+(d_{0_{Z}}+d_{_{Z}}^{o}(1-f_{Z}^{o}))\, f_{_{Z}}^{T}\, Z_{c}\label{eq:zooplankton_out}
+\sum_{j=1,6}\left.\frac{dZ_{c}}{dt}\right|_{R_{c}^{(j)}}^{rel}=\beta_{_{Z}}I_{c}+(d_{0_{Z}}+d_{_{Z}}^{o}(1-f_{Z}^{o}))\,f_{_{Z}}^{T}\,Z_{c}\label{eq:zooplankton_out}
 \end{equation}
 
 \end_inset
@@ -13549,7 +13849,7 @@ for mesozooplankton the carbon loss term reads:
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dZ_{c}}{dt}\right|_{R_{c}^{(6)}}^{rel}=\beta_{_{Z}}I_{c}+(d_{0_{Z}}+doxy_{0_{Z}}(1-f_{Z}^{o}))\, f_{_{Z}}^{T}\, Z_{c}+d_{_{Z}}^{dns}\, Z_{c}^{\gamma_{_{Z}}}+Q_{Z}^{c}\label{eq:zooplankton_out-3}
+\left.\frac{dZ_{c}}{dt}\right|_{R_{c}^{(6)}}^{rel}=\beta_{_{Z}}I_{c}+(d_{0_{Z}}+doxy_{0_{Z}}(1-f_{Z}^{o}))\,f_{_{Z}}^{T}\,Z_{c}+d_{_{Z}}^{dns}\,Z_{c}^{\gamma_{_{Z}}}+Q_{Z}^{c}\label{eq:zooplankton_out-3}
 \end{equation}
 
 \end_inset
@@ -14418,7 +14718,7 @@ Taking into account the energy cost of ingestion (1 - assimilation - egestion)
  and basal metabolism the total respiration rate can be written as:
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dZ_{c}}{dt}\right|_{O^{(3)}}^{rsp}=(1-\eta_{_{Z}}-\beta_{_{Z}})I_{c}+b_{_{Z}}\, f_{_{Z}}^{T}\, Z_{c}\label{eq:zooplankton_rsp}
+\left.\frac{dZ_{c}}{dt}\right|_{O^{(3)}}^{rsp}=(1-\eta_{_{Z}}-\beta_{_{Z}})I_{c}+b_{_{Z}}\,f_{_{Z}}^{T}\,Z_{c}\label{eq:zooplankton_rsp}
 \end{equation}
 
 \end_inset
@@ -14546,7 +14846,7 @@ reference "eq:zooplankton_out"
 \begin_layout Standard
 \begin_inset Formula 
 \begin{align}
-\NSP\sum_{j=1,6}\left.\frac{dZ_{i}}{dt}\right|_{R_{i}^{(j)}}^{rel}= & \frac{Z_{i}}{Z_{c}}\left(\beta_{_{Z}}I_{c}+d_{0_{Z}}\, f_{_{Z}}^{T}\, Z_{c}+d_{_{Z}}^{dns}\, Z_{c}^{\gamma_{_{Z}}}\right)\nonumber \\
+\NSP\sum_{j=1,6}\left.\frac{dZ_{i}}{dt}\right|_{R_{i}^{(j)}}^{rel}= & \frac{Z_{i}}{Z_{c}}\left(\beta_{_{Z}}I_{c}+d_{0_{Z}}\,f_{_{Z}}^{T}\,Z_{c}+d_{_{Z}}^{dns}\,Z_{c}^{\gamma_{_{Z}}}\right)\nonumber \\
  & i=n,p\label{eq:zooplankton_out_RNP-1}
 \end{align}
 
@@ -14596,8 +14896,8 @@ reference "eq:zooplankton_P"
  The following formulation is applied to microzooplankton: 
 \begin_inset Formula 
 \begin{eqnarray}
-\left.\frac{dZ_{p}}{dt}\right|_{N^{(1)}}^{rel} & \NSP= & \NSP\nu_{Z}^{p}\,\max\left(0,\,\frac{Z_{p}}{Z_{c}}-p_{_{Z}}^{opt}\right)\, Z_{p}\label{eq:zooplankton_out_P}\\
-\left.\frac{dZ_{n}}{dt}\right|_{N^{(4)}}^{rel} & \NSP= & \NSP\nu_{Z}^{n}\,\max\left(0,\,\frac{Z_{n}}{Z_{c}}-n_{_{Z}}^{opt}\right)\, Z_{n}\label{eq:zooplankton_out_N}
+\left.\frac{dZ_{p}}{dt}\right|_{N^{(1)}}^{rel} & \NSP= & \NSP\nu_{Z}^{p}\,\max\left(0,\,\frac{Z_{p}}{Z_{c}}-p_{_{Z}}^{opt}\right)\,Z_{p}\label{eq:zooplankton_out_P}\\
+\left.\frac{dZ_{n}}{dt}\right|_{N^{(4)}}^{rel} & \NSP= & \NSP\nu_{Z}^{n}\,\max\left(0,\,\frac{Z_{n}}{Z_{c}}-n_{_{Z}}^{opt}\right)\,Z_{n}\label{eq:zooplankton_out_N}
 \end{eqnarray}
 
 \end_inset
@@ -14626,7 +14926,7 @@ and the time scales of excretion are controlled by the specific constant
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dZ_{p}}{dt}\right|_{N^{(1)}}^{rel}=d_{0_{Z}}f_{Z}^{o}\, f_{_{Z}}^{T}\, Z_{p}+Q_{Z}^{p}\label{eq:zooplankton_out-1}
+\left.\frac{dZ_{p}}{dt}\right|_{N^{(1)}}^{rel}=d_{0_{Z}}f_{Z}^{o}\,f_{_{Z}}^{T}\,Z_{p}+Q_{Z}^{p}\label{eq:zooplankton_out-1}
 \end{equation}
 
 \end_inset
@@ -14637,7 +14937,7 @@ and the time scales of excretion are controlled by the specific constant
 \begin_layout Standard
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dZ_{n}}{dt}\right|_{N^{(4)}}^{rel}=d_{0_{Z}}f_{Z}^{o}f_{_{Z}}^{T}\, Z_{n}+Q_{Z}^{n}\label{eq:zooplankton_out-2}
+\left.\frac{dZ_{n}}{dt}\right|_{N^{(4)}}^{rel}=d_{0_{Z}}f_{Z}^{o}f_{_{Z}}^{T}\,Z_{n}+Q_{Z}^{n}\label{eq:zooplankton_out-2}
 \end{equation}
 
 \end_inset
@@ -14762,7 +15062,7 @@ The pelagic net production of oxygen is derived from the sum of gross primary
 \begin_inset Formula 
 \begin{eqnarray}
 \left.\frac{dO^{(2)}}{dt}\right|_{bio} & = & \Omega_{_{c}}^{o}\sum_{j=1}^{3}\left(\left.\frac{dP_{c}^{(j)}}{dt}\right|_{O^{(3)}}^{gpp}-\left.\frac{dP_{c}^{(j)}}{dt}\right|_{O^{(3)}}^{rsp}\right)+\nonumber \\
- &  & -\Omega_{_{c}}^{o}\, f_{_{B}}^{o}\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}+\nonumber \\
+ &  & -\Omega_{_{c}}^{o}\,f_{_{B}}^{o}\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}+\nonumber \\
  &  & -\Omega_{_{c}}^{o}\sum_{j=4}^{6}\left.\frac{dZ_{c}^{(j)}}{dt}\right|_{O^{(3)}}^{rsp}+\nonumber \\
  &  & -\Omega_{_{n}}^{o}\left.\frac{dN^{(4)}}{dt}\right|_{N^{(3)}}^{nit}\NSP-\frac{1}{\Omega_{_{o}}^{r}}\left.\frac{dN^{(6)}}{dt}\right|_{sink_{r}}^{reox}\label{eq:oxygen_O2}
 \end{eqnarray}
@@ -14820,7 +15120,7 @@ reference "eq:oxygen_O2"
  first-order dependence on ammonium and oxygen concentrations:
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dN^{(4)}}{dt}\right|_{N^{(3)}}^{nit}=\Lambda_{_{N^{(4)}}}^{nit}\, f_{_{n}}^{T}\,\frac{O^{(2)}}{O^{(2)}+h_{_{o}}}\, N^{(4)}\label{eq:nitrogen_nitrification}
+\left.\frac{dN^{(4)}}{dt}\right|_{N^{(3)}}^{nit}=\Lambda_{_{N^{(4)}}}^{nit}\,f_{_{n}}^{T}\,\frac{O^{(2)}}{O^{(2)}+h_{_{o}}}\,N^{(4)}\label{eq:nitrogen_nitrification}
 \end{equation}
 
 \end_inset
@@ -14895,7 +15195,7 @@ reference "eq:bacteria_rsp"
  enhance the denitrification flux in the following way:
 \begin_inset Formula 
 \begin{align}
-\!\!\!\!\NSP\left.\frac{dN^{(3)}}{dt}\right|^{denit}\NSP= & \Lambda_{_{N^{(3)}}}^{denit}\, f_{_{n}}^{T}\left[\frac{1}{\mathcal{M}_{o}^{*}}\Omega_{_{c}}^{o}\left(1-f_{_{B}}^{o}\right)\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}\right]N^{(3)}\cdot\label{eq:nitrate_denitrification}
+\!\!\!\!\NSP\left.\frac{dN^{(3)}}{dt}\right|^{denit}\NSP= & \Lambda_{_{N^{(3)}}}^{denit}\,f_{_{n}}^{T}\left[\frac{1}{\mathcal{M}_{o}^{*}}\Omega_{_{c}}^{o}\left(1-f_{_{B}}^{o}\right)\left.\frac{dB_{c}}{dt}\right|_{O^{(3)}}^{rsp}\right]N^{(3)}\cdot\label{eq:nitrate_denitrification}
 \end{align}
 
 \end_inset
@@ -16383,7 +16683,7 @@ citep[e.g.][]{bidle01}
  as:
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dR_{s}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}=\Lambda_{s}^{rmn}\, f_{_{R^{(6)}}}^{T}\, R_{s}^{(6)}\label{eq:silicate_rmn}
+\left.\frac{dR_{s}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}=\Lambda_{s}^{rmn}\,f_{_{R^{(6)}}}^{T}\,R_{s}^{(6)}\label{eq:silicate_rmn}
 \end{equation}
 
 \end_inset
@@ -16511,7 +16811,7 @@ reference "eq:silicate_rmn"
 ):
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dR_{f}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}=\Lambda_{f}^{rmn}\, f_{_{R^{(6)}}}^{T}\, R_{f}^{(6)}\label{eq:iron_rmn}
+\left.\frac{dR_{f}^{(6)}}{dt}\right|_{N^{(5)}}^{rmn}=\Lambda_{f}^{rmn}\,f_{_{R^{(6)}}}^{T}\,R_{f}^{(6)}\label{eq:iron_rmn}
 \end{equation}
 
 \end_inset
@@ -16570,7 +16870,7 @@ key "aumont03"
  has been used here:
 \begin_inset Formula 
 \begin{equation}
-\left.\frac{dN^{(7)}}{dt}\right|_{sink_{f}}^{scv}=\Lambda_{f}^{scv}\min\left(0,\, N^{(7)}-0.6\right)\label{eq:iron_scv}
+\left.\frac{dN^{(7)}}{dt}\right|_{sink_{f}}^{scv}=\Lambda_{f}^{scv}\min\left(0,\,N^{(7)}-0.6\right)\label{eq:iron_scv}
 \end{equation}
 
 \end_inset
@@ -17022,9 +17322,9 @@ The species appearing in this latter equation are expressed in terms of
 \begin_layout Standard
 \begin_inset Formula 
 \begin{align}
-TA & =f\,([H^{+}],\, DIC,\, K_{1},\, K_{2},\, K_{w},\, K_{b},\nonumber \\
- & \, K_{1p},\, K_{2p},\, K_{3p},\, K_{si},\, K_{s},\, K_{f},\, bt,\, st,\, ft,\label{eq:Ta_function}\\
- & \, O^{(3)},\, O^{(5)},\, N^{(5)},\, N^{(1)})
+TA & =f\,([H^{+}],\,DIC,\,K_{1},\,K_{2},\,K_{w},\,K_{b},\nonumber \\
+ & \,K_{1p},\,K_{2p},\,K_{3p},\,K_{si},\,K_{s},\,K_{f},\,bt,\,st,\,ft,\label{eq:Ta_function}\\
+ & \,O^{(3)},\,O^{(5)},\,N^{(5)},\,N^{(1)})
 \end{align}
 
 \end_inset
@@ -18319,7 +18619,7 @@ Legend: IO = Inorganic; LO = Living organic; NO = Non-living organic.
 
  indicates the basic components of the group, e.g.
  
-\begin_inset Formula $A_{i}^{(1)}\equiv(A_{c}^{(1)};\: A_{n}^{(1)};\: A_{p}^{(1)};\: A_{s}^{(1)};\: A_{l}^{(1)})$
+\begin_inset Formula $A_{i}^{(1)}\equiv(A_{c}^{(1)};\:A_{n}^{(1)};\:A_{p}^{(1)};\:A_{s}^{(1)};\:A_{l}^{(1)})$
 \end_inset
 
 .
@@ -20640,7 +20940,7 @@ reference "eq:algae_c"
  It is written as: 
 \begin_inset Formula 
 \begin{eqnarray}
-\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}=f_{A}^{T}\, f_{A}^{E}\, f_{A}^{s}\, r_{A}^{0}\, A_{c}
+\frac{dA_{c}}{dt}\Biggr|_{F^{(3)}}^{gpp}=f_{A}^{T}\,f_{A}^{E}\,f_{A}^{s}\,r_{A}^{0}\,A_{c}
 \end{eqnarray}
 
 \end_inset
@@ -21751,7 +22051,7 @@ reference "fig:BAL_coupling"
 \begin_inset Formula 
 \begin{eqnarray}
 \frac{dI^{(3)}}{dt}\Biggr|_{N^{(3)}}^{flux-oce}=\max\left(0,\frac{\partial h_{i}}{\partial t}\right)\cdot\nonumber \\
-\max\left(0,\: N^{(3)}-\frac{I^{(3)}}{h_{bio}}\right)\nonumber \\
+\max\left(0,\:N^{(3)}-\frac{I^{(3)}}{h_{bio}}\right)\nonumber \\
 +\min\left(0,\frac{\partial h_{i}}{\partial t}\right)\frac{I^{(3)}}{h_{bio}}\ \label{eq:seaice_nutrient_flux}
 \end{eqnarray}
 
@@ -21805,7 +22105,7 @@ reference "eq:seaice_nutrient_flux"
  to sea ice is defined as: 
 \begin_inset Formula 
 \begin{eqnarray}
-\frac{dA_{l}^{(1)}}{dt}\Biggr|_{P^{(1)}}^{flux-oce}=\max\left(0,\frac{\partial h_{i}}{\partial t}\right)P_{l}^{(1)}\, V_{bio}\nonumber \\
+\frac{dA_{l}^{(1)}}{dt}\Biggr|_{P^{(1)}}^{flux-oce}=\max\left(0,\frac{\partial h_{i}}{\partial t}\right)P_{l}^{(1)}\,V_{bio}\nonumber \\
 +\min\left(0,\frac{\partial h_{i}}{\partial t}\right)\frac{A_{l}^{(1)}}{h_{bio}}.
 \end{eqnarray}
 
@@ -23946,7 +24246,7 @@ CL{
 \lang english
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="10" columns="3">
+<lyxtabular version="3" rows="11" columns="3">
 <features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="middle" width="5cm">
 <column alignment="left" valignment="middle" width="2cm">
@@ -24347,7 +24647,7 @@ Switch to turn on/off the fluxes between the pelagic and the benthic system.
 </cell>
 </row>
 <row>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -24361,7 +24661,7 @@ AssignAirPelFluxesInBFMFlag
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -24375,7 +24675,7 @@ logical
 
 \end_inset
 </cell>
-<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+<cell alignment="center" valignment="top" usebox="none">
 \begin_inset Text
 
 \begin_layout Plain Layout
@@ -24384,6 +24684,79 @@ logical
 Switch to turn on/off the fluxes between the atmosphere and the pelagic
  system.
  Fluxes are always computed but not integrated if the flag is false 
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+ChlDynamicsFlag
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\family typewriter
+\size footnotesize
+integer
+\family default
+ 
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\size footnotesize
+Switch for chlorophyll parameterization in phytoplankton
+\end_layout
+
+\begin_layout Plain Layout
+
+\size footnotesize
+1.
+ constant chl:C ratio and acclimation through optimal light (ERSEM-II).
+ Note: the variable for chl content 
+\family typewriter
+P1l
+\family default
+ is used to store optimal irradiance in W m
+\begin_inset Formula $^{-2}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\size footnotesize
+2.
+ Chlorophyll is a phytoplankton constituent and variable chl:C ratio.
+ Note: 
+\family typewriter
+P1l
+\family default
+ is in mg chl m
+\begin_inset Formula $^{-3}$
+\end_inset
+
+
 \end_layout
 
 \end_inset
@@ -24420,11 +24793,15 @@ namelist Param_parameters in BFM_General.nml
 
 \end_inset
 
-Parameters that control model formulation in 
+Parameters that control model formulation and execution (
+\family typewriter
+Param_paramteres
+\family default
+ in 
 \family typewriter
 BFM_General.nml
 \family default
-
+)
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:Parameters-Param"
@@ -24470,7 +24847,7 @@ CL{
 \lang english
 
 \begin_inset Tabular
-<lyxtabular version="3" rows="5" columns="3">
+<lyxtabular version="3" rows="4" columns="3">
 <features rotate="0" tabularvalignment="middle">
 <column alignment="left" valignment="middle" width="5cm">
 <column alignment="left" valignment="middle" width="2cm">
@@ -24511,79 +24888,6 @@ kind
 \shape italic
 \size footnotesize
 description
-\end_layout
-
-\end_inset
-</cell>
-</row>
-<row>
-<cell alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-\size footnotesize
-ChlDynamicsFlag
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\family typewriter
-\size footnotesize
-integer
-\family default
- 
-\end_layout
-
-\end_inset
-</cell>
-<cell alignment="left" valignment="top" usebox="none">
-\begin_inset Text
-
-\begin_layout Plain Layout
-
-\size footnotesize
-Switch for chlorophyll parameterization in phytoplankton
-\end_layout
-
-\begin_layout Plain Layout
-
-\size footnotesize
-1.
- constant chl:C ratio and acclimation through optimal light (ERSEM-II).
- Note: the variable for chl content 
-\family typewriter
-P1l
-\family default
- is used to store optimal irradiance in W m
-\begin_inset Formula $^{-2}$
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\size footnotesize
-2.
- Chlorophyll is a phytoplankton constituent and variable chl:C ratio.
- Note: 
-\family typewriter
-P1l
-\family default
- is in mg chl m
-\begin_inset Formula $^{-3}$
-\end_inset
-
-
 \end_layout
 
 \end_inset
@@ -24790,16 +25094,20 @@ status open
 status open
 
 \begin_layout Plain Layout
-namelist Param_PAR in Pelagic_Ecology.nml
+namelist PAR_parameters in Pelagic_Environment.nml
 \end_layout
 
 \end_inset
 
-Parameters that control light properties in 
+Parameters that control light properties in the water column (
 \family typewriter
-Pelagic_Ecology.nml
+PAR_paramteres
 \family default
-
+ in 
+\family typewriter
+Pelagic_Environment.nml
+\family default
+)
 \begin_inset CommandInset label
 LatexCommand label
 name "tab:Parameters-PAR"
