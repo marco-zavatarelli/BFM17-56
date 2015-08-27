@@ -3305,7 +3305,7 @@ key "sakshaug97"
  The BFM only computes the propagation of PAR as a function of the attenuation
  coefficient of sea water, which is determined by the concentration of suspended
  and dissolved components.
- The BFM considers two cases controlled by the parameter described in Tab.
+ The BFM considers two cases controlled by the parameters described in Tab.
 \begin_inset CommandInset ref
 LatexCommand ref
 reference "tab:Parameters-PAR"
@@ -3313,7 +3313,22 @@ reference "tab:Parameters-PAR"
 \end_inset
 
 : 1) a broadband mean attenuation coefficient and 2) a 3-band attenuation
- coefficient for chlorophyll as proposed by and tabulated according to .
+ coefficient for chlorophyll as proposed by 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "morel88"
+
+\end_inset
+
+ and tabulated according to 
+\begin_inset CommandInset citation
+LatexCommand citet
+key "lengaigne07"
+
+\end_inset
+
+.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -3396,6 +3411,32 @@ reference "tab:Chemical-parameters"
 \end_layout
 
 \begin_layout Standard
+With the 4-band wavelength parameterization the model considers differential
+ attenuation of light divided in red, green and blue coefficients (RGB)
+ that are functions of the chlorophyll concentration.
+ The visible portion is divided equally in the 3 bands such as
+\begin_inset Formula 
+\begin{equation}
+E_{_{PAR}}(z)=\frac{\varepsilon_{_{PAR}}}{3}\,\, Q_{S}\,\left(e^{\int_{z}^{0}\lambda_{R}(Chl,z')dz'}+e^{\int_{z}^{0}\lambda_{G}(Chl,z')dz'}+e^{\int_{z}^{0}\lambda_{B}(Chl,z')dz'}\right)\label{eq:irradiance_rgb}
+\end{equation}
+
+\end_inset
+
+where the 
+\begin_inset Formula $\lambda$
+\end_inset
+
+ coefficients are obtained with a look-up table dependng on the local total
+ chlorophyll concentration 
+\begin_inset Formula $Chl=\sum_{j=1}^{4}P_{l}^{(j)}$
+\end_inset
+
+.
+ In this parameterization both the background attenuation of water and the
+ specific attenuation of chlorophyll are not used.
+\end_layout
+
+\begin_layout Standard
 The short-wave surface irradiance flux 
 \begin_inset Formula $Q_{S}$
 \end_inset
@@ -3408,7 +3449,7 @@ LightPeriodFlag
 \family default
  in 
 \family typewriter
-Pelagic_Ecology.nml
+Pelagic_Environment.nml
 \family default
 :
 \end_layout
