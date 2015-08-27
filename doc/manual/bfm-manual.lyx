@@ -6231,7 +6231,7 @@ Relaxation rate toward the optimal Chl:C value
 \begin_layout Plain Layout
 
 \size scriptsize
-p_swLtyp
+p_iswLtyp
 \end_layout
 
 \end_inset
@@ -6316,7 +6316,7 @@ W m
 \begin_layout Plain Layout
 
 \size scriptsize
-Maximum and minimum light 
+Maximum and minimum thresholds for light adaptation
 \end_layout
 
 \end_inset
@@ -6421,7 +6421,7 @@ d
 \begin_layout Plain Layout
 
 \size scriptsize
-Additional background skinking rate
+Additional background sinking rate
 \end_layout
 
 \end_inset
@@ -12595,7 +12595,7 @@ mmolO2 m
 \begin_layout Plain Layout
 
 \size footnotesize
-Half saturtion value for oxygen
+Half saturation value for oxygen
 \end_layout
 
 \end_inset
@@ -13521,7 +13521,7 @@ mmolO2 m
 \begin_layout Plain Layout
 
 \size footnotesize
-Half saturtion value for oxygen
+Half saturation value for oxygen
 \end_layout
 
 \end_inset
