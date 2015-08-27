@@ -26,7 +26,7 @@
   use mem, ONLY: ppPhytoPlankton, Chla, iiPhytoPlankton, iiC, iiL, NO_BOXES, &
     iiBen, iiPel, flux_vector
 #endif
-  use mem_PAR,  ONLY: ChlDynamicsFlag
+  use mem_Param,  ONLY: ChlDynamicsFlag
   use mem_Phyto,  ONLY: p_qlcPPY
 !  
 !

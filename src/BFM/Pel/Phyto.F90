@@ -37,9 +37,8 @@
 #endif
 #endif
   use constants,  ONLY: SEC_PER_DAY, E2W, HOURS_PER_DAY
-  use mem_Param,  ONLY: p_small
-  use mem_PAR,    ONLY: ChlDynamicsFlag, LightPeriodFlag, &
-                        LightLocationFlag
+  use mem_Param,  ONLY: p_small, ChlDynamicsFlag
+  use mem_PAR,    ONLY: LightPeriodFlag, LightLocationFlag
   use mem_Phyto
   use mem_globalfun,   ONLY: eTq_vector, MM_vector, insw_vector
 

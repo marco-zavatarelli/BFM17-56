@@ -29,7 +29,7 @@
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
   use mem_Phyto, ONLY: p_qlcPPY, p_epsChla
-  use mem_Param, ONLY: p_small
+  use mem_Param, ONLY: p_small, ChlDynamicsFlag
   use mem_PAR
 !
 ! !AUTHORS

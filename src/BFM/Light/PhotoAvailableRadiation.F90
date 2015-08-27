@@ -49,6 +49,7 @@
                  iiC, iiL, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
   use mem_PAR
+  use mem_Phyto, ONLY: p_iswLtyp
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

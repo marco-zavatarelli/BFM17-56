@@ -29,7 +29,7 @@
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, Depth, xEPS, EIR, ELiPPY, &
     iiL, iiC, Source_D3_vector, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_LightAdaptation
+  use mem_Phyto, ONLY: p_isw, p_chELiPPY, p_clELiPPY, p_ruELiPPY, p_addepth
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

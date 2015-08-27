@@ -56,20 +56,6 @@
   public
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! PAR PARAMETERS (read from nml)
-  ! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
-  !                                       1 = diagnostic, optimal light property
-  !                                           in phytoplankton
-  !                                           (Ebenhoeh et al 1995, ERSEM-II)
-  !                                       2 = state variable, constituent of
-  !                                           phytoplankton
-  !     p_iswLtyp  S hape of the productivity function ChlDynamicsFlag=1
-  !        iswLtyp = 0 : Steele (old ERSEM)  y*exp(1-y)
-  !        iswLtyp = 1 : Steele (Simpson)    y*exp(1-y)
-  !        iswLtyp = 2 : Ebenhoeh            2y/(1+y^2)
-  !        iswLtyp = 3 : ramp                min(1,y)
-  !        iswLtyp = 4 : step                1 if y>1 , 0 elsewhere
-  !        iswLtyp = 5 : Smith_average
-  !        iswLtyp = 6 : Smith II (actual_Irr)
   ! LightPeriodFlag               numeric Choose the light averaging period
   !                                       1 = Instantanous irradiance
   !                                       2 = Daily average
@@ -92,9 +78,6 @@
   !                             detritus
   !                       
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  integer  :: ChlDynamicsFlag=2
-  integer  :: p_iswLtyp(iiPhytoPlankton)  ! Shape of the productivity function
-                                          ! if ChlDynamicsFlag=1
   integer  :: LightPeriodFlag=1
   integer  :: LightLocationFlag=3
   real(RLEN) :: &
@@ -126,8 +109,7 @@
   integer :: AllocStatus
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /PAR_parameters/ p_iswLtyp, &
-            ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,         &
+  namelist /PAR_parameters/ LightPeriodFlag, LightLocationFlag,         &
             p_PAR, p_eps0, p_epsIR, p_epsESS, p_epsR6, ChlAttenFlag
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute
@@ -138,7 +120,7 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
     write(LOGUNIT,*) "#  Reading PAR parameters.."
-    open(NMLUNIT,file='Pelagic_Ecology.nml',status='old',action='read',err=100)
+    open(NMLUNIT,file='Pelagic_Environment.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=PAR_parameters,err=101)
     close(NMLUNIT)
     write(LOGUNIT,*) "#  Namelist is:"

@@ -107,7 +107,6 @@
       call InitMicroZoo
       call InitPhyto
       call InitPAR
-      call InitLightAdaptation
       call InitSettling
 #ifdef INCLUDE_BEN
       ! Benthic initialization is done only if there is an active model

@@ -80,6 +80,12 @@
   !                                       time integration
   ! AssignAirPelFluxesInBFMFlag   logical Air-sea fluxes are added to the
   !                                       time integration
+  ! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
+  !                                       1 = diagnostic, optimal light property
+  !                                           in phytoplankton
+  !                                           (Ebenhoeh et al 1995, ERSEM-II)
+  !                                       2 = state variable, constituent of
+  !                                           phytoplankton
   ! check_fixed_quota             numeric Check whether zooplankton have fixed quota
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   logical   :: CalcPelagicFlag=.TRUE.  
@@ -91,6 +97,7 @@
   logical   :: CalcPelChemistry=.TRUE.
   logical   :: AssignPelBenFluxesInBFMFlag=.TRUE.
   logical   :: AssignAirPelFluxesInBFMFlag=.TRUE.
+  integer   :: ChlDynamicsFlag=2
   integer   :: check_fixed_quota=0
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -188,7 +195,7 @@
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
     slp0,                                                                     &
     p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,                                   &
-    check_fixed_quota
+    ChlDynamicsFlag, check_fixed_quota
 #ifdef INCLUDE_BEN
   namelist /Param_parameters_ben/                                             &
     p_sedlevels, p_sedsigma,p_d_tot, p_poro0,                                 &

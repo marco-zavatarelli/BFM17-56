@@ -23,6 +23,7 @@
   use mem_PelGlobal
   use mem
   use mem_Settling
+  use mem_Phyto,  ONLY: p_rPIm
 #ifdef BFM_GOTM
   use bio_var, ONLY: BOTindices
 #else
