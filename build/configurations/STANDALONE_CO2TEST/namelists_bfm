@@ -403,7 +403,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !  p_xqf       [-]            Multiplication factor for luxury storage
 !              --------- Light parameters ERSEM-II -----------
 !  p_iswLtyp   [0-6]          Shape of the productivity function
-!  p_isw       [1-2]          Switch between parameterizations
 !  p_chELiPPY  [W/m2]         Maximum Iopt
 !  p_clELiPPY  [W/m2]         Minimum Iopt
 !  p_ruELiPPY  [1/d]          Maximum daily shift in Iopt (1/d)
@@ -451,7 +450,6 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
     p_EpEk_or = 0.0,    0.0,    0.0,    0.0
  p_tochl_relt = 0.0,    0.0,    0.0,    0.0
     p_iswLtyp = 5,      5,      5,      5
-        p_isw = 1,      1,      1,      1
     p_addepth = 50.0,   50.0,   50.0,   50.0
   p_chELiPPY  = 100.0,  100.0,  100.0,  100.0
   p_clELiPPY  = 8.0,    10.0,   6.0,    12.0
@@ -479,7 +477,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 !                            3 = Average Light in the cell
 ! ChlAttenFlag	     numeric Choose the PAR attenuation due to Chl
 !                            1 = broadband linear attenuation 
-!                            2 = 4-band tabulated attenuation coefficients
+!                            2 = 3-band tabulated attenuation coefficients
 !                                (Morel, 1988; Lengaigne et al, 2007)
 ! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
 ! p_eps0       [1/m]         Background extinction coefficient
@@ -574,6 +572,7 @@ p_paMIZ(2,:) =  0.0,    0.2
 ! p_sds        [-]             Exponent of density-dependent mortality
 ! p_qpcMEZ     [mmolP/mgC]     Maximum quotum P:C
 ! p_qncMEZ     [mmolN/mgC]     Maximum quotum N:C
+! p_clO2o      [mmolO2/m3]     Half-saturation oxygen concentration
 ! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
 !                              to Zooplankton group z
 ! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m

@@ -29,7 +29,7 @@
   use mem, ONLY: ppPhytoPlankton, D3STATETYPE, Depth, xEPS, EIR, ELiPPY, &
     iiL, iiC, Source_D3_vector, NO_BOXES, iiBen, iiPel, flux_vector
 #endif
-  use mem_Phyto, ONLY: p_isw, p_chELiPPY, p_clELiPPY, p_ruELiPPY, p_addepth
+  use mem_Phyto, ONLY: p_chELiPPY, p_clELiPPY, p_ruELiPPY, p_addepth
 
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -100,19 +100,8 @@
 
   eir_c  =   EIR(:)* adfactor
 
-  select case ( p_isw(phyto))
-
-    case ( 1 )
-      new_ELiPPY  =   max(  eir_c,  p_clELiPPY(phyto))
-      new_ELiPPY  =   min(  new_ELiPPY,  p_chELiPPY(phyto))
-
-    case ( 2 )
-      new_ELiPPY = max( 2.0E+00_RLEN* eir_c* p_chELiPPY(phyto)/( &
-        eir_c+ p_chELiPPY(phyto)), p_clELiPPY(phyto))
-      new_ELiPPY  =   min(  new_ELiPPY,  p_chELiPPY(phyto))
-
-  end select
-
+  new_ELiPPY  =   max(  eir_c,  p_clELiPPY(phyto))
+  new_ELiPPY  =   min(  new_ELiPPY,  p_chELiPPY(phyto))
 
   ! Speed of adaptation is controlled by p_ruPLi ( 1 maximum speed
   !                        0 no adaptation )

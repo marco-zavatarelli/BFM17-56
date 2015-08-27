@@ -24,7 +24,6 @@
   use mem_MicroZoo
   use mem_Phyto
   use mem_PAR
-  use mem_LightAdaptation
   use mem_Settling
 #ifdef INCLUDE_BEN
   use mem_BenOrganism

@@ -166,13 +166,11 @@
   !                         4 : step                1 if y>1 , 0 elsewhere
   !                         5 : Smith_average
   !                         6 : Smith II (actual_Irr)
-  !  p_isw       [1-2]    Switch between parameterizations
   !  p_chELiPPY  [W/m2]   Maximum Iopt
   !  p_clELiPPY  [W/m2]   Minimum Iopt
   !  p_ruELiPPY  [1/d]    Maximum daily shift in Iopt (1/d)
   !  p_addepth   [m]      Adaptation depth. Meaningless with high-res models
   integer     :: p_iswLtyp(iiPhytoPlankton)
-  integer     :: p_isw(iiPhytoPlankton)
   real(RLEN)  :: p_chELiPPY(iiPhytoPlankton)
   real(RLEN)  :: p_clELiPPY(iiPhytoPlankton)
   real(RLEN)  :: p_ruELiPPY(iiPhytoPlankton)
@@ -214,7 +212,7 @@
                               p_Contois, p_EpEk_or, p_tochl_relt,   &
                               p_switchDOC,p_switchSi,p_switchChl,  &
                               p_alpha_chl, p_sdchl, p_epsChla, p_iswLtyp, &
-                              p_isw, p_addepth, p_chELiPPY, p_clELiPPY, &
+                              p_addepth, p_chELiPPY, p_clELiPPY, &
                               p_ruELiPPY, p_rPIm
 
 #ifdef INCLUDE_PELFE
