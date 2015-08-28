@@ -126,7 +126,7 @@ SUBROUTINE trc_trp_bfm( kstp )
             CALL trc_set_bfm( kstp, m)      ! set other boundary conditions and compute sinking
 
             IF( .NOT. lk_c1d ) THEN ! Compute and integrate physical trends for 3D case
-               IF( lk_trabbl )     CALL trc_bbl( kstp )     ! advective (and/or diffusive) bottom boundary layer scheme
+               IF( lk_trabbl )      CALL trc_bbl( kstp )     ! advective (and/or diffusive) bottom boundary layer scheme
                !ST: still no defined for BFM
                !IF( lk_trcdmp )     CALL trc_dmp( kstp )     ! internal damping trends
                !IF( ln_trcdmp_clo ) CALL trc_dmp_clo( kstp ) ! internal damping trends on closed seas only

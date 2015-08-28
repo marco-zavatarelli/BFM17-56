@@ -23,13 +23,15 @@ MODULE trcini
    USE trcini_pisces   ! PISCES   initialisation
    USE trcini_c14b     ! C14 bomb initialisation
    USE trcini_my_trc   ! MY_TRC   initialisation
-   USE trcdta          ! initialisation form files
+   USE trcdta          ! initialisation from files
    USE daymod          ! calendar manager
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
    USE trcsub          ! variables to substep passive tracers
+   USE lib_mpp         ! distribued memory computing library
+   USE sbc_oce
    ! BFM
-   USE mem_Param, ONLY : LightPeriodFlag
+   USE mem_PAR, ONLY : LightPeriodFlag
    
    IMPLICIT NONE
    PRIVATE
@@ -60,7 +62,7 @@ CONTAINS
       CHARACTER (len=25) :: charout
       !!---------------------------------------------------------------------
       IF( nn_timing == 1 )   CALL timing_start('trc_init')
-
+      !
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_init : initial set up of the passive tracers'
       IF(lwp) WRITE(numout,*) '           Using the Biogeochemical Flux Model (BFM)'
@@ -68,6 +70,10 @@ CONTAINS
 
       CALL top_alloc()              ! allocate TOP arrays
 
+      IF( nn_cla == 1 )   &
+         &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
+
+      CALL trc_nam                  ! read passive tracers namelists
       !                             ! masked grid volume
       DO jk = 1, jpk
          cvol(:,:,jk) = e1e2t(:,:) * fse3t(:,:,jk) * tmask(:,:,jk)
@@ -76,10 +82,6 @@ CONTAINS
       !                                                              ! total volume of the ocean 
       areatot = glob_sum( cvol(:,:,:) )
 
-      IF( nn_cla == 1 )   &
-         &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
-
-      CALL trc_nam                  ! read passive tracers namelists
 
       IF ( MOD(nitend,nn_dttrc) /= 0 ) &
                  CALL ctl_stop( 'The length of the experiment (nn_itend) is not a multiple of the tracer step freq. (nn_dttrc)')
