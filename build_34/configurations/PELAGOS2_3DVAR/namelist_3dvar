@@ -27,10 +27,6 @@
    LL_BOUNDANAL = .FALSE.
    ZANMAXTEM = 6.0
    ZANMAXSAL = 2.0
-   ZANMAXDIC = 10.0
-   ZANMAXALK = 10.0
-   ZANMAXCHL = 100.0
-   ZANMAXOXY = 100.0
    LLSHAPIROANL = .FALSE.
    NN_ITERSHAP = 6
    LL_IAU = .TRUE.
@@ -57,7 +53,7 @@
 ! NAMELIST EOFLST
 ! ---
 &EOFLST
-   NEOF= 10
+   NEOF = 20
    NKMT = 31
    NREGS = 27118
    EOGNX = 182
@@ -77,11 +73,17 @@
 ! NAMELIST BFMLST
 ! ---
 &BFMLST
-   OBS_DIC = 1
-   OBS_ALK = 1
-   OBS_CHL = 0
-   OBS_OXY = 0
-   OBS_pCO = 0
+   OBS_TRC = .TRUE., .TRUE., .FALSE., .FALSE., .FALSE.
+   OBS_KKN = 13, 14, 15, 16, 17
+   OBS_LAB = 'DIC', 'ALK', 'CHL', 'OXY', 'pCO'
+/
+&BFMPAR
+   LL_BOUNDTRC = .FALSE.
+   ZANMAXTRC   = 10.0
+   RALFA_TRC   = 17.0
+   LLBGQC_TRC  = .FALSE.
+   RBGERR_TRC  = 10.0
+   ERCOEF_TRC  = 0.001
 /
 !-----------------------------------------------
 !
@@ -270,29 +272,20 @@
 &BGQCLST
    LLBGQC_SLA = .TRUE.
    LLBGQC_INS = .TRUE.
-   LLBGQC_BGC = .FALSE.
    LLBGQC_SST = .TRUE.
    LLBGQC_SSS = .TRUE.
    RALFA_SLA=9.0
    RALFA_INS=17.0
-   RALFA_BGC=17.0
    RALFA_SST=9.0
    RALFA_SSS=9.0
    LLUSEBGERR = .FALSE.
    RBGERR_SSH=0.06
    RBGERR_SAL=0.25
    RBGERR_TEM=0.80
-   RBGERR_DIC=10.0
-   RBGERR_ALK=10.0
-   RBGERR_CHL=0.1
-   RBGERR_OXY=0.1
-   RBGERR_pCO=0.1
    RBGERR_SST=0.50
    RBGERR_SSS=0.25
    ERCOEF_TEM=0.333
    ERCOEF_SAL=0.333
-   ERCOEF_DIC=0.001
-   ERCOEF_ALK=0.001
 /
 !-----------------------------------------------
 !

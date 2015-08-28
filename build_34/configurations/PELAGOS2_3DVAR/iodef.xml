@@ -315,14 +315,8 @@
       <group id="6h" output_freq="21600"  output_level="10" enabled=".TRUE.">                      <!-- 6h files -->
       </group>
       
-      <group id="1d" output_freq="86400"  output_level="10" enabled=".TRUE.">                      <!-- 1d files -->     
-      </group>
-
-      <group id="2d" output_freq="172800" output_level="10" enabled=".TRUE.">                      <!-- 2d files -->
-      </group>
-
-      <group id="5d" output_freq="432000" output_level="10" enabled=".TRUE.">                      <!-- 5d files -->
-        <file id="5d_grid_T" name="auto" description="ocean T grid variables" >
+      <group id="1d" output_freq="86400"  output_level="10" enabled=".TRUE.">                      <!-- 1d files -->
+        <file id="1d_grid_T" name="auto" description="ocean T grid variables" >
           <field ref="toce"         name="votemper"  />
           <field ref="soce"         name="vosaline"  />
           <field ref="ssh"          name="sossheig"  />
@@ -339,24 +333,30 @@
           <field ref="ice_cover"    name="soicecov"  />
         </file>
 
-        <file id="5d_grid_U" name="auto" description="ocean U grid variables" >
+        <file id="1d_grid_U" name="auto" description="ocean U grid variables" >
           <field ref="uoce"         name="vozocrtx"  />
 	      <field ref="uoce_eiv"     name="vozoeivu"  />
 	      <field ref="ahu_bbl"      name="sobblcox"  /> 
         </file>
 
-        <file id="5d_grid_V" name="auto" description="ocean V grid variables" >
+        <file id="1d_grid_V" name="auto" description="ocean V grid variables" >
           <field ref="voce"         name="vomecrty"  />
           <field ref="voce_eiv"     name="vomeeivv"  />
 	      <field ref="ahv_bbl"      name="sobblcoy"  /> 
         </file>
 
-        <file id="5d_grid_W" name="auto" description="ocean W grid variables" >
+        <file id="1d_grid_W" name="auto" description="ocean W grid variables" >
           <field ref="woce"         name="vovecrtz" />
           <field ref="avt"          name="votkeavt" />
           <field ref="avm"          name="votkeavm" />
 	      <field ref="woce_eiv"     name="voveeivw" />
-        </file> 
+        </file>      
+      </group>
+
+      <group id="2d" output_freq="172800" output_level="10" enabled=".TRUE.">                      <!-- 2d files -->
+      </group>
+
+      <group id="5d" output_freq="432000" output_level="10" enabled=".TRUE.">                      <!-- 5d files -->
       </group>
 
       <group id="1m" output_freq="-1"     output_level="10" enabled=".TRUE.">                      <!-- real monthly files -->
