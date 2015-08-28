@@ -564,7 +564,7 @@ AssignAirPelFluxesInBFMFlag = .TRUE.
 &PAR_parameters
   LightPeriodFlag    =  1
   LightLocationFlag  =  3
-  ChlAttenFlag       =  2
+  ChlAttenFlag       =  1
   p_PAR        =  0.40
   p_eps0       =  0.0435
   p_epsIR      =  2.857
