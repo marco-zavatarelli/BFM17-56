@@ -12,11 +12,6 @@
 !   -parameters defining fle streams and error message numbers
 !   -the subroutine for printing the message
 !   and aborting the simulation
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
 !
 ! !INTERFACE
   MODULE global_mem
