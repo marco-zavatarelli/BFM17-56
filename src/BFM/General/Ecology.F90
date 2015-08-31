@@ -8,32 +8,24 @@
 ! !ROUTINE: Ecology
 !
 ! DESCRIPTION
-!   !	This submodel calls all other submodels
-!
-!
-
-!   This file is generated directly from OpenSesame model code, using a code 
-!   generator which transposes from the sesame meta language into F90.
-!   F90 code generator written by P. Ruardij.
-!   structure of the code based on ideas of M. Vichi.
+! This is the main interface to call all the other sub-models of the BFM
+! Depending on the choices of macros and parameters this part activates:
+! - the sea-ice model
+! - the pelagic model
+! - the benthic model
 !
 ! !INTERFACE
   subroutine EcologyDynamics
 !
 ! !USES:
-  ! The following 0-d global parameters are used: CalcPelagicFlag, &
-  ! CalcBenthicFlag
-  ! The following global constants are used: RLEN
-  ! The following constants are used: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
   use global_mem, ONLY:RLEN
   use mem,  ONLY: iiBen, iiPel, iiReset, flux
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
   use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag, CalcConservationFlag
+  use api_bfm, ONLY: LOGUNIT
 #ifdef INCLUDE_SEAICE
   use mem_Param,  ONLY: CalcSeaiceFlag
 #endif
@@ -43,14 +35,9 @@
 ! !AUTHORS
 !   Marcello Vichi & Piet Ruardij
 !
-!
-!
-! !REVISION_HISTORY
-!   !
-!
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -88,6 +75,7 @@
     call PelagicSystemDynamics
 
   end if
+
 #ifdef INCLUDE_BEN
   if ( CalcBenthicFlag > 0 ) then
 
@@ -122,7 +110,6 @@
        ! only the net sink at the bottom is computed
        call SettlingDynamics
        call BentoPelCoupDynamics
-
   endif
 #else
   ! only the net sink at the bottom is computed

@@ -23,11 +23,15 @@ MODULE trcini
    USE trcini_pisces   ! PISCES   initialisation
    USE trcini_c14b     ! C14 bomb initialisation
    USE trcini_my_trc   ! MY_TRC   initialisation
-   USE trcdta          ! initialisation form files
+   USE trcdta          ! initialisation from files
    USE daymod          ! calendar manager
    USE zpshde          ! partial step: hor. derivative   (zps_hde routine)
    USE prtctl_trc      ! Print control passive tracers (prt_ctl_trc_init routine)
-   USE trcsub       ! variables to substep passive tracers
+   USE trcsub          ! variables to substep passive tracers
+   USE lib_mpp         ! distribued memory computing library
+   USE sbc_oce
+   ! BFM
+   USE mem_PAR, ONLY : LightPeriodFlag
    
    IMPLICIT NONE
    PRIVATE
@@ -58,7 +62,7 @@ CONTAINS
       CHARACTER (len=25) :: charout
       !!---------------------------------------------------------------------
       IF( nn_timing == 1 )   CALL timing_start('trc_init')
-
+      !
       IF(lwp) WRITE(numout,*)
       IF(lwp) WRITE(numout,*) 'trc_init : initial set up of the passive tracers'
       IF(lwp) WRITE(numout,*) '           Using the Biogeochemical Flux Model (BFM)'
@@ -66,6 +70,10 @@ CONTAINS
 
       CALL top_alloc()              ! allocate TOP arrays
 
+      IF( nn_cla == 1 )   &
+         &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
+
+      CALL trc_nam                  ! read passive tracers namelists
       !                             ! masked grid volume
       DO jk = 1, jpk
          cvol(:,:,jk) = e1e2t(:,:) * fse3t(:,:,jk) * tmask(:,:,jk)
@@ -74,13 +82,10 @@ CONTAINS
       !                                                              ! total volume of the ocean 
       areatot = glob_sum( cvol(:,:,:) )
 
-      IF( ln_dm2dc )      &
-         &       CALL ctl_stop( ' The diurnal cycle is not compatible with PISCES or LOBSTER or BFM ' )
 
-      IF( nn_cla == 1 )   &
-         &       CALL ctl_stop( ' Cross Land Advection not yet implemented with passive tracer ; nn_cla must be 0' )
+      IF ( MOD(nitend,nn_dttrc) /= 0 ) &
+                 CALL ctl_stop( 'The length of the experiment (nn_itend) is not a multiple of the tracer step freq. (nn_dttrc)')
 
-      CALL trc_nam                  ! read passive tracers namelists
       CALL trc_ini_bfm              ! Initialize BFM tracers
 
       IF( lk_offline )  THEN
@@ -91,9 +96,16 @@ CONTAINS
       trn(:,:,:,:) = 0._wp
       tra(:,:,:,:) = 0._wp
       trb(:,:,:,:) = trn(:,:,:,:)
+      ! Note: there is no initial computation of partial step because it is done
+      ! runtime in trc_trp_bfm
+
       !
       IF( nn_dttrc /= 1 )        CALL trc_sub_ini      ! Initialize variables for substepping passive tracers
       !
+      ! check consistency of light paramterizations
+      if ( ln_dm2dc .AND. LightPeriodFlag .NE. 1) &
+                 CALL ctl_stop( ' The diurnal cycle (ln_dm2dc) is not compatible with the BFM LightPeriodFlag = 1.' )
+
       IF( nn_timing == 1 )   CALL timing_stop('trc_init')
       
    END SUBROUTINE trc_init
@@ -109,9 +121,9 @@ CONTAINS
       USE trc           , ONLY:   trc_alloc
       USE trcnxtbfm     , ONLY:   trc_nxt_alloc
       USE trczdf        , ONLY:   trc_zdf_alloc
-      USE trdmod_trc_oce, ONLY:   trd_mod_trc_oce_alloc
-#if defined key_trdmld_trc 
-      USE trdmld_trc    , ONLY:   trd_mld_trc_alloc
+      USE trdtrc_oce    , ONLY:   trd_trc_oce_alloc
+#if defined key_trdmxl_trc 
+      USE trdmxl_trc    , ONLY:   trd_mxl_trc_alloc
 #endif
       !
       INTEGER :: ierr
@@ -121,9 +133,9 @@ CONTAINS
       ierr = ierr + trc_alloc    ()
       ierr = ierr + trc_nxt_alloc()
       ierr = ierr + trc_zdf_alloc()
-      ierr = ierr + trd_mod_trc_oce_alloc()
-#if defined key_trdmld_trc 
-      ierr = ierr + trd_mld_trc_alloc()
+      ierr = ierr + trd_trc_oce_alloc()
+#if defined key_trdmxl_trc 
+      ierr = ierr + trd_mxl_trc_alloc()
 #endif
       !
       IF( lk_mpp    )   CALL mpp_sum( ierr )

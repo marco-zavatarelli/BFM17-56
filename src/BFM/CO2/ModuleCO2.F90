@@ -1,6 +1,6 @@
 #include "cppdefs.h"
 
-#ifdef INCLUDE_PELCO2
+#if defined INCLUDE_PELCO2 || defined INCLUDE_BENCO2
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 ! MODEL  BFM - Biogeochemical Flux Model 
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -16,7 +16,7 @@
 !
 ! !USES:
   use global_mem
-  use SystemForcing, only :ForcingName, ForcingField, FieldInit
+  use SystemForcing, only :ForcingName, ForcingField, FieldInit, FieldClose
   IMPLICIT NONE
 !  
 !
@@ -28,7 +28,7 @@
 !   T. Lovato (CMCC) 2012
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2007 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -122,7 +122,7 @@
    logical      :: CalcBioAlkFlag = .FALSE.
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
-  public InitCO2
+  public InitCO2, CloseCO2
 
   contains
 
@@ -132,7 +132,8 @@
 #ifdef NOPOINTERS
   use mem
 #else
-  use mem,          ONLY:EPCO2air,pH,NO_BOXES_XY
+  use mem,          ONLY:EPCO2air,pH
+  use mem,          ONLY:NO_BOXES_XY
 #endif
   use api_bfm, ONLY: bfm_init
   use mem_Param, ONLY: slp0
@@ -157,16 +158,16 @@
   !  Open the namelist file(s)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-    write(LOGUNIT,*) "#       BFM Pelagic CO2 SETTINGS                        "
-    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-    write(LOGUNIT,*) "#"
-    write(LOGUNIT,*) "#  Reading PelCO2 parameters.."
+    LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+    LEVEL1 ' '
+    LEVEL1 '     INITIALIZE PELAGIC CARBONATE SYSTEM       ' 
+    LEVEL1 ' '
+    LEVEL2 'Namelist content:'
     open(NMLUNIT,file='Carbonate_Dynamics.nml',status='old',action='read',err=100)
     read(NMLUNIT,nml=CO2_parameters,err=101)
     close(NMLUNIT)
-    write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=CO2_parameters)
+    LEVEL1 ' '
  
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! Set initial conditions
@@ -176,14 +177,32 @@
     if (AtmCO2%init == 0) then
        ! Use constant  
        CALL FieldInit(AtmCO2_N, AtmCO2)
-       AtmCO2%fnow = AtmCO20
-       write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
-       write(LOGUNIT,*) ' '
-    else
-       ! read external
+       ! the following check is needed to avoid allocation of empty arrays
+       ! with MPI and land domains
+       if (NO_BOXES_XY > 0) then
+          AtmCO2%fnow = AtmCO20
+          write(LOGUNIT,*) 'Using constant atmospheric CO2 concentration:', AtmCO2%fnow(1)
+          write(LOGUNIT,*) ' '
+       end if
+    elseif (AtmCO2%init == 2) then
+       ! read external 0-D timeseries
        CALL FieldInit(AtmCO2_N, AtmCO2)
-       write(LOGUNIT,*) 'Using variable atmospheric CO2 concentration. Initial value:', AtmCO2%fnow(1)
-       write(LOGUNIT,*) ' '
+       ! the following check is needed to avoid allocation of empty arrays
+       ! with MPI and land domains
+       if (NO_BOXES_XY > 0) then
+          write(LOGUNIT,*) 'Using variable atmospheric CO2 concentration. Initial value:', AtmCO2%fnow(1)
+          write(LOGUNIT,*) ' '
+       end if
+    elseif (AtmCO2%init == 4) then
+       ! CO2 concentration is provided by external model
+       CALL FieldInit(AtmCO2_N, AtmCO2)
+       ! the following check is needed to avoid allocation of empty arrays
+       ! with MPI and land domains
+       if (NO_BOXES_XY > 0) then
+          AtmCO2%fnow = AtmCO20
+          write(LOGUNIT,*) 'CO2 conc. provided by external model. Initialize with default uniform value', AtmCO2%fnow(1)
+          write(LOGUNIT,*) ' '
+       end if
     endif
     ! Rough approximation: pCO2 is assumed equal to the mixing ratio of CO2
     if (.not. calcAtmpCO2) EPCO2air = AtmCO2%fnow
@@ -196,22 +215,33 @@
        if (AtmSLP%init == 0) then
          ! Use constant
           CALL FieldInit(AtmSLP_N, AtmSLP)
-          AtmSLP%fnow = slp0
-          write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in BFM_General.nml): ', AtmSLP%fnow(1)
-          write(LOGUNIT,*) ' '
+          ! the following check is needed to avoid allocation of empty arrays
+          ! with MPI and land domains
+          if (NO_BOXES_XY > 0) then
+             AtmSLP%fnow = slp0
+             write(LOGUNIT,*) 'Using constant atmospheric SLP (see slp0 in BFM_General.nml): ', AtmSLP%fnow(1)
+             write(LOGUNIT,*) ' '
+          end if
        else
          CALL FieldInit(AtmSLP_N, AtmSLP)
+         if (AtmSLP%init .eq. 2 ) &
+            write(LOGUNIT,*) 'BFM reads atmospheric SLP from file: ', AtmSLP_N%filename
+         if (AtmSLP%init .eq. 4 ) &
+            write(LOGUNIT,*) 'BFM receives atmospheric SLP from coupled model, using sbc forcing for O3h (TA)'
+         write(LOGUNIT,*) ' '
        endif
 
        ! Atmospheric Dew Point Temperature
        if (pCO2Method == 2 .AND. AtmTDP%init .ne. 0 ) then
           CALL FieldInit(AtmTDP_N, AtmTDP)
-          if (AtmTDP%init .ne. 4 ) &
-             write(LOGUNIT,*) 'BFM intialize Dew Point Temperature from file: ', AtmTDP_N%filename
-             write(LOGUNIT,*) ' '
+         if (AtmTDP%init .eq. 2 ) &
+            write(LOGUNIT,*) 'BFM reads Dew Point Temperature from file: ', AtmTDP_N%filename
+         if (AtmTDP%init .eq. 4 ) &
+            write(LOGUNIT,*) 'BFM receives Dew Point Temperature from coupled model, using sbc forcing for N6r (Red. Equival.)'
+         write(LOGUNIT,*) ' '
        else
           pCO2Method = 1
-          write(LOGUNIT,*) 'pCO2Method is forced to 1 beacuse AtmTDP%init is set to 0.'
+          write(LOGUNIT,*) 'pCO2Method is forced to 1 because AtmTDP%init is set to 0.'
        endif
     endif
 
@@ -229,8 +259,8 @@
     if (calcAtmpCO2) write(LOGUNIT,*) 'BFM computes pCO2 with method: ', pCO2Method
     if (AtmSLP%init == 4 ) write(LOGUNIT,*) 'SLP is provided by external model.' 
     if (AtmTDP%init == 4 ) write(LOGUNIT,*) 'TDP is provided by external model.' 
-    write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"
-    write(LOGUNIT,*)
+    LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+    LEVEL1 ' '
 
     FLUSH(LOGUNIT)
     return
@@ -241,6 +271,16 @@
 101 call error_msg_prn(NML_READ,"ModuleCO2.f90","CO2_parameters")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitCO2
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  subroutine CloseCO2()
+    implicit none
+    
+    if (AtmCO2%init == 2) then
+       ! close external 0-D timeseries
+       CALL FieldClose(AtmCO2_N, AtmCO2)
+    end if
+  end subroutine CloseCO2
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 

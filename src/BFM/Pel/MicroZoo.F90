@@ -64,7 +64,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -217,8 +217,8 @@
      PBAc(:,i) = p_paPBA(zoo,i)*PelBacteria(i,iiC)* &
                  MM_vector(PelBacteria(i,iiC), p_minfood(zoo))
      rumc = rumc + PBAc(:,i)
-     rumn = rumn + PBAc(:,i)*qncPBA(:,i)
-     rump = rump + PBAc(:,i)*qpcPBA(:,i)
+     rumn = rumn + PBAc(:,i)*qncPBA(i,:)
+     rump = rump + PBAc(:,i)*qpcPBA(i,:)
   end do
 
   do i = 1 ,iiPhytoPlankton

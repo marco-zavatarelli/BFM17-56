@@ -1,0 +1,18 @@
+This code computes the chlorophyll concentration as seen by satellite
+considering: 
+1. the optical depth and a tolerance level as described in Vichi et al. (2007), eq. 2 
+2. the 1% light level
+3. the 0.1% light level
+
+Input files are the chlorophyll concentration (variable Chla) and the attenuation coefficient
+(variable xEPS), both with the same number of time stamps, and the mask file.
+It also allows to compute the attenuation coefficient using the BFM formula from Chl
+concentration, background attenuation and chl specific absorption but neglecting 
+the contribution from inorganic suspended matter and detritus.
+Check the ORCA2 mask to see in the history how to generate the mask file from the mesh_mask.
+The standard mesh_mask.nc file can also be used directly.
+Check the namelist chlsat.nml for explanations of the input parameters
+
+This tool also computes the integrated primary production (gross and net) down to 1% and
+0.1% light level by setting the flag compute_intpp and providing the paths to the files
+containing BFM diagnostics ruPPYc and resPPYc.

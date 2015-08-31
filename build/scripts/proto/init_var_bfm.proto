@@ -1,0 +1,497 @@
+#include"cppdefs.h"
+
+
+MODULE init_var_bfm_local
+   USE global_mem,ONLY: RLEN,ZERO
+   IMPLICIT NONE
+
+%init-ratiodefault-constituents
+
+   character(len=*),parameter :: bfm_init_fname      = 'BFM_General.nml'
+   character(len=*),parameter :: bfm_init_fname_ice  = 'BFM_General.nml'
+   character(len=*),parameter :: bfm_init_fname_ben  = 'BFM_General.nml'
+
+   CONTAINS
+
+%init-func-constituents
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !ROUTINE: Initialise constituents of BFM variables
+!
+! !INTERFACE:
+   subroutine init_organic_constituents()
+!
+! !DESCRIPTION:
+!  Call the initialization of internal ratios for the living
+! and non-living organic components
+!
+! !USES:
+   use mem
+   use mem_PelGlobal
+   use mem_PelChem
+   use mem_PelBac
+   use mem_MesoZoo
+   use mem_MicroZoo
+   use mem_Phyto
+
+   use constants, ONLY: HOURS_PER_DAY
+   use mem_Param, ONLY: p_small,          &
+                        CalcPelagicFlag,  &
+                        CalcBenthicFlag,  &
+                        CalcSeaiceFlag,   &
+                        CalcPelChemistry, &
+                        CalcTransportFlag
+#ifdef INCLUDE_SEAICE
+   use mem_SeaiceAlgae
+   use mem_SeaiceBac
+   use mem_SeaiceZoo
+#endif
+   IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi
+!
+! !LOCAL VARIABLES:
+   integer              :: i
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+   !---------------------------------------------
+   ! Initialise other pelagic internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%3d-state-pel-InitInternal
+
+#ifdef INCLUDE_BEN
+   !---------------------------------------------
+   ! Initialise other benthic internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%2d-state-ben-InitInternal
+
+#endif
+
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Initialise other seaice internal components
+   ! with Redfield
+   !---------------------------------------------
+
+%2d-state-ice-InitInternal
+
+#endif
+
+end subroutine init_organic_constituents
+
+
+END MODULE init_var_bfm_local
+
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !ROUTINE: Initialise BFM variables
+!
+! !INTERFACE:
+   subroutine init_var_bfm(setup)
+!
+! !DESCRIPTION:
+!  Allocate BFM variables and give initial values of
+!  parameters and state variables
+!
+! !USES:
+#ifndef NOT_STANDALONE
+   use api_bfm
+   use global_mem
+#endif
+#ifdef BFM_GOTM
+   use bio_var
+   use bio_bfm
+   use global_mem, ONLY: RLEN,ZERO,ONE
+#endif
+   use mem
+   use mem_PelGlobal
+   use mem_PelChem
+   use mem_PelBac
+   use mem_MesoZoo
+   use mem_MicroZoo
+   use mem_Phyto
+   use init_var_bfm_local
+
+   use constants, ONLY: HOURS_PER_DAY
+   use mem_Param, ONLY: p_small,          &
+                        CalcPelagicFlag,  &
+                        CalcBenthicFlag,  &
+                        CalcSeaiceFlag,   &
+                        CalcPelChemistry, &
+                        CalcTransportFlag
+
+   use mem_Param, ONLY: AssignPelBenFluxesInBFMFlag
+   use string_functions, ONLY: getseq_number,empty
+   
+#if defined INCLUDE_BEN && defined INCLUDE_BENPROFILES
+   use mem_Param, ONLY: p_d_tot, p_sedlevels,p_sedsigma
+#endif 
+#ifdef INCLUDE_SEAICE
+   use mem_SeaiceAlgae
+   use mem_SeaiceBac
+   use mem_SeaiceZoo
+#endif 
+
+   IMPLICIT NONE
+!
+! !INPUT PARAMETERS:
+   integer,          intent(in)        :: setup
+
+!
+! !REVISION HISTORY:
+!  Original author(s): Marcello Vichi
+!
+! !LOCAL VARIABLES:
+   integer,parameter    :: namlst=10
+   integer              :: icontrol,i,j,n,Flun
+   integer,parameter    :: NSAVE=120  ! Maximum no variables which can be saved
+   character(len=64),dimension(NSAVE):: var_save
+   character(len=64),dimension(NSAVE):: ave_save
+
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+! Definition of Initial Pelagic (D3) state variables
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+   real(RLEN) :: %3d-state-pel-Initpp
+
+   namelist /bfm_init_nml/ %3d-state-pel-Initpp
+
+   namelist /bfm_init_nml/ surface_flux_method,       &
+                           bottom_flux_method,        &
+                           n_surface_fluxes, InitVar
+
+   namelist /bfm_save_nml/ var_save, ave_save
+
+#ifdef INCLUDE_BEN
+   real(RLEN) :: %2d-state-ben-Initpp
+
+   namelist /bfm_init_nml_ben/ %2d-state-ben-Initpp
+#endif
+
+#ifdef INCLUDE_SEAICE
+   real(RLEN) :: %2d-state-ice-Initpp
+
+   namelist /bfm_init_nml_ice/ %2d-state-ice-Initpp
+#endif
+
+
+! COPYING
+!
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2006 P. Ruardij and Marcello Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!EOP
+!-----------------------------------------------------------------------
+!BOC
+
+   LEVEL2 'init_var_bfm'
+   !---------------------------------------------
+   ! Give zero initial values
+   ! Overwritten by namelist parameters
+   !---------------------------------------------
+   surface_flux_method = -1
+   bottom_flux_method = 0
+   n_surface_fluxes = 1
+
+   !---------------------------------------------
+   ! Pelagic variables
+   !---------------------------------------------
+
+%3d-state-pel-InitDefault
+
+#ifdef INCLUDE_BEN
+   !---------------------------------------------
+   ! Benthic variables
+   !---------------------------------------------
+
+%2d-state-ben-InitDefault
+
+#endif
+
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Seaice variables
+   !---------------------------------------------
+
+%2d-state-ice-InitDefault
+
+#endif
+
+   !---------------------------------------------
+   ! Initialize the structured array that 
+   ! defines if a variable is initialized with 
+   ! data. The namelist values override the
+   ! assignment
+   !---------------------------------------------
+   InitVar = InputInfo(0, ZERO, "dummy.nc","dummy",ZERO,ZERO,ZERO,ZERO,.FALSE.,.FALSE.,.FALSE.)
+
+   !---------------------------------------------
+   ! Open and read the namelist
+   !---------------------------------------------
+   icontrol=0
+   open(namlst,file=bfm_init_fname,action='read',status='old',err=100)
+   var_save=""
+   ave_save=""
+   var_ave=.false.
+   read(namlst,nml=bfm_save_nml,err=101)
+   close(namlst)
+   icontrol=1
+100 if ( icontrol == 0 ) then
+     LEVEL3 'I could not open ',trim(bfm_init_fname)
+     LEVEL3 'The initial values of the BFM variables are set to ZERO'
+     LEVEL3 'If thats not what you want you have to supply ',trim(bfm_init_fname)
+     icontrol=1
+  end if
+101 if ( icontrol == 0 ) then
+     FATAL 'I could not read bfm_save_nml'
+     stop 'init_var_bfm'
+   end if
+
+%init-pel-namelist 102 103
+
+#ifdef INCLUDE_BEN
+%init-ben-namelist 104 105
+#endif
+
+#ifdef INCLUDE_SEAICE
+%init-ice-namelist 106 107
+#endif
+
+   !---------------------------------------------
+   ! Check variable to be saved and
+   ! set the corresponding flag value in var_ids
+   !---------------------------------------------
+   do i=1,NSAVE
+      if (.NOT.empty(var_save(i))) then
+            j=getseq_number(var_save(i),var_names,stEnd,.TRUE.)
+            if ( j > 0 ) var_ids(j)=-1
+      end if
+      if ( .NOT.empty(var_save(i)) .AND. j==0 ) then
+            STDERR 'Warning: variable ',trim(var_save(i)),' does not exist!'
+      end if
+   end do
+   do i=1,NSAVE
+      if (.NOT.empty(ave_save(i))) then
+         j=getseq_number(ave_save(i),var_names,stEnd,.TRUE.)
+         if ( .NOT.empty(ave_save(i)) .AND. j==0 ) then
+            STDERR 'Warning: variable ',trim(ave_save(i)),' does not exist!'
+         else if ( var_ids(j) <0 ) then
+            STDERR 'Warning: Variable ',trim(ave_save(i)), &
+               ' is already selected for output in var_save'
+         else if ( j > 0 ) then
+            var_ids(j) = -1
+            var_ave(j) = .true.
+            ave_ctl = .true.
+         end if
+      end if
+   end do
+
+#ifdef BFM_GOTM
+   !---------------------------------------------
+   ! Create pointers
+   !---------------------------------------------
+    call pointers_gotm_bfm()
+#endif
+
+   !---------------------------------------------
+   ! Initialize BFM parameters
+   !---------------------------------------------
+   call Initialize
+
+   !---------------------------------------------
+   ! Initially set the number of sun hours
+   ! equal to the number of hours in a day.
+   !---------------------------------------------
+   SUNQ = HOURS_PER_DAY
+
+   !---------------------------------------------
+   ! Initialise pelagic state variables
+   ! also if using a benthic-only setup
+   ! (for boundary conditions)
+   !---------------------------------------------
+
+%3d-state-pel-InitSets
+
+#ifdef INCLUDE_BEN
+   !---------------------------------------------
+   ! Initialise benthic state variables
+   ! also if using a ben-only setup
+   ! (for boundary conditions)
+   !---------------------------------------------
+
+%2d-state-ben-InitSets
+
+#endif
+
+#ifdef INCLUDE_SEAICE
+   !---------------------------------------------
+   ! Initialise seaice state variables
+   ! also if using a seaice-only setup
+   ! (for boundary conditions)
+   !---------------------------------------------
+
+%2d-state-ice-InitSets
+
+#endif
+
+   !---------------------------------------------
+   ! Check setup settings
+   ! and finalize initialization
+   !---------------------------------------------
+   select case (setup)
+      case (0)
+         LEVEL2 "Fully coupled system, Pelagic, Benthic, Seaice"
+      case (1) ! Pelagic only
+         LEVEL2 "Pelagic-only setup (bio_setup=1), Switching off other systems"
+         CalcBenthicFlag = 0
+         CalcSeaiceFlag  = .FALSE.
+         %value-init-calc-ben .FALSE.
+         %value-init-calc-ice .FALSE.
+      case (2) ! Benthic only
+         LEVEL2 "Benthic-only setup (bio_setup=2), Switching off other systems"
+         CalcPelagicFlag = .FALSE.
+         CalcSeaiceFlag  = .FALSE.
+         %value-init-calc-pel .FALSE.
+         %value-init-calc-ice .FALSE.
+      case (3) ! Pelagic-Benthic coupling
+         LEVEL2 "Pelagic-Benthic setup (bio_setup=3), Switching off other systems"
+         CalcSeaiceFlag  = .FALSE.
+         %value-init-calc-ice .FALSE.
+      case (4) ! SeaIce only
+         LEVEL2 "Seaice-only setup (bio_setup=4), Switching off other systems"
+         CalcPelagicFlag = .FALSE.
+         CalcBenthicFlag = 0
+         %value-init-calc-pel .FALSE.
+         %value-init-calc-ben .FALSE.
+      case (5) ! Pelagic-SeaIce coupling
+         LEVEL2 "Pelagic-Seaice setup (bio_setup=5), Switching off other systems"
+         CalcBenthicFlag = 0
+         %value-init-calc-ben .FALSE.
+   end select
+
+#if defined INCLUDE_BEN
+   !---------------------------------------------
+   ! Check benthic model
+   !---------------------------------------------
+   select case (CalcBenthicFlag)
+     case (0)
+        LEVEL3 "Benthic model is: not used"
+     case (1)
+        LEVEL3 "Benthic model is: simple nutrient return"
+     case (2)
+        LEVEL3 "Benthic model is: benthos + intermediate nutrient return"
+     case (3)
+        LEVEL3 "Benthic model is: benthos + Ruardij & Van Raaphorst"
+   end select
+#endif
+
+#if defined key_obcbfm
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! All variables are inizialized on obc default
+  ! D3STATEOBC(:)=OBCSTATES
+  ! Put D3STATEOBC(..)=NOOBCSTATES to exclude
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    D3STATEOBC(:)=OBCSTATES
+#endif
+
+   !---------------------------------------------
+   ! Check for transport flag
+   !---------------------------------------------
+#ifdef BFM_STANDALONE
+   D3STATETYPE(:) = NOTRANSPORT
+#else
+   if (.NOT.CalcTransportFlag) D3STATETYPE(:) = NOTRANSPORT
+#endif
+
+   !----------------------------------------------------
+   ! Zeroing of the switched off pelagic state variables
+   !----------------------------------------------------
+
+%3d-state-pel-func-zeroing
+
+#ifdef INCLUDE_BEN
+   !----------------------------------------------------
+   ! Zeroing of the switched off benthic state variables
+   !----------------------------------------------------
+
+%2d-state-ben-func-zeroing
+
+#endif
+
+
+#ifdef INCLUDE_SEAICE
+   !----------------------------------------------------
+   ! Zeroing of the switched off seaice state variables
+   !----------------------------------------------------
+
+%2d-state-ice-func-zeroing
+
+#endif
+
+
+   !---------------------------------------------
+   ! Write defined variables to stdout
+   !---------------------------------------------
+#ifdef BFM_PARALLEL
+   Flun = LOGUNIT
+#else
+   Flun = stderr
+#endif
+
+   if (setup == 0 .OR. setup == 1 .OR. setup == 3 .OR. setup == 5 ) then
+      LEVEL3 'Pelagic variables:'
+%3d-init-pel-output-variables
+   endif
+
+#ifdef INCLUDE_BEN
+   if (setup == 0 .OR. ( setup >= 2 .AND. setup <= 3 ) ) then
+      LEVEL3 'Benthic variables:'
+%2d-init-ben-output-variables
+#ifdef INCLUDE_BENPROFILES
+      !---------------------------------------------
+      ! initialize the vertical grid for benthic 
+      ! nutrient profiles
+      !---------------------------------------------
+      LEVEL2 'Initialize the vertical grid for benthic profile diagnostics'
+      LEVEL3 'Vertical sediment grid forced equal to model grid'
+      p_sedlevels = NO_BOXES_Z_BEN
+      call calc_sigma_depth(p_sedlevels,p_sedsigma,p_d_tot,seddepth)
+      do n=1,p_sedlevels
+         LEVEL3 n,seddepth(n)
+      end do
+#endif
+   endif
+#endif
+
+#ifdef INCLUDE_SEAICE
+   if (setup == 0 .OR. ( setup >= 4 .AND. setup <= 5 ) ) then
+      LEVEL3 'Seaice variables:'
+%2d-init-ice-output-variables
+   endif
+#endif
+
+   return
+
+155 FORMAT(10x,a4,1x,a5,1x,a12,1x,a40,1x,a10)
+156 FORMAT(10x,i4,1x,a5,1x,a12,1x,a40,1x,i6)
+   end subroutine init_var_bfm
+!EOC
+

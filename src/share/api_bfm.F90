@@ -23,7 +23,7 @@
 
 !
 ! !PUBLIC MEMBER FUNCTIONS:
-   public init_bfm, find
+   public init_bfm, find, update_save_delta, printDEBUG
 !
 ! !PUBLIC DATA MEMBERS:
    logical                            :: bio_calc,bioshade_feedback,bfm_rstctl
@@ -35,8 +35,11 @@
    integer                            :: calc_init_bennut_states
    character(len=PATH_MAX)            :: out_dir,out_fname,out_title
    integer                            :: out_units
-   integer                            :: out_delta,out_secs
-   character(len=PATH_MAX)            :: rst_fname
+   integer                            :: out_delta,out_secs,save_delta
+   real(RLEN)                         :: time_delta
+   character(len=PATH_MAX)            :: in_rst_fname, out_rst_fname
+   logical                            :: unpad_out, nc_compres
+   integer                            :: nc_shuffle, nc_deflate, nc_defllev
 
    !---------------------------------------------
    ! parameters for massive parallel computation
@@ -65,24 +68,72 @@
    logical                                 :: ave_ctl = .false.
    real(RLEN),allocatable,dimension(:,:)   :: D3ave
    real(RLEN),allocatable,dimension(:,:)   :: D2ave
+#if defined INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:,:)   :: D2ave_ice
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:,:)   :: D2ave_ben
+#endif
    character(len=64), dimension(:), allocatable :: var_names
    character(len=64), dimension(:), allocatable :: var_units
    character(len=64), dimension(:), allocatable :: var_long
    !---------------------------------------------
    ! Indices of the various output variables
    !---------------------------------------------
+
+   integer,public                            :: stStart=0
+   integer,public                            :: stEnd=0
+
    integer,public                            :: stPelStateS=0
    integer,public                            :: stPelDiagS=0
    integer,public                            :: stPelFluxS=0
-   integer,public                            :: stBenStateS=0
-   integer,public                            :: stBenDiagS=0
-   integer,public                            :: stBenFluxS=0
+
+   integer,public                            :: stPelDiag2dS=0
+
+   integer,public                            :: stPelSurS=0
+   integer,public                            :: stPelBotS=0
+   integer,public                            :: stPelRivS=0
+
    integer,public                            :: stPelStateE=0
    integer,public                            :: stPelDiagE=0
    integer,public                            :: stPelFluxE=0
+
+   integer,public                            :: stPelDiag2dE=0
+
+   integer,public                            :: stPelSurE=0
+   integer,public                            :: stPelBotE=0
+   integer,public                            :: stPelRivE=0
+
+   integer,public                            :: stPelStart=0
+   integer,public                            :: stPelEnd=0    
+
+#if defined INCLUDE_SEAICE
+   integer,public                            :: stIceStateS=0
+   integer,public                            :: stIceDiag2dS=0
+   integer,public                            :: stIceFlux2dS=0
+
+   integer,public                            :: stIceStateE=0
+   integer,public                            :: stIceDiag2dE=0
+   integer,public                            :: stIceFlux2dE=0
+
+   integer,public                            :: stIceStart=0
+   integer,public                            :: stIceEnd=0    
+
+#endif
+
+#if defined INCLUDE_BEN
+   integer,public                            :: stBenStateS=0
+   integer,public                            :: stBenDiag2dS=0
+   integer,public                            :: stBenFlux2dS=0
+
    integer,public                            :: stBenStateE=0
-   integer,public                            :: stBenDiagE=0
-   integer,public                            :: stBenFluxE=0
+   integer,public                            :: stBenDiag2dE=0
+   integer,public                            :: stBenFlux2dE=0
+
+   integer,public                            :: stBenStart=0
+   integer,public                            :: stBenEnd=0    
+
+#endif
 
    !---------------------------------------------
    ! Additional output variables
@@ -110,6 +161,7 @@
    !---------------------------------------------
    type InputInfo
       integer           :: init
+      real(RLEN)        :: unif
       character(LEN=40) :: filename
       character(LEN=40) :: varname
       real(RLEN)        :: anz1
@@ -125,14 +177,28 @@
    !---------------------------------------------
    ! Additional 1D arrays
    !---------------------------------------------
-   ! indices of bottom and surface points
+   ! progressive indices of bottom and surface points
    integer,allocatable,dimension(:),public     :: BOTindices,SRFindices
    ! real mask of river points at surface
    real(RLEN),allocatable,dimension(:),public  :: RIVmask
    ! Total amount for each variable
-   real(RLEN),allocatable,dimension(:),public  :: D3STATE_tot,D2STATE_tot
+   real(RLEN),allocatable,dimension(:),public  :: D3STATE_tot
+#ifdef INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:),public  :: D2STATE_ICE_tot
+#endif
+#ifdef INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:),public  :: D2STATE_BEN_tot
+#endif
+
 
 #ifdef BFM_NEMO
+   !---------------------------------------------
+   ! Additional 1D arrays
+   !---------------------------------------------
+   ! absolute indices ocean, surface and bottom points
+   integer,allocatable,dimension(:),public     :: ocepoint
+   integer,allocatable,dimension(:),public     :: surfpoint, botpoint
+
    !---------------------------------------------
    ! Additional 3D arrays
    !---------------------------------------------
@@ -154,7 +220,12 @@
    ! for leapfrog scheme
    !---------------------------------------------
    real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
-   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB
+#if defined INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_ICE
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_BEN
+#endif
 
    !---------------------------------------------
    ! Additional allocatable temporary arrays
@@ -173,6 +244,13 @@
 
 #ifdef BFM_POM
    !---------------------------------------------
+   ! Additional 1D arrays
+   !---------------------------------------------
+   ! absolute indices ocean, surface and bottom points
+   integer,allocatable,dimension(:),public     :: ocepoint
+   integer,allocatable,dimension(:),public     :: surfpoint, botpoint
+
+   !---------------------------------------------
    ! Additional 3D arrays
    !---------------------------------------------
    real(RLEN),allocatable,dimension(:,:,:),public  :: ZEROS
@@ -193,7 +271,13 @@
    ! for leapfrog scheme
    !---------------------------------------------
    real(RLEN),allocatable,dimension(:,:),public  :: D3STATEB
-   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB
+#if defined INCLUDE_SEAICE
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_ICE
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),allocatable,dimension(:,:),public  :: D2STATEB_BEN
+#endif
+
 
    !---------------------------------------------
    ! Additional allocatable temporary arrays
@@ -238,15 +322,25 @@ contains
 ! !USES:
    use mem, only: NO_D3_BOX_STATES, NO_BOXES,            &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,    &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,         &
+                  NO_BOXES_XY,                           &
                   NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES, Depth, NO_D3_BOX_FLUX,      &
-                  NO_D2_BOX_FLUX
-   use global_mem, only: LOGUNIT
-   use time, only: bfmtime
-#if defined key_obcbfm
-   use global_mem, only: LOGUNITOBC
+                  NO_STATES, Depth, NO_D3_BOX_FLUX
+#if defined INCLUDE_SEAICE
+   use mem, only: NO_D2_BOX_STATES_ICE,  &
+                  NO_D2_BOX_DIAGNOSS_ICE, &
+                  NO_D2_BOX_FLUX_ICE, &
+                  NO_STATES_ICE, NO_BOXES_ICE, NO_BOXES_Z_ICE 
 #endif
+#if defined INCLUDE_BEN
+   use mem, only: NO_D2_BOX_STATES_BEN,  &
+                  NO_D2_BOX_DIAGNOSS_BEN, &
+                  NO_D2_BOX_FLUX_BEN, &
+                  NO_STATES_BEN, NO_BOXES_BEN, NO_BOXES_Z_BEN 
+#endif
+
+   use global_mem, only: LOGUNIT
+   use time, only: bfmtime, outdeltalab
+
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -258,14 +352,16 @@ contains
 !
 ! !LOCAL VARIABLES:
    integer                   :: rc,n
-   character(len=PATH_MAX)   :: logfname
+   character(len=PATH_MAX)   :: logfname, thistime, tmpname
 #if defined key_obcbfm
    character(len=PATH_MAX)   :: logfnameobc
 #endif
    namelist /bfm_nml/ bio_calc,bio_setup,bfm_init,bfm_rstctl,   &
                       out_fname,out_dir,out_units,out_title,    &
                       out_delta,out_secs,bioshade_feedback,     &
-                      parallel_log
+                      parallel_log,unpad_out,                   &
+                      in_rst_fname,                             &
+                      nc_compres,nc_shuffle,nc_defllev
 !EOP
 !-----------------------------------------------------------------------
 !BOC
@@ -274,18 +370,23 @@ contains
    !---------------------------------------------
    ! Provide sensible values for namelist parameters
    !---------------------------------------------
-   bio_calc   = .TRUE.
-   bio_setup  = 1
-   bfm_init   = 0
-   bfm_rstctl = .FALSE.
-   out_fname  = 'bfm'
-   rst_fname  = 'bfm_restart'
-   out_dir    = '.'
-   out_title  = 'Another great BFM simulation!'
-   out_units  = 0
-   out_delta  = 100
-   out_secs   = 100
-   bioshade_feedback=.FALSE.
+   bio_calc      = .TRUE.
+   bio_setup     = 1
+   bfm_init      = 0
+   bfm_rstctl    = .FALSE.
+   out_fname     = 'BFM'
+   in_rst_fname  = 'in_bfm_restart'
+   out_rst_fname = 'out_bfm_restart'
+   out_dir       = '.'
+   out_title     = 'Another great BFM simulation!'
+   out_units     = 0
+   out_delta     = 100
+   out_secs      = 100
+   bioshade_feedback = .FALSE.
+   unpad_out     = .FALSE.
+   nc_compres   = .FALSE.
+   nc_shuffle   = 0
+   nc_defllev   = 0
 
    !---------------------------------------------
    !  Open and read the namelist
@@ -294,6 +395,7 @@ contains
    read(namlst,nml=bfm_nml,err=98)
    close(namlst)
 
+   tmpname = TRIM(out_fname)
 #ifdef BFM_PARALLEL
    LEVEL2 "BFM is running in Parallel"
    parallel = .TRUE.
@@ -320,64 +422,168 @@ contains
         form='formatted',err=100)
 
    ! provide different file names for each process domain
-   out_fname = trim(out_fname)//'_'//str
-   rst_fname = trim(rst_fname)//'_'//str
+   !
+   ! restart output file
+   out_rst_fname=TRIM(out_fname)
+   !
+   ! restart input file
+   if (bfm_init == 1 ) then
+      in_rst_fname=TRIM(in_rst_fname)//'_'//str
+   elseif (bfm_init == 2 ) then
+      in_rst_fname=TRIM(in_rst_fname)
+   endif
 
-   LEVEL1 'init_bfm'
-   LEVEL3 "Producing log for process rank:",parallel_rank
+   ! data output file
+   thistime=outdeltalab(out_delta)
+   out_fname=TRIM(out_fname)//'_'//TRIM(thistime)//'_'//TRIM(bfmtime%date0)//'_'//TRIM(bfmtime%dateEnd)//'_bfm_'//str
 
 #else
-   LEVEL1 'init_bfm'
    LOGUNIT = 1069
    logfname = 'bfm.log'
    bfm_lwp = .TRUE.
    open(LOGUNIT,file=logfname,action='write',  &
         form='formatted',err=100)
-
 #endif
+   ! Set NetCDF compression
+   nc_deflate = 0
+   if ( nc_defllev > 0) nc_deflate = 1
+   !
    !-------------------------------------------------------
    ! Write to log bfmtime setting
    !-------------------------------------------------------
-   LEVEL2 'BFM time informations:'
-   WRITE(LOGUNIT,*) 'Start Date, Julianday0, JuliandayEnd, step0, timestep, stepnow, stepEnd'
-   WRITE(LOGUNIT,*) bfmtime   
-   !
-   LEVEL2 "Writing NetCDF output to file: ",trim(out_fname)
-   LEVEL3 "Output frequency every ",out_delta,"time-steps"
-
-#ifndef INCLUDE_BEN
-   ! force bio_setup = 1 when benthic memory is disabled with macro
-   bio_setup=1
+   LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+   LEVEL1 ' BIOGEOCHEMICAL FLUX MODEL (BFM) ACTIVITY LOG  '
+   LEVEL1 '-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-'
+   LEVEL1 '               BFM System Team                 '
+   LEVEL1 ' '
+   LEVEL1 ' '
+   LEVEL1 'Step 1 - INITIALIZATION (init_bfm)'
+   LEVEL1 ' '
+#ifdef BFM_PARALLEL
+   LEVEL2 'Producing log for process rank:',parallel_rank
 #endif
+   if ( .not. bio_calc ) &
+    write(LOGUNIT,*) 'WARNING =>  BFM IS NOT ACTIVE (bio_calc=FALSE) '
 
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT NAME : ', trim(tmpname)
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT SETUP :'
    select case (bio_setup)
       case (0)
       case (1) ! Pelagic only
-        LEVEL2 "Using a Pelagic setup (bio_setup=1)"
+        LEVEL2 "Using only Pelagic component (bio_setup=1)"
         LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
         LEVEL3 'pelagic transported variables ='
         LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
+#ifdef INCLUDE_BEN
       case (2) ! Benthic only
-        LEVEL2 "Using a Benthic-only setup (bio_setup=2)"
-        LEVEL3 'benthic variables =',NO_D2_BOX_STATES
-        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS
+        LEVEL2 "Using only Benthic component (bio_setup=2)"
+        LEVEL3 'benthic variables =',NO_D2_BOX_STATES_BEN
+        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS_BEN
       case (3) ! Pelagic-Benthic coupling
         LEVEL2 "Using a Pelagic-Benthic coupled setup (bio_setup=3)"
         LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
         LEVEL3 'pelagic transported variables ='
         LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
-        LEVEL3 'benthic variables =',NO_D2_BOX_STATES
-        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS
+        LEVEL3 'benthic variables =',NO_D2_BOX_STATES_BEN
+        LEVEL3 'benthic diagnostic variables=', NO_D2_BOX_DIAGNOSS_BEN
+#endif
+#ifdef INCLUDE_SEAICE
+      case (4) ! SeaIce only
+        LEVEL2 "Using only Seaice component (bio_setup=4)"
+        LEVEL3 'seaice variables =',NO_D2_BOX_STATES_ICE
+        LEVEL3 'seaice diagnostic variables=', NO_D2_BOX_DIAGNOSS_ICE
+      case (5) ! Pelagic-SeaIce coupling
+        LEVEL2 "Using a Pelagic-Seaice coupled setup (bio_setup=5)"
+        LEVEL3 'pelagic variables =',NO_D3_BOX_STATES
+        LEVEL3 'pelagic transported variables ='
+        LEVEL3 'pelagic diagnostic variables =', NO_D3_BOX_DIAGNOSS
+        LEVEL3 'seaice variables =',NO_D2_BOX_STATES_ICE
+        LEVEL3 'seaice diagnostic variables=', NO_D2_BOX_DIAGNOSS_ICE
+#endif
    end select
 
    LEVEL2 'Dimensional informations:'
-   LEVEL3 'NO_BOXES_X=',NO_BOXES_X
-   LEVEL3 'NO_BOXES_Y=',NO_BOXES_Y
-   LEVEL3 'NO_BOXES_Z=',NO_BOXES_Z
-   LEVEL3 'NO_BOXES=',NO_BOXES
-   LEVEL3 'NO_BOXES_XY=',NO_BOXES_XY
-   LEVEL3 'NO_STATES=',NO_STATES
-   LEVEL3 'Step 1 of BFM initialisation done ...'
+   LEVEL3 'NO_BOXES_X  =',NO_BOXES_X
+   LEVEL3 'NO_BOXES_Y  =',NO_BOXES_Y
+   LEVEL3 'NO_BOXES_Z  =',NO_BOXES_Z
+   LEVEL3 'NO_BOXES    =',NO_BOXES
+   LEVEL3 'NO_BOXES_XY =',NO_BOXES_XY
+   LEVEL3 'NO_STATES   =',NO_STATES
+#ifdef INCLUDE_SEAICE
+   LEVEL2 'Dimensional seaice informations:'
+   LEVEL3 'NO_BOXES_Z_ICE =',NO_BOXES_Z_ICE
+   LEVEL3 'NO_BOXES_ICE   =',NO_BOXES_ICE
+   LEVEL3 'NO_STATES_ICE  =',NO_STATES_ICE
+#endif
+#ifdef INCLUDE_BEN
+   LEVEL2 'Dimensional benthic informations:'
+   LEVEL3 'NO_BOXES_Z_BEN =',NO_BOXES_Z_BEN
+   LEVEL3 'NO_BOXES_BEN   =',NO_BOXES_BEN
+   LEVEL3 'NO_STATES_BEN  =',NO_STATES_BEN
+#endif
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT INITIALIZATION :'
+   select case (bfm_init)
+      case (0)
+        LEVEL2 'Initial conditions from user setting (bfm_init=0)'
+      case (1)
+        LEVEL2 'Multiple restart files (bfm_init=1)'
+        LEVEL2 '(Required filename ',trim(in_rst_fname),')'
+      case (2)
+        LEVEL2 'Single restart file of the global domain (bfm_init=2)'
+        LEVEL2 '(Required filename ',trim(in_rst_fname),')'
+   end select
+
+#ifndef BFM_STANDALONE
+   LEVEL1 ' '
+   LEVEL2 'EXPERIMENT TIME SETTINGS :'
+   LEVEL2 ' Start Date (yyyymmdd)  : ', trim(bfmtime%date0)
+   LEVEL2 ' End Date   (yyyymmdd)  : ', trim(bfmtime%dateEnd)
+   LEVEL2 ' Initial step           : ', bfmtime%step0
+   LEVEL2 ' Final step             : ', bfmtime%stepEnd
+   LEVEL2 ' Timestep (seconds)     : ', bfmtime%timestep
+#endif
+   
+   !WRITE(LOGUNIT,'(1a)') 'NetCDF date  Start Date  End Date  Julianday0 &
+   !                      & JuliandayEnd   step0  stepnow  stepEnd  timestep'
+   !WRITE(LOGUNIT,'(a10,4x,a8,3x,a8,2x,f10.1,2x,f10.1,1x,i9,i9,i9,i9)') bfmtime
+   !
+   LEVEL2 ' '
+   LEVEL2 "OUTPUT SETTINGS "
+   LEVEL3 "Output DATA filename is: ",trim(out_fname)
+   WRITE(LOGUNIT,'(12x,a,i8,a)') "Model data saved every ", out_delta, &
+                      & " time-steps (if -1 save exact 1 month freq.)"
+
+   LEVEL3 ' '
+   LEVEL3 "RESTART filename prefix is: ",trim(out_rst_fname)
+   if ( unpad_out ) then
+     LEVEL3 "Restart file(s) saved with the same frequency of the output data."
+     LEVEL3 ' '
+     LEVEL3 "WARNING => NO padding of output step if larger than the final one."
+   else
+     LEVEL3 "Restart file(s) saved at the end of this experiment."
+   endif
+   if ( nc_compres ) then
+     LEVEL3 ' '
+     LEVEL3 "Output/Restart files generated using the following NetCDF options:"
+     LEVEL3 " - Shuffling (0=off/1=on) :  ",nc_shuffle
+     if ( nc_deflate == 1 ) then
+       LEVEL3 " - Data deflation active with compression level (0-9) : ",nc_defllev
+     else
+       LEVEL3 " - Data deflation is not active."
+     endif 
+   else
+     LEVEL3 ' '
+     LEVEL3 "Output/Restart files generated without NetCDF data compression."
+   endif
+   LEVEL1 ' '
+   LEVEL1 ' Step 1 ... DONE!'
+   LEVEL1 ' '
+   LEVEL1 ' -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=- '
+   LEVEL1 ' '
+
    ! dimension lengths used in the netcdf output
    lon_len = NO_BOXES_X
    lat_len = NO_BOXES_Y
@@ -391,8 +597,15 @@ contains
    ! variables
    !---------------------------------------------
    ! total number of output states
-   n = NO_D3_BOX_STATES+NO_D3_BOX_FLUX+NO_D3_BOX_DIAGNOSS+ &
-      NO_D2_BOX_STATES+NO_D2_BOX_FLUX+NO_D2_BOX_DIAGNOSS
+   n =  NO_D3_BOX_STATES     + NO_D3_BOX_FLUX     + NO_D3_BOX_DIAGNOSS  + &
+        NO_D2_BOX_DIAGNOSS
+#ifdef INCLUDE_SEAICE
+   n = n + NO_D2_BOX_STATES_ICE + NO_D2_BOX_FLUX_ICE + NO_D2_BOX_DIAGNOSS_ICE
+#endif
+#ifdef INCLUDE_BEN
+   n = n + NO_D2_BOX_STATES_BEN + NO_D2_BOX_FLUX_BEN + NO_D2_BOX_DIAGNOSS_BEN
+#endif
+
    allocate(var_ids(1:n),stat=rc)
    if (rc /= 0) stop 'init_bfm(): Error allocating var_ids'
    var_ids=0;
@@ -419,6 +632,68 @@ contains
    stop 'init_bfm'
 
   end subroutine init_bfm
+!EOC
+
+
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:
+!
+! !INTERFACE:
+   subroutine update_save_delta(outdelta,savedelta,timedelta)
+!
+! !DESCRIPTION:
+!  Dynamically set the output stepping for saving data based on outdelta value
+!  NOTE: if outdelta is a negative number then outputs the real monthly data
+!
+! !USES:
+   use time
+   use global_mem, only: RLEN,LOGUNIT
+   use constants,  only: SEC_PER_DAY
+ 
+   implicit none
+   integer,intent(IN)     :: outdelta
+   integer,intent(OUT)    :: savedelta
+   real(RLEN),intent(OUT) :: timedelta
+   real(RLEN)             :: julian1, julian2  
+   integer                :: yyyy,mm,dd,hh,nn,tmptime
+
+   if ( bfmtime%stepnow .eq. bfmtime%stepEnd ) return
+   !
+   ! if outdelta is finite use it as default output stepping
+   if ( outdelta .ge. 0 ) then 
+      tmptime = outdelta
+      savedelta = savedelta + outdelta
+   endif 
+   !
+   ! if outdelta is negative dinamically set the output to end of the month
+   if ( outdelta .lt. 0 ) then
+      julian1 = bfmtime%time0 + ( (bfmtime%stepnow - bfmtime%step0) * bfmtime%timestep / SEC_PER_DAY)
+      call calendar_date(julian1,yyyy,mm,dd,hh,nn)
+      call julian_day(yyyy,mm,eomdays(yyyy,mm),24,0,julian2)
+       
+      tmptime = int( julian2 - julian1 ) * int(SEC_PER_DAY) / bfmtime%timestep
+      savedelta = savedelta + int( julian2 - julian1 ) * int(SEC_PER_DAY) / bfmtime%timestep
+
+      write(LOGUNIT,*)
+      write(LOGUNIT,*) 'update_save_delta : Output will be saved for the real monthly value at step ', savedelta 
+      write(LOGUNIT,*) 
+   endif
+   !
+   ! check if output is after the end of simulation and adjust the value
+   if ( bfmtime%stepEnd .lt. savedelta .and. .NOT. unpad_out ) then
+      tmptime = bfmtime%stepEnd - ( savedelta - tmptime )  
+      savedelta = bfmtime%stepEnd  
+      write(LOGUNIT,*) 'update_save_delta : Last output saving is beyond the end of the simulation.'
+      write(LOGUNIT,*) 'update_save_delta : Output saved at the end of the experiment at ', savedelta
+      write(LOGUNIT,*)
+   endif
+   ! set timestep for time output 
+   timedelta = real(savedelta,RLEN)
+   if (ave_ctl) timedelta = real(savedelta,RLEN) - (real(tmptime,RLEN) / 2.0) 
+
+   end subroutine  update_save_delta
 !EOC
 
 
@@ -471,13 +746,41 @@ contains
    end function find
 
 !EOC
+   
+!-----------------------------------------------------------------------
+!BOP
+!
+! !IROUTINE:
+!
+! !INTERFACE:
+   subroutine printDEBUG( ntime )
+!
+! !DESCRIPTION:
+!  Print debug information
+!
+! !USES:
+     use mem, only: D3STATE
+     use global_mem, only: RLEN,LOGUNIT
 
+     implicit none
+     integer, intent(IN) :: ntime
+     integer :: idx, idx_tmp
 
+     write(LOGUNIT,*)
+     write(LOGUNIT,*) 'D3STATE: (', ntime, ')'
+     do idx = stPelStateS , stPelStateE
+        idx_tmp=idx-stPelStateS+1
+        write(LOGUNIT,*) "  ", trim(var_names(idx)), "= ", D3STATE(idx_tmp,:)
+     end do
+     write(LOGUNIT,*)
+
+   end subroutine  printDEBUG
+!EOC
 !-----------------------------------------------------------------------
 
-   end module api_bfm
+ end module api_bfm
 
-!-----------------------------------------------------------------------
-!Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
-!Copyright (C) 2006 - Marcello Vichi
+ !-----------------------------------------------------------------------
+ !Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
+ !Copyright (C) 2006 - Marcello Vichi
 

@@ -25,13 +25,15 @@
    private
 
    type TimeInfo
-      character(len=25)      :: date0    ! calendar date of start
-      real(RLEN)             :: time0    ! Julian day start of run 
-      real(RLEN)             :: timeEnd  ! Julian day end of run
-      integer                :: step0    ! Initial step # 
-      integer                :: timestep ! Delta t
-      integer                :: stepnow  ! Actual step #
-      integer                :: stepEnd  ! Actual step #
+      character(len=25)      :: datestring   ! calendar date string for NetCDF
+      character(len=25)      :: date0        ! calendar date of run start
+      character(len=25)      :: dateEnd      ! calendar date of run end
+      real(RLEN)             :: time0        ! Julian day start of run 
+      real(RLEN)             :: timeEnd      ! Julian day end of run
+      integer                :: step0        ! Initial step # 
+      integer                :: stepnow      ! Actual step #
+      integer                :: stepEnd      ! Actual step #
+      integer                :: timestep     ! Delta t
    end type TimeInfo
 !
 ! tom: maybe this structure can be used to replace maby time parameters
@@ -43,6 +45,7 @@
    public                              :: write_time_string
    public                              :: time_diff
    public                              :: dayofyear
+   public                              :: eomdays, yeardays, outdeltalab
 !
 ! !PUBLIC DATA MEMBERS:
    character(len=19), public           :: timestr
@@ -68,7 +71,6 @@
 !  removed tabs
 !
 !  Revision 1.5  2003/03/28 09:20:36  kbk
-!  added new copyright 2013 BFM System Team (bfm_st@lists.cmcc.it)
 !  added new copyright to files
 !
 !  Revision 1.4  2003/03/28 07:56:05  kbk
@@ -126,7 +128,7 @@
 !BOC
 !  Read time specific things from the namelist.
 !
-   LEVEL1 'init_time'
+   LEVEL1 'EXPERIMENT TIME SETTINGS'
 !
 !  Calculate MaxN -> MinN is 1 if not changed by HotStart
 !
@@ -151,7 +153,8 @@
          ndays = jul2-jul1
          if (nsecs .lt. 86400 .and. jul1 .ne. jul2) ndays = ndays-1
          nsecs = nsecs - 86400*ndays
-         STDERR '  ==> ',ndays,' day(s) and ',nsecs,' seconds ==> ',MaxN,' time steps'
+         STDERR '  ==> ',ndays,' day(s) and ',nsecs,' seconds'
+         STDERR '  ==> ',MaxN,' time steps'
       case (3)
          LEVEL2 'Start:          ',start
          LEVEL2 '# of timesteps: ',MaxN
@@ -188,15 +191,16 @@
    ! Set bfmtime 
    jday = real(jul0,RLEN)
    call calendar_date(jday,yy,mm,dd,hh,nn)
-   write(bfmtime%date0,'(i4.4,a1,i2.2,a1,i2.2,1x,I2.2,a1,I2.2)') yy,'-',mm,'-',dd,hh,':',nn
+   write(bfmtime%datestring,'(i4.4,a1,i2.2,a1,i2.2,1x,I2.2,a1,I2.2)') yy,'-',mm,'-',dd,hh,':',nn
+   write(bfmtime%date0,'(i4.4,i2.2,i2.2)') yy,mm,dd
    bfmtime%time0    = jday
    bfmtime%timeEnd  = jday + (float(MaxN) * timestep) / SEC_PER_DAY
-   bfmtime%step0    = MinN
+   bfmtime%step0    = MinN - 1
    bfmtime%timestep = timestep
-   bfmtime%stepnow  = MinN
+   bfmtime%stepnow  = MinN - 1
    bfmtime%stepEnd  = MaxN
-   
-   LEVEL2 'bfmtime : ', bfmtime
+   call calendar_date(bfmtime%timeEnd,yy,mm,dd,hh,nn)
+   write(bfmtime%dateEnd,'(i4.4,i2.2,i2.2)') yy,mm,dd
 
    return
    end subroutine init_time
@@ -358,9 +362,7 @@
    fsecs = n*timestep + secs0
    julianday    = jul0 + nsecs/86400
    secondsofday = mod(nsecs,86400)
-  
-   bfmtime%stepnow = n
- 
+
    return
    end subroutine update_time
 !EOC
@@ -524,6 +526,73 @@
    end subroutine dayofyear
 !EOC
 
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ integer function eomdays(Year, Month)
+ ! Adapted from Lin Jensen, 1998
+     implicit none
+     integer :: Month, Year
+     SELECT CASE (Month)                       !!Find number of days in a Month
+       CASE (:0, 13:)
+               Stop "eomdays: Invalid month!!"
+       CASE (1, 3, 5, 7:8, 10, 12)
+               eomdays = 31
+       CASE (2)                                !!February
+               eomdays = 28
+               IF (MOD(Year,4) == 0) eomdays = 29  !!Leap year
+       CASE DEFAULT                                    !!September, April, June & November
+               eomdays = 30              !! Thirty days hath ...^
+     END SELECT
+     return
+ end function eomdays
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ integer function yeardays(Year)
+     implicit none
+     integer :: im, Year
+     yeardays = 0
+     do im = 1 , 12
+        yeardays = yeardays + FLOAT(eomdays(Year, im))
+     enddo
+     if (yeardays == 0 .OR. yeardays > 366) stop ' yeardays out of bounds!'
+     return
+ end function yeardays
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ character(len=PATH_MAX) function outdeltalab(outdelta)
+     implicit none
+     integer :: outdelta, timesec, outfreq , thisrdt
+
+     thisrdt = int(bfmtime%timestep)
+     timesec = outdelta * thisrdt
+
+     ! BFM monthly frequency
+     if ( outdelta == -1 ) then
+        outdeltalab='1m'
+     ! Daily frequency
+     elseif ( MOD ( timesec, int(SEC_PER_DAY) ) == 0 ) then
+        outfreq = timesec / int(SEC_PER_DAY)
+        write(outdeltalab,'(i12,a1)') outfreq, 'd'
+     ! Hourly frequency
+     elseif ( MOD ( timesec , 3600 ) == 0 ) then
+        outfreq = timesec / 3600
+        write(outdeltalab,'(i12,a1)') outfreq, 'h'
+     ! Minutes frequency
+     elseif ( MOD ( timesec , 60 ) == 0 ) then
+        outfreq = timesec / 60
+        write(outdeltalab,'(i12,a1)') outfreq, 'mn'
+     ! Seconds frequency (=outdelta)
+     else
+        outfreq = timesec
+        write(outdeltalab,'(i12,a1)') outfreq, 's'
+     endif
+     
+     ! Remove leading spaces
+     outdeltalab = ADJUSTL( outdeltalab ) 
+
+     return
+ end function outdeltalab
+!-----------------------------------------------------------------------
 !-----------------------------------------------------------------------
 
    end module time

@@ -44,7 +44,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -93,13 +93,17 @@
   ! due to sedimentation of detritus (burial is thus also included)
   ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
    Delta=GetDelta( )
-   call RecalcPenetrationDepth( D1m(:), D6m(:), -jbotR6c(:)*Delta, Q6c(:),newDm(:) )
+   call RecalcPenetrationDepth( D1m(:), D6m(:), &
+        -jbotR6c(:)*Delta, Q6c(:),newDm(:) )
    call flux_vector(iiBen, ppD6m,ppD6m,(newDM(:)- D6m(:))/Delta)
-   call RecalcPenetrationDepth( D1m(:), D7m(:), -jbotR6n(:)*Delta, Q6n(:),newDm(:) )
+   call RecalcPenetrationDepth( D1m(:), D7m(:), &
+        -jbotR6n(:)*Delta, Q6n(:),newDm(:) )
    call flux_vector(iiBen, ppD7m,ppD7m,(newDM(:)- D7m(:))/Delta)
-   call RecalcPenetrationDepth( D1m(:), D8m(:), -jbotR6p(:)*Delta, Q6p(:),newDm(:) )
+   call RecalcPenetrationDepth( D1m(:), D8m(:), &
+        -jbotR6p(:)*Delta, Q6p(:),newDm(:) )
    call flux_vector(iiBen, ppD8m,ppD8m,(newDM(:)- D8m(:))/Delta)
-   call RecalcPenetrationDepth(D1m(:), D9m(:), -jbotR6s(:)*Delta, Q6s(:),newDm(:) )
+   call RecalcPenetrationDepth(D1m(:), D9m(:), &
+        -jbotR6s(:)*Delta, Q6s(:),newDm(:) )
    call flux_vector(iiBen, ppD9m,ppD9m,(newDM(:)- D9m(:))/Delta)
 
 #endif

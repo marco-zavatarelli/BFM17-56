@@ -25,7 +25,7 @@
   use mem
 #else
   use mem, ONLY: R6c, R6n, R6p, R6s, N1p, N3n, N4n, N5s, N6r, O2o, &
-    iiPhytoPlankton, ppPhytoPlankton, PhytoPlankton, D2STATE, &
+    iiPhytoPlankton, ppPhytoPlankton, PhytoPlankton, D2STATE_BEN, &
     iiMicroZooPlankton, ppMicroZooPlankton, MicroZooPlankton
   use mem, ONLY: ppR6c, ppR6n, ppR6p, ppR6s, ppN1p, ppN3n, &
     ppN4n, ppN5s, ppN6r, ppO2o, &
@@ -60,7 +60,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the BFM team
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !

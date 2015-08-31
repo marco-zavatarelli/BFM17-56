@@ -51,10 +51,10 @@
 ! !PRIVATE DATA MEMBERS:
    real(RLEN),parameter :: PI=3.14159265,RFACTOR=PI/180.
 !  pre-defined parameters
-   integer, parameter        :: READ_SUCCESS=1
-   integer, parameter        :: END_OF_FILE=-1
-   integer, parameter        :: READ_ERROR=-2
-   integer, parameter        :: NOTHING=0
+   integer, parameter,public   :: READ_SUCCESS=1
+   integer, parameter,public   :: END_OF_FILE=-1
+   integer, parameter,public   :: READ_ERROR=-2
+   integer, parameter,public   :: NOTHING=0
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi (INGV), Momme Buthenschoen (UNIBO)
@@ -63,7 +63,7 @@
 !
 ! COPYING
 !
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by

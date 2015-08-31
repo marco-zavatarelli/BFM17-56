@@ -65,7 +65,7 @@
 
 !
 ! !PUBLIC DATA MEMBERS:
-   public FieldInit, FieldRead
+   public FieldInit, FieldRead, FieldClose
 !
 ! !REVISION HISTORY:
 !  Author(s): Marcello 
@@ -135,13 +135,13 @@
    ! ACCESS EXTERNAL INPUT & FIND TIMELINE BOUNDARIES
    IF (FName%filetype) THEN 
       ! NETCDF FILE 
-      call check_err(NF90_OPEN(trim(FName%filename),NF90_NOWRITE,FData%lun ))
+      call check_err(NF90_OPEN(trim(FName%filename),NF90_NOWRITE,FData%lun), FName%filename)
       ! Get unlimited dimension name and length (e.g. time and # of records)
-      call check_err(NF90_INQUIRE(FData%lun , unlimitedDimId = RecordDimID)) 
-      call check_err(NF90_INQUIRE_DIMENSION(FData%lun, RecordDimID, name = RecordDimName, len = nRecords)) 
+      call check_err(NF90_INQUIRE(FData%lun , unlimitedDimId = RecordDimID), FName%filename) 
+      call check_err(NF90_INQUIRE_DIMENSION(FData%lun, RecordDimID, name = RecordDimName, len = nRecords), FName%filename) 
       FData%nrec = nRecords
       ! Get variable ID
-      call check_err(nf90_inq_varid(FData%lun, trim(FName%varname), FData%varID))
+      call check_err(nf90_inq_varid(FData%lun, trim(FName%varname), FData%varID), FName%filename)
       ! Setup centered time for inputs
       select case (FData%cltype)
          case('yearly')
@@ -378,9 +378,9 @@
          case(1) ! Analytic
 
          case(2) ! Timeseries
-            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%nbef/)) ) 
+            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%nbef/)), 'FieldGet') 
             FData%fbef = Val0D
-            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%naft/)) )
+            call check_err( nf90_get_var(FData%lun, FData%varID, Val0D, start = (/FData%naft/)), 'FieldGet')
             FData%faft = Val0D 
          case(3) ! 1D fields
 
@@ -390,6 +390,25 @@
       return
 
    end subroutine FieldGet
+!-------------------------------------------------------------------------!
+!-------------------------------------------------------------------------!
+ subroutine FieldClose(FName, FData)
+   ! This routine close the forcing file
+
+   use netcdf_bfm, only: check_err
+
+   implicit none
+   type(ForcingName),  intent(IN) :: FName
+   type(ForcingField), intent(IN) :: FData
+
+   IF (FData%filetype) THEN 
+      call check_err(NF90_CLOSE(FData%lun))
+   ELSE
+      close(FData%lun)
+   ENDIF
+
+   return
+ end subroutine 
 !-------------------------------------------------------------------------!
 !-------------------------------------------------------------------------!
  integer function GetLun ()
@@ -411,39 +430,6 @@
       return
       stop "There are no free Fortran logical units available."
  end function getlun
-!-------------------------------------------------------------------------!
-!-------------------------------------------------------------------------!
- integer function eomdays(Year, Month)
- ! Adapted from Lin Jensen, 1998
- ! tom: needs check for leap year computation
-     implicit none
-     integer :: Month, Year
-     SELECT CASE (Month)                       !!Find number of days in a Month
-       CASE (:0, 13:)
-               Stop "eomdays: Invalid month!!"
-       CASE (1, 3, 5, 7:8, 10, 12)
-               eomdays = 31
-       CASE (2)                                !!February
-               eomdays = 28
-               IF (MOD(Year,4) == 0) eomdays = 29  !!Leap year
-       CASE DEFAULT                                    !!September, April, June & November
-               eomdays = 30              !! Thirty days hath ...^
-     END SELECT 
-     return
- end function eomdays
-!-------------------------------------------------------------------------!
-!-------------------------------------------------------------------------!
- integer function yeardays(Year)
- ! tom: needs check for leap year computation
-     implicit none
-     integer :: im, Year
-     yeardays = 0
-     do im = 1 , 12
-        yeardays = yeardays + FLOAT(eomdays(Year, im))
-     enddo
-     if (yeardays == 0 .OR. yeardays > 366) stop ' yeardays out of bounds!'
-     return
- end function yeardays
 !-------------------------------------------------------------------------!
 !-------------------------------------------------------------------------!
  subroutine halftime(Year, Month, Day, Hour)

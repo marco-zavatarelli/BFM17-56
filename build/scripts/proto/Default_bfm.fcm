@@ -1,0 +1,17 @@
+# Generated with the _place_def_ layout file.
+src::bfm::share           $BFMDIR/src/share
+src::bfm::general         $BFMDIR/src/BFM/General
+src::bfm::pel             $BFMDIR/src/BFM/Pel
+src::bfm::light           $BFMDIR/src/BFM/Light
+src::bfm::pelben          $BFMDIR/src/BFM/PelBen
+src::bfm::bfminclude      $BFMDIR/src/BFM/include
+src::bfm::oxygen          $BFMDIR/src/BFM/Oxygen
+src::bfm::Forcing         $BFMDIR/src/BFM/Forcing
+src::bfm::co2             $BFMDIR/src/BFM/CO2
+src::bfm::include         $BFMDIR/include
+_place_ben_
+_place_ice_
+
+bld::pp::bfm      1
+bld::tool::fppflags::bfm %FPPFLAGS
+bld::tool::fppkeys  %bld::tool::fppkeys _place_keys_ 

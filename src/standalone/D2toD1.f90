@@ -1,16 +1,23 @@
 function D2toD1(x,y)
 !
-! Mapping 2D variables on 1D
-! Dummy routine for the standalone model
+! ROUTINE: Mapping 2D variables on 1D
+!          Dummy routine for the standalone model
 !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-! Momme Butenschoen, March 2006 !
-! Dipartimento di Fisica        !
-! Universita' di Bologna        !
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+! !REVISION HISTORY:
+!  Original author(s): Momme Butenschoen (UNIBO)
 !
+! COPYING
 !
- use mem, only: NO_BOXES,NO_BOXES_X,NO_BOXES_Y,NO_BOXES_Z
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
  IMPLICIT NONE
  integer,intent(IN) :: x,y
  integer            :: D2toD1

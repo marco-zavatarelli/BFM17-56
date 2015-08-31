@@ -18,14 +18,17 @@ subroutine analytical_forcing
 #else
    use mem,        only: ETW,ESW,EIR,SUNQ,ThereIsLight,EWIND,  &
                          EICE,jbotR6c,jbotR6n,jbotR6p,jbotR6s, &
-                         R6c,R6n,R6p,R6s,O2o,ERHO,Depth
+                         R6c,R6n,R6p,R6s,O2o,ERHO,Depth,xEPS
    use mem,        only: iiC,iiN,iiP,iiS
+   use mem_param,  only: p_small
 #ifdef INCLUDE_SEAICE
    ! seaice forcings
    use mem,        only: EVB,ETB,ESB,EIB,EHB,ESI
 #endif
 #endif
-   use mem_Param,  only: p_PAR
+   use mem_PAR,    only: ChlAttenFlag, P_PARRGB, P_PAR, &
+                         R_EPS, B_EPS, G_EPS,           &
+                         EIRR, EIRB, EIRG
    use constants,  only: E2W, SEC_PER_DAY
    use standalone, only: timesec,latitude
    use envforcing
@@ -35,6 +38,8 @@ subroutine analytical_forcing
    use time,       only: julianday, secondsofday, timefmt, &
                          julian_day,calendar_date,dayofyear
    use SystemForcing, ONLY :FieldRead
+   use bfm_error_msg
+
    IMPLICIT NONE
 !
 ! !INPUT PARAMETERS:
@@ -46,7 +51,7 @@ subroutine analytical_forcing
 !
 ! COPYING
 !
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -95,8 +100,23 @@ subroutine analytical_forcing
    ESW(:) = salinity(dyear,dfrac)
    ! compute density at the middle of the layer
    ERHO(:) = density(ETW(:),ESW(:),Depth(:)/2.0_RLEN)
+
    ! convert from irradiance to PAR in uE/m2/s
-   EIR(:) = wlight*p_PAR/E2W
+   select case (ChlAttenFlag)
+      case (1) ! Broadband
+         EIR(:) = wlight*p_PAR/E2W
+      case (2) ! RGB
+         EIR(:) = p_PARRGB*(wlight+p_small)/E2W
+         EIRR(:) = EIR(:) * exp ( -R_eps(:) )
+         EIRG(:) = EIR(:) * exp ( -G_eps(:) )
+         EIRB(:) = EIR(:) * exp ( -B_eps(:) )
+         EIR(:) = EIRB(:) + EIRG(:) + EIRR(:)
+         ! weighted broadband diffuse attenuation coefficient for diagnostics
+         xEPS(:) = (EIRB(:)*B_eps(:) + EIRG(:)*G_eps(:) + EIRR(:)*R_eps(:))/EIR(:)
+      case default 
+         call BFM_ERROR("analytical_forcing","Bad value for ChlAttenFlag.")
+   end select
+      
    ! analytical wind velocity 
    EWIND(:) = wind(dyear,dfrac)
    ! constant sea-ice fraction 

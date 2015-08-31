@@ -29,7 +29,7 @@
 !-----------------------------------------------------------------------
 !BOP
 !
-! !ROUTINE: bfn_error() - global error reporting routine
+! !ROUTINE: bfm_error() - global error reporting routine
 !
 ! !INTERFACE:
    subroutine bfm_error(sub,msg)
@@ -47,7 +47,7 @@
 !BOC
      FATAL "bfm_error: Called from: ",trim(sub)
      FATAL "bfm_error: Message:     ",trim(msg)
-     stop "bfm_error()"
+     stop  "bfm_error( see bfm.log !! )"
 
    return
    end subroutine bfm_error
@@ -77,6 +77,6 @@
 
 end module
 !-----------------------------------------------------------------------
-! Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+! Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 ! Copyright (C) 2006 -  Piet Ruardij and Marcello Vichi         !
 !-----------------------------------------------------------------------

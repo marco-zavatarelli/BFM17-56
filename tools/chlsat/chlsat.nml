@@ -1,0 +1,53 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!------------------------------------------------------------------------------------!
+!Main initialisation and output specifications
+!NAME             KIND    DESCRIPTION
+!out_fname 	  string 	Name of output file
+!inp_dir 	  string 	Path to the input files
+!out_dir 	  string 	Path to the output file
+!mask_fname       string        Full path to NEMO mesh_mask file
+!chla_fname       string        Name of data file containing 3D Chl
+!chla_name        string        Name of Chl variable in file
+!compute_chlsat   logical       Compute chlsat (true by default useful only for NPP)
+!compute_eps      logical       Use attenuation coefficient from output
+!                               or computed using the BFM formula from Chl 
+!                               concentration, neglecting ISM and detritus
+!                               The computation requires:
+!   p_eps0        real          background attenuation of water (m-1)
+!   p_epsChla     real          specific attenuation of Chla (m2/mg Chl)
+!eps_fname        string        Name of data file containing 3D att. coeff.
+!eps_name         string        Name of attenuation coeff. variable in file
+!tolerance        real          multiplicative factor for optical depth
+!
+!compute_intpp    logical       Compute integrated GPP and NPP down to 1% and 0.1%
+!gpp_fname        string        Name of data file containing 3D GPP
+!gpp_name         string        Name of GPP variable in file
+!rsp_fname        string        Name of data file containing 3D RSP
+!rsp_name         string        Name of RSP variable in file
+!
+!------------------------------------------------------------------------------------!
+&chlsat_nml
+   out_fname='chlsat_output.nc'
+   inp_dir='/path/to/inp_dir'
+   out_dir='/path/to/out_dir'
+   compute_chlsat=.true.
+   mask_fname='chlmask.nc'
+   chla_fname='bfm_output.nc'
+   chla_name='Chla'
+   compute_eps=.true.
+   p_eps0=0.0435
+   p_epsChla=0.03
+   eps_fname='bfm_output.nc'
+   eps_name='xEPS'
+   tolerance=0.0
+   compute_intpp=.false.
+   gpp_fname='bfm_output.nc'
+   gpp_name='ruPPYc'
+   rsp_fname='bfm_output.nc'
+   rsp_name='resPPYc'
+/
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL  BFM - Biogeochemical Flux Model
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

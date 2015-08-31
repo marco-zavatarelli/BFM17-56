@@ -18,15 +18,8 @@
 
   USE global_mem
   USE constants
-  USE mem, ONLY: iiPhytoPlankton, iiMesoZooPlankton, &
-                 iiMicroZooPlankton, iiPelBacteria
-#ifdef INCLUDE_BEN
-  USE mem, ONLY: iiBenOrganisms, iiBenDetritus, iiBenBacteria, &
-                 iiBenthicPhosphate, iiBenthicAmmonium
-#endif
-#ifdef INCLUDE_SEAICE
-  USE mem, ONLY: iiSeaiceAlgae, iiSeaiceZoo, iiSeaiceBacteria
-#endif
+  USE mem
+
 !  
 !
 ! !AUTHORS
@@ -37,7 +30,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -89,57 +82,22 @@
   !                                       time integration
   ! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
   !                                       1 = diagnostic, optimal light property
-  !                                           in phytoplankton 
-  !                                           (Ebenhoeh et al 1995, ERSEM-II) 
-  !                                       2 = state variable, constituent of 
+  !                                           in phytoplankton
+  !                                           (Ebenhoeh et al 1995, ERSEM-II)
+  !                                       2 = state variable, constituent of
   !                                           phytoplankton
-  ! LightPeriodFlag               numeric Choose the light averaging period
-  !                                       1 = Instantanous irradiance
-  !                                       2 = Daily average
-  !                                       3 = Daylight average with explicit
-  !                                           photoperiod                                       
-  ! LightLocationFlag             numeric Choose the parameterization of light
-  !                                       location in the discrete grid
-  !                                       1 = Light at the top of the cell
-  !                                       2 = Light in the middle of the cell 
-  !                                       3 = Average Light in the cell
   ! check_fixed_quota             numeric Check whether zooplankton have fixed quota
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   logical   :: CalcPelagicFlag=.TRUE.  
-  integer   :: CalcBenthicFlag=0  
+  integer   :: CalcBenthicFlag=0      ! Switch for Benthic system
+  logical   :: CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
+
   logical   :: CalcTransportFlag=.FALSE.  
   logical   :: CalcConservationFlag=.TRUE.  
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  !  Allocate the logical flags for switch on the LFG
-  !  Initialize to TRUE (overwritten by the namelist values)
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   :: CalcPhytoPlankton(iiPhytoPlankton) = .TRUE.
-  logical   :: CalcMicroZooPlankton(iiMicroZooPlankton) = .TRUE.
-  logical   :: CalcMesoZooPlankton(iiMesoZooPlankton) = .TRUE.
-  logical   :: CalcPelBacteria(iiPelBacteria) = .TRUE. 
-#ifdef INCLUDE_BEN
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Bethic model flags
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   :: CalcBenOrganisms(iiBenOrganisms) = .TRUE.
-  logical   :: CalcBenBacteria(iiBenBacteria) = .TRUE.
-#endif
-#ifdef INCLUDE_SEAICE
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  ! Sea-ice flags
-  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-  logical   :: CalcSeaiceFlag=.TRUE.  ! Switch for Seaice system
-  logical   :: CalcSeaiceAlgae(iiSeaiceAlgae) = .TRUE.
-  logical   :: CalcSeaiceZoo(iiSeaiceZoo) = .TRUE.
-  logical   :: CalcSeaiceBacteria(iiSeaiceBacteria)= .TRUE.
-#endif
   logical   :: CalcPelChemistry=.TRUE.
   logical   :: AssignPelBenFluxesInBFMFlag=.TRUE.
   logical   :: AssignAirPelFluxesInBFMFlag=.TRUE.
-  integer   :: &
-      ChlDynamicsFlag=2,  & 
-      LightPeriodFlag=1,  & 
-      LightLocationFlag=3 
+  integer   :: ChlDynamicsFlag=2
   integer   :: check_fixed_quota=0
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -148,12 +106,6 @@
   ! NAME          UNIT          DESCRIPTION
   ! p_small      [-]           Smallest numeric value (the model "zero")
   ! slp0         [mbar]        Reference sea level pressure
-  ! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
-  ! p_eps0       [1/m]         Background extinction coefficient
-  ! p_epsESS     [m2/g]        Specific attenuation coefficient of
-  !                            suspended sediments
-  ! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
-  !                            detritus
   ! p_pe_R1c     [-]           Fractional content of C in cytoplasm 
   ! p_pe_R1n     [-]           Fractional content of N in cytoplasm
   ! p_pe_R1p     [-]           Fractional content of P in cytoplasm
@@ -171,10 +123,6 @@
       p_small=1.0E-20_RLEN,  &
       slp0=1013.25_RLEN
   real(RLEN)   :: &
-      p_PAR=0.50_RLEN,      &  
-      p_eps0=0.04_RLEN  ,  &  
-      p_epsESS=0.04e-3_RLEN  ,  &
-      p_epsR6=0.1e-3_RLEN , & 
       p_pe_R1c=0.60_RLEN  ,     &
       p_pe_R1n=0.72_RLEN  ,     &
       p_pe_R1p=0.832_RLEN  ,    &
@@ -185,20 +133,46 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Benthic model parameters
+  ! NAME          UNIT          DESCRIPTION
+  ! p_sedlevels   [-]           Number of sigma levels for benthic nutrient
+  ! p_poro0       [-]           Constant porosity for 0D and 1D runs
+  ! p_InitSink    Logical       parameter to Initialize BenthicSInk var.
+  ! p_q10diff     [-]           Temperature-dependency porewater diffusion
+  ! p_clDxm       [m]           minimal value of D?.m for calculation of the alpha
+  ! p_d_tot       [m]           Thickness of modelled benthic sediment layers
+  ! p_clD1D2m     [m]           minimum distance between D1m and D2m
+  ! p_d_tot_2     [m]           maximal Thickness of D2m
+  ! p_sedsigma    [-]           Parameter for sigma level distribution
+  ! p_poro        [-]           Sediment porosity
+  ! p_p_ae        [-]           Adsorption coefficient
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! 0d-parameters 
-  integer      :: p_sedlevels=20 ! - # Number of sigma levels for benthic nutrient
-  real(RLEN)   :: p_poro0=0.4    ! Constant porosity for 0D and 1D runs
+  integer      :: p_sedlevels=20 
   real(RLEN)   :: &
-      p_InitSink=100.0_RLEN,  &  ! parameter to Initialize BenthicSInk var.
-      p_q10diff=1.49_RLEN,  &  ! Temperature-dependency porewater diffusion
-      p_clDxm=0.001_RLEN, &  ! minimal value of D?.m for calculation of the alpha
-      p_d_tot=0.30_RLEN,    &  ! m # Thickness of modelled benthic sediment layers
-      p_clD1D2m=0.01_RLEN,    &  ! m # minimum distancebetween D1m and D2m
-      p_d_tot_2=0.35_RLEN,  &  ! m # maximal Thickness of D2m
-      p_sedsigma=2.0_RLEN        ! - # Parameter for sigma level distribution 
+      p_sedsigma=2.0_RLEN, &
+      p_d_tot=0.30_RLEN , &
+      p_poro0=0.4
   ! 1d-parameters
-  real(RLEN),public,dimension(:),allocatable   ::  p_p_ae, p_poro
+  real(RLEN),public,dimension(:),allocatable   ::  p_p_ae, p_poro      
+#ifdef INCLUDE_BEN
+      integer   :: calc_init_bennut_states
+  real(RLEN)   :: &
+      p_InitSink=100.0_RLEN,  &  
+      p_q10diff=1.49_RLEN,  &  
+      p_clDxm=0.001_RLEN, &  
+      p_clD1D2m=0.01_RLEN,    &  
+      p_d_tot_2=0.35_RLEN,  &
+      p_qnQIc, &
+      p_qpQIc, &
+      p_qsQIc
+#endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  ! Seaice model parameters
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#ifdef INCLUDE_SEAICE
+#endif
+
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
@@ -213,21 +187,26 @@
   use constants
   use global_mem, ONLY: bfm_lwp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-  namelist /Param_parameters/ p_small, p_q10diff, p_qro, p_qon_dentri,        &
-    p_qon_nitri, p_clDxm, CalcPelagicFlag, CalcBenthicFlag,CalcTransportFlag, &
+  namelist /Param_parameters/ p_small, p_qro, p_qon_dentri,                   &
+    p_qon_nitri,                                                              &
+    CalcPelagicFlag, CalcBenthicFlag,CalcSeaiceFlag, CalcTransportFlag,       &
     CalcConservationFlag,CalcPhytoPlankton,CalcMicroZooPlankton,              &
     CalcPelChemistry,CalcMesoZooPlankton, CalcPelBacteria,                    &
     AssignPelBenFluxesInBFMFlag, AssignAirPelFluxesInBFMFlag,                 &
-    p_PAR, slp0, ChlDynamicsFlag, LightPeriodFlag, LightLocationFlag,        &
-    p_poro0, p_eps0, p_epsESS, p_d_tot_2, p_sedlevels, p_sedsigma,            &
-    p_InitSink, p_d_tot, p_clD1D2m, p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,   &
+    slp0,                                                                     &
+    p_pe_R1c, p_pe_R1n, p_pe_R1p, p_pe_R1s,                                   &
+    ChlDynamicsFlag, check_fixed_quota
 #ifdef INCLUDE_BEN
-    CalcBenOrganisms,CalcBenBacteria,                                         & 
+  namelist /Param_parameters_ben/                                             &
+    p_sedlevels, p_sedsigma,p_d_tot, p_poro0,                                 &
+    CalcBenOrganisms,CalcBenBacteria,                                         &
+    calc_init_bennut_states, p_qnQIc, p_qpQIc, p_qsQIc,                       &
+    p_InitSink, p_d_tot_2, p_clD1D2m, p_clDxm, p_q10diff
 #endif
 #ifdef INCLUDE_SEAICE
-    CalcSeaiceFlag,CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria,          &
+  namelist /Param_parameters_ice/                                             &
+    CalcSeaiceAlgae,CalcSeaiceZoo,CalcSeaiceBacteria
 #endif
-    p_epsR6,check_fixed_quota
    integer :: i
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute
@@ -239,12 +218,24 @@
    LEVEL1 "#  Reading BFM parameters .."
    open(NMLUNIT,file='BFM_General.nml',status='old',action='read',err=100)
    read(NMLUNIT,nml=Param_parameters,err=101)
+#ifdef INCLUDE_BEN
+   read(NMLUNIT,nml=Param_parameters_ben,err=102)
+#endif
+#ifdef INCLUDE_SEAICE
+   read(NMLUNIT,nml=Param_parameters_ice,err=103)
+#endif
    close(NMLUNIT)
    if (bfm_lwp) then 
     write(LOGUNIT,*) "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-"      
     write(LOGUNIT,*) "#  Reading Param parameters.. "
     write(LOGUNIT,*) "#  Namelist is:"
     write(LOGUNIT,nml=Param_parameters)
+#ifdef INCLUDE_BEN
+    write(LOGUNIT,nml=Param_parameters_ben)
+#endif
+#ifdef INCLUDE_SEAICE
+    write(LOGUNIT,nml=Param_parameters_ice)
+#endif
    endif 
    ! These initializations are done here because some compilers do not
    ! allow the initialization of constants with intrinsic functions
@@ -260,6 +251,8 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 100 call error_msg_prn(NML_OPEN,"InitParam.f90","BFM_General.nml")
 101 call error_msg_prn(NML_READ,"InitParam.f90","Param_parameters")
+102 call error_msg_prn(NML_READ,"InitParam.f90","Param_parameters_ben")
+103 call error_msg_prn(NML_READ,"InitParam.f90","Param_parameters_ice")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitParam
 

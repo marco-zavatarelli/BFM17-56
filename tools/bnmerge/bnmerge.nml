@@ -4,22 +4,32 @@
 !------------------------------------------------------------------------------------!
 !Main initialisation and output specifications
 !NAME             KIND    DESCRIPTION
-!chunk_fname 	  string 	Name of NetCDF chunks (also name of output)
-!inp_dir 	  string 	Path to the input files (chunks)
-!out_dir 	  string 	Path to the output file (merged)
-!layout 	  string 	Path to the layout.dat file
-!ln_mask 	  logical       Write global mask specification
-!var_save 	  string 	List of output variables (set according to bfm output) 
+!chunk_fname 	  string 	 Name of NetCDF chunks (do not inclue chunk value, e.g. _0000 )
+!out_fname        string         Name of output NetCDF file (leave empty to set as chunk_fname)
+!bfm_restart 	  string 	 Name of NetCDF restart chunk files (also name of restart output)
+!inp_dir 	  string 	 Path to the input files (chunks)
+!out_dir 	  string 	 Path to the output file (merged)
+!layout 	  string 	 Path to the layout.dat file
+!ln_mask 	  logical        Write global mask specification
+!var_save 	  string 	 List of output variables (set according to bfm output) 
+!nc_compres       logical        Activata data compression for NetCDF files
+!nc_shuffle       integer        Use data shuffling for compression (0=off, 1=active)
+!nc_defllev       integer        Deflation level of data (0=none,9). if >0 use deflation
 !
-! Warning: NetCDF files have a dimension limit (~4Gb), so pay attention in selecting 
-!          the number of output variables with HR model configurations.  
+! Warning: NetCDF files have a dimension limit per variable of ~2Gb, so pay attention 
+!          in selecting the number of output variables with HR model configurations.  
 !------------------------------------------------------------------------------------!
 &bnmerge_nml
    chunk_fname='FILENAME'
+   out_fname='OUTPUT_FILENAME'
+   bfm_restart='FILENAME_RESTART'
    inp_dir='/path/to/inp_dir'
    out_dir='/path/to/out_dir'
    layout='/path/to/layout.dat'
    ln_mask=.FALSE.
+   nc_compres = .FALSE.
+   nc_shuffle = 0
+   nc_defllev = 0
    var_save='O2o','N1p','N3n', 'B1c', 'P1c', 'P2c','P3c','P4c',
            'Z3c','Z4c','Z5c','Z6c','R1c','R2c','R6c','Chla',
 /

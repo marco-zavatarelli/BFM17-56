@@ -2,7 +2,7 @@
 #include "DEBUG.h"
 #include "INCLUDE.h"
 
-#ifdef INCLUDE_PELCO2
+#if defined INCLUDE_PELCO2 || defined INCLUDE_BENCO2
 
 module CO2System
 !/*
@@ -61,7 +61,7 @@ module CO2System
 ! CHANGE_LOG
 !
 ! COPYING
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2007 M. Vichi and P. Ruardij (vichi@bo.ingv.it)
 !
 !   This program is free software; you can redistribute it and/or modify
@@ -78,7 +78,7 @@ module CO2System
 
 
 ! !USES:
-  use global_mem, ONLY: RLEN
+  use global_mem, ONLY: RLEN, LOGUNIT
 
 ! Shared variables
   implicit none
@@ -229,6 +229,7 @@ module CO2System
   tc2 = temp * temp
 #ifdef DEBUG
   LEVEL2 'Entering CO2System...'
+  LEVEL3 'temp',temp,'sal',salt
   LEVEL3 'tk',tk,'way',way,'mode',mode
   LEVEL3 'dic',ldic,'ta',ta
   LEVEL3 'pt',pt,'sit',sit

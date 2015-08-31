@@ -1,0 +1,138 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL
+!	   BFM - Biogeochemical Flux Model
+!
+! MODULE
+!   set_var_info_bfm
+!
+! FILE
+!   set_var_info_bfm
+!
+! DESCRIPTION
+!  This subroutine provides information on the variables. To be used
+!  when storing data in NetCDF files.
+!  This file is produced by a procedure from a file which include all
+!  definitions of global variables and state variables  and a proto-file 
+!
+!
+! AUTHORS
+!    Piet Ruardij
+!
+! CHANGE_LOG
+!   ---
+!
+! COPYING
+!   
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2006 P. Ruardij  (rua@nioz.nl)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!
+!
+!
+
+subroutine set_var_info_bfm
+
+#ifdef BFM_GOTM
+  use mem
+  use bio_var, only: var_names,var_long,var_units
+  use bio_var, only: stPelStateS,stPelDiagS,stPelFluxS,stBenStateS,stBenDiagS,stBenFluxS
+  use bio_var, only: stPelStateE,stPelDiagE,stPelFluxE,stBenStateE,stBenDiagE,stBenFluxE
+#else
+  use api_bfm
+#endif
+ 
+
+!
+! 3d variables description:
+!
+%3d-state-pel-string
+%3d-diagnos-pel-string
+%3d-diaggrp-pel-string
+%3d-flux-pel-string
+
+!
+!2d Pelagic variables description
+%2d-diagnos-pel-string
+!
+! surface
+!
+%pel-field-string surface
+!
+! bottom
+!
+%pel-field-string bottom
+!
+! river
+!
+%pel-field-string river
+
+#ifdef INCLUDE_SEAICE
+!
+!2d SeaIce variables description
+%2d-state-ice-string
+%2d-diagnos-ice-string
+%2d-diaggrp-ice-string
+%2d-flux-ice-string
+#endif
+
+#ifdef INCLUDE_BEN
+!
+!2d Benthic variables description
+%2d-state-ben-string
+%2d-diagnos-ben-string
+%2d-diaggrp-ben-string
+%2d-flux-ben-string
+#endif
+
+
+!
+!Index Pelagic
+!
+%startend-string-index pel
+
+%3d-state-pel-string-index
+%3d-diagnos-pel-string-index
+%3d-flux-pel-string-index
+%2d-diagnos-pel-string-index
+%pel-string-index-field surface
+%pel-string-index-field bottom
+%pel-string-index-field river
+
+
+#ifdef INCLUDE_SEAICE
+!
+!Index SeaIce
+!
+%startend-string-index ice
+
+%2d-state-ice-string-index
+%2d-diagnos-ice-string-index
+%2d-flux-ice-string-index
+
+#endif
+
+#ifdef INCLUDE_BEN
+!
+!Index Benthic
+!
+%startend-string-index ben
+
+%2d-state-ben-string-index
+%2d-diagnos-ben-string-index
+%2d-flux-ben-string-index
+
+#endif
+
+
+%startend-string-index
+
+end subroutine set_var_info_bfm

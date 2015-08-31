@@ -1,0 +1,194 @@
+#include"cppdefs.h"
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL
+!	   BFM - Biogeochemical Flux Model
+!
+! SUBROUTINE
+!   AllocateMem
+!
+! FILE
+!   AllocateMem
+!
+! DESCRIPTION
+!   Allocation of memory for Global State variables and other Variables
+!  
+!   This file is generated directly from OpenSesame model code, using a code 
+!   generator which transposes from the sesame meta language into F90.
+!   F90 code generator written by P. Ruardij.
+!   structure of the code based on ideas of M. Vichi.
+!
+! AUTHORS
+!   Piet Ruardij & Marcello Vichi
+!
+! CHANGE_LOG
+!   ---
+!
+! COPYING
+!   
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2004 P. Ruardij, M. Vichi
+!   (rua@nioz.nl, vichi@bo.ingv.it)
+!
+!   This program is free software; you can redistribute it and/or modify
+!   it under the terms of the GNU General Public License as published by
+!   the Free Software Foundation;
+!   This program is distributed in the hope that it will be useful,
+!   but WITHOUT ANY WARRANTY; without even the implied warranty of
+!   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+!   GNU General Public License for more details.
+!
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!
+!
+  subroutine AllocateMem
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !  use (import) other modules
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  use global_mem
+  use mem
+  use mem_Param
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Implicit typing is never allowed
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  IMPLICIT NONE
+  integer:: status
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  !Start the allocation of pelagic state global
+  ! matrix and pointers
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
+  LEVEL1 "# Allocating State Variables and Rates array ..."
+
+#ifndef NOT_STANDALONE
+%3d-state-pel-alloc
+%3d-diagnos-pel-alloc
+%2d-diagnos-pel-alloc
+#ifdef INCLUDE_SEAICE
+%2d-state-ice-alloc
+%2d-diagnos-ice-alloc
+#endif
+#ifdef INCLUDE_BEN
+%2d-state-ben-alloc
+%2d-diagnos-ben-alloc
+#endif
+#endif
+
+%1d-variables-pel-alloc
+%1d-intvar-pel-alloc
+#ifdef INCLUDE_SEAICE
+%1d-variables-ice-alloc
+%1d-intvar-ice-alloc
+#endif
+#ifdef INCLUDE_BEN
+%1d-variables-ben-alloc
+%1d-intvar-ben-alloc
+#endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Allocation of Pelagic variables
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%3d-state-pel-alloc-pointer
+
+#ifdef INCLUDE_SEAICE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Allocation of SeaIce variables
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%3d-state-ice-alloc-pointer
+%2d-state-ice-alloc-pointer
+#endif
+
+#ifdef INCLUDE_BEN
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Allocation of Benthic variables
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%3d-state-ben-alloc-pointer
+%2d-state-ben-alloc-pointer
+#endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of other pelagic variables which can be outputted
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
+  LEVEL1 "# Allocating Other Global Variables .."
+
+%3d-diaggrp-pel-assign-pp
+%3d-diagnos-pel-alloc-pointer
+%3d-diaggrp-pel-alloc-pointer
+
+%2d-diagnos-pel-alloc-pointer
+
+%pel-alloc-pointer-field surface
+%pel-alloc-pointer-field bottom
+%pel-alloc-pointer-field river
+
+%3d-variable-pel-alloc
+%2d-variable-pel-alloc
+
+%3d-intvar-pel-alloc
+%2d-intvar-pel-alloc
+
+#ifdef INCLUDE_SEAICE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of other seaIce vairables which can be outputted 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%2d-diaggrp-ice-assign-pp
+%2d-diagnos-ice-alloc-pointer
+%2d-diaggrp-ice-alloc-pointer
+
+%2d-variable-ice-alloc
+
+%2d-intvar-ice-alloc
+#endif
+
+#ifdef INCLUDE_BEN
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of other benthic vairables which can be outputted 
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+%2d-diaggrp-ben-assign-pp
+%2d-diagnos-ben-alloc-pointer
+%2d-diaggrp-ben-alloc-pointer
+
+%2d-variable-ben-alloc
+
+%2d-intvar-ben-alloc
+#endif
+
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of Pelagic vars for calculation of combined fluxes for output
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+  LEVEL1 "#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-==-"
+  LEVEL1 "# Allocating Fluxes .."
+
+%3d-flux-pel-alloc
+%3d-flux-pel-fill
+
+#ifdef INCLUDE_SEAICE
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of Seaice vars for calculation of combined fluxes for output
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%2d-flux-ice-alloc
+%2d-flux-ice-fill
+#endif
+
+#ifdef INCLUDE_BEN
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Start the allocation of Benthic vars for calculation of combined fluxes for output
+  !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+
+%2d-flux-ben-alloc
+%2d-flux-ben-fill
+#endif
+
+
+  end subroutine AllocateMem
+

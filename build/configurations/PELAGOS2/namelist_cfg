@@ -1,0 +1,224 @@
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!! NEMO/OPA  Configuration namelist : used to overwrite defaults values defined in SHARED/namelist_ref
+!!>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+!
+!-----------------------------------------------------------------------
+&namrun        !   parameters of the run
+!-----------------------------------------------------------------------
+   nn_it000    =       1   !  first time step
+   nn_itend    =    5475   !  last  time step (std 5475)
+   nn_write    =    5475   !  frequency of write in the output file   (modulo referenced to nn_it000)
+   nn_stock    =    5475  !  frequency of creation of a restart file (modulo referenced to 1)
+   cn_exp      =  "PELAGOS2"  !  experience name
+   nn_date0    =  20000101 !  date at nit_0000 (format yyyymmdd) used if ln_rstart=F or (ln_rstart=T and nn_rstctl=0 or 1)
+   nn_leapy    =       0   !  Leap year calendar (1) or not (0)
+   ln_rstart   = .false.   !  start from rest (F) or from a restart file (T)
+/
+!-----------------------------------------------------------------------
+&namcfg        !   parameters of the configuration
+!-----------------------------------------------------------------------
+   cp_cfg      =  "pelagos2"               !  name of the configuration
+   jp_cfg      =       2               !  resolution of the configuration
+   jpidta      =     182               !  1st lateral dimension ( >= jpi )
+   jpjdta      =     149               !  2nd    "         "    ( >= jpj )
+   jpkdta      =      31               !  number of levels      ( >= jpk )
+   jpiglo      =     182               !  1st dimension of global domain --> i =jpidta
+   jpjglo      =     149               !  2nd    -                  -    --> j  =jpjdta
+   jpizoom     =       1               !  left bottom (i,j) indices of the zoom
+   jpjzoom     =       1               !  in data domain indices
+   jperio      =       4               !  lateral cond. type (between 0 and 6)
+/
+!-----------------------------------------------------------------------
+&namzgr        !   vertical coordinate
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namdom        !   space and time domain (bathymetry, mesh, timestep)
+!-----------------------------------------------------------------------
+   jphgr_msh   =       0               !  type of horizontal mesh
+   ppglam0     =  999999.0             !  longitude of first raw and column T-point (jphgr_msh = 1)
+   ppgphi0     =  999999.0             ! latitude  of first raw and column T-point (jphgr_msh = 1)
+   ppe1_deg    =  999999.0             !  zonal      grid-spacing (degrees)
+   ppe2_deg    =  999999.0             !  meridional grid-spacing (degrees)
+   ppe1_m      =  999999.0             !  zonal      grid-spacing (degrees)
+   ppe2_m      =  999999.0             !  meridional grid-spacing (degrees)
+   ppsur       =   -4762.96143546300   !  ORCA r4, r2 and r05 coefficients
+   ppa0        =     255.58049070440   ! (default coefficients)
+   ppa1        =     245.58132232490   !
+   ppkth       =      21.43336197938   !
+   ppacr       =       3.0             !
+   ppdzmin     =  999999.              !  Minimum vertical spacing
+   pphmax      =  999999.              !  Maximum depth
+   ldbletanh   =  .FALSE.              !  Use/do not use double tanf function for vertical coordinates
+   ppa2        =  999999.              !  Double tanh function parameters
+   ppkth2      =  999999.              !
+   ppacr2      =  999999.              !
+   rn_rdt      = 5760.                 !  time step for the dynamics (and tracer if nn_acc=0)
+   nn_msh      =    0                  !  create (=1) a mesh file or not (=0)
+/
+!-----------------------------------------------------------------------
+&namcrs        !   Grid coarsening for dynamics output and/or
+               !   passive tracer coarsened online simulations
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtsd    !   data : Temperature  & Salinity
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namsbc        !   Surface Boundary Condition (surface module)
+!-----------------------------------------------------------------------
+   nn_fsbc     = 5         !  frequency of surface boundary condition computation
+   ln_dm2dc    = .false.   !  daily mean to diurnal cycle on short wave
+/
+!-----------------------------------------------------------------------
+&namsbc_core   !   namsbc_core  CORE bulk formulae
+!-----------------------------------------------------------------------
+!              !  file name                    ! frequency (hours) ! variable  ! time interp. !  clim  ! 'yearly'/ !      ! rotation ! land/sea mask !
+!              !                               !  (if <0  months)  !   name    !   (logical)  !  (T/F) ! 'monthly' !      ! pairing  ! filename      !
+   sn_wndi     = 'u_10.15JUNE2009_orca2'        ,         6         , 'U_10_MOD',   .false.    , .true. , 'yearly'  , ''  , 'Uwnd'   , ''
+   sn_wndj     = 'v_10.15JUNE2009_orca2'        ,         6         , 'V_10_MOD',   .false.    , .true. , 'yearly'  , ''  , 'Vwnd'   , ''
+   sn_qsr      = 'ncar_rad.15JUNE2009_orca2'    ,        24         , 'SWDN_MOD',   .false.    , .true. , 'yearly'  , ''  , ''       , ''
+   sn_qlw      = 'ncar_rad.15JUNE2009_orca2'    ,        24         , 'LWDN_MOD',   .false.    , .true. , 'yearly'  , ''  , ''       , ''
+   sn_tair     = 't_10.15JUNE2009_orca2'        ,         6         , 'T_10_MOD',   .false.    , .true. , 'yearly'  , ''  , ''       , ''
+   sn_humi     = 'q_10.15JUNE2009_orca2'        ,         6         , 'Q_10_MOD',   .false.    , .true. , 'yearly'  , ''  , ''       , ''
+   sn_prec     = 'ncar_precip.15JUNE2009_orca2' ,        -1         , 'PRC_MOD1',   .false.    , .true. , 'yearly'  , ''  , ''       , ''
+   sn_snow     = 'ncar_precip.15JUNE2009_orca2' ,        -1         , 'SNOW'    ,   .false.    , .true. , 'yearly'  , ''  , ''       , ''
+
+   cn_dir      = './'      !  root directory for the location of the bulk files
+   ln_taudif   = .false.   !  HF tau contribution: use "mean of stress module - module of the mean stress" data
+   rn_zqt      = 3.        !  Air temperature and humidity reference height (m) (ln_bulk2z)
+   rn_zu       = 4.        !  Wind vector reference height (m)                  (ln_bulk2z)
+   rn_pfac     = 1.        !  multiplicative factor for precipitation (total & snow)
+   rn_efac     = 1.        !  multiplicative factor for evaporation (0. or 1.)
+   rn_vfac     = 0.        !  multiplicative factor for ocean/ice velocity
+                           !  in the calculation of the wind stress (0.=absolute winds or 1.=relative winds)
+/
+!-----------------------------------------------------------------------
+&namtra_qsr    !   penetrative solar radiation
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namsbc_rnf    !   runoffs namelist surface boundary condition
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namsbc_ssr    !   surface boundary condition : sea surface restoring
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namsbc_alb    !   albedo parameters
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namberg       !   iceberg parameters
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namlbc        !   lateral momentum boundary condition
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namcla        !   cross land advection
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&nambfr        !   bottom friction
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&nambbc        !   bottom temperature boundary condition
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&nambbl        !   bottom boundary layer scheme
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&nameos        !   ocean physical parameters
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtra_adv    !   advection scheme for tracer
+!-----------------------------------------------------------------------
+   ln_traadv_tvd    =  .true.   !  TVD scheme
+   ln_traadv_muscl  =  .false.  !  MUSCL scheme
+/
+!-----------------------------------------------------------------------
+&namtra_adv_mle !  mixed layer eddy parametrisation (Fox-Kemper param)
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtra_adv_mle !  mixed layer eddy parametrisation (Fox-Kemper param)
+!-----------------------------------------------------------------------
+/
+!----------------------------------------------------------------------------------
+&namtra_ldf    !   lateral diffusion scheme for tracers
+!----------------------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namtra_dmp    !   tracer: T & S newtonian damping
+!-----------------------------------------------------------------------
+   ln_tradmp   =  .false.   !  add a damping termn (T) or not (F)
+/
+!-----------------------------------------------------------------------
+&namdyn_adv    !   formulation of the momentum advection
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namdyn_vor    !   option of physics/algorithm (not control by CPP keys)
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namdyn_hpg    !   Hydrostatic pressure gradient option
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namdyn_ldf    !   lateral diffusion on momentum
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namzdf        !   vertical physics
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namzdf_tke    !   turbulent eddy kinetic dependent vertical diffusion  ("key_zdftke")
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namzdf_ddm    !   double diffusive mixing parameterization             ("key_zdfddm")
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namzdf_tmx    !   tidal mixing parameterization                        ("key_zdftmx")
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namsol        !   elliptic solver / island / free surface
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&nammpp        !   Massively Parallel Processing                        ("key_mpp_mpi)
+!-----------------------------------------------------------------------
+   jpni        =   0       !  jpni   number of processors following i (set automatically if < 1)
+   jpnj        =   0       !  jpnj   number of processors following j (set automatically if < 1)
+   jpnij       =   0       !  jpnij  number of local domains (set automatically if < 1)
+/
+!-----------------------------------------------------------------------
+&namctl        !   Control prints & Benchmark
+!-----------------------------------------------------------------------
+   nn_print    =    0      !  level of print (0 no extra print)
+   nn_timing   =    0      !  timing by routine activated (=1) creates timing.output file, or not (=0)
+/
+!-----------------------------------------------------------------------
+&namptr       !   Poleward Transport Diagnostic
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namhsb       !  Heat and salt budgets
+!-----------------------------------------------------------------------
+/
+!-----------------------------------------------------------------------
+&namdyn_nept  !   Neptune effect (simplified: lateral and vertical diffusions removed)
+!-----------------------------------------------------------------------
+/

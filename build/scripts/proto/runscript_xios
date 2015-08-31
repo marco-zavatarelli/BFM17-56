@@ -1,0 +1,47 @@
+#! /bin/sh 
+
+#BSUB -a poe
+#BSUB -J _PRESET_      # Name of the job.
+#BSUB -o _PRESET_.out  # Appends std output to file %J.out.
+#BSUB -e _PRESET_.err  # Appends std error to file %J.out.
+#BSUB -P nemo
+#BSUB -q _QUEUE_    # queue
+#BSUB -n _PROC_            # Number of CPUs
+#BSUB -R "span[ptile=16]"
+
+if [ _VERBOSE_ ]; then set -exv; fi
+
+export MP_WAIT_MODE=poll
+export MP_POLLING_INTERVAL=30000000
+export MP_SHARED_MEMORY=yes
+export MP_EUILIB=us
+export MP_EUIDEVICE=sn_all
+export LDR_CNTRL=TEXTPSIZE=64K@STACKPSIZE=64K@DATAPSIZE=64K
+export MP_TASK_AFFINITY=core
+
+# Launch the model
+
+export MP_CMDFILE=./cmd_file
+export MP_PGMMODEL=mpmd
+xios="/users/home/ans040/SOFTWARE/XIOS_IFORT/bin/xios_server.exe"
+nemo="_EXE_"
+NP_XIOS=4
+NP_NEMO=$(( (_PROC_-${NP_XIOS}) / ${NP_XIOS} ))
+#------------------------------------------------------------------------------
+rm -f cmd_file
+i=0
+while [ $i -lt $NP_XIOS ]
+do
+  j=0
+  while [ $j -lt $NP_NEMO ]
+  do
+    echo "${nemo}" >> cmd_file
+    j=`expr $j + 1`
+  done
+  echo "${xios}" >> cmd_file
+  i=`expr $i + 1`
+done
+
+time mpirun.lsf -cmdfile ./cmd_file
+
+echo " _EXP_ DONEEE!!!"

@@ -26,11 +26,13 @@
 #ifdef INCLUDE_PELFE
   use mem, ONLY: iiF
 #endif
-  use mem_Param, ONLY: ChlDynamicsFlag, CalcPhytoPlankton,CalcMicroZooPlankton, &
-    CalcMesoZooPlankton, CalcPelBacteria, CalcPelChemistry
+  use mem_Param, ONLY: CalcPhytoPlankton,CalcMicroZooPlankton, &
+    CalcMesoZooPlankton, CalcPelBacteria, CalcPelChemistry,    &
+    ChlDynamicsFlag
   use global_interface,   ONLY: CalcChlorophylla, CalcOxygenSaturation
   use global_interface, ONLY: PhotoAvailableRadiation, &
     PhytoDynamics, LightAdaptationDynamics, MesoZooDynamics, MicroZooDynamics
+  use api_bfm, ONLY: LOGUNIT
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 !  
@@ -42,7 +44,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !

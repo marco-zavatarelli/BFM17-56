@@ -28,8 +28,7 @@
   use mem, ONLY: iiPelBacteria, ppPelBacteria, iiC, iiN, iiP, ppR6c, &
     ppR6n, ppR6p, ppR1c, ppR1n, ppR1p, &
     ppR2c, ppO2o, ppN6r, ppN4n, ppN1p, ppN3n, ppR3c, flPTN6r, Depth, ETW, &
-    qncPBA, qpcPBA, eO2mO2, qpcOMT, qncOMT, NO_BOXES, iiBen, iiPel, flux_vector, &
-    sourcesink_flux_vector
+    qncPBA, qpcPBA, eO2mO2, qpcOMT, qncOMT, NO_BOXES, iiBen, iiPel, flux_vector
 #ifdef INCLUDE_PELCO2
   use mem, ONLY: ppO3c
 #endif
@@ -53,7 +52,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -343,7 +342,7 @@
   ! consumption (eq 19 Vichi et al., 2004 and PelChem.F90)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   rrc = (p_pu_ra(bac)+ p_pu_ra_o(bac)*(ONE-eO2) )*rug + p_srs(bac)* bacc* et
-  call sourcesink_flux_vector( iiPel, ppbacc, ppO3c, rrc )
+  call flux_vector( iiPel, ppbacc, ppO3c, rrc )
   call flux_vector( iiPel, ppO2o, ppO2o, -eO2*rrc/MW_C )
   flN6rPBA = (ONE- eO2)*rrc/ MW_C* p_qro
   call flux_vector( iiPel, ppN6r, ppN6r, flN6rPBA )
@@ -373,7 +372,7 @@
       reR2c = max((ONE-(qpcPBA(bac,:)/p_qpcPBA(bac))), &
               (ONE-(qncPBA(bac,:)/p_qncPBA(bac))))*p_rec(bac)
       reR2c = max(ZERO,reR2c)*bacc
-      reR3c = rug*p_pu_ea_R3(bac)
+      reR3c = rug*(ONE-p_pu_ra(bac))*(p_pu_ra(bac)*p_pu_ea_R3(bac))
 
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Dissolved Nitrogen dynamics

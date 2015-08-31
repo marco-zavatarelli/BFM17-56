@@ -15,8 +15,7 @@
 ! USES:
   use mem, only: InitializeModel,ppMicroZooplankton,ppMesoZooPlankton, &
                  iiMicroZooplankton,iiMesoZooPlankton,NO_BOXES,        &
-                 iiN,iiP,qpcMEZ,qncMEZ,qpcMIZ,qncMIZ,D3STATETYPE
-  use global_mem
+                 iiN,iiP,qpcMEZ,qncMEZ,qpcMIZ,qncMIZ
   use mem_Param
   use mem_PelGlobal
   use mem_PelChem
@@ -24,8 +23,7 @@
   use mem_MesoZoo
   use mem_MicroZoo
   use mem_Phyto
-  use mem_PhotoAvailableRadiation
-  use mem_LightAdaptation
+  use mem_PAR
   use mem_Settling
 #ifdef INCLUDE_BEN
   use mem_BenOrganism
@@ -59,6 +57,7 @@
   use mem_SeaiceAlgae
   use mem_SeaiceBac
   use mem_SeaiceZoo
+  use mem_SeaicetoPel
 #endif
 
 !  
@@ -71,7 +70,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, the mfstep group, the ERSEM team 
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -88,8 +87,6 @@
 !BOC
 !
 !
-      integer :: i,j
-
     !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       InitializeModel=0
 
@@ -108,33 +105,37 @@
       call InitMesoZoo
       call InitMicroZoo
       call InitPhyto
-      call InitPhotoAvailableRadiation
-      call InitLightAdaptation
+      call InitPAR
       call InitSettling
 #ifdef INCLUDE_BEN
-      call InitBenOrganism
-      call InitFilterFeeder
-      call InitBenBac
-      call InitBioturbation
-      call InitBenthicReturn1
-      call InitBenthicReturn2
-      call InitBenthicNutrient3
-      call InitBenAmmonium
-      call InitBenNitrate
-      call InitBenOxygen
-      call InitBenAnoxic
-      call InitBenDenitriDepth
-      call InitBenPhosphate
-      call InitBenSilica
-      call InitBenQ1Transport
-      call InitControlBennutBuffers
+      ! Benthic initialization is done only if there is an active model
+      ! When INCLUDE_BEN is defined, 
+      ! CalcBenthicFlag=0 is used to test the benthic memory only
+      if ( CalcBenthicFlag > 0 ) then
+         call InitBenOrganism
+         call InitFilterFeeder
+         call InitBenBac
+         call InitBioturbation
+         call InitBenthicReturn1
+         call InitBenthicReturn2
+         call InitBenthicNutrient3
+         call InitBenAmmonium
+         call InitBenNitrate
+         call InitBenOxygen
+         call InitBenAnoxic
+         call InitBenDenitriDepth
+         call InitBenPhosphate
+         call InitBenSilica
+         call InitBenQ1Transport
+         call InitControlBennutBuffers
+#ifdef INCLUDE_BENCO2
+         call InitBenCO2Transport
+         call InitBenAlkalinity
+#endif
+      end if
 #endif
 #ifdef INCLUDE_PELCO2
       call InitCO2
-#endif
-#ifdef INCLUDE_BENCO2
-      call InitBenCO2Transport
-      call InitBenAlkalinity
 #endif
 #ifdef INCLUDE_SILT
       call InitSilt
@@ -143,19 +144,14 @@
       call InitSeaiceAlgae
       call InitSeaiceBac
       call InitSeaiceZoo
+      call InitSeaicetoPel
 #endif
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Read all other Init* files
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-#ifdef INCLUDE_BEN
+      call InitTransportStateTypes
       call InitBoxParams
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      ! Setting of type for transport/integration  Benthic state variables
-      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-      D2STATETYPE(:)=NOTRANSPORT
-#endif
 
-      D3STATETYPE(:)=ALLTRANSPORT
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Initialize nutrient quota in Microzooplankton and Mesozooplankton
       ! with the parameter values in the namelists.
@@ -163,31 +159,15 @@
       ! In case of variable quota these values are recomputed every time-step
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
        do i = 1 , ( iiMicroZooPlankton)
-          j = ppMicroZooPlankton(i,iiP)
-          if ( j == 0 ) then
-             qpcMIZ(i,:)  =  p_qpcMIZ(i) 
-             D3STATETYPE(j)=NOTRANSPORT
-          end if
-          j = ppMicroZooPlankton(i,iiN)
-          if ( j == 0 ) then
-             qncMIZ(i,:)  =  p_qncMIZ(i)
-             D3STATETYPE(j)=NOTRANSPORT
-          end if
+         if ( ppMicroZooPlankton(i,iiP) == 0 ) qpcMIZ(i,:)  =  p_qpcMIZ(i) 
+         if ( ppMicroZooPlankton(i,iiN) == 0 ) qncMIZ(i,:)  =  p_qncMIZ(i)
        end do
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-       ! Nutrient quota in  mesozooplankton
+       ! Nutrient quota in omnivorous and herbivorous mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        do i = 1 , ( iiMesoZooPlankton)
-          j = ppMesoZooPlankton(i,iiP) 
-          if ( j == 0 ) then
-             qpcMEZ(i,:)  =   p_qpcMEZ(i)
-             D3STATETYPE(j)=NOTRANSPORT
-          end if
-          j = ppMesoZooPlankton(i,iiN) 
-          if ( j == 0 ) then
-             qncMEZ(i,:)  =   p_qncMEZ(i)
-             D3STATETYPE(j)=NOTRANSPORT
-          end if
+         if ( ppMesoZooPlankton(i,iiP) == 0 ) qpcMEZ(i,:)  =   p_qpcMEZ(i)
+         if ( ppMesoZooPlankton(i,iiN) == 0 ) qncMEZ(i,:)  =   p_qncMEZ(i)
        end do
 
 

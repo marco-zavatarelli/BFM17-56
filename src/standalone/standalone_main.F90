@@ -24,7 +24,7 @@
 !
 ! COPYING
 !
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -35,24 +35,13 @@
 !   GNU General Public License for more details.
 !
 ! !LOCAL VARIABLES:
-#ifdef IFORT
-   real                      :: t1=-1,t2=-1
-#endif
 ! 
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-#ifdef IFORT
-   call CPU_Time(t1)
-#endif
       call init_standalone
       call timestepping
       call end_standalone
-
-#ifdef IFORT
-   call CPU_Time(t2)
-   write(*,*) 'CPU-time was in loop:  ',t2-t1,' seconds'
-#endif
 
       END PROGRAM main
 !EOC

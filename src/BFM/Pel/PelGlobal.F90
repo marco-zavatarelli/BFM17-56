@@ -23,6 +23,7 @@
   use mem_PelGlobal
   use mem
   use mem_Settling
+  use mem_Phyto,  ONLY: p_rPIm
 #ifdef BFM_GOTM
   use bio_var, ONLY: BOTindices
 #else
@@ -45,7 +46,7 @@
 !
 ! COPYING
 !
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij, M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)
 !
@@ -76,6 +77,10 @@
       qncOMT(i,:)  =  PelDetritus(i,iiN)/( p_small+ PelDetritus(i,iiC))
     if ( ppPelDetritus(i,iiS) > 0 ) &
       qscOMT(i,:)  =   PelDetritus(i,iiS)/( p_small+ PelDetritus(i,iiC))
+#ifdef INCLUDE_PELFE
+    if ( ppPelDetritus(i,iiF) > 0 ) &
+      qfcOMT(i,:)  =   PelDetritus(i,iiF)/( p_small+ PelDetritus(i,iiC))
+#endif
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

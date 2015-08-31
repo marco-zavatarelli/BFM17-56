@@ -7,7 +7,7 @@
 #
 # COPYING
 #   
-#   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+#   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 #                                                                                                     
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -37,14 +37,14 @@ end
   Volume: Gridpoint Volume: m3
   Area  : Gridpoint Area: m2
 end
-2d-variable
+2d-variable-pel
   Area2d  : 2-D Gridpoint Area: m2
 end
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       PHYSICAL VARIABLES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-2d-variable
+2d-variable-pel
   ThereIsLight : Switch for day/night cycle : -
   SUNQ	       : Daylength in hours : h
   EWIND : Wind speed : m/s
@@ -56,6 +56,7 @@ end
   ERHO  : Seawater Density : kg/m3
   EIR   : Irradiance : uE/m2/s
   ESS   : Suspended Sediments : g/m3
+  EPR   : Water Pressure : dbar
 end
 
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -130,7 +131,7 @@ end
   end
 end
 
-2d-variable -if-exist INCLUDE_PELCO2
+2d-variable-pel -if-exist INCLUDE_PELCO2
   EPCO2air   : Atmospheric CO2 Partial Pressure : uatm
   CO2airflux : Sea-air CO2 Flux : mmol/m2/d
 end
@@ -141,11 +142,10 @@ end
     pCO2       : Oceanic pCO2 : uatm
     HCO3       : Bicarbonate :  umol/kg
     CO3        : Carbonate : umol/kg
-    Ac         : Alkalinity : umol eq/kg
+    ALK        : Alkalinity : umol eq/kg
     pH         : pH : -
     OCalc      : Saturation state of Calcite : -
     OArag      : Saturation state of Aragonite : -
-    EPR        : Water Pressure : dbar
 end
 
 
@@ -217,7 +217,7 @@ end
     ABIO_eps              : Abiotic Extinction Coefficient : 1/m
 end
 
-2d-variable
+2d-variable-pel
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   # Variables to check total mass of C N P Si in the system
   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -230,13 +230,13 @@ end
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #                       DIAGNOSTIC RATES
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-3d-flux -if-exist INCLUDE_DIAG3D INCLUDE_PELCO2
+3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
   ruPTc=P.c <- O3c : Gross Primary Production     : mg C/m3/d
   resPP=(P.c->O3c) : Respiration of phytoplankton : mg C/m3/d
   resZT=(Z.c->O3c) : Respiration of zooplankton   : mg C/m3/d
 end
 
-3d-flux -if-exist INCLUDE_DIAG3D
+3d-flux -if-exist INCLUDE_DIAG
   ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
   ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
   exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d

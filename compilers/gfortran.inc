@@ -2,12 +2,17 @@
 # Note that the debugging option -g is default and can be removed
 # you may also need the following netcdf libraries 
 # -L/usr/local/lib -lhdf5_hl -lhdf5 -lz
-	FC=gfortran
-	LD=gfortran
-	AR=ar
-	ARFLAGS=-r
-        NCDF_LIB= -L/usr/local/lib -lnetcdff -lnetcdf 
-        NCDF_INC= /usr/local/include 
-	CPPFLAGS=
-	FFLAGS= -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize -I${NCDF_INC}
-	LDFLAGS= -I${NCDF_INC} ${NCDF_LIB} 
+
+  NCDF_DIR=${NETCDF}
+  NCDF_LIB= -L${NCDF_DIR}/lib -lnetcdff -lnetcdf 
+  NCDF_INC= -I${NCDF_DIR}/include
+
+  FC=gfortran
+  LD=gfortran
+
+  AR=ar
+  ARFLAGS=-r
+
+  CPPFLAGS=
+  FFLAGS= -g -fdefault-real-8 -funroll-all-loops -fcray-pointer -ftree-vectorize ${NCDF_INC}
+  LDFLAGS= ${NCDF_INC} ${NCDF_LIB} 

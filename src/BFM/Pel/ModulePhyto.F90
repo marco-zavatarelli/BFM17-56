@@ -29,7 +29,7 @@
 !
 ! COPYING
 !   
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !   Copyright (C) 2006 P. Ruardij and M. Vichi
 !   (rua@nioz.nl, vichi@bo.ingv.it)!
 !   This program is free software; you can redistribute it and/or modify
@@ -101,12 +101,12 @@
   !  p_qun       [m3/mgC/d]     Membrane affinity for N
   !  p_lN4       [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
   !  p_qnlc      [mmolN/mgC]    Minimum quotum Si:C 
-  !  p_qnRc      [mmolN/mgC]    Reference quotum Si:C
+  !  p_qncPPY    [mmolN/mgC]    Reference quotum Si:C
   !  p_xqn       [-]            Multiplication factor for luxury storage
   !                   ---- P limitation control ----
   !  p_qup       [m3/mgC/d]     Membrane affinity for P
   !  p_qplc      [mmolP/mgC]    Minimum quotum Si:C 
-  !  p_qpRc      [mmolP/mgC]    Reference quotum Si:C
+  !  p_qpcPPY      [mmolP/mgC]    Reference quotum Si:C
   !  p_xqp       [-]            Multiplication factor for luxury storage
   !                   ---- Si limitation control ----
   !  p_switchSi  [1-2]          Switch for Silica limitation
@@ -116,7 +116,7 @@
   !  p_Contois   [>=0]          If >0, use Contois formulation
   !  p_qus       [m3/mgC/d]     Membrane affinity for Si
   !  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C 
-  !  p_qsRc      [mmolSi/mgC]   Reference quotum Si:C
+  !  p_qscPPY      [mmolSi/mgC]   Reference quotum Si:C
   !                   ---- nutrient stressed sinking ----
   !  p_esNI      [-]            Nutrient stress threshold for sinking
   !  p_res       [m/d]          Maximum Sinking velocity (m/d)
@@ -125,18 +125,18 @@
   real(RLEN)  :: p_qun(iiPhytoPlankton)
   real(RLEN)  :: p_lN4(iiPhytoPlankton)
   real(RLEN)  :: p_qnlc(iiPhytoPlankton)
-  real(RLEN)  :: p_qnRc(iiPhytoPlankton)
+  real(RLEN)  :: p_qncPPY(iiPhytoPlankton)
   real(RLEN)  :: p_xqn(iiPhytoPlankton)
   real(RLEN)  :: p_qup(iiPhytoPlankton)
   real(RLEN)  :: p_qplc(iiPhytoPlankton)
-  real(RLEN)  :: p_qpRc(iiPhytoPlankton)
+  real(RLEN)  :: p_qpcPPY(iiPhytoPlankton)
   real(RLEN)  :: p_xqp(iiPhytoPlankton)
   integer     :: p_switchSi(iiPhytoPlankton) 
   real(RLEN)  :: p_chPs(iiPhytoPlankton)
   real(RLEN)  :: p_Contois(iiPhytoplankton)
   real(RLEN)  :: p_qus(iiPhytoPlankton)
   real(RLEN)  :: p_qslc(iiPhytoPlankton)
-  real(RLEN)  :: p_qsRc(iiPhytoPlankton)
+  real(RLEN)  :: p_qscPPY(iiPhytoPlankton)
   real(RLEN)  :: p_esNI(iiPhytoPlankton)
   real(RLEN)  :: p_res(iiPhytoPlankton)
   !
@@ -145,28 +145,51 @@
   !  p_sdchl     [1/d]          Specific turnover rate for Chla 
   !  p_alpha_chl [mgC s m2/     Initial slope of the P-E curve
   !               mgChl/uE] 
-  !  p_qchlc     [mgChla/mgC]   Fixed/Maximum quotum Chla:C
+  !  p_qlcPPY    [mgChla/mgC]   Reference quotum Chla:C 
   !  p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
   !  p_tochl_relt  [1/d]        Relaxation rate towards maximum Chla:C
   !  p_EpEk_or   [-]            Optimal value of E_PAR/E_K
   integer     :: p_switchChl(iiPhytoPlankton) 
   real(RLEN)  :: p_sdchl(iiPhytoPlankton)
   real(RLEN)  :: p_alpha_chl(iiPhytoPlankton)
-  real(RLEN)  :: p_qchlc(iiPhytoPlankton)
+  real(RLEN)  :: p_qlcPPY(iiPhytoPlankton)
   real(RLEN)  :: p_epsChla(iiPhytoPlankton)
   real(RLEN)  :: p_tochl_relt(iiPhytoplankton)
   real(RLEN)  :: p_EpEk_or(iiPhytoplankton)
+  !
+  !              --------- Light Adaptation parameters -----------
+  !  p_iswLtyp   [0-6]    Shape of the productivity function ChlDynamicsFlag=1
+  !                         0 : Steele (old ERSEM)  y*exp(1-y)
+  !                         1 : Steele (Simpson)    y*exp(1-y)
+  !                         2 : Ebenhoeh            2y/(1+y^2)
+  !                         3 : ramp                min(1,y)
+  !                         4 : step                1 if y>1 , 0 elsewhere
+  !                         5 : Smith_average
+  !                         6 : Smith II (actual_Irr)
+  !  p_chELiPPY  [W/m2]   Maximum Iopt
+  !  p_clELiPPY  [W/m2]   Minimum Iopt
+  !  p_ruELiPPY  [1/d]    Maximum daily shift in Iopt (1/d)
+  !  p_addepth   [m]      Adaptation depth. Meaningless with high-res models
+  integer     :: p_iswLtyp(iiPhytoPlankton)
+  real(RLEN)  :: p_chELiPPY(iiPhytoPlankton)
+  real(RLEN)  :: p_clELiPPY(iiPhytoPlankton)
+  real(RLEN)  :: p_ruELiPPY(iiPhytoPlankton)
+  real(RLEN)  :: p_addepth(iiPhytoPlankton)
+  !
+  !              --------- Sinking parameters -----------
+  !  p_rPIm      [m/d]    Phytoplankton background sinking rate
+  real(RLEN)  :: p_rPIm(4)
 #ifdef INCLUDE_PELFE
   !
   !              --------- Iron parameters -----------
   !  p_quf       [m3/mgC/d]     Membrane affinity for Fe
   !  p_qflc      [umolFe/mgC]   Minimum quotum Fe:C derived from 3 umol Fe/mol C
   !                             Sunda & Huntsman (1997), Nature, 390, p 389-392
-  !  p_qfRc      [umolFe/mgC]   Reference quotum Fe:C 
+  !  p_qfcPPY      [umolFe/mgC]   Reference quotum Fe:C 
   !  p_xqf       [-]            Multiplication factor for luxury storage
   real(RLEN)  :: p_quf(iiPhytoPlankton)
   real(RLEN)  :: p_qflc(iiPhytoPlankton)
-  real(RLEN)  :: p_qfRc(iiPhytoPlankton)
+  real(RLEN)  :: p_qfcPPY(iiPhytoPlankton)
   real(RLEN)  :: p_xqf(iiPhytoPlankton)
 #endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -182,16 +205,18 @@
   namelist /Phyto_parameters/ p_q10, p_sum, p_srs, p_sdmo, p_seo, p_pu_ea, &
                               p_temp, p_netgrowth,p_limnut, &
                               p_pu_ra, p_qnlc, p_qplc, p_qslc, &
-                              p_qnRc, p_qpRc, p_qsRc, &
+                              p_qncPPY, p_qpcPPY, p_qscPPY, p_qlcPPY, &
                               p_qun, p_qup, p_qus, &
                               p_xqn, p_xqp, p_sheo, &
                               p_esNI, p_thdo, p_res, p_lN4, p_chPs, &
                               p_Contois, p_EpEk_or, p_tochl_relt,   &
                               p_switchDOC,p_switchSi,p_switchChl,  &
-                              p_alpha_chl, p_sdchl, p_qchlc, p_epsChla
+                              p_alpha_chl, p_sdchl, p_epsChla, p_iswLtyp, &
+                              p_addepth, p_chELiPPY, p_clELiPPY, &
+                              p_ruELiPPY, p_rPIm
 
 #ifdef INCLUDE_PELFE
-  namelist /Phyto_parameters_iron/ p_qflc, p_qfRc, p_xqf, p_quf
+  namelist /Phyto_parameters_iron/ p_qflc, p_qfcPPY, p_xqf, p_quf
 #endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !BEGIN compute

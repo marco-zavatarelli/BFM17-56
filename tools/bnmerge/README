@@ -27,25 +27,22 @@ lat lon arrays.
 
 Usage
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-bnmerge is controlled by the namelist bnmerge.nml through the
-following parameters:
-
-chunk_fname 	string 	Name of NetCDF chunk files "chunk_fname_????.nc"
-                        The name of the merged output file will be
-                         chunk_fname.nc
-out_dir 	string 	Path to the output directory
-layout 	  	string 	Path to the layout.dat file
-
-as for instance 
-
-&bfm_nml
-   chunk_fname='PELAGOS_ORCA2'
-   out_dir='/path/to/output'
-   layout = '/path/to/layout.dat'
-/
+bnmerge is controlled by the namelist bnmerge.nml (see bnmerge.nml example)
 
 
 Compilation
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-Change the the Makefile with the name of the included compiler file 
-from the Compilers directory. Run gmake.
+To debug (parallel or serial):
+   - export variable DEBUG equal to yes: export DEBUG=yes
+
+To execute:
+   - load libraries:
+      - netcdf-4.3 (with "netcdf-fortran-4.2")
+
+Change the variable COMPILER in the Makefile with the name 
+of the included compiler file from the Compilers directory. Run gmake.
+
+Script (bnmerge.sh)
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Script will help to generate a runscript for CMCC ATHENA machine node 
+

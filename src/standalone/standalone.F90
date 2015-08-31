@@ -17,6 +17,10 @@
 !  default: all is private.
    use global_mem, only:RLEN,ONE
    use constants,  only:SEC_PER_DAY
+   use init_var_bfm_local
+#ifdef INCLUDE_PELCO2
+   use mem_CO2, ONLY: CloseCO2
+#endif   
    private
 !
 ! !PUBLIC MEMBER FUNCTIONS:
@@ -56,7 +60,13 @@
    ! arrays for integration routines
    !---------------------------------------------
    real(RLEN),public,dimension(:,:),allocatable :: bbccc3D,bccc3D,ccc_tmp3D
-   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D,bccc2D,ccc_tmp2D
+#if defined INCLUDE_SEAICE
+   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D_ice,bccc2D_ice,ccc_tmp2D_ice
+#endif
+#if defined INCLUDE_BEN
+   real(RLEN),public,dimension(:,:),allocatable :: bbccc2D_ben,bccc2D_ben,ccc_tmp2D_ben
+#endif
+
    real(RLEN),public                            :: dtm1
    logical,public                               :: sspflag
 
@@ -72,7 +82,7 @@
 !
 ! COPYING
 !
-!   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+!   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 !
 !   This program is free software; you can redistribute it and/or modify
 !   it under the terms of the GNU General Public License as published by
@@ -105,20 +115,23 @@
    use constants, only: E2W
    use mem,   only: NO_D3_BOX_STATES, NO_BOXES,          &
                   NO_BOXES_X, NO_BOXES_Y, NO_BOXES_Z,  &
-                  NO_D2_BOX_STATES, NO_BOXES_XY,       &
-                  NO_D2_BOX_DIAGNOSS, NO_D3_BOX_DIAGNOSS,&
-                  NO_STATES,Depth, D3STATE
+                  NO_BOXES_XY, NO_D2_BOX_DIAGNOSS, &
+                  NO_D3_BOX_DIAGNOSS, NO_STATES, Depth, D3STATE
    use mem,  only: Volume, Area, Area2d
    use global_mem, only:RLEN,LOGUNIT,NML_OPEN,NML_READ,error_msg_prn
    use api_bfm
    use netcdf_bfm, only: init_netcdf_bfm,init_save_bfm,&
                          init_netcdf_rst_bfm,read_rst_bfm
    use time
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   use mem, only: D2STATE
+#if defined INCLUDE_SEAICE
+   use mem, only: D2STATE_ICE, NO_D2_BOX_STATES_ICE, &
+                  NO_D2_BOX_DIAGNOSS_ICE, NO_BOXES_ICE, NO_BOXES_Z_ICE, &
+                  NO_STATES_ICE
 #endif
 #ifdef INCLUDE_BEN
-   use mem, only: Depth_ben
+   use mem, only: D2STATE_BEN, NO_D2_BOX_STATES_BEN, &
+                  NO_D2_BOX_DIAGNOSS_BEN, NO_BOXES_BEN, NO_BOXES_Z_BEN, &
+                  NO_STATES_BEN
 #endif
 
    IMPLICIT NONE
@@ -141,10 +154,14 @@
 !-----------------------------------------------------------------------
 !BOC
    call Date_And_Time(datestr,timestr)
+   STDERR ' '
    STDERR LINE
-   STDERR 'BFM standalone Simulation started on  ',datestr,' ',timestr
+   STDERR '          BFM STANDALONE EXPERIMENT '
    STDERR LINE
-   LEVEL1 'init_standalone'
+   LEVEL1 'INITIALIZE STANDALONE'
+   LEVEL1 ' '
+   LEVEL1 'Simulation started on  ',datestr,' ',timestr
+
    !---------------------------------------------
    ! Give initial default values
    ! (overwritten with namelist)
@@ -168,21 +185,31 @@
    !---------------------------------------------
    ! set the dimensions
    !---------------------------------------------
-#ifdef INCLUDE_BENPROFILES
-   ! dirty method to cheat the standalone model
-   NO_BOXES_X  = 1
-   NO_BOXES_Z  = nboxes
-#else
    NO_BOXES_X  = nboxes
-   NO_BOXES_Z  = 1
-#endif
    NO_BOXES_Y  = 1
+   NO_BOXES_Z  = 1
    NO_BOXES    = NO_BOXES_X * NO_BOXES_Y * NO_BOXES_Z
    NO_BOXES_XY = NO_BOXES_X * NO_BOXES_Y
-   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES +   &
-                 NO_D2_BOX_STATES * NO_BOXES_XY
-   LEVEL3 'Number of Boxes:',nboxes
-   LEVEL3 'Box Depth:',indepth
+   NO_STATES   = NO_D3_BOX_STATES * NO_BOXES + NO_BOXES_XY
+#ifdef INCLUDE_BEN
+#  ifdef INCLUDE_BENPROFILES
+   ! Dirty method to cheat the standalone model
+   NO_BOXES_Z_BEN  = nboxes
+   NO_BOXES_BEN = NO_BOXES_XY 
+#  else
+   NO_BOXES_Z_BEN  = 1
+   NO_BOXES_BEN = NO_BOXES_XY * NO_BOXES_Z_BEN
+#  endif
+   NO_STATES_BEN = NO_BOXES_BEN * NO_D2_BOX_STATES_BEN
+#endif
+#ifdef INCLUDE_SEAICE
+   NO_BOXES_Z_ICE  = 1
+   NO_BOXES_ICE = NO_BOXES_XY * NO_BOXES_Z_ICE
+   NO_STATES_ICE = NO_BOXES_ICE * NO_D2_BOX_STATES_ICE
+#endif
+
+   LEVEL2 'Number of Boxes:',nboxes
+   LEVEL2 'Box Depth:',indepth
    ! set where surface and bottom boxes are 
    ! (actually all boxes in standalone mode)
    allocate(SRFindices(NO_BOXES_XY))
@@ -205,12 +232,12 @@
       timesec=ZERO
    end if
    nmaxdelt=1
-   LEVEL3 'nmaxdelt: ',nmaxdelt
+   !LEVEL3 'nmaxdelt: ',nmaxdelt
    tt=maxdelt/2.
    do while (tt.ge.mindelt)
       tt=tt/2.
       nmaxdelt=nmaxdelt*2
-      LEVEL3 'nmaxdelt: ',nmaxdelt
+      !LEVEL3 'nmaxdelt: ',nmaxdelt
    end do
    mindelt=maxdelt/nmaxdelt ! maxdelt = nmaxdelt*mindelt
    nendtim=MaxN
@@ -219,14 +246,22 @@
    nmin=0
    dtm1=maxdelt
    delt=maxdelt
+   LEVEL2 'max delta T (sec): ',maxdelt
+   LEVEL2 'min delta T (sec): ',mindelt
+   LEVEL2 'nmaxdelt: ',nmaxdelt
+   LEVEL2 'Simulation time (days): ',simdays
+   LEVEL2 'End time: ',nendtim
+
    if (method.eq.3) delt=2.0_RLEN*delt
-   LEVEL3 'Integration method: ',method
-   LEVEL3 'maxdelt (sec): ',maxdelt
-   LEVEL3 'mindelt (sec): ',mindelt
-   LEVEL3 'nmaxdelt: ',nmaxdelt
-   LEVEL3 'Simulation time (days): ',simdays
-   LEVEL3 'nendtim: ',nendtim
-   LEVEL3 'Initial time (sec): ',timesec
+   LEVEL1 ' '
+   select case (method)
+      case (1)
+        LEVEL1 'Integration method : Euler forward'
+      case (2)
+        LEVEL1 'Integration method : Runge-Kutta 2nd order'
+      case (3)
+        LEVEL1 'Integration method : Leap-frog'
+   end select
 
    !---------------------------------------------
    ! Initialise the BFM with standalone settings
@@ -240,16 +275,23 @@
    ! Allocate memory and give initial values
    ! to the pelagic system
    !---------------------------------------------
-   ! the argument list is kept for compatibility 
-   ! with GOTM
-   call init_var_bfm(namlst,'BFM_General.nml',unit,bio_setup)
+   call init_var_bfm(bio_setup)
+   !---------------------------------------------
+   ! Initialize internal constitutents of functional groups
+   !---------------------------------------------
+   call init_organic_constituents()
+   !---------------------------------------------
+   ! Set output stepping
+   !---------------------------------------------
+   save_delta = bfmtime%step0
+   call update_save_delta(out_delta,save_delta,time_delta)
+
+   if ( out_delta .lt. 0 .and. (timefmt .eq. 1 .or. timefmt .eq. 4) ) &
+      write (LOGUNIT, *) 'WARNING: If timefmt = 1 or 4, Check the start time to save monthly values!!!'
    !---------------------------------------------
    ! Assign depth
    !---------------------------------------------
    Depth = indepth
-#ifdef INCLUDE_BEN
-   Depth_ben = Depth
-#endif
    ! assume area is 1m^2 (make a parameter in the future for 
    ! mesocosm simulations)
    Area = ONE
@@ -260,26 +302,11 @@
    !---------------------------------------------
    call init_envforcing_bfm
 
-#ifdef INCLUDE_BEN
-   !---------------------------------------------
-   ! Initialise the benthic system
-   ! Layer depths and pore-water nutrients are initialised 
-   ! according to the value of calc_initial_bennut_states
-   !---------------------------------------------
-   call init_benthic_bfm(namlst,'BFM_General.nml',unit,bio_setup)
-#endif
-#ifdef INCLUDE_SEAICE
-   !---------------------------------------------
-   ! Initialise the sea-ice system
-   !---------------------------------------------
-   call init_seaice_bfm(namlst,'Seaice.nml',unit,bio_setup)
-#endif
-
    !---------------------------------------------
    ! Read restart file (if flag)
    ! Overwrite previous initialization
    !---------------------------------------------
-   if (bfm_init == 1) call read_rst_bfm(rst_fname)
+   if (bfm_init == 1) call read_rst_bfm(in_rst_fname)
 
    !---------------------------------------------
    ! Initialise the diagnostic variables
@@ -292,8 +319,8 @@
    !---------------------------------------------
    call calcmean_bfm(INIT)
    call calcmean_bfm(ACCUMULATE)
-   call init_netcdf_bfm(out_fname,start,0,  &
-             lat=latitude,lon=longitude,z=Depth,   &
+   call init_netcdf_bfm(out_fname,start,out_title, &
+             0,lat=latitude,lon=longitude,z=Depth, &
              oceanpoint=(/(i,i=1,NO_BOXES)/),      &
              surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
              bottompoint=(/(i,i=1,NO_BOXES_XY)/))
@@ -302,7 +329,11 @@
    !---------------------------------------------
    ! Initialise netcdf restart file
    !---------------------------------------------
-   call init_netcdf_rst_bfm(rst_fname)
+   call init_netcdf_rst_bfm(out_rst_fname,start,0,  &
+             lat=latitude,lon=longitude,z=Depth,   &
+             oceanpoint=(/(i,i=1,NO_BOXES)/),      &
+             surfacepoint=(/(i,i=1,NO_BOXES_XY)/), &
+             bottompoint=(/(i,i=1,NO_BOXES_XY)/))
 
    !---------------------------------------------
    ! allocate and initialise integration arrays
@@ -310,16 +341,28 @@
    allocate(bbccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(bccc3D(NO_D3_BOX_STATES,NO_BOXES))
    allocate(ccc_tmp3D(NO_D3_BOX_STATES,NO_BOXES))
-   allocate(bbccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
-   allocate(bccc2D(NO_D2_BOX_STATES,NO_BOXES_XY))
-   allocate(ccc_tmp2D(NO_D2_BOX_STATES,NO_BOXES_XY))
+#if defined INCLUDE_SEAICE
+   allocate(bccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+   allocate(bbccc2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+   allocate(ccc_tmp2D_ice(NO_D2_BOX_STATES_ICE,NO_BOXES_ICE))
+#endif
+#if defined INCLUDE_BEN
+   allocate(bccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
+   allocate(bbccc2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
+   allocate(ccc_tmp2D_ben(NO_D2_BOX_STATES_BEN,NO_BOXES_BEN))
+#endif
+
    ! Initialize prior time step for leap-frog:
    if (method == 3) then
       bbccc3d = D3STATE
       ccc_tmp3D = D3STATE
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-      bbccc2d = D2STATE
-      ccc_tmp2D = D2STATE
+#if defined INCLUDE_SEAICE
+      bbccc2d_ice = D2STATE_ICE
+      ccc_tmp2D_ice = D2STATE_ICE
+#endif
+#if defined INCLUDE_BEN
+      bbccc2d_ben = D2STATE_BEN
+      ccc_tmp2D_ben = D2STATE_BEN
 #endif
    end if
 
@@ -328,9 +371,14 @@
    do i=1,NO_D3_BOX_STATES
      LEVEL1 trim(var_names(stPelStateS+i-1)),D3STATE(i,1)
    end do
-#if defined INCLUDE_BEN || defined INCLUDE_SEAICE
-   do i=1,NO_D2_BOX_STATES
-     LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE(i,1)
+#if defined INCLUDE_SEAICE
+   do i=1,NO_D2_BOX_STATES_ICE
+     LEVEL1 trim(var_names(stIceStateS+i-1)),D2STATE_ICE(i,1)
+   end do
+#endif
+#if defined INCLUDE_BEN
+   do i=1,NO_D2_BOX_STATES_BEN
+     LEVEL1 trim(var_names(stBenStateS+i-1)),D2STATE_BEN(i,1)
    end do
 #endif
 #endif
@@ -359,7 +407,10 @@
    use global_mem, only:RLEN
    use netcdf_bfm, only: save_bfm
    use mem
-   use api_bfm, only: out_delta
+   use api_bfm, only: out_delta, save_delta , time_delta, update_save_delta
+#ifdef DEBUG
+   use api_bfm, only: printDEBUG
+#endif
    use time
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
@@ -374,7 +425,8 @@
 !EOP
 !-----------------------------------------------------------------------
 !BOC
-integer :: i
+integer    :: i
+real(RLEN) :: localtime
 
    LEVEL1 'timestepping'
    do while (ntime.le.nendtim)
@@ -396,6 +448,9 @@ integer :: i
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Integrate forward in time
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+#ifdef DEBUG
+      call printDEBUG(ntime)
+#endif
       select case (method)
          case (2)
             call integrationRK2
@@ -405,13 +460,19 @@ integer :: i
             call integrationEfw
       end select
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      ! update internal bfm time 
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+      bfmtime%stepnow = ntime
+      !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Compute means and store results
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       call calcmean_bfm(ACCUMULATE)
-      if (mod(ntime,out_delta).eq.0) then
-         LEVEL1 'OUTPUT' , timesec/SEC_PER_DAY
+      if ( ntime .eq. save_delta ) then
+         localtime = (time_delta - real(bfmtime%step0,RLEN)) * bfmtime%timestep
+         LEVEL1 'OUTPUT' , localtime / SEC_PER_DAY
          call calcmean_bfm(MEAN)
-         call save_bfm(timesec)
+         call save_bfm(localtime)
+         call update_save_delta(out_delta,save_delta,time_delta)
       end if
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       ! Reset source-sink arrays, update time
@@ -441,6 +502,7 @@ integer :: i
 ! !USES:
    use time
    use netcdf_bfm, only: close_ncdf, ncid_bfm, save_rst_bfm, ncid_rst
+   use api_bfm, only: time_delta
    IMPLICIT NONE
 ! !INPUT PARAMETERS:
 ! !INPUT/OUTPUT PARAMETERS:
@@ -451,14 +513,20 @@ integer :: i
 !
 ! !LOCAL VARIABLES:
    character(LEN=8)          :: datestr
+   real(RLEN)       :: localtime
 !
 !EOP
 !-----------------------------------------------------------------------
 !BOC
    ! save and close the restart file
-   call save_rst_bfm
+   localtime = (time_delta - real(bfmtime%step0,RLEN)) * bfmtime%timestep
+   call save_rst_bfm(localtime)
    call close_ncdf(ncid_rst)
    call close_ncdf(ncid_bfm)
+#ifdef INCLUDE_PELCO2
+   !close systemforcings
+   call CloseCO2()
+#endif
    call end_envforcing_bfm
    call ClearMem
    call Date_And_Time(datestr,timestr)

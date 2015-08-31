@@ -6,7 +6,7 @@
 #
 # COPYING
 #   
-#   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+#   Copyright (C) 2015 BFM System Team (bfm_st@lists.cmcc.it)
 #                                                                                                     
 #   This program is free software; you can redistribute it and/or modify
 #   it under the terms of the GNU General Public License as published by
@@ -21,15 +21,15 @@
 #  BFM_STANDALONE   : mandatory when using the STANDALONE model
 #  INCLUDE_PELFE    : add Iron component to the pelagic system
 #  INCLUDE_PELCO2   : activate Carbonate System and CO2 dynamics 
-#  INCLUDE_DIAG3    : activate flux diagnostics defined in .mem file
+#  INCLUDE_DIAG   : activate flux diagnostics defined in .mem file
+#  EXPLICIT_SINK    : use of D3SOURCE and D3SINK
 
 &BFM_conf
         MODE    = 'STANDALONE',
-        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG3D',
+        CPPDEFS = 'BFM_STANDALONE INCLUDE_PELCO2 INCLUDE_DIAG',
         ARCH    = 'gfortran.inc',
         PROC    = 4,
-        NETCDF  = '/opt/local/',
-        EXP     = 'standalone.pelagic.med',
+        EXP     = 'standalone.medsea',
 /
 #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 #       CONFIGURATION VARIABLES
