@@ -1,0 +1,28 @@
+!
+!  Define paths to data files
+!
+!  A model year has 360 days, therefore all months must have 30 days
+! 
+!  wind_input          [N/m^2]        U and V components of surface wind stress (ERA-interim)
+!  radiance_input      [W/m^2]        Net solar radiation (ERA-interim) 
+!  heat_input          [W/m^2]        Total heat flux (ERA-40) (?)
+!
+!  WTSURF = latent - sensible + thermal  
+
+ &pom_input
+wind_input      =  '../../inputs/POM_BFM17/monthly_surf_wind_stress_bermuda_killworth2.da',
+surfaceS_input  =  '../../inputs/POM_BFM17/monthly_surf_salt_bermuda_150m_killworth2.da',
+radiance_input  =  '../../inputs/POM_BFM17/monthly_surf_qs_bermuda_killworth2.da',
+ism_input       =  '../../inputs/POM_BFM17/monthly_clima_ISM_150m_bermuda_killworth.da',
+Sal_input       =  '../../inputs/POM_BFM17/monthly_clima_salt_150m_bermuda_killworth2.da',
+Temp_input      =  '../../inputs/POM_BFM17/monthly_clima_temp_150m_bermuda_killworth2.da',
+W_input         =  '../../inputs/POM_BFM17/monthly_clima_w_150m_bermuda_ekman.da',
+Weddy_input1    =  '../../inputs/POM_BFM17/bimonthly_random_eddy_w_150m_bermuda_norm1.da',
+Weddy_input2    =  '../../inputs/POM_BFM17/bimonthly_random_eddy_w_150m_bermuda_norm2.da',
+Sprofile_input  =  '../../inputs/POM_BFM17/init_prof_S_150m_bermuda_killworth2.da',
+Tprofile_input  =  '../../inputs/POM_BFM17/init_prof_T_150m_bermuda_killworth2.da',
+heat_input      =  '../../inputs/POM_BFM17/monthly_surf_rad_bermuda_killworth2.da',
+bottNut_input   =  '../../inputs/POM_BFM17/monthly_bott_nut_bermuda_150m_killworth.da',
+surfNut_input   =  '../../inputs/POM_BFM17/NutrientsARPAOGS.da',
+read_restart    =  '../../inputs/POM_BFM17/fort.70'
+/

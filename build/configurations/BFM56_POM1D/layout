@@ -1,0 +1,495 @@
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       MEMORY LAYOUT
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+# BFM - Biogeochemical Flux Model
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#
+# COPYING
+#
+#   Copyright (C) 2013 BFM System Team (bfm_st@lists.cmcc.it)
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation;
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTEABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#-------------------------------------------------------------------------!
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       Multi-purpose scalar variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+1d-variable
+  LocalDelta
+end
+1d-intvar
+  InitializeModel
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       Dimensional variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-variable
+  Depth : Gridpoint Depth: m
+  Volume: Gridpoint Volume: m3
+  Area  : Gridpoint Area: m2
+end
+2d-variable-pel
+  Area2d  : 2-D Gridpoint Area: m2
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       PHYSICAL VARIABLES
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2d-variable-pel
+  ThereIsLight : Switch for day/night cycle : -
+  SUNQ	       : Daylength in hours : h
+  EWIND : Wind speed : m/s
+  EICE  : Sea-ice fraction: -
+  ETAUB : Bottom Stress : N m/s
+end
+3d-variable
+  ETW   : temperature : C
+  ESW   : Salinity : -
+  ERHO  : Seawater Density : kg/m3
+  EIR   : Irradiance : uE/m2/s
+  ESS   : Suspended Sediments : g/m3
+  exud  : exudation: mg C/m3
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       PELAGIC STATE VARIABLES (volume)
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-state
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State variable for Oxygen
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   O2o : Oxygen : mmol O2/m3
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Nutrients
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   N1p	:	Phosphate : mmol P/m3
+   N3n	:	Nitrate  : mmol N/m3
+   N4n	:	Ammonium : mmol N/m3
+   O4n	:	NitrogenSink : mmol N/m3
+   N5s	:	Silicate     : mmol Si/m3
+   N6r	:	Reduction Equivalents : mmol S--/m3
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Bacteria
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group PelBacteria[cnp] (PBA) : mg C/m3 : mmol N/m3 : mmol P/m3
+     B1	: Aerobic and Anaerobic Bacteria
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Phytoplankton Species
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group PhytoPlankton[cnpls] (PPY) :  mg C/m3 : mmol N/m3 : mmol P/m3 : mg Chl/m3 : mmol Si/m3
+	   P1	    : Diatoms
+	   P2[-s]	: Flagellates
+	   P3[-s]	: PicoPhytoplankton
+	   P4[-s]	: Large Phytoplankton
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Mesozooplankton
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group MesoZooPlankton[cnp] (MEZ) : mg C/m3 : mmol N/m3 : mmol P/m3
+		Z3 	: Carnivorous Mesozooplankton
+		Z4 	: Omnivorous Mesozooplankton
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Microzooplankton
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   group MicroZooPlankton[cnp] (MIZ) : mg C/m3 : mmol N/m3 : mmol P/m3
+	   Z5	: Microzooplankton
+	   Z6	: Heterotrophic Nanoflagellates (HNAN)
+   end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #	State Variable(s) for Detritus (Biogenic Organic Material)
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    group PelDetritus[cnps] (OMT) : mg C/m3 : mmol N/m3: mmol P/m3: mmol Si/m3
+      R1[-s]    : Labile Dissolved Organic Matter
+      R2[-nps]  : Semi-labile Dissolved Organic Carbon
+      R3[-nps]  : Semi-refractory Dissolved Organic Carbon
+      R6        : Particulate Organic Matter
+    end
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       CO2 and Carbonate system variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-state -if-exist INCLUDE_PELCO2
+  group Inorganic[ch] (CAR): mg C/m3 : mmol eq/m3
+     O3: Dissolved Inorganic Carbon: Alkalinity
+  end
+end
+
+2d-variable-pel -if-exist INCLUDE_PELCO2
+  EPCO2air   : Atmospheric CO2 Partial Pressure : uatm
+  CO2airflux : Sea-air CO2 Flux : mmol/m2/d
+end
+
+3d-variable -if-exist INCLUDE_PELCO2
+    DIC        : Dissolved Inorganic Carbon : umol/kg
+    CO2        : CO2(aq) : umol/kg
+    pCO2       : Oceanic pCO2 : uatm
+    HCO3       : Bicarbonate :  umol/kg
+    CO3        : Carbonate : umol/kg
+    ALK        : Alkalinity : umol eq/kg
+    pH         : pH : -
+    OCalc      : Saturation state of Calcite : -
+    OArag      : Saturation state of Aragonite : -
+    EPR        : Water Pressure : dbar
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       Benthic variables
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+2d-state-ben -if-exist INCLUDE_BEN
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Benthic State Vars
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    group BenOrganisms[cnp] (BOS) : mg C/m2:mmol N/m2:mmol P/m2
+                Y1      : Epibenthos
+                Y2      : Deposit feeders
+                Y3      : Suspension feeders
+                Y4      : Meiobenthos
+                Y5      : Benthic predators
+    end
+
+    Q6[cnps]    :Particulate organic carbon  :mg C/m2:mmol N/m2:mmol P/m2:mmolSi/m2
+
+    group BenDetritus[cnp] (BMT) :mg C/m2:mmol N/m2:mmol P/m2
+                Q1      : Labile organic carbon
+                Q11     : Labile organic carbon
+    end
+
+    group BenBacteria[cnp] (BBA) :mg C/m2:mmol N/m2:mmol P/m2
+                H1                      : Aerobic benthic bacteria
+                H2                      : Anaerobic benthic bacteria
+    end
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #     Benthic nutrient dynamics
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    group BenthicPhosphate[p] (BNP) :mmol P/m2
+                K1              : Phosphate in oxic layer
+                K11             : Phosphate in denitrification layer
+                K21             : Phosphate in anoxic layer
+    end
+
+    group BenthicAmmonium[n] (BNA) :mmol N/m2
+                K4              : Ammonium in oxic layer
+                K14             : Ammonium in denitrification layer
+                K24             : Ammonium in anoxic layer
+    end
+
+    K6r       : Reduction equivalents in oxic layer : mmolS--/m2
+    K16r      : Reduction equivalents in denitrification layer : mmolS--/m2
+    K26r      : Reduction equivalents in anoxic layer : mmolS--/m2
+
+    K3n       : Nitrate in sediments :  mmol N/m2
+    K5s       : Silicate in sediments : mmol Si/m2
+    G2o       : Benthic O2 : mmol O2/m2
+    G4n       : N2 sink for benthic system. :mmol N/m2
+
+    D1m       : Oxygen penetration depth      :m
+    D2m       : Denitrification depth         :m
+    D6m       : Penetration Depth organic C   :m
+    D7m       : Penetration Depth organic N   :m
+    D8m       : Penetration Depth organic P   :m
+    D9m       : Penetration Depth organic Si  :m
+end
+
+2d-variable-ben -if-exist INCLUDE_BEN
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables to check totmass of C N P Si in benthic
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  totben[cnps]  : total mass present in benthos: g C: g N: g P: g Si
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #     These variables are used as input to the Benthic Nutrient Model:
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  rrBTo : Total Benthic oxic respiratio : mmol O2/m2/d
+  rrATo : Total Benthic anoxic respiration : mmol O2/m2/d
+  reBT[np]      : Total Benthic oxic respiratio :  mmol N/m2/d: mmol P/m2/d
+  reAT[np]      : Total Benthic anoxic respiration :  mmol N/m2/d       : mmol P/m2/d
+
+  ruHI(BenBacteria) : uptake of Q1/Q11 by BenBacteria :mg C/m2/d
+  reHI(BenBacteria) : excretion of Q1/Q11 BenBacteria :mg C/m2/d
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Control of benthic organism on diagenetic processes
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  turenh        : Enhancement factor due to bioirrigation : -
+  irrenh        : Enhancement factor due to bioturbation  : -
+
+
+  shiftD1m      : Rate of change of D1m: m/d
+  shiftD2m      : Rate of change of D2m: m/d
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  #  Variables for exchange fluxes/info between processes in Benthic Nutrient Model
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  jG2K3o        : Oxygen consumption by nitrification    : mmol O2/m2/d
+  jG2K7o        : ReOxidation of Red.Equiv. in oxic layer: mmol O2/m2/d
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables in the benthic nurient model which represent the concentration
+  # of the macro nutr. in the porewater of the different layers.
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+    M1p         : phosphate in oxic layer (pore-waters):mmol P/m3
+    M11p        : phosphate in denitrification layer (pore-waters):mmol P/m3
+    M21p        : phosphate in anoxic layer (pore-waters):mmol P/m3
+    M4n         : ammonium in oxic layer (pore-waters):mmol N/m3
+    M14n        : ammonium in denitrification layer (pore-waters):mmol N/m3
+    M24n        : ammonium in anoxic layer (pore-waters) :mmol N/m3
+    M3n         : nitrate in porewater (pore-waters):mmol N/m3
+    M5s         : silicate in oxic_denitrification layer (pore-waters):mmol Si/m3
+    M6r         : reduction equivalent in porewater (pore-waters):mmol S--/m3
+
+end
+
+2d-intvar-ben -if-exist INCLUDE_BEN
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Profile sequence numbers needed in benthic nutrient model
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      KPO4
+      KPO4_2
+      KNH4
+      KNO3
+      KRED
+      KSIO3
+      KSIO3E
+      KQ1
+end
+
+2d-variable-ben -if-exist INCLUDE_BEN
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables for  exchange of info between Pelagic and benthic on
+  # processes concerning food uptake/excretion of filterfeeders
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  RI_F[cnps]  : Detritus Food for Filterfeeder : mg C/m3:mmol N /m3: mmol N/m3: mmol Si/m3
+  ZI_F[cnps]  : Total phytoplankton Food: mg C/m3:mmol N /m3: mmol N/m3: mmol Si/m3
+  jPIY3c(PhytoPlankton)       :phytoplankton filtered by filter feeders   : mg C/m2/d
+  jZIY3c       :microzooplnkton filtered by filter feeders : mg C/m2/d
+  jRIY3[cnps]  :detrtus filtered by filter feeders  : mg C/m2/d  : mmol N/m2/d : mmol P/m2/d: mmol Si/m2/d
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Boundary conditions derived from pelagic model for benthic model
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  PI_Ben[cnps](PhytoPlankton) :PhytoForcing for Benthic System: mg C/m3:mmol N /m3: mmol N/m3: mmol Si/m3
+  Depth_Ben  : depth of the  layer above sediment : m
+  ETW_Ben    : temperature :C
+  ERHO_Ben   : density: g/m3
+  ESW_Ben   : salinity :psu
+  O2o_Ben    : oxygen conc. in the pelagica :mmol O2/m3
+  N1p_Ben    : phosphate conc. in the pelagic: mmol P/m3
+  N3n_Ben    : nitrate conc. in the pelagic: mmol N/m3
+  N4n_Ben    : ammonium conc. in the pelagic: mmol N/m3
+  N5s_Ben    : silicate conc. in the pelagic: mmol Si/m3
+  N6r_Ben    : red. equiv. conc. in the pelagic: mmol S--/m3
+  sediR6_Ben                    : Detritus sedimentation rate:m/d
+  sediPPY_Ben(PhytoPlankton)    : PhytoPlankton sedimentation rate :m/d
+
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Fluxes calculated in benthic nutrient model
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+  jK4K3n :   nitrification flux : mmol/m2/d
+  jK3G4n :   denitrification flux : mmol/m2/d
+  jK31K21p : flux of phosphate at lower benthic boundary : mmol/m2/d
+  jK34K24n : flux of ammonium at lower benthic boundary : mmol/m2/d
+  jK13K3n :  flux of nitrate at lower benthic boundary : mmol/m2/d
+  jK15K5s :  flux of silicate at lower benthic boundary : mmol/m2/d
+  jK36K26r :  flux of read. equivalent at lower benthic boundary : mmol S--/m2/d
+
+end
+
+3d-variable-ben -if-exist INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
+    PrM1p : PO4--- in sediment: mmol/m3 pw
+    Pr2M1p : PO4--- in sediment: mmol/m3 pw
+    PrM3n : NO3- in sediment: mmol/m3 pw
+    PrM4n : NH4+ in sediment: mmol/m3 pw
+    PrM5s : SiO3-- in sediment: mmol/m3 pw
+    PrM6r : S-- in sediment: mmol/m3 pw
+    PrQ1c : Dissolved Org.Carbon: mgC/m3 pw
+end
+
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   #       Benthic carbonate system
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-variable-ben -if-exist INCLUDE_BENCO2 INCLUDE_BENPROFILES -Z seddepth=0.30:Sediment Depth:m
+    PrDIC : DIC in sediment: mgC/m3 pw
+    PrAc : Alkalinity in sediment: mmol/m3 pw
+    PrpH : Ph in sediment: -
+end
+
+2d-state-ben  -if-exist INCLUDE_BENCO2
+    group BenthicCO2[ch] (BNC) :mgC/m2:mmol eq/m2
+          G3  : TCO2 in aerobic layer  : alkalinity in aerobic layer
+          G13 : TCO2 in denitrification layer: alkalinity in denitrification layer
+          G23 : TCO2 in anaerobic layer: alkalinity in anaerobic layer
+    end
+end
+
+2d-variable-ben -if-exist INCLUDE_BENCO2
+      DICae :DIC in aerobic sediment (pore-waters): umol/kg
+      DICan :concentration in anaerobic sediment (pore-waters): umol/kg
+      O3c_Ben    : DIC at the pelagic-benthic interface :mg C/m3
+      O3h_Ben    : alkalinity at the pelagic-benthic interface :mmol eq/m3
+      Acae : Alkalinity in aerobic sediment : umol eq/kg
+      Acan :  Alkalinity in anaerobic sediment : umol eq/kg
+      pHae : pH in aerobic layer : -
+      pHan : pH in anaerobic layer : -
+      pCO2ae : CO2 partial pressure in aerobic layer : uatm
+      pCO2an : CO2 partial pressure in anaerobic layer : uatm
+end
+
+2d-intvar-ben -if-exist INCLUDE_BENCO2
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Profile sequence numbers needed in benthic model
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+      KCO2
+      KALK
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#       GENERAL DIAGNOSTICS
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-variable
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables to check totmass of C N P Si in pelagic
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    totpel[cnps]  : Total Mass in Pelagic: g C: g N: g P: g Si
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables for oxygen diagnostics
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    cxoO2  : Oxygen Saturation : mmol O2/m3
+    eO2mO2 : Relative Oxygen saturation: -
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Diagnostic collective variables
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    Chla : Chlorophyll-a : mg Chl/m3
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Water column diagnostic rates
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    flPTN6r : Pelagic Anaerobic Mineralization Rate : mmol O2/m3/d
+    flN3O4n : Pelagic Denitrification Rate : mmol N/m3/d
+    flN4N3n : Pelagic Nitrification Rate   : mmol N/m3/d
+
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    # Variables holding quota of elements in species
+    #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    qpcPPY(PhytoPlankton)	: Quotum P/C in Phytoplankton : mmol P/mg C
+    qncPPY(PhytoPlankton)	: Quotum N/C in Phytoplankton : mmol N/mg C
+    qscPPY(PhytoPlankton)	: Quotum Si/C in Phytoplankton : mmol Si/mg C
+    qlcPPY(PhytoPlankton)	: Quotum Chl/C in Phytoplankton : mg Chl /mg C
+
+    qpcMEZ(MesoZooPlankton)	: Quotum P/C in Mesozooplankton :mmol P/mg C
+    qncMEZ(MesoZooPlankton)	: Quotum N/C in Mesozooplankton :mmol N/mg C
+
+    qpcMIZ(MicroZooPlankton)	: Quotum P/C in MicroZooPlankton :mmol P/mg C
+    qncMIZ(MicroZooPlankton)	: Quotum N/C in MicroZooPlankton :mmol N/mg C
+
+    qpcOMT(PelDetritus)		: Quotum P/C in Organic Matter:mmol N/mg C
+    qncOMT(PelDetritus)		: Quotum N/C in Organic Matter:mmol P/mg C
+    qscOMT(PelDetritus)		: Quotum Si/C in Organic Matter:mmol Si/mg C
+
+    qpcPBA(PelBacteria)		: Quotum P/C in Pelagic Bacteria :mmol P/mg C
+    qncPBA(PelBacteria)		: Quotum N/C in Pelagic Bacteria :mmol N/mg C
+
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   # Sinking rates of phytoplankton and detritus
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    sediPPY(PhytoPlankton)    : PhytoPlankton sedimentation rate :m/d
+    sediMIZ(MicroZooPlankton) : MicroZooPlankton sedimentation rate :m/d
+    sediMEZ(MesoZooPlankton)  : MesoZooPlankton sedimentation rate :m/d
+    sediR2                    : Detritus sedimentation rate:m/d
+    sediR6                    : Detritus sedimentation rate:m/d
+
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+   # Sinking rates of phytoplankton and detritus
+   #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+    sunPPY(PhytoPlankton) : Specific Net Production of PhytoPlankton : 1/d
+    eiPPY(PhytoPlankton)  : Regulating Factor for Light in PhytoPlankton : -
+    xEPS                  : Total Extinction Coefficient : 1/m
+    ELiPPY(PhytoPlankton) : Optimal light in PhytoPlankton : W/m2
+    ABIO_eps              : Abiotic Extinction Coefficient : 1/m
+end
+
+2d-variable-pel
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  # Variables to check total mass of C N P Si in the system
+  #-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+  totsysc  : total mass :  g C
+  totsysn  : total mass :  g N
+  totsysp  : total mass :  g P
+  totsyss  : total mass :  g Si
+end
+
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#                       DIAGNOSTIC RATES
+#-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+3d-flux -if-exist INCLUDE_DIAG INCLUDE_PELCO2
+  ruPTc=P.c <- O3c : Gross Primary Production     : mg C/m3/d
+  resPP=P.c -> O3c : Respiration of phytoplankton : mg C/m3/d
+  resZT=(Z.c->O3c) : Respiration of zooplankton   : mg C/m3/d
+end
+
+3d-flux -if-exist INCLUDE_DIAG
+  ruPTn=P.n <- N3n+N4n: net nutrient uptake:mmoln /m3/d
+  ruPTp=P.p <- N1p : net phosphate uptake : mmol P /m3/d
+  exPP=(P.c->R1c+R2c+R6c): C excretion from phytoplankton :mg C/m3/d
+# GIULIA
+
+#
+  ruZTc=(Z.c<-P.c+B1c+Z.c): gross secondary production:mg C/m3/d
+  netZTc=(Z.c<-P.c+B1c+Z.c)-(Z.c->R1c+R6c): net secondary production:mg C/m3/d
+  rrPTo=(O2o->*): pelagic respiration : mmol O2/m3/d
+  rePTn=(N3n+N4n<-B1n+Z.n): pelagic mineralization : mmol N/m3/d
+  rePTp=(N1p<-B1p+Z.p): pelagic mineralization: mmol P /m3/d
+  reBn=(N4n<-B1n): bacterial mineralization : mmol N/m3/d
+  ruBn=(N4n->B1n): bacterial uptake : mmol N/m3/d
+  reBp=(N1p<-B1p): bacterial mineralization : mmol P/m3/d
+  ruBp=(N1p->B1p): bacterial uptake : mmol P/m3/d
+  fR2B1c=R2c->B1c: TEP uptake by bacteria: mg C/m3/d
+  fP1Z4c=P1c->Z4c: diatom grazing by omniv.zooplankton: mg C/m3/d
+  fP2Z4c=P2c->Z4c: flagellates grazing by omniv.zooplankton: mg C/m3/d
+  fP3Z4c=P3c->Z4c: picophytoplankton grazing by omniv.zooplankton: mg C/m3/d
+  fP4Z4c=P4c->Z4c: large phytoplankton grazing by omniv.zooplankton: mg C/m3/d
+  fP1Z5c=P1c->Z5c: diatom grazing by microzooplankton: mg C/m3/d
+  fP2Z5c=P2c->Z5c: flagellates grazing by microzooplankton: mg C/m3/d
+  fP3Z5c=P3c->Z5c: picophytoplankton grazing by microzooplankton: mg C/m3/d
+  fP4Z5c=P4c->Z5c: large phytoplankton grazing by microzooplankton: mg C/m3/d
+  fP1Z6c=P1c->Z6c: diatom grazing by heterotrophic nanoflagellates: mg C/m3/d
+  fP2Z6c=P2c->Z6c: flagellates grazing by heterotrophic nanoflagellates: mg C/m3/d
+  fP3Z6c=P3c->Z6c: picophytoplankton grazing by heterotrophic nanoflagellates: mg C/m3/d
+  fP4Z6c=P4c->Z6c: large phytoplankton grazing by heterotrophic nanoflagellates: mg C/m3/d
+  fB1Z6c=B1c->Z6c: bacterial grazing by heterotrophic nanoflagellates: mg C/m3/d
+  fB1Z5c=B1c->Z5c: bacterial grazing by microzooplankton: mg C/m3/d
+
+#  ruQ6c: Flux of POM from the pelagic system to the benthic: mg C/d
+#  ruQ6n: Flux of POM from the pelagic system to the benthic: mg N/d
+#  ruQ6p: Flux of POM from the pelagic system to the benthic: mg P/d
+#  ruQ6s: Flux of POM from the pelagic system to the benthic: mg Si/d
+
+end

@@ -1,0 +1,281 @@
+! bfm_nml !-------------------------------------------------------------------------!
+! Main initialisation and output specifications
+! NAME           KIND    DESCRIPTION
+! bio_calc       logical Switch on/off BFM (for coupled configurations)
+! bfm_init       integer Initialization state
+!                        0. from constant values in bfm_init_nml below
+!                        1. from restart
+! bfm_rstctl     logical Save initial state of bfm in the output file.
+! bio_setup      integer BFM configuration:
+!                        1. pelagic
+!                        2. benthic
+!                        3. pelagic and benthic
+! out_fname      string  Name of NetCDF output file
+! out_dir        string  Path to the output file
+! out_title      string  Name of the experiment in NetCDF file
+! out_delta      integer Output is saved every out_delta timesteps
+! parallel_log   logical Set true in parallel jobs for a single log file
+!-------------------------------------------------------------------------!
+&bfm_nml
+    bio_calc      = .TRUE.
+    bfm_init      = 0
+    bfm_rstctl    = .FALSE.
+    bio_setup     = 1
+    out_fname     = 'bfm56_pom1d'
+    out_dir       = '.'
+    out_title     = 'bfm56_pom1d'
+    out_delta     = 1  !every 30 days
+    parallel_log  = .FALSE.
+/
+
+
+
+! Param_parameters !-------------------------------------------------------------------------!
+! Global Switches : turn on/off or choose model components
+! NAME                          KIND    DESCRIPTION
+! CalcPelagicFlag               logical Pelagic System
+! CalcBenthicFlag               numeric Benthic system
+!                                       0 = No Benthic System
+!                                       The following are Not Yet Activated
+!                                       1 = Simple Benthic Return
+!                                       2 = Benthic organisms and intermediate
+!                                           complexity nutrient regeneration
+!                                       3 = Benthic organisms and full nutrient
+!                                           regeneration (early diagenesis)
+! CalcTransportFlag             logical Compute Transport Term (when coupled
+!                                       with a OGCM)
+! CalcConservationFlag          logical Mass Conservation Check
+! CalcPhytoPlankton             logical Pelagic Phytoplankton (vector)
+! CalcPelBacteria               logical Pelagic Bacteria (vector)
+! CalcMesoZooPlankton           logical Mesozooplankton (vector)
+! CalcMicroZooPlankton          logical Microzooplankton (vector)
+! CalcPelChemistry              logical Pelagic Hydrochemical Processes
+! AssignPelBenFluxesInBFMFlag   logical Benthic-pelagic fluxes are added to the
+!                                       time integration
+! AssignAirPelFluxesInBFMFlag   logical Air-sea fluxes are added to the
+!                                       time integration
+! ChlDynamicsFlag               numeric Choose the dynamics of Chl-a
+!                                       1 = diagnostic, optimal light property
+!                                           in phytoplankton
+!                                           (Ebenhoeh et al 1995, ERSEM-II)
+!                                       2 = state variable, constituent of
+!                                           phytoplankton
+! LightPeriodFlag               numeric Choose the light averaging period
+!                                       1 = Instantanous irradiance
+!                                       2 = Daylight average with explicit
+!                                           photoperiod
+!                                       3 = Daily average
+! LightLocationFlag             numeric Choose the parameterization of light
+!                                       location in the discrete grid
+!                                       1 = Light at the top of the cell
+!                                       2 = Light in the middle of the cell
+!                                       3 = Average Light in the cell
+! check_fixed_quota             numeric Check whether zooplankton have fixed quota
+!
+! Global Parameters : used throughout the model and not related
+!                     to a specific component
+! NAME          UNIT          DESCRIPTION
+! p_small      [-]           Smallest numeric value (the model "zero")
+! slp0         [mbar]        Reference sea level pressure
+! p_PAR        [-]           Fraction of Photosynthetically Available Radiation
+! p_eps0       [1/m]         Background extinction coefficient
+! p_epsESS     [m2/g]        Specific attenuation coefficient of
+!                            suspended sediments
+! p_epsR6      [m2/mgC]      Specific attenuation coefficient of particulate
+!                            detritus
+! p_pe_R1c     [-]           Fractional content of C in cytoplasm
+! p_pe_R1n     [-]           Fractional content of N in cytoplasm
+! p_pe_R1p     [-]           Fractional content of P in cytoplasm
+! p_qro        [mmolHS-/     Stoichiometric coefficient for
+!               mmolO2]      anaerobic reactions
+! p_qon_dentri [mmolO2/      Stoichiometric coefficient for
+!               mmolN]       denitrification
+! p_qon_nitri  [mmolO2/      Stoichiometric coefficient for
+!               mmolN]       nitrification
+!-------------------------------------------------------------------------!
+&Param_parameters
+    CalcPelagicFlag              =  .TRUE.
+    CalcBenthicFlag              =  0
+    CalcConservationFlag         =  .FALSE.
+    CalcTransportFlag            =  .FALSE.
+    CalcPhytoPlankton(1)         =  .TRUE.
+    CalcPhytoPlankton(2)         =  .TRUE.
+    CalcPhytoPlankton(3)         =  .TRUE.
+    CalcPhytoPlankton(4)         =  .TRUE.
+    CalcPelBacteria(1)           =  .TRUE.
+    CalcMicroZooPlankton(1)      =  .TRUE.
+    CalcMicroZooPlankton(2)      =  .TRUE.
+    CalcMesoZooPlankton(1)       =  .TRUE.
+    CalcMesoZooPlankton(2)       =  .TRUE.
+    CalcPelChemistry             =  .TRUE.
+    AssignPelBenFluxesInBFMFlag  =  .FALSE.
+    AssignAirPelFluxesInBFMFlag  =  .TRUE.
+    ChlDynamicsFlag              =  2
+    LightPeriodFlag              =  1
+    LightLocationFlag            =  3
+    check_fixed_quota            =  0
+    p_small                      =  1.0e-20
+    slp0                         =  1013.25E0
+    p_PAR                        =  0.4
+    p_eps0                       =  0.0435
+    p_epsR6                      =  0.1d-3
+    p_epsESS                     =  0
+    p_pe_R1c                     =  0.60
+    p_pe_R1n                     =  0.72
+    p_pe_R1p                     =  0.832
+    p_qro                        =  0.5
+    p_qon_dentri                 =  1.25
+    p_qon_nitri                  =  2.0
+    p_poro0                      =  0.75
+    p_d_tot                      =  0.30
+/
+
+
+
+! Param_parameters_ben !-------------------------------------------------------
+! Benthic flags and parameters :
+&Param_parameters_ben
+    CalcBenOrganisms(1)      =  .FALSE.
+    CalcBenOrganisms(2)      =  .FALSE.
+    CalcBenOrganisms(3)      =  .FALSE.
+    CalcBenOrganisms(4)      =  .FALSE.
+    CalcBenOrganisms(5)      =  .FALSE.
+    CalcBenBacteria(1)       =  .FALSE.
+    CalcBenBacteria(2)       =  .FALSE.
+    p_InitSink               =  100.0
+    p_d_tot_2                =  0.35
+    p_clD1D2m                =  0.01
+    p_clDxm                  =  0.001
+    p_q10diff                =  1.49
+    calc_init_bennut_states  =  0
+    p_qnQIc                  =  0.11155
+    p_qpQIc                  =  0.010255
+    p_qsQIc                  =  0.0221
+/
+
+
+
+! bfm_init_nml !-------------------------------------------------------------------------!
+!Pelagic initialisation of standard variables
+!<variablename>0 = <realvalue>
+!-------------------------------------------------------------------------!
+! Index of parameters for using inside InitVar structure
+!   O2o=1, N1p=2, N3n=3, N4n=4, O4n=5, N5s=6, N6r=7, B1c=8, B1n=9,
+!   B1p=10, P1c=11, P1n=12, P1p=13, P1l=14, P1s=15, P2c=16, P2n=17, P2p=18,
+!   P2l=19, P3c=20, P3n=21, P3p=22, P3l=23, P4c=24, P4n=25, P4p=26, P4l=27,
+!   Z3c=28, Z3n=29, Z3p=30, Z4c=31, Z4n=32, Z4p=33, Z5c=34, Z5n=35, Z5p=36,
+!   Z6c=37, Z6n=38, Z6p=39, R1c=40, R1n=41, R1p=42, R2c=43, R3c=44, R6c=45,
+!   R6n=46, R6p=47, R6s=48, O3c=49, O3h=50, ETW=51, ESW=52, ERHO=53, EIR=54,
+!   ESS=55, totpelc=56, totpeln=57, totpelp=58, totpels=59, cxoO2=60, eO2mO2=61, Chla=62, flPTN6r=63,
+!   flN3O4n=64, flN4N3n=65, sediR2=66, sediR6=67, xEPS=68, ABIO_eps=69, Depth=70, Volume=71, DIC=72,
+!   Area=73, CO2=74, pCO2=75, HCO3=76, CO3=77, ALK=78, pH=79, OCalc=80, OArag=81,
+!   EPR=82, ETAUB=156, totsysc=157, totsysn=158, totsysp=159, totsyss=160, EPCO2air=161, CO2airflux=162, Area2d=163,
+!   ThereIsLight=164, SUNQ=165, EWIND=166, EICE=167, G3c=318, G3h=319, G13c=320, G13h=321, G23c=322,
+!   G23h=323, Y1c=324, Y1n=325, Y1p=326, Y2c=327, Y2n=328, Y2p=329, Y3c=330, Y3n=331,
+!   Y3p=332, Y4c=333, Y4n=334, Y4p=335, Y5c=336, Y5n=337, Y5p=338, Q6c=339, Q6n=340,
+!   Q6p=341, Q6s=342, Q1c=343, Q1n=344, Q1p=345, Q11c=346, Q11n=347, Q11p=348, H1c=349,
+!   H1n=350, H1p=351, H2c=352, H2n=353, H2p=354, K1p=355, K11p=356, K21p=357, K4n=358,
+!   K14n=359, K24n=360, K6r=361, K16r=362, K26r=363, K3n=364, K5s=365, G2o=366, G4n=367,
+!   D1m=368, D2m=369, D6m=370, D7m=371, D8m=372, D9m=373, RI_Fc=374, RI_Fn=375, RI_Fp=376,
+!   RI_Fs=377, ZI_Fc=378, ZI_Fn=379, ZI_Fp=380, ZI_Fs=381, jZIY3c=382, jRIY3c=383, jRIY3n=384, jRIY3p=385,
+!   jRIY3s=386, Depth_Ben=387, ETW_Ben=388, ERHO_Ben=389, ESW_Ben=390, O2o_Ben=391, N1p_Ben=392, N3n_Ben=393, N4n_Ben=394,
+!   N5s_Ben=395, N6r_Ben=396, sediR6_Ben=397, jK4K3n=398, jK3G4n=399, jK31K21p=400, jK34K24n=401, jK13K3n=402, jK15K5s=403,
+!   jK36K26r=404, DICae=405, DICan=406, O3c_Ben=407, O3h_Ben=408, Acae=409, Acan=410, pHae=411, pHan=412,
+!   pCO2ae=413, pCO2an=414, totbenc=415, totbenn=416, totbenp=417, totbens=418, rrBTo=419, rrATo=420, reBTn=421,
+!   reBTp=422, reATn=423, reATp=424, turenh=425, irrenh=426, shiftD1m=427, shiftD2m=428, jG2K3o=429, jG2K7o=430,
+!   M1p=431, M11p=432, M21p=433, M4n=434, M14n=435, M24n=436, M3n=437, M5s=438, M6r=439, KHBFM=440,
+&bfm_init_nml
+   O2o0 = 219.0,
+   N1p0 = 0.003,
+   N3n0 = 0.04,
+   N4n0 = 0.008,
+   N5s0 = 0.0,
+   N6r0 = 0.0,
+   O3c0 = 0.00,
+   O3h0 = 0.0,
+   O4n0 = 0.0,
+   P1c0 = 0.0,
+   P2c0 = 11.5,
+   P3c0 = 0.0,
+   P4c0 = 0.0,
+   Z3c0 = 0.0,
+   Z4c0 = 0.0,
+   Z5c0 = 11.5,
+   Z6c0 = 0.0,
+   B1c0 = 5.0,
+   R1c0 = 12.4,
+   R2c0 = 0.0,
+   R3c0 = 0.0,
+   R6c0 = 12.4,
+/
+
+!-------------------------------------------------------------------------!
+! NAMELIST bfm_IC_input
+!-------------------------------------------------------------------------!
+!Pelagic initialisation of standard variables
+!-------------------------------------------------------------------------!
+&bfm_IC_nml
+   phyto_input      =  '../../inputs/BFM17_BERM_INIT/init_prof_Pc_150m_bermuda_killworth.da',
+   zoop_input       =  '../../inputs/BFM17_BERM_INIT/init_prof_Zc_150m_bermuda_killworth.da',
+   poc_input        =  '../../inputs/BFM17_BERM_INIT/init_prof_POC_150m_bermuda_killworth.da',
+   doc_input        =  '../../inputs/BFM17_BERM_INIT/init_prof_DOC_150m_bermuda_killworth.da',
+   phos_input       =  '../../inputs/BFM17_BERM_INIT/init_prof_P_150m_bermuda_killworth.da',
+   nit_input        =  '../../inputs/BFM17_BERM_INIT/init_prof_N_150m_bermuda_killworth.da',
+   am_input         =  '../../inputs/BFM17_BERM_INIT/init_prof_Am_150m_bermuda_killworth.da',
+   oxy_input        =  '../../inputs/BFM17_BERM_INIT/init_prof_Oxy_150m_bermuda_killworth.da',
+
+/
+
+! bfm_init_nml_ben !-------------------------------------------------------------------------!
+!Benthic initialisation of standard variables
+!<variablename>0 = <realvalue>
+!-------------------------------------------------------------------------!
+
+&bfm_init_nml_ben
+    Y1c0           =  30.0
+    Y2c0           =  610.0
+    Y3c0           =  140.0
+    Y4c0           =  220.0
+    Y5c0           =  160.0
+    H1c0           =  120.0
+    H2c0           =  45.0
+    K1p0           =  0.1
+    K11p0          =  80.0
+    K21p0          =  19.11096
+    K4n0           =  0.0277856
+    K14n0          =  1.0838474
+    K24n0          =  100.0
+    K3n0           =  0.0252624
+    K5s0           =  8.463525
+    K6r0           =  100.0
+    D1m0           =  0.002
+    D2m0           =  0.025
+    D6m0           =  0.25
+    D7m0           =  0.25
+    D8m0           =  0.25
+    D9m0           =  0.25
+    Q6c0           =  10250.0
+    Q6n0           =  120.0
+    Q6p0           =  10.0
+    Q6s0           =  88.2
+    Q1c0           =  10.4988
+    Q11c0          =  10.4988
+    G2o0           =  0.67
+    G3c0           =  120.15
+    G13c0          =  440.8475
+    G23c0          =  11920.0
+    G3h0           =  10.35
+    G13h0          =  50.0
+    G23h0          =  1192.0
+/
+
+
+
+! bfm_save_nml !-------------------------------------------------------------------------!
+! Stored variables
+!ave_save: average values over the output interval
+!var_save: instantaneous value at the output interval
+!-------------------------------------------------------------------------!
+&bfm_save_nml
+    ave_save   = 'ETW'  'O2o'  'DIC'  'EIR'  'ESW'  'ERHO'  'xEPS'  'Chla' 'N1p'  'N3n'  'N4n'  'N5s'  'B1c'  'B1n'  'B1p'  'P1c'  'P1p'  'P1n'  'P1l'  'P2c'  'P2p'  'P2n'  'P2l'  'P3c'  'P3p'  'P3n'  'P3l'  'P4c'  'P4p'  'P4n'  'P4l'  'Z3c'  'Z3n'  'Z3p'  'Z4c'  'Z4n'  'Z4p'  'Z5c'  'Z5n'  'Z5p'  'Z6c'  'Z6n'  'Z6p'  'R1c'  'R1p'  'R1n'  'P1s'  'R2c'  'R3c'  'R6c'  'R6p'  'R6n'  'R6s'  'eiPPY(iiP1)'  'eiPPY(iiP2)'  'eiPPY(iiP3)'  'eiPPY(iiP4)'  'sunPPY(iiP1)'  'sunPPY(iiP2)'  'sunPPY(iiP3)'  'sunPPY(iiP4)'  'ruPTc'  'resPP'  'resZT'  'ruPTn'  'ruPTp'  'exPP'  'ruZTc'  'netZTc'  'rePTp'  'reBn'  'reBp'  'ruBn'  'ruBp'
+/

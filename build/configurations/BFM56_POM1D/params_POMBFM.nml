@@ -1,0 +1,64 @@
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! MODEL
+!
+! NAMELIST
+! H                         [m]           Depth
+! DTI                       [s]           Timestep
+! ALAT                      [degrees]     Latitude
+! IDIAGN                    [-]           1 = Diagnostic mode
+!                                         0 = Prognostic mode           
+! IDAYS                     [d]           Length of run 
+! SMOTH                     [-]           Parameter for Hasselin filter 
+! IHOTST                    [-]           1 = Restart reading
+!                                         0 = Cold start
+! KL1 & KL2                 [-]           Number of top and bottom levels not equally distributed,
+! SAVEF                     [d]           Saving frequency (days)
+! NRT                       [m/d]         Relaxation constant for nutrients at surface 
+! NBCT, NBCS, NBCBFM        [-]           Define surface boundary conditions for temperature, salinity & BFM tracers
+!                                         NBC = 1: Surf. B.C. is WFSURF. no radiative penetration
+!                                         NBC = 2; Surf. B.C. is WFSURF+SWRAD*(1.-TR). with SWRAD*TR penetration     
+!                                         NBC = 3; Surf. B.C. is TSURF. no SW radiative penetration  
+! UMOL                      [m^2/s]       Background diffusion for momentum 
+! UMOLT, UMOLS,UMOLBFM      [m^2/s]       Background diffusion for T,S and BFM tracers 
+! NTP                       [-]           Flag for Jerlov water type
+!                                         NTP =               1      2       3       4       5              
+!                                         JERLOV TYPE   =     I      IA      IB      II      III 
+! TRT,SRT                   [ ]           Relaxation time for t & S lateral advection
+! upperh                    [m]           Depth at which lat eadv start
+! SSRT                      [m/d]         Relaxation time for surface salinity flux
+!
+ &Params_POMBFM
+ H       =  150.,
+ DTI     =  100.,
+ ALAT    =  45.,
+ IDIAGN  =  1,
+ IDAYS   =  3600,
+ SMOTH   =  0.1,
+ IHOTST  =  0,
+ KL1     =  2,
+ KL2     =  150,
+ SAVEF   =  1,
+ NRT_o2o =  0.06,
+ NRT_n1p =  0.06,
+ NRT_n3n =  0.06,
+ NRT_n4n =  0.05,
+ NBCT    =  2,
+ NBCS    =  1,
+ NBCBFM  =  1,
+ UMOL    =  1.e-6,
+ UMOLT   =  1.e-7,
+ UMOLS   =  1.3e-7,
+ UMOLBFM =  1.e-4,
+ NTP     =  2,
+ TRT     =  0,
+ SRT     =  1,
+ UPPERH  =  5.0,
+ SSRT    =  5.68   
+/ 
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!END namelist
+!-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+! UMOL    =  1.e-6,
+! UMOLT   =  1.e-7,
+! UMOLS   =  1.e-7,
+! UMOLBFM =  1.e-7,

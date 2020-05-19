@@ -1,0 +1,70 @@
+! CO2_parameters  !-------------------------------------------------------------------------!
+! CARBONATE SYSYEM SETTING
+! NAME           [UNIT]/KIND             DESCRIPTION
+! AtmCO20        [ppmv]           Initial atmospheric concentration of CO2
+! calcAtmpCO2    logical          Compute the partial pressure of Atmospheric CO2
+! pCO2Method     integer          pCO2 computation method: 1=MixRatio*slp0, 2=Magnus formula 
+! phstart        [pH]             Initial pH value
+! K1K2           integer          Switch for the acidity constants parameterization
+!                                 1 : Roy et al. (1993); DOE (1994); pH on total scale
+!                                 2 : Default. OCMIP STANDARD; pH on Sea Water Scale
+!                                     Mehrbach et al (1973) refit by Dickson & Millero (1987)
+!                                 3 : Mehrbach et al (1973) refit by Lueker et al. (2000)
+!                                     pH on total scale
+!                                 4 : Hansson (1973b) data as refitted by Dickson and 
+!                                     Millero (1987);  pH on Sea Water Scale 
+! MethodCalcCO2  numeric          Switch for the choice of [H+] numerical computation 
+!                                 1 : Approximate static solution 
+!                                 2 : Default. Standard OCMIP iteration 
+!                                 3 : Follows et al., Ocean Modelling 2006 
+! CalcBioAlkFlag logical          Compute biological processes corrections on total alkalinity
+!              ---------  Parameters for MethodCalcCO2=2 -----------
+! M2XACC         real             Accuracy of the iterative scheme for OCMIP (default 1.E-10)                                
+! M2PHDELT       [pH]             Delta of pH for the root search (realized pH+/-DELT)
+!                                 in the OCMIP scheme (default 0.5)
+! M2MAXIT        integer          Maximum number of iterations for OCMIP (default 100 )
+!              ----------------------------------------------------- 
+! Caconc0        [mol/m3]         Calcium ion concentration 
+!                                 ["Seawater : Its composition, properties and behaviour" 
+!                                 (2nd Edition), Open University Course Team, 1995]
+!                                 Seawater concentration   = 412 mg / l 
+!                                                        -> atomic weight = 40.078 g / mol
+!                                 therefore, concentration = 10.279 mmol / l = 10.279 mol / m3
+! Canorm          logical         Normalize Calcium ion concentration by sea water salinity
+!              ---------  EXTERNAL DATA INPUT STRUCTURES -----------
+! AtmCO2_N       structure        Read external data for atmospheric CO2 values
+! AtmSLP_N       structure        Read external data for atmospheric sea level pressure
+! AtmTDP_N       structure        Read external data for atmospheric dew-point temperature
+! Example of general input structure for the data structure:
+!          ! Read  !   File                               ! NetCDF  !  Var    !
+!          ! Input !   name                               ! Logical !  name   !
+!AtmCO2_N  =    0  , 'CMIP5_Historical_GHG_1765_2005.dat' , .FALSE.  , 'CO2'  ,
+!          !  RefTime          ! Input      !   Time   !
+!          !  yyyymmdd         ! Frequency  !  interp  !
+!           '1764-07-01 00:00' ,  'yearly'  ,  .TRUE.
+!
+! Convention for Input reading : 0 = use constant value (default if structure is not initialized) 
+!                               2 = read timeseries file ( e.g. CO2 mixing ratios)
+!                               4 = field from a coupled model (e.g. atmospheric SLP from OGCM)
+! NOTE: The file "CMIP5_Historical_GHG_1765_2005.dat" is located in "$BFMDIR/tools" folder
+!-----------------------------------------------------------------------------------!
+&CO2_parameters     
+    AtmCO20         =  370.0E0   
+    calcAtmpCO2     =  .FALSE.   
+    pCO2Method      =  1         
+    AtmCO2_N        =  0         'CMIP5_Historical_GHG_1765_2005.dat'  .FALSE.  'CO2'     '1764-07-01 00:00'  'yearly'  .TRUE.  
+    AtmSLP_N        =  0         'AtmSLP.nc'                           .TRUE.   'AtmSLP'  '1764-07-01 00:00'  'dummy'   .TRUE.  
+    AtmTDP_N        =  0         'AtmTDP.nc'                           .TRUE.   'AtmTDP'  '1764-07-01 00:00'  'dummy'   .TRUE.  
+    phstart         =  8.12E0    
+    K1K2            =  2         
+    MethodCalcCO2   =  2         
+    CalcBioAlkFlag  =  .FALSE.   
+    M2XACC          =  1.0E-10   
+    M2PHDELT        =  0.3       
+    M2MAXIT         =  100       
+    Caconc0         =  10.279E0  
+    Canorm          =  .TRUE.    
+/                   
+
+
+
