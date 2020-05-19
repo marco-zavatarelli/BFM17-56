@@ -1,7 +1,0 @@
-The GOTM source code needs to be patched to use the BFM model.
-To apply the patch execute the following command:
-
-cd $GOTMDIR
-patch -p0 < $BFMDIR/src/gotm/patch_gotm
-
-where $GOTMDIR and $BFMDIR are the top-level directories of GOTM and BFM.
