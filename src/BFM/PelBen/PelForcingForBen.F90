@@ -33,7 +33,10 @@
     PI_Benc, PI_Benn, PI_Benp, PI_Bens, sediPPY_Ben,sediR6_Ben, sediPPY, sediR6, &
     Depth, RI_Fc, ZI_Fc, ZI_Fn, ZI_Fp, RI_Fn, RI_Fp, &
     RI_Fs, N1p_Ben, N3n_Ben, N4n_Ben, N5s_Ben, N6r_Ben, O2o_Ben, ETW_Ben, &
-    Depth_Ben, iiP1, iiC, iiN, iiP, iiS, iiBen, iiPel, flux
+    Depth_Ben, iiP1, iiC, iiN, iiP, iiS, iiBen, iiPel, flux, &
+!-----zav2014
+    NO_BOXES_XY
+!-----
 #ifdef INCLUDE_BENCO2
     use mem, ONLY: O3c_Ben,O3c,O3h_Ben,O3h
 #endif
@@ -44,6 +47,10 @@
   use bio_var, ONLY: BOTindices
 #else
   use api_bfm, ONLY: BOTindices
+#endif
+#ifdef BFM_POM
+use mem_Phyto
+use mem_Settling
 #endif
 
 !  
@@ -92,6 +99,9 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   integer  :: i
   integer  :: j
+!-----zav2014
+  integer  :: l
+!-----
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
@@ -113,9 +123,24 @@
         else
           PI_Bens(i,:)  =   0.0
         end if
-      end do
-      sediPPY_Ben(:,:)  =  sediPPY(:,BOTindices)    
 
+!-----zav(2014)
+!
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Set the  phytoplankton sinking vel. at the water  
+  ! sediment interface 
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+!
+      sediPPY_Ben(i,:)  =  sediPPY(i,BOTindices)
+#ifdef BFM_POM
+      if(p_res(i).ne.ZERO) then 
+         do l = 1, NO_BOXES_XY
+            if(sediPPY_Ben(i,l).gt.p_burvel_PI) sediPPY_Ben(i,l)=p_burvel_PI
+         enddo
+      endif
+#endif
+!-----
+      end do
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Compute total microzooplankton conc. used as food for filtereeders
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -151,8 +176,21 @@
       RI_Fn(:)  =   R6n(BOTindices)
       RI_Fp(:)  =   R6p(BOTindices)
       RI_Fs(:)  =   R6s(BOTindices)
+!
+!-----zav2014
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Set the  detritus sinking vel. at the water  
+  ! sediment interface 
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
       sediR6_Ben(:)  =   sediR6(BOTindices)
-
+#ifdef BFM_POM
+         do l = 1, NO_BOXES_XY
+            if(sediR6_Ben(l).gt.p_burvel_R6) then
+               sediR6_Ben(l)=p_burvel_R6
+            end if
+         enddo
+#endif
+!-----
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
       ! Derive Forcing for benthos
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

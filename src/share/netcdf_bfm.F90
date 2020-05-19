@@ -690,7 +690,7 @@ end subroutine init_netcdf_rst_bfm
      call check_err(NF90_PUT_VAR( ncid_rst, d2state_long_rid_ice, tmp_d2long_ice, &
           start=(/ 1, 1 /), count=(/ LEN(tmp_d2long_ice), NO_D2_BOX_STATES_ICE /)), restfile)
 #ifdef BFM_POM
-     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ice,D2STATEB_ICE(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR(ncid_rst,d2stateb_rid_ice,D2STATEB_ICE(:,:),start,edges), restfile)
 #endif
 #endif
 
@@ -711,7 +711,7 @@ end subroutine init_netcdf_rst_bfm
      call check_err(NF90_PUT_VAR( ncid_rst, d2state_long_rid_ben, tmp_d2long_ben, &
           start=(/ 1, 1 /), count=(/ LEN(tmp_d2long_ben), NO_D2_BOX_STATES_BEN /)), restfile)
 #ifdef BFM_POM
-     call check_err(NF90_PUT_VAR(ncid_rst,d2state_rid_ben,D2STATEB_BEN(:,:),start,edges), restfile)
+     call check_err(NF90_PUT_VAR(ncid_rst,d2stateb_rid_ben,D2STATEB_BEN(:,:),start,edges), restfile)
 #endif
 #endif
      LEVEL1 'Restart has been written in NetCDF'
@@ -763,6 +763,7 @@ end subroutine init_netcdf_rst_bfm
    integer                   :: iret
    integer                   :: nstate_id,nstate_len
    integer                   :: ncomp_id,ncomp_len
+   integer :: status
 !
 ! !REVISION HISTORY:
 !  Original author(s): Marcello Vichi (INGV) 
@@ -777,6 +778,7 @@ end subroutine init_netcdf_rst_bfm
    fname = './in_'// TRIM(title) // '.' // ext
    LEVEL2 'Reading Restart file in NetCDF'
    LEVEL2 TRIM(fname)
+
    call check_err(NF90_OPEN(fname,NF90_NOWRITE,ncid_rst_in), fname)
    !---------------------------------------------
    ! Check 3D dimensions 
@@ -843,7 +845,7 @@ end subroutine init_netcdf_rst_bfm
    !---------------------------------------------
    call check_err(NF90_INQ_DIMID(ncid_rst_in,"d2vars_ben",nstate_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,nstate_id,namedimt,nstate_len), fname)
-   call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint_ben",ncomp_id), fname)
+   call check_err(NF90_INQ_DIMID(ncid_rst_in,"bottompoint",ncomp_id), fname)
    call check_err(NF90_INQUIRE_DIMENSION(ncid_rst_in,ncomp_id,namedimt,ncomp_len), fname)
    if (nstate_len/=NO_D2_BOX_STATES_BEN .OR. ncomp_len/=NO_BOXES_XY) then
       LEVEL1 '2D Benthic Dimension mismatch in restart file:'
@@ -1904,6 +1906,7 @@ end subroutine init_netcdf_rst_bfm
    return
    end subroutine check_err
 !-----------------------------------------------------------------------
+
 
    end module netcdf_bfm
 

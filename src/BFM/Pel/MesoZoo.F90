@@ -248,11 +248,13 @@
   do i = 1, iiPhytoPlankton
     PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)
     rumc = rumc + PPYc(:,i)
-  end do
+ end do
+#ifndef BFM17
   do i = 1, iiMicroZooPlankton
     MIZc(:,i) = p_paMIZ(zoo,i)*MicroZooPlankton(i,iiC)
     rumc = rumc + MIZc(:,i)
-  end do
+ end do
+#endif
   do i = 1, iiMesoZooPlankton
     MEZc(:,i) = p_paMEZ(zoo,i)*MesoZooPlankton(i,iiC)
     rumc = rumc + MEZc(:,i)
@@ -294,7 +296,8 @@
     if ( ppPhytoPlankton(i,iiF) .gt. 0 ) & 
        call flux_vector(iiPel, ppPhytoPlankton(i,iiF), ppR6f, ruPPYc*qfcPPY(i,:))
 #endif
-  end do
+ end do
+#ifndef BFM17
   ! Microzooplankton
   do i = 1, iiMicroZooPlankton
     ruMIZc = sut*MIZc(:,i)
@@ -307,7 +310,8 @@
     rut_c = rut_c + ruMIZc
     rut_n = rut_n + ruMIZc*qncMIZ(i,:)
     rut_p = rut_p + ruMIZc*qpcMIZ(i,:)
-  end do
+ end do
+#endif
   ! Mesozooplankton
   do i = 1, iiMesoZooPlankton
     ruMEZc = sut*MEZc(:, i)

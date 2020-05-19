@@ -49,7 +49,11 @@
 #else
   use api_bfm, ONLY: BOTindices
 #endif
-
+!-----zav2014
+#ifdef BFM_POM
+  use mem_Phyto
+#endif
+!-----------§
 !
 !
 ! !AUTHORS
@@ -127,7 +131,25 @@
       do BoxNumberXY = 1,NO_BOXES_XY 
          kbot = BOTindices(BoxNumberXY)
          do i = 1 , ( iiPhytoPlankton)
+!-----zav2014
+            sedi=ZERO
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Set the  phytoplankton sinking vel. at the water  
+  ! sediment interface 
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+!
+#ifdef BFM_POM
+            if(p_res(i).gt.ZERO) then
+               if(sediPPY(i,kbot).gt.p_burvel_PI) &
+                  sedi=p_burvel_PI
+            else
+                  sedi=sediPPY(i,kbot)
+            endif
+#else
             sedi  =   sediPPY(i,kbot)
+#endif
+!-----
+!
             if ( sedi> ZERO ) then
                ! Phytoplankton carbon
                j=ppPhytoPlankton(i,iiC)
@@ -136,6 +158,9 @@
                ruQ1c  =   p_pe_R1c* ruQIc
                ruQ6c  =   ruQIc- ruQ1c
                PELBOTTOM(j,BoxNumberXY)=  - ruQIc
+#ifdef BFM_POM
+               PELBOTTOM(j,BoxNumberXY)=  ZERO
+#endif
                jbotR1c(BoxNumberXY)  =   jbotR1c(BoxNumberXY)- ruQ1c
                jbotR6c(BoxNumberXY)  =   jbotR6c(BoxNumberXY)- ruQ6c
                ! Phytoplankton nitrogen
@@ -145,6 +170,9 @@
                ruQ1n  =   p_pe_R1n* ruQIn
                ruQ6n  =   ruQIn- ruQ1n
                PELBOTTOM(j,BoxNumberXY)=  - ruQIn
+#ifdef BFM_POM
+               PELBOTTOM(j,BoxNumberXY)=  ZERO
+#endif
                jbotR1n(BoxNumberXY)  =   jbotR1n(BoxNumberXY)- ruQ1n
                jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
                ! Phytoplankton phosphorus
@@ -154,6 +182,9 @@
                ruQ1p  =   p_pe_R1p* ruQIp
                ruQ6p  =   ruQIp- ruQ1p
                PELBOTTOM(j,BoxNumberXY)= - ruQIp
+#ifdef BFM_POM
+               PELBOTTOM(j,BoxNumberXY)=  ZERO
+#endif
                jbotR1p(BoxNumberXY) =jbotR1p(BoxNumberXY)- ruQ1p
                jbotR6p(BoxNumberXY) =jbotR6p(BoxNumberXY)- ruQ6p
                ! Phytoplankton chlorophyll (stored but not used)
@@ -167,6 +198,9 @@
                   lcl_PhytoPlankton => PhytoPlankton(i,iiS)
                   ruQ6s  =   sedi* lcl_PhytoPlankton(kbot)
                   PELBOTTOM(j,BoxNumberXY)  = - ruQ6s
+#ifdef BFM_POM
+               PELBOTTOM(j,BoxNumberXY)=  ZERO
+#endif
                   jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
                end if
 
@@ -201,16 +235,41 @@
 
          ! R6 into Q6 through burial
          ! NOTE: ALL DETRITUS FLUXES TO THE SEDIMENT ARE DIRECTED TO Q6 VIA R6 
+!-----zav2014
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+  ! Set the  detritus sinking vel. at the water  
+  ! sediment interface 
+  ! -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+!
          ruQ6c  =   sediR6(kbot)* R6c(kbot)
          ruQ6n  =   sediR6(kbot)* R6n(kbot)
          ruQ6p  =   sediR6(kbot)* R6p(kbot)
          ruQ6s  =   sediR6(kbot)* R6s(kbot)
+!
+!        sedi=ZERO
+!
+#ifdef BFM_POM
+         if(sediR6(kbot).gt.p_burvel_R6)then 
+            ruQ6c  =   p_burvel_R6* R6c(kbot)
+            ruQ6n  =   p_burvel_R6* R6n(kbot)
+            ruQ6p  =   p_burvel_R6* R6p(kbot)
+            ruQ6s  =   p_burvel_R6* R6s(kbot)
+         endif
+#endif
+!------
+
          jbotR6c(BoxNumberXY)  =   jbotR6c(BoxNumberXY)- ruQ6c
          jbotR6n(BoxNumberXY)  =   jbotR6n(BoxNumberXY)- ruQ6n
          jbotR6p(BoxNumberXY)  =   jbotR6p(BoxNumberXY)- ruQ6p
          jbotR6s(BoxNumberXY)  =   jbotR6s(BoxNumberXY)- ruQ6s
 #ifdef INCLUDE_PELFE
+!-----zav2014
+#ifdef BFM_POM
          ruQ6f  =   sediR6(kbot)* R6f(kbot)
+#else
+         ruQ6f  =   sediR6(kbot)* R6f(kbot)
+#endif
+!------
          jbotR6f(BoxNumberXY)  =   jbotR6f(BoxNumberXY)- ruQ6f
 #endif
       end do

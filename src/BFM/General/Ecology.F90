@@ -22,7 +22,11 @@
   ! Modules (use of ONLY is strongly encouraged!)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   use global_mem, ONLY:RLEN
-  use mem,  ONLY: iiBen, iiPel, iiReset, flux
+!  use mem,  ONLY: iiBen, iiPel, iiReset, flux
+!----------Giulia 2014 --------------------------------------
+  use mem,  ONLY: iiBen, iiPel, iiReset, flux!, H1c, H2c
+  use POM, ONLY: time
+!---------------------------------------------------------------
   use constants,  ONLY: BENTHIC_RETURN, BENTHIC_BIO, BENTHIC_FULL
   use mem_Param,  ONLY: CalcPelagicFlag, CalcBenthicFlag, CalcConservationFlag
   use api_bfm, ONLY: LOGUNIT

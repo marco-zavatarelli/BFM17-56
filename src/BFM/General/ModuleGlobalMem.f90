@@ -71,7 +71,7 @@
   real(RLEN), parameter ::ZERO=0.0_RLEN
   real(RLEN), parameter ::ONE=1.0_RLEN
   real(RLEN), parameter ::PI=3.14159265359_RLEN
-  real(RLEN), parameter ::BASETEMP= 10.0_RLEN
+  real(RLEN), parameter ::BASETEMP= 20.0_RLEN
   !=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Next parameters are defined to control types of State variables
   integer,    parameter ::OFF=-100

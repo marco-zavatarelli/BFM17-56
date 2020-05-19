@@ -82,7 +82,7 @@
   ! Local Variables
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   real(RLEN),dimension(NO_BOXES_XY)  :: rate
-
+#ifndef IMPFLUX
   rate  =   p_reminQ6c* Q6c(:)
   call flux_vector( iiBen, ppQ6c,ppQ6c,-( rate) )
   jbotO2o(:)  =  - rate/ 12.D+00
@@ -129,7 +129,23 @@
   ! activated only for mass conservation check
   if (CalcConservationFlag) &
   call flux_vector( iiBen, ppK5s,ppK5s,-(- jbotN5s(:)) )
-
+#else
+  rate = p_reminQ6c_imp
+  call flux_vector( iiBen, ppQ6c,ppQ6c,-( rate) )
+  jbotO2o(:)  =  - rate/ 12.D+00
+  rate = p_reminQ6n_N3n_imp
+  call flux_vector( iiBen, ppQ6n,ppQ6n,-( rate) )
+  jbotN3n(:)  =   rate
+  rate = p_reminQ6n_N4n_imp
+  call flux_vector( iiBen, ppQ6n,ppQ6n,-( rate) )
+  jbotN4n(:)  =   rate
+  rate = p_reminQ6p_imp
+  call flux_vector( iiBen, ppQ6p,ppQ6p,-( rate) )
+  jbotN1p(:)  =   rate  
+  rate = p_reminQ6s_imp
+  call flux_vector( iiBen, ppQ6s,ppQ6s,-( rate) )
+  jbotN5s(:)  =   rate
+#endif
   end subroutine BenthicReturn1Dynamics
 !EOC
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

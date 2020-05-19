@@ -622,7 +622,7 @@
                      (p_alpha_chl(phyto)*Irr+p_small)
            !  Actual chlorophyll concentration exceeding the "optimal" value is 
            !  discarded with a p_tochl_relt relaxation.
-           rate_Chl = rho_Chl*(sum-seo-sea-sra)*phytoc-(sdo*srs)*phytol - &
+           rate_Chl = rho_Chl*(sum-seo-sea-sra)*phytoc-(sdo+srs)*phytol - &
                       max(ZERO,(phytol-chl_opt))*p_tochl_relt(phyto)
       case (4) ! NIOZ
           ! total synthesis, only when there is net production (run > 0)

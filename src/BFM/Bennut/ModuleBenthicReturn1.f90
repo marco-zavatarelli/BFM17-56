@@ -70,6 +70,12 @@
   real(RLEN)  :: p_reminQ6p  ! Spec. remin. rate of P detritus (d-1)
   real(RLEN)  :: p_reminQ6s  ! Spec. remin. rate of Si detritus (d-1)
   real(RLEN)  :: p_pQIN3  ! Partitioning coeff. between NO3 and NH4
+
+  real(RLEN)  :: p_reminQ6c_imp      ! Spec. remin. rate of C detritus (d-1)
+  real(RLEN)  :: p_reminQ6n_N3n_imp  ! Spec. remin. rate of N detritus (d-1)
+  real(RLEN)  :: p_reminQ6n_N4n_imp  ! Spec. remin. rate of N detritus (d-1)
+  real(RLEN)  :: p_reminQ6p_imp      ! Spec. remin. rate of P detritus (d-1)
+  real(RLEN)  :: p_reminQ6s_imp      ! Spec. remin. rate of Si detritus (d-1)
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -81,7 +87,8 @@
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   namelist /BenthicReturn1_parameters/ p_reminQ1c, p_reminQ1n, p_reminQ1p, &
-    p_reminQ6c, p_reminQ6n, p_reminQ6p, p_reminQ6s, p_pQIN3
+    p_reminQ6c, p_reminQ6n, p_reminQ6p, p_reminQ6s, p_pQIN3, p_reminQ6n_N3n_imp, &
+    p_reminQ6n_N4n_imp, p_reminQ6p_imp, p_reminQ6s_imp, p_reminQ6c_imp
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute

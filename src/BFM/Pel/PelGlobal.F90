@@ -74,8 +74,10 @@
       qpcOMT(i,:)  =  PelDetritus(i,iiP)/( p_small+ PelDetritus(i,iiC))
     if ( ppPelDetritus(i,iiN) > 0 ) &
       qncOMT(i,:)  =  PelDetritus(i,iiN)/( p_small+ PelDetritus(i,iiC))
+#ifdef INCLUDE_PELFE
     if ( ppPelDetritus(i,iiS) > 0 ) &
       qscOMT(i,:)  =   PelDetritus(i,iiS)/( p_small+ PelDetritus(i,iiC))
+#endif
   end do
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -83,25 +85,27 @@
   ! in case of fixed quota the values are constant and assigned 
   ! in Initialize.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+!#ifndef BFM17
   do i = 1, iiMicroZooPlankton
     if ( ppMicroZooPlankton(i,iiP) > 0 ) &
       qpcMIZ(i,:)  =   MicroZooPlankton(i,iiP)/( p_small+ MicroZooPlankton(i,iiC))
     if ( ppMicroZooPlankton(i,iiN) > 0 ) &
       qncMIZ(i,:)  =   MicroZooPlankton(i,iiN)/( p_small+ MicroZooPlankton(i,iiC))
-  end do
-
+ end do
+!#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in mesozooplankton
   ! in case of fixed quota the values are constant and assigned 
   ! in Initialize.F90
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#ifndef BFM17
   do i = 1, iiMesoZooPlankton
     if ( ppMesoZooPlankton(i,iiP) > 0 ) &
       qpcMEZ(i,:)  =   MesoZooPlankton(i,iiP)/( p_small+ MesoZooPlankton(i,iiC))
     if ( ppMesoZooPlankton(i,iiN) > 0 ) &
       qncMEZ(i,:)  =   MesoZooPlankton(i,iiN)/( p_small+ MesoZooPlankton(i,iiC))
   end do
-
+#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute constituents quota in phytoplankton
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
@@ -123,10 +127,12 @@
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Compute nutrient quota in Pelagic Bacteria
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#ifndef BFM17
   do i = 1, (iiPelBacteria)
     qpcPBA(i,:)  =   PelBacteria(i,iiP)/( p_small+ PelBacteria(i,iiC))
     qncPBA(i,:)  =   PelBacteria(i,iiN)/( p_small+ PelBacteria(i,iiC))
-  end do
+ end do
+#endif
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Prescribe background costant sedimentation velocities
@@ -137,10 +143,14 @@
   sediR2(:)     = ZERO
   sediR2(BOTindices) = ZERO
   sediR6(:)  =   p_rR6m
+#ifndef BFM_POM
   sediR6(BOTindices) = p_burvel_R6
+#endif
   do i = 1 , ( iiPhytoPlankton)
     sediPPY(i,:)  =   p_rPIm( i)
+#ifndef BFM_POM
     sediPPY(i,BOTindices)  =   p_burvel_PI
+#endif
   end do
 
   end subroutine PelGlobalDynamics

@@ -185,6 +185,8 @@ IMPLICIT NONE
   tmpflux(SRFindices) = jsurO3c(:) / Depth(SRFindices)
   if ( AssignAirPelFluxesInBFMFlag) then
      call flux_vector( iiPel, ppO3c,ppO3c, tmpflux )
+  else
+  jsurO3c(:)=tmpflux(SRFindices)*Depth(SRFindices)
   end if
 !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   return

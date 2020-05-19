@@ -99,6 +99,15 @@
   real(RLEN)  :: p_scavN7f   ! Specific scavenging rate (d-1)
   real(RLEN)  :: p_N7fsol    ! Solubility concentration (umol Fe/m3)
 #endif
+  real(RLEN)  :: p_sR6O3
+  real(RLEN)  :: p_sR6N1
+  real(RLEN)  :: p_sR6N4
+  real(RLEN)  :: p_sR1O3
+  real(RLEN)  :: p_sR1N1
+  real(RLEN)  :: p_sR1N4
+  real(RLEN)  :: p_sR2O3
+  real(RLEN)  :: p_sR3O3
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   ! SHARED PUBLIC FUNCTIONS (must be explicited below "contains")
 
@@ -115,6 +124,10 @@
   namelist /PelChem_parameters_iron/ p_q10R6N7, p_sR6N7, p_sR1N7, p_scavN7f, &
     p_N7fsol
 #endif
+
+  namelist /PelChem_parameters_NO_BACT/ p_sR6O3, p_sR6N1, p_sR6N4, p_sR1O3, p_sR1N1, &
+           p_sR1N4,p_sR2O3, p_sR3O3
+
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
   !BEGIN compute
@@ -129,12 +142,14 @@
 #ifdef INCLUDE_PELFE
   read(NMLUNIT,nml=PelChem_parameters_iron,err=102)
 #endif
+  read(NMLUNIT,nml=PelChem_parameters_NO_BACT,err=103)
   close(NMLUNIT)
   write(LOGUNIT,*) "#  Namelist is:"
   write(LOGUNIT,nml=PelChem_parameters)
 #ifdef INCLUDE_PELFE
   write(LOGUNIT,nml=PelChem_parameters_iron)
 #endif
+  write(LOGUNIT,nml=PelChem_parameters_NO_BACT)
 
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   !END compute
@@ -146,6 +161,7 @@
 100 call error_msg_prn(NML_OPEN,"InitPelChem.f90","Pelagic_Environment.nml")
 101 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters")
 102 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters_iron")
+103 call error_msg_prn(NML_READ,"InitPelChem.f90","PelChem_parameters_NO_BACT")
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
   end  subroutine InitPelChem
   end module mem_PelChem

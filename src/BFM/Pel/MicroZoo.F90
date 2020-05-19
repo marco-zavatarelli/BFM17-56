@@ -213,6 +213,7 @@
   rumc   = ZERO
   rumn   = ZERO
   rump   = ZERO
+#ifndef BFM17
   do i = 1 ,iiPelBacteria
      PBAc(:,i) = p_paPBA(zoo,i)*PelBacteria(i,iiC)* &
                  MM_vector(PelBacteria(i,iiC), p_minfood(zoo))
@@ -220,7 +221,7 @@
      rumn = rumn + PBAc(:,i)*qncPBA(i,:)
      rump = rump + PBAc(:,i)*qpcPBA(i,:)
   end do
-
+#endif
   do i = 1 ,iiPhytoPlankton
      PPYc(:,i) = p_paPPY(zoo,i)*PhytoPlankton(i,iiC)* &
                    MM_vector(PhytoPlankton(i,iiC), p_minfood(zoo))
@@ -228,7 +229,7 @@
     rumn = rumn + PPYc(:,i)*qncPPY(i,:)
     rump = rump + PPYc(:,i)*qpcPPY(i,:)
   end do
-
+!#ifndef BFM17
   do i = 1, iiMicroZooPlankton
      MIZc(:,i) = p_paMIZ(zoo,i)*MicroZooPlankton(i,iiC)* &
                    MM_vector(MicroZooPlankton(i,iiC), p_minfood(zoo))
@@ -236,7 +237,7 @@
     rumn = rumn + MIZc(:,i)*qncMIZ(i,:)
     rump = rump + MIZc(:,i)*qpcMIZ(i,:)
   end do
-
+!#endif
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Calculate total food uptake rate (eq 38 Vichi et al. 2007) and 
   ! specific uptake rate considering potentially available food (sut)
@@ -250,7 +251,7 @@
   ! Bacterioplankton
   rugn = ZERO
   rugp = ZERO
-
+#ifndef BFM17
   do i = 1, iiPelBacteria
     ruPBAc = sut*PBAc(:,i)
     call fixed_quota_flux_vector(check_fixed_quota, iiPel, ppzooc, &
@@ -262,6 +263,7 @@
     rugn = rugn + ruPBAc*qncPBA(i,:)
     rugp = rugp + ruPBAc*qpcPBA(i,:)
   end do
+#endif
   ! Phytoplankton
   do i = 1, iiPhytoPlankton
     ruPPYc = sut*PPYc(:,i)
@@ -300,7 +302,6 @@
     rugn = rugn + ruMIZc*qncMIZ(i,:)
     rugp = rugp + ruMIZc*qpcMIZ(i,:)
   end do
-
   !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
   ! Fluxes from microzooplankton
   ! The metabolic balance is the following:

@@ -160,17 +160,21 @@
       ! These are constant values when running with fixed quota in zoo
       ! In case of variable quota these values are recomputed every time-step
       !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+!#ifndef BFM17
        do i = 1 , ( iiMicroZooPlankton)
          if ( ppMicroZooPlankton(i,iiP) == 0 ) qpcMIZ(i,:)  =  p_qpcMIZ(i) 
          if ( ppMicroZooPlankton(i,iiN) == 0 ) qncMIZ(i,:)  =  p_qncMIZ(i)
-       end do
+      end do
+!#endif
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
        ! Nutrient quota in omnivorous and herbivorous mesozooplankton
        !-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+#ifndef BFM17
        do i = 1 , ( iiMesoZooPlankton)
          if ( ppMesoZooPlankton(i,iiP) == 0 ) qpcMEZ(i,:)  =   p_qpcMEZ(i)
          if ( ppMesoZooPlankton(i,iiN) == 0 ) qncMEZ(i,:)  =   p_qncMEZ(i)
        end do
+#endif
 
 
     END SUBROUTINE Initialize
