@@ -1,0 +1,16 @@
+! Settling_parameters !-------------------------------------------------------------------------!
+! BURIAL VELOCITIES into the sediment
+! NAME         [UNIT]/KIND            DESCRIPTION
+! p_burvel_R6     [m/d]              Bottom Burial Velocity for detritus 
+! p_burvel_R2     [m/d]              Bottom Burial Velocity for dissolved
+! p_burvel_PI     [m/d]              Bottom Burial Velocity for plankton 
+!-------------------------------------------------------------------------!
+&Settling_parameters  
+    p_burvel_R6       =  0.6
+!    p_burvel_R6       =  0.0
+    p_burvel_R2       =  0.0  
+    p_burvel_PI       =  0.0  
+/                     
+
+
+

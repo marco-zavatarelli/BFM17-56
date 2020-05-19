@@ -1,0 +1,317 @@
+! PelBac_parameters !-------------------------------------------------------------------------!
+!  PELAGIC BACTERIA
+!
+! NAME         [UNIT]/KIND            DESCRIPTION
+! p_version   integer         Switch for bacteria parameterization
+!                              1 : Baretta-Bekker et al. 1995;
+!                                  Vichi et al., 2007
+!                              2 : Vichi et al., 2004
+!                              3 : Polimene et al., 2006
+! p_q10       [-]              Q10-value (temperature dependency)
+! p_chdo      [mmol/m3]        Half-saturation constant for O2 limitation
+! p_sd        [1/d]            Specific mortality rate
+! p_sd2       [1/d]            Density dependent specific mortality rate
+! p_suhR1     [1/d]            Specific potential uptake for nutrient-rich DOM
+! p_sulR1     [1/d]            Specific potential uptake for nutrient-poor DOM
+! p_suR2      [1/d]            Specific potential uptake for semi-labile DOC
+! p_suR3      [1/d]            Specific potential uptake for semi-refractory DOC
+! p_suR6      [1/d]            Specific potential uptake for POM (1/d)
+! p_sum       [1/d]            Potential specific growth rate
+! p_pu_ra     [-]              Activity respiration fraction
+! p_pu_ra_o   [-]              Additional respiration fraction at low O2 conc
+! p_srs       [1/d]            Specific rest respiration
+! p_qncPBA    [mmolN/mgC]      Optimal N/C ratio
+! p_qpcPBA    [mmolP/mgC]      Optimal P/C ratio
+! p_qlnc      [mmolN/mgC]      Minimal N/C ratio
+! p_qlpc      [mmolP/mgC]      Minimal P/C ratio
+! p_qun       [mmolN/mgC/day]  Membrane affinity for N
+! p_qup       [mmolP/mgC/day]  Membrane affinity for N
+! p_chn       [mmolN/m3]       Half saturation ammonium conc. for uptake
+! p_chp       [mmolP/m3]       Half saturation phosphate conc. for uptake
+! p_ruen      [1/d]            Relaxation timescale for N uptaken/remin.
+! p_ruep      [1/d]            Relaxation timescale for P uptake/remin.
+! p_rec       [1/d]            Relaxation timescale for semi-labile excretion
+! p_pu_ea_R3  [-]              Excretion of semi-refractory DOC
+!-------------------------------------------------------------------------!
+
+&PelBacteria_parameters
+!                           B1
+    p_version            =  1
+    p_q10                =  2.95
+    p_chdo               =  30.0
+    p_sd                 =  0.1
+    p_sd2                =  0.0
+    p_suhR1              =  0.3
+    p_sulR1              =  0.0
+    p_suR2               =  0.0
+    p_suR3               =  0.0
+    p_suR6               =  0.01
+    p_sum                =  8.38
+    p_pu_ra              =  0.6
+    p_pu_ra_o            =  0.2
+    p_srs                =  0.01
+    p_qncPBA             =  0.0167
+    p_qpcPBA             =  0.00185
+    p_qlnc               =  0.0167
+    p_qlpc               =  0.00185
+    p_qun                =  0.0
+    p_qup                =  0.0
+    p_chn                =  5.00
+    p_chp                =  1.0
+    p_rec                =  1.0
+    p_ruen               =  1.0
+    p_ruep               =  1.0
+    p_pu_ea_R3           =  0.0
+/
+
+
+
+! Phyto_parameters, Phyto_parameters_iron, PAR_parameters, LightAdaptation_parameters !-------------------------------------------------------------------------!
+!  PELAGIC PHYTOPLANKTON
+! NAME         [UNIT]/KIND            DESCRIPTION
+!        :     --------- Physiological parameters -----------------
+!  p_q10       [-]            Characteristic Q10 coefficient
+!  p_qtemp     [-]            Cut-off threshold for temperature factor
+!  p_sum       [1/d]          Maximal productivity at 10 degrees C
+!  p_srs       [1/d]          Respiration rate at 10 degrees C
+!  p_sdmo      [1/d]          Max.specific nutrient-stress lysis rate
+!  p_thdo      [-]            Half saturation constant for nutrient stress lysis
+!  p_seo       [1/d]          Extra lysis rate (biomass density-dependent)
+!  p_sheo      [mgC/3]        Half saturation constant for extra lysis
+!  p_pu_ea     [-]            Excreted fraction of primary production
+!  p_pu_ra     [-]            Activity respiration fraction
+!  p_switchDOC [1-3]          Switch for the type of DOC excretion
+!                             This choice must be consistent with bacteria
+!                             1. All DOC is released as R1c (Vichi et al., 2007)
+!                             2. Activity DOC is released as R2c (Vichi et al., 2004)
+!                                (there is no nutrient-stress excretion)
+!                             3. All DOC is released as R2c (Polimene et al., 2006)
+!
+!              --------- Nutrient parameters in phytoplankton -----------------
+!  p_netgrowth [T or F]       Logical switch for nutrient-limited growth
+!                             .T. nutrient-balanced growth (Vichi et al.2004)
+!                             .F. nutrient-stress carbon excretion
+!                               (Baretta-Bekker et al.1995 and Vichi et al.2007)
+!  p_limnut    [1-3]          Switch for N-P co-limitation
+!                             0. Geometric mean
+!                             1. Threshold (Liebig-like)
+!                             2. Combined
+!                   ---- N limitation control ----
+!  p_qun       [m3/mgC/d]     Membrane affinity for N
+!  p_lN4       [mmolN/m3]     Half saturation constant for NH4 uptake preference over NO3
+!  p_qnlc      [mmolN/mgC]    Minimum quotum Si:C
+!  p_qncPPY    [mmolN/mgC]    Reference quotum Si:C
+!  p_xqn       [-]            Multiplication factor for luxury storage
+!                   ---- P limitation control ----
+!  p_qup       [m3/mgC/d]     Membrane affinity for P
+!  p_qplc      [mmolP/mgC]    Minimum quotum Si:C
+!  p_qpcPPY    [mmolP/mgC]    Reference quotum Si:C
+!  p_xqp       [-]            Multiplication factor for luxury storage
+!                   ---- Si limitation control ----
+!  p_switchSi  [1-2]          Switch for Silica limitation
+!                             1. Si limitation is controlled by external Si conc.
+!                             2. Si limitation is controlled by internal quota
+!  p_chPs      [mmolSi/m3]    Half saturation conc. for dissolved Si limitation
+!  p_Contois   [>=0]          If >0, use Contois formulation
+!  p_qus       [m3/mgC/d]     Membrane affinity for Si
+!  p_qslc      [mmolSi/mgC]   Minimum quotum Si:C
+!  p_qscPPY    [mmolSi/mgC]   Reference quotum Si:C
+!                   ---- nutrient stressed sinking ----
+!  p_esNI      [-]            Nutrient stress threshold for sinking
+!  p_res       [m/d]          Maximum Sinking velocity (m/d)
+!              --------- Chlorophyll parameters -----------
+!  p_switchChl [1-4]          Switch for Chla-a synthesis
+!  p_sdchl     [1/d]          Specific turnover rate for Chla
+!  p_alpha_chl [mgC s m2/     Initial slope of the P-E curve
+!               mgChl/uE]
+!  p_qlcPPY    [mgChla/mgC]   Reference quotum Chla:C
+!  p_epsChla   [m2/mgChla]    Chla-specific extinction coefficient
+!  p_tochl_relt  [1/d]        Relaxation rate towards maximum Chla:C
+!  p_EpEk_or   [-]            Optimal value of E_PAR/E_K
+!              --------- Iron parameters -----------
+!  p_quf       [m3/mgC/d]     Membrane affinity for Fe
+!  p_qflc      [umolFe/mgC]   Minimum quotum Fe:C derived from 3 umol Fe/mol C
+!                             Sunda & Huntsman (1997), Nature, 390, p 389-392
+!  p_qfcPPY    [umolFe/mgC]   Reference quotum Fe:C
+!  p_xqf       [-]            Multiplication factor for luxury storage
+!              --------- Light parameters ERSEM-II -----------
+!  p_iswLtyp                  Shape of the productivity function
+!  p_isw                      Switch between parameterizations
+!  p_chELiPPY    [W/m2]         Maximum Iopt
+!  p_clELiPPY    [W/m2]         Minimum Iopt
+!  p_ruELiPPY    [1/d]          Maximum daily shift in Iopt (1/d)
+!  p_addepth   [m]            Adaptation depth. Meaningless with high-res models
+!
+!-------------------------------------------------------------------------!
+
+&Phyto_parameters
+!                     P1       P2       P3       P4
+    p_q10          =  2.0      2.0      2.0      2.0
+    p_temp         =  0.0      0.0      0.0      0.0
+    p_sum          =  2.5      1.6      3.5      0.83
+    p_srs          =  0.05     0.05     0.05     0.1
+    p_sdmo         =  0.01     0.05     0.01     0.2
+    p_thdo         =  0.1      0.1      0.1      0.5
+    p_seo          =  0.0      0.0      0.0      0.5
+    p_sheo         =  0.0      0.0      0.0      100.0
+    p_pu_ea        =  0.01     0.05     0.1      0.15
+    p_pu_ra        =  0.1      0.05     0.2      0.1
+    p_switchDOC    =  1        1        1        1
+    p_netgrowth    =  .FALSE.  .FALSE.  .FALSE.  .FALSE.
+    p_limnut       =  1        1        1        1
+    p_qun          =  0.025    0.025    0.025    0.025
+    p_lN4          =  1.0      1.5      0.1      1.0
+    p_qnlc         =  6.87e-3  6.87e-3  6.87e-3  6.87e-3
+    p_qncPPY       =  1.26e-2  1.26e-2  1.26e-2  1.26e-2
+    p_xqn          =  2.0      1.0      2.0      2.0
+    p_qup          =  2.5e-3   2.5e-3   2.5e-3   2.5e-3
+    p_qplc         =  4.29e-4  4.29e-4  4.29e-4  4.29e-4
+    p_qpcPPY       =  7.86e-4  7.86e-4  7.86e-4  7.86e-4
+    p_xqp          =  2.0      1.0      2.0      2.0
+    p_switchSi     =  1        0        0        0
+    p_chPs         =  1.0      0.0      0.0      0.0
+    p_Contois      =  0.0      0.0      0.0      0.0
+    p_qus          =  0.0      0.0      0.0      0.0
+    p_qslc         =  4.3e-3   0.0      0.0      0.0
+    p_qscPPY       =  8.5e-3   0.0      0.0      0.0
+    p_esNI         =  0.7      0.75      0.75     0.75
+    p_res          =  5.0      0.5      0.5      5.0
+    p_switchChl    =  3        3        3        3
+    p_sdchl        =  0.2      1.0e-6      0.2      0.2
+    p_alpha_chl    =  1.1e-5   1.52e-5  0.7e-5   6.8e-6
+    p_qlcPPY       =  0.035    0.016    0.02     0.035
+    p_epsChla      =  0.03     0.03     0.03     0.03
+    p_EpEk_or      =  3.0      0.0      3.0      3.0
+    p_tochl_relt   =  0.25     0.0      0.25     0.25
+!4e-4
+/
+
+
+
+&Phyto_parameters_iron
+/
+
+
+
+&PAR_parameters
+    p_iswLtyp    =  5  5  5  5
+/
+
+
+
+&LightAdaptation_parameters
+    p_isw                    =  1      1      1      1
+    p_addepth                =  50.0   50.0   50.0   50.0
+    p_chELiPPY               =  100.0  100.0  100.0  100.0
+    p_clELiPPY               =  8.0    10.0   6.0    12.0
+    p_ruELiPPY               =  0.2    0.25   0.3    0.15
+/
+
+
+
+! MicroZoo_parameters !-------------------------------------------------------------------------!
+!  MICRO-ZOOPLANKTON
+!
+! NAME         [UNIT]/KIND           DESCRIPTION
+! p_q10        [-]             Q10 value for physiological rates
+! p_srs        [1/d]           Respiration rate at 10 degrees Celsius
+! p_sum        [1/d]           Potential growth rate
+! p_sdo        [1/d]           Mortality rate due to oxygen limitation
+! p_sd         [1/d]           Temperature independent mortality rate
+! p_pu         [-]             Assimilation efficiency
+! p_pu_ea      [-]             Fraction of activity excretion
+! p_chro       [mmolO2/m3]     Half-saturation oxygen concentration
+! p_chuc       [mgC/m3]        Half-saturation Food concentration for Type II
+! p_minfood    [mgC/m3]        Half-saturation food concentration for
+!                              preference factor
+! p_qncMIZ     [mmolN/mgC]     Maximum quotum P:C
+! p_qpcMIZ     [mmolN/mgC]     Maximum quotum N:C
+! p_paPBA(z,b) [-]             Availability of pelagic Bacteria group b
+!                              to Zooplankton group z
+! p_paPPY(z,p) [-]             Availabili0ty of PhytoPlankton group p
+!                              to Zooplankton group z
+! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m
+!                              to Zooplankton group z
+!-------------------------------------------------------------------------!
+
+&MicroZoo_parameters
+!                        Z5       Z6
+    p_q10             =  2.0      2.0
+    p_srs             =  0.02     0.02
+    p_sum             =  2.0      5.0
+    p_sdo             =  0.25     0.25
+    p_sd              =  1.0e-6   0.0
+    p_pu              =  0.5      0.3
+    p_pu_ea           =  0.25     0.35
+    p_chro            =  0.5      0.5
+    p_chuc            =  200.0    200.0
+    p_minfood         =  50.0     50.0
+    p_qpcMIZ          =  7.862e-4 7.862e-4
+    p_qncMIZ          =  1.258e-2 1.258e-2
+    p_paPBA           =  0.1      1.0
+!                        P1       P2       P3   P4
+!   Z5
+    p_paPPY(1,:)      =  0.0      1.0      0.0  0.0
+!   Z6
+    p_paPPY(2,:)      =  0.0      0.0      0.0  0.0
+!                        Z5       Z6
+!   Z5
+    p_paMIZ(1,:)      =  1.0e-6      0.0
+!   Z6
+    p_paMIZ(2,:)      =  0.0      0.0
+/
+
+
+
+! MesoZoo_parameters !-------------------------------------------------------------------------!
+!  MESO-ZOOPLANKTON
+! NAME         [UNIT]/KIND            DESCRIPTION
+! p_q10        [-]             Q10 value for physiological rates
+! p_srs        [1/d]           Respiration rate at 10 degrees C
+! p_sum        [1/d]           Maximal productivity at 10 degrees C
+! p_sd         [1/d]           Background natural mortality
+! p_vum        [m3/mgC/d]      Specific search volume
+! p_puI        [-]             Assimilation efficiency
+! p_peI        [-]             Fraction of Faeces production
+! p_sdo        [m3/mgC/d]      Specific density-dependent mortality
+! p_sds        [-]             Exponent of density-dependent mortality
+! p_qpcMEZ     [mmolP/mgC]     Maximum quotum P:C
+! p_qncMEZ     [mmolN/mgC]     Maximum quotum N:C
+! p_paPPY(z,p) [-]             Availability of PhytoPlankton group p
+!                              to Zooplankton group z
+! p_paMIZ(z,m) [-]             Availability of MicroZooplankton group m
+!                              to Zooplankton group z
+! p_paMEZ(z,m) [-]             Availability of MesoZooplankton group m
+!                              to Zooplankton group z
+!-------------------------------------------------------------------------!
+
+&MesoZoo_parameters
+!                       Z3       Z4
+    p_q10            =  2.0      2.0
+    p_srs            =  0.01     0.02
+    p_sum            =  2.0      2.0
+    p_vum            =  0.025   0.025
+    p_puI            =  0.6      0.6
+    p_peI            =  0.3      0.35
+    p_sdo            =  0.01     0.01
+    p_sd             =  0.02     0.02
+    p_sds            =  2.0      2.0
+    p_qpcMEZ         =  7.862e-4 7.862e-4
+    p_qncMEZ         =  1.258e-2 1.258e-2
+    p_clO2o          =  30.0     30.0
+!                       P1       P2       P3   P4
+!   Z3
+    p_paPPY(1,:)     =  0.0      0.0      0.0  0.0
+!   Z4
+    p_paPPY(2,:)     =  0.0      0.0      0.0  0.0
+!                       Z5       Z6
+!   Z3
+    p_paMIZ(1,:)     =  0.0      0.0
+!   Z4
+    p_paMIZ(2,:)     =  0.0      0.0
+!                       Z3       Z4
+!   Z3
+    p_paMEZ(1,:)     =  0.0      0.0
+!   Z4
+    p_paMEZ(2,:)     =  0.0      0.0
+/
